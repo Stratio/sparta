@@ -63,7 +63,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 
 	Scenario: Delete all policies
 		Given I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'
+		Then the service response status must be '200'.
 
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'

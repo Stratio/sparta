@@ -7,42 +7,42 @@ Feature: Test all GET operations for fragments in Sparta Swagger API
 	Scenario: Get all available fragments with empty type
 		When I send a 'GET' request to '/fragment/'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-	
+
 	Scenario: Get all available fragments of type invalid
-		When I send a 'GET' request to '/fragment/invalid'	
+		When I send a 'GET' request to '/fragment/invalid'
 		Then the service response status must be '500' and its response must contain the text 'The fragment type must be input|output'
-	
+
 	Scenario: Get all available fragments of type input with no fragments
 		When I send a 'GET' request to '/fragment/input'
-		Then the service response status must be '200'
-		
+		Then the service response status must be '200'.
+
 	Scenario: Get all available fragments of type output with no fragments
 		When I send a 'GET' request to '/fragment/output'
-		Then the service response status must be '200'
-	
+		Then the service response status must be '200'.
+
 	Scenario: Get all available fragments with empty type and with name name
 		When I send a 'GET' request to '/fragment//name'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-	
+
 	Scenario: Get all available fragments of type input with empty name
 		When I send a 'GET' request to '/fragment/input/'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-	
+
 	Scenario: Get all available fragments with empty type and with empty name
 		When I send a 'GET' request to '/fragment//'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
-	
+
 	Scenario: Get all available fragments of type invalid with name name
 		When I send a 'GET' request to '/fragment/invalid/name'
 		Then the service response status must be '404' and its response must contain the text 'The requested resource could not be found.'
 	
 	Scenario: Get all available fragments of type input with name name
 		When I send a 'GET' request to '/fragment/input/name/name'
-		Then the service response status must be '202'
+		Then the service response status must be '404'.
 		
 	Scenario: Get all available fragments of type output with name name
 		When I send a 'GET' request to '/fragment/output/name/name'
-		Then the service response status must be '202'
+		Then the service response status must be '404'.
 		
 	Scenario: Get all available fragments of type input
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
