@@ -15,7 +15,7 @@
     <properties>
         <nodeVer>v0.12.2</nodeVer>
         <npmVer>2.7.4</npmVer>
-        <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
+        <nodeURL></nodeURL>
         <customnodeDownloadRoot></customnodeDownloadRoot>
         <customnpmDownloadRoot></customnpmDownloadRoot>
         <customnpmRegistryURL></customnpmRegistryURL>
@@ -96,6 +96,7 @@
         <profile>
           <id>node</id>
           <properties>
+            <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
             <customnodeDownloadRoot>${nodeURL}/node/</customnodeDownloadRoot>
             <customnpmDownloadRoot>${nodeURL}/npm/${npmVer}/</customnpmDownloadRoot>
             <customnpmRegistryURL>http://sodio.stratio.com/nexus/content/repositories/npmjs/</customnpmRegistryURL>
