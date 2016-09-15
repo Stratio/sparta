@@ -27,7 +27,7 @@ case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) 
 
   private val hdfsConfig = SpartaConfig.getHdfsConfig.get
   private val host = hdfsConfig.getString(AppConstant.HdfsMaster)
-  private val port = hdfsConfig.getInt("hdfsPort")
+  private val port = hdfsConfig.getInt(AppConstant.HdfsPort)
 
   def getPluginsFiles(pluginsJarsPath: String): Seq[String] = {
 
