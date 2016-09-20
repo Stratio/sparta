@@ -45,11 +45,14 @@ class GeoParserTest extends WordSpecLike with Matchers {
   }
 
   "A GeoParser" when {
-    "getLatitude" should {
+    " when parse the geo position" should {
       "return the latitude field if it's defined in the properties map" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue, longitudeValue)
-        val schema = StructType(Seq(StructField(latitudeField, DoubleType), StructField("longitude", DoubleType)))
+        val schema = StructType(Seq(StructField(latitudeField, DoubleType),
+          StructField("longitude", DoubleType),
+          StructField("geo", StringType))
+        )
         val properties: Map[String, JSerializable] = Map("latitude" -> latitudeField)
 
         val preRow = Row.fromSeq(data)
@@ -61,7 +64,10 @@ class GeoParserTest extends WordSpecLike with Matchers {
       "return the longitude field if it's defined in the properties map" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue, longitudeValue)
-        val schema = StructType(Seq(StructField("latitude", DoubleType), StructField(longitudeField, DoubleType)))
+        val schema = StructType(Seq(StructField("latitude", DoubleType),
+          StructField(longitudeField, DoubleType),
+          StructField("geo", StringType))
+        )
         val properties = Map("longitude" -> longitudeField)
 
         val preRow = Row.fromSeq(data)
@@ -73,7 +79,10 @@ class GeoParserTest extends WordSpecLike with Matchers {
       "return the default latitude field if it's not defined in the properties map" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue, longitudeValue)
-        val schema = StructType(Seq(StructField("latitude", DoubleType), StructField("longitude", DoubleType)))
+        val schema = StructType(Seq(StructField("latitude", DoubleType),
+          StructField("longitude", DoubleType),
+          StructField("geo", StringType))
+        )
         val properties = Map.empty[String, Serializable]
 
         val preRow = Row.fromSeq(data)
@@ -85,7 +94,10 @@ class GeoParserTest extends WordSpecLike with Matchers {
       "return the default longitude field if it's not defined in the properties map" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue, longitudeValue)
-        val schema = StructType(Seq(StructField("latitude", DoubleType), StructField("longitude", DoubleType)))
+        val schema = StructType(Seq(StructField("latitude", DoubleType),
+          StructField("longitude", DoubleType),
+          StructField("geo", StringType))
+        )
         val properties = Map.empty[String, Serializable]
 
         val preRow = Row.fromSeq(data)
@@ -94,52 +106,52 @@ class GeoParserTest extends WordSpecLike with Matchers {
         postRow should be(resultantRow)
       }
 
-      "return the same event if there isn't a latitude field" in new GeoParserUnitTestComponent {
+      "return one exception if there isn't a latitude field" in new GeoParserUnitTestComponent {
 
         val data = Seq(longitudeValue)
-        val schema = StructType(Seq(StructField("longitude", DoubleType)))
+        val schema = StructType(Seq(StructField("latitude", DoubleType),
+          StructField("geo", StringType))
+        )
         val properties = Map("latitude" -> latitudeField)
-
         val preRow = Row.fromSeq(data)
         val postRow = preRow
 
-        postRow should be(resultantRow)
+        an[RuntimeException] should be thrownBy be(resultantRow)
       }
 
-      "return the same event if there isn't a longitude field" in new GeoParserUnitTestComponent {
+      "return one exception if there isn't a longitude field" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue)
-        val schema = StructType(Seq(StructField("latitude", DoubleType)))
+        val schema = StructType(Seq(StructField("longitude", DoubleType),
+          StructField("geo", StringType))
+        )
         val properties = Map("longitude" -> longitudeField)
-
         val preRow = Row.fromSeq(data)
         val postRow = preRow
 
-        postRow should be(resultantRow)
+        an[RuntimeException] should be thrownBy be(resultantRow)
       }
 
-      "return the same event if there isn't a latitude field (default value)" in new GeoParserUnitTestComponent {
+      "return one exception if there isn't a latitude field (default value)" in new GeoParserUnitTestComponent {
 
         val data = Seq(longitudeValue)
-        val schema = StructType(Seq(StructField("longitude", DoubleType)))
+        val schema = StructType(Seq(StructField("longitude", DoubleType), StructField("geo", StringType)))
         val properties = Map.empty[String, Serializable]
-
         val preRow = Row.fromSeq(data)
         val postRow = preRow
 
-        postRow should be(resultantRow)
+        an[RuntimeException] should be thrownBy be(resultantRow)
       }
 
-      "return the same event if there isn't a longitude field (default value)" in new GeoParserUnitTestComponent {
+      "return one exception if there isn't a longitude field (default value)" in new GeoParserUnitTestComponent {
 
         val data = Seq(latitudeValue)
-        val schema = StructType(Seq(StructField("latitude", DoubleType)))
+        val schema = StructType(Seq(StructField("latitude", DoubleType), StructField("geo", StringType)))
         val properties = Map.empty[String, Serializable]
-
         val preRow = Row.fromSeq(data)
         val postRow = preRow
 
-        postRow should be(resultantRow)
+        an[RuntimeException] should be thrownBy be(resultantRow)
       }
     }
   }

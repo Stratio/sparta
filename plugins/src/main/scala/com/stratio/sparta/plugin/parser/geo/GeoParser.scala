@@ -16,7 +16,8 @@
 package com.stratio.sparta.plugin.parser.geo
 
 import java.io.{Serializable => JSerializable}
-import com.stratio.sparta.sdk.Parser
+
+import com.stratio.sparta.sdk.{Parser, TypeOp}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
@@ -37,28 +38,35 @@ class GeoParser(
   val latitudeField = properties.getOrElse("latitude", defaultLatitudeField).toString
   val longitudeField = properties.getOrElse("longitude", defaultLongitudeField).toString
 
-  def parse(data: Row, removeRaw: Boolean): Row = {
+  def parse(row: Row, removeRaw: Boolean): Row = {
 
-    val newData = addGeoField(data).toSeq
-    val prevData = if (removeRaw) data.toSeq.drop(1) else data.toSeq
+    val geoValue = geoField(getLatitude(row), getLongitude(row))
+    val newData = {
+      outputFields.map(outputField => {
+        val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
+        outputSchemaValid match {
+          case Some(outSchema) =>
+           TypeOp.transformValueByTypeOp(outSchema.dataType, geoValue)
+          case None =>
+            throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")
+        }
+      })
+    }
+    val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
     Row.fromSeq(prevData ++ newData)
   }
 
-  private def getLatitude(row: Row): Option[String] =
+  private def getLatitude(row: Row): String =
     Try(row.get(schema.fieldIndex(latitudeField)))
-      .toOption
-      .map(_.toString)
+      .getOrElse(throw new RuntimeException(s"Impossible to parse $latitudeField in the event: ${row.mkString(",")}"))
+      .toString
 
-  private def getLongitude(row: Row): Option[String] =
+  private def getLongitude(row: Row): String =
     Try(row.get(schema.fieldIndex(longitudeField)))
-      .toOption
-      .map(_.toString)
+      .getOrElse(throw new RuntimeException(s"Impossible to parse $latitudeField in the event: ${row.mkString(",")}"))
+      .toString
 
-  private def addGeoField(row: Row): Option[String] =
-    for {
-      lat   <- getLatitude(row)
-      long  <- getLongitude(row)
-    } yield lat + separator + long
+  private def geoField(latitude: String, longitude: String): String =  latitude + separator + longitude
 
 }
