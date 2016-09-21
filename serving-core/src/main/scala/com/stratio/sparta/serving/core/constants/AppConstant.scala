@@ -53,6 +53,7 @@ object AppConstant {
   final val HadoopUserName = "hadoopUserName"
   final val HadoopConfDir = "hadoopConfDir"
   final val HdfsMaster = "hdfsMaster"
+  final val HdfsPort = "hdfsPort"
   final val PluginsFolder = "pluginsFolder"
   final val ClasspathFolder = "classpathFolder"
   final val ExecutionJarFolder = "executionJarFolder"

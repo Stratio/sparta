@@ -26,12 +26,15 @@ import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
 case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends SLF4JLogging {
 
   private val hdfsConfig = SpartaConfig.getHdfsConfig.get
+  private val host = hdfsConfig.getString(AppConstant.HdfsMaster)
+  private val port = hdfsConfig.getInt(AppConstant.HdfsPort)
 
   def getPluginsFiles(pluginsJarsPath: String): Seq[String] = {
+
     PolicyUtils.jarsFromPolicy(policy)
       .filter(file => !file.getName.contains("driver")).map(file => {
       hdfs.write(file.getAbsolutePath, pluginsJarsPath, true)
-      file.getName -> s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$pluginsJarsPath${file.getName}"
+      file.getName -> s"hdfs://$host:$port$pluginsJarsPath${file.getName}"
     }).toMap.values.toSeq
   }
 
@@ -39,6 +42,6 @@ case class ClusterSparkFiles(policy: AggregationPoliciesModel, hdfs: HdfsUtils) 
     val driverJar =
       JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.ClusterExecutionJarFolder)).head
     hdfs.write(driverJar.getAbsolutePath, driverJarPath, true)
-    s"hdfs://${hdfsConfig.getString(AppConstant.HdfsMaster)}$driverJarPath${driverJar.getName}"
+    s"hdfs://$host:$port$driverJarPath${driverJar.getName}"
   }
 }
