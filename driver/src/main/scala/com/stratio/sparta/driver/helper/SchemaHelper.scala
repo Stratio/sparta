@@ -95,15 +95,14 @@ object SchemaHelper {
             Nullable
           )
         )
-
         val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
+        val recursiveSchema = Map(transformationModel.order.toString -> StructType(fields.toSeq))
 
         if (transformationsModel.size == 1)
-          schemas ++ Map(transformationModel.order.toString -> StructType(fields.toSeq))
-        else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1),
-          Map(transformationModel.order.toString -> StructType(fields.toSeq))
-        )
-      case None => schemas
+          schemas ++ recursiveSchema
+        else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1), recursiveSchema)
+      case None =>
+        schemas
     }
   }
 
