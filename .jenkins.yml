@@ -82,7 +82,7 @@ ATSERVICES:
   - CHROME:
       image: stratio/selenium-chrome:48
       env:
-        - SELENIUM_GRID=selenium.cd.stratio.com
+        - SELENIUM_GRID=selenium.cd
         - ID=%%JUID
       sleep: 10
       volumes:
@@ -93,7 +93,7 @@ ATPARAMETERS: >
     -DSPARTA_PORT=9090
     -DSPARTA_API_PORT=9091
     -DJACOCO_SERVER=%%SPARTA#0
-    -DSELENIUM_GRID=selenium.cd.stratio.com:4444
+    -DSELENIUM_GRID=selenium.cd:4444
     -DFORCE_BROWSER=chrome_48%%JUID
     -DMONGO_HOST=%%MONGODB
     -DMONGO_PORT=27017
