@@ -110,6 +110,7 @@
       "_TRIGGER_": "Trigger",
       "_FINISH_": "Finish"
     },
+    "_TRANSFORMATION_OUTPUT_FIELD_ERROR_": "The output field {{outputField}} already exists in policy. Please remove it and try to save again",
     "_MODAL_CREATION_TITLE_": "Create policy",
     "_MODAL_SETTINGS_TITLE_": "Policy settings",
     "_RAW_": "Raw",
@@ -128,6 +129,7 @@
     "_MODEL_NAME_": "Model name",
     "_ADD_TRANSFORMATION_": "Add transformation",
     "_SAVE_TRANSFORMATION_": "Save transformation",
+    "_EMPTY_OUTPUT_FIELD_ERROR_": "You have to add an output field at least",
     "_CUBE_NAME_": "Cube name",
     "_CUBE_TITLE_": "Cube",
     "_NEW_CUBE_": "New cube",

@@ -18,12 +18,12 @@
 
   /*POLICY MODEL CONTROLLER*/
   angular
-    .module('webApp')
-    .controller('PolicyModelCtrl', PolicyModelCtrl);
+      .module('webApp')
+      .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', '$scope'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', 'UtilsService', '$scope'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, $scope) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, UtilsService, $scope) {
     var vm = this;
 
     vm.init = init;
@@ -34,6 +34,7 @@
     vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
+    vm.invalidOutputField = undefined;
 
     vm.init();
 
@@ -82,7 +83,7 @@
 
     function addModel() {
       vm.form.$submitted = true;
-      if (vm.form.$valid && vm.model.outputFields.length != 0) {
+      if (vm.form.$valid && areValidOutputFields()) {
         vm.form.$submitted = false;
         ModelService.addModel();
         ModelService.changeModelCreationPanelVisibility(false);
@@ -108,17 +109,35 @@
       ModelFactory.resetModel(vm.template.model, vm.model.order, vm.modelContext.position);
     }
 
+    function areValidOutputFields() {
+      vm.invalidOutputField = undefined;
+      if (vm.model.outputFields.length == 0) {
+        return false;
+      }
+      var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,
+          ModelFactory.getContext().position);
+      for (var i = 0; i < vm.model.outputFields.length; ++i) {
+        var outputField = vm.model.outputFields[i];
+        if (UtilsService.findElementInJSONArray(policyCurrentFields, outputField, 'name') != -1) {
+          vm.invalidOutputField = outputField;
+          console.log("false??");
+          return false;
+        }
+      }
+      return true;
+    }
+
     $scope.$on("forceValidateForm", function() {
       vm.form.$submitted = true;
     });
 
     $scope.$watch(
-      "vm.model.type",
-      function(previousType, newType) {
-         if (previousType != newType) {
-          vm.outputFieldTypes = getOutputList();
-        }
-      })
+        "vm.model.type",
+        function(previousType, newType) {
+          if (previousType != newType) {
+            vm.outputFieldTypes = getOutputList();
+          }
+        })
   }
 })
 ();

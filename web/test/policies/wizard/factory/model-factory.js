@@ -106,20 +106,22 @@ describe('policies.wizard.factory.model-factory', function () {
 
       var inputList = factory.getModelInputs();
 
-      expect(inputList.length).toEqual(model1.outputFields.length + model2.outputFields.length);
-      expect(inputList[0]).toEqual({
+      expect(inputList.length).toEqual(model1.outputFields.length + model2.outputFields.length + 1);
+      expect(inputList[0]).toEqual(
+         fakeModelTemplate.defaultInput);
+      expect(inputList[1]).toEqual({
         label: model1.outputFields[0].name,
         value: model1.outputFields[0].name
       });
-      expect(inputList[1]).toEqual({
+      expect(inputList[2]).toEqual({
         label: model1.outputFields[1].name,
         value: model1.outputFields[1].name
       });
-      expect(inputList[2]).toEqual({
+      expect(inputList[3]).toEqual({
         label: model2.outputFields[0].name,
         value: model2.outputFields[0].name
       });
-      expect(inputList[3]).toEqual({
+      expect(inputList[4]).toEqual({
         label: model2.outputFields[1].name,
         value: model2.outputFields[1].name
       });
