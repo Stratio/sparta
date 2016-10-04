@@ -120,7 +120,6 @@
         var outputField = vm.model.outputFields[i];
         if (UtilsService.findElementInJSONArray(policyCurrentFields, outputField, 'name') != -1) {
           vm.invalidOutputField = outputField;
-          console.log("false??");
           return false;
         }
       }
