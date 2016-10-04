@@ -98,26 +98,30 @@ describe('policies.wizard.factory.model-factory', function () {
 
     });
 
-    it("if model position is != 0, returns an option array with the input and outputs the previous model", function () {
-      var position = 1;
+    it("if model position is != 0, returns an option array with the outputs of the previous models", function () {
+      var position = 2;
       var order = 5;
       factory.resetModel(fakeModelTemplate,order, position);
       factory.updateModelInputs(models);
 
       var inputList = factory.getModelInputs();
 
-      expect(inputList.length).toEqual(model1.outputFields.length + 1);
+      expect(inputList.length).toEqual(model1.outputFields.length + model2.outputFields.length);
       expect(inputList[0]).toEqual({
-        label: model1.inputField,
-        value: model1.inputField
-      });
-      expect(inputList[1]).toEqual({
         label: model1.outputFields[0].name,
         value: model1.outputFields[0].name
       });
-      expect(inputList[2]).toEqual({
+      expect(inputList[1]).toEqual({
         label: model1.outputFields[1].name,
         value: model1.outputFields[1].name
+      });
+      expect(inputList[2]).toEqual({
+        label: model2.outputFields[0].name,
+        value: model2.outputFields[0].name
+      });
+      expect(inputList[3]).toEqual({
+        label: model2.outputFields[1].name,
+        value: model2.outputFields[1].name
       });
     });
 
