@@ -37,6 +37,10 @@
       <div ng-switch-when="Geo">
         <ng-include src="'templates/policies/transformation/geoparser-panel.tpl.html'"></ng-include>
       </div>
+      <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.invalidOutputField" data-qa="error-msg">
+        <i class="c-icon icon-circle-cross"></i>
+        <span> {{'_POLICY_._TRANSFORMATION_OUTPUT_FIELD_ERROR_' | translate: '{"outputField":"'+ vm.invalidOutputField.name +'"}'}}</span>
+      </div>
     </div>
 
     <div class="c-form-group c-form-group--to-right">

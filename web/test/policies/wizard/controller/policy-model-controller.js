@@ -5,8 +5,8 @@ describe('policies.wizard.controller.policy-model-controller', function() {
   beforeEach(module('template/policy.json'));
   beforeEach(module('model/transformation.json'));
 
-  var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock,
-    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy, modelConstants;
+  var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock, fakeContext,
+    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy, modelConstants, utilsServiceMock;
 
   // init mock modules
 
@@ -34,13 +34,17 @@ describe('policies.wizard.controller.policy-model-controller', function() {
     });
 
     modelServiceMock = jasmine.createSpyObj('ModelService', ['isLastModel', 'isNewModel', 'addModel', 'removeModel', 'changeModelCreationPanelVisibility']);
-
-    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs']);
+    fakeContext = {position: 2};
+    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs', 'getPreviousOutputFields']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
+    modelFactoryMock.getContext.and.returnValue(fakeContext);
+    utilsServiceMock = jasmine.createSpyObj('UtilsService', ['findElementInJSONArray']);
+
     ctrl = $controller('PolicyModelCtrl as vm', {
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
       'ModelService': modelServiceMock,
+      'UtilsService': utilsServiceMock,
       '$scope': scope
     });
 
@@ -81,13 +85,14 @@ describe('policies.wizard.controller.policy-model-controller', function() {
         'PolicyModelFactory': policyModelFactoryMock,
         'ModelFactory': modelFactoryMock,
         'ModelService': modelServiceMock,
+        'UtilsService': utilsServiceMock,
         '$scope': scope
       });
       modelFactoryMock.getModel.and.returnValue(null);
       cleanCtrl.init();
       expect(cleanCtrl.model).toBe(null);
       expect(cleanCtrl.modelError).toBe('');
-      expect(cleanCtrl.modelContext).toBe(undefined);
+      expect(cleanCtrl.modelContext).toBe(fakeContext);
       expect(cleanCtrl.configPlaceholder).toBe(undefined);
       expect(cleanCtrl.outputPattern).toBe(undefined);
       expect(cleanCtrl.outputInputPlaceholder).toBe(undefined);
@@ -171,22 +176,27 @@ describe('policies.wizard.controller.policy-model-controller', function() {
       expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
-    it("model is added if view validations have been passed and has an output field at least", function() {
+    it("model is added if view validations have been passed and has an output field (not duplicated) at least", function() {
+      modelFactoryMock.getPreviousOutputFields.and.returnValue([{name: "different output field", value: "different"}]);
+      utilsServiceMock.findElementInJSONArray.and.returnValue(5); // there is an output field with the same name
       ctrl.form = {$valid: true}; //view validations have been passed
 
       ctrl.addModel();
 
-      expect(modelServiceMock.addModel).toHaveBeenCalled();
+      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+      utilsServiceMock.findElementInJSONArray.and.returnValue(-1); // there isn't any output field with the same name
+      ctrl.addModel();
 
+      expect(modelServiceMock.addModel).toHaveBeenCalled();
       modelServiceMock.addModel.calls.reset();
       ctrl.model.outputFields = [];
 
       ctrl.addModel();
 
       expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+
     });
   });
-
 
   describe("should be able to remove the factory model from the policy", function() {
     afterEach(function() {
