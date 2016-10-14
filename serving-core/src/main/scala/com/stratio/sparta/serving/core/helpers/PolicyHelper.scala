@@ -42,8 +42,17 @@ object PolicyHelper {
    * @return the policy with the correct fragments
    */
   def getPolicyWithFragments(policy: AggregationPoliciesModel, fragmentActor: ActorRef)
-                            (implicit timeout: Timeout): AggregationPoliciesModel =
-    parseFragments(fillFragments(policy, fragmentActor))
+                            (implicit timeout: Timeout): AggregationPoliciesModel = {
+    val policyWithFragments = parseFragments(fillFragments(policy, fragmentActor))
+    if (policyWithFragments.fragments.isEmpty) {
+      // This happens when the policy has been uploaded through policy POST endpoint
+      val input = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+      val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+      policyWithFragments.copy(fragments = input ++ outputs)
+    } else {
+      policyWithFragments
+    }
+  }
 
   /**
    * If the policy has fragments, it tries to parse them and depending of its type it composes input/outputs/etc.
@@ -51,7 +60,7 @@ object PolicyHelper {
    * @param apConfig with the policy.
    * @return a parsed policy with fragments included in input/outputs.
    */
-  def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
+   def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
 
     val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
@@ -62,16 +71,31 @@ object PolicyHelper {
   }
 
   /**
-   * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
-   * ZK and fills the rest of the fragment.
-   *
-   * @param apConfig with the policy.
-   * @return a fragment with all fields filled.
-   */
-  def fillFragments(apConfig: AggregationPoliciesModel, fragmentActor: ActorRef)
-                   (implicit timeout: Timeout): AggregationPoliciesModel = {
+    * This method tries to parse an input/output from a policy to a FragmentModelElement
+    *
+    * @param policy       AggregationPolicy to parse from
+    * @param fragmentType type of fragment to parse to
+    * @return a valid fragment element (input/output)
+    */
+  def populateFragmentFromPolicy(policy: AggregationPoliciesModel, fragmentType: `type`): Seq[FragmentElementModel] =
+  fragmentType match {
+    case FragmentType.input => Seq(policy.input.get.parseToFragment(fragmentType))
+    case FragmentType.output => policy.outputs.map(output => output.parseToFragment(fragmentType))
+  }
+
+  //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
+
+  /**
+    * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
+    * ZK and fills the rest of the fragment.
+    *
+    * @param apConfig with the policy.
+    * @return a fragment with all fields filled.
+    */
+  private def fillFragments(apConfig: AggregationPoliciesModel, fragmentActor: ActorRef)
+                           (implicit timeout: Timeout): AggregationPoliciesModel = {
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
-      val future = fragmentActor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.get)
+      val future = fragmentActor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.getOrElse("without id"))
       Await.result(future, timeout.duration) match {
         case ResponseFragment(Failure(exception)) => throw exception
         case ResponseFragment(Success(fragment)) => fragment
@@ -80,45 +104,30 @@ object PolicyHelper {
     apConfig.copy(fragments = currentFragments)
   }
 
-  /**
-   * This method tries to parse an input/output from a policy to a FragmentModelElement
-   *
-   * @param policy       AggregationPolicy to parse from
-   * @param fragmentType type of fragment to parse to
-   * @return a valid fragment element (input/output)
-   */
-  def populateFragmentFromPolicy(policy: AggregationPoliciesModel, fragmentType: `type`): Seq[FragmentElementModel] =
-    fragmentType match {
-      case FragmentType.input => Seq(policy.input.get.parseToFragment(fragmentType))
-      case FragmentType.output => policy.outputs.map(output => output.parseToFragment(fragmentType))
-    }
-
-  //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
-
   private def getFragmentFromType(fragments: Seq[FragmentElementModel], fragmentType: `type`)
-  : Seq[FragmentElementModel] = {
+    : Seq[FragmentElementModel] = {
     fragments.flatMap(fragment =>
-      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
+    if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
   }
 
   /**
-   * Depending of where is the input it tries to get a input. If not an exceptions is thrown.
-   *
-   * @param fragmentsInputs with inputs extracted from the fragments.
-   * @param inputs          with the current configuration.
-   * @return A policyElementModel with the input.
-   */
+    * Depending of where is the input it tries to get a input. If not an exceptions is thrown.
+    *
+    * @param fragmentsInputs with inputs extracted from the fragments.
+    * @param inputs          with the current configuration.
+    * @return A policyElementModel with the input.
+    */
   private def getCurrentInput(fragmentsInputs: Seq[FragmentElementModel],
-                              inputs: Option[PolicyElementModel]): PolicyElementModel = {
+  inputs: Option[PolicyElementModel]): PolicyElementModel = {
 
     if (fragmentsInputs.isEmpty && inputs.isEmpty) {
       throw new IllegalStateException("It is mandatory to define one input in the policy.")
     }
 
     if ((fragmentsInputs.size > 1) ||
-      (fragmentsInputs.size == 1 && inputs.isDefined &&
-        ((fragmentsInputs.head.name != inputs.get.name) ||
-          (fragmentsInputs.head.element.`type` != inputs.get.`type`)))) {
+    (fragmentsInputs.size == 1 && inputs.isDefined &&
+    ((fragmentsInputs.head.name != inputs.get.name) ||
+    (fragmentsInputs.head.element.`type` != inputs.get.`type`)))) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 
