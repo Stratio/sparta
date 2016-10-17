@@ -43,7 +43,7 @@ object PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] = {
-    apConfig.userPluginsJars.map(_.jarPath).distinct.map(filePath => new File(filePath))
+    apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
   }
 
 }
