@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyS
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.spark.launcher.SparkLauncher
+import org.apache.spark.launcher.SpartaLauncher
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -112,7 +112,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
                      driverParams: Seq[String],
                      pluginsFiles: Seq[String]): Unit = {
 
-    val sparkLauncher = new SparkLauncher()
+    val sparkLauncher = new SpartaLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
@@ -130,13 +130,15 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     log.info("Executing SparkLauncher...")
 
     val sparkProcessStatus: Future[(Boolean, Process)] =
-      for {
-        sparkProcess <- Future(sparkLauncher.launch)
-      } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
+    for {
+      sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
+    } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
 
     sparkProcessStatus.onComplete {
-      case Success((exitCode, sparkProcess)) =>
+      case Success((exitCode, sparkProcess)) => {
+        log.info("Commnad: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
         sparkLauncherStreams(exitCode, sparkProcess)
+      }
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception

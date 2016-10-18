@@ -61,7 +61,7 @@ case class CubeWriter(cube: Cube,
                 log.error(s"Something goes wrong. Table: ${tableSchema.tableName}")
                 log.error(s"Schema. ${cubeDataFrame.schema}")
                 log.error(s"Head element. ${cubeDataFrame.head}")
-                log.error(s"Error message : ${e.getMessage}")
+                log.error(s"Error message : ", e)
             }
             case None => log.error(s"The output in the cube : $outputName not match in the outputs")
           })
