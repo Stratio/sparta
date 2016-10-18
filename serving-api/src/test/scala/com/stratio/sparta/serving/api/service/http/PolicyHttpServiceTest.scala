@@ -55,7 +55,12 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
         testProbe.expectMsgType[Find]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        val fragments = Seq(
+          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
+          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
+        )
+        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
+        responseAs[AggregationPoliciesModel].fragments.isEmpty should be(false)
       }
     }
     "return a 500 if there was any error" in {
@@ -72,7 +77,11 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
         testProbe.expectMsgType[FindByName]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        val fragments = Seq(
+          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
+          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
+        )
+        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
       }
     }
     "return a 500 if there was any error" in {
