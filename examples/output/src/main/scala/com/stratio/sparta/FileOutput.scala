@@ -30,8 +30,14 @@ class FileOutput(keyName: String,
                   extends Output(keyName, version, properties, schemas) with Logging {
 
   val path = properties.get("path").getOrElse(throw new IllegalArgumentException("Property path is mandatory"))
+  val createDifferentFiles = properties.get("createDifferentFiles").getOrElse("true")
 
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
-    dataFrame.write.json(path.toString + new Date().getTime)
+    val finalPath = if (createDifferentFiles.asInstanceOf[String].toBoolean){
+      path.toString + new Date().getTime
+    } else {
+      path.toString
+    }
+    dataFrame.write.json(finalPath)
   }
 }
