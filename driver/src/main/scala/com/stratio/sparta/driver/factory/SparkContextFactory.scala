@@ -99,7 +99,10 @@ object SparkContextFactory extends SLF4JLogging {
   private def instantiateClusterContext(specificConfig: Map[String, String],
     jars: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(None, specificConfig)))
-    jars.foreach(f => sc.get.addJar(f))
+    jars.foreach(f => {
+      log.info(s"Adding jar to Spark context: ${f}")
+      sc.get.addJar(f)
+    })
     sc.get
   }
 

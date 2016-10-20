@@ -25,45 +25,6 @@ import akka.event.slf4j.SLF4JLogging
 object JarsHelper extends SLF4JLogging {
 
   /**
-   * With the aim of having a pluggable system of plugins and given  a list of relative paths that contain jars (our
-   * plugins). It tries to instance jars located in this paths and to load them in the classpath.
-   * @param path base path when it starts to scan in order to find plugins.
-   * @param endsWith to specify the end of the file.
-   * @param contains to specify that the file has to contain whatever is in this parameter.
-   * @param notContains to specify that the file hasn't to contain whatever is in this parameter.
-   * @param excludedDirectories path to exclude and not look for plugins.
-   * @param doAddToClassPath if it's true it will add the jars to the class path
-   * @return a list of loaded jars.
-   */
-
-  def findJarsByPath(path : File,
-                     endsWith : Option[String] = None,
-                     contains : Option[String] = None,
-                     notContains : Option[String] = None,
-                     excludedDirectories : Option[Seq[String]] = None,
-                     doAddToClassPath : Boolean = true) : Seq[File] = {
-    if (isFileNotExcluded(path, excludedDirectories)) {
-      val these = path.listFiles()
-      val good = these.filter(f => {
-        val filter = endsWith.forall(ends => f.getName.endsWith(ends)) &&
-          contains.forall(cont => f.getName.contains(cont)) &&
-          notContains.forall(ncont => !f.getName.contains(ncont))
-
-        if (doAddToClassPath && filter) {
-          addToClasspath(f)
-          log.debug("File " + f.getName + " added")
-        }
-        filter
-      })
-      good ++ these.filter(file => isDirectoryNotExluded(file, excludedDirectories))
-        .flatMap(path => findJarsByPath(path, endsWith, contains, notContains, excludedDirectories, doAddToClassPath))
-    } else {
-      log.warn(s"The file ${path.getName} not exists or is excluded")
-      Seq()
-    }
-  }
-
-  /**
    * Finds files that are the driver application.
    * @param path base path when it starts to scan in order to find plugins.
    * @return a list of jars.
@@ -92,7 +53,7 @@ object JarsHelper extends SLF4JLogging {
       val method : Method = classOf[URLClassLoader].getDeclaredMethod("addURL", classOf[URL])
 
       method.setAccessible(true)
-      method.invoke(ClassLoader.getSystemClassLoader, file.toURI.toURL)
+      method.invoke(getClass.getClassLoader, file.toURI.toURL)
     } else {
       log.warn(s"The file ${file.getName} not exists.")
     }

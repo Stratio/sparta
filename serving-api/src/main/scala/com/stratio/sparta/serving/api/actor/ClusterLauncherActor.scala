@@ -71,7 +71,8 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       validateSparkHome()
       val driverPath = Uploader.getDriverFile(DriverJarPath)
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
-      val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
+      val driverParams =
+        Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles), hdfsConfigEncoded)
 
       launch(policy.name, SpartaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
     } match {
@@ -184,6 +185,8 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
   private def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
+
+  private def hdfsConfigEncoded: String = encode(render(HdfsConfig, "hdfs"))
 
   private def sparkConf: Seq[(String, String)] =
     ClusterConfig.entrySet()
