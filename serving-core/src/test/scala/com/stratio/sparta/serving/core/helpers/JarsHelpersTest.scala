@@ -37,58 +37,6 @@ class JarsHelpersTest extends FlatSpec with Matchers with MockitoSugar {
     new File("second.jar"),
     new File("driver-plugin.jar")))
 
-  "jarsHelpers" should "findJarsByPath should return a seq with the jars" in {
-
-    val seqofJars = JarsHelper.findJarsByPath(
-      file,
-      Some(".jar"),
-      None,
-      None,
-      Some(Seq("plugins", "spark", "driver", "web", "serving-api")),
-      false)
-
-    seqofJars should be (mutable.ArraySeq(new File("first.jar"), new File("second.jar"), new File("driver-plugin.jar")))
-  }
-
-  it should "return just first.jar because we set it up in the contains parameter" in {
-
-    val seqofJars = JarsHelper.findJarsByPath(
-      file,
-      Some(".jar"),
-      Option("first"),
-      Some("driver"),
-      Some(Seq("plugins", "spark", "driver", "web", "serving-api")),
-      false)
-
-    seqofJars should be (mutable.ArraySeq(new File("first.jar")))
-  }
-
-  it should
-    "return first.jar and driver-plugin.jar because we specified it excluding second.jar in the exclude parameter" in {
-
-    val seqofJars = JarsHelper.findJarsByPath(
-      file,
-      Some(".jar"),
-      None,
-      Some("second"),
-      Some(Seq("plugins", "spark", "driver", "web", "serving-api")),
-      false)
-
-    seqofJars should be (mutable.ArraySeq(new File("first.jar"), new File("driver-plugin.jar")))
-  }
-  it should "add the jars to the classpath and return first.jar and driver-plugin.jar" in {
-
-    val seqofJars = JarsHelper.findJarsByPath(
-      file,
-      Some(".jar"),
-      None,
-      Some("second"),
-      Some(Seq("plugins", "spark", "driver", "web", "serving-api")),
-      true)
-
-    seqofJars should be (mutable.ArraySeq(new File("first.jar"), new File("driver-plugin.jar")))
-  }
-
   it should "find the driver jar" in {
 
     val seqofJars = JarsHelper.findDriverByPath(

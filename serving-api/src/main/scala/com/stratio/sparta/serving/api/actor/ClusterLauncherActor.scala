@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyS
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.spark.launcher.SparkLauncher
+import org.apache.spark.launcher.SpartaLauncher
 
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -71,7 +71,8 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       validateSparkHome()
       val driverPath = Uploader.getDriverFile(DriverJarPath)
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
-      val driverParams = Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles))
+      val driverParams =
+        Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles), hdfsConfigEncoded)
 
       launch(policy.name, SpartaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
     } match {
@@ -112,7 +113,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
                      driverParams: Seq[String],
                      pluginsFiles: Seq[String]): Unit = {
 
-    val sparkLauncher = new SparkLauncher()
+    val sparkLauncher = new SpartaLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
       .setMainClass(main)
@@ -130,13 +131,15 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     log.info("Executing SparkLauncher...")
 
     val sparkProcessStatus: Future[(Boolean, Process)] =
-      for {
-        sparkProcess <- Future(sparkLauncher.launch)
-      } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
+    for {
+      sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
+    } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
 
     sparkProcessStatus.onComplete {
-      case Success((exitCode, sparkProcess)) =>
+      case Success((exitCode, sparkProcess)) => {
+        log.info("Commnad: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
         sparkLauncherStreams(exitCode, sparkProcess)
+      }
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception
@@ -182,6 +185,8 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
   private def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
+
+  private def hdfsConfigEncoded: String = encode(render(HdfsConfig, "hdfs"))
 
   private def sparkConf: Seq[(String, String)] =
     ClusterConfig.entrySet()

@@ -1,0 +1,93 @@
+{
+  "storageLevel": "MEMORY_ONLY_SER",
+  "name": "file-example",
+  "description": "Take data from meeting.com and persists the aggregation in files. You must load this policy from POST endpoint -policy- at port 9091",
+  "sparkStreamingWindow": "6s",
+  "rawData": {
+    "enabled": "false",
+    "path": "default"
+  },
+  "transformations": [
+    {
+      "type": "Morphlines",
+      "order": 0,
+      "inputField": "_attachment_body",
+      "outputFields": [
+        {
+          "name": "response",
+          "type": "string"
+        }
+      ],
+      "configuration": {
+        "morphline": {
+          "id": "morphline1",
+          "importCommands": [
+            "org.kitesdk.**"
+          ],
+          "commands": [
+            {
+              "readJson": {}
+            },
+            {
+              "extractJsonPaths": {
+                "paths": {
+                  "response": "/response"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "streamTriggers": [],
+  "cubes": [
+    {
+      "name": "cube1",
+      "dimensions": [
+        {
+          "name": "response",
+          "field": "response",
+          "precision": "identity",
+          "type": "Default"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "count",
+          "configuration": {}
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "file"
+        ],
+        "dateType": "timestamp",
+        "isAutoCalculatedId": false
+      },
+      "triggers": []
+    }
+  ],
+  "input": {
+    "name": "websocket",
+    "type": "WebSocket",
+    "configuration": {
+      "url": "ws://stream.meetup.com/2/rsvps"
+    }
+  },
+  "outputs": [
+    {
+      "name": "file",
+      "type": "File",
+      "configuration": {
+        "path": "/tmp/sparta-example/sparta-file"
+      }
+    }
+  ],
+  "userPluginsJars": [
+    {
+      "jarPath": "/your-path/example-output-0.1.0-SNAPSHOT.jar"
+    }
+  ]
+}
