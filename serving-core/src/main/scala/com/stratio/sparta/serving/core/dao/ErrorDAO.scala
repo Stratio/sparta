@@ -16,7 +16,6 @@
 package com.stratio.sparta.serving.core.dao
 
 import com.typesafe.config.Config
-
 import com.stratio.common.utils.components.config.impl.TypesafeConfigComponent
 import com.stratio.common.utils.components.dao.GenericDAOComponent
 import com.stratio.common.utils.components.logger.impl.Slf4jLoggerComponent
@@ -27,6 +26,7 @@ class ErrorDAO(conf: Config) extends GenericDAOComponent[String] with TypesafeCo
 
   override val config = new TypesafeConfig(Option(conf))
   override val dao: DAO = new GenericDAO(Option(AppConstant.ErrorsZkPath))
+
 }
 
 object ErrorDAO {

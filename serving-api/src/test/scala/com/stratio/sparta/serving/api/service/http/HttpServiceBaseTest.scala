@@ -20,10 +20,10 @@ import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
-
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.typesafe.config.ConfigFactory
 
 /**
  * Common operations for http service specs. All of them must extend from this class.
@@ -40,6 +40,25 @@ trait HttpServiceBaseTest extends WordSpec
 
   val granularity = 30000
   val interval = 60000
+
+  val localConfig = ConfigFactory.parseString(
+    """
+      |sparta{
+      |   config {
+      |     executionMode = local
+      |   }
+      |
+      |   local {
+      |    spark.app.name = SPARTA
+      |    spark.master = "local[*]"
+      |    spark.executor.memory = 1024m
+      |    spark.app.name = SPARTA
+      |    spark.sql.parquet.binaryAsString = true
+      |    spark.streaming.concurrentJobs = 1
+      |    #spark.metrics.conf = /opt/sds/sparta/benchmark/src/main/resources/metrics.properties
+      |  }
+      |}
+    """.stripMargin)
 
   // XXX Protected methods.
 
@@ -110,7 +129,7 @@ trait HttpServiceBaseTest extends WordSpec
    */
   protected def startAutopilot(message: Any,
                                currentTestProbe: TestProbe = this.testProbe,
-                               autopilot: Option[AutoPilot] = None): Unit =
+                               autopilot: Option[AutoPilot] = None): Unit = {
     currentTestProbe.setAutoPilot(
       autopilot.getOrElse(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
@@ -121,4 +140,5 @@ trait HttpServiceBaseTest extends WordSpec
           }
       })
     )
+  }
 }

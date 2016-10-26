@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.utils
 
 import java.io.File
@@ -33,30 +34,24 @@ import com.stratio.sparta.serving.core.{CuratorFactoryHolder, SpartaConfig}
 
 trait PolicyUtils {
 
-  def existsByName(name: String,
-    id: Option[String] = None,
-    curatorFramework: CuratorFramework): Boolean = {
+  def existsByName(name: String, id: Option[String] = None, curatorFramework: CuratorFramework): Boolean = {
     val nameToCompare = name.toLowerCase
-    Try({
-      if (existsPath) {
-        getPolicies(curatorFramework)
-          .filter(byName(id, nameToCompare)).nonEmpty
-      } else {
+    Try {
+      if (existsPath)
+        getPolicies(curatorFramework).exists(byName(id, nameToCompare))
+      else {
         log.warn(s"Zookeeper path for policies doesn't exists. It will be created.")
         false
       }
-    }) match {
+    } match {
       case Success(result) => result
-      case Failure(exception) => {
+      case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         false
-      }
     }
   }
 
-  def existsPath: Boolean = {
-    CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
-  }
+  def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
   def byName(id: Option[String], nameToCompare: String): (AggregationPoliciesModel) => Boolean = {
     policy =>
@@ -67,9 +62,9 @@ trait PolicyUtils {
 
   def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
 
-    Try({
+    Try {
       populatePolicy(policy, curatorFramework)
-    }) match {
+    } match {
       case Success(_) => log.info(s"Policy ${policy.id.get} already in zookeeper. Updating it...")
         updatePolicy(policy, curatorFramework)
       case Failure(e) => writePolicy(policy, curatorFramework)
@@ -82,7 +77,7 @@ trait PolicyUtils {
   }
 
   def updatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
-    curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
+    curatorFramework.setData().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
   }
 
   def populatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
@@ -102,11 +97,9 @@ trait PolicyUtils {
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
     Try {
-      if (!isLocalMode || checkpointGoesToHDFS(policy)) {
+      if (!isLocalMode || checkpointGoesToHDFS(policy))
         deleteFromHDFS(policy)
-      } else {
-        deleteFromLocal(policy)
-      }
+      else deleteFromLocal(policy)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${AggregationPoliciesModel.checkpointPath(policy)}")
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
@@ -123,22 +116,24 @@ trait PolicyUtils {
     policy.checkpointPath.exists(_.startsWith("hdfs://"))
 
   def isLocalMode: Boolean =
-    SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
+    SpartaConfig.getDetailConfig match {
+      case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
+      case None => true
+    }
 
   def existsByNameId(name: String, id: Option[String] = None, curatorFramework: CuratorFramework):
   Option[AggregationPoliciesModel] = {
     val nameToCompare = name.toLowerCase
-    Try({
+    Try {
       if (existsPath) {
         getPolicies(curatorFramework)
           .find(policy => if (id.isDefined) policy.id.get == id.get else policy.name == nameToCompare)
       } else None
-    }) match {
+    } match {
       case Success(result) => result
-      case Failure(exception) => {
+      case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         None
-      }
     }
   }
 

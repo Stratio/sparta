@@ -93,7 +93,6 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mailapi</artifactId>
-            <version>1.4.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -116,7 +115,6 @@
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-testkit_${scala.binary.version}</artifactId>
-            <version>${spray.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.specs2</groupId>
@@ -132,22 +130,19 @@
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-testkit_${scala.binary.version}</artifactId>
-            <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-can_${scala.binary.version}</artifactId>
-            <version>${spray.version}</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-routing_${scala.binary.version}</artifactId>
-            <version>${spray.version}</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.common</groupId>
-            <artifactId>common-utils</artifactId>
+            <artifactId>common-utils_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
 </project>

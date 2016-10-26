@@ -119,7 +119,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>com.typesafe.akka</groupId>
-                    <artifactId>akka-actor_2.10</artifactId>
+                    <artifactId>akka-actor_${scala.binary.version}</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -140,7 +140,7 @@
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>
-            <artifactId>spark-cassandra-connector_2.10</artifactId>
+            <artifactId>spark-cassandra-connector_${scala.binary.version}</artifactId>
             <version>${cassandra.spark.version}</version>
         </dependency>
         <dependency>

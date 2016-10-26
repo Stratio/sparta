@@ -16,7 +16,6 @@
 package com.stratio.sparta.serving.core.dao
 
 import com.typesafe.config.Config
-
 import com.stratio.common.utils.components.config.impl.TypesafeConfigComponent
 import com.stratio.common.utils.components.dao.GenericDAOComponent
 import com.stratio.common.utils.components.logger.impl.Slf4jLoggerComponent

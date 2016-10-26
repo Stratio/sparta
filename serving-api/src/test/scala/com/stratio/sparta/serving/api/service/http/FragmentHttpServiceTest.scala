@@ -26,6 +26,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.FragmentElementModel
+import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -46,6 +47,10 @@ class FragmentHttpServiceTest extends WordSpec
     AkkaConstant.FragmentActor -> fragmentTestProbe.ref
   )
   override val supervisor: ActorRef = testProbe.ref
+
+  override def beforeEach(): Unit = {
+    SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
+  }
 
   "FragmentHttpService.findByTypeAndId" should {
     "find a fragment" in {

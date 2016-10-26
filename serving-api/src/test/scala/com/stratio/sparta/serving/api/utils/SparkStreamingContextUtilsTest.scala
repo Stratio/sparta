@@ -25,7 +25,10 @@ import org.scalatest.BeforeAndAfter
 import com.stratio.sparta.serving.core.models.PolicyStatusModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class SparkStreamingContextUtilsTest extends BaseUtilsTest
   with SparkStreamingContextUtils
   with BeforeAndAfter {

@@ -15,9 +15,13 @@
  */
 package com.stratio.sparta.serving.api.utils
 
-import com.stratio.sparta.serving.core.models.{OutputFieldsModel, WriterModel, CubeModel, AggregationPoliciesModel}
+import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, CubeModel, OutputFieldsModel, WriterModel}
+import org.junit.runner.RunWith
 import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class PolicyUtilsTest extends BaseUtilsTest
   with PolicyUtils {
 
@@ -123,7 +127,7 @@ class PolicyUtilsTest extends BaseUtilsTest
   }
 
   "PolicyUtils.deleteCheckpointPath" should {
-    "delete path from HDFS when using local mode" in {
+    "delete path from HDFS when using not local mode" in {
       doReturn(false)
         .when(utils)
         .isLocalMode
