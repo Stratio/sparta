@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.test.service
 
 import java.io.File
@@ -21,11 +22,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.driver.util.PolicyUtils
 import com.stratio.sparta.serving.core.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
-import org.json4s.native
+import com.typesafe.config.ConfigFactory
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
@@ -34,9 +34,9 @@ import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
 class StreamingContextServiceIT extends WordSpecLike
-with Matchers
-with SLF4JLogging
-with SpartaSerializer {
+  with Matchers
+  with SLF4JLogging
+  with SpartaSerializer {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
 
@@ -60,7 +60,7 @@ with SpartaSerializer {
   "A StreamingContextService should" should {
     "create spark streaming context from a policy" in {
       val json = Source.fromFile(new File(PathToPolicy)).mkString
-      val apConfig = native.Serialization.read[AggregationPoliciesModel](json)
+      val apConfig = parse(json).extract[AggregationPoliciesModel]
       val spartaConfig = SpartaConfig.initConfig("sparta")
 
       SpartaConfig.spartaHome = getSpartaHome
