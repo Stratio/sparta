@@ -41,22 +41,20 @@ object ResourceManagerLink extends SLF4JLogging {
   }
 
   def checkConnectivity(host: String, port: Int): Option[String] = {
-    Try({
+    Try {
       new Socket(host, port)
-    }) match {
-      case Success(socket) => {
+    } match {
+      case Success(socket) =>
         if (socket.isConnected) {
           socket.close()
-          Option(s"http://${host}:${port}")
+          Option(s"http://$host:$port")
         } else {
           socket.close()
           None
         }
-      }
-      case Failure(_) => {
-        log.debug(s"Cannot connect to http://${host}:${port}. Log link won't be shown in UI.")
+      case Failure(_) =>
+        log.debug(s"Cannot connect to http://$host:$port. Log link won't be shown in UI.")
         None
-      }
     }
   }
 

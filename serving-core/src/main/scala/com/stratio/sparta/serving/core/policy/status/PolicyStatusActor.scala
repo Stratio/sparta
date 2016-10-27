@@ -113,16 +113,20 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
   }
 
   def findAll(): Unit = {
-    sender ! Response(Try({
-      val contextPath = s"${AppConstant.ContextPath}"
-      if (CuratorFactoryHolder.existsPath(contextPath)) {
-        val children = curatorFramework.getChildren.forPath(contextPath)
-        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[PolicyStatusModel](new String(curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")))
-        )
-        PoliciesStatusModel(policiesStatus, ResourceManagerLink.getLink)
-      } else PoliciesStatusModel(Seq(), ResourceManagerLink.getLink)
-    }))
+    sender ! Response(
+      Try {
+        val contextPath = s"${AppConstant.ContextPath}"
+        if (CuratorFactoryHolder.existsPath(contextPath)) {
+          val children = curatorFramework.getChildren.forPath(contextPath)
+          val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
+            read[PolicyStatusModel](new String(
+              curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")
+            ))
+          )
+          PoliciesStatusModel(policiesStatus, ResourceManagerLink.getLink)
+        } else PoliciesStatusModel(Seq(), ResourceManagerLink.getLink)
+      }
+    )
   }
 
   def deleteAll(): Unit = {
