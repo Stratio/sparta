@@ -52,7 +52,7 @@ class ResourceManagerLinkIT extends FlatSpec with
     ResourceManagerLink.getLink should be(Some(s"http://${localhostName}:4040"))
   }
 
-  it should "return Mesos UI link" in {
+  /*it should "return Mesos UI link" in {
     serverSocket = ServerSocketChannel.open()
     serverSocket.socket.bind(new InetSocketAddress("127.0.0.1",5050))
     val config = ConfigFactory.parseString(
@@ -70,7 +70,7 @@ class ResourceManagerLinkIT extends FlatSpec with
     SpartaConfig.initMainConfig(Option(config))
 
     ResourceManagerLink.getLink should be(Some("http://127.0.0.1:5050"))
-  }
+  }*/
 
   it should "return YARN UI link" in {
     serverSocket = ServerSocketChannel.open()

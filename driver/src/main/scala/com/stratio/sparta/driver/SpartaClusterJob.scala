@@ -74,7 +74,7 @@ object SpartaClusterJob extends SpartaSerializer {
         AkkaConstant.PolicyStatusActor)
 
       Try {
-        policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
+        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
         Try(ErrorDAO().dao.delete(policy.id.get))
 
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))

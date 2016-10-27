@@ -226,12 +226,10 @@
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-can_${scala.binary.version}</artifactId>
-            <version>${spray.version}</version>
         </dependency>
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-routing_${scala.binary.version}</artifactId>
-            <version>${spray.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
