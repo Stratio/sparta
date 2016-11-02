@@ -21,20 +21,31 @@
  if [[ ! -v HDFS_PORT ]]; then
    HDFS_PORT=8020
  fi
+ if [[ ! -v HDFS_PRINCIPAL_NAME ]]; then
+   HDFS_PRINCIPAL_NAME=""
+ fi
+ if [[ ! -v HDFS_KEYTAB ]]; then
+   HDFS_KEYTAB=""
+ fi
  if [[ ! -v HDFS_USER_NAME ]]; then
    HDFS_USER_NAME=stratio
  fi
  if [[ ! -v SPARK_MASTER ]]; then
    SPARK_MASTER="local[*]"
  fi
-   if [[ ! -v MESOS_MASTER ]]; then
+ if [[ ! -v MESOS_MASTER ]]; then
    MESOS_MASTER=localhost:7077
  fi
+
+
  sed -i "s|executionMode.*|executionMode = \"${EXECUTION_MODE}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST}"\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsMaster.*|hdfsMaster = \"${HDFS_MASTER}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsPort.*|hdfsPort = \"${HDFS_PORT}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hadoopUserName.*|hadoopUserName = \"${HDFS_USER_NAME}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|principalName.*|principalName = \"${HDFS_PRINCIPAL_NAME}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|keytabPath.*|keytabPath = \"${HDFS_KEYTAB}\"|" ${SPARTA_CONF_FILE}
+
  if [[ ! -v EXECUTION_MODE || "${EXECUTION_MODE}" == "local" ]]; then
    sed -i "s|spark.master.*|spark.master = \"${SPARK_MASTER}\"|" ${SPARTA_CONF_FILE}
  fi

@@ -15,10 +15,11 @@
  */
 package com.stratio.sparta.driver.util
 
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
+import java.io._
+import java.security.PrivilegedExceptionAction
+
+import org.apache.hadoop.security.UserGroupInformation
+import org.apache.spark.deploy.SparkHadoopUtil
 
 import scala.util.Try
 
@@ -26,11 +27,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.Config
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.FileStatus
-import org.apache.hadoop.fs.FileSystem
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FSDataOutputStream, FileStatus, FileSystem, Path}
 
-case class HdfsUtils(dfs: FileSystem, userName: String) {
+case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None) {
 
   def getFiles(path: String): Array[FileStatus] = dfs.listStatus(new Path(path))
 
@@ -40,7 +39,18 @@ case class HdfsUtils(dfs: FileSystem, userName: String) {
 
   def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
     val file = new File(path)
-    val out = dfs.create(new Path(s"$destPath${file.getName}"))
+
+    val out = ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
+          override def run(): FSDataOutputStream = {
+            dfs.create(new Path(s"$destPath${file.getName}"))
+          }
+        })
+      case None =>
+        dfs.create(new Path(s"$destPath${file.getName}"))
+    }
+
     val in = new BufferedInputStream(new FileInputStream(file))
     val bytesCopied = Try(IOUtils.copy(in, out))
     IOUtils.closeQuietly(in)
@@ -65,8 +75,12 @@ object HdfsUtils extends SLF4JLogging {
       new Configuration()
     )
 
-  def apply(user: String, conf: Configuration): HdfsUtils = {
-    Option(System.getenv("HADOOP_CONF_DIR")).foreach(hadoopConfDir => {
+  def apply(user: String,
+            conf: Configuration,
+            principalNameOption: Option[String],
+            keytabPathOption: Option[String]): HdfsUtils = {
+    Option(System.getenv("HADOOP_CONF_DIR")).foreach(
+      hadoopConfDir => {
         val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
         val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
         val yarnSitePath = new Path(s"$hadoopConfDir/yarn-site.xml")
@@ -77,15 +91,26 @@ object HdfsUtils extends SLF4JLogging {
       }
     )
 
-    log.debug(s"Configuring HDFS with master: ${conf.get(DefaultFSProperty)} and user: $user")
-    val defaultUri = FileSystem.getDefaultUri(conf)
+    val ugi =
+      if(principalNameOption.isDefined && keytabPathOption.isDefined) {
+        val principalName = principalNameOption.getOrElse(
+          throw new IllegalStateException("principalName can not be null"))
+        val keytabPath = keytabPathOption.getOrElse(
+          throw new IllegalStateException("keytabPathOption can not be null"))
 
-    new HdfsUtils(FileSystem.get(defaultUri, conf, user), user)
+        UserGroupInformation.setConfiguration(conf)
+        Option(UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keytabPath))
+      } else None
 
+    new HdfsUtils(FileSystem.get(conf), user, ugi)
   }
 
   def apply(config: Option[Config]): HdfsUtils = {
     val user = config.map(_.getString("hadoopUserName")).getOrElse("stratio")
-    apply(user, hdfsConfiguration(config))
+    val principalName: Option[String] =
+      Try(config.get.getString("principalName")).toOption.flatMap(x => if(x == "") None else Some(x))
+    val keytabPath: Option[String] =
+      Try(config.get.getString("keytabPath")).toOption.flatMap(x => if(x == "") None else Some(x))
+    apply(user, hdfsConfiguration(config), principalName, keytabPath)
   }
 }
