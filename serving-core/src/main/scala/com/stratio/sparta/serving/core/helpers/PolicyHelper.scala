@@ -20,7 +20,7 @@ package com.stratio.sparta.serving.core.helpers
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, ResponseFragment}
+import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByType, FindByTypeAndId, FindByTypeAndName, ResponseFragment}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.FragmentType._
 import com.stratio.sparta.serving.core.models._
@@ -95,7 +95,12 @@ object PolicyHelper {
   private def fillFragments(apConfig: AggregationPoliciesModel, fragmentActor: ActorRef)
                            (implicit timeout: Timeout): AggregationPoliciesModel = {
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
-      val future = fragmentActor ? new FindByTypeAndId(fragment.fragmentType, fragment.id.getOrElse("without id"))
+      val future = fragmentActor ? {
+        fragment.id match {
+          case Some(id) => new FindByTypeAndId(fragment.fragmentType, id)
+          case None => new FindByTypeAndName(fragment.fragmentType, fragment.name)
+        }
+      }
       Await.result(future, timeout.duration) match {
         case ResponseFragment(Failure(exception)) => throw exception
         case ResponseFragment(Success(fragment)) => fragment

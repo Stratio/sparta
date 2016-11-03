@@ -66,8 +66,8 @@ class FragmentActor(curatorFramework: CuratorFramework)
           ))
       })
 
-  def findByType(fragmentType: String): Unit =
-    sender ! ResponseFragments(
+  def findByType(fragmentType: String): Unit = {
+    val fragments = ResponseFragments(
       Try {
         val children = curatorFramework.getChildren.forPath(FragmentActor.fragmentPathType(fragmentType))
         JavaConversions.asScalaBuffer(children).toList.map(element =>
@@ -77,6 +77,8 @@ class FragmentActor(curatorFramework: CuratorFramework)
       }.recover {
         case e: NoNodeException => Seq.empty[FragmentElementModel]
       })
+    sender ! fragments
+  }
 
   def findByTypeAndId(fragmentType: String, id: String): Unit =
     sender ! new ResponseFragment(
