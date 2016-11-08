@@ -31,7 +31,11 @@
 
 package com.stratio.sparta.sdk.test
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import com.github.nscala_time.time.Imports._
+
 import com.stratio.sparta.sdk.AggregationTime
 import org.scalatest._
 
@@ -43,55 +47,99 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
   "AggregationTime" should "return the date in millis rounded to 15s" in {
 
     val result = AggregationTime.truncateDate(date,"15s")
-    result should be(1453211355000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:15.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to 15m" in {
 
     val result = AggregationTime.truncateDate(date,"15m")
-    result should be(1453211100000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:45:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to 15h" in {
 
     val result = AggregationTime.truncateDate(date,"15h")
-    result should be(1453194000000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 10:00:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to 15d" in {
 
     val result = AggregationTime.truncateDate(date,"15d")
-    result should be(1452816000000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-15 01:00:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to seconds" in {
 
     val result = AggregationTime.truncateDate(date,"second")
-    result should be(1453211359000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:19.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to minutes" in {
 
     val result = AggregationTime.truncateDate(date,"minute")
-    result should be(1453211340000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:00.+0100")
+  }
+
+  "AggregationTime with 45minute" should "return the date in millis rounded to minutes" in {
+
+    val result = AggregationTime.truncateDate(date,"45minute")
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to hours" in {
 
     val result = AggregationTime.truncateDate(date,"hour")
-    result should be(1453208400000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:00:00.+0100")
+  }
+
+  "AggregationTime with 3hour" should "return the date in millis rounded to hours" in {
+
+    val result = AggregationTime.truncateDate(date,"3hour")
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:00:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to days" in {
 
     val result = AggregationTime.truncateDate(date,"day")
-    result should be(1453158000000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 00:00:00.+0100")
+  }
+
+  "AggregationTime with 34day" should "return the date in millis rounded to days" in {
+
+    val result = AggregationTime.truncateDate(date,"34day")
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 00:00:00.+0100")
   }
 
   "AggregationTime" should "return the date in millis rounded to year" in {
 
     val result = AggregationTime.truncateDate(date,"year")
-    result should be(1451602800000L)
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
+  }
+
+  "AggregationTime with 2month" should "return the date in millis rounded to month" in {
+
+    val result = AggregationTime.truncateDate(date,"2month")
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
+  }
+
+  "AggregationTime with 2year" should "return the date in millis rounded to year" in {
+
+    val result = AggregationTime.truncateDate(date,"2year")
+
+    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
   }
 
 }
