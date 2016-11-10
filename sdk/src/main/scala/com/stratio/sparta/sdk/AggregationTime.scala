@@ -31,22 +31,22 @@
 
 package com.stratio.sparta.sdk
 
+import akka.event.slf4j.SLF4JLogging
 import com.github.nscala_time.time.Imports._
 import org.joda.time.Duration
 
-import scala.util.matching.Regex
-
-object AggregationTime {
+object AggregationTime extends SLF4JLogging{
   val Prefix: Seq[String] = Seq(
-    "[1-9][0-9]*s","[1-9][0-9]*m","[1-9][0-9]*h", "[1-9][0-9]*d", "second", "minute", "hour", "day", "month", "year")
+    "[1-9][0-9]*s","[1-9][0-9]*m","[1-9][0-9]*h", "[1-9][0-9]*d", "[1-9][0-9]*month", "second", "minute", "hour",
+    "day", "month", "year", "[1-9][0-9]*second","[1-9][0-9]*minute","[1-9][0-9]*hour","[1-9][0-9]*day",
+    "[1-9][0-9]*month", "[1-9][0-9]*year")
 
   def truncateDate(date: DateTime, granularity: String): Long = {
-
     val duration: Duration = parseDate(date, granularity)
     roundDateTime(date, duration)
   }
 
-  def parseDate(date: DateTime, aggregationTime: String): Duration = {
+  private def parseDate(date: DateTime, aggregationTime: String): Duration = {
     val prefix = for {
       prefix <- Prefix
       if(aggregationTime.matches(prefix))
@@ -54,7 +54,8 @@ object AggregationTime {
   selectGranularity(prefix, aggregationTime, date)
   }
 
-  def selectGranularity(prefix: Seq[String], aggregationTime: String, date: DateTime): Duration = {
+  //noinspection ScalaStyle
+  private def selectGranularity(prefix: Seq[String], aggregationTime: String, date: DateTime): Duration = {
     if(prefix.headOption.isDefined) {
       prefix(0) match {
         case "[1-9][0-9]*s" =>
@@ -65,6 +66,24 @@ object AggregationTime {
           Duration.standardHours(aggregationTime.replace("h","").toLong)
         case "[1-9][0-9]*d" =>
           Duration.standardDays(aggregationTime.replace("d","").toLong)
+        case "[1-9][0-9]*second" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by second...")
+          genericDates(date, "second")
+        case "[1-9][0-9]*minute" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by minute...")
+          genericDates(date, "minute")
+        case "[1-9][0-9]*hour" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by hour...")
+          genericDates(date, "hour")
+        case "[1-9][0-9]*day" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by day...")
+          genericDates(date, "day")
+        case "[1-9][0-9]*month" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by month...")
+          genericDates(date, "month")
+        case "[1-9][0-9]*year" =>
+          log.error(s"Cannot aggregate by ${aggregationTime}. Aggregating by year...")
+          genericDates(date, "year")
         case _ =>
           genericDates(date, aggregationTime)
       }
@@ -73,7 +92,7 @@ object AggregationTime {
     }
   }
 
-  def genericDates(date: DateTime, granularity: String): Duration = {
+  private def genericDates(date: DateTime, granularity: String): Duration = {
 
     val secondsDate = date.withMillisOfSecond(0)
     val minutesDate = secondsDate.withSecondOfMinute(0)
@@ -93,7 +112,7 @@ object AggregationTime {
     }
   }
 
-  def roundDateTime(t: DateTime, d: Duration): Long =
+  private def roundDateTime(t: DateTime, d: Duration): Long =
     (t minus (t.getMillis - (t.getMillis.toDouble / d.getMillis).round * d.getMillis)).getMillis
 }
 

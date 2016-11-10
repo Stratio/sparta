@@ -610,7 +610,7 @@
         "propertyId": "precisionNumber",
         "propertyName": "_PRECISION_",
         "propertyType": "text",
-        "default": "",
+        "default": "1",
         "width": 6,
         "position": "left",
         "required": false,
@@ -623,23 +623,23 @@
         "width": 6,
         "position": "right",
         "qa": "policy-cube-dimension-dateTime-precisionTime",
-        "default": "minute",
+        "default": "m",
         "required": true,
         "values": [
           {
-            "label": "Milliseconds",
+            "label": "Millisecond(s)",
             "value": "ms"
           },
           {
-            "label": "Seconds",
+            "label": "Second(s)",
             "value": "s"
           },
           {
-            "label": "Minutes",
+            "label": "Minute(s)",
             "value": "m"
           },
           {
-            "label": "Hours",
+            "label": "Hour(s)",
             "value": "h"
           },
           {
