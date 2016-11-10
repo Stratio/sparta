@@ -36,8 +36,8 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.helpers.PolicyHelper._
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
@@ -196,8 +196,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
                 throw exception
               case ResponsePolicy(Success(policy)) =>
                 val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-                val inputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
-                val outputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
+                val inputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
+                val outputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
                 val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
                   throw new ServingCoreException(
                     ErrorModel.toString(
@@ -238,8 +238,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
               case ResponsePolicy(Failure(exception)) => throw exception
               case ResponsePolicy(Success(policy)) =>
                 val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-                val inputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
-                val outputs = PolicyHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
+                val inputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
+                val outputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
                 val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
                   throw new ServingCoreException(
                     ErrorModel.toString(

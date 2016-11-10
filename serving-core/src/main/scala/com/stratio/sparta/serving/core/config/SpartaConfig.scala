@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core
-
-import scala.util.{Failure, Success, Try}
+package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.SpartaSystem
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.dao.{ConfigDAO, ErrorDAO}
 import com.typesafe.config.Config
 
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.dao.ConfigDAO
-import com.stratio.sparta.serving.core.dao.ErrorDAO
+import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.

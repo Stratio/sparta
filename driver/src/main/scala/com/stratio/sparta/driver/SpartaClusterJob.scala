@@ -17,25 +17,23 @@
 package com.stratio.sparta.driver
 
 import java.io.File
-import java.lang.reflect.Method
-import java.net.{URLClassLoader, URL}
 import java.util.UUID
 
 import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.stratio.sparta.driver.SpartaJob._
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.driver.util.{HdfsUtils, PolicyUtils}
 import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, PolicyHelper}
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, FragmentsHelper}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import com.stratio.sparta.serving.core.{CuratorFactoryHolder, SpartaConfig}
+import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
@@ -43,7 +41,7 @@ import org.apache.curator.framework.CuratorFramework
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-object SpartaClusterJob extends SpartaSerializer {
+object SpartaClusterJob extends PolicyUtils {
 
   implicit val timeout: Timeout = Timeout(3.seconds)
   final val PolicyIdIndex = 0
@@ -69,7 +67,7 @@ object SpartaClusterJob extends SpartaSerializer {
       val policyZk = getPolicyFromZookeeper(policyId, curatorFramework)
       implicit val system = ActorSystem(policyId)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policy = PolicyHelper.getPolicyWithFragments(policyZk, fragmentActor)
+      val policy = FragmentsHelper.getPolicyWithFragments(policyZk, fragmentActor)
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 
@@ -121,8 +119,8 @@ object SpartaClusterJob extends SpartaSerializer {
   def initSpartaConfig(detailConfig: String, zKConfig: String, hdfsConfig: String): Unit = {
     val configStr =
       s"${detailConfig.stripPrefix("{").stripSuffix("}")}" +
-      s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
-      s"\n${hdfsConfig.stripPrefix("{").stripSuffix("}")}"
+        s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
+        s"\n${hdfsConfig.stripPrefix("{").stripSuffix("}")}"
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
     SpartaConfig.initDAOs
@@ -130,7 +128,7 @@ object SpartaClusterJob extends SpartaSerializer {
 
   def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
     Try {
-      PolicyUtils.parseJson(new Predef.String(curatorFramework.getData.forPath(
+      parseJson(new Predef.String(curatorFramework.getData.forPath(
         s"${AppConstant.PoliciesBasePath}/$policyId")))
     } match {
       case Success(policy) => policy

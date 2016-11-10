@@ -24,91 +24,91 @@ import org.scalatest.{Matchers, WordSpec}
 
 
 @RunWith(classOf[JUnitRunner])
-class OperationsHelperTest extends WordSpec with Matchers with MockitoSugar {
+class DateOperationsHelperTest extends WordSpec with Matchers with MockitoSugar {
 
   "OperationsHelper parseValueToMilliSeconds" should {
 
     "parseValueToMilliSeconds should return 1 second when precision is second" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("second")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("second")
       res should be(1000)
     }
 
     "parseValueToMilliSeconds should return 1 second" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1s")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1s")
       res should be(1000)
     }
 
     "parseValueToMilliSeconds should return 1 second when precision is minute" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("minute")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("minute")
       res should be(60000)
     }
 
     "parseValueToMilliSeconds should return a value in seconds of 1 minute" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1m")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1m")
       res should be(60000)
     }
 
     "parseValueToMilliSeconds should return a value in seconds of 1 hour" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1h")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1h")
       res should be(3600000)
     }
 
     "parseValueToMilliSeconds should return 1 second when precision is hour" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("hour")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("hour")
       res should be(3600000)
     }
 
     "parseValueToMilliSeconds should return 1 second when precision is day" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("day")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("day")
       res should be(86400000)
     }
     "parseValueToMilliSeconds should return a value in seconds of 1 day" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1d")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1d")
       res should be(86400000)
     }
 
     "parseValueToMilliSeconds should return a value in seconds of 1 month" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1M")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1M")
       res should be(2628000000L)
     }
 
     "parseValueToMilliSeconds should return a value in seconds of year" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("year")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("year")
       res should be(31557600000L)
     }
 
     "parseValueToMilliSeconds should return a value in seconds of 1 year" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("1y")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("1y")
       res should be(31557600000L)
     }
 
     "parseValueToMilliSeconds should return 30 second" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("30s")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("30s")
       res should be(30000)
     }
 
     "parseValueToMilliSeconds should return 30000 second" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("30000")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("30000")
       res should be(30000)
     }
 
     "parseValueToMilliSeconds should return 2 days" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("2d")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("2d")
       res should be(172800000)
     }
 
     "parseValueToMilliSeconds should return 6 milliseconds" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("6ms")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("6ms")
       res should be(6)
     }
 
     "parseValueToMilliSeconds should return 6 seconds" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("6000ms")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("6000ms")
       res should be(6000)
     }
 
     "parseValueToMilliSeconds should return 6500 milliseconds" in {
-      val res = OperationsHelper.parseValueToMilliSeconds("6500")
+      val res = DateOperationsHelper.parseValueToMilliSeconds("6500")
       res should be(6500)
     }
 

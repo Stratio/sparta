@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.trigger
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.{Output, TableSchema}
-import com.stratio.sparta.serving.core.helpers.OperationsHelper
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.streaming.Milliseconds
@@ -39,9 +39,9 @@ case class StreamWriter(triggers: Seq[Trigger],
   def write(streamData: DStream[Row]): Unit = {
     val dStream = streamData.window(
       Milliseconds(options.overLast.fold(options.sparkStreamingWindow) { over =>
-        OperationsHelper.parseValueToMilliSeconds(over)}),
+        DateOperationsHelper.parseValueToMilliSeconds(over)}),
       Milliseconds(options.computeEvery.fold(options.sparkStreamingWindow) { computeEvery =>
-          OperationsHelper.parseValueToMilliSeconds(computeEvery)
+          DateOperationsHelper.parseValueToMilliSeconds(computeEvery)
       })
     )
 

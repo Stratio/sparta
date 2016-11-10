@@ -20,9 +20,9 @@ import java.util.UUID
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{ErrorModel, FragmentElementModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework

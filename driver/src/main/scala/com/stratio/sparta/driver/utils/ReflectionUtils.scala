@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.util
+package com.stratio.sparta.driver.utils
 
 import java.io.Serializable
 import java.net.URLClassLoader

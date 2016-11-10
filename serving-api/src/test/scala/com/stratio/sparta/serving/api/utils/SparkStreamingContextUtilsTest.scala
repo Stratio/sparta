@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.utils
+
+import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.models.PolicyStatusModel
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import org.junit.runner.RunWith
+import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfter
+import org.scalatest.junit.JUnitRunner
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Success
-import akka.actor.{Actor, ActorRef}
-import org.mockito.Matchers
-import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
-import com.stratio.sparta.serving.core.models.PolicyStatusModel
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class SparkStreamingContextUtilsTest extends BaseUtilsTest
-  with SparkStreamingContextUtils
+  with StreamingContextActorUtils
   with BeforeAndAfter {
 
   val policyModel = getPolicyModel()

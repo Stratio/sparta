@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.utils
+
+import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Response
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import org.junit.runner.RunWith
+import org.mockito.Mockito._
+import org.scalatest.junit.JUnitRunner
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Success
-import org.mockito.Mockito._
-import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Response
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {

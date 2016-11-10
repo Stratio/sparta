@@ -19,7 +19,7 @@ import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
 
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import spray.io._
 
 object SSLSupport {

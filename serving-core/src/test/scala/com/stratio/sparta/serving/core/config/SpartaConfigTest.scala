@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core
+package com.stratio.sparta.serving.core.config
 
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith

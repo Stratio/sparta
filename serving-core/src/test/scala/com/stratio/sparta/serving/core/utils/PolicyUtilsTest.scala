@@ -13,20 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.utils
 
-import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, CubeModel, OutputFieldsModel, WriterModel}
+package com.stratio.sparta.serving.core.utils
+
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, OutputFieldsModel, UserJar}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class PolicyUtilsTest extends BaseUtilsTest
+class PolicyUtilsTest extends PolicyBaseUtilsTest
   with PolicyUtils {
 
   val utils = spy(this)
   val basePath = "/samplePath"
+  val aggModel: AggregationPoliciesModel = mock[AggregationPoliciesModel]
+
+  "PolicyUtils" should {
+    "return files" in {
+      when(aggModel.userPluginsJars).thenReturn(Seq(UserJar("path1"), UserJar("path2")))
+
+      val files = jarsFromPolicy(aggModel)
+
+      files.map(_.getName) shouldBe(Seq("path1", "path2"))
+    }
+
+    "return empty Seq" in {
+      when(aggModel.userPluginsJars).thenReturn(Seq(UserJar("")))
+
+      val files = jarsFromPolicy(aggModel)
+
+      files.size shouldBe(0)
+    }
+  }
+
   "PolicyUtils.existsByName" should {
     "return true if al least exists one policy with the same name" in {
       doReturn(true)
@@ -152,6 +172,10 @@ class PolicyUtilsTest extends BaseUtilsTest
       doReturn(true)
         .when(utils)
         .isLocalMode
+
+      doReturn(false)
+        .when(utils)
+        .checkpointGoesToHDFS
 
       utils.deleteCheckpointPath(getPolicyModel())
 

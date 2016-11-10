@@ -24,9 +24,9 @@ import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment,
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
+import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.FragmentElementModel
-import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

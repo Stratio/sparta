@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.cube
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.Row

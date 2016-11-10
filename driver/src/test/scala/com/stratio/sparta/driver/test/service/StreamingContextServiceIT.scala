@@ -18,11 +18,10 @@ package com.stratio.sparta.driver.test.service
 
 import java.io.File
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.driver.util.PolicyUtils
-import com.stratio.sparta.serving.core.SpartaConfig
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -35,8 +34,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class StreamingContextServiceIT extends WordSpecLike
   with Matchers
-  with SLF4JLogging
-  with SpartaSerializer {
+  with PolicyUtils {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
 
@@ -66,7 +64,7 @@ class StreamingContextServiceIT extends WordSpecLike
       SpartaConfig.spartaHome = getSpartaHome
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
-      val jars = PolicyUtils.jarsFromPolicy(apConfig)
+      val jars = jarsFromPolicy(apConfig)
       val streamingContextService = new StreamingContextService(None, spartaConfig)
       val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 

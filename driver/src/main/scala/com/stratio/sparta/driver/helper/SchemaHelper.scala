@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.helper
 import com.stratio.sparta.driver.cube.{Cube, CubeWriter}
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.helpers.OperationsHelper
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import com.stratio.sparta.serving.core.models._
 import org.apache.spark.sql.types._
 
@@ -133,7 +133,7 @@ object SchemaHelper {
         Option(ExpiringDataConfig(
           dimensionModelValue.name,
           dimensionModelValue.precision,
-          OperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
+          DateOperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
       case _ => None
     }
   }

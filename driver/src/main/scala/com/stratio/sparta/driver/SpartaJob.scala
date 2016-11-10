@@ -16,10 +16,8 @@
 package com.stratio.sparta.driver
 
 import java.io._
-import com.stratio.sparta.serving.core.SpartaConfig
 
 import scala.util.{Try, _}
-
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.Row
@@ -27,19 +25,19 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.json4s.native.Serialization.write
-
 import com.stratio.sparta.driver.cube.{Cube, CubeMaker, CubeWriter, CubeWriterOptions}
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper._
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.trigger.{StreamWriter, StreamWriterOptions, Trigger}
-import com.stratio.sparta.driver.util.{HdfsUtils, ReflectionUtils}
+import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AppConstant, ErrorCodes}
 import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.helpers.OperationsHelper
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import com.stratio.sparta.serving.core.models._
 
 class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
@@ -48,7 +46,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
   def run(sc: SparkContext): StreamingContext = {
     val checkpointPolicyPath = SpartaJob.generateCheckpointPath(policy)
-    val sparkStreamingWindow = OperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
+    val sparkStreamingWindow = DateOperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SpartaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted

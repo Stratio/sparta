@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.test.util
+package com.stratio.sparta.serving.core.utils
 
-import java.io.FileNotFoundException
-import java.io.InputStream
-import scala.util.Failure
-import scala.util.Try
+import java.io.{FileNotFoundException, InputStream}
 
-import org.apache.hadoop.fs.FileSystem
-import org.apache.hadoop.fs._
+import org.apache.hadoop.fs.{FileSystem, _}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
-import com.stratio.sparta.driver.util.HdfsUtils
+import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
 class HdfsUtilsTest extends FlatSpec with ShouldMatchers with MockitoSugar {

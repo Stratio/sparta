@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.utils
+package com.stratio.sparta.serving.core.utils
 
 import java.io.File
 import java.util.UUID
+
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import org.apache.commons.io.FileUtils
+import org.apache.curator.framework.CuratorFramework
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization._
+
 import scala.collection.JavaConversions
 import scala.util._
 
-import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.CuratorFramework
-import org.json4s.jackson.Serialization._
-
-import com.stratio.sparta.driver.util.HdfsUtils
-import com.stratio.sparta.serving.api.constants.ActorsConstant
-import com.stratio.sparta.serving.api.helpers.SpartaHelper._
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparta.serving.core.{CuratorFactoryHolder, SpartaConfig}
-
-trait PolicyUtils {
+trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   def existsByName(name: String, id: Option[String] = None, curatorFramework: CuratorFramework): Boolean = {
     val nameToCompare = name.toLowerCase
@@ -97,7 +98,7 @@ trait PolicyUtils {
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
     Try {
-      if (!isLocalMode || checkpointGoesToHDFS(policy))
+      if (!isLocalMode || checkpointGoesToHDFS)
         deleteFromHDFS(policy)
       else deleteFromLocal(policy)
     } match {
@@ -112,8 +113,11 @@ trait PolicyUtils {
   def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
     HdfsUtils(SpartaConfig.getHdfsConfig).delete(AggregationPoliciesModel.checkpointPath(policy))
 
-  def checkpointGoesToHDFS(policy: AggregationPoliciesModel): Boolean =
-    policy.checkpointPath.exists(_.startsWith("hdfs://"))
+  def checkpointGoesToHDFS: Boolean =
+    Option(System.getenv("HADOOP_CONF_DIR")) match {
+      case Some(_) => true
+      case None => false
+    }
 
   def isLocalMode: Boolean =
     SpartaConfig.getDetailConfig match {
@@ -159,5 +163,17 @@ trait PolicyUtils {
 
   def deleteRelatedPolicies(policies: Seq[AggregationPoliciesModel]): Unit = {
     policies.foreach(deleteCheckpointPath)
+  }
+
+  /**
+   * Method to parse AggregationPoliciesModel from JSON string
+   *
+   * @param json The policy as JSON string
+   * @return AggregationPoliciesModel
+   */
+  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
+
+  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] = {
+    apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
   }
 }

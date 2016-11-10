@@ -17,28 +17,25 @@
 package com.stratio.sparta.serving.api.actor
 
 import java.util.UUID
+
 import scala.collection.JavaConversions
 import scala.util.Try
-
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.json4s.jackson.Serialization.write
-
-import com.stratio.sparta.serving.api.constants.ActorsConstant
-import com.stratio.sparta.serving.api.utils.PolicyUtils
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 
 /**
  * Implementation of supported CRUD operations over ZK needed to manage policies.
  */
 class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRef)
   extends Actor
-    with SpartaSerializer
     with PolicyUtils {
 
   import PolicyActor._

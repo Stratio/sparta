@@ -15,9 +15,10 @@
  */
 
 
-package com.stratio.sparta.serving.core
+package com.stratio.sparta.serving.core.curator
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
