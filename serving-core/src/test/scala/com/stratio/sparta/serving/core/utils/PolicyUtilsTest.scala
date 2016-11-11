@@ -157,10 +157,14 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
       verify(utils, times(1)).deleteFromHDFS(getPolicyModel())
     }
 
-    "delete path from HDFS when mode is local but checkpoint path starts with hdfs" in {
+    "delete path from HDFS when mode is local but is defined hadoop conf directory" in {
       doReturn(true)
         .when(utils)
         .isLocalMode
+
+      doReturn(true)
+        .when(utils)
+        .checkpointGoesToHDFS
 
       val policy: AggregationPoliciesModel = getPolicyModel().copy(checkpointPath = Option("hdfs://"))
       utils.deleteCheckpointPath(policy)
