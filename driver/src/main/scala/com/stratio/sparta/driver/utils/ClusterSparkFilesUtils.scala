@@ -26,10 +26,6 @@ import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
 
 case class ClusterSparkFilesUtils(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends PolicyUtils {
 
-  private val hdfsConfig = SpartaConfig.getHdfsConfig.get
-  private val host = hdfsConfig.getString(AppConstant.HdfsMaster)
-  private val port = hdfsConfig.getInt(AppConstant.HdfsPort)
-
   def getPluginsFiles(pluginsJarsPath: String): Seq[String] = {
     jarsFromPolicy(policy)
       .filter(file => !file.getName.contains("driver")).map(file => {
