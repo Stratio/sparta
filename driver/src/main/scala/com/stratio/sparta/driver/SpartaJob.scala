@@ -39,6 +39,7 @@ import com.stratio.sparta.serving.core.constants.{AppConstant, ErrorCodes}
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 
 class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
 
@@ -96,12 +97,11 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
   }
 }
 
-object SpartaJob extends SLF4JLogging with SpartaSerializer {
+object SpartaJob extends PolicyUtils {
 
   lazy val ReflectionUtils = new ReflectionUtils
 
-  def generateCheckpointPath(policy: AggregationPoliciesModel): String =
-    AggregationPoliciesModel.checkpointPath(policy)
+  def generateCheckpointPath(policy: AggregationPoliciesModel): String = checkpointPath(policy)
 
   def apply(policy: AggregationPoliciesModel): SpartaJob = new SpartaJob(policy)
 

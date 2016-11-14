@@ -154,7 +154,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         name = policy.name.toLowerCase,
         version = Some(ActorsConstant.UnitVersion)
       )
-      deleteCheckpointPath(policy)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
@@ -176,7 +175,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
           name = policy.name.toLowerCase,
           version = setVersion(searchPolicy.get, policy)
         )
-        deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
         policyS
       }

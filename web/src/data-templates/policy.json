@@ -106,7 +106,7 @@
       "propertyType": "select",
       "required": true,
       "default": "MEMORY_ONLY_SER",
-      "width": 6,
+      "width": 7,
       "position": "left",
       "qa": "policy-storage-level",
       "values": [
@@ -156,7 +156,7 @@
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
-      "width": 6,
+      "width": 5,
       "position": "right",
       "default": false,
       "qa": "policy-raw-data"
@@ -164,7 +164,7 @@
     {
       "propertyId": "rawDataPath",
       "propertyName": "_PATH_",
-      "width": 6,
+      "width": 7,
       "position": "left",
       "propertyType": "text",
       "required": true,
@@ -178,6 +178,24 @@
       ],
       "default": "/tmp/checkpoint",
       "qa": "raw-data-path"
+    },
+    {
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "width": 7,
+      "position": "left",
+      "propertyType": "text",
+      "required": false,
+      "qa": "checkpoint-path"
+    },
+    {
+      "propertyId": "autoDeleteCheckpoint",
+      "propertyName": "_AUTO_DELETE_CHECKPOINT_",
+      "width": 5,
+      "position": "right",
+      "propertyType": "boolean",
+      "required": false,
+      "qa": "auto-delete-checkpoint"
     },
     {
       "propertyId": "sparkConf",

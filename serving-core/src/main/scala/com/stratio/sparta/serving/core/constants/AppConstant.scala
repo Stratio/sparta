@@ -49,8 +49,9 @@ object AppConstant {
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
   final val DefaultStopGracefully = true
-  final val AutoDeleteCheckpoint = "autoDeleteCheckpoint"
+  final val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   final val DefaultAutoDeleteCheckpoint = true
+  final val ConfigCheckpointPath = "checkpointPath"
   final val DefaultCheckpointPath = "sparta/checkpoint"
   final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
   final val DefaultCheckpointPathClusterMode = "/user/"

@@ -96,29 +96,6 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     policy.copy(id = Some(UUID.randomUUID.toString))
   }
 
-  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
-    Try {
-      if (!isLocalMode || checkpointGoesToHDFS)
-        deleteFromHDFS(policy)
-      else deleteFromLocal(policy)
-    } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${AggregationPoliciesModel.checkpointPath(policy)}")
-      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
-    }
-  }
-
-  def deleteFromLocal(policy: AggregationPoliciesModel): Unit =
-    FileUtils.deleteDirectory(new File(AggregationPoliciesModel.checkpointPath(policy)))
-
-  def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
-    HdfsUtils(SpartaConfig.getHdfsConfig).delete(AggregationPoliciesModel.checkpointPath(policy))
-
-  def checkpointGoesToHDFS: Boolean =
-    Option(System.getenv("HADOOP_CONF_DIR")) match {
-      case Some(_) => true
-      case None => false
-    }
-
   def isLocalMode: Boolean =
     SpartaConfig.getDetailConfig match {
       case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
@@ -176,4 +153,69 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] = {
     apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
   }
+
+
+  /** CHECKPOINT OPTIONS **/
+
+  def deleteFromLocal(policy: AggregationPoliciesModel): Unit =
+    FileUtils.deleteDirectory(new File(checkpointPath(policy)))
+
+  def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
+    HdfsUtils(SpartaConfig.getHdfsConfig).delete(checkpointPath(policy))
+
+  def checkpointGoesToHDFS: Boolean =
+    Option(System.getenv("HADOOP_CONF_DIR")) match {
+      case Some(_) => true
+      case None => false
+    }
+
+  private def cleanCheckpointPath(path: String) : String = {
+    val hdfsPrefix = "hdfs://"
+
+    if(path.startsWith(hdfsPrefix))
+      log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
+    path.replace(hdfsPrefix, "")
+  }
+
+  private def checkpointPathFromProperties(policyName: String): String =
+    (for {
+      config <- SpartaConfig.getDetailConfig
+      checkpointPath <- Try(cleanCheckpointPath(config.getString(AppConstant.ConfigCheckpointPath))).toOption
+    } yield s"$checkpointPath/$policyName").getOrElse(generateDefaultCheckpointPath)
+
+  private def autoDeleteCheckpointPathFromProperties: Boolean =
+    Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigAutoDeleteCheckpoint))
+      .getOrElse(AppConstant.DefaultAutoDeleteCheckpoint)
+
+  private def generateDefaultCheckpointPath: String =
+    SpartaConfig.getDetailConfig.map(_.getString(AppConstant.ExecutionMode)) match {
+      case Some(mode) if mode == AppConstant.ConfigMesos || mode == AppConstant.ConfigYarn =>
+        AppConstant.DefaultCheckpointPathClusterMode +
+          Try(SpartaConfig.getHdfsConfig.get.getString(AppConstant.HadoopUserName))
+            .getOrElse(AppConstant.DefaultHdfsUser) +
+          AppConstant.DefaultHdfsUser
+      case Some(AppConstant.ConfigLocal) =>
+        AppConstant.DefaultCheckpointPathLocalMode
+      case _ =>
+        throw new RuntimeException("Error getting execution mode")
+    }
+
+  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
+    Try {
+      if (!isLocalMode || checkpointGoesToHDFS)
+        deleteFromHDFS(policy)
+      else deleteFromLocal(policy)
+    } match {
+      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
+      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
+    }
+  }
+
+  def checkpointPath(policy: AggregationPoliciesModel): String =
+    policy.checkpointPath.map { path =>
+      s"${cleanCheckpointPath(path)}/${policy.name}"
+    } getOrElse checkpointPathFromProperties(policy.name)
+
+  def autoDeleteCheckpointPath(policy: AggregationPoliciesModel): Boolean =
+    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
 }

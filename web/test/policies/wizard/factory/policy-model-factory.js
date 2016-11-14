@@ -53,6 +53,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.description).toBe("");
       expect(policy.rawDataEnabled).toBe(undefined);
       expect(policy.rawDataPath).toBe(undefined);
+      expect(policy.checkpointPath).toBe(undefined);
+      expect(policy.autoDeleteCheckpoint).toBe(undefined);
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
       expect(policy.transformations).toEqual([]);
@@ -87,6 +89,8 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.description).toBe("");
     expect(policy.rawDataEnabled).toBe(undefined);
     expect(policy.rawDataPath).toBe(undefined);
+    expect(policy.checkpointPath).toBe(undefined);
+    expect(policy.autoDeleteCheckpoint).toBe(undefined);
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
     expect(policy.transformations).toEqual([]);

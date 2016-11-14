@@ -50,7 +50,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
 
   def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): StreamingContext = {
     runStatusListener(policy.id.get, policy.name)
-    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
+    if(autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
@@ -70,7 +70,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     val exitWhenStop = true
 
     runStatusListener(policy.id.get, policy.name, exitWhenStop)
-    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
+    if(autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
@@ -92,16 +92,6 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
 
 
     SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
-  }
-
-  private def deleteCheckpointWhenNotGracefully(detailConfig: Option[Config],
-                                                policy: AggregationPoliciesModel): Unit = {
-    detailConfig.foreach(config => {
-      val stopGracefullyOption = Try(config.getBoolean(AppConstant.ConfigStopGracefully))
-        .getOrElse(AppConstant.DefaultStopGracefully)
-
-      if(!stopGracefullyOption) deleteCheckpointPath(policy)
-    })
   }
 
   private def getClusterSparkContext(policy: AggregationPoliciesModel,
