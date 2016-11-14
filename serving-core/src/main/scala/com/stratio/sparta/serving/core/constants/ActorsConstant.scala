@@ -15,7 +15,7 @@
  */
 
 
-package com.stratio.sparta.serving.api.constants
+package com.stratio.sparta.serving.core.constants
 
 object ActorsConstant {
 

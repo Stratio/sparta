@@ -20,15 +20,14 @@ import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName,
-FindByFragmentType, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.utils.PolicyUtils
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentElementModel}
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
@@ -384,7 +383,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUt
   protected def updatePoliciesWithUpdatedFragments(policies: Seq[AggregationPoliciesModel]): Unit =
     policies.foreach(policy => {
       val policyActor = actors.get(AkkaConstant.PolicyActor).get
-      val policyWithFragments = PolicyHelper.getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+      val policyWithFragments = FragmentsHelper.getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
 
       policyActor ! PolicyActor.Update(policyWithFragments)
     })

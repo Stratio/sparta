@@ -16,10 +16,11 @@
 
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.serving.core.SpartaConfig
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.OperationsHelper._
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 
 import scala.util.Try
@@ -88,22 +89,31 @@ case class AggregationPoliciesModel(
 
 //scalastyle:on
 
-case object AggregationPoliciesModel {
+case object AggregationPoliciesModel extends SLF4JLogging{
 
   val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 
+  private def cleanCheckpointPath(path: String) : String = {
+    val hdfsPrefix = "hdfs://"
+
+    if(path.startsWith(hdfsPrefix))
+      log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
+    path.replace(hdfsPrefix, "")
+  }
+
   private def getCheckpointPathFromProperties(policyName: String): String =
     (for {
       config <- SpartaConfig.getDetailConfig
-      checkpointPath <- Try(config.getString("checkpointPath")).toOption
-    } yield s"$checkpointPath/$policyName")
-      .getOrElse(generateDefaultCheckpointPath)
+      checkpointPath <- Try(cleanCheckpointPath(config.getString("checkpointPath"))).toOption
+    } yield s"$checkpointPath/$policyName").getOrElse(generateDefaultCheckpointPath)
 
   private def generateDefaultCheckpointPath: String =
     SpartaConfig.getDetailConfig.map(_.getString(AppConstant.ExecutionMode)) match {
       case Some(mode) if mode == AppConstant.ConfigMesos || mode == AppConstant.ConfigYarn =>
-        AppConstant.DefaultCheckpointPathClusterMode
+        AppConstant.DefaultCheckpointPathClusterMode +
+          s"${Try(SpartaConfig.getHdfsConfig.get.getString("hadoopUserName")).getOrElse(AppConstant.DefaultHdfsUser)}" +
+        AppConstant.DefaultHdfsUser
       case Some(AppConstant.ConfigLocal) =>
         AppConstant.DefaultCheckpointPathLocalMode
       case _ =>
@@ -112,7 +122,7 @@ case object AggregationPoliciesModel {
 
   def checkpointPath(policy: AggregationPoliciesModel): String =
     policy.checkpointPath.map { path =>
-      s"${path.replace("hdfs://", "")}/${policy.name}"
+      s"${cleanCheckpointPath(path)}/${policy.name}"
     } getOrElse getCheckpointPathFromProperties(policy.name)
 }
 

@@ -46,6 +46,7 @@ object AppConstant {
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
+  final val DefaultStopGracefully = false
   final val StopTimeout = "stopTimeout"
   final val DefaultStopTimeout = 30000
 
@@ -57,6 +58,7 @@ object AppConstant {
   final val PluginsFolder = "pluginsFolder"
   final val ClasspathFolder = "classpathFolder"
   final val ExecutionJarFolder = "executionJarFolder"
+  final val DefaultHdfsUser = "stratio"
 
   //Generic Options
   final val DeployMode = "deployMode"
@@ -90,7 +92,8 @@ object AppConstant {
   final val DefaultZookeeperRetryInterval = 10000
 
   //checkpointPath
-  final val DefaultCheckpointPathLocalMode = "/tmp/sparta/checkpoint"
-  final val DefaultCheckpointPathClusterMode = "/user/stratio/sparta/checkpoint"
+  final val DefaultCheckpointPath = "sparta/checkpoint"
+  final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
+  final val DefaultCheckpointPathClusterMode = "/user/"
 
 }

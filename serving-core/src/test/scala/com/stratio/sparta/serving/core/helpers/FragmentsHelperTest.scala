@@ -21,7 +21,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
+class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
   val storageLevel = Some("MEMORY_AND_DISK_SER_2")
 
@@ -67,7 +67,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       )
 
       When("the helper parse these fragments")
-      val result = PolicyHelper.parseFragments(ap)
+      val result = FragmentsHelper.parseFragments(ap)
 
       Then("outputs must have the existing outputs and the parsed input fragment and the first input")
 
@@ -121,7 +121,7 @@ class PolicyHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
     When("the helper tries to parse the policy it throws an exception")
     val thrown = intercept[IllegalStateException] {
-      PolicyHelper.parseFragments(ap)
+      FragmentsHelper.parseFragments(ap)
     }
 
     Then("the exception must have the message")

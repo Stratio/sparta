@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.helpers
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.{MockConfigFactory, SpartaConfig}
-
 @RunWith(classOf[JUnitRunner])
 class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
-
 
   "SpartaHelper.getExecutionMode" should {
 
@@ -56,7 +55,7 @@ class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
 
       SpartaConfig.initMainConfig(Some(config), new MockConfigFactory(config))
 
-      intercept[RuntimeException]{
+      intercept[RuntimeException] {
         SpartaHelper.getExecutionMode
       }
     }
@@ -75,9 +74,9 @@ class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
           |   }
           |}
         """.stripMargin)
-      SpartaConfig.initMainConfig(Option(config),new MockConfigFactory(config))
+      SpartaConfig.initMainConfig(Option(config), new MockConfigFactory(config))
 
-      SpartaHelper.isClusterMode should be (false)
+      SpartaHelper.isClusterMode should be(false)
     }
 
     "return true when execution mode is standalone" in {
@@ -91,9 +90,9 @@ class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
           |   }
           |}
         """.stripMargin)
-      SpartaConfig.initMainConfig(Option(config),new MockConfigFactory(config))
+      SpartaConfig.initMainConfig(Option(config), new MockConfigFactory(config))
 
-      SpartaHelper.isClusterMode should be (false)
+      SpartaHelper.isClusterMode should be(false)
     }
 
     "return false when execution mode is yarn or mesos" in {
@@ -107,9 +106,9 @@ class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
           |   }
           |}
         """.stripMargin)
-      SpartaConfig.initMainConfig(Option(config),new MockConfigFactory(config))
+      SpartaConfig.initMainConfig(Option(config), new MockConfigFactory(config))
 
-      SpartaHelper.isClusterMode should be (true)
+      SpartaHelper.isClusterMode should be(true)
     }
   }
 }

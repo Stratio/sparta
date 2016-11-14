@@ -22,8 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.pipe
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.api.utils.SparkStreamingContextUtils
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.api.utils.StreamingContextActorUtils
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
@@ -41,7 +40,7 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
                                  policyActor: ActorRef,
                                  policyStatusActor: ActorRef,
                                  curatorFramework: CuratorFramework) extends Actor
-  with SparkStreamingContextUtils
+  with StreamingContextActorUtils
   with SLF4JLogging
   with SpartaSerializer {
 

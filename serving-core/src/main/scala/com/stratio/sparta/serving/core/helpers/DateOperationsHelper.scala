@@ -17,7 +17,7 @@
 
 package com.stratio.sparta.serving.core.helpers
 
-object OperationsHelper {
+object DateOperationsHelper {
 
   /**
     * Given a value transform this value to a milliseconds

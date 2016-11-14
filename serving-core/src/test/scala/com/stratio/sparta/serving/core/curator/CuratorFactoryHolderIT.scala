@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.helpers.sparta
+package com.stratio.sparta.serving.core.curator
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.{SpartaConfig, CuratorFactoryHolder}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.typesafe.config._
 import org.apache.curator.framework.api.ExistsBuilder
-import org.apache.curator.test.{TestingCluster, TestingServer}
-import org.apache.zookeeper.CreateMode
+import org.apache.curator.test.TestingCluster
 import org.apache.curator.utils.CloseableUtils
+import org.apache.zookeeper.CreateMode
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, _}

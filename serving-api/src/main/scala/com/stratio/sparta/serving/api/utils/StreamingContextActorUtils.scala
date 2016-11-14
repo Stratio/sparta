@@ -26,12 +26,13 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Start
 import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStreamingContextActor}
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 
-trait SparkStreamingContextUtils extends PolicyStatusUtils
+trait StreamingContextActorUtils extends PolicyStatusUtils
   with PolicyUtils {
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"

@@ -22,11 +22,11 @@ import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.gracefulStop
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.ResourceManagerLink
+import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
 import org.apache.curator.framework.CuratorFramework
@@ -123,8 +123,8 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
               curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")
             ))
           )
-          PoliciesStatusModel(policiesStatus, ResourceManagerLink.getLink)
-        } else PoliciesStatusModel(Seq(), ResourceManagerLink.getLink)
+          PoliciesStatusModel(policiesStatus, ResourceManagerLinkHelper.getLink)
+        } else PoliciesStatusModel(Seq(), ResourceManagerLinkHelper.getLink)
       }
     )
   }

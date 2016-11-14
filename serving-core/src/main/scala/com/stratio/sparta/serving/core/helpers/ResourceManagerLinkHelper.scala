@@ -17,15 +17,14 @@
 package com.stratio.sparta.serving.core.helpers
 
 import java.net.Socket
+
 import scala.IllegalArgumentException
 import scala.util._
-
 import akka.event.slf4j.SLF4JLogging
-
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 
-object ResourceManagerLink extends SLF4JLogging {
+object ResourceManagerLinkHelper extends SLF4JLogging {
 
   def getLink: Option[String] = {
     val executionMode = SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode)

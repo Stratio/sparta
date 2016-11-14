@@ -19,7 +19,7 @@ import scala.util.Failure
 import scala.util.Try
 
 import com.stratio.sparta.driver.SpartaJob
-import com.stratio.sparta.driver.util.ReflectionUtils
+import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.{Input, JsoneyString, Parser}
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
 import org.apache.spark.sql.Row
@@ -32,7 +32,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
 import com.stratio.sparta.driver.SpartaJob
-import com.stratio.sparta.driver.util.ReflectionUtils
+import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.Input
 import com.stratio.sparta.sdk.JsoneyString
 import com.stratio.sparta.sdk.Parser

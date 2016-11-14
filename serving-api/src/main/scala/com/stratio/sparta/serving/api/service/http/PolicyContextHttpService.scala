@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.api.service.http.BaseHttpService
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{Delete, FindAll, _}
 import com.wordnik.swagger.annotations._
@@ -159,7 +159,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[AggregationPoliciesModel]) { p =>
-          val parsedP = PolicyHelper.getPolicyWithFragments(p, actors.get(AkkaConstant.FragmentActor).get)
+          val parsedP = FragmentsHelper.getPolicyWithFragments(p, actors.get(AkkaConstant.FragmentActor).get)
           AggregationPoliciesValidator.validateDto(parsedP)
           val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
           (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
@@ -170,8 +170,8 @@ trait PolicyContextHttpService extends BaseHttpService {
             } yield {
               policyResponseTry match {
                 case Success(policy) =>
-                  val inputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-                  val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+                  val inputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+                  val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
 
                   createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                   PolicyResult(policy.id.getOrElse(""), p.name)

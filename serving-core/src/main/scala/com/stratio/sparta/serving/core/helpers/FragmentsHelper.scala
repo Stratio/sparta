@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
 /**
  * Helper with operations over policies and policy fragments.
  */
-object PolicyHelper {
+object FragmentsHelper {
 
   /**
    * Extract the policy with the updated fragments and added as inputs and outputs
@@ -46,8 +46,8 @@ object PolicyHelper {
     val policyWithFragments = parseFragments(fillFragments(policy, fragmentActor))
     if (policyWithFragments.fragments.isEmpty) {
       // This happens when the policy has been uploaded through policy POST endpoint
-      val input = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-      val outputs = PolicyHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+      val input = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+      val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
       policyWithFragments.copy(fragments = input ++ outputs)
     } else {
       policyWithFragments

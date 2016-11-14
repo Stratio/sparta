@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.helpers
 
-import com.stratio.sparta.serving.api.helpers.SpartaHelper
-import com.stratio.sparta.serving.core.{SpartaConfig, MockConfigFactory, MockSystem}
+import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalamock.scalatest._
@@ -25,6 +25,7 @@ import org.scalatest.junit.JUnitRunner
 
 /**
  * Tests over sparta helper operations used to wake up a Sparta's context.
+ *
  * @author anistal
  */
 @RunWith(classOf[JUnitRunner])
@@ -39,7 +40,7 @@ class SpartaClusterLauncherActorTest extends FlatSpec with MockFactory with Shou
       """.stripMargin)
 
     val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = new MockConfigFactory(config))
-    spartaConfig.get.getString("testKey") should be ("testValue")
+    spartaConfig.get.getString("testKey") should be("testValue")
   }
 
   it should "init a config from a given config" in {
@@ -54,6 +55,6 @@ class SpartaClusterLauncherActorTest extends FlatSpec with MockFactory with Shou
 
     val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = new MockConfigFactory(config))
     val testNodeConfig = SpartaConfig.initConfig("testNode", spartaConfig, new MockConfigFactory(config))
-    testNodeConfig.get.getString("testKey") should be ("testValue")
+    testNodeConfig.get.getString("testKey") should be("testValue")
   }
 }

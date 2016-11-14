@@ -47,6 +47,18 @@ trait PolicyStatusUtils {
     }
   }
 
+  def updateAll(policyStatusActor: ActorRef, status: PolicyStatusEnum.Value): Unit = {
+    for {
+      response <- findAllPolicies(policyStatusActor)
+    } yield response.policyStatus match {
+      case Success(policiesStatuses) =>
+        policiesStatuses.policiesStatus.foreach(policyStatus =>
+          policyStatusActor ! Update(PolicyStatusModel(policyStatus.id, status)))
+      case _ =>
+        log.error(s"The policies are not updated to status: $status")
+    }
+  }
+
   def isContextAvailable(policyStatusActor: ActorRef): Future[Boolean] =
     for {
       maybeStarted <- isAnyPolicyStarted(policyStatusActor)

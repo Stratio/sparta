@@ -16,7 +16,7 @@
 package com.stratio.sparta.driver.test.factory
 
 import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.Duration

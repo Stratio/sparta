@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.util
+
+package com.stratio.sparta.serving.core.utils
 
 import java.io._
 import java.security.PrivilegedExceptionAction
 
-import org.apache.hadoop.security.UserGroupInformation
-import org.apache.spark.deploy.SparkHadoopUtil
-
-import scala.util.Try
-
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.Config
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FSDataOutputStream, FileStatus, FileSystem, Path}
+import org.apache.hadoop.security.UserGroupInformation
+
+import scala.util.Try
 
 case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None) {
 
@@ -61,22 +61,32 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 
 object HdfsUtils extends SLF4JLogging {
 
-  private final val DefaultFSProperty = "fs.defaultFS"
-  private final val HdfsDefaultPort = 8020
+  def hdfsConfiguration(userName: String, configOpt: Option[Config]): Configuration = {
+    val DefaultFSProperty = "fs.defaultFS"
+    val HdfsDefaultPort = 9000
 
-  def hdfsConfiguration(configOpt: Option[Config]): Configuration =
-    configOpt.map { config =>
-      val master = config.getString("hdfsMaster")
-      val port = Try(config.getInt("hdfsPort")).getOrElse(HdfsDefaultPort)
-      val conf = new Configuration()
-      conf.set(DefaultFSProperty, s"hdfs://$master:$port/user/stratio/sparta")
-      conf
-    }.getOrElse(
-      new Configuration()
-    )
+    val HdfsDefaultMaster = "127.0.0.1"
+    val conf = new Configuration()
 
-  def apply(user: String,
-            conf: Configuration,
+    Option(System.getenv("HADOOP_CONF_DIR")) match {
+      case Some(confDir) =>
+        log.info(s"The Hadoop configuration is read from directory files in the path $confDir")
+      case None =>
+        configOpt.foreach { config =>
+          val master = Try(config.getString("hdfsMaster")).getOrElse(HdfsDefaultMaster)
+          val port = Try(config.getInt("hdfsPort")).getOrElse(HdfsDefaultPort)
+          val hdfsPath = s"hdfs://$master:$port/user/$userName/sparta"
+
+          conf.set(DefaultFSProperty, hdfsPath)
+
+          log.info(s"The Hadoop configuration is assigned with $DefaultFSProperty with value: $hdfsPath")
+        }
+    }
+    conf
+  }
+
+  def apply(conf: Configuration,
+            userName: String,
             principalNameOption: Option[String],
             keytabPathOption: Option[String]): HdfsUtils = {
     Option(System.getenv("HADOOP_CONF_DIR")).foreach(
@@ -92,7 +102,7 @@ object HdfsUtils extends SLF4JLogging {
     )
 
     val ugi =
-      if(principalNameOption.isDefined && keytabPathOption.isDefined) {
+      if (principalNameOption.isDefined && keytabPathOption.isDefined) {
         val principalName = principalNameOption.getOrElse(
           throw new IllegalStateException("principalName can not be null"))
         val keytabPath = keytabPathOption.getOrElse(
@@ -102,15 +112,15 @@ object HdfsUtils extends SLF4JLogging {
         Option(UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keytabPath))
       } else None
 
-    new HdfsUtils(FileSystem.get(conf), user, ugi)
+    new HdfsUtils(FileSystem.get(conf), userName, ugi)
   }
 
   def apply(config: Option[Config]): HdfsUtils = {
-    val user = config.map(_.getString("hadoopUserName")).getOrElse("stratio")
+    val userName = Try(config.get.getString("hadoopUserName")).getOrElse(AppConstant.DefaultHdfsUser)
     val principalName: Option[String] =
-      Try(config.get.getString("principalName")).toOption.flatMap(x => if(x == "") None else Some(x))
+      Try(config.get.getString("principalName")).toOption.flatMap(x => if (x == "") None else Some(x))
     val keytabPath: Option[String] =
-      Try(config.get.getString("keytabPath")).toOption.flatMap(x => if(x == "") None else Some(x))
-    apply(user, hdfsConfiguration(config), principalName, keytabPath)
+      Try(config.get.getString("keytabPath")).toOption.flatMap(x => if (x == "") None else Some(x))
+    apply(hdfsConfiguration(userName, config), userName, principalName, keytabPath)
   }
 }

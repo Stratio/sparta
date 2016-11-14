@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core
+package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.{Config, ConfigFactory}

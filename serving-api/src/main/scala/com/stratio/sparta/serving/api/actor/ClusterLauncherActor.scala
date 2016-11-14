@@ -21,13 +21,14 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
-import com.stratio.sparta.driver.util.{ClusterSparkFiles, HdfsUtils}
+import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.core.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.spark.launcher.SpartaLauncher
 
@@ -59,7 +60,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   }
 
   def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
-    val Uploader = ClusterSparkFiles(policy, Hdfs)
+    val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
     val PolicyId = policy.id.get.trim
     val Master = ClusterConfig.getString(AppConstant.Master)
     val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"

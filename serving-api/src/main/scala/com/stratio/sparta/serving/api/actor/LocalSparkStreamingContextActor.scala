@@ -13,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
-import akka.event.slf4j.SLF4JLogging
-import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.driver.util.PolicyUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import org.apache.spark.streaming.StreamingContext
 
-import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class LocalSparkStreamingContextActor(streamingContextService: StreamingContextService, policyStatusActor: ActorRef)
   extends Actor
-    with SLF4JLogging
-    with SpartaSerializer {
+    with PolicyUtils {
 
   private var ssc: Option[StreamingContext] = None
 
@@ -46,10 +42,10 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
 
   private def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
 
-    val jars = PolicyUtils.jarsFromPolicy(policy)
+    val jars = jarsFromPolicy(policy)
     jars.foreach(file => JarsHelper.addToClasspath(file))
 
-    Try{
+    Try {
       policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = streamingContextService.standAloneStreamingContext(policy, jars)

@@ -26,10 +26,12 @@ import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.SpartaJob._
 import com.stratio.sparta.driver.factory._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum._
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
@@ -39,42 +41,45 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Success, Try}
 
-case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, generalConfig: Option[Config] = None)
-  extends SLF4JLogging {
+case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
+                                   generalConfig: Option[Config] = None)
+  extends PolicyUtils {
 
   implicit val timeout: Timeout = Timeout(4.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(apConfig: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
-    runStatusListener(apConfig.id.get, apConfig.name)
+  def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+    runStatusListener(policy.id.get, policy.name)
+    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
 
-    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(apConfig)}")
-      SpartaJob(apConfig).run(getStandAloneSparkContext(apConfig, files))
+    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
+      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
+      SpartaJob(policy).run(getStandAloneSparkContext(policy, files))
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
-    SparkContextFactory.setInitialSentences(apConfig.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     Option(ssc)
   }
 
-  def clusterStreamingContext(apConfig: AggregationPoliciesModel,
+  def clusterStreamingContext(policy: AggregationPoliciesModel,
                               files: Seq[String],
                               detailConfig: Map[String, String]): Option[StreamingContext] = {
     val exitWhenStop = true
 
-    runStatusListener(apConfig.id.get, apConfig.name, exitWhenStop)
+    runStatusListener(policy.id.get, policy.name, exitWhenStop)
+    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
 
-    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(apConfig), () => {
-      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(apConfig)}")
-      SpartaJob(apConfig).run(getClusterSparkContext(apConfig, files, detailConfig))
+    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
+      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
+      SpartaJob(policy).run(getClusterSparkContext(policy, files, detailConfig))
     })
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
-    SparkContextFactory.setInitialSentences(apConfig.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     Option(ssc)
   }
@@ -82,19 +87,28 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None, g
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
     val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
-    val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)) match {
-      case Success(config) => Some(config)
-      case _ => None
-    }
+    val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)).toOption
+
+
 
     SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
   }
 
-  private def getClusterSparkContext(apConfig: AggregationPoliciesModel,
+  private def deleteCheckpointWhenNotGracefully(detailConfig: Option[Config],
+                                                policy: AggregationPoliciesModel): Unit = {
+    detailConfig.foreach(config => {
+      val stopGracefullyOption = Try(config.getBoolean(AppConstant.ConfigStopGracefully))
+        .getOrElse(AppConstant.DefaultStopGracefully)
+
+      if(!stopGracefullyOption) deleteCheckpointPath(policy)
+    })
+  }
+
+  private def getClusterSparkContext(policy: AggregationPoliciesModel,
                                      classPath: Seq[String],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
-    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
+    val pluginsSparkConfig = SpartaJob.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(policy)
 
     SparkContextFactory.sparkClusterContextInstance(policySparkConfig ++ pluginsSparkConfig ++ detailConfig, classPath)
   }

@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core
+package com.stratio.sparta.serving.core.config
 
+import com.stratio.sparta.serving.core
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.{WordSpec, Matchers}
+import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
 class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
@@ -46,7 +47,7 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      val res = new ConfigFactory {
+      val res = new core.config.ConfigFactory {
         val res = getConfig("sparta", Some(config)).get.toString
         res should be ("""Config(SimpleConfigObject({"testKey":"test"}))""")
       }
@@ -61,7 +62,7 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      new ConfigFactory {
+      new core.config.ConfigFactory {
         val conf = getConfig(None.orNull, Some(config))
         conf should be (None)
       }
@@ -77,7 +78,7 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      new ConfigFactory {
+      new core.config.ConfigFactory {
         val conf = getConfig(None.orNull, None)
         conf should be (None)
       }

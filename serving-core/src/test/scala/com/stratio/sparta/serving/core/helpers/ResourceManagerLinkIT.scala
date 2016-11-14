@@ -18,12 +18,11 @@ package com.stratio.sparta.serving.core.helpers
 import java.net.InetSocketAddress
 import java.nio.channels.ServerSocketChannel
 
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
-import com.stratio.sparta.serving.core.SpartaConfig
 
 @RunWith(classOf[JUnitRunner])
 class ResourceManagerLinkIT extends FlatSpec with
@@ -49,7 +48,7 @@ class ResourceManagerLinkIT extends FlatSpec with
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
 
-    ResourceManagerLink.getLink should be(Some(s"http://${localhostName}:4040"))
+    ResourceManagerLinkHelper.getLink should be(Some(s"http://${localhostName}:4040"))
   }
 
   /*it should "return Mesos UI link" in {
@@ -98,7 +97,7 @@ class ResourceManagerLinkIT extends FlatSpec with
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
 
-    ResourceManagerLink.getLink should be(Some("http://localhost:8088"))
+    ResourceManagerLinkHelper.getLink should be(Some("http://localhost:8088"))
   }
 
   it should "return Spark Standalone UI link" in {
@@ -118,7 +117,7 @@ class ResourceManagerLinkIT extends FlatSpec with
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
 
-    ResourceManagerLink.getLink should be(Some("http://localhost:8080"))
+    ResourceManagerLinkHelper.getLink should be(Some("http://localhost:8080"))
   }
 
 }

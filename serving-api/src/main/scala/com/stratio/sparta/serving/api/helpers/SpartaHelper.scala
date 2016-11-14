@@ -17,30 +17,24 @@
 package com.stratio.sparta.serving.api.helpers
 
 import akka.actor.{ActorRef, ActorSystem, Props}
-import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
-import com.stratio.sparta.serving.core._
+import com.stratio.sparta.serving.api.utils.PolicyStatusUtils
 import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.{PolicyStatusModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
-import org.apache.zookeeper.KeeperException.NoNodeException
-import org.json4s.jackson.Serialization._
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import spray.can.Http
-
-import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
  */
-object SpartaHelper extends SLF4JLogging
-  with SpartaSerializer {
+object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
 
   implicit var system: ActorSystem = _
 
@@ -83,6 +77,8 @@ object SpartaHelper extends SLF4JLogging
 
       if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
       else loadSpartaWithHttp(controllerActor, swaggerActor)
+
+      if(isLocalMode) updateAll(policyStatusActor, PolicyStatusEnum.NotStarted)
     } else log.info("Config for Sparta is not defined")
   }
 
@@ -107,33 +103,6 @@ object SpartaHelper extends SLF4JLogging
       port = SpartaConfig.swaggerConfig.get.getInt("port"))
 
     log.info("> Actors System UP!")
-  }
-
-  // TODO (anistal) this should be refactored in an actor
-  def initPolicyContextStatus {
-    Try {
-      if (SpartaConfig.getClusterConfig.isEmpty) {
-        val curator = CuratorFactoryHolder.getInstance()
-        val contextPath = s"${AppConstant.ContextPath}"
-        val children = curator.getChildren.forPath(contextPath)
-        val statuses = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[PolicyStatusModel](new String(curator.getData.forPath(
-            s"${AppConstant.ContextPath}/$element")))).toSeq
-        statuses.foreach(p => update(PolicyStatusModel(p.id, PolicyStatusEnum.NotStarted)))
-      }
-      def update(policyStatus: PolicyStatusModel): Unit = {
-        val curator = CuratorFactoryHolder.getInstance()
-        val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
-        val ips =
-          read[PolicyStatusModel](new String(curator.getData.forPath(statusPath)))
-        log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
-        curator.setData().forPath(statusPath, write(policyStatus).getBytes)
-      }
-    } match {
-      case Failure(ex: NoNodeException) => log.error("No Zookeeper node for /stratio/sparta/contexts yet")
-      case Failure(ex: Exception) => throw ex
-      case Success(()) => {}
-    }
   }
 
   def shutdown(destroySparkContext: Boolean = true): Unit = {
