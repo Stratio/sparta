@@ -24,7 +24,6 @@ object AppConstant {
   final val JarPluginsFolder = "plugins"
   final val ClasspathJarFolder = "repo"
   final val ClusterExecutionJarFolder = "driver"
-  final val ExecutionMode = "executionMode"
   final val ConfigAppName = "sparta"
   final val ConfigApi = "api"
   final val ConfigHdfs = "hdfs"
@@ -43,12 +42,18 @@ object AppConstant {
   final val ContextPath = s"/$BaseZKPath/contexts"
   final val FragmentsPath = s"/$BaseZKPath/fragments"
   final val ErrorsZkPath = s"$BaseZKPath/error"
+
+  //Config Options
+  final val ExecutionMode = "executionMode"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
-  final val DefaultStopGracefully = false
-  final val StopTimeout = "stopTimeout"
-  final val DefaultStopTimeout = 30000
+  final val DefaultStopGracefully = true
+  final val AutoDeleteCheckpoint = "autoDeleteCheckpoint"
+  final val DefaultAutoDeleteCheckpoint = true
+  final val DefaultCheckpointPath = "sparta/checkpoint"
+  final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
+  final val DefaultCheckpointPathClusterMode = "/user/"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
@@ -90,10 +95,5 @@ object AppConstant {
   final val DefaultZookeeperRetryAttemps = 5
   final val ZookeeperRetryInterval = "retryInterval"
   final val DefaultZookeeperRetryInterval = 10000
-
-  //checkpointPath
-  final val DefaultCheckpointPath = "sparta/checkpoint"
-  final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
-  final val DefaultCheckpointPathClusterMode = "/user/"
 
 }

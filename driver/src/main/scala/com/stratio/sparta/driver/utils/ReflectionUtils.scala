@@ -38,12 +38,11 @@ class ReflectionUtils extends SLF4JLogging {
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
-        throw DriverException.create("Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
+        throw DriverException("Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
       case ie: InstantiationException =>
-        throw DriverException.create(
-          "Class with name " + classAndPackage + " cannot be instantiated", ie)
-      case e: Exception => throw DriverException.create(
-        "Generic error trying to instantiate " + classAndPackage, e)
+        throw DriverException("Class with name " + classAndPackage + " cannot be instantiated", ie)
+      case e: Exception =>
+        throw DriverException("Generic error trying to instantiate " + classAndPackage, e)
     }
   }
 

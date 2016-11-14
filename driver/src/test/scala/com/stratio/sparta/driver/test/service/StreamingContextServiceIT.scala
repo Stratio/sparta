@@ -68,7 +68,7 @@ class StreamingContextServiceIT extends WordSpecLike
       val streamingContextService = new StreamingContextService(None, spartaConfig)
       val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 
-      ssc should not be None
+      ssc should not be equals(null)
     }
   }
 }

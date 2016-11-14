@@ -27,7 +27,7 @@ class DriverExceptionTest extends FlatSpec with ShouldMatchers {
 
     val msg = "my custom exception"
 
-    val ex = DriverException.create(msg)
+    val ex = DriverException(msg)
 
     ex.getMessage should be(msg)
   }
@@ -35,7 +35,7 @@ class DriverExceptionTest extends FlatSpec with ShouldMatchers {
 
     val msg = "my custom exception"
 
-    val ex = DriverException.create(msg, new RuntimeException("cause"))
+    val ex = DriverException(msg, new RuntimeException("cause"))
 
     ex.getCause.getMessage should be("cause")
   }
