@@ -160,15 +160,16 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
       checkpointPath = Option("test/test"),
       rawData,
       transformations,
-      Seq(),
+      streamTriggers = Seq(),
       cubes,
       input,
       outputs,
-      Seq(),
+      fragments = Seq(),
       userPluginsJars = Seq(),
       remember = None,
       sparkConf = Seq(),
-      initSqlSentences = Seq()
+      initSqlSentences = Seq(),
+      autoDeleteCheckpoint = None
     )
     policy
   }

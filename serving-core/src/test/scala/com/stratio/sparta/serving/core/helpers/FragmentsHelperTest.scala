@@ -63,7 +63,8 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
         userPluginsJars = Seq(),
         remember = None,
         sparkConf = Seq(),
-        initSqlSentences = Seq()
+        initSqlSentences = Seq(),
+        autoDeleteCheckpoint = None
       )
 
       When("the helper parse these fragments")
@@ -116,7 +117,8 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       userPluginsJars = Seq(),
       remember = None,
       sparkConf = Seq(),
-      initSqlSentences = Seq()
+      initSqlSentences = Seq(),
+      autoDeleteCheckpoint = None
     )
 
     When("the helper tries to parse the policy it throws an exception")

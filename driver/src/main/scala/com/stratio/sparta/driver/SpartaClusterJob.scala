@@ -23,13 +23,14 @@ import akka.actor.{ActorSystem, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
+import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, FragmentsHelper}
+import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
@@ -50,6 +51,7 @@ object SpartaClusterJob extends PolicyUtils {
   final val PluginsFilesIndex = 3
   final val HdfsConfigIndex = 4
 
+  //scalastyle:off
   def main(args: Array[String]): Unit = {
     assert(args.length == 5, s"Invalid number of params: ${args.length}, args: $args")
     Try {
@@ -63,6 +65,7 @@ object SpartaClusterJob extends PolicyUtils {
       initSpartaConfig(detailConfiguration, zookeperConfiguration, hdfsConfiguration)
 
       addPluginsToClassPath(pluginsFiles)
+
       val curatorFramework = CuratorFactoryHolder.getInstance()
       val policyZk = getPolicyFromZookeeper(policyId, curatorFramework)
       implicit val system = ActorSystem(policyId)
@@ -71,35 +74,48 @@ object SpartaClusterJob extends PolicyUtils {
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 
-      Try {
-        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
-        Try(ErrorDAO().dao.delete(policy.id.get))
+      Try (policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))) match {
+        case Failure(exception) =>
+          log.error(exception.getLocalizedMessage, exception)
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
+          DriverException(s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
+        case Success(_) =>
+          log.info("The Policy is starting ...")
+      }
 
+      Try(ErrorDAO().dao.delete(policy.id.get))
+
+      Try {
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))
         val ssc = streamingContextService.clusterStreamingContext(
           policy,
           pluginsFiles,
           Map("spark.app.name" -> s"${policy.name}")
-        ).get
+        )
 
         ssc.start
-        policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
+        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
         log.info(s"Starting Streaming Context for policy $policyId")
         ssc.awaitTermination()
       } match {
         case Success(_) =>
-          policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
-          log.info(s"Stopped Streaming Context for policy $policyId")
+          log.info(s"Finished Streaming Context for policy $policyId")
         case Failure(exception) =>
-          log.error(exception.getLocalizedMessage, exception)
-          policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
+          val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
+          DriverException(message, exception)
       }
     } match {
-      case Success(_) => log.info("Streaming context is running")
-      case Failure(exception) => log.error(exception.getLocalizedMessage, exception)
+      case Success(_) =>
+        log.info("Finished correctly Sparta Cluster Job")
+      case Failure(driverException: DriverException) =>
+        log.error(driverException.msg, driverException.getCause)
+      case Failure(exception: Exception) =>
+        log.error(s"Error initiating Sparta environment: ${exception.getLocalizedMessage}", exception)
     }
   }
 
+  //scalastyle:on
   private def addPluginsToClassPath(pluginsFiles: Array[String]) = {
     log.error(pluginsFiles.mkString(","))
     pluginsFiles.foreach {

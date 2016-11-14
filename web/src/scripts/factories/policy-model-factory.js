@@ -42,6 +42,8 @@
       delete policy.storageLevel;
       delete policy.rawDataEnabled;
       delete policy.rawDataPath;
+      delete policy.checkpointPath;
+      delete policy.autoDeleteCheckpoint;
       delete policy.sparkConf;
       delete policy.initSqlSentences;
       delete policy.userPluginsJars;
@@ -56,6 +58,8 @@
       policy.storageLevel = inputPolicyJSON.storageLevel;
       policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
       policy.rawDataPath = inputPolicyJSON.rawData.path;
+      policy.checkpointPath = inputPolicyJSON.checkpointPath;
+      policy.autoDeleteCheckpoint = inputPolicyJSON.autoDeleteCheckpoint;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = setCubes(inputPolicyJSON.cubes);
       policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);

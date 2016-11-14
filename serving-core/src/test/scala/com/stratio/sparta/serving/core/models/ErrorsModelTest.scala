@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.core.models
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
-import com.stratio.sparta.serving.core.models.ErrorModel
 
 @RunWith(classOf[JUnitRunner])
 class ErrorsModelTest extends WordSpec with Matchers {

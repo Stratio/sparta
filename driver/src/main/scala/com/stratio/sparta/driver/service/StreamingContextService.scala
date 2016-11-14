@@ -48,9 +48,9 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   implicit val timeout: Timeout = Timeout(4.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
-  def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): Option[StreamingContext] = {
+  def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): StreamingContext = {
     runStatusListener(policy.id.get, policy.name)
-    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
+    if(autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
@@ -61,16 +61,16 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     SparkContextFactory.setSparkStreamingContext(ssc)
     SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
-    Option(ssc)
+    ssc
   }
 
   def clusterStreamingContext(policy: AggregationPoliciesModel,
                               files: Seq[String],
-                              detailConfig: Map[String, String]): Option[StreamingContext] = {
+                              detailConfig: Map[String, String]): StreamingContext = {
     val exitWhenStop = true
 
     runStatusListener(policy.id.get, policy.name, exitWhenStop)
-    deleteCheckpointWhenNotGracefully(SpartaConfig.getDetailConfig, policy)
+    if(autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
@@ -81,7 +81,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     SparkContextFactory.setSparkStreamingContext(ssc)
     SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
-    Option(ssc)
+    ssc
   }
 
   private def getStandAloneSparkContext(apConfig: AggregationPoliciesModel, jars: Seq[File]): SparkContext = {
@@ -92,16 +92,6 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
 
 
     SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
-  }
-
-  private def deleteCheckpointWhenNotGracefully(detailConfig: Option[Config],
-                                                policy: AggregationPoliciesModel): Unit = {
-    detailConfig.foreach(config => {
-      val stopGracefullyOption = Try(config.getBoolean(AppConstant.ConfigStopGracefully))
-        .getOrElse(AppConstant.DefaultStopGracefully)
-
-      if(!stopGracefullyOption) deleteCheckpointPath(policy)
-    })
   }
 
   private def getClusterSparkContext(policy: AggregationPoliciesModel,
@@ -127,7 +117,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
                 Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
                 match {
                   case None => log.warn(s"The policy status can not be changed")
-                  case Some(_) => log.debug(s"The policy status is changed to Stopped in finish action")
+                  case Some(_) => log.info(s"The policy status is changed to Stopped in finish action")
                 }
               } catch {
                 case e: Exception =>
@@ -141,6 +131,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
               }
               if (exit) {
                 SparkContextFactory.destroySparkContext()
+                log.info("Cleaning all invoking explicitly the garbage collector")
+                System.gc()
                 log.info("Closing the application")
                 System.exit(0)
               }

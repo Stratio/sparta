@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.factory
 
 import java.io.File
 
-import scala.collection.JavaConversions._
-import scala.util.Try
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+
+import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -42,13 +44,13 @@ object SparkContextFactory extends SLF4JLogging {
           context
         case None =>
           if (sc.isDefined) sqlContext = Option(SQLContext.getOrCreate(sc.get))
-          sqlInitialSentences.foreach(sentence => if(sentence.nonEmpty) sqlContext.get.sql(sentence))
+          sqlInitialSentences.foreach(sentence => if (sentence.nonEmpty) sqlContext.get.sql(sentence))
           sqlContext.get
       }
     }
   }
 
-  def setInitialSentences(sentences: Seq[String]) : Unit = sqlInitialSentences = sentences
+  def setInitialSentences(sentences: Seq[String]): Unit = sqlInitialSentences = sentences
 
   def sparkStreamingInstance: Option[StreamingContext] = ssc
 
@@ -76,8 +78,8 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   def sparkStandAloneContextInstance(generalConfig: Option[Config],
-    specificConfig: Map[String, String],
-    jars: Seq[File]): SparkContext =
+                                     specificConfig: Map[String, String],
+                                     jars: Seq[File]): SparkContext =
     synchronized {
       sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
     }
@@ -88,18 +90,18 @@ object SparkContextFactory extends SLF4JLogging {
     }
 
   private def instantiateStandAloneContext(generalConfig: Option[Config],
-    specificConfig: Map[String, String],
-    jars: Seq[File]): SparkContext = {
+                                           specificConfig: Map[String, String],
+                                           jars: Seq[File]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(generalConfig, specificConfig)))
     jars.foreach(f => sc.get.addJar(f.getAbsolutePath))
     sc.get
   }
 
   private def instantiateClusterContext(specificConfig: Map[String, String],
-    jars: Seq[String]): SparkContext = {
+                                        jars: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(None, specificConfig)))
     jars.foreach(f => {
-      log.info(s"Adding jar to Spark context: ${f}")
+      log.info(s"Adding jar to Spark context: $f")
       sc.get.addJar(f)
     })
     sc.get
@@ -125,13 +127,14 @@ object SparkContextFactory extends SLF4JLogging {
         try {
           val stopGracefully = Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully))
             .getOrElse(true)
-          val stopTimeout = Try(SpartaConfig.getDetailConfig.get.getInt(AppConstant.StopTimeout))
-            .getOrElse(AppConstant.DefaultStopTimeout)
           log.info(s"Stopping streamingContext with name: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(false, stopGracefully)).getOrElse(streamingContext.stop(false, false))
-          if (streamingContext.awaitTerminationOrTimeout(stopTimeout))
-            log.info(s"Stopped streamingContext with name: ${streamingContext.sparkContext.appName}")
-          else log.info(s"StreamingContext with name: ${streamingContext.sparkContext.appName} not Stopped: timeout")
+          Try(streamingContext.stop(false, stopGracefully)) match {
+            case Success(_) =>
+              log.info("Streaming context have been stopped gracefully")
+            case Failure(error) =>
+              log.error("Streaming context is not stopped gracefully, now it will be stopped forcedly", error)
+              streamingContext.stop(false, false)
+          }
         } finally {
           ssc = None
         }

@@ -111,6 +111,8 @@ describe('service.policy-service', function () {
       service.generateFinalJSON().then(function (finalJson) {
         expect(finalJson.rawDataPath).toBeUndefined();
         expect(finalJson.rawDataEnabled).toBeUndefined();
+        expect(finalJson.checkpointPath).toBeUndefined();
+        expect(finalJson.autoDeleteCheckpoint).toBeUndefined();
         expect(finalJson.sparkStreamingWindowNumber).toBeUndefined();
         expect(finalJson.sparkStreamingWindowTime).toBeUndefined();
         expect(finalJson.rawData.path).toBeUndefined();

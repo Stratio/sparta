@@ -47,7 +47,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   case class Result(message: String, desc: Option[String] = None)
 
   override def routes: Route =
-    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~ removeAll
+    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~
+      removeAll ~ deleteCheckpoint
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -314,6 +315,43 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           } yield deleteContextResponse match {
             case PolicyStatusActor.ResponseDelete(Success(_)) => StatusCodes.OK
             case PolicyStatusActor.ResponseDelete(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/checkpoint/{name}")
+  @ApiOperation(value = "Delete checkpoint associated to one policy from its name.",
+    notes = "Delete checkpoint associated to one policy from its name.",
+    httpMethod = "DELETE",
+    response = classOf[Result])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "name",
+      value = "name of the policy",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteCheckpoint: Route = {
+    path(HttpConstant.PolicyPath / "checkpoint" / Segment) { (name) =>
+      delete {
+        complete {
+          val future = supervisor ? new FindByName(name)
+          Await.result(future, timeout.duration) match {
+            case ResponsePolicy(Failure(exception)) => throw exception
+            case ResponsePolicy(Success(policy)) =>
+              val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+              AggregationPoliciesValidator.validateDto(parsedP)
+              val response = (supervisor ? DeleteCheckpoint(parsedP)).mapTo[Response]
+              Await.result(response, timeout.duration) match {
+                case Response(Failure(ex)) => throw ex
+                case Response(Success(_)) => new Result("Checkpoint deleted from policy: " + policy.name)
+              }
           }
         }
       }

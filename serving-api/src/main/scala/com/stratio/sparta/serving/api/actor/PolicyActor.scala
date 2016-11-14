@@ -52,6 +52,7 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
     case FindByFragmentType(fragmentType) => findByFragmentType(fragmentType)
     case FindByFragment(fragmentType, id) => findByFragmentId(fragmentType, id)
     case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
+    case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
   }
   //scalastyle:on
 
@@ -153,7 +154,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
         name = policy.name.toLowerCase,
         version = Some(ActorsConstant.UnitVersion)
       )
-      deleteCheckpointPath(policy)
       curatorFramework.create().creatingParentsIfNeeded().forPath(
         s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
 
@@ -175,7 +175,6 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
           name = policy.name.toLowerCase,
           version = setVersion(searchPolicy.get, policy)
         )
-        deleteCheckpointPath(policy)
         curatorFramework.setData.forPath(s"${AppConstant.PoliciesBasePath}/${policyS.id.get}", write(policyS).getBytes)
         policyS
       }
@@ -200,6 +199,9 @@ class PolicyActor(curatorFramework: CuratorFramework, policyStatusActor: ActorRe
             s"No policy with id $id.")
         ))
     })
+
+  def deleteCheckpoint(policy: AggregationPoliciesModel) : Unit =
+    sender ! Response(Try(deleteCheckpointPath(policy)))
 }
 
 object PolicyActor extends SLF4JLogging {
@@ -223,6 +225,8 @@ object PolicyActor extends SLF4JLogging {
   case class FindByFragment(fragmentType: String, id: String)
 
   case class FindByFragmentName(fragmentType: String, name: String)
+
+  case class DeleteCheckpoint(policy: AggregationPoliciesModel)
 
   case class Response(status: Try[_])
 

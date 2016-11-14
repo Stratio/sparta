@@ -16,10 +16,9 @@
 package com.stratio.sparta.driver.exception
 
 
-class DriverException(msg: String) extends RuntimeException(msg)
+case class DriverException(msg: String) extends RuntimeException(msg)
 
 object DriverException {
-  def create(msg: String): DriverException = new DriverException(msg)
 
-  def create(msg: String, cause: Throwable): Throwable = new DriverException(msg).initCause(cause)
+  def apply(msg: String, cause: Throwable): Throwable = new DriverException(msg).initCause(cause)
 }

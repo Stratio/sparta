@@ -17,13 +17,9 @@
 package com.stratio.sparta.serving.core.models
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
-
-import scala.util.Try
 
 case class AggregationPoliciesModel(
                                      id: Option[String] = None,
@@ -32,7 +28,7 @@ case class AggregationPoliciesModel(
                                      name: String,
                                      description: String = "default description",
                                      sparkStreamingWindow: String = AggregationPoliciesModel.sparkStreamingWindow,
-                                     checkpointPath: Option[String],
+                                     checkpointPath: Option[String] = None,
                                      rawData: RawDataModel,
                                      transformations: Seq[TransformationsModel],
                                      streamTriggers: Seq[TriggerModel],
@@ -43,7 +39,8 @@ case class AggregationPoliciesModel(
                                      userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                                      remember: Option[String] = None,
                                      sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
-                                     initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
+                                     initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
+                                     autoDeleteCheckpoint: Option[Boolean] = None
                                    ) {
 
   //scalastyle:off
@@ -82,48 +79,18 @@ case class AggregationPoliciesModel(
       userPluginsJars,
       remember,
       sparkConf = Seq.empty[SparkProperty],
-      initSqlSentences = Seq.empty[SqlSentence]
+      initSqlSentences = Seq.empty[SqlSentence],
+      autoDeleteCheckpoint = None
     )
   }
 }
 
 //scalastyle:on
 
-case object AggregationPoliciesModel extends SLF4JLogging{
+case object AggregationPoliciesModel extends SLF4JLogging {
 
   val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
-
-  private def cleanCheckpointPath(path: String) : String = {
-    val hdfsPrefix = "hdfs://"
-
-    if(path.startsWith(hdfsPrefix))
-      log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
-    path.replace(hdfsPrefix, "")
-  }
-
-  private def getCheckpointPathFromProperties(policyName: String): String =
-    (for {
-      config <- SpartaConfig.getDetailConfig
-      checkpointPath <- Try(cleanCheckpointPath(config.getString("checkpointPath"))).toOption
-    } yield s"$checkpointPath/$policyName").getOrElse(generateDefaultCheckpointPath)
-
-  private def generateDefaultCheckpointPath: String =
-    SpartaConfig.getDetailConfig.map(_.getString(AppConstant.ExecutionMode)) match {
-      case Some(mode) if mode == AppConstant.ConfigMesos || mode == AppConstant.ConfigYarn =>
-        AppConstant.DefaultCheckpointPathClusterMode +
-          s"${Try(SpartaConfig.getHdfsConfig.get.getString("hadoopUserName")).getOrElse(AppConstant.DefaultHdfsUser)}" +
-        AppConstant.DefaultHdfsUser
-      case Some(AppConstant.ConfigLocal) =>
-        AppConstant.DefaultCheckpointPathLocalMode
-      case _ =>
-        throw new RuntimeException("Error getting execution mode")
-    }
-
-  def checkpointPath(policy: AggregationPoliciesModel): String =
-    policy.checkpointPath.map { path =>
-      s"${cleanCheckpointPath(path)}/${policy.name}"
-    } getOrElse getCheckpointPathFromProperties(policy.name)
 }
 
 case class PolicyWithStatus(status: PolicyStatusEnum.Value, policy: AggregationPoliciesModel)
@@ -139,7 +106,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
     if (subErrorModels.nonEmpty)
       throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.ValidationError, "Policy validation error",
-          Option(subErrorModels.map(element => element._2).toSeq))))
+          Option(subErrorModels.map(element => element._2)))))
   }
 
   //scalastyle:off

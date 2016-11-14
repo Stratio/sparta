@@ -48,7 +48,7 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
     Try {
       policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
-      ssc = streamingContextService.standAloneStreamingContext(policy, jars)
+      ssc = Option(streamingContextService.standAloneStreamingContext(policy, jars))
       ssc.get.start()
     } match {
       case Success(_) =>
