@@ -41,7 +41,7 @@ class CubeTest extends TestSuiteBase {
     val defaultDimension = new DefaultField
     val checkpointTimeAvailability = 60000
     val checkpointGranularity = "minute"
-    val eventGranularity = DateOperations.dateFromGranularity(DateTime.now(), "minute")
+    val eventGranularity = AggregationTime.truncateDate(DateTime.now(), "minute")
     val name = "cubeName"
     val timeConfig = Option(TimeConfig(eventGranularity, checkpointGranularity))
 

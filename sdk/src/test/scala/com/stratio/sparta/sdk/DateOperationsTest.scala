@@ -34,7 +34,7 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
     val granularity = "day"
     val datePattern = "yyyy/MM/dd"
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern) +
-      DateOperations.dateFromGranularity(DateTime.now, granularity)
+      AggregationTime.truncateDate(DateTime.now, granularity)
     val dt = DateTime.now
     val date = new Date(dt.getMillis)
     val timestamp = new Timestamp(dt.getMillis)
@@ -89,29 +89,16 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
 
   }
 
-  "DateOperations" should "return timestamp with correct parameters" in new CommonValues {
-    DateOperations.getTimeFromGranularity(Some(""), Some("5s")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("10s")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("15s")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("minute")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("hour")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("day")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("month")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some(""), Some("year")) should not be (wrongDT)
-    DateOperations.getTimeFromGranularity(Some("asdasd"), Some("year")) should not be (wrongDT)
-    an[IllegalArgumentException] should be thrownBy DateOperations.getTimeFromGranularity(Some(""), Some("bad"))
-  }
-
   it should "return parsed timestamp with granularity" in new CommonValues {
-    DateOperations.dateFromGranularity(dt, "5s") should be(s5DT.getMillis)
-    DateOperations.dateFromGranularity(dt, "15s") should be(s15DT.getMillis)
-    DateOperations.dateFromGranularity(dt, "10s") should be(s10DT.getMillis)
-    DateOperations.dateFromGranularity(dt, "minute") should be(minuteDT.getMillis)
-    DateOperations.dateFromGranularity(dt, "hour") should be(hourDT.getMillis)
-    DateOperations.dateFromGranularity(dt, "day") should be(dayDT.getMillis)
-    DateOperations.dateFromGranularity(dt, "month") should be(monthDT.getMillis)
-    DateOperations.dateFromGranularity(dt, "year") should be(yearDT.getMillis)
-    an[IllegalArgumentException] should be thrownBy DateOperations.dateFromGranularity(dt, "bad")
+    AggregationTime.truncateDate(dt, "5s") should be(s5DT.getMillis)
+    AggregationTime.truncateDate(dt, "15s") should be(s15DT.getMillis)
+    AggregationTime.truncateDate(dt, "10s") should be(s10DT.getMillis)
+    AggregationTime.truncateDate(dt, "minute") should be(minuteDT.getMillis)
+    AggregationTime.truncateDate(dt, "hour") should be(hourDT.getMillis)
+    AggregationTime.truncateDate(dt, "day") should be(dayDT.getMillis)
+    AggregationTime.truncateDate(dt, "month") should be(monthDT.getMillis)
+    AggregationTime.truncateDate(dt, "year") should be(yearDT.getMillis)
+    an[IllegalArgumentException] should be thrownBy AggregationTime.truncateDate(dt, "bad")
   }
 
   it should "format path ignoring pattern" in new FailValues {
@@ -125,17 +112,17 @@ class DateOperationsTest extends FlatSpec with ShouldMatchers {
   it should "round to 15 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "15s") should be(448373595000L)
+    AggregationTime.truncateDate(now, "15s") should be(448373595000L)
   }
   it should "round to 10 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "10s") should be(448373600000L)
+    AggregationTime.truncateDate(now, "10s") should be(448373600000L)
   }
   it should "round to 5 seconds" in new CommonValues {
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
     val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    DateOperations.dateFromGranularity(now, "5s") should be(448373595000L)
+    AggregationTime.truncateDate(now, "5s") should be(448373595000L)
   }
 
   it should "return millis from a Serializable date" in new CommonValues {

@@ -21,30 +21,23 @@ package com.stratio.sparta.serving.core.constants
  */
 object AppConstant {
 
-  final val JarPluginsFolder = "plugins"
+  //Config keys
   final val ClasspathJarFolder = "repo"
-  final val ClusterExecutionJarFolder = "driver"
   final val ConfigAppName = "sparta"
   final val ConfigApi = "api"
   final val ConfigHdfs = "hdfs"
   final val ConfigDetail = "config"
-  final val ConfigLocal = "local"
-  final val ConfigStandAlone = "standalone"
-  final val ConfigMesos = "mesos"
-  final val ConfigYarn = "yarn"
   final val ConfigAkka = "akka"
   final val ConfigSpray = "spray.can.server"
   final val ConfigSwagger = "swagger"
   final val ConfigZookeeper = "zookeeper"
-  final val BaseZKPath = "stratio/sparta"
-  final val ConfigZkPath = s"$BaseZKPath/config"
-  final val PoliciesBasePath = s"/$BaseZKPath/policies"
-  final val ContextPath = s"/$BaseZKPath/contexts"
-  final val FragmentsPath = s"/$BaseZKPath/fragments"
-  final val ErrorsZkPath = s"$BaseZKPath/error"
 
   //Config Options
   final val ExecutionMode = "executionMode"
+  final val ConfigLocal = "local"
+  final val ConfigStandAlone = "standalone"
+  final val ConfigMesos = "mesos"
+  final val ConfigYarn = "yarn"
   final val ConfigRememberPartitioner = "rememberPartitioner"
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
@@ -58,13 +51,17 @@ object AppConstant {
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
-  final val HadoopConfDir = "hadoopConfDir"
   final val HdfsMaster = "hdfsMaster"
   final val HdfsPort = "hdfsPort"
   final val PluginsFolder = "pluginsFolder"
   final val ClasspathFolder = "classpathFolder"
   final val ExecutionJarFolder = "executionJarFolder"
   final val DefaultHdfsUser = "stratio"
+  final val KeytabPath = "keytabPath"
+  final val PrincipalName = "principalName"
+  final val HadoopConfDir = "HADOOP_CONF_DIR"
+  final val JarPluginsFolder = "plugins"
+  final val ClusterExecutionJarFolder = "driver"
 
   //Generic Options
   final val DeployMode = "deployMode"
@@ -96,5 +93,13 @@ object AppConstant {
   final val DefaultZookeeperRetryAttemps = 5
   final val ZookeeperRetryInterval = "retryInterval"
   final val DefaultZookeeperRetryInterval = 10000
+
+  //Zookeeper paths
+  final val BaseZKPath = "stratio/sparta"
+  final val ConfigZkPath = s"$BaseZKPath/config"
+  final val PoliciesBasePath = s"/$BaseZKPath/policies"
+  final val ContextPath = s"/$BaseZKPath/contexts"
+  final val FragmentsPath = s"/$BaseZKPath/fragments"
+  final val ErrorsZkPath = s"$BaseZKPath/error"
 
 }

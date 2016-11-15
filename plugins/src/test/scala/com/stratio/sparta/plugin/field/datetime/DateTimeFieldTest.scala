@@ -73,7 +73,7 @@ class DateTimeFieldTest extends WordSpecLike with Matchers {
       dateTimeDimension.precision("day").typeOp should be(TypeOp.DateTime)
       dateTimeDimension.precision("month").typeOp should be(TypeOp.DateTime)
       dateTimeDimension.precision("year").typeOp should be(TypeOp.DateTime)
-      dateTimeDimension.precision(DateTimeField.timestamp.id).typeOp should be(TypeOp.Timestamp)
+      dateTimeDimension.precision(DateTimeField.TimestampPrecision.id).typeOp should be(TypeOp.Timestamp)
     }
   }
 }

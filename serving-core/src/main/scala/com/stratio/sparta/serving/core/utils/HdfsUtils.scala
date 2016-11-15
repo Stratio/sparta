@@ -68,13 +68,13 @@ object HdfsUtils extends SLF4JLogging {
     val HdfsDefaultMaster = "127.0.0.1"
     val conf = new Configuration()
 
-    Option(System.getenv("HADOOP_CONF_DIR")) match {
+    Option(System.getenv(AppConstant.HadoopConfDir)) match {
       case Some(confDir) =>
         log.info(s"The Hadoop configuration is read from directory files in the path $confDir")
       case None =>
         configOpt.foreach { config =>
-          val master = Try(config.getString("hdfsMaster")).getOrElse(HdfsDefaultMaster)
-          val port = Try(config.getInt("hdfsPort")).getOrElse(HdfsDefaultPort)
+          val master = Try(config.getString(AppConstant.HdfsMaster)).getOrElse(HdfsDefaultMaster)
+          val port = Try(config.getInt(AppConstant.HdfsPort)).getOrElse(HdfsDefaultPort)
           val hdfsPath = s"hdfs://$master:$port/user/$userName/sparta"
 
           conf.set(DefaultFSProperty, hdfsPath)
@@ -89,7 +89,7 @@ object HdfsUtils extends SLF4JLogging {
             userName: String,
             principalNameOption: Option[String],
             keytabPathOption: Option[String]): HdfsUtils = {
-    Option(System.getenv("HADOOP_CONF_DIR")).foreach(
+    Option(System.getenv(AppConstant.HadoopConfDir)).foreach(
       hadoopConfDir => {
         val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
         val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
@@ -104,9 +104,9 @@ object HdfsUtils extends SLF4JLogging {
     val ugi =
       if (principalNameOption.isDefined && keytabPathOption.isDefined) {
         val principalName = principalNameOption.getOrElse(
-          throw new IllegalStateException("principalName can not be null"))
+          throw new IllegalStateException(s"${AppConstant.PrincipalName} can not be null"))
         val keytabPath = keytabPathOption.getOrElse(
-          throw new IllegalStateException("keytabPathOption can not be null"))
+          throw new IllegalStateException(s"${AppConstant.KeytabPath} can not be null"))
 
         UserGroupInformation.setConfiguration(conf)
         Option(UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keytabPath))
@@ -116,11 +116,11 @@ object HdfsUtils extends SLF4JLogging {
   }
 
   def apply(config: Option[Config]): HdfsUtils = {
-    val userName = Try(config.get.getString("hadoopUserName")).getOrElse(AppConstant.DefaultHdfsUser)
+    val userName = Try(config.get.getString(AppConstant.HadoopUserName)).getOrElse(AppConstant.DefaultHdfsUser)
     val principalName: Option[String] =
-      Try(config.get.getString("principalName")).toOption.flatMap(x => if (x == "") None else Some(x))
+      Try(config.get.getString(AppConstant.PrincipalName)).toOption.flatMap(x => if (x == "") None else Some(x))
     val keytabPath: Option[String] =
-      Try(config.get.getString("keytabPath")).toOption.flatMap(x => if (x == "") None else Some(x))
+      Try(config.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x => if (x == "") None else Some(x))
     apply(hdfsConfiguration(userName, config), userName, principalName, keytabPath)
   }
 }

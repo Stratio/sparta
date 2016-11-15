@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk
 
-import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 import java.util.Date
 
@@ -23,18 +23,7 @@ import com.github.nscala_time.time.Imports._
 
 object DateOperations {
 
-  def getTimeFromGranularity(timeDimension: Option[String], granularity: Option[String]): Long =
-    (timeDimension, granularity) match {
-      case (Some(time), Some(granularity)) => dateFromGranularity(DateTime.now, granularity)
-      case _ => 0L
-    }
-
-  def dateFromGranularity(date: DateTime, granularity: String): Long = {
-    AggregationTime.truncateDate(date, granularity)
-  }
-
   def millisToTimeStamp(date: Long): Timestamp = new Timestamp(date)
-
 
   def getMillisFromSerializable(date: Any): Long = date match {
     case value if value.isInstanceOf[Timestamp] || value.isInstanceOf[Date]
@@ -51,7 +40,7 @@ object DateOperations {
   }
 
   def subPath(granularity: String, datePattern: Option[String]): String = {
-    val suffix = dateFromGranularity(DateTime.now, granularity)
+    val suffix = AggregationTime.truncateDate(DateTime.now, granularity)
     if (!datePattern.isDefined || suffix.equals(0L)) s"/$suffix"
     else s"/${DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix))}/$suffix"
   }

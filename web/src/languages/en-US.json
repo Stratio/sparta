@@ -47,6 +47,7 @@
   "_REFRESH_SECONDS_": "Refresh seconds",
   "_DATE_FORMAT_": "Date format",
   "_PATH_": "Path",
+  "_PARTITION_BY_": "Partition By",
   "_HEADER_": "Header",
   "_INFER_SCHEMA_": "Infer schema",
   "_DELIMITER_": "Delimiter",

@@ -171,6 +171,12 @@ object TypeOp extends Enumeration {
       origValue.asInstanceOf[Int].toLong.asInstanceOf[T]
     case value if value.isInstanceOf[Number] =>
       origValue.asInstanceOf[Number].longValue().asInstanceOf[T]
+    case value if value.isInstanceOf[DateTime] =>
+      origValue.asInstanceOf[DateTime].getMillis.asInstanceOf[T]
+    case value if value.isInstanceOf[Timestamp] =>
+      origValue.asInstanceOf[Timestamp].getTime.asInstanceOf[T]
+    case value if value.isInstanceOf[Date] =>
+      origValue.asInstanceOf[Date].getTime.asInstanceOf[T]
     case _ =>
       origValue.toString.toLong.asInstanceOf[T]
   }
