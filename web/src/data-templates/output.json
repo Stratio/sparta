@@ -494,6 +494,15 @@
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-parquet-path"
+      },
+      {
+        "propertyId": "partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-parquet-partitionBy"
       }
     ]
   },

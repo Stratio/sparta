@@ -50,7 +50,7 @@ class CubeMakerTest extends TestSuiteBase {
     val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
     val timeDimensionName = "minute"
-    val millis = DateOperations.dateFromGranularity(DateTime.now, checkpointGranularity)
+    val millis = AggregationTime.truncateDate(DateTime.now, checkpointGranularity)
     val sqlTimestamp = new Timestamp(millis)
     val name = "cubeName"
     val operator = new CountOperator("count", StructType(Seq(StructField("count", LongType, true))), Map())

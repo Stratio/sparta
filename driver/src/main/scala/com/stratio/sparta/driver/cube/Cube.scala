@@ -98,8 +98,7 @@ case class Cube(name: String,
     }
 
   def dateFromGranularity: Long = {
-    DateOperations
-      .dateFromGranularity(DateTime.now(),
+    AggregationTime.truncateDate(DateTime.now(),
         expiringDataConfig.get.granularity) - expiringDataConfig.get.timeAvailability
   }
 

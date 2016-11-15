@@ -163,8 +163,8 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
     HdfsUtils(SpartaConfig.getHdfsConfig).delete(checkpointPath(policy))
 
-  def checkpointGoesToHDFS: Boolean =
-    Option(System.getenv("HADOOP_CONF_DIR")) match {
+  def isHadoopEnvironmentDefined: Boolean =
+    Option(System.getenv(AppConstant.HadoopConfDir)) match {
       case Some(_) => true
       case None => false
     }
@@ -202,9 +202,8 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
     Try {
-      if (!isLocalMode || checkpointGoesToHDFS)
-        deleteFromHDFS(policy)
-      else deleteFromLocal(policy)
+      if (isLocalMode) deleteFromLocal(policy)
+      else deleteFromHDFS(policy)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)

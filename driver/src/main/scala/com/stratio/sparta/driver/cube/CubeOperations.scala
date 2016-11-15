@@ -72,14 +72,13 @@ case class CubeOperations(cube: Cube) extends SLF4JLogging {
     val dimensionsDates =
       dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
 
-    if (dimensionsDates.isEmpty)
-      getDate
-    else
-      DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
+    if (dimensionsDates.isEmpty) getDate
+    else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
   private def getDate: Long = {
     val checkpointGranularity = cube.expiringDataConfig.get.granularity
-    DateOperations.dateFromGranularity(DateTime.now(), checkpointGranularity)
+
+    AggregationTime.truncateDate(DateTime.now(), checkpointGranularity)
   }
 }

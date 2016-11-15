@@ -34,6 +34,9 @@
       {
         "label": "day",
         "value":"day"
+      },{
+        "label": "week",
+        "value":"week"
       },
       {
         "label": "month",

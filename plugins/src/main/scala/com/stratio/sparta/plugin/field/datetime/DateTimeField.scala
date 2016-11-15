@@ -28,7 +28,7 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
   extends DimensionType with JSerializable with SLF4JLogging {
 
   def this(defaultTypeOperation : TypeOp) {
-    this(Map(), defaultTypeOperation)
+    this(Map.empty[String, JSerializable], defaultTypeOperation)
   }
 
   def this(props: Map[String, JSerializable]) {
@@ -36,57 +36,48 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
   }
 
   def this() {
-    this(Map(), TypeOp.Timestamp)
+    this(Map.empty[String, JSerializable], TypeOp.Timestamp)
   }
 
   override val operationProps: Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props ++ {
-    if (!props.contains(GranularityPropertyName)) Map(GranularityPropertyName -> DefaultGranularity) else Map()
+    if (!props.contains(AggregationTime.GranularityPropertyName))
+      Map(AggregationTime.GranularityPropertyName -> AggregationTime.DefaultGranularity)
+    else Map.empty[String, JSerializable]
   }
 
   override def precision(keyName: String): Precision = {
-    if (DateTimeField.getPrecision(keyName)) getPrecision(keyName, getTypeOperation(keyName))
-    else timestamp
+    if (AggregationTime.precisionsMatches(keyName).nonEmpty) getPrecision(keyName, getTypeOperation(keyName))
+    else TimestampPrecision
   }
 
   @throws(classOf[ClassCastException])
   override def precisionValue(keyName: String, value: Any): (Precision, Any) =
     try {
       val precisionKey = precision(keyName)
-      (precisionKey, DateTimeField.getPrecision(TypeOp.transformValueByTypeOp(TypeOp.Date, value).asInstanceOf[Date],
+      (precisionKey, getPrecision(TypeOp.transformValueByTypeOp(TypeOp.Date, value).asInstanceOf[Date],
         precisionKey, properties))
     }
     catch {
-      case cce: ClassCastException => {
+      case cce: ClassCastException =>
         log.error("Error parsing " + value + " .")
         throw cce
-      }
     }
+
+  private def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): Any = {
+    TypeOp.transformValueByTypeOp(precision.typeOp,
+      AggregationTime.truncateDate(new DateTime(value), precision match {
+        case t if t == TimestampPrecision => if (properties.contains(AggregationTime.GranularityPropertyName))
+          properties.get(AggregationTime.GranularityPropertyName).get.toString
+        else AggregationTime.DefaultGranularity
+        case _ => precision.id
+      })).asInstanceOf[Any]
+  }
 }
 
 object DateTimeField {
 
-  final val DefaultGranularity = "second"
-  final val GranularityPropertyName = "granularity"
-  final val Precisions: Seq[String] = Seq(
-    "[1-9][0-9]*s","[1-9][0-9]*m","[1-9][0-9]*h", "[1-9][0-9]*d", "second", "minute", "hour", "day", "month", "year")
-  final val timestamp = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
+  final val TimestampPrecision = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
 
-  def getPrecision(keyName: String): Boolean = {
-    val prefix = for {
-      prefix <- Precisions
-      if(keyName.matches(prefix))
-    } yield (prefix)
-    prefix.size > 0
-  }
-  def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): Any = {
-    TypeOp.transformValueByTypeOp(precision.typeOp,
-      DateOperations.dateFromGranularity(new DateTime(value), precision match {
-        case t if t == timestamp => if (properties.contains(GranularityPropertyName))
-          properties.get(GranularityPropertyName).get.toString
-        else DefaultGranularity
-        case _ => precision.id
-      })).asInstanceOf[Any]
-  }
 }

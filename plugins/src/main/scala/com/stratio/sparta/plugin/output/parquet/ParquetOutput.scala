@@ -41,14 +41,17 @@ class ParquetOutput(keyName: String,
     val timeDimension = getTimeFromOptions(options)
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
+    val partitionBy = properties.getString("partitionBy", None)
 
     val dataFrameWriter = dataFrame
       .write
       .format("parquet")
       .mode(Append)
 
-    if (timeDimension.isDefined) {
-      dataFrameWriter.partitionBy(timeDimension.get)
+    partitionBy match {
+      case Some(partition) => dataFrameWriter.partitionBy(partition)
+      case None => if (timeDimension.isDefined)
+        dataFrameWriter.partitionBy(timeDimension.get)
     }
 
     dataFrameWriter.save(s"${path.get}/${versionedTableName(tableName)}")
