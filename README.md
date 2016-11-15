@@ -74,7 +74,7 @@ Architecture
 Sparta overview
 ------------
 
-![Architecture](./doc/src/site/sphinx/images/sparta1.png)
+![Architecture](./images/sparta1.png)
 
 Key technologies
 ------------
@@ -94,7 +94,7 @@ Key technologies
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
 
-![Input/Outputs](./doc/src/site/sphinx/images/Inoutputs.png)
+![Input/Outputs](./images/Inoutputs.png)
 
 Inputs
 ------------
@@ -139,10 +139,6 @@ In a centOS distribution:
   - dpkg-dev
   - rpmdevtools
 
-
-Sandbox
--------------
-- [All about how to start running the sandbox] (https://stratio.atlassian.net/wiki/pages/viewpage.action?pageId=2982423#id-4.HowdoIgetstarted?-4.8.2.Sandbox)
 
 Documentation
 -------------
