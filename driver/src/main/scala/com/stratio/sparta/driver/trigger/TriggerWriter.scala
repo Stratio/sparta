@@ -16,6 +16,7 @@
 package com.stratio.sparta.driver.trigger
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.DataFrame
 
@@ -23,6 +24,7 @@ import scala.util.{Failure, Success, Try}
 
 trait TriggerWriter extends SLF4JLogging {
 
+  //scalastyle:off
   def writeTriggers(dataFrame: DataFrame,
                     triggers: Seq[Trigger],
                     inputTableName: String,
@@ -33,7 +35,16 @@ trait TriggerWriter extends SLF4JLogging {
     dataFrame.registerTempTable(inputTableName)
 
     val tempTables = triggers.flatMap(trigger => {
-      val queryDataFrame = sqlContext.sql(trigger.sql)
+      val queryDataFrame = Try(sqlContext.sql(trigger.sql)) match {
+        case Success(sqlResult) => sqlResult
+        case Failure(exception: org.apache.spark.sql.AnalysisException) =>
+          log.warn("Warning running analysis in Catalyst in the query ${trigger.sql} in trigger ${trigger.name}",
+            exception.message)
+          throw DriverException(exception.getMessage, exception)
+        case Failure(exception) =>
+          log.warn(s"Warning running sql in the query ${trigger.sql} in trigger ${trigger.name}", exception.getMessage)
+          throw DriverException(exception.getMessage, exception)
+      }
       val upsertOptions = tableSchemas.find(_.tableName == trigger.name).fold(Map.empty[String, String]) { schema =>
         Map(Output.TableNameKey -> schema.tableName,
           Output.IdAutoCalculatedKey -> schema.isAutoCalculatedId.toString)
