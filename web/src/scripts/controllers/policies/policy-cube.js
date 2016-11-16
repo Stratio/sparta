@@ -56,7 +56,6 @@
       if (vm.cube) {
         vm.template = PolicyModelFactory.getTemplate().cube;
         vm.policy = PolicyModelFactory.getCurrentPolicy();
-        vm.granularityOptions = vm.template.granularityOptions;
         vm.functionList = vm.template.functionNames;
         vm.outputList = PolicyModelFactory.getAllModelOutputs();
         vm.cubeError = CubeModelFactory.getError();

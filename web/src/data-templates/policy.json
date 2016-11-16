@@ -532,6 +532,75 @@
           ],
           "default": "unixMillis",
           "required": true
+        },
+        {
+          "propertyId": "granularityNumber",
+          "propertyName": "_GRANULARITY_",
+          "propertyType": "text",
+          "default": "1",
+          "position": "left",
+          "required": true,
+          "qa": "policy-cube-dimension-dateTime-granularityNumber"
+        },
+        {
+          "propertyId": "granularityTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 6,
+          "position": "right",
+          "qa": "policy-cube-dimension-dateTime-granularityTime",
+          "default": "m",
+          "required": true,
+          "values": [
+            {
+              "label": "Millisecond(s)",
+              "value": "ms"
+            },
+            {
+              "label": "Second(s)",
+              "value": "s"
+            },
+            {
+              "label": "Minute(s)",
+              "value": "m"
+            },
+            {
+              "label": "Hour(s)",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            },
+            {
+              "label": "Second",
+              "value": "second"
+            },
+            {
+              "label": "Minute",
+              "value": "minute"
+            },
+            {
+              "label": "Hour",
+              "value": "hour"
+            },
+            {
+              "label": "Day",
+              "value": "day"
+            },
+            {
+              "label": "Week",
+              "value": "week"
+            },
+            {
+              "label": "Month",
+              "value": "month"
+            },
+            {
+              "label": "Year",
+              "value": "year"
+            }
+          ]
         }
       ]
     },

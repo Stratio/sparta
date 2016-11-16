@@ -75,8 +75,7 @@
           vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;
           vm.outputFieldTypes = vm.template.model[modelConstants.GEO].outputFieldTypes;
           break;
-        case modelConstants.DATETIME:
-          vm.outputFieldTypes = vm.template.model[modelConstants.DATETIME].outputFieldTypes;
+        default:
           break;
       }
     }
@@ -84,6 +83,9 @@
     function addModel() {
       vm.form.$submitted = true;
       if (vm.form.$valid && areValidOutputFields()) {
+        if (vm.model.type == modelConstants.DATETIME){
+          vm.model.configuration.granularity = vm.model.configuration.granularityNumber + vm.model.configuration.granularityTime;
+        }
         vm.form.$submitted = false;
         ModelService.addModel();
         ModelService.changeModelCreationPanelVisibility(false);
