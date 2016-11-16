@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models
+package com.stratio.sparta.sdk
 
-case class WriterModel(
-                        outputs: Seq[String] = Seq.empty[String],
-                        dateType: Option[String] = None,
-                        autoCalculateFields: Seq[AutoCalculateFieldModel] = Seq.empty[AutoCalculateFieldModel]
-                      )
+case class Field(name: String, outputType: String = "string")

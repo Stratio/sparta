@@ -84,8 +84,7 @@
         "outputs": [
           "cassandra"
         ],
-        "dateType": "timestamp",
-        "isAutoCalculatedId": false
+        "dateType": "timestamp"
       },
       "triggers": []
     }

@@ -83,13 +83,13 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
 
   "schemaToPkCcolumns" should "return the schema" in {
 
-    val res = schemaToPkCcolumns(schema, Option("cluster"), false)
+    val res = schemaToPkCcolumns(schema, Option("cluster"))
     res should be(Option("(name text, PRIMARY KEY (name))"))
   }
 
   "createTable" should "return true" in {
 
-    val res = createTable(cassandraConector, "tablename", schema, Option("cluster"), false)
+    val res = createTable(cassandraConector, "tablename", schema, Option("cluster"))
     res should be(true)
   }
 

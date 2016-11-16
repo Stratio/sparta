@@ -19,8 +19,9 @@ import com.stratio.sparta.sdk.JsoneyString
 
 case class TriggerModel(name: String,
                         sql: String,
-                        outputs: Seq[String] = Seq(),
                         overLast: Option[String] = None,
                         primaryKey: Seq[String],
                         configuration: Map[String, JsoneyString] = Map(),
-                        computeEvery: Option[String] = None)
+                        computeEvery: Option[String] = None,
+                        writer: WriterModel
+                       )

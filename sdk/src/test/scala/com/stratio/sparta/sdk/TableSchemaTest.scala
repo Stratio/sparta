@@ -30,7 +30,7 @@ class TableSchemaTest extends WordSpec with Matchers {
 
     "toString must be " in {
       val expected = "TableSchema(List(outputName),myCube,StructType(StructField(dim1,StringType,false)),Some(minute)" +
-        ",Timestamp,false)"
+        ",Timestamp,List())"
       val result = tableSchema.toString
       result should be(expected)
     }

@@ -25,13 +25,14 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.json4s.native.Serialization.write
-import com.stratio.sparta.driver.cube.{Cube, CubeMaker, CubeWriter, CubeWriterOptions}
+import com.stratio.sparta.driver.cube.{Cube, CubeMaker}
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper._
 import com.stratio.sparta.driver.service.RawDataStorageService
-import com.stratio.sparta.driver.trigger.{StreamWriter, StreamWriterOptions, Trigger}
+import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.utils.ReflectionUtils
+import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions, StreamWriter, StreamWriterOptions}
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -279,7 +280,7 @@ object SpartaJob extends PolicyUtils {
       Trigger(
         trigger.name,
         trigger.sql,
-        trigger.outputs,
+        trigger.writer.outputs,
         trigger.overLast,
         trigger.computeEvery,
         trigger.primaryKey,
@@ -331,31 +332,15 @@ object SpartaJob extends PolicyUtils {
       .getOrElse(throw new Exception("Is mandatory one schema in the cube writer"))
     val cubeModel = cubeModels.find(cube => cube.name == cubeName)
       .getOrElse(throw new Exception("Is mandatory one cubeModel in the cube writer"))
-    val writerOp = getWriterOptions(cubeName, outputs, cubeModel)
+    val writerOp = getCubeWriterOptions(cubeName, outputs, cubeModel)
 
     CubeWriter(cubeWriter, schemaWriter, writerOp, outputs, triggersOuputs, triggerSchemas)
   }
 
-  def getWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
+  def getCubeWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
     val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-    val isAutoCalculatedId = cubeModel.writer.isAutoCalculatedId.getOrElse(CubeWriter.DefaultIsAutocalculatedId)
-    val fixedMeasure = checkFixedMeasure(cubeModel.writer.fixedMeasure)
-    CubeWriterOptions(cubeModel.writer.outputs, dateType, fixedMeasure, isAutoCalculatedId)
-  }
 
-  def checkFixedMeasure(fixedMeasure: Option[String]): MeasuresValues = fixedMeasure match {
-    case None => MeasuresValues(Map.empty[String, Option[Any]])
-    case Some(value) =>
-      if (value == "" || value.isEmpty) {
-        MeasuresValues(Map.empty[String, Option[Any]])
-      } else {
-        fixedMeasure.fold(MeasuresValues(Map.empty)) { fixedMeasure =>
-          val fixedMeasureSplitted = fixedMeasure.split(CubeWriter.FixedMeasureSeparator)
-          if(fixedMeasureSplitted.size == 2)
-            MeasuresValues(Map(fixedMeasureSplitted.head -> Some(fixedMeasureSplitted.last)))
-          else MeasuresValues(Map.empty[String, Option[Any]])
-        }
-      }
+    CubeWriterOptions(cubeModel.writer.outputs, dateType)
   }
 
   def getStreamWriter(triggers: Seq[Trigger],

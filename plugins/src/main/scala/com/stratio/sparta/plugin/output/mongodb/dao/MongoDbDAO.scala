@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.mongodb.dao
 
 import java.net.UnknownHostException
@@ -84,7 +85,7 @@ trait MongoDbDAO extends Logging {
     writeConcern = casbah.WriteConcern.Unacknowledged,
     threadsAllowedToBlockForConnectionMultiplier = threadsAllowedB)
 
-  protected def createPkTextIndex(mongoDatabase: MongoClient, tableSchema: TableSchema): Unit = {
+  protected def createPkAndTextIndex(mongoDatabase: MongoClient, tableSchema: TableSchema): Unit = {
     if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.length > 0) {
         createTextIndex(mongoDatabase,
@@ -95,15 +96,10 @@ trait MongoDbDAO extends Logging {
         )
       }
     }
-
-    if (tableSchema.isAutoCalculatedId)
-      createIndex(mongoDatabase, tableSchema.tableName, Output.Id, Map(Output.Id -> 1), true, true)
-    else {
-      val fields = tableSchema.schema.filter(stField =>
-        !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
-        .map(stField => stField.name -> 1).toMap
-      createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
-    }
+    val fields = tableSchema.schema.filter(stField =>
+      !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
+      .map(stField => stField.name -> 1).toMap
+    createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
   }
 
   protected def indexExists(mongoDatabase: MongoClient, collection: String, indexName: String): Boolean = {

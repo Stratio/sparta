@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk
 
 import java.io.Serializable
-
 import org.apache.spark.sql.types.StructType
 
 case class TableSchema(outputs: Seq[String],
@@ -24,4 +24,5 @@ case class TableSchema(outputs: Seq[String],
                        schema: StructType,
                        timeDimension: Option[String] = None,
                        dateType: TypeOp.Value = TypeOp.Timestamp,
-                       isAutoCalculatedId: Boolean = false) extends Serializable
+                       autoCalculateFields: Seq[AutoCalculateField] = Seq.empty[AutoCalculateField]
+                      ) extends Serializable

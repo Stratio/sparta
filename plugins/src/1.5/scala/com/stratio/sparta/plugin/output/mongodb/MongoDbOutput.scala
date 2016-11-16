@@ -52,15 +52,14 @@ class MongoDbOutput(keyName: String,
     override def setup(options: Map[String, String]): Unit = {
       val db = connectToDatabase
 
-      schemas.foreach(tableSchema => createPkTextIndex(db, tableSchema))
+      schemas.foreach(tableSchema => createPkAndTextIndex(db, tableSchema))
       db.close()
     }
 
     override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
       val tableName = getTableNameFromOptions(options)
-      val isAutoCalculatedId = getIsAutoCalculatedIdFromOptions(options)
       val timeDimension = getTimeFromOptions(options)
-      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, isAutoCalculatedId)
+      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension)
 
       dataFrame.write
         .format(MongoDbSparkDatasource)
@@ -71,21 +70,19 @@ class MongoDbOutput(keyName: String,
 
     private def getDataFrameOptions(tableName: String,
                                     schema: StructType,
-                                    timeDimension: Option[String],
-                                    isAutoCalculatedId: Boolean): Map[String, String] =
+                                    timeDimension: Option[String]
+                                   ): Map[String, String] =
       Map(
         MongodbConfig.Host -> hosts,
         MongodbConfig.Database -> dbName,
         MongodbConfig.Collection -> tableName
-      ) ++ getPrimaryKeyOptions(schema, timeDimension, isAutoCalculatedId) ++ {
+      ) ++ getPrimaryKeyOptions(schema, timeDimension) ++ {
         if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty
       }
 
     private def getPrimaryKeyOptions(schema: StructType,
-                                     timeDimension: Option[String],
-                                     isAutoCalculatedId: Boolean): Map[String, String] = {
-      val updateFields = if (isAutoCalculatedId) Output.Id
-        else schema.fields.filter(stField =>
+                                     timeDimension: Option[String]): Map[String, String] = {
+      val updateFields = schema.fields.filter(stField =>
         !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
         .map(_.name).mkString(",")
 

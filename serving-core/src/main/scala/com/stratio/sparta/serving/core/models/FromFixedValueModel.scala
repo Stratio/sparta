@@ -16,8 +16,4 @@
 
 package com.stratio.sparta.serving.core.models
 
-case class WriterModel(
-                        outputs: Seq[String] = Seq.empty[String],
-                        dateType: Option[String] = None,
-                        autoCalculateFields: Seq[AutoCalculateFieldModel] = Seq.empty[AutoCalculateFieldModel]
-                      )
+case class FromFixedValueModel(field: FieldModel, value : String)

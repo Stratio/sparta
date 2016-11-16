@@ -84,8 +84,7 @@
         "outputs": [
           "mongodb"
         ],
-        "dateType": "timestamp",
-        "isAutoCalculatedId": false
+        "dateType": "timestamp"
       },
       "triggers": []
     }

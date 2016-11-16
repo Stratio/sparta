@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.trigger
+package com.stratio.sparta.driver.writer
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.DataFrame
+import com.stratio.sparta.driver.exception.DriverException
 
 import scala.util.{Failure, Success, Try}
 
-trait TriggerWriter extends SLF4JLogging {
+trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
 
   //scalastyle:off
   def writeTriggers(dataFrame: DataFrame,
@@ -45,22 +46,29 @@ trait TriggerWriter extends SLF4JLogging {
           log.warn(s"Warning running sql in the query ${trigger.sql} in trigger ${trigger.name}", exception.getMessage)
           throw DriverException(exception.getMessage, exception)
       }
-      val upsertOptions = tableSchemas.find(_.tableName == trigger.name).fold(Map.empty[String, String]) { schema =>
-        Map(Output.TableNameKey -> schema.tableName,
-          Output.IdAutoCalculatedKey -> schema.isAutoCalculatedId.toString)
+      val tableSchema = tableSchemas.find(_.tableName == trigger.name)
+      val upsertOptions = tableSchema.fold(Map.empty[String, String]) { schema =>
+        Map(Output.TableNameKey -> schema.tableName)
       }
 
       if(queryDataFrame.take(1).length > 0) {
-        queryDataFrame.registerTempTable(trigger.name)
+        val queryDataFrameWithAutoCalculatedFields = tableSchema match {
+          case Some(schema) => applyAutoCalculateFields(queryDataFrame, schema.autoCalculateFields)
+          case None => queryDataFrame
+        }
+
+        queryDataFrameWithAutoCalculatedFields.registerTempTable(trigger.name)
         trigger.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
-            case Some(outputWriter) => Try(outputWriter.upsert(queryDataFrame, upsertOptions)) match {
+            case Some(outputWriter) => Try{
+              outputWriter.upsert(queryDataFrameWithAutoCalculatedFields, upsertOptions)
+            } match {
               case Success(_) =>
                 log.debug(s"Trigger data stored in ${trigger.name}")
               case Failure(e) =>
                 log.error(s"Something goes wrong. Table: ${trigger.name}")
-                log.error(s"Schema. ${queryDataFrame.schema}")
-                log.error(s"Head element. ${queryDataFrame.head}")
+                log.error(s"Schema. ${queryDataFrameWithAutoCalculatedFields.schema}")
+                log.error(s"Head element. ${queryDataFrameWithAutoCalculatedFields.head}")
                 log.error(s"Error message : ${e.getMessage}")
             }
             case None => log.error(s"The output in the trigger : $outputName not match in the outputs")
@@ -71,7 +79,7 @@ trait TriggerWriter extends SLF4JLogging {
     tempTables.foreach(tableName => if(isCorrectTableName(tableName)) sqlContext.dropTempTable(tableName))
     if(isCorrectTableName(inputTableName)) sqlContext.dropTempTable(inputTableName)
   }
-
+//scalastyle:on
   private def isCorrectTableName(tableName : String) : Boolean =
     tableName.nonEmpty && tableName != "" && tableName.toLowerCase != "select" && tableName.toLowerCase != "project"
 }

@@ -80,7 +80,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           "There is at least one cube without dimensions")),
       (policy.outputs.nonEmpty
         || (policy.streamTriggers.nonEmpty
-        && policy.streamTriggers.forall(trigger => trigger.outputs.nonEmpty)),
+        && policy.streamTriggers.forall(trigger => trigger.writer.outputs.nonEmpty)),
         new ErrorModel(
           ErrorModel.ValidationError_The_policy_needs_at_least_one_output,
           "The policy needs at least one output or one trigger in the cube with output")),
@@ -96,7 +96,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           "There is at least one cube with a bad output")),
       (policy.cubes.forall(cube =>
         cube.triggers.forall(trigger =>
-          trigger.outputs.forall(outputName => outputsNames.contains(outputName)))),
+          trigger.writer.outputs.forall(outputName => outputsNames.contains(outputName)))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output,
           "There is at least one cube with triggers that contains a bad output")),
@@ -130,13 +130,13 @@ object AggregationPoliciesValidator extends SpartaSerializer {
     val outputsNames = policy.outputs.map(_.name)
     val errorModels = List(
       (policy.streamTriggers.forall(trigger =>
-        trigger.outputs.forall(outputName =>
+        trigger.writer.outputs.forall(outputName =>
           outputsNames.contains(outputName))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
           "There is at least one stream trigger that contains a bad output")),
       (policy.streamTriggers.forall(trigger =>
-        trigger.outputs.nonEmpty),
+        trigger.writer.outputs.nonEmpty),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
           "There is at least one stream trigger that contains a bad output"))

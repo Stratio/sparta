@@ -84,8 +84,7 @@
         "outputs": [
           "elasticsearch"
         ],
-        "dateType": "timestamp",
-        "isAutoCalculatedId": false
+        "dateType": "timestamp"
       },
       "triggers": []
     }

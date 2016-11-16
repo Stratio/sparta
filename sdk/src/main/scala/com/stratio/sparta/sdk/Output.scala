@@ -49,12 +49,11 @@ object Output extends Logging {
 
   final val ClassSuffix = "Output"
   final val Separator = "_"
-  final val Id = "id"
   final val FieldsSeparator = ","
   final val TableNameKey = "tableName"
   final val TimeDimensionKey = "timeDimension"
-  final val IdAutoCalculatedKey = "idAutoCalculated"
   final val MeasureMetadataKey = "measure"
+  final val PrimaryKeyMetadataKey = "pk"
 
   def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey)
 
@@ -63,12 +62,6 @@ object Output extends Logging {
       log.error("Table name not defined")
       throw new NoSuchElementException("tableName not found in options")
     })
-
-  def getIsAutoCalculatedIdFromOptions(options: Map[String, String]): Boolean =
-    Try(options.getOrElse(IdAutoCalculatedKey, {
-      log.error("Autocalculated not defined")
-      throw new NoSuchElementException("Autocalculated not found in options")
-    }).toBoolean).getOrElse(throw new NoSuchElementException("Autocalculated with ilegal value"))
 
   def getTimeFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
     dateTimeType match {

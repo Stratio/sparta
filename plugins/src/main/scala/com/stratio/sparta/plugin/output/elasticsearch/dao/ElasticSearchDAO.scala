@@ -47,12 +47,8 @@ trait ElasticSearchDAO {
 
   def mappingType: String
 
-  def getSparkConfig(timeName: Option[String], idProvided: Boolean): Map[String, String] = {
-    if (idProvided)
-      Map("es.mapping.id" -> idField.getOrElse(Output.Id))
-    else
-      Map()
-  } ++
+  def getSparkConfig(timeName: Option[String]): Map[String, String] =
+    idField.fold(Map.empty[String, String]) {field => Map("es.mapping.id" -> field)} ++
     Map("es.nodes" -> httpNodes(0)._1, "es.port" -> httpNodes(0)._2.toString, "es.index.auto.create" -> "no") ++ {
     timeName match {
       case Some(timeNameValue) if !timeNameValue.isEmpty =>  Map("es.mapping.timestamp" -> timeNameValue)
