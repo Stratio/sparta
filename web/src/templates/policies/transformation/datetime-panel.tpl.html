@@ -11,13 +11,13 @@
   data-qa="policy-description-raw-data-partition-format">
 </form-field-select>
 <form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
-	class="c-col c-col--3 c-col--vertical-top"
+	class="c-col c-col--3 c-col--vertical-top c-col--right-margin"
 	data-ng-form-id="{{item.propertyId}}"
 	data-field="item"
 	data-model="vm.model.configuration"
 	data-form="vm.form"
   data-disabled="!editionMode"
-	data-st-name="modelDateaTime_{{item.propertyName}}Form"
+	data-st-name="modelDateTime_{{item.propertyName}}Form"
 	data-qa="{{item.qa}}">
 </form-field>
 <div class="c-form-group" data-ng-class="{'submited': vm.model.outputFields.length == 0 && vm.form.$submitted, 'ng-invalid': vm.model.outputFields.length == 0 && vm.form.$submitted}">

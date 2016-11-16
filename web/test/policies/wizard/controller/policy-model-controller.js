@@ -6,7 +6,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
   beforeEach(module('model/transformation.json'));
 
   var ctrl, scope, fakePolicy, fakePolicyTemplate, fakeModelTemplate, fakeModel, policyModelFactoryMock, fakeContext,
-    modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy, modelConstants, utilsServiceMock;
+      modelFactoryMock, modelServiceMock, resolvedPromise, rejectedPromise, fakeApiPolicy, modelConstants, utilsServiceMock;
 
   // init mock modules
 
@@ -22,7 +22,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
     });
 
     $httpBackend.when('GET', 'languages/en-US.json')
-      .respond({});
+        .respond({});
 
     policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['getCurrentPolicy', 'getTemplate']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function() {
@@ -129,11 +129,11 @@ describe('policies.wizard.controller.policy-model-controller', function() {
 
     });
 
-    it("if type is DateTime, it puts its available output types", function() {
+    it("if type is DateTime, it puts default output types", function() {
       ctrl.model.type = "DateTime";
       ctrl.onChangeType();
 
-      expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.DateTime.outputFieldTypes)
+      expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.defaultOutputFieldTypes)
     });
   });
 
@@ -176,24 +176,45 @@ describe('policies.wizard.controller.policy-model-controller', function() {
       expect(modelFactoryMock.setError).toHaveBeenCalledWith("_ERROR_._GENERIC_FORM_");
     });
 
-    it("model is added if view validations have been passed and has an output field (not duplicated) at least", function() {
-      modelFactoryMock.getPreviousOutputFields.and.returnValue([{name: "different output field", value: "different"}]);
-      utilsServiceMock.findElementInJSONArray.and.returnValue(5); // there is an output field with the same name
-      ctrl.form = {$valid: true}; //view validations have been passed
+    describe("model is added if view validations have been passed and has an output field (not duplicated) at least", function() {
+      beforeEach(function() {
+        modelFactoryMock.getPreviousOutputFields.and.returnValue([{
+          name: "different output field",
+          value: "different"
+        }]);
+        utilsServiceMock.findElementInJSONArray.and.returnValue(5); // there is an output field with the same name
+        ctrl.form = {$valid: true}; //view validations have been passed
+      });
+      
+      it('if it is not a dateTime transformation', function() {
+        ctrl.model.type = modelConstants.MORPHLINES;
 
-      ctrl.addModel();
+        ctrl.addModel();
 
-      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
-      utilsServiceMock.findElementInJSONArray.and.returnValue(-1); // there isn't any output field with the same name
-      ctrl.addModel();
+        expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+        utilsServiceMock.findElementInJSONArray.and.returnValue(-1); // there isn't any output field with the same name
+        ctrl.addModel();
 
-      expect(modelServiceMock.addModel).toHaveBeenCalled();
-      modelServiceMock.addModel.calls.reset();
-      ctrl.model.outputFields = [];
+        expect(modelServiceMock.addModel).toHaveBeenCalled();
+        modelServiceMock.addModel.calls.reset();
+        ctrl.model.outputFields = [];
 
-      ctrl.addModel();
+        ctrl.addModel();
 
-      expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+        expect(modelServiceMock.addModel).not.toHaveBeenCalled();
+      });
+
+      it('if it is a dateTime transformation, granularityNumber and granularityTime are removed and granularity attribute is generated using both them', function() {
+        ctrl.model.type = modelConstants.DATETIME;
+        utilsServiceMock.findElementInJSONArray.and.returnValue(-1); // there isn't any output field with the same name
+        var fakeGranularityNumber = "5";
+        var fakeGranularityTime = "minutes";
+        ctrl.model.configuration = {granularityNumber: fakeGranularityNumber, granularityTime: fakeGranularityTime};
+        
+        ctrl.addModel();
+
+        expect(ctrl.model.configuration.granularity).toBe(fakeGranularityNumber + fakeGranularityTime);
+      });
 
     });
   });
