@@ -19,26 +19,26 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.PolicyActor
 import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentElementModel}
-import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
 
 import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
   "included in a policy")
-trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUtils {
+trait FragmentHttpService extends BaseHttpService with OauthClient {
 
   override def routes: Route =
     findAll ~ findByTypeAndId ~ findByTypeAndName ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~
@@ -208,15 +208,19 @@ trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUt
           complete {
             val policyActor = actors.get(AkkaConstant.PolicyActor).get
             val fragmentStatusActor = actors.get(AkkaConstant.FragmentActor).get
-            val fragmentId = fragment.id.getOrElse(throw new RuntimeException("No valid fragment id"))
-
             for {
               updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
-              relatedPolicies <- policyActor ? PolicyActor.FindByFragment(fragment.fragmentType, fragmentId)
-            } yield (updateResponse, relatedPolicies) match {
+              allPolicies <- policyActor ? PolicyActor.FindAll()
+            } yield (updateResponse, allPolicies) match {
               case (FragmentActor.Response(Success(_)), PolicyActor.ResponsePolicies(Success(policies))) =>
-                updatePoliciesWithUpdatedFragments(policies)
-                deleteRelatedPolicies(policies)
+                val policiesInFragments = policies.flatMap(policy => {
+                  if (policy.fragments.exists(policyFragment =>
+                    policyFragment.fragmentType == fragment.fragmentType &&
+                      policyFragment.id == fragment.id))
+                    Some(policy)
+                  else None
+                })
+                updatePoliciesWithUpdatedFragments(policiesInFragments)
                 HttpResponse(StatusCodes.OK)
               case (Response(Failure(exception)), _) =>
                 throw exception
@@ -383,8 +387,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient with PolicyUt
   protected def updatePoliciesWithUpdatedFragments(policies: Seq[AggregationPoliciesModel]): Unit =
     policies.foreach(policy => {
       val policyActor = actors.get(AkkaConstant.PolicyActor).get
-      val policyWithFragments = FragmentsHelper.getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
 
-      policyActor ! PolicyActor.Update(policyWithFragments)
+      policyActor ! PolicyActor.Update(policy)
     })
 }

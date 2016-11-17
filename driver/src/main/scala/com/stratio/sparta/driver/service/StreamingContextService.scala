@@ -27,7 +27,7 @@ import com.stratio.sparta.driver.SpartaJob._
 import com.stratio.sparta.driver.factory._
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum._
@@ -42,10 +42,9 @@ import scala.concurrent.duration._
 import scala.util.{Success, Try}
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
-                                   generalConfig: Option[Config] = None)
-  extends PolicyUtils {
+                                   generalConfig: Option[Config] = None){
 
-  implicit val timeout: Timeout = Timeout(4.seconds)
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): StreamingContext = {

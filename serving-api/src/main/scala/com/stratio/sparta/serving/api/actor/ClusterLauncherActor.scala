@@ -51,7 +51,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   private val ZookeeperConfig = SpartaConfig.getZookeeperConfig.get
   private val HdfsConfig = SpartaConfig.getHdfsConfig.get
   private val DetailConfig = SpartaConfig.getDetailConfig.get
-  private val Hdfs = HdfsUtils(Option(HdfsConfig))
+  private val Hdfs = HdfsUtils()
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 

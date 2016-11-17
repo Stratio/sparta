@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import spray.httpx.Json4sJacksonSupport
 import spray.routing._
@@ -30,7 +31,7 @@ import scala.concurrent.duration._
  */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging with SpartaSerializer {
 
-  implicit val timeout: Timeout = Timeout(15.seconds)
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 

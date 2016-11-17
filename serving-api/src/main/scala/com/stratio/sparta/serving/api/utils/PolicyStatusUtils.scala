@@ -20,19 +20,21 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import akka.actor.ActorRef
 import akka.pattern.ask
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Try
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 
 trait PolicyStatusUtils {
 
-  implicit val timeout: Timeout = Timeout(15.seconds)
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   def isAnyPolicyStarted(policyStatusActor: ActorRef): Future[Boolean] = {
     for {

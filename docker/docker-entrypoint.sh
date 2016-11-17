@@ -12,6 +12,12 @@
  if [[ ! -v EXECUTION_MODE ]]; then
    EXECUTION_MODE=local
  fi
+  if [[ ! -v STOP_GRACEFULLY ]]; then
+   STOP_GRACEFULLY=true
+ fi
+ if [[ ! -v REMEMBER_PARTITIONER ]]; then
+   REMEMBER_PARTITIONER=true
+ fi
  if [[ ! -v ZOOKEEPER_HOST ]]; then
    ZOOKEEPER_HOST=localhost:2181
  fi
@@ -24,11 +30,26 @@
  if [[ ! -v HDFS_PRINCIPAL_NAME ]]; then
    HDFS_PRINCIPAL_NAME=""
  fi
+  if [[ ! -v HDFS_PRINCIPAL_NAME ]]; then
+   HDFS_PRINCIPAL_NAME=""
+ fi
+ if [[ ! -v HDFS_PRINCIPAL_NAME_SUFFIX ]]; then
+   HDFS_PRINCIPAL_NAME_SUFFIX=""
+ fi
+ if [[ ! -v HDFS_PRINCIPAL_NAME_PREFIX ]]; then
+   HDFS_PRINCIPAL_NAME_PREFIX=""
+ fi
  if [[ ! -v HDFS_KEYTAB ]]; then
    HDFS_KEYTAB=""
  fi
+ if [[ ! -v HDFS_KEYTAB_RELOAD ]]; then
+   HDFS_KEYTAB_RELOAD=23h
+ fi
  if [[ ! -v HDFS_USER_NAME ]]; then
    HDFS_USER_NAME=stratio
+ fi
+ if [[ ! -v AUTO_DELETE_CHECKPOINT ]]; then
+   AUTO_DELETE_CHECKPOINT=true
  fi
  if [[ ! -v SPARK_MASTER ]]; then
    SPARK_MASTER="local[*]"
@@ -37,14 +58,20 @@
    MESOS_MASTER=localhost:7077
  fi
 
-
  sed -i "s|executionMode.*|executionMode = \"${EXECUTION_MODE}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|stopGracefully.*|stopGracefully = \"${STOP_GRACEFULLY}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|rememberPartitioner.*|rememberPartitioner = \"${REMEMBER_PARTITIONER}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|autoDeleteCheckpoint.*|autoDeleteCheckpoint = \"${AUTO_DELETE_CHECKPOINT}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST}"\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsMaster.*|hdfsMaster = \"${HDFS_MASTER}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hdfsPort.*|hdfsPort = \"${HDFS_PORT}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|hadoopUserName.*|hadoopUserName = \"${HDFS_USER_NAME}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|principalName.*|principalName = \"${HDFS_PRINCIPAL_NAME}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|principalNamePrefix.*|principalNamePrefix = \"${HDFS_PRINCIPAL_NAME_PREFIX}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|principalNameSuffix.*|principalNameSuffix = \"${HDFS_PRINCIPAL_NAME_SUFFIX}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|keytabPath.*|keytabPath = \"${HDFS_KEYTAB}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|reloadKeyTabTime.*|reloadKeyTabTime = \"${HDFS_KEYTAB_RELOAD}\"|" ${SPARTA_CONF_FILE}
+
 
  if [[ ! -v EXECUTION_MODE || "${EXECUTION_MODE}" == "local" ]]; then
    sed -i "s|spark.master.*|spark.master = \"${SPARK_MASTER}\"|" ${SPARTA_CONF_FILE}

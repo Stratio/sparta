@@ -19,96 +19,75 @@ package com.stratio.sparta.serving.core.utils
 import java.io.File
 import java.util.UUID
 
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
+import akka.util.Timeout
+import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentType, SpartaSerializer}
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
+import scala.concurrent.duration._
 import scala.util._
 
 trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
-  def existsByName(name: String, id: Option[String] = None, curatorFramework: CuratorFramework): Boolean = {
-    val nameToCompare = name.toLowerCase
-    Try {
-      if (existsPath)
-        getPolicies(curatorFramework).exists(byName(id, nameToCompare))
-      else {
-        log.warn(s"Zookeeper path for policies doesn't exists. It will be created.")
-        false
-      }
-    } match {
-      case Success(result) => result
-      case Failure(exception) =>
-        log.error(exception.getLocalizedMessage, exception)
-        false
-    }
-  }
+  val fragmentActor: Option[ActorRef] = None
+
+  implicit val timeout: Timeout = Timeout(15.seconds)
+
+  /** METHODS TO MANAGE POLICIES IN ZOOKEEPER **/
 
   def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  def byName(id: Option[String], nameToCompare: String): (AggregationPoliciesModel) => Boolean = {
-    policy =>
-      if (id.isDefined)
-        policy.name == nameToCompare && policy.id.get != id.get
-      else policy.name == nameToCompare
-  }
-
   def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
-
-    Try {
-      populatePolicy(policy, curatorFramework)
-    } match {
-      case Success(_) => log.info(s"Policy ${policy.id.get} already in zookeeper. Updating it...")
-        updatePolicy(policy, curatorFramework)
-      case Failure(e) => writePolicy(policy, curatorFramework)
-    }
+    if (existsByNameId(policy.name, policy.id, curatorFramework).isDefined) {
+      log.info(s"Policy ${policy.name} already in zookeeper. Updating it...")
+      updatePolicy(policy, curatorFramework)
+    } else writePolicy(policy, curatorFramework)
   }
+
+  def deletePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit =
+    curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
 
   def writePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
+    val policyParsed = policyWithFragments(policy)
+
     curatorFramework.create().creatingParentsIfNeeded().forPath(
-      s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
+      s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
   }
 
   def updatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
-    curatorFramework.setData().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}", write(policy).getBytes)
+    val policyParsed = policyWithFragments(policy)
+
+    curatorFramework.setData().forPath(
+      s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
   }
 
   def populatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
-    read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+    val policyInZk = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
       s"${AppConstant.PoliciesBasePath}/${policy.id.get}")))
+
+    policyWithFragments(policyInZk)
   }
 
-  def policyWithId(policy: AggregationPoliciesModel): AggregationPoliciesModel =
-    (policy.id match {
-      case None => populatePolicyWithRandomUUID(policy)
-      case Some(_) => policy
-    }).copy(name = policy.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
-
-  def populatePolicyWithRandomUUID(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
-    policy.copy(id = Some(UUID.randomUUID.toString))
-  }
-
-  def isLocalMode: Boolean =
-    SpartaConfig.getDetailConfig match {
-      case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
-      case None => true
-    }
-
-  def existsByNameId(name: String, id: Option[String] = None, curatorFramework: CuratorFramework):
-  Option[AggregationPoliciesModel] = {
+  def existsByNameId(name: String,
+                     id: Option[String] = None,
+                     curatorFramework: CuratorFramework
+                    ): Option[AggregationPoliciesModel] = {
     val nameToCompare = name.toLowerCase
     Try {
       if (existsPath) {
-        getPolicies(curatorFramework)
-          .find(policy => if (id.isDefined) policy.id.get == id.get else policy.name == nameToCompare)
+        getPolicies(curatorFramework).find(policy =>
+          if (id.isDefined && policy.id.isDefined) policy.id.get == id.get else policy.name == nameToCompare
+        )
       } else None
     } match {
       case Success(result) => result
@@ -116,6 +95,33 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         log.error(exception.getLocalizedMessage, exception)
         None
     }
+  }
+
+  def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
+    val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
+
+    JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+  }
+
+  def byId(id: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
+    val policy = read[AggregationPoliciesModel](
+      new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
+
+    policyWithFragments(policy)
+  }
+
+  /** METHODS TO CALCULATE THE CORRECT ID IN POLICIES **/
+
+  def policyWithId(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+    val policyF = policyWithFragments(policy)
+    (policyF.id match {
+      case None => populatePolicyWithRandomUUID(policyF)
+      case Some(_) => policyF
+    }).copy(name = policyF.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
+  }
+
+  def populatePolicyWithRandomUUID(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+    policy.copy(id = Some(UUID.randomUUID.toString))
   }
 
   def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] = {
@@ -127,52 +133,49 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     } else lastPolicy.version
   }
 
-  def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
-    val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
-    JavaConversions.asScalaBuffer(children).toList.map(element =>
-      read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.
-        forPath(s"${AppConstant.PoliciesBasePath}/$element"))))
+  def policyWithFragments(policy: AggregationPoliciesModel)(implicit timeout: Timeout): AggregationPoliciesModel = {
+    fragmentActor.fold(policy) { actorRef => {
+      (populateFragmentFromPolicy(policy, FragmentType.input) ++
+        populateFragmentFromPolicy(policy, FragmentType.output)
+        ).foreach(fragment => actorRef ! FragmentActor.Create(fragment))
+      getPolicyWithFragments(policy, actorRef)
+    }
+    }
   }
 
-  def byId(id: String, curatorFramework: CuratorFramework): AggregationPoliciesModel =
-    read[AggregationPoliciesModel](
-      new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
-
-  def deleteRelatedPolicies(policies: Seq[AggregationPoliciesModel]): Unit = {
-    policies.foreach(deleteCheckpointPath)
-  }
-
-  /**
-   * Method to parse AggregationPoliciesModel from JSON string
-   *
-   * @param json The policy as JSON string
-   * @return AggregationPoliciesModel
+  /*
+    Other way to parse policies:
+      def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
    */
-  def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
 
   def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] = {
     apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
   }
 
-
   /** CHECKPOINT OPTIONS **/
+
+  def isLocalMode: Boolean =
+    SpartaConfig.getDetailConfig match {
+      case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
+      case None => true
+    }
 
   def deleteFromLocal(policy: AggregationPoliciesModel): Unit =
     FileUtils.deleteDirectory(new File(checkpointPath(policy)))
 
   def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
-    HdfsUtils(SpartaConfig.getHdfsConfig).delete(checkpointPath(policy))
+    HdfsUtils().delete(checkpointPath(policy))
 
   def isHadoopEnvironmentDefined: Boolean =
-    Option(System.getenv(AppConstant.HadoopConfDir)) match {
+    Option(System.getenv(AppConstant.SystemHadoopConfDir)) match {
       case Some(_) => true
       case None => false
     }
 
-  private def cleanCheckpointPath(path: String) : String = {
+  private def cleanCheckpointPath(path: String): String = {
     val hdfsPrefix = "hdfs://"
 
-    if(path.startsWith(hdfsPrefix))
+    if (path.startsWith(hdfsPrefix))
       log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
     path.replace(hdfsPrefix, "")
   }
