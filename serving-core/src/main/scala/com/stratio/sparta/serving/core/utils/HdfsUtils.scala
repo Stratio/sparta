@@ -19,23 +19,61 @@ package com.stratio.sparta.serving.core.utils
 import java.io._
 import java.security.PrivilegedExceptionAction
 
+import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.typesafe.config.Config
+import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FSDataOutputStream, FileStatus, FileSystem, Path}
+import org.apache.hadoop.fs.{FSDataInputStream, FSDataOutputStream, FileStatus, FileSystem, Path}
 import org.apache.hadoop.security.UserGroupInformation
 
+import scala.concurrent.duration._
 import scala.util.Try
 
 case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None) {
 
-  def getFiles(path: String): Array[FileStatus] = dfs.listStatus(new Path(path))
+  def reLogin(): Unit = ugiOption.foreach(ugi => ugi.reloginFromKeytab())
 
-  def getFile(filename: String): InputStream = dfs.open(new Path(filename))
+  def getFiles(path: String): Array[FileStatus] = {
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Array[FileStatus]]() {
+          override def run(): Array[FileStatus] = {
+            dfs.listStatus(new Path(path))
+          }
+        })
+      case None =>
+        dfs.listStatus(new Path(path))
+    }
+  }
 
-  def delete(path: String): Unit = dfs.delete(new Path(path), true)
+  def getFile(filename: String): InputStream = {
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
+          override def run(): FSDataInputStream = {
+            dfs.open(new Path(filename))
+          }
+        })
+      case None =>
+        dfs.open(new Path(filename))
+    }
+  }
+
+  def delete(path: String): Unit = {
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
+          override def run(): Boolean = {
+            dfs.delete(new Path(path), true)
+          }
+        })
+      case None =>
+        dfs.delete(new Path(path), true)
+    }
+  }
 
   def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
     val file = new File(path)
@@ -61,18 +99,32 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 
 object HdfsUtils extends SLF4JLogging {
 
-  def hdfsConfiguration(userName: String, configOpt: Option[Config]): Configuration = {
+  implicit val hdfsSystem = ActorSystem("SchedulerHdfsSystem")
+
+  def runReloaderKeyTab(hdfsUtils: HdfsUtils): Unit = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    val hdfsConfig = SpartaConfig.getHdfsConfig
+    val reloadKeyTabTime = Try(hdfsConfig.get.getString(AppConstant.ReloadKeyTabTime)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
+
+    hdfsSystem.scheduler.schedule(0 seconds,
+      DateOperationsHelper.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
+  }
+
+  def hdfsConfiguration(userName: String): Configuration = {
     val DefaultFSProperty = "fs.defaultFS"
     val HdfsDefaultPort = 9000
+    val hdfsConfig = SpartaConfig.getHdfsConfig
 
     val HdfsDefaultMaster = "127.0.0.1"
     val conf = new Configuration()
 
-    Option(System.getenv(AppConstant.HadoopConfDir)) match {
+    Option(System.getenv(AppConstant.SystemHadoopConfDir)) match {
       case Some(confDir) =>
         log.info(s"The Hadoop configuration is read from directory files in the path $confDir")
       case None =>
-        configOpt.foreach { config =>
+        hdfsConfig.foreach { config =>
           val master = Try(config.getString(AppConstant.HdfsMaster)).getOrElse(HdfsDefaultMaster)
           val port = Try(config.getInt(AppConstant.HdfsPort)).getOrElse(HdfsDefaultPort)
           val hdfsPath = s"hdfs://$master:$port/user/$userName/sparta"
@@ -85,11 +137,42 @@ object HdfsUtils extends SLF4JLogging {
     conf
   }
 
+  def getUserName: String = Option(System.getenv(AppConstant.SystemHadoopUserName))
+    .getOrElse {
+      val hdfsConfig = SpartaConfig.getHdfsConfig
+
+      Try(hdfsConfig.get.getString(AppConstant.HadoopUserName)).toOption
+        .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultHdfsUser)
+    }
+
+  def getPrincipalName: Option[String] =
+    Option(System.getenv(AppConstant.SystemPrincipalName)).orElse {
+      val hdfsConfig = SpartaConfig.getHdfsConfig
+      val principalNameSuffix = Try(hdfsConfig.get.getString(AppConstant.PrincipalNameSuffix)).toOption
+        .flatMap(x => if (x == "") None else Some(x))
+      val principalNamePrefix = Try(hdfsConfig.get.getString(AppConstant.PrincipalNamePrefix)).toOption
+        .flatMap(x => if (x == "") None else Some(x))
+      val hostName = Option(System.getenv(AppConstant.SystemHostName))
+      (principalNamePrefix, principalNameSuffix, hostName) match {
+        case (Some(prefix), Some(suffix), Some(host)) => Some(s"$prefix$host$suffix")
+        case _ =>
+          Try(hdfsConfig.get.getString(AppConstant.PrincipalName)).toOption
+            .flatMap(x => if (x == "") None else Some(x))
+      }
+    }
+
+  def getKeyTabPath: Option[String] =
+    Option(System.getenv(AppConstant.SystemKeyTabPath)).orElse {
+      val hdfsConfig = SpartaConfig.getHdfsConfig
+
+      Try(hdfsConfig.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x => if (x == "") None else Some(x))
+    }
+
   def apply(conf: Configuration,
             userName: String,
             principalNameOption: Option[String],
             keytabPathOption: Option[String]): HdfsUtils = {
-    Option(System.getenv(AppConstant.HadoopConfDir)).foreach(
+    Option(System.getenv(AppConstant.SystemHadoopConfDir)).foreach(
       hadoopConfDir => {
         val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
         val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
@@ -112,15 +195,18 @@ object HdfsUtils extends SLF4JLogging {
         Option(UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keytabPath))
       } else None
 
-    new HdfsUtils(FileSystem.get(conf), userName, ugi)
+    val hdfsUtils = new HdfsUtils(FileSystem.get(conf), userName, ugi)
+
+    if (ugi.isDefined) runReloaderKeyTab(hdfsUtils)
+
+    hdfsUtils
   }
 
-  def apply(config: Option[Config]): HdfsUtils = {
-    val userName = Try(config.get.getString(AppConstant.HadoopUserName)).getOrElse(AppConstant.DefaultHdfsUser)
-    val principalName: Option[String] =
-      Try(config.get.getString(AppConstant.PrincipalName)).toOption.flatMap(x => if (x == "") None else Some(x))
-    val keytabPath: Option[String] =
-      Try(config.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x => if (x == "") None else Some(x))
-    apply(hdfsConfiguration(userName, config), userName, principalName, keytabPath)
+  def apply(): HdfsUtils = {
+    val userName = getUserName
+    val principalName = getPrincipalName
+    val keytabPath = getKeyTabPath
+
+    apply(hdfsConfiguration(userName), userName, principalName, keytabPath)
   }
 }

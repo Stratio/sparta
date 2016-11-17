@@ -40,6 +40,7 @@ import org.scalatest.mock.MockitoSugar
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.api.actor.{PolicyActor, SparkStreamingContextActor}
+import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
 
@@ -54,9 +55,12 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
   val streamingContextService = mock[StreamingContextService]
 
   val policyStatusTestActorRef = TestActorRef(new PolicyStatusActor(curatorFramework))
-  val policyTestActorRef = TestActorRef(new PolicyActor(curatorFramework, policyStatusTestActorRef))
+  val policyFragmentActor = TestActorRef(new FragmentActor(curatorFramework))
+  val policyTestActorRef =
+    TestActorRef(new PolicyActor(curatorFramework, policyStatusTestActorRef, policyFragmentActor))
   val policyStatusActorRef = system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
-  val policyActorRef = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActorRef)))
+  val policyActorRef =
+    system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActorRef, policyFragmentActor)))
   val policyStatusActor = policyStatusTestActorRef.underlyingActor
   val policyActor = policyTestActorRef.underlyingActor
 

@@ -79,8 +79,13 @@ object FragmentsHelper {
     */
   def populateFragmentFromPolicy(policy: AggregationPoliciesModel, fragmentType: `type`): Seq[FragmentElementModel] =
   fragmentType match {
-    case FragmentType.input => Seq(policy.input.get.parseToFragment(fragmentType))
-    case FragmentType.output => policy.outputs.map(output => output.parseToFragment(fragmentType))
+    case FragmentType.input =>
+      policy.input match {
+        case Some(in) => Seq(in.parseToFragment(fragmentType))
+        case None => Seq.empty[FragmentElementModel]
+      }
+    case FragmentType.output =>
+      policy.outputs.map(output => output.parseToFragment(fragmentType))
   }
 
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ with MockFactory {
   val policyStatusActor = _system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val templateActor = _system.actorOf(Props(new TemplateActor()))
-  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)))
+  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor, fragmentActor)))
   val sparkStreamingContextActor = _system.actorOf(
     Props(new SparkStreamingContextActor(streamingContextService,policyActor, policyStatusActor, curatorFramework)))
 

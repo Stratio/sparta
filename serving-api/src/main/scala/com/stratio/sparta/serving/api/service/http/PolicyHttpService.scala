@@ -74,8 +74,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
-            case ResponsePolicy(Success(policy)) =>
-              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+            case ResponsePolicy(Success(policy)) => policy
           }
         }
       }
@@ -106,8 +105,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
-            case ResponsePolicy(Success(policy)) =>
-              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+            case ResponsePolicy(Success(policy)) => policy
           }
         }
       }
@@ -195,20 +193,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             Await.result(future, timeout.duration) match {
               case ResponsePolicy(Failure(exception)) =>
                 throw exception
-              case ResponsePolicy(Success(policy)) =>
-                val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-                val inputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
-                val outputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
-                val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
-                  throw new ServingCoreException(
-                    ErrorModel.toString(
-                      ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor")
-                    )
-                  )
-                )
-
-                createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                policy
+              case ResponsePolicy(Success(policy)) => policy
             }
           }
         }
@@ -237,20 +222,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             val future = supervisor ? new Update(policy)
             Await.result(future, timeout.duration) match {
               case ResponsePolicy(Failure(exception)) => throw exception
-              case ResponsePolicy(Success(policy)) =>
-                val policyWithFragments = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-                val inputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.input)
-                val outputs = FragmentsHelper.populateFragmentFromPolicy(policyWithFragments, FragmentType.output)
-                val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor,
-                  throw new ServingCoreException(
-                    ErrorModel.toString(
-                      ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor")
-                    )
-                  )
-                )
-
-                createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                HttpResponse(StatusCodes.OK)
+              case ResponsePolicy(Success(policy)) => HttpResponse(StatusCodes.OK)
             }
           }
         }
@@ -345,9 +317,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
-              val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-              AggregationPoliciesValidator.validateDto(parsedP)
-              val response = (supervisor ? DeleteCheckpoint(parsedP)).mapTo[Response]
+              AggregationPoliciesValidator.validateDto(policy)
+              val response = (supervisor ? DeleteCheckpoint(policy)).mapTo[Response]
               Await.result(response, timeout.duration) match {
                 case Response(Failure(ex)) => throw ex
                 case Response(Success(_)) => new Result("Checkpoint deleted from policy: " + policy.name)
@@ -382,10 +353,9 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
-              val parsedP = getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-              AggregationPoliciesValidator.validateDto(parsedP)
+              AggregationPoliciesValidator.validateDto(policy)
               val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
-                SparkStreamingContextActor.Create(parsedP)
+                SparkStreamingContextActor.Create(policy)
               Await.result(response, timeout.duration) match {
                 case Failure(ex) => throw ex
                 case Success(_) => new Result("Creating new context with name " + policy.name)
@@ -420,14 +390,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           case ResponsePolicy(Failure(exception)) =>
             throw exception
           case ResponsePolicy(Success(policy)) =>
-            val policyWithFragments =
-              getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
-            val policyWithNoFragments = policyWithFragments.copy(fragments = Seq.empty)
-            AggregationPoliciesValidator.validateDto(policyWithFragments)
+            AggregationPoliciesValidator.validateDto(policy)
             val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
             tempFile.deleteOnExit()
             respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${policy.name}.json"))) {
-              scala.tools.nsc.io.File(tempFile).writeAll(write(policyWithNoFragments))
+              scala.tools.nsc.io.File(tempFile).writeAll(
+                write(policy.copy(fragments = Seq.empty[FragmentElementModel]))
+              )
               getFromFile(tempFile)
             }
         }
@@ -455,11 +424,5 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       case None => PolicyStatusEnum.NotStarted
     }
     PolicyWithStatus(status, policy)
-  }
-
-  // XXX Protected methods
-
-  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit = {
-    fragments.foreach(fragment => fragmentActor ! FragmentActor.Create(fragment))
   }
 }

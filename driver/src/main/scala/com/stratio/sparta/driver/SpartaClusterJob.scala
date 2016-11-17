@@ -20,31 +20,29 @@ import java.io.File
 import java.util.UUID
 
 import akka.actor.{ActorSystem, Props}
-import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.PolicyStatusModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
 import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
-import org.apache.curator.framework.CuratorFramework
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 object SpartaClusterJob extends PolicyUtils {
 
-  implicit val timeout: Timeout = Timeout(3.seconds)
+  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
   final val PolicyIdIndex = 0
   final val ZookeperConfigurationIndex = 1
   final val DetailConfigurationIndex = 2
@@ -67,14 +65,13 @@ object SpartaClusterJob extends PolicyUtils {
       addPluginsToClassPath(pluginsFiles)
 
       val curatorFramework = CuratorFactoryHolder.getInstance()
-      val policyZk = getPolicyFromZookeeper(policyId, curatorFramework)
       implicit val system = ActorSystem(policyId)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policy = FragmentsHelper.getPolicyWithFragments(policyZk, fragmentActor)
+      val policy = FragmentsHelper.getPolicyWithFragments(byId(policyId, curatorFramework), fragmentActor)
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 
-      Try (policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))) match {
+      Try(policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))) match {
         case Failure(exception) =>
           log.error(exception.getLocalizedMessage, exception)
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
@@ -121,7 +118,7 @@ object SpartaClusterJob extends PolicyUtils {
     pluginsFiles.foreach {
       fileHdfsPath => {
         log.info(s"Getting file from HDFS: ${fileHdfsPath}")
-        val inputStream = HdfsUtils(SpartaConfig.getHdfsConfig).getFile(fileHdfsPath)
+        val inputStream = HdfsUtils().getFile(fileHdfsPath)
         val fileName = fileHdfsPath.split("/").last
         log.info(s"HDFS file name is ${fileName}")
         val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/${fileName}")
@@ -140,15 +137,5 @@ object SpartaClusterJob extends PolicyUtils {
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
     SpartaConfig.initDAOs
-  }
-
-  def getPolicyFromZookeeper(policyId: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
-    Try {
-      parseJson(new Predef.String(curatorFramework.getData.forPath(
-        s"${AppConstant.PoliciesBasePath}/$policyId")))
-    } match {
-      case Success(policy) => policy
-      case Failure(e) => log.error(s"Cannot load policy $policyId", e); throw e
-    }
   }
 }

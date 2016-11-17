@@ -41,51 +41,8 @@ case class AggregationPoliciesModel(
                                      sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
                                      initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
                                      autoDeleteCheckpoint: Option[Boolean] = None
-                                   ) {
+                                   )
 
-  //scalastyle:off
-  def this(id: Option[String],
-           version: Option[Int],
-           storageLevel: Option[String],
-           name: String,
-           description: String,
-           sparkStreamingWindow: String,
-           checkpointPath: Option[String],
-           rawData: RawDataModel,
-           transformations: Seq[TransformationsModel],
-           streamTriggers: Seq[TriggerModel],
-           cubes: Seq[CubeModel],
-           input: Option[PolicyElementModel],
-           outputs: Seq[PolicyElementModel],
-           fragments: Seq[FragmentElementModel],
-           userPluginsJars: Seq[UserJar],
-           remember: Option[String]
-          ) = {
-
-    this(id,
-      version,
-      storageLevel,
-      name,
-      description,
-      sparkStreamingWindow,
-      checkpointPath,
-      rawData,
-      transformations,
-      streamTriggers,
-      cubes,
-      input,
-      outputs,
-      fragments,
-      userPluginsJars,
-      remember,
-      sparkConf = Seq.empty[SparkProperty],
-      initSqlSentences = Seq.empty[SqlSentence],
-      autoDeleteCheckpoint = None
-    )
-  }
-}
-
-//scalastyle:on
 
 case object AggregationPoliciesModel extends SLF4JLogging {
 

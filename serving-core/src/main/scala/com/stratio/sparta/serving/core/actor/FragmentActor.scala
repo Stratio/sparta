@@ -264,7 +264,9 @@ class FragmentActor(curatorFramework: CuratorFramework)
         JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[FragmentElementModel](new String(curatorFramework.getData.forPath(s"$fragmentLocation/$element")))
         ).exists(fragment =>
-          if (id.isDefined) fragment.name == name && fragment.id.get != id.get else fragment.name == name
+          if (id.isDefined && fragment.id.isDefined)
+            fragment.name == name && fragment.id.get != id.get
+          else fragment.name == name
         )
       } else false
     } match {

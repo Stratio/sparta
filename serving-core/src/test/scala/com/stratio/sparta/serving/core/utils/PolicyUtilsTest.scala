@@ -47,69 +47,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
     }
   }
 
-  "PolicyUtils.existsByName" should {
-    "return true if al least exists one policy with the same name" in {
-      doReturn(true)
-        .when(utils)
-        .existsPath
-      doReturn(List(
-        getPolicyModel(name = "policy1"),
-        getPolicyModel(name = "policy2"),
-        getPolicyModel(name = "policy3")))
-        .when(utils)
-        .getPolicies(curatorFramework)
-
-      utils.existsByName(name = "policy1", id = None, curatorFramework = curatorFramework) should be(true)
-    }
-
-    "return false if does not exist any policy with the same name" in {
-      doReturn(true)
-        .when(utils)
-        .existsPath
-      doReturn(List(
-        getPolicyModel(name = "policy1"),
-        getPolicyModel(name = "policy2"),
-        getPolicyModel(name = "policy3")))
-        .when(utils)
-        .getPolicies(curatorFramework)
-
-      utils.existsByName(name = "policy0", id = None, curatorFramework = curatorFramework) should be(false)
-    }
-
-
-    "return false if does not exist the path" in {
-      doReturn(false)
-        .when(utils)
-        .existsPath
-
-      utils.existsByName(name = "policy0", id = None, curatorFramework = curatorFramework) should be(false)
-    }
-
-    "return false if any exception is thrown" in {
-      doReturn(true)
-        .when(utils)
-        .existsPath
-      doThrow(new RuntimeException)
-        .when(utils)
-        .getPolicies(curatorFramework)
-
-      utils.existsByName(name = "policy0", id = None, curatorFramework = curatorFramework) should be(false)
-    }
-  }
-
   "PolicyUtils.savePolicyInZk" should {
-    "update policy when this exists" in {
-      doReturn(getPolicyModel())
-        .when(utils)
-        .populatePolicy(getPolicyModel(), curatorFramework)
-      doNothing()
-        .when(utils)
-        .updatePolicy(getPolicyModel(), curatorFramework)
-
-      utils.savePolicyInZk(policy = getPolicyModel(), curatorFramework)
-
-      verify(utils).updatePolicy(getPolicyModel(), curatorFramework)
-    }
 
     "write policy when this does not exist" in {
       doThrow(new RuntimeException)

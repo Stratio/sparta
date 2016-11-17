@@ -32,6 +32,8 @@ object AkkaConstant {
   final val ControllerActorInstances = "controllerActorInstances"
   final val DefaultControllerActorInstances = 5
 
+  final val DefaultTimeout = 15
+
   def cleanActorName(initialName: String) : String = initialName.replace(" ", "_")
 
 }

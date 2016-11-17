@@ -16,24 +16,27 @@
 
 package com.stratio.sparta.serving.api.utils
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success, Try}
 import akka.actor._
-import akka.pattern.ask
-import org.apache.curator.framework.CuratorFramework
+import akka.event.slf4j.SLF4JLogging
+import akka.util.Timeout
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Start
 import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStreamingContextActor}
-import com.stratio.sparta.serving.api.helpers.SpartaHelper._
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+
+import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.Try
 
 trait StreamingContextActorUtils extends PolicyStatusUtils
-  with PolicyUtils {
+  with SLF4JLogging {
+
+  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 

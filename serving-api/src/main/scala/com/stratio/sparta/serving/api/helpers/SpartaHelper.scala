@@ -19,6 +19,8 @@ package com.stratio.sparta.serving.api.helpers
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.io.IO
 import akka.routing.RoundRobinPool
+import akka.util.Timeout
+import scala.concurrent.duration._
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
@@ -37,6 +39,7 @@ import spray.can.Http
 object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
 
   implicit var system: ActorSystem = _
+  override implicit val timeout: Timeout = Timeout(15.seconds)
 
   /**
    * Initializes Sparta's akka system running an embedded http server with the REST API.
@@ -55,20 +58,21 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
       else AkkaConstant.DefaultControllerActorInstances
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor)),
+      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor, fragmentActor)),
         AkkaConstant.PolicyActor)
       val streamingContextService = new StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
+      val templateActor = system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor)
+      val streamingContextActor = system.actorOf(Props(
+        new SparkStreamingContextActor(streamingContextService, policyActor, policyStatusActor, curatorFramework)),
+        AkkaConstant.SparkStreamingContextActor
+      )
       implicit val actors = Map(
         AkkaConstant.PolicyStatusActor -> policyStatusActor,
-        AkkaConstant.FragmentActor ->
-          system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor),
-        AkkaConstant.TemplateActor ->
-          system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor),
+        AkkaConstant.FragmentActor -> fragmentActor,
+        AkkaConstant.TemplateActor -> templateActor,
         AkkaConstant.PolicyActor -> policyActor,
-        AkkaConstant.SparkStreamingContextActor -> system.actorOf(Props(
-          new SparkStreamingContextActor(streamingContextService, policyActor, policyStatusActor, curatorFramework)),
-          AkkaConstant.SparkStreamingContextActor
-        )
+        AkkaConstant.SparkStreamingContextActor -> streamingContextActor
       )
       val swaggerActor = system.actorOf(
         Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)
