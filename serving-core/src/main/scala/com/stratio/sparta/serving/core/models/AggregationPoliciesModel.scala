@@ -68,7 +68,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
 
   //scalastyle:off
   private def validateCubes(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
-    val outputsNames = policy.outputs.map(_.name)
+    val outputsNames = outputNamesFromPolicy(policy)
     val errorModels = List(
       (policy.cubes.forall(cube => cube.name.nonEmpty),
         new ErrorModel(
@@ -127,7 +127,7 @@ object AggregationPoliciesValidator extends SpartaSerializer {
   //scalastyle:on
 
   private def validateTriggers(policy: AggregationPoliciesModel): List[(Boolean, ErrorModel)] = {
-    val outputsNames = policy.outputs.map(_.name)
+    val outputsNames = outputNamesFromPolicy(policy)
     val errorModels = List(
       (policy.streamTriggers.forall(trigger =>
         trigger.writer.outputs.forall(outputName =>
@@ -142,5 +142,13 @@ object AggregationPoliciesValidator extends SpartaSerializer {
           "There is at least one stream trigger that contains a bad output"))
     )
     errorModels
+  }
+
+  private def outputNamesFromPolicy(policy : AggregationPoliciesModel): Seq[String] = {
+    val outputsNames = policy.outputs.map(_.name)
+    val outputsFragmentsNames = policy.fragments.flatMap(fragment =>
+      if (fragment.fragmentType == FragmentType.OutputValue) Some(fragment.name) else None)
+
+    outputsNames ++ outputsFragmentsNames
   }
 }

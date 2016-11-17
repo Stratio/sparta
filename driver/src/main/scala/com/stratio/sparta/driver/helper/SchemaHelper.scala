@@ -122,8 +122,8 @@ object SchemaHelper {
       structFields = dimensionsF ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
       schema = StructType(structFields)
       outputs = cubeModel.writer.outputs
-      autoCalculatedFields = cubeModel.writer.autoCalculateFields.map(model =>
-        AutoCalculateField(
+      autoCalculatedFields = cubeModel.writer.autoCalculatedFields.map(model =>
+        AutoCalculatedField(
           model.fromNotNullFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
           model.fromPkFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
           model.fromFields.map(fromFieldModel =>
@@ -155,8 +155,8 @@ object SchemaHelper {
       trigger <- triggers
       structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false))
       schema = StructType(structFields)
-      autoCalculatedFields = trigger.writer.autoCalculateFields.map(model =>
-        AutoCalculateField(
+      autoCalculatedFields = trigger.writer.autoCalculatedFields.map(model =>
+        AutoCalculatedField(
           model.fromNotNullFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
           model.fromPkFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
           model.fromFields.map(fromFieldModel =>

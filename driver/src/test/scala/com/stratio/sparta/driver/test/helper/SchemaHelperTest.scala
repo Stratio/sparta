@@ -92,7 +92,7 @@ with MockitoSugar {
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       Option("minute"),
       TypeOp.Timestamp,
-      Seq.empty[AutoCalculateField]
+      Seq.empty[AutoCalculatedField]
     )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
@@ -114,7 +114,7 @@ with MockitoSugar {
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
-      Seq.empty[AutoCalculateField]
+      Seq.empty[AutoCalculatedField]
     )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
@@ -137,7 +137,7 @@ with MockitoSugar {
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
-      Seq.empty[AutoCalculateField]
+      Seq.empty[AutoCalculatedField]
     )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
@@ -164,7 +164,7 @@ with MockitoSugar {
           StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,
-        Seq.empty[AutoCalculateField]
+        Seq.empty[AutoCalculatedField]
       )
 
       val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)

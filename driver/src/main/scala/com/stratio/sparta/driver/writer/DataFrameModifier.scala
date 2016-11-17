@@ -16,13 +16,13 @@
 
 package com.stratio.sparta.driver.writer
 
-import com.stratio.sparta.sdk.{AutoCalculateField, Output}
+import com.stratio.sparta.sdk.{AutoCalculatedField, Output}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{Column, DataFrame}
 
 trait DataFrameModifier {
 
-  def applyAutoCalculateFields(dataFrame: DataFrame, autoCalculateFields: Seq[AutoCalculateField]): DataFrame =
+  def applyAutoCalculateFields(dataFrame: DataFrame, autoCalculateFields: Seq[AutoCalculatedField]): DataFrame =
     autoCalculateFields.headOption match {
       case Some(firstAutoCalculate) => applyAutoCalculateFields(
         addColumnToDataFrame(dataFrame, firstAutoCalculate),
@@ -31,7 +31,7 @@ trait DataFrameModifier {
       case None => dataFrame
     }
 
-  private def addColumnToDataFrame(dataFrame: DataFrame, autoCalculateField: AutoCalculateField): DataFrame =
+  private def addColumnToDataFrame(dataFrame: DataFrame, autoCalculateField: AutoCalculatedField): DataFrame =
     (autoCalculateField.fromNotNullFields,
       autoCalculateField.fromPkFields,
       autoCalculateField.fromFields,

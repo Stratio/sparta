@@ -24,5 +24,5 @@ case class TableSchema(outputs: Seq[String],
                        schema: StructType,
                        timeDimension: Option[String] = None,
                        dateType: TypeOp.Value = TypeOp.Timestamp,
-                       autoCalculateFields: Seq[AutoCalculateField] = Seq.empty[AutoCalculateField]
+                       autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField]
                       ) extends Serializable
