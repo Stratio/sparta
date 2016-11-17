@@ -392,16 +392,6 @@
       }
     },
     "DateTime": {
-      "outputFieldTypes": [
-        {
-          "label": "Datetime",
-          "value": "datetime"
-        },
-        {
-          "label": "Timestamp",
-          "value": "timestamp"
-        }
-      ],
       "properties": [
         {
           "propertyId": "inputFormat",
