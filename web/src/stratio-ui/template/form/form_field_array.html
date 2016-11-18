@@ -1,0 +1,20 @@
+<ng-form name="{{name}}" class="c-form-group">
+  <div class="c-form-control c-form-control--full-width">
+    <form-field-input ng-attr-id="ng-{{name}}{{$index}}"
+                      data-form="form" data-st-name="{{name}}-{{$index}}"
+                      data-model="itemToAdd"
+                      data-label="{{field.propertyName | translate}}"
+                      data-type="{{field.propertyType}}"
+                      data-pattern="field.regexp"
+                      data-required="field.required"
+                      data-col="field.col"
+                      data-qa="{{field.qa}}-{{$index}}"></form-field-input>
+
+    <div class="c-label c-label--to-right c-label__add-button c-col c-col--12" data-ng-class="{'c-label__secondary_button': multipleList}">
+            <span class="c-icon-label__text">
+                {{"_ADD_" | translate}}
+            </span>
+      <i class="c-icon icon-square-plus c-icon--is-clickable" data-ng-click="addItem()" data-qa="{{qa}}-plus-{{model[field.propertyId].length}}"></i>
+    </div>
+  </div>
+</ng-form>

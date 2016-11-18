@@ -1,0 +1,63 @@
+<section>
+  <h1 class="c-label c-col c-col--12">{{'_AUTO_CALCULATED_FIELDS_' | translate}}</h1>
+  <span class=" c-auto-calculated-fields__info c-label c-col c-col--12">
+     <i class="icon-info1"></i>  {{"_ADD_AUTO_CALCULATED_FIELDS_" | translate}}</span>
+  <div class="c-col c-col--8">
+    <form-field-select data-g-if="template" ng-attr-id="auto-calculated-field-type"
+                       data-st-name="auto-calculated-field-type"
+                       data-model="currentAutoCalculatedFieldType"
+                       data-options="template.typeOptions"
+                       data-field="label" data-label="{{'_TYPE_' | translate}}"
+                       data-required="true"
+                       data-qa="auto-calculated-field-type">
+    </form-field-select>
+  </div>
+    <span class="add-element-icon">
+      <i class="c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus"
+         data-ng-click="addAutoCalculatedField($event)" data-qa="auto-calculated-field-add-button">
+      </i>
+    </span>
+  <div data-ng-repeat="autoCalculatedField in model">
+
+    <div class="c-auto-calculated-fields__form">
+      <h3 class="c-label c-label--margin-list c-col c-col--12">{{"_FIELD_" | translate}}
+        <span class="c-button--to-right">
+          <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-trash2"
+            data-ng-click="removeAutoCalculatedField($index)" data-qa="auto-calculated-field-add-button">
+         </i>
+    </span></h3>
+
+      <form-field
+              data-ng-repeat="properties in template.defaultProperties"
+              data-ng-form-id="{{properties.propertyId}}"
+              data-field="properties"
+              class="c-col c-col--{{properties.width}} c-form-gutter"
+              data-model="autoCalculatedField.field"
+              data-form="form"
+              data-st-name="dataSource{{properties.propertyName}}Form"
+              data-qa="{{properties.qa}}">
+      </form-field>
+      <form-field
+              data-ng-repeat="properties in template.additionalProperties[autoCalculatedField.type]"
+              data-ng-form-id="{{properties.propertyId}}"
+              data-field="properties"
+              class="c-col c-col--12"
+              data-model="autoCalculatedField"
+              data-form="form"
+              data-st-name="dataSource{{properties.propertyName}}Form"
+              data-qa="{{properties.qa}}">
+      </form-field>
+
+      <c-tag-list data-ng-if="autoCalculatedField.type === 'fromFields'" name="from-fields"
+                  data-tags="autoCalculatedField.fromFields"
+                  data-form-control-class="'c-form-group--margin'"
+                  label-control-class="'c-label c-col'"
+                  readonly="'true'"
+                  data-enable-delete="true" data-qa="from-field-list"
+                  show-label = "false"
+                  data-min-length="1" data-form="form">
+      </c-tag-list>
+    </div>
+  </div>
+
+</section>
