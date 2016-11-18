@@ -16,6 +16,4 @@
 
 package com.stratio.sparta.serving.core.models
 
-
-case class FromFieldModel(field : FieldModel, fromFields: Seq[String])
-
+case class FromPkFieldsModel(field: FieldModel)

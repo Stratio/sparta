@@ -124,10 +124,12 @@ object SchemaHelper {
       outputs = cubeModel.writer.outputs
       autoCalculatedFields = cubeModel.writer.autoCalculatedFields.map(model =>
         AutoCalculatedField(
-          model.fromNotNullFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
-          model.fromPkFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
+          model.fromNotNullFields.map(fromNotNullFieldsModel =>
+            FromNotNullFields(Field(fromNotNullFieldsModel.field.name, fromNotNullFieldsModel.field.outputType))),
+          model.fromPkFields.map(fromPkFieldsModel =>
+            FromPkFields(Field(fromPkFieldsModel.field.name, fromPkFieldsModel.field.outputType))),
           model.fromFields.map(fromFieldModel =>
-            FromField(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
+            FromFields(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
           model.fromFixedValue.map(fromFixedValueModel =>
             FromFixedValue(Field(fromFixedValueModel.field.name, fromFixedValueModel.field.outputType),
               fromFixedValueModel.value))
@@ -157,10 +159,12 @@ object SchemaHelper {
       schema = StructType(structFields)
       autoCalculatedFields = trigger.writer.autoCalculatedFields.map(model =>
         AutoCalculatedField(
-          model.fromNotNullFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
-          model.fromPkFields.map(fieldModel => Field(fieldModel.name, fieldModel.outputType)),
+          model.fromNotNullFields.map(fromNotNullFieldsModel =>
+            FromNotNullFields(Field(fromNotNullFieldsModel.field.name, fromNotNullFieldsModel.field.outputType))),
+          model.fromPkFields.map(fromPkFieldsModel =>
+            FromPkFields(Field(fromPkFieldsModel.field.name, fromPkFieldsModel.field.outputType))),
           model.fromFields.map(fromFieldModel =>
-            FromField(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
+            FromFields(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
           model.fromFixedValue.map(fromFixedValueModel =>
             FromFixedValue(Field(fromFixedValueModel.field.name, fromFixedValueModel.field.outputType),
               fromFixedValueModel.value))

@@ -16,9 +16,6 @@
 
 package com.stratio.sparta.serving.core.models
 
-case class AutoCalculatedFieldModel(
-                                     fromNotNullFields: Option[FromNotNullFieldsModel] = None,
-                                     fromPkFields: Option[FromPkFieldsModel] = None,
-                                     fromFields: Option[FromFieldsModel] = None,
-                                     fromFixedValue: Option[FromFixedValueModel] = None
-                                  )
+
+case class FromFieldsModel(field : FieldModel, fromFields: Seq[String])
+

@@ -39,11 +39,11 @@ trait DataFrameModifier {
       case (Some(fromNotNullFields), _, _, _) =>
         val fields = dataFrame.schema.fields.flatMap(field =>
           if (!field.nullable) Some(col(field.name)) else None).toSeq
-        addField(fromNotNullFields.name, fromNotNullFields.outputType, dataFrame, fields)
+        addField(fromNotNullFields.field.name, fromNotNullFields.field.outputType, dataFrame, fields)
       case (None, Some(fromPkFields), _, _) =>
         val fields = dataFrame.schema.fields.flatMap(field =>
           if (field.metadata.contains(Output.PrimaryKeyMetadataKey)) Some(col(field.name)) else None).toSeq
-        addField(fromPkFields.name, fromPkFields.outputType, dataFrame, fields)
+        addField(fromPkFields.field.name, fromPkFields.field.outputType, dataFrame, fields)
       case (None, None, Some(fromFields), _) =>
         val fields = autoCalculateField.fromFields.get.fromFields.map(field => col(field))
         addField(fromFields.field.name, fromFields.field.outputType, dataFrame, fields)

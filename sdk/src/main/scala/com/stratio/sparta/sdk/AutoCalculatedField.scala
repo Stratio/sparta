@@ -17,8 +17,8 @@
 package com.stratio.sparta.sdk
 
 case class AutoCalculatedField(
-                               fromNotNullFields: Option[Field],
-                               fromPkFields: Option[Field],
-                               fromFields: Option[FromField],
-                               fromFixedValue: Option[FromFixedValue]
+                                fromNotNullFields: Option[FromNotNullFields],
+                                fromPkFields: Option[FromPkFields],
+                                fromFields: Option[FromFields],
+                                fromFixedValue: Option[FromFixedValue]
                              )

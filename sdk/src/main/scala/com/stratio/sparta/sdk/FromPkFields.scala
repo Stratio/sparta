@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models
 
-case class AutoCalculatedFieldModel(
-                                     fromNotNullFields: Option[FromNotNullFieldsModel] = None,
-                                     fromPkFields: Option[FromPkFieldsModel] = None,
-                                     fromFields: Option[FromFieldsModel] = None,
-                                     fromFixedValue: Option[FromFixedValueModel] = None
-                                  )
+package com.stratio.sparta.sdk
+
+case class FromPkFields(field : Field)

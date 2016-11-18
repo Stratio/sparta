@@ -17,4 +17,4 @@
 package com.stratio.sparta.sdk
 
 
-case class FromField(field : Field, fromFields: Seq[String])
+case class FromFields(field : Field, fromFields: Seq[String])
