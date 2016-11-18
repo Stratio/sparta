@@ -2,7 +2,7 @@
   @include c-component;
 
   &__form {
-    background-color: white;
+    background-color: get-color(n1);
     padding: 20px;
     margin-bottom: 15px;
   }
