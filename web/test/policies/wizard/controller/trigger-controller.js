@@ -117,21 +117,21 @@ describe('policies.wizard.controller.policy-trigger-controller', function () {
     it("if selected output is not null and it hasn't been added to trigger yet, selected output is added", function () {
       ctrl.selectedPolicyOutput = "";
 
-      ctrl.trigger.outputs = [];
+      ctrl.trigger.writer.outputs = [];
 
       ctrl.addOutput(); // I try to add an empty output
 
-      expect(ctrl.trigger.outputs.length).toBe(0);
+      expect(ctrl.trigger.writer.outputs.length).toBe(0);
 
       ctrl.selectedPolicyOutput = "fake output";
 
       ctrl.addOutput();  // I try to add a new output
 
-      expect(ctrl.trigger.outputs.length).toBe(1);
+      expect(ctrl.trigger.writer.outputs.length).toBe(1);
 
       ctrl.addOutput(); // I try to add the same output
 
-      expect(ctrl.trigger.outputs.length).toBe(1); // output is not added again
+      expect(ctrl.trigger.writer.outputs.length).toBe(1); // output is not added again
     })
   })
 });

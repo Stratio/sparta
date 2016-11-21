@@ -245,5 +245,17 @@ describe('policies.service.utils-service', function () {
       expect(service.generateOptionListFromStringArray([])).toEqual([]);
     });
 
+  });
+  
+  describe("Should be able to convert a camel case string to dashed one using the symbol introduced by param", function(){
+    it ("If symbol is not introduced, it is used '-' by default", function(){
+      var inputString = "thisIsAExample";
+      expect(service.camelToDash(inputString)).toBe("this-is-a-example");
+    });
+    it ("If symbol is  introduced, it is used to separate words", function(){
+      var inputString = "thisIsAExample";
+      expect(service.camelToDash(inputString, '_')).toBe("this_is_a_example");
+    });
+    
   })
 });

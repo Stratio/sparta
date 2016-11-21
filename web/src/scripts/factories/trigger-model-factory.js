@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   angular
-    .module('webApp')
-    .factory('TriggerModelFactory', TriggerModelFactory);
+      .module('webApp')
+      .factory('TriggerModelFactory', TriggerModelFactory);
 
   TriggerModelFactory.$inject = ['UtilsService', 'PolicyModelFactory', 'triggerConstants'];
 
@@ -32,11 +32,11 @@
       setPosition(position);
       trigger.name = "";
       trigger.sql = "";
-      trigger.outputs = [];
       trigger.primaryKey = [];
+      trigger.writer = {autoCalculatedFields: [], outputs: []};
       error.text = "";
       if (type == triggerConstants.TRANSFORMATION) {
-        var currentPolicy = PolicyModelFactory.getCurrentPolicy()
+        var currentPolicy = PolicyModelFactory.getCurrentPolicy();
         trigger.overLastNumber = currentPolicy.sparkStreamingWindowNumber;
         trigger.overLastTime = currentPolicy.sparkStreamingWindowTime;
         trigger.computeEveryNumber = currentPolicy.sparkStreamingWindowNumber;
@@ -65,8 +65,8 @@
     function setTrigger(_trigger, position, type) {
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
-      trigger.outputs = _trigger.outputs;
       trigger.primaryKey = _trigger.primaryKey;
+      trigger.writer = _trigger.writer;
       if (type == triggerConstants.TRANSFORMATION) {
         trigger.overLast = _trigger.overLast;
         trigger.overLastNumber = _trigger.overLastNumber;
@@ -104,8 +104,8 @@
     function isValidWindowAttributes() {
       var sparkStreamingWindow = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
       return (!sparkStreamingWindow ||
-        ((!trigger.overLastNumber || trigger.overLastNumber % sparkStreamingWindow == 0) &&
-        (!trigger.computeEveryNumber || trigger.computeEveryNumber % sparkStreamingWindow == 0)));
+      ((!trigger.overLastNumber || trigger.overLastNumber % sparkStreamingWindow == 0) &&
+      (!trigger.computeEveryNumber || trigger.computeEveryNumber % sparkStreamingWindow == 0)));
     }
 
     function isValidTrigger(triggers, position) {
@@ -116,7 +116,7 @@
         error.type = 'error';
         error.attribute = 'streamTrigger'
       }
-      if (isValid && validWindowAttributes){
+      if (isValid && validWindowAttributes) {
         error.text = "";
       }
       return isValid && validWindowAttributes;

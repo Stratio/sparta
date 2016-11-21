@@ -114,6 +114,10 @@
               data-st-name="dataSource{{properties.propertyName}}Form"
               data-qa="{{properties.qa}}">
             </form-field>
+
+            <c-auto-calculated-fields class="c-col c-col--12" data-model="vm.cube['writer.autoCalculatedFields']" form = "vm.form">
+            </c-auto-calculated-fields>
+
             <form-field-select  class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
              data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
              data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()">

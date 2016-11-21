@@ -69,9 +69,9 @@
             <span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
           </a>
       </div>
-      <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput" data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="vm.trigger.outputs.length == 0" data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
+      <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput" data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="vm.trigger.writer.outputs.length == 0" data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
       </form-field-select>
-      <c-tag-list name="trigger-outputs" form-control-class="" data-tags="vm.trigger.outputs"
+      <c-tag-list name="trigger-outputs" form-control-class="" data-tags="vm.trigger.writer.outputs"
         label-control-class="'c-label c-col'"
         readonly="'true'"
         data-enable-delete="true" data-qa="policy-trigger-output-list"
@@ -79,6 +79,11 @@
         data-required="false" data-min-length="0" data-form="vm.form">
       </c-tag-list>
     </div>
+
+    <c-auto-calculated-fields class="c-col"
+                              data-ng-class="{'c-col--12': width === 'lg', 'c-col--6': width === 'm'}"
+                              data-model="vm.trigger.writer.autoCalculatedFields" form = "vm.form">
+    </c-auto-calculated-fields>
   </ng-form>
   <div class="c-row" data-ng-class="{'c-row--separated': width === 'lg'}">
     <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">

@@ -1,49 +1,86 @@
 <div>
-    <!-- input text -->
-    <form-field-input ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName | translate}}" data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}" data-input-default="field.default" data-pattern="field.regexp" data-required="isRequired()" data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim" data-list-compressed="listCompressed" data-output-field="field.outputField"></form-field-input>
-    <!-- textarea -->
-    <form-field-textarea ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'textarea') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName | translate}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="isRequired()" data-list-compressed="listCompressed" data-qa="{{qa}}"></form-field-textarea>
-    <!-- select -->
-    <form-field-select ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'select') && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-options="field.values" data-field="label" data-label="{{modify.propertyName || field.propertyName | translate}}" data-help="{{modify.tooltip || field.tooltip}}" data-required="isRequired()"data-list-compressed="listCompressed" data-qa="{{qa}}" data-disabled="disabled"></form-field-select>
-    <!-- checkbox -->
-    <form-field-check ng-attr-id="{{ngFormId}}" data-ng-if="field.propertyType == 'boolean' && isVisible()" data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]" data-label="{{modify.propertyName || field.propertyName | translate}}" data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp" data-required="isRequired()" data-list-compressed="listCompressed" data-disabled="disabled" data-extra-message="{{extraMessage | translate}}" data-qa="{{qa}}"></form-field-check>
-    <!-- list -->
-    <form-field-list ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'list') && isVisible()" data-field="field" data-form="form" data-st-name="{{name}}" data-model="model" data-list-compressed="listCompressed" data-modal="modal" data-qa="{{qa}}"></form-field-list>
-    <!-- multiple-list -->
-    <div data-ng-if="(field.propertyType == 'multiple-list') && isVisible()">
-      <div class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
-        <span>{{field.propertyName | translate}}</span>
-      </div>
-      <div>
-        <form-field-multiple-list class="c-col c-col--12" ng-attr-id="{{ngFormId}}" data-field="field" data-form="form" data-st-name="{{name}}" data-model="model" data-list-compressed="true" data-qa="{{qa}}"></form-field-multiple-list>
-      </div>
+  <!-- input text -->
+  <form-field-input ng-attr-id="{{ngFormId}}"
+                    data-ng-if="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible()"
+                    data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]"
+                    data-label="{{modify.propertyName || field.propertyName | translate}}"
+                    data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}"
+                    data-input-default="field.default" data-pattern="field.regexp" data-required="isRequired()"
+                    data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim"
+                    data-list-compressed="listCompressed" data-output-field="field.outputField"></form-field-input>
+  <!-- textarea -->
+  <form-field-textarea ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'textarea') && isVisible()"
+                       data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]"
+                       data-label="{{modify.propertyName || field.propertyName | translate}}"
+                       data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp"
+                       data-required="isRequired()" data-list-compressed="listCompressed"
+                       data-qa="{{qa}}"></form-field-textarea>
+  <!-- select -->
+  <form-field-select ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'select') && isVisible()"
+                     data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]"
+                     data-options="field.values" data-field="label"
+                     data-label="{{modify.propertyName || field.propertyName | translate}}"
+                     data-help="{{modify.tooltip || field.tooltip}}" data-required="isRequired()"
+                     data-list-compressed="listCompressed" data-qa="{{qa}}"
+                     data-disabled="disabled"></form-field-select>
+  <!-- checkbox -->
+  <form-field-check ng-attr-id="{{ngFormId}}" data-ng-if="field.propertyType == 'boolean' && isVisible()"
+                    data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]"
+                    data-label="{{modify.propertyName || field.propertyName | translate}}"
+                    data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}"
+                    data-pattern="field.regexp" data-required="isRequired()" data-list-compressed="listCompressed"
+                    data-disabled="disabled" data-extra-message="{{extraMessage | translate}}"
+                    data-qa="{{qa}}"></form-field-check>
+  <!-- list -->
+  <form-field-list ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'list') && isVisible()"
+                   data-field="field" data-form="form" data-st-name="{{name}}" data-model="model"
+                   data-list-compressed="listCompressed" data-modal="modal" data-qa="{{qa}}"></form-field-list>
+  <!-- array -->
+  <form-field-array ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'array') && isVisible()"
+                    data-model="model[field.propertyId]" data-field="field" data-form="form" data-st-name="{{name}}"
+                    data-qa="{{qa}}"></form-field-array>
+  <!-- multiple-list -->
+  <div data-ng-if="(field.propertyType == 'multiple-list') && isVisible()">
+    <div class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
+      <span>{{field.propertyName | translate}}</span>
     </div>
-    <!-- empty -->
-    <div data-ng-if="(field.propertyType == 'empty') && isVisible()">
-      <div class="c-row">
-        <span>{{"_COMMAND_NO_CONFIGURATION_" | translate}}</span>
-      </div>
+    <div>
+      <form-field-multiple-list class="c-col c-col--12" ng-attr-id="{{ngFormId}}" data-field="field" data-form="form"
+                                data-st-name="{{name}}" data-model="model" data-list-compressed="true"
+                                data-qa="{{qa}}"></form-field-multiple-list>
     </div>
+  </div>
 
-    <div id="upload-file" data-ng-if="(field.propertyType == 'file') && isVisible()">
-      <form name="radio" id="radio">
-        <label>
-          <input type="radio" ng-model="uploadFrom" value="file">
-          Upload file
-        </label><br/>
-        <label>
-          <input type="radio" ng-model="uploadFrom" value="url">
-          Fetch from url
-        </label><br/>
-      </form>
-      <ng-form method="post" class="form-horizontal" role="form" name="uploadFile" ng-if="uploadFrom == 'file'" >
-         <div class="form-group">
-             <label class="control-label col-sm-3">Choose file: </label>
-             <div class="col-sm-9">
-                 <input id="datasource-file-input" class="form-control" type="file" accept="{{mimeType}}" file-model="model[field.propertyId].file" />
-             </div>
-         </div>
-      </ng-form>
-      <form-field-input ng-if="uploadFrom == 'url'" ng-attr-id="fecth-url"  data-form="form" data-st-name="fetch-url" data-model="model[field.propertyId].url" data-label="Insert url" data-type="text" data-help="inserts the URL from which to download the file" data-pattern="field.regexp"></form-field-input>
+  <!-- empty -->
+  <div data-ng-if="(field.propertyType == 'empty') && isVisible()">
+    <div class="c-row">
+      <span>{{"_COMMAND_NO_CONFIGURATION_" | translate}}</span>
     </div>
+  </div>
+
+  <div id="upload-file" data-ng-if="(field.propertyType == 'file') && isVisible()">
+    <form name="radio" id="radio">
+      <label>
+        <input type="radio" ng-model="uploadFrom" value="file">
+        Upload file
+      </label><br/>
+      <label>
+        <input type="radio" ng-model="uploadFrom" value="url">
+        Fetch from url
+      </label><br/>
+    </form>
+    <ng-form method="post" class="form-horizontal" role="form" name="uploadFile" ng-if="uploadFrom == 'file'">
+      <div class="form-group">
+        <label class="control-label col-sm-3">Choose file: </label>
+        <div class="col-sm-9">
+          <input id="datasource-file-input" class="form-control" type="file" accept="{{mimeType}}"
+                 file-model="model[field.propertyId].file"/>
+        </div>
+      </div>
+    </ng-form>
+    <form-field-input ng-if="uploadFrom == 'url'" ng-attr-id="fecth-url" data-form="form" data-st-name="fetch-url"
+                      data-model="model[field.propertyId].url" data-label="Insert url" data-type="text"
+                      data-help="inserts the URL from which to download the file"
+                      data-pattern="field.regexp"></form-field-input>
+  </div>
 </div>

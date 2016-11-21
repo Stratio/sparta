@@ -68,8 +68,8 @@
     }
 
     function addOutput() {
-      if (vm.selectedPolicyOutput && vm.trigger.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
-        vm.trigger.outputs.push(vm.selectedPolicyOutput);
+      if (vm.selectedPolicyOutput && vm.trigger.writer.outputs.indexOf(vm.selectedPolicyOutput) == -1) {
+        vm.trigger.writer.outputs.push(vm.selectedPolicyOutput);
       }
     }
 
