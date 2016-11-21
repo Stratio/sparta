@@ -8,6 +8,7 @@
                       data-pattern="field.regexp"
                       data-required="field.required"
                       data-col="field.col"
+                      data-ng-keypress="$event.keyCode == 13 ? addItem($event) : null"
                       data-qa="{{field.qa}}-{{$index}}"></form-field-input>
 
     <div class="c-label c-label--to-right c-label__add-button c-col c-col--12" data-ng-class="{'c-label__secondary_button': multipleList}">

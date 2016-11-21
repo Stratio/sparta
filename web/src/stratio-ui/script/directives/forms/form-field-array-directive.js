@@ -50,7 +50,8 @@
         }
       }
 
-      scope.addItem = function() {
+      scope.addItem = function($event) {
+        $event.preventDefault();
         if (scope.itemToAdd) {
           scope.model.push(scope.itemToAdd);
           scope.itemToAdd = "";
