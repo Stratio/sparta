@@ -334,9 +334,12 @@
   "_AUTO_CALCULATED_FIELDS_": "Auto calculated fields",
   "_ADD_AUTO_CALCULATED_FIELDS_": "Add auto calculated fields selecting its type with following selector and clicking on plus button",
   "_FIELD_": "Field",
-  "_FROM_FIELDS_": "From Fields",
   "_VALUE_": "Value",
   "_OUTPUT_TYPE_": "Output type",
+  "_FROM_NOT_NULL_FIELDS_": "From not null fields",
+  "_FROM_PK_FIELDS_": "From PK Fields",
+  "_FROM_FIELDS_": "From Fields",
+  "_FROM_FIXED_VALUE_":"From fixed value",
   "_ERROR_": {
     "_CHANGES_WITHOUT_SAVING_": "You have to save all your changes or cancel them before going to the next step",
     "_UNAVAILABLE_SERVER_": "Server is unavailable. Please, check your connection and try it again",

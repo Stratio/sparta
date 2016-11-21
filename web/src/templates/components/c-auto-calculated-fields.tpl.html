@@ -19,6 +19,7 @@
     </span>
   <div data-ng-repeat="autoCalculatedField in model">
     <div class="c-auto-calculated-fields__form">
+      <h2 class="c-fieldset__title c-col--bottom-margin c-col--12">{{getTypeTranslationKey(autoCalculatedField) | translate}}</h2>
       <h3 class="c-label c-label--margin-list c-col c-col--12">{{"_FIELD_" | translate}}
         <span class="c-button--to-right">
           <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-trash2"

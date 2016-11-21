@@ -22,9 +22,9 @@
       .module('webApp')
       .directive('cAutoCalculatedFields', cAutoCalculatedFields);
 
-  cAutoCalculatedFields.$inject = ['apiConfigSettings', '$resource'];
+  cAutoCalculatedFields.$inject = ['apiConfigSettings','UtilsService',  '$resource'];
 
-  function cAutoCalculatedFields(apiConfigSettings, $resource) {
+  function cAutoCalculatedFields(apiConfigSettings, UtilsService, $resource) {
 
     var directive = {
       restrict: 'E',
@@ -56,6 +56,11 @@
 
       scope.getType = function(autoCalculatedField) {
         return Object.keys(autoCalculatedField)[0];
+      };
+
+      scope.getTypeTranslationKey = function(autoCalculatedField) {
+        var type = this.getType(autoCalculatedField);
+        return "_" + UtilsService.camelToDash(type, '_').toUpperCase() + "_";
       };
 
       getAutoCalculatedFieldTemplate().get().$promise.then(function(template) {
