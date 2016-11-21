@@ -18,7 +18,6 @@
       </i>
     </span>
   <div data-ng-repeat="autoCalculatedField in model">
-
     <div class="c-auto-calculated-fields__form">
       <h3 class="c-label c-label--margin-list c-col c-col--12">{{"_FIELD_" | translate}}
         <span class="c-button--to-right">
@@ -32,24 +31,24 @@
               data-ng-form-id="{{properties.propertyId}}"
               data-field="properties"
               class="c-col c-col--{{properties.width}} c-form-gutter"
-              data-model="autoCalculatedField.field"
+              data-model="autoCalculatedField[getType(autoCalculatedField)].field"
               data-form="form"
               data-st-name="dataSource{{properties.propertyName}}Form"
               data-qa="{{properties.qa}}">
       </form-field>
       <form-field
-              data-ng-repeat="properties in template.additionalProperties[autoCalculatedField.type]"
+              data-ng-repeat="properties in template.additionalProperties[getType(autoCalculatedField)]"
               data-ng-form-id="{{properties.propertyId}}"
               data-field="properties"
               class="c-col c-col--12"
-              data-model="autoCalculatedField"
+              data-model="autoCalculatedField[getType(autoCalculatedField)]"
               data-form="form"
               data-st-name="dataSource{{properties.propertyName}}Form"
               data-qa="{{properties.qa}}">
       </form-field>
 
-      <c-tag-list data-ng-if="autoCalculatedField.type === 'fromFields'" name="from-fields"
-                  data-tags="autoCalculatedField.fromFields"
+      <c-tag-list data-ng-if="getType(autoCalculatedField) === 'fromFields'" name="from-fields"
+                  data-tags="autoCalculatedField[getType(autoCalculatedField)].fromFields"
                   data-form-control-class="'c-form-group--margin'"
                   label-control-class="'c-label c-col'"
                   readonly="'true'"

@@ -51,8 +51,8 @@ describe('policies.wizard.service.policy-trigger-service', function () {
     fakeTrigger3 = angular.copy(fakeTrigger);
     fakeTrigger2.name = "fakeTrigger2";
     fakeTrigger3.name = "fakeTrigger3";
-    fakeTrigger2.outputs.push("fakeTrigger2 output");
-    fakeTrigger3.outputs.push("fakeTrigger3 output");
+    fakeTrigger2.writer.outputs.push("fakeTrigger2 output");
+    fakeTrigger3.writer.outputs.push("fakeTrigger3 output");
 
     resolvedPromiseFunction = function () {
       var defer = q.defer();

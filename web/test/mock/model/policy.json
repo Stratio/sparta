@@ -47,18 +47,19 @@
           "configuration": {}
         }
       ],
-      "writer.outputs":[ "test_output_cassandra"],
+      "writer.outputs": [
+        "test_output_cassandra"
+      ],
       "writer.dateType": "timestamp",
-      "writer.isAutoCalculatedId": false,
-      "writer.fixedMeasureName": "key",
-      "writer.fixedMeasureValue": "value",
       "triggers": [
         {
           "name": "CUBE TRIGGER",
           "sql": "SELECT * FROM STREAM",
-          "outputs": [
-            "test_output_redis"
-          ],
+          "writer": {
+            "outputs": [
+              "test_output_redis"
+            ]
+          },
           "primaryKey": [],
           "configuration": {}
         }
@@ -66,16 +67,22 @@
     }
   ],
   "transformations": [],
-  "streamTriggers": [{
-    "name": "stream trigger",
-    "sql": "SELECT * FROM STREAM",
-    "outputs": ["test_output_elasticsearch"],
-    "overLastNumber": 6,
-    "overLastTime": "s",
-    "computeEveryNumber": 6,
-    "computeEveryTime": "s",
-    "primaryKey": [],
-    "configuration": {}
-  }]
+  "streamTriggers": [
+    {
+      "name": "stream trigger",
+      "sql": "SELECT * FROM STREAM",
+      "writer": {
+        "outputs": [
+          "test_output_elasticsearch"
+        ]
+      },
+      "overLastNumber": 6,
+      "overLastTime": "s",
+      "computeEveryNumber": 6,
+      "computeEveryTime": "s",
+      "primaryKey": [],
+      "configuration": {}
+    }
+  ]
 }
 

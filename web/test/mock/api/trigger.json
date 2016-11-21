@@ -5,6 +5,36 @@
   "name": "fake cube",
   "sql": "SELECT x FROM y",
   "primaryKey":["id", "name"],
-  "outputs" : ["output1", "output2"],
+  "writer": {
+    "outputs": ["output1"],
+    "dateType": "long",
+    "autoCalculatedFields": [{
+      "fromNotNullFields": {
+        "name": "a",
+        "outputType": "map"
+      }
+    }, {
+      "fromPkFields": {
+        "name": "b",
+        "outputType": "string"
+      }
+    }, {
+      "fromFields": {
+        "field": {
+          "name": "c",
+          "outputType": "array"
+        },
+        "fromFields": ["response"]
+      }
+    }, {
+      "fromFixedValue": {
+        "field": {
+          "name": "d",
+          "outputType": "string"
+        },
+        "value": "fake value"
+      }
+    }]
+  },
   "configuration":{"fake_key": "fake_value"}
 }

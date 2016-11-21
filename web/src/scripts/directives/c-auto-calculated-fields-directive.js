@@ -46,12 +46,18 @@
       }
       scope.currentAutoCalculatedFieldType = "";
       scope.addAutoCalculatedField = function() {
-        scope.model.push({type: scope.currentAutoCalculatedFieldType, field: {}});
+        var autoCalculatedField = {};
+        autoCalculatedField[scope.currentAutoCalculatedFieldType] = {field: {}};
+        scope.model.push(autoCalculatedField);
       };
-      scope.removeAutoCalculatedField = function (position){
+      scope.removeAutoCalculatedField = function(position) {
         scope.model.splice(position, 1);
       };
-      
+
+      scope.getType = function(autoCalculatedField) {
+        return Object.keys(autoCalculatedField)[0];
+      };
+
       getAutoCalculatedFieldTemplate().get().$promise.then(function(template) {
         scope.template = template;
       });

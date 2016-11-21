@@ -36,10 +36,8 @@
       cube.triggers = [];
       cube.writer = {};
 
-      delete cube['writer.fixedMeasureName'];
-      delete cube['writer.fixedMeasureValue'];
-      delete cube['writer.isAutoCalculatedId'];
       delete cube['writer.dateType'];
+      delete cube['writer.autoCalculatedFields'];
       cube['writer.outputs'] = [];
     }
 
@@ -59,27 +57,17 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.triggers = c.triggers;
-      cube['writer.fixedMeasureName'] = c['writer.fixedMeasureName'];
-      cube['writer.fixedMeasureValue'] = c['writer.fixedMeasureValue'];
-      cube['writer.isAutoCalculatedId'] = c['writer.isAutoCalculatedId'];
       cube['writer.dateType'] = c['writer.dateType'];
       cube['writer.outputs'] = c['writer.outputs'];
+      cube['writer.autoCalculatedFields'] = c['writer.autoCalculatedFields'] ||c.writer.autoCalculatedFields;
       setPosition(position);
-
       error.text = "";
     }
 
     function getParsedCube(cube) {
-      var fixedMeasure = cube.writer.fixedMeasure;
-      if (fixedMeasure) {
-        fixedMeasure = fixedMeasure.split(":");
-        cube['writer.fixedMeasureName'] = fixedMeasure[0];
-        cube['writer.fixedMeasureValue'] = fixedMeasure[1];
-      }
-      cube['writer.isAutoCalculatedId'] = cube.writer.isAutoCalculatedId;
       cube['writer.dateType'] = cube.writer.dateType;
       cube['writer.outputs'] = cube.writer.outputs;
-
+      cube['writer.autoCalculatedFields'] = cube.writer.autoCalculatedFields;
       return cube;
     }
 
@@ -94,14 +82,10 @@
     }
 
     function isValidCube(cube, cubes, position, modelOutputs) {
-      var validName = cube.name !== undefined && cube.name !== "" && isValidFixedMeasure();
+      var validName = cube.name !== undefined && cube.name !== "";
       var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
       var isValid = validName && validRequiredAttributes && areValidOperatorsAndDimensions(cube, modelOutputs) && !nameExists(cube, cubes, position);
       return isValid;
-    }
-
-    function isValidFixedMeasure() {
-      return (cube["writer.fixedMeasureName"] && cube["writer.fixedMeasureValue"]) || (!cube["writer.fixedMeasureName"] && !cube["writer.fixedMeasureValue"])
     }
 
     function nameExists(cube, cubes, cubePosition) {

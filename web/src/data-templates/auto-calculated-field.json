@@ -78,7 +78,7 @@
         "propertyType": "array",
         "itemType": "text",
         "default": "",
-        "required": true,
+        "required": false,
         "hidden": false,
         "tooltip": "",
         "fields":[],
