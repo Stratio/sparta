@@ -27,11 +27,11 @@ trait DataFrameModifier {
                                autoCalculateFields: Seq[AutoCalculatedField],
                                auxSchema: StructType): DataFrame =
     autoCalculateFields.headOption match {
-      case Some(firstAutoCalculate) => applyAutoCalculateFields(
-        addColumnToDataFrame(dataFrame, firstAutoCalculate, auxSchema),
-        autoCalculateFields.drop(1), auxSchema
-      )
-      case None => dataFrame
+      case Some(firstAutoCalculate) =>
+        applyAutoCalculateFields(
+          addColumnToDataFrame(dataFrame, firstAutoCalculate, auxSchema), autoCalculateFields.drop(1), auxSchema)
+      case None =>
+        dataFrame
     }
 
   private def addColumnToDataFrame(dataFrame: DataFrame,
