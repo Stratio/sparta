@@ -85,6 +85,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     factory.resetPolicy();
 
     var policy = factory.getCurrentPolicy();
+    expect(policy.id).toBeUndefined();
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
     expect(policy.rawDataEnabled).toBe(undefined);
