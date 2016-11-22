@@ -53,8 +53,10 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
 
       if(queryDataFrame.take(1).length > 0) {
         val queryDataFrameWithAutoCalculatedFields = tableSchema match {
-          case Some(schema) => applyAutoCalculateFields(queryDataFrame, schema.autoCalculateFields)
-          case None => queryDataFrame
+          case Some(tbSchema) =>
+            applyAutoCalculateFields(queryDataFrame, tbSchema.autoCalculateFields, tbSchema.schema)
+          case None =>
+            queryDataFrame
         }
 
         queryDataFrameWithAutoCalculatedFields.registerTempTable(trigger.name)

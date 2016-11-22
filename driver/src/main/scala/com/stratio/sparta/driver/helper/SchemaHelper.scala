@@ -155,7 +155,7 @@ object SchemaHelper {
   def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
     for {
       trigger <- triggers
-      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false))
+      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false, PkMetadata))
       schema = StructType(structFields)
       autoCalculatedFields = trigger.writer.autoCalculatedFields.map(model =>
         AutoCalculatedField(

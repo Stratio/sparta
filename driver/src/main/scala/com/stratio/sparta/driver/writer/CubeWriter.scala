@@ -49,7 +49,7 @@ case class CubeWriter(cube: Cube,
         val sqlContext = SparkContextFactory.sparkSqlContextInstance
         val cubeDataFrame = sqlContext.createDataFrame(rdd, tableSchema.schema)
         val cubeDataFrameWithAutoCalculatedFields =
-          applyAutoCalculateFields(cubeDataFrame, tableSchema.autoCalculateFields)
+          applyAutoCalculateFields(cubeDataFrame, tableSchema.autoCalculateFields, tableSchema.schema)
 
         options.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {

@@ -18,30 +18,35 @@ package com.stratio.sparta.driver.writer
 
 import com.stratio.sparta.sdk.{AutoCalculatedField, Output}
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame}
 
 trait DataFrameModifier {
 
-  def applyAutoCalculateFields(dataFrame: DataFrame, autoCalculateFields: Seq[AutoCalculatedField]): DataFrame =
+  def applyAutoCalculateFields(dataFrame: DataFrame,
+                               autoCalculateFields: Seq[AutoCalculatedField],
+                               auxSchema: StructType): DataFrame =
     autoCalculateFields.headOption match {
       case Some(firstAutoCalculate) => applyAutoCalculateFields(
-        addColumnToDataFrame(dataFrame, firstAutoCalculate),
-        autoCalculateFields.drop(1)
+        addColumnToDataFrame(dataFrame, firstAutoCalculate, auxSchema),
+        autoCalculateFields.drop(1), auxSchema
       )
       case None => dataFrame
     }
 
-  private def addColumnToDataFrame(dataFrame: DataFrame, autoCalculateField: AutoCalculatedField): DataFrame =
+  private def addColumnToDataFrame(dataFrame: DataFrame,
+                                   autoCalculateField: AutoCalculatedField,
+                                   auxSchema: StructType): DataFrame = {
     (autoCalculateField.fromNotNullFields,
       autoCalculateField.fromPkFields,
       autoCalculateField.fromFields,
       autoCalculateField.fromFixedValue) match {
       case (Some(fromNotNullFields), _, _, _) =>
-        val fields = dataFrame.schema.fields.flatMap(field =>
+        val fields = fieldsWithAuxMetadata(dataFrame.schema.fields, auxSchema.fields).flatMap(field =>
           if (!field.nullable) Some(col(field.name)) else None).toSeq
         addField(fromNotNullFields.field.name, fromNotNullFields.field.outputType, dataFrame, fields)
       case (None, Some(fromPkFields), _, _) =>
-        val fields = dataFrame.schema.fields.flatMap(field =>
+        val fields = fieldsWithAuxMetadata(dataFrame.schema.fields, auxSchema.fields).flatMap(field =>
           if (field.metadata.contains(Output.PrimaryKeyMetadataKey)) Some(col(field.name)) else None).toSeq
         addField(fromPkFields.field.name, fromPkFields.field.outputType, dataFrame, fields)
       case (None, None, Some(fromFields), _) =>
@@ -51,6 +56,7 @@ trait DataFrameModifier {
         addLiteral(fromFixedValue.field.name, fromFixedValue.field.outputType, dataFrame, fromFixedValue.value)
       case _ => dataFrame
     }
+  }
 
   private def addField(name: String, outputType: String, dataFrame: DataFrame, fields: Seq[Column]): DataFrame =
     outputType match {
@@ -67,4 +73,12 @@ trait DataFrameModifier {
       case "map" => dataFrame.withColumn(name, struct(lit(literal)))
       case _ => dataFrame
     }
+
+  private def fieldsWithAuxMetadata(dataFrameFields: Array[StructField], auxFields: Array[StructField]) =
+    dataFrameFields.map(field => {
+      auxFields.find(auxField => auxField.name == field.name) match {
+        case Some(auxFounded) => field.copy(metadata = auxFounded.metadata)
+        case None => field
+      }
+    })
 }
