@@ -35,6 +35,5 @@ hose {
             doDocker(config)
         }, failFast: config.FAILFAST)
 
-        doAT(conf: config, groups: ['basic'])
     }
 }
