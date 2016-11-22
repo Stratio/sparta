@@ -51,10 +51,12 @@
       }
 
       scope.addItem = function($event) {
-        $event.preventDefault();
         if (scope.itemToAdd) {
           scope.model.push(scope.itemToAdd);
           scope.itemToAdd = "";
+          if ($event) {
+            $event.preventDefault();
+          }
         }
       };
 
