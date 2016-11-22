@@ -42,6 +42,8 @@ object AppConstant {
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
   final val DefaultStopGracefully = true
+  final val AwaitStopTermination = "awaitStopTermination"
+  final val DefaultAwaitStopTermination = "60s"
   final val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   final val DefaultAutoDeleteCheckpoint = true
   final val ConfigCheckpointPath = "checkpointPath"

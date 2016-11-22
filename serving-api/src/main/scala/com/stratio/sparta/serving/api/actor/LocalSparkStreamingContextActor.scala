@@ -20,6 +20,8 @@ import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
@@ -49,6 +51,7 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
       policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
       Try(ErrorDAO().dao.delete(policy.id.get))
       ssc = Option(streamingContextService.standAloneStreamingContext(policy, jars))
+      log.info(s"Starting Streaming Context for policy:  ${policy.name}")
       ssc.get.start()
     } match {
       case Success(_) =>
@@ -56,18 +59,7 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
-        SparkContextFactory.destroySparkStreamingContext()
-        SparkContextFactory.destroySparkContext()
+        SparkContextFactory.destroySparkContext(destroyStreamingContext = true)
     }
-  }
-
-  override def postStop(): Unit = {
-    ssc match {
-      case Some(sc: StreamingContext) =>
-        SparkContextFactory.destroySparkStreamingContext()
-      case x =>
-        log.warn("Unrecognized Standalone StreamingContext to stop!", x)
-    }
-    super.postStop()
   }
 }

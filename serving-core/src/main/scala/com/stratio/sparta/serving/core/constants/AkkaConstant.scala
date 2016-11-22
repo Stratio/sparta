@@ -17,6 +17,7 @@ package com.stratio.sparta.serving.core.constants
 
 /**
  * Akka constants with Akka's actor paths.
+ *
  * @author anistal
  */
 object AkkaConstant {
