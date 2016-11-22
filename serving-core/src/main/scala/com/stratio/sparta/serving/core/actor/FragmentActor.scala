@@ -83,7 +83,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def findByTypeAndId(fragmentType: String, id: String): Unit =
     sender ! new ResponseFragment(
       Try {
-        log.info(s"> Retrieving information for path: ${FragmentActor.fragmentPathType(fragmentType)}/$id)")
+        log.debug(s"> Retrieving information for path: ${FragmentActor.fragmentPathType(fragmentType)}/$id)")
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
           s"${FragmentActor.fragmentPathType(fragmentType)}/$id")))
       }.recover {

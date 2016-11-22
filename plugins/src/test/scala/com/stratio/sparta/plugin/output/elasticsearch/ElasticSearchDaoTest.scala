@@ -32,18 +32,13 @@ class ElasticSearchDAOTest extends FlatSpec with ShouldMatchers {
   trait ValuesMap extends BaseValues {
 
     val baseMap = Map("es.nodes" -> "localhost", "es.port" -> "9200", "es.index.auto.create" -> "no")
-    val providedMap = Map("es.mapping.id" -> "id")
     val tsMap = Map("es.mapping.timestamp" -> "minutes")
-    val expectedProvided = providedMap ++ baseMap
     val expectedWithTs = baseMap ++ tsMap
-    val expectedProvidedWithTs = expectedProvided ++ tsMap
   }
 
   "ElasticSearchDao" should "return a valid configuration" in new ValuesMap {
-    dao.getSparkConfig(Option(""), false) should be(baseMap)
-    dao.getSparkConfig(Option(""), true) should be(expectedProvided)
-    dao.getSparkConfig(Option("minutes"), false) should be(expectedWithTs)
-    dao.getSparkConfig(Option("minutes"), true) should be(expectedProvidedWithTs)
+    dao.getSparkConfig(Option("")) should be(baseMap)
+    dao.getSparkConfig(Option("minutes")) should be(expectedWithTs)
   }
 
   it should "return a valid TypeOp from dateType" in new BaseValues {

@@ -75,8 +75,8 @@
         "connection": "localhost:2181",
         "createSchema": "true",
         "isCloud": "true",
-        "cloudDataDir": "/tmp/solr-data",
-        "fixedMeasure": "_indexed_at_tdt:0"
+        "cloudDataDir": "/tmp/solr-data"
+        //"fixedMeasure": "_indexed_at_tdt:0"
       }
     }]
 }

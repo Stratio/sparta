@@ -22,7 +22,32 @@
     "cube output 2"
   ],
   "writer.dateType": "timestamp",
-  "writer.isAutoCalculatedId": true,
-  "writer.fixedMeasureName": "key",
-  "writer.fixedMeasureValue": "value"
+
+  "writer.autoCalculatedFields": [{
+      "fromNotNullFields": {
+        "name": "a",
+        "outputType": "map"
+      }
+    }, {
+      "fromPkFields": {
+        "name": "b",
+        "outputType": "string"
+      }
+    }, {
+      "fromFields": {
+        "field": {
+          "name": "c",
+          "outputType": "array"
+        },
+        "fromFields": ["response"]
+      }
+    }, {
+      "fromFixedValue": {
+        "field": {
+          "name": "s",
+          "outputType": "string"
+        },
+        "value": "fake value"
+      }
+    }]
 }

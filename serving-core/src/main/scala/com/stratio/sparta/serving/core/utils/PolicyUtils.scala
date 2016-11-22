@@ -100,7 +100,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
-    JavaConversions.asScalaBuffer(children).toList.map(element => byId(element, curatorFramework))
+    JavaConversions.asScalaBuffer(children).toList.map(id => byId(id, curatorFramework))
   }
 
   def byId(id: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {

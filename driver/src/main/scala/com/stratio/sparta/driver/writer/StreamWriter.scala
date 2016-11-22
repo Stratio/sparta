@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.driver.trigger
+package com.stratio.sparta.driver.writer
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.factory.SparkContextFactory
+import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.writer.StreamWriter._
 import com.stratio.sparta.sdk.{Output, TableSchema}
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.streaming.Milliseconds
 import org.apache.spark.streaming.dstream.DStream
-import StreamWriter._
-import com.stratio.sparta.driver.factory.SparkContextFactory
 
 case class StreamWriterOptions(overLast: Option[String],
                                computeEvery: Option[String],
                                sparkStreamingWindow: Long,
-                               initSchema: StructType)
+                               initSchema: StructType
+                              )
 
 case class StreamWriter(triggers: Seq[Trigger],
                         tableSchemas: Seq[TableSchema],

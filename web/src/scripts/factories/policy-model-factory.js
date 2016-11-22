@@ -36,6 +36,7 @@
       policy.cubes = [];
       policy.streamTriggers = [];
       policy.sparkConf = {};
+      delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;

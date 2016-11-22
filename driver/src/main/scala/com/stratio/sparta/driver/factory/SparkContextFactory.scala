@@ -125,15 +125,15 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
         try {
-          val stopGracefully = Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully))
-            .getOrElse(true)
-          log.info(s"Stopping streamingContext with name: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(false, stopGracefully)) match {
+          val stopGracefully =
+            Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
+          log.info(s"Stopping Streaming Context with name: ${streamingContext.sparkContext.appName}")
+          Try(streamingContext.stop(stopSparkContext = false, stopGracefully)) match {
             case Success(_) =>
-              log.info("Streaming context have been stopped gracefully")
+              log.info("Streaming Context have been stopped gracefully")
             case Failure(error) =>
-              log.error("Streaming context is not stopped gracefully, now it will be stopped forcedly", error)
-              streamingContext.stop(false, false)
+              log.error("Streaming Context is not stopped gracefully, now it will be stopped forcibly", error)
+              streamingContext.stop(stopSparkContext = false, stopGracefully = false)
           }
         } finally {
           ssc = None
@@ -142,17 +142,20 @@ object SparkContextFactory extends SLF4JLogging {
     }
   }
 
-  def destroySparkContext(): Unit = {
-    synchronized {
+  def destroySparkContext(destroyStreamingContext: Boolean = true): Unit = {
+    if (destroyStreamingContext)
       destroySparkStreamingContext()
-      sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
-        try {
-          log.info("Stopping SparkContext with name: " + sparkContext.appName)
-          sparkContext.stop()
-          log.info("Stopped SparkContext with name: " + sparkContext.appName)
-        } finally {
-          sc = None
-        }
+
+    sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
+      try {
+        log.info("Stopping SparkContext with name: " + sparkContext.appName)
+        sparkContext.stop()
+        log.info("Stopped SparkContext with name: " + sparkContext.appName)
+      } finally {
+        sqlContext = None
+        sqlInitialSentences =  Seq.empty[String]
+        ssc = None
+        sc = None
       }
     }
   }

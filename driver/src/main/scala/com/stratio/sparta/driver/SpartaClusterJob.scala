@@ -23,10 +23,11 @@ import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
@@ -96,7 +97,7 @@ object SpartaClusterJob extends PolicyUtils {
         ssc.awaitTermination()
       } match {
         case Success(_) =>
-          log.info(s"Finished Streaming Context for policy $policyId")
+          log.info(s"Finished correctly Sparta Cluster Job for policy: ${policy.id.get}")
         case Failure(exception) =>
           val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
@@ -117,11 +118,11 @@ object SpartaClusterJob extends PolicyUtils {
     log.error(pluginsFiles.mkString(","))
     pluginsFiles.foreach {
       fileHdfsPath => {
-        log.info(s"Getting file from HDFS: ${fileHdfsPath}")
+        log.info(s"Getting file from HDFS: $fileHdfsPath")
         val inputStream = HdfsUtils().getFile(fileHdfsPath)
         val fileName = fileHdfsPath.split("/").last
-        log.info(s"HDFS file name is ${fileName}")
-        val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/${fileName}")
+        log.info(s"HDFS file name is $fileName")
+        val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/$fileName")
         log.info(s"Downloading HDFS file to local file system: ${file.getAbsoluteFile}")
         FileUtils.copyInputStreamToFile(inputStream, file)
         JarsHelper.addToClasspath(file)

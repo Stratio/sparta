@@ -6,6 +6,7 @@ EXECUTION_MODE: Indicates the execution mode of the module. It can take three va
     - mesos: It will execute using a mesos cluster.
     - yarn: It will execute using a yarn cluster.
 STOP_GRACEFULLY: Stop condition when finish Spark Contexts
+AWAIT_STOP_TERMINATION: Maximun time to wait when the Spark Context ends. Then it will terminate forcibly
 REMEMBER_PARTITIONER: Remember partitioner in stateful operations in Spark
 AUTO_DELETE_CHECKPOINT: auto delete checkpoint path when run policies
 MESOS_MASTER: Only needed if EXECUTION_MODE is 'mesos'. Indicates the ip or fqdn of the Mesos master host (i.e. mesos.demo.stratio.com:7077).

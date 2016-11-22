@@ -109,6 +109,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
     log.info("> Actors System UP!")
   }
 
+  /*
   def shutdown(destroySparkContext: Boolean = true): Unit = {
     synchronized {
       try {
@@ -121,6 +122,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
       }
     }
   }
+  */
 
   def getExecutionMode: String = {
     val detailConfig = SpartaConfig.getDetailConfig.getOrElse(throw new RuntimeException("Error getting Spark config"))

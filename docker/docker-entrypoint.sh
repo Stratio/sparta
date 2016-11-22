@@ -12,8 +12,11 @@
  if [[ ! -v EXECUTION_MODE ]]; then
    EXECUTION_MODE=local
  fi
-  if [[ ! -v STOP_GRACEFULLY ]]; then
+ if [[ ! -v STOP_GRACEFULLY ]]; then
    STOP_GRACEFULLY=true
+ fi
+ if [[ ! -v AWAIT_STOP_TERMINATION ]]; then
+   AWAIT_STOP_TERMINATION=120s
  fi
  if [[ ! -v REMEMBER_PARTITIONER ]]; then
    REMEMBER_PARTITIONER=true
@@ -60,6 +63,7 @@
 
  sed -i "s|executionMode.*|executionMode = \"${EXECUTION_MODE}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|stopGracefully.*|stopGracefully = \"${STOP_GRACEFULLY}\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|awaitStopTermination.*|awaitStopTermination = \"${AWAIT_STOP_TERMINATION}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|rememberPartitioner.*|rememberPartitioner = \"${REMEMBER_PARTITIONER}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|autoDeleteCheckpoint.*|autoDeleteCheckpoint = \"${AUTO_DELETE_CHECKPOINT}\"|" ${SPARTA_CONF_FILE}
  sed -i "s|connectionString.*|connectionString = \""${ZOOKEEPER_HOST}"\"|" ${SPARTA_CONF_FILE}

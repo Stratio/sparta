@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models
 
-case class WriterModel(outputs: Seq[String] = Seq.empty,
-                       fixedMeasure: Option[String] = None,
-                       dateType: Option[String] = None,
-                       isAutoCalculatedId: Option[Boolean] = None)
+case class WriterModel(
+                        outputs: Seq[String] = Seq.empty[String],
+                        dateType: Option[String] = None,
+                        autoCalculatedFields: Seq[AutoCalculatedFieldModel] = Seq.empty[AutoCalculatedFieldModel]
+                      )

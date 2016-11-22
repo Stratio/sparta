@@ -77,8 +77,7 @@
     {
       "name": "extra1",
       "writer": {
-        "outputs" : ["out-mongo"],
-        "isAutoCalculatedId": true
+        "outputs" : ["out-mongo"]
       },
       "dimensions": [
         {

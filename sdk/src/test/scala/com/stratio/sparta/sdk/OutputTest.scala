@@ -63,11 +63,7 @@ class OutputTest extends WordSpec with Matchers {
 
     val outputProps = new OutputMock(outputName,
       None,
-      Map(
-        "fixedDimensions" -> "dim2",
-        "fixedMeasure" -> "op2:1",
-        "isAutoCalculatedId" -> "true"
-      ),
+      Map(),
       Seq(tableSchema))
 
     val outputVersioned = new OutputMock(outputName,

@@ -57,10 +57,8 @@ with MockitoSugar {
     val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
     val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
     val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
-    val writerModelId = WriterModel(Seq("outputName"), None, None, Option(true))
-    val writerModelTimeDate = WriterModel(Seq("outputName"), None, Option("date"), Option(true))
-    val writerModelTimeDateAndMeasure =
-      WriterModel(Seq("outputName"), Option("measureName:1"), Option("date"), Option(true))
+    val writerModelId = WriterModel(Seq("outputName"), None, Seq())
+    val writerModelTimeDate = WriterModel(Seq("outputName"), Option("date"), Seq())
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"
@@ -88,11 +86,14 @@ with MockitoSugar {
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
-        StructField("dim1", StringType, false),
-        StructField("dim2", StringType, false),
+        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+        StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
         StructField(checkpointGranularity, TimestampType, false),
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      Option("minute"))
+      Option("minute"),
+      TypeOp.Timestamp,
+      Seq.empty[AutoCalculatedField]
+    )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
@@ -108,55 +109,13 @@ with MockitoSugar {
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
-        StructField("dim1", StringType, false),
-        StructField("dim2", StringType, false),
-        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      None)
-
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
-
-    res should be(Seq(tableSchema))
-  }
-
-  it should "return a list of schemas with id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
-    val cubeModel =
-      CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
-    val cubes = Seq(cube)
-    val cubesModel = Seq(cubeModel)
-    val tableSchema = TableSchema(
-      Seq("outputName"),
-      "cubeTest",
-      StructType(Array(
-        StructField("id", StringType, false),
-        StructField("dim1", StringType, false),
-        StructField("dim2", StringType, false),
+        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+        StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
-      true)
-
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
-
-    res should be(Seq(tableSchema))
-  }
-
-  it should "return a list of schemas with field id" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
-    val cubeModel =
-      CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModelId)
-    val cubes = Seq(cube)
-    val cubesModel = Seq(cubeModel)
-    val tableSchema = TableSchema(
-      Seq("outputName"),
-      "cubeTest",
-      StructType(Array(
-        StructField("id", StringType, false),
-        StructField("dim1", StringType, false),
-        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      None,
-      TypeOp.Timestamp,
-      true)
+      Seq.empty[AutoCalculatedField]
+    )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
@@ -173,19 +132,20 @@ with MockitoSugar {
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
-        StructField("dim1", StringType, false),
-        StructField("id", StringType, false),
+        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+        StructField("id", StringType, false, SchemaHelper.PkMetadata),
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       None,
       TypeOp.Timestamp,
-      false)
+      Seq.empty[AutoCalculatedField]
+    )
 
     val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
     res should be(Seq(tableSchema))
   }
 
-  it should "return a list of schemas with field id and timeDimension with DateFormat" in
+  it should "return a list of schemas with timeDimension with DateFormat" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
         Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
@@ -198,51 +158,19 @@ with MockitoSugar {
         Seq("outputName"),
         "cubeTest",
         StructType(Array(
-          StructField("id", StringType, false),
-          StructField("dim1", StringType, false),
-          StructField("dim2", StringType, false),
+          StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+          StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
           StructField(checkpointGranularity, DateType, false),
           StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,
-        true)
-
-      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
-
-      res should be(Seq(tableSchema))
-    }
-
-  it should "return a list of schemas with field id and timeDimension with DateFormat and measure" in
-    new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
-      val cubeModel = CubeModel(
-        cubeName,
-        Seq(dimension1Model, dimension2Model, dimensionTimeModel),
-        Seq(operator1Model),
-        writerModelTimeDateAndMeasure
+        Seq.empty[AutoCalculatedField]
       )
-      val cubes = Seq(cube)
-      val cubesModel = Seq(cubeModel)
-      val tableSchema = TableSchema(
-        Seq("outputName"),
-        "cubeTest",
-        StructType(Array(
-          StructField("id", StringType, false),
-          StructField("dim1", StringType, false),
-          StructField("dim2", StringType, false),
-          StructField(checkpointGranularity, DateType, false),
-          StructField("measureName", StringType, false, SchemaHelper.MeasureMetadata),
-          StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-        Option("minute"),
-        TypeOp.Date,
-        true)
 
       val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
 
       res should be(Seq(tableSchema))
     }
-
 
   it should "return a map with the name of the transformation and the schema" in
     new CommonValues {

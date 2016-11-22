@@ -36,7 +36,8 @@
     vm.getFilteredJSONByArray = getFilteredJSONByArray;
     vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
     vm.generateOptionListFromStringArray = generateOptionListFromStringArray;
-
+    vm.camelToDash = camelToDash;
+    
     function findElementInJSONArray(array, element, attr) {
       var found = false;
       var position = -1;
@@ -215,6 +216,13 @@
         }
       }
       return optionList;
+    }
+
+    function camelToDash(word, dash){
+      if (!dash){
+        dash = '-';
+      }
+      return word.replace(/([A-Z])/g, function($1){return dash+$1.toLowerCase();});
     }
   }
 })

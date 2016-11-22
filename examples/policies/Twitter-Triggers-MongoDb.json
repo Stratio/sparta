@@ -78,8 +78,7 @@
     }],
     "writer": {
       "outputs": ["mongodb"],
-      "dateType": "timestamp",
-      "isAutoCalculatedId": true
+      "dateType": "timestamp"
     },
     "triggers": [{
       "name": "mostimportant",

@@ -832,24 +832,6 @@
     ],
     "outputProperties": [
       {
-        "propertyId": "writer.fixedMeasureName",
-        "propertyName": "_FIXED_MEASURE_NAME_",
-        "propertyType": "text",
-        "qa": "cube-fixed-measure-name",
-        "width": 6,
-        "required": "scope.form['dataSource_FIXED_MEASURE_VALUE_Form']['dataSource_FIXED_MEASURE_VALUE_Form'].$modelValue.length > 0"
-      },
-      {
-        "propertyId": "writer.fixedMeasureValue",
-        "propertyName": "_FIXED_MEASURE_VALUE_",
-        "propertyType": "text",
-        "qa": "cube-fixed-measure-value",
-        "required": "false",
-        "width": 6,
-        "position": "right",
-        "required": "scope.form['dataSource_FIXED_MEASURE_NAME_Form']['dataSource_FIXED_MEASURE_NAME_Form'].$modelValue.length > 0"
-      },
-      {
         "propertyId": "writer.dateType",
         "propertyName": "_DATE_TYPE_",
         "propertyType": "select",
@@ -880,15 +862,6 @@
         ],
         "width": 6,
         "position": "left"
-      },
-      {
-        "propertyId": "writer.isAutoCalculatedId",
-        "propertyName": "_IS_AUTO_CALCULATED_ID_",
-        "propertyType": "boolean",
-        "default": false,
-        "qa": "cube-is-auto-calculated-id",
-        "width": 6,
-        "position": "right"
       }
     ],
     "functionNames": [

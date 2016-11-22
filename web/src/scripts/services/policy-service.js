@@ -87,7 +87,7 @@
         cubeOutputs = cubeOutputs.concat(cube['writer.outputs']);
 
         for (var t = 0; t < cube.triggers.length; ++t) {
-          cubeOutputs = cubeOutputs.concat(cube.triggers[t].outputs);
+          cubeOutputs = cubeOutputs.concat(cube.triggers[t].writer.outputs);
         }
       }
 
@@ -102,7 +102,7 @@
       var triggers = vm.policy.streamTriggers;
       var triggerOutputs = [];
       for (var t = 0; t < triggers.length; ++t) {
-        triggerOutputs = triggerOutputs.concat(triggers[t].outputs);
+        triggerOutputs = triggerOutputs.concat(triggers[t].writer.outputs);
       }
       if (allOutputs && triggerOutputs) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, triggerOutputs, 'name');
@@ -130,12 +130,7 @@
     function convertCubeAttributes(policyJson) {
       var cubes = policyJson.cubes;
       for (var i = 0; i < cubes.length; ++i) {
-        var cube = UtilsService.convertDottedPropertiesToJson(cubes[i]);
-        if (cube.writer.fixedMeasureName && cube.writer.fixedMeasureValue) {
-          cube.writer.fixedMeasure = cube.writer.fixedMeasureName + ":" + cube.writer.fixedMeasureValue;
-        }
-        delete cube.writer.fixedMeasureName;
-        delete cube.writer.fixedMeasureValue;
+        cubes[i] = UtilsService.convertDottedPropertiesToJson(cubes[i]);
       }
       return policyJson;
     }

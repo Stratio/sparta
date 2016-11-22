@@ -44,7 +44,9 @@ case class FragmentElementModel(id: Option[String] = None,
 
 object FragmentType extends Enumeration {
   type `type` = Value
-  val input = Value("input")
-  val output = Value("output")
+  val InputValue = "input"
+  val OutputValue = "output"
+  val input = Value(InputValue)
+  val output = Value(OutputValue)
   val AllowedTypes = Seq(input, output)
 }
