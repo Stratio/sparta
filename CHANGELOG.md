@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 0.11.0 (upcoming)
+## 0.11.0 (August 2016)
 
 * Docker updated with Spark and DC/OS Mesos integration
 * Updated Receiver RabbitMQ for Distributed mode
