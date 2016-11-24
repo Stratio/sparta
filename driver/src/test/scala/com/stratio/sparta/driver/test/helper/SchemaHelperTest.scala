@@ -30,7 +30,7 @@ import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
 class SchemaHelperTest extends FlatSpec with ShouldMatchers
-with MockitoSugar {
+  with MockitoSugar {
 
   trait CommonValues {
 
@@ -88,7 +88,7 @@ with MockitoSugar {
       StructType(Array(
         StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
         StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-        StructField(checkpointGranularity, TimestampType, false),
+        StructField(checkpointGranularity, TimestampType, false, SchemaHelper.PkMetadata),
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       Option("minute"),
       TypeOp.Timestamp,
@@ -160,7 +160,7 @@ with MockitoSugar {
         StructType(Array(
           StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
           StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-          StructField(checkpointGranularity, DateType, false),
+          StructField(checkpointGranularity, DateType, false, SchemaHelper.PkMetadata),
           StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,

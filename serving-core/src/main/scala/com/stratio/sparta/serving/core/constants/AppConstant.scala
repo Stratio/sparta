@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.serving.core.constants
 
+import akka.actor.ActorSystem
 
 /**
  * Global constants of the application.
@@ -43,7 +44,7 @@ object AppConstant {
   final val ConfigStopGracefully = "stopGracefully"
   final val DefaultStopGracefully = true
   final val AwaitStopTermination = "awaitStopTermination"
-  final val DefaultAwaitStopTermination = "60s"
+  final val DefaultAwaitStopTermination = "120s"
   final val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   final val DefaultAutoDeleteCheckpoint = true
   final val ConfigCheckpointPath = "checkpointPath"
@@ -74,23 +75,27 @@ object AppConstant {
   final val ClusterExecutionJarFolder = "driver"
 
   //Generic Options
+  final val Master = "master"
+  final val Supervise = "supervise"
   final val DeployMode = "deployMode"
-  final val NumExecutors = "numExecutors"
+  final val Name = "name"
+  final val PropertiesFile = "propertiesFile"
   final val TotalExecutorCores = "totalExecutorCores"
-  final val ExecutorMemory = "executorMemory"
-  final val ExecutorCores = "executorCores"
   final val SparkHome = "sparkHome"
 
   //Mesos Options
   final val MesosMasterDispatchers = "master"
 
-  //StandAlone
-  final val StandAloneSupervise = "supervise"
   //Yarn
   final val YarnQueue = "queue"
-
-  // Common
-  final val Master = "master"
+  final val NumExecutors = "numExecutors"
+  final val ExecutorMemory = "executorMemory"
+  final val ExecutorCores = "executorCores"
+  final val DriverMemory = "driverMemory"
+  final val DriverCores = "driverCores"
+  final val Files = "files"
+  final val Archives = "archives"
+  final val AddJars = "addJars"
 
   //Zookeeper
   final val ZookeeperConnection = "connectionString"
@@ -111,5 +116,8 @@ object AppConstant {
   final val ContextPath = s"/$BaseZKPath/contexts"
   final val FragmentsPath = s"/$BaseZKPath/fragments"
   final val ErrorsZkPath = s"$BaseZKPath/error"
+
+  //Scheduler system to schedule threads executions
+  val SchedulerSystem = ActorSystem("SchedulerSystem")
 
 }

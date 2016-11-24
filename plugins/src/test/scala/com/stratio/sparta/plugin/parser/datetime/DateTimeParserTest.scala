@@ -87,16 +87,14 @@ class DateTimeParserTest extends WordSpecLike with Matchers {
       assertResult(result.size)(2)
     }
 
-    "not parse if inputFormat does not exist" in {
+    "Auto generated if inputFormat does not exist" in {
       val input = Row("1416330788")
       val schema = StructType(Seq(StructField("ts", StringType)))
 
       val result =
         new DateTimeParser(1, inputField, outputsFields, schema, Map()).parse(input, false)
 
-      val expected = Row("1416330788", "1416330788")
-
-      assertResult(result)(expected)
+      assertResult(result.size)(2)
     }
 
     "parse dateTime in hive format" in {

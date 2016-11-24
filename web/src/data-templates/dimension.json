@@ -8,43 +8,56 @@
     "label": "DateTime",
     "precisions": [
       {
-        "label": "second",
-        "value":"second"
+        "label": "Millisecond(s)",
+        "value": "ms"
       },
       {
-        "label": "5 seconds",
-        "value":"s5"
+        "label": "Second(s)",
+        "value": "s"
       },
       {
-        "label": "10 seconds",
-        "value":"s10"
+        "label": "Minute(s)",
+        "value": "m"
       },
       {
-        "label": "15 seconds",
-        "value":"s15"
+        "label": "Hour(s)",
+        "value": "h"
       },
       {
-        "label": "minute",
-        "value":"minute"
+        "label": "Day(s)",
+        "value": "d"
       },
       {
-        "label": "hour",
-        "value":"hour"
+        "label": "Millisecond",
+        "value": "millisecond"
       },
       {
-        "label": "day",
-        "value":"day"
-      },{
-        "label": "week",
-        "value":"week"
+        "label": "Second",
+        "value": "second"
       },
       {
-        "label": "month",
-        "value":"month"
+        "label": "Minute",
+        "value": "minute"
       },
       {
-        "label": "day",
-        "value":"day"
+        "label": "Hour",
+        "value": "hour"
+      },
+      {
+        "label": "Day",
+        "value": "day"
+      },
+      {
+        "label": "Week",
+        "value": "week"
+      },
+      {
+        "label": "Month",
+        "value": "month"
+      },
+      {
+        "label": "Year",
+        "value": "year"
       }
     ]
   },

@@ -32,6 +32,7 @@ import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum._
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
@@ -48,7 +49,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(policy: AggregationPoliciesModel, files: Seq[File]): StreamingContext = {
-    runStatusListener(policy.id.get, policy.name, false)
+    runStatusListener(policy.id.get, policy.name, exit = false)
     if(autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
@@ -116,14 +117,11 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
 
               import scala.concurrent.ExecutionContext.Implicits.global
 
-              implicit val closeSystem = ActorSystem("SchedulerCloseSystem")
-
-              log.info("Starting scheduler to supervise the Spark Job termination timeout")
               val awaitTimeOut =
                 Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.AwaitStopTermination)).toOption
-                .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultAwaitStopTermination)
-
-              closeSystem.scheduler.scheduleOnce(
+                  .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultAwaitStopTermination)
+              log.info(s"Starting scheduler to supervise the Spark Job termination timeout, with time: $awaitTimeOut")
+              AppConstant.SchedulerSystem.scheduler.scheduleOnce(
                 DateOperationsHelper.parseValueToMilliSeconds(awaitTimeOut) milli)(closeForcibly(
                 policyId, policyStatusActor.get, exit))
 
@@ -147,6 +145,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
               }
               if (exit) {
                 SparkContextFactory.destroySparkContext()
+                shutdownSchedulerSystem()
                 log.info("Closing the application")
                 System.exit(0)
               }
@@ -160,13 +159,21 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   private def closeForcibly(policyId: String,
                             policyStatusActor: ActorRef,
                             exit: Boolean) : Unit = {
-    val status = PolicyStatusEnum.Failed
-    log.warn(s"The Spark Context will been stopped forcibly, the policy will be set in status: $status")
+    val status = PolicyStatusEnum.Stopped
+    log.warn(s"The Spark Context will been stopped, the policy will be set in status: $status")
     policyStatusActor ! Update(PolicyStatusModel(policyId, status))
     SparkContextFactory.destroySparkContext(destroyStreamingContext = false)
     if(exit) {
+      shutdownSchedulerSystem()
       log.info("Closing the application")
       System.exit(0)
+    }
+  }
+
+  private def shutdownSchedulerSystem() : Unit = {
+    if(!AppConstant.SchedulerSystem.isTerminated){
+      log.info("Shutdown the scheduler system")
+      AppConstant.SchedulerSystem.shutdown()
     }
   }
 }

@@ -63,13 +63,16 @@ object Output extends Logging {
       throw new NoSuchElementException("tableName not found in options")
     })
 
-  def getTimeFieldType(dateTimeType: TypeOp, fieldName: String, nullable: Boolean): StructField =
+  def getTimeFieldType(dateTimeType: TypeOp,
+                       fieldName: String,
+                       nullable: Boolean,
+                       metadata: Option[Metadata] = None): StructField =
     dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable)
-      case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable)
-      case TypeOp.Long => defaultLongField(fieldName, nullable)
-      case TypeOp.String => defaultStringField(fieldName, nullable)
-      case _ => defaultStringField(fieldName, nullable)
+      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Long => defaultLongField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.String => defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case _ => defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
     }
 
   def defaultTimeStampField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
