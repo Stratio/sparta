@@ -115,7 +115,7 @@ object SpartaClusterJob extends PolicyUtils {
 
   //scalastyle:on
   private def addPluginsToClassPath(pluginsFiles: Array[String]) = {
-    log.error(pluginsFiles.mkString(","))
+    log.info(pluginsFiles.mkString(","))
     pluginsFiles.foreach {
       fileHdfsPath => {
         log.info(s"Getting file from HDFS: $fileHdfsPath")

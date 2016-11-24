@@ -527,9 +527,8 @@
           "propertyId": "granularityNumber",
           "propertyName": "_GRANULARITY_",
           "propertyType": "text",
-          "default": "1",
           "position": "left",
-          "required": true,
+          "required": false,
           "qa": "policy-cube-dimension-dateTime-granularityNumber"
         },
         {
@@ -538,9 +537,8 @@
           "propertyType": "select",
           "width": 6,
           "position": "right",
+          "required": false,
           "qa": "policy-cube-dimension-dateTime-granularityTime",
-          "default": "m",
-          "required": true,
           "values": [
             {
               "label": "Millisecond(s)",
@@ -559,8 +557,12 @@
               "value": "h"
             },
             {
-              "label": "Days",
+              "label": "Day(s)",
               "value": "d"
+            },
+            {
+              "label": "Millisecond",
+              "value": "millisecond"
             },
             {
               "label": "Second",
@@ -687,7 +689,6 @@
         "propertyId": "precisionNumber",
         "propertyName": "_PRECISION_",
         "propertyType": "text",
-        "default": "1",
         "width": 6,
         "position": "left",
         "required": false,
@@ -700,7 +701,7 @@
         "width": 6,
         "position": "right",
         "qa": "policy-cube-dimension-dateTime-precisionTime",
-        "default": "m",
+        "default": "minute",
         "required": true,
         "values": [
           {
@@ -720,8 +721,12 @@
             "value": "h"
           },
           {
-            "label": "Days",
+            "label": "Day(s)",
             "value": "d"
+          },
+          {
+            "label": "Millisecond",
+            "value": "millisecond"
           },
           {
             "label": "Second",
@@ -789,23 +794,23 @@
         "required": true,
         "values": [
           {
-            "label": "Milliseconds",
+            "label": "Millisecond(s)",
             "value": "ms"
           },
           {
-            "label": "Seconds",
+            "label": "Second(s)",
             "value": "s"
           },
           {
-            "label": "Minutes",
+            "label": "Minute(s)",
             "value": "m"
           },
           {
-            "label": "Hours",
+            "label": "Hour(s)",
             "value": "h"
           },
           {
-            "label": "Days",
+            "label": "Day(s)",
             "value": "d"
           }
         ],
@@ -919,23 +924,23 @@
           "required": true,
           "values": [
             {
-              "label": "Milliseconds",
+              "label": "Millisecond(s)",
               "value": "ms"
             },
             {
-              "label": "Seconds",
+              "label": "Second(s)",
               "value": "s"
             },
             {
-              "label": "Minutes",
+              "label": "Minute(s)",
               "value": "m"
             },
             {
-              "label": "Hours",
+              "label": "Hour(s)",
               "value": "h"
             },
             {
-              "label": "Days",
+              "label": "Day(s)",
               "value": "d"
             }
           ]
@@ -960,23 +965,23 @@
           "required": true,
           "values": [
             {
-              "label": "Milliseconds",
+              "label": "Millisecond(s)",
               "value": "ms"
             },
             {
-              "label": "Seconds",
+              "label": "Second(s)",
               "value": "s"
             },
             {
-              "label": "Minutes",
+              "label": "Minute(s)",
               "value": "m"
             },
             {
-              "label": "Hours",
+              "label": "Hour(s)",
               "value": "h"
             },
             {
-              "label": "Days",
+              "label": "Day(s)",
               "value": "d"
             }
           ]

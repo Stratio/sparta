@@ -51,24 +51,24 @@ class ReflectionUtils extends SLF4JLogging {
 
   def printClassPath(cl: ClassLoader): Unit = {
     val urls = cl.asInstanceOf[URLClassLoader].getURLs()
-    urls.foreach(url => log.info(url.getFile))
+    urls.foreach(url => log.debug(url.getFile))
   }
 
   lazy val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections("com.stratio.sparta")
 
     try {
-      log.info("#######")
-      log.info("####### SPARK MUTABLE_URL_CLASS_LOADER:")
-      log.info(getClass.getClassLoader.toString)
+      log.debug("#######")
+      log.debug("####### SPARK MUTABLE_URL_CLASS_LOADER:")
+      log.debug(getClass.getClassLoader.toString)
       printClassPath(getClass.getClassLoader)
-      log.info("#######")
-      log.info("####### APP_CLASS_LOADER / SYSTEM CLASSLOADER:")
-      log.info(ClassLoader.getSystemClassLoader().toString)
+      log.debug("#######")
+      log.debug("####### APP_CLASS_LOADER / SYSTEM CLASSLOADER:")
+      log.debug(ClassLoader.getSystemClassLoader().toString)
       printClassPath(ClassLoader.getSystemClassLoader())
-      log.info("#######")
-      log.info("####### EXTRA_CLASS_LOADER:")
-      log.info(getClass.getClassLoader.getParent.getParent.toString)
+      log.debug("#######")
+      log.debug("####### EXTRA_CLASS_LOADER:")
+      log.debug(getClass.getClassLoader.getParent.getParent.toString)
       printClassPath(getClass.getClassLoader.getParent.getParent)
     } catch {
       case e: Exception => //nothing
@@ -82,10 +82,10 @@ class ReflectionUtils extends SLF4JLogging {
     val plugins = inputs ++ dimensionTypes ++ operators ++ outputs ++ parsers
     val result = plugins map (t => t.getSimpleName -> t.getCanonicalName) toMap
 
-    log.info("#######")
-    log.info("####### Plugins to be loaded:")
+    log.debug("#######")
+    log.debug("####### Plugins to be loaded:")
     result.foreach {
-      case (simpleName: String, canonicalName: String) => log.info(s"${canonicalName}")
+      case (simpleName: String, canonicalName: String) => log.debug(s"$canonicalName")
     }
 
     result

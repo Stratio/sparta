@@ -97,13 +97,14 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     "You must set the $SPARK_HOME path in configuration or environment")
 
   /**
-   * Checks if supervise param is set when execution mode is standalone
+   * Checks if supervise param is set when execution mode is standalone or mesos
    *
    * @return The result of checks as boolean value
    */
-  def isStandaloneSupervise: Boolean =
-    if (DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigStandAlone) {
-      Try(ClusterConfig.getBoolean(AppConstant.StandAloneSupervise)).getOrElse(false)
+  def isSupervised: Boolean =
+    if (DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigStandAlone ||
+      DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigMesos) {
+      Try(ClusterConfig.getBoolean(AppConstant.Supervise)).getOrElse(false)
     } else false
 
   private def launch(policyName: String,
@@ -113,7 +114,6 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
                      args: Map[String, String],
                      driverParams: Seq[String],
                      pluginsFiles: Seq[String]): Unit = {
-
     val sparkLauncher = new SpartaLauncher()
       .setSparkHome(sparkHome)
       .setAppResource(hdfsDriverFile)
@@ -121,7 +121,19 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       .setMaster(master)
     pluginsFiles.foreach(file => sparkLauncher.addJar(file))
     args.map { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
-    if (isStandaloneSupervise) sparkLauncher.addSparkArg(StandaloneSupervise)
+    if (isSupervised) sparkLauncher.addSparkArg(StandaloneSupervise)
+    // Kerberos Options
+    val principalNameOption = HdfsUtils.getPrincipalName
+    val keyTabPathOption = HdfsUtils.getKeyTabPath
+    (principalNameOption, keyTabPathOption) match {
+      case (Some(principalName), Some(keyTabPath)) =>
+        log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments... \n" +
+          s"Principal: $principalName \n KeyTab: $keyTabPath")
+        sparkLauncher.addSparkArg("--principal", principalName)
+        sparkLauncher.addSparkArg("--keytab", keyTabPath)
+      case _ =>
+        log.info("\"Launching Spark Submit without Kerberos security")
+    }
     //Spark params (everything starting with spark.)
     sparkConf.map { case (key: String, value: String) =>
       sparkLauncher.setConf(key, if (key == "spark.app.name") s"$value-$policyName" else value)
@@ -130,17 +142,13 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     driverParams.map(sparkLauncher.addAppArgs(_))
 
     log.info("Executing SparkLauncher...")
-
-    val sparkProcessStatus: Future[(Boolean, Process)] =
-    for {
+    val sparkProcessStatus: Future[(Boolean, Process)] = for {
       sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
     } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
-
     sparkProcessStatus.onComplete {
-      case Success((exitCode, sparkProcess)) => {
-        log.info("Commnad: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
+      case Success((exitCode, sparkProcess)) =>
+        log.info("Command: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
         sparkLauncherStreams(exitCode, sparkProcess)
-      }
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception
@@ -170,12 +178,19 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
 
   private def sparkArgs: Map[String, String] =
     ClusterLauncherActor.toMap(AppConstant.DeployMode, "--deploy-mode", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.NumExecutors, "--num-executors", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.ExecutorCores, "--executor-cores", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.Name, "--name", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.PropertiesFile, "--properties-file", ClusterConfig) ++
       ClusterLauncherActor.toMap(AppConstant.TotalExecutorCores, "--total-executor-cores", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.ExecutorMemory, "--executor-memory", ClusterConfig) ++
       // Yarn only
-      ClusterLauncherActor.toMap(AppConstant.YarnQueue, "--queue", ClusterConfig)
+      ClusterLauncherActor.toMap(AppConstant.YarnQueue, "--queue", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.Files, "--files", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.Archives, "--archives", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.AddJars, "--addJars", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.NumExecutors, "--num-executors", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.DriverCores, "--driver-cores", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.DriverMemory, "--driver-memory", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.ExecutorCores, "--executor-cores", ClusterConfig) ++
+      ClusterLauncherActor.toMap(AppConstant.ExecutorMemory, "--executor-memory", ClusterConfig)
 
   private def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
 

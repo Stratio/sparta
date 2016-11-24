@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.utils
 
 import java.io._
 import java.security.PrivilegedExceptionAction
+import javax.security.auth.login.LoginContext
 
 import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
@@ -32,7 +33,8 @@ import org.apache.hadoop.security.UserGroupInformation
 import scala.concurrent.duration._
 import scala.util.Try
 
-case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None) {
+case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None)
+  extends SLF4JLogging {
 
   def reLogin(): Unit = ugiOption.foreach(ugi => ugi.reloginFromKeytab())
 
@@ -41,10 +43,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[Array[FileStatus]]() {
           override def run(): Array[FileStatus] = {
+            log.debug(s"Listing Hdfs status for path with security: $path")
             dfs.listStatus(new Path(path))
           }
         })
       case None =>
+        log.debug(s"Listing Hdfs status for path without security: $path")
         dfs.listStatus(new Path(path))
     }
   }
@@ -54,10 +58,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
           override def run(): FSDataInputStream = {
+            log.debug(s"Getting Hdfs file with security: $filename")
             dfs.open(new Path(filename))
           }
         })
       case None =>
+        log.debug(s"Getting Hdfs file without security: $filename")
         dfs.open(new Path(filename))
     }
   }
@@ -67,10 +73,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
           override def run(): Boolean = {
+            log.debug(s"Deleting Hdfs path with security: $path")
             dfs.delete(new Path(path), true)
           }
         })
       case None =>
+        log.debug(s"Deleting Hdfs path without security: $path")
         dfs.delete(new Path(path), true)
     }
   }
@@ -82,10 +90,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
           override def run(): FSDataOutputStream = {
+            log.debug(s"Creating Hdfs file with security: Path $path and destination path $destPath")
             dfs.create(new Path(s"$destPath${file.getName}"))
           }
         })
       case None =>
+        log.debug(s"Creating Hdfs file without security: Path $path and destination path $destPath")
         dfs.create(new Path(s"$destPath${file.getName}"))
     }
 
@@ -99,8 +109,6 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 
 object HdfsUtils extends SLF4JLogging {
 
-  implicit val hdfsSystem = ActorSystem("SchedulerHdfsSystem")
-
   def runReloaderKeyTab(hdfsUtils: HdfsUtils): Unit = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -108,7 +116,7 @@ object HdfsUtils extends SLF4JLogging {
     val reloadKeyTabTime = Try(hdfsConfig.get.getString(AppConstant.ReloadKeyTabTime)).toOption
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
 
-    hdfsSystem.scheduler.schedule(0 seconds,
+    AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
       DateOperationsHelper.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
   }
 
@@ -168,6 +176,16 @@ object HdfsUtils extends SLF4JLogging {
       Try(hdfsConfig.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x => if (x == "") None else Some(x))
     }
 
+  private def getUGI(principalName: String, keyTabPath: String, conf: Configuration): UserGroupInformation = {
+    log.info("Setting configuration for Hadoop Kerberized connection")
+    UserGroupInformation.setConfiguration(conf)
+    log.info(s"Login User with principal name: $principalName and keyTab: $keyTabPath")
+    val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keyTabPath)
+    UserGroupInformation.setLoginUser(ugi)
+
+    ugi
+  }
+
   def apply(conf: Configuration,
             userName: String,
             principalNameOption: Option[String],
@@ -176,25 +194,19 @@ object HdfsUtils extends SLF4JLogging {
       hadoopConfDir => {
         val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
         val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
-        val yarnSitePath = new Path(s"$hadoopConfDir/yarn-site.xml")
+        //val yarnSitePath = new Path(s"$hadoopConfDir/yarn-site.xml")
 
         conf.addResource(hdfsCoreSitePath)
         conf.addResource(hdfsHDFSSitePath)
-        conf.addResource(yarnSitePath)
+        //conf.addResource(yarnSitePath)
       }
     )
 
-    val ugi =
-      if (principalNameOption.isDefined && keytabPathOption.isDefined) {
-        val principalName = principalNameOption.getOrElse(
-          throw new IllegalStateException(s"${AppConstant.PrincipalName} can not be null"))
-        val keytabPath = keytabPathOption.getOrElse(
-          throw new IllegalStateException(s"${AppConstant.KeytabPath} can not be null"))
-
-        UserGroupInformation.setConfiguration(conf)
-        Option(UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keytabPath))
-      } else None
-
+    val ugi = (principalNameOption, keytabPathOption) match {
+      case (Some(principalName), Some(keyTabPath)) =>
+        Option(getUGI(principalName, keyTabPath, conf))
+      case _ => None
+    }
     val hdfsUtils = new HdfsUtils(FileSystem.get(conf), userName, ugi)
 
     if (ugi.isDefined) runReloaderKeyTab(hdfsUtils)

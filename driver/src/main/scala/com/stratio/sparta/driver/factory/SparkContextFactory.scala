@@ -122,9 +122,9 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   def destroySparkStreamingContext(): Unit = {
-    synchronized {
-      ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
-        try {
+    ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
+      try {
+        synchronized {
           val stopGracefully =
             Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
           log.info(s"Stopping Streaming Context with name: ${streamingContext.sparkContext.appName}")
@@ -135,9 +135,9 @@ object SparkContextFactory extends SLF4JLogging {
               log.error("Streaming Context is not stopped gracefully, now it will be stopped forcibly", error)
               streamingContext.stop(stopSparkContext = false, stopGracefully = false)
           }
-        } finally {
-          ssc = None
         }
+      } finally {
+        ssc = None
       }
     }
   }
@@ -147,15 +147,17 @@ object SparkContextFactory extends SLF4JLogging {
       destroySparkStreamingContext()
 
     sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
-      try {
-        log.info("Stopping SparkContext with name: " + sparkContext.appName)
-        sparkContext.stop()
-        log.info("Stopped SparkContext with name: " + sparkContext.appName)
-      } finally {
-        sqlContext = None
-        sqlInitialSentences =  Seq.empty[String]
-        ssc = None
-        sc = None
+      synchronized {
+        try {
+          log.info("Stopping SparkContext with name: " + sparkContext.appName)
+          sparkContext.stop()
+          log.info("Stopped SparkContext with name: " + sparkContext.appName)
+        } finally {
+          sqlContext = None
+          sqlInitialSentences = Seq.empty[String]
+          ssc = None
+          sc = None
+        }
       }
     }
   }

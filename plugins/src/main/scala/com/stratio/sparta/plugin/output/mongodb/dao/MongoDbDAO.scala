@@ -96,10 +96,14 @@ trait MongoDbDAO extends Logging {
         )
       }
     }
-    val fields = tableSchema.schema.filter(stField =>
-      !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
+    val fields = tableSchema.schema.filter(stField => stField.metadata.contains(Output.PrimaryKeyMetadataKey))
       .map(stField => stField.name -> 1).toMap
-    createIndex(mongoDatabase, tableSchema.tableName, fields.keySet.mkString(Output.Separator), fields, true, true)
+    createIndex(mongoDatabase,
+      tableSchema.tableName,
+      fields.keySet.mkString(Output.Separator),
+      fields, unique = true,
+      background = true
+    )
   }
 
   protected def indexExists(mongoDatabase: MongoClient, collection: String, indexName: String): Boolean = {
@@ -152,4 +156,3 @@ trait MongoDbDAO extends Logging {
     }
   }
 }
-

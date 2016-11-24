@@ -155,7 +155,7 @@ object SchemaHelper {
   def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
     for {
       trigger <- triggers
-      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, false, PkMetadata))
+      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
       schema = StructType(structFields)
       autoCalculatedFields = trigger.writer.autoCalculatedFields.map(model =>
         AutoCalculatedField(
@@ -198,8 +198,10 @@ object SchemaHelper {
 
   private def timeDimensionFieldType(timeDimension: Option[String], dateType: TypeOp.Value): Seq[StructField] = {
     timeDimension match {
-      case None => Seq.empty[StructField]
-      case Some(timeDimensionName) => Seq(Output.getTimeFieldType(dateType, timeDimensionName, NotNullable))
+      case None =>
+        Seq.empty[StructField]
+      case Some(timeDimensionName) =>
+        Seq(Output.getTimeFieldType(dateType, timeDimensionName, NotNullable, Some(PkMetadata)))
     }
   }
 
