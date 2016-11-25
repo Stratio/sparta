@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.parser.morphline
 
 import java.io.{ByteArrayInputStream, Serializable => JSerializable}
@@ -37,19 +38,26 @@ class MorphlinesParser(order: Integer,
   private val config: String = properties.getString("morphline")
 
   override def parse(row: Row, removeRaw: Boolean): Row = {
-    val record = new Record()
-    val inputValue = row.get(inputFieldIndex)
+    val inputValue = Option(row.get(inputFieldIndex))
     val result = inputValue match {
-      case s: String => new ByteArrayInputStream(s.getBytes("UTF-8"))
-      case b: Array[Byte] => new ByteArrayInputStream(b)
+      case Some(s: String) =>
+        if (s.isEmpty) returnNullValue
+        else parseWithMorphline(new ByteArrayInputStream(s.getBytes("UTF-8")))
+      case Some(b: Array[Byte]) =>
+        if (b.length == 0) returnNullValue
+        else parseWithMorphline(new ByteArrayInputStream(b))
+      case _ =>
+        returnNullValue
     }
-
-    record.put(inputField, result)
-
-    val morphlineResult = MorphlinesParser(order, config, outputFieldsSchema).process(record)
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 
-    Row.merge(prevData, morphlineResult)
+    Row.merge(prevData, result)
+  }
+
+  private def parseWithMorphline(value: ByteArrayInputStream): Row = {
+    val record = new Record()
+    record.put(inputField, value)
+    MorphlinesParser(order, config, outputFieldsSchema).process(record)
   }
 }
 

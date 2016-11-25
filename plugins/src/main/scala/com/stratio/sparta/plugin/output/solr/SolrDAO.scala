@@ -22,6 +22,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.{OutputKeys, TransformerFactory}
 
+import com.stratio.sparta.sdk.Output
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.impl.{CloudSolrClient, HttpSolrClient}
@@ -114,7 +115,7 @@ trait SolrDAO extends Closeable with Logging {
       field.setAttribute("type", getSolrFieldType(structField.dataType))
       field.setAttribute("indexed", "true")
       field.setAttribute("stored", "true")
-      field.setAttribute("required", structField.nullable.toString)
+      field.setAttribute("required", structField.metadata.contains(Output.PrimaryKeyMetadataKey).toString)
       nodes.item(0).appendChild(field)
     }
 

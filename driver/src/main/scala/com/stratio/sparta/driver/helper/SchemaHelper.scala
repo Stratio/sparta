@@ -33,6 +33,8 @@ object SchemaHelper {
   private val MetadataBuilder = new MetadataBuilder
   final val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
   final val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
+  final val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true)
+    .putBoolean(Output.TimeDimensionKey, true).build()
 
   val mapTypes = Map(
     TypeOp.Long -> LongType,
@@ -201,7 +203,7 @@ object SchemaHelper {
       case None =>
         Seq.empty[StructField]
       case Some(timeDimensionName) =>
-        Seq(Output.getTimeFieldType(dateType, timeDimensionName, NotNullable, Some(PkMetadata)))
+        Seq(Output.getTimeFieldType(dateType, timeDimensionName, NotNullable, Some(PkTimeMetadata)))
     }
   }
 
