@@ -16,12 +16,13 @@
 package com.stratio.sparta.serving.api.service.handler
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.models.ErrorModel
 import org.json4s.jackson.Serialization._
 import spray.http.{MediaTypes, StatusCodes}
 import spray.routing.ExceptionHandler
-import spray.routing.directives.{RespondWithDirectives, MiscDirectives, RouteDirectives}
+import spray.routing.directives.{MiscDirectives, RespondWithDirectives, RouteDirectives}
 import spray.util.LoggingContext
 
 /**

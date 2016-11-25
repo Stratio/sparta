@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models
 
+import com.stratio.sparta.serving.core.SpartaSerializer
 import org.json4s.native.Serialization._
 
 /**

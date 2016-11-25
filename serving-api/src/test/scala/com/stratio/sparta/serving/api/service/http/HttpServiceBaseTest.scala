@@ -21,6 +21,7 @@ import akka.testkit.{TestActor, TestProbe}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.typesafe.config.ConfigFactory

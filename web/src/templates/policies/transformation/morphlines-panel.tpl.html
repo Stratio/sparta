@@ -9,6 +9,16 @@
                    data-required="true"
                    data-qa="policy-description-raw-data-partition-format">
 </form-field-select>
+<form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
+            class="c-col c-col--3 c-col--vertical-top c-col--right-margin"
+            data-ng-form-id="{{item.propertyId}}"
+            data-field="item"
+            data-model="vm.model.configuration"
+            data-form="vm.form"
+            data-disabled="!editionMode"
+            data-st-name="modelMorphline_{{item.propertyName}}Form"
+            data-qa="{{item.qa}}">
+</form-field>
 <form-field-textarea data-json="true"
                      data-label="{{'_COMMANDS_' | translate}}"
                      data-form="vm.form"

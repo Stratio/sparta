@@ -22,13 +22,14 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentType, SpartaSerializer}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentType}
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._

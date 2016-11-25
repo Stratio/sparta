@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.models
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper._
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum

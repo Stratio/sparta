@@ -369,6 +369,18 @@
       "value": "_attachment_body"
     },
     "Morphlines": {
+      "properties": [
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-cube-dimension-dateTime-errorWithNullValues"
+        }
+      ],
       "defaultConfiguration": {
         "morphline": {
           "id": "morphline1",
@@ -593,6 +605,16 @@
               "value": "year"
             }
           ]
+        },
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-cube-dimension-dateTime-errorWithNullValues"
         }
       ]
     },

@@ -15,11 +15,13 @@
  */
 package com.stratio.sparta.serving.core.models
 
-case class CubeModel(name: String,
-                     dimensions: Seq[DimensionModel],
-                     operators: Seq[OperatorModel],
-                     writer: WriterModel,
-                     triggers: Seq[TriggerModel] = Seq.empty[TriggerModel],
-                     avoidNullValues: Boolean = true
-                    )
+import com.stratio.sparta.sdk.DimensionType
 
+case class DimensionModel(name: String,
+                          field: String,
+                          precision: String = DimensionType.IdentityName,
+                          `type`: String = DimensionType.DefaultDimensionClass,
+                          computeLast: Option[String] = None,
+                          configuration: Option[Map[String, String]] = None) {
+
+}

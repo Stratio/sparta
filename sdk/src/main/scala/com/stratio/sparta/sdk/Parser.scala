@@ -19,6 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
+import com.stratio.sparta.sdk.ValidatingPropertyMap._
 
 import scala.util.Try
 
@@ -33,6 +34,8 @@ abstract class Parser(order: Integer,
 
   val inputFieldIndex = Try(schema.fieldIndex(inputField)).getOrElse(0)
 
+  val errorWithNullInputs = Try(properties.getBoolean("errorWithNullValues")).getOrElse(true)
+
   def parse(data: Row, removeRaw: Boolean): Row
 
   def getOrder: Integer = order
@@ -41,6 +44,13 @@ abstract class Parser(order: Integer,
     keyMap.flatMap(key => if (outputFields.contains(key._1)) Some(key) else None)
 
   def compare(that: Parser): Int = this.getOrder.compareTo(that.getOrder)
+
+  //scalastyle:off
+  def returnNullValue: Null =
+    if (errorWithNullInputs) throw new IllegalStateException(s"The input value is null or empty")
+    else null
+
+  //scalastyle:on
 }
 
 object Parser {
