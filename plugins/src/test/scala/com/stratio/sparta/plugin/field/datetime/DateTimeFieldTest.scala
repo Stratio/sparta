@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparta.plugin.field.datetime
 
 import java.io.{Serializable => JSerializable}
 import java.util.Date
-import com.stratio.sparta.plugin.field.datetime.DateTimeField
+
 import com.stratio.sparta.sdk.TypeOp
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner

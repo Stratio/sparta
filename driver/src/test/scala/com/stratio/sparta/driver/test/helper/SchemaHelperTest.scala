@@ -88,7 +88,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       StructType(Array(
         StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
         StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-        StructField(checkpointGranularity, TimestampType, false, SchemaHelper.PkMetadata),
+        StructField(checkpointGranularity, TimestampType, false, SchemaHelper.PkTimeMetadata),
         StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
       Option("minute"),
       TypeOp.Timestamp,
@@ -160,7 +160,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
         StructType(Array(
           StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
           StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-          StructField(checkpointGranularity, DateType, false, SchemaHelper.PkMetadata),
+          StructField(checkpointGranularity, DateType, false, SchemaHelper.PkTimeMetadata),
           StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
         Option("minute"),
         TypeOp.Date,

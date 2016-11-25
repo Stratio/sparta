@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.output.cassandra
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparta.plugin.output.cassandra.dao.CassandraDAO
-import com.stratio.sparta.sdk.TableSchema
+import com.stratio.sparta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.types.{StringType, StructField, StructType, _}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -30,7 +30,9 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
   val cassandraConector = mock[CassandraConnector]
   val tableSchema = Seq(TableSchema(Seq("outputName"), "myCube", StructType(Array(
     StructField("dim1", StringType, false))), Option("minute")))
-  val structField = StructField("name", StringType, false)
+  val MetadataBuilder = new MetadataBuilder
+  val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
+  val structField = StructField("name", StringType, false, PkMetadata)
   val schema: StructType = StructType(Array(structField))
   val tableVersion = Option(1)
 
@@ -83,7 +85,7 @@ class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with Cas
 
   "schemaToPkCcolumns" should "return the schema" in {
 
-    val res = schemaToPkCcolumns(schema, Option("cluster"))
+    val res = schemaToPkColumns(schema)
     res should be(Option("(name text, PRIMARY KEY (name))"))
   }
 

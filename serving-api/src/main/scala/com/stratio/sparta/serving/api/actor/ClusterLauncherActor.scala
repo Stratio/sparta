@@ -23,9 +23,10 @@ import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
 import com.stratio.sparta.serving.core.utils.HdfsUtils

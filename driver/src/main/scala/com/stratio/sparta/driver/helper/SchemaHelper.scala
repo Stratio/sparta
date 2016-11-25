@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.helper
 
 import com.stratio.sparta.driver.cube.Cube
@@ -33,6 +34,8 @@ object SchemaHelper {
   private val MetadataBuilder = new MetadataBuilder
   final val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
   final val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
+  final val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true)
+    .putBoolean(Output.TimeDimensionKey, true).build()
 
   val mapTypes = Map(
     TypeOp.Long -> LongType,
@@ -110,16 +113,17 @@ object SchemaHelper {
   def getSchemaWithoutRaw(schemas: Map[String, StructType]): StructType =
     StructType(schemas.values.last.filter(_.name != Input.RawDataKey))
 
+  //scalastyle:off
   def getSchemasFromCubes(cubes: Seq[Cube],
                           cubeModels: Seq[CubeModel]): Seq[TableSchema] = {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
-      measuresMerged = measuresFields(cube.operators).sortWith(_.name < _.name)
+      measuresMerged = measuresFields(cube.operators, cubeModel.avoidNullValues).sortWith(_.name < _.name)
       timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
       dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
-      dimensionsF = dimensionsFields(dimensions)
+      dimensionsF = dimensionsFields(dimensions, cubeModel.avoidNullValues)
       dateType = getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-      structFields = dimensionsF ++ timeDimensionFieldType(timeDimension, dateType) ++ measuresMerged
+      structFields = dimensionsF ++ timeDimensionFieldType(timeDimension, dateType, cubeModel.avoidNullValues) ++ measuresMerged
       schema = StructType(structFields)
       outputs = cubeModel.writer.outputs
       autoCalculatedFields = cubeModel.writer.autoCalculatedFields.map(model =>
@@ -137,6 +141,8 @@ object SchemaHelper {
       )
     } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, autoCalculatedFields)
   }
+
+  //scalastyle:on
 
   def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
     val timeDimension = cubeModel.dimensions
@@ -196,12 +202,14 @@ object SchemaHelper {
       case None => dimensions
     }
 
-  private def timeDimensionFieldType(timeDimension: Option[String], dateType: TypeOp.Value): Seq[StructField] = {
+  private def timeDimensionFieldType(timeDimension: Option[String],
+                                     dateType: TypeOp.Value,
+                                     avoidNullValues: Boolean): Seq[StructField] = {
     timeDimension match {
       case None =>
         Seq.empty[StructField]
       case Some(timeDimensionName) =>
-        Seq(Output.getTimeFieldType(dateType, timeDimensionName, NotNullable, Some(PkMetadata)))
+        Seq(Output.getTimeFieldType(dateType, timeDimensionName, !avoidNullValues, Some(PkTimeMetadata)))
     }
   }
 
@@ -214,13 +222,14 @@ object SchemaHelper {
       case _ => TypeOp.String
     }
 
-  private def measuresFields(operators: Seq[Operator]): Seq[StructField] =
+  private def measuresFields(operators: Seq[Operator], avoidNullValues: Boolean): Seq[StructField] =
     operators.map(operator =>
-      StructField(operator.key, rowTypeFromOption(operator.returnType), NotNullable, MeasureMetadata))
+      StructField(operator.key, rowTypeFromOption(operator.returnType), !avoidNullValues, MeasureMetadata))
 
-  private def dimensionsFields(fields: Seq[Dimension]): Seq[StructField] =
-    fields.map(field => StructField(field.name, rowTypeFromOption(field.precision.typeOp), NotNullable, PkMetadata))
+  private def dimensionsFields(fields: Seq[Dimension], avoidNullValues: Boolean): Seq[StructField] =
+    fields.map(field =>
+      StructField(field.name, rowTypeFromOption(field.precision.typeOp), !avoidNullValues, PkMetadata)
+    )
 
   private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
-
 }

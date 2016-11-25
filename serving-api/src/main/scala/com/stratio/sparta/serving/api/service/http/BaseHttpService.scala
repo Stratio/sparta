@@ -18,8 +18,8 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
 import spray.httpx.Json4sJacksonSupport
 import spray.routing._
 

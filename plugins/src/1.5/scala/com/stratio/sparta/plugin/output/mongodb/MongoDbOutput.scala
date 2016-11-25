@@ -19,6 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.MongodbConfig
+import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
@@ -82,9 +83,8 @@ class MongoDbOutput(keyName: String,
 
     private def getPrimaryKeyOptions(schema: StructType,
                                      timeDimension: Option[String]): Map[String, String] = {
-      val updateFields = schema.fields.filter(stField =>
-        !stField.nullable && !stField.metadata.contains(Output.MeasureMetadataKey))
-        .map(_.name).mkString(",")
+      val updateFields =
+        schema.fields.filter(stField => stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).mkString(",")
 
       Map(MongodbConfig.UpdateFields -> updateFields)
     }

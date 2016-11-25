@@ -33,6 +33,7 @@ import spray.routing._
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException

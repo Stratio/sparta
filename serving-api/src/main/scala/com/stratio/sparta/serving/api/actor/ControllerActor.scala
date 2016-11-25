@@ -21,8 +21,8 @@ import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, T
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.spray.oauth2.client.OauthClient
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._

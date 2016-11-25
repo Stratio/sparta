@@ -235,6 +235,7 @@
   "_CHECKPOINT_INTERVAL_": "Checkpoint Interval (in milliseconds)",
   "_TIME_AVAILABILITY_": "Checkpoint Time availability (in milliseconds)",
   "_GRANULARITY_": "Granularity",
+  "_ERROR_WITH_NULL_VALUES_": "Error with null values",
   "SELECT_PLACEHOLDER": "Select one",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to submit the form.",
   "_ERROR_ELEMENT_DUPLICATED_": "Item already exists!",

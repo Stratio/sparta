@@ -63,7 +63,7 @@ object IngestionParser extends SLF4JLogging {
       if (!columnsNamesStratioStreamingMessage.contains(fieldName)) {
         val error = s"Error parsing data because the output field $fieldName is not included in the input data"
         log.warn(error)
-        throw new RuntimeException(error)
+        throw new IllegalStateException(error)
       }
     }
 
@@ -71,7 +71,7 @@ object IngestionParser extends SLF4JLogging {
       val columnFound = columnsStratioStreamingMessage.find(column => column.getColumn == schema.name).getOrElse {
         val error = s"Error parsing data with field ${schema.name}"
         log.warn(error)
-        throw new RuntimeException(error)
+        throw new IllegalStateException(error)
       }
       TypeOp.transformValueByTypeOp(schema.dataType, columnFound.getValue.asInstanceOf[Any])
     })

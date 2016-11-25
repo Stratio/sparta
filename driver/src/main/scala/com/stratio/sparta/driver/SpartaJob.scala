@@ -161,11 +161,11 @@ object SpartaJob extends PolicyUtils {
 
   def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
     if (parsers.isEmpty) input
-    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), true)
+    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
   }
 
   def executeParsers(row: Row, parsers: Seq[Parser]): Option[Row] = {
-    if (parsers.size == 1) parseEvent(row, parsers.head, true)
+    if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
     else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
   }
 

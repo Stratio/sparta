@@ -48,38 +48,31 @@ class RedisOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val timeDimension = getTimeFromOptions(options)
     val schema = dataFrame.schema
     dataFrame.foreachPartition{ rowList =>
       rowList.foreach{ row =>
         val valuesList = getValuesList(row,schema.fieldNames)
-        val hashKey = getHashKeyFromRow(valuesList, schema, timeDimension)
-        getMeasuresFromRow(valuesList, schema, timeDimension).foreach { case (measure, value) =>
+        val hashKey = getHashKeyFromRow(valuesList, schema)
+        getMeasuresFromRow(valuesList, schema).foreach { case (measure, value) =>
           hset(hashKey, measure.name, value)
         }
       }
     }
   }
 
-  def getHashKeyFromRow(valuesList: Seq[(String, String)], schema: StructType, timeDimension: Option[String]): String =
+  def getHashKeyFromRow(valuesList: Seq[(String, String)], schema: StructType): String =
     valuesList.flatMap{ case (key, value) =>
       val fieldSearch = schema.fields.find(structField =>
-        (!structField.nullable &&
-          !structField.metadata.contains(Output.MeasureMetadataKey) &&
-          structField.name == key) ||
-          timeDimension.exists(name => structField.name == name))
+        structField.metadata.contains(Output.PrimaryKeyMetadataKey) && structField.name == key)
+
       fieldSearch.map(structField => s"${structField.name}$IdSeparator$value")
     }.mkString(IdSeparator)
 
-  def getMeasuresFromRow(valuesList: Seq[(String, String)],
-                         schema: StructType,
-                         timeDimension: Option[String]): Seq[(StructField, String)] =
+  def getMeasuresFromRow(valuesList: Seq[(String, String)], schema: StructType): Seq[(StructField, String)] =
     valuesList.flatMap{ case (key, value) =>
       val fieldSearch = schema.fields.find(structField =>
-        !structField.nullable &&
           structField.metadata.contains(Output.MeasureMetadataKey) &&
-          structField.name == key &&
-          timeDimension.forall(name => structField.name != name))
+          structField.name == key)
       fieldSearch.map(field => (field, value))
     }
 

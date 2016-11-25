@@ -15,20 +15,13 @@
  */
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.JsoneyStringSerializer
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.{DefaultFormats, Formats}
+import com.stratio.sparta.sdk.DimensionType
 
-/**
- * Extends this class if you need serialize / unserialize Sparta's enums in any class / object.
- */
-trait SpartaSerializer {
-
-  implicit val json4sJacksonFormats: Formats =
-    DefaultFormats +
-      new EnumNameSerializer(StreamingContextStatusEnum) +
-      new JsoneyStringSerializer() +
-      new EnumNameSerializer(PolicyStatusEnum)
+case class DimensionModel(name: String,
+                          field: String,
+                          precision: String = DimensionType.IdentityName,
+                          `type`: String = DimensionType.DefaultDimensionClass,
+                          computeLast: Option[String] = None,
+                          configuration: Option[Map[String, String]] = None) {
 
 }

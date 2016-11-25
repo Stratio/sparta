@@ -13,9 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.models
+package com.stratio.sparta.serving.core
 
-object StreamingContextStatusEnum extends Enumeration {
-  type Status = Value
-  val GettingPolicyFromZookeeper, Initializing, Initialized, Error, ConfigurationError, Stopped, Removed = Value
+import com.stratio.sparta.sdk.JsoneyStringSerializer
+import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import org.json4s.ext.EnumNameSerializer
+import org.json4s.{DefaultFormats, Formats}
+
+/**
+ * Extends this class if you need serialize / unserialize Sparta's enums in any class / object.
+ */
+trait SpartaSerializer {
+
+  implicit val json4sJacksonFormats: Formats =
+    DefaultFormats +
+      new JsoneyStringSerializer() +
+      new EnumNameSerializer(PolicyStatusEnum)
+
 }

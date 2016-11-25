@@ -18,18 +18,16 @@ package com.stratio.sparta.serving.api.actor
 import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
 
 import scala.reflect.runtime.universe._
-
 import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
 import com.wordnik.swagger.model.ApiInfo
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
-
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.SpartaSerializer
 
 class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging

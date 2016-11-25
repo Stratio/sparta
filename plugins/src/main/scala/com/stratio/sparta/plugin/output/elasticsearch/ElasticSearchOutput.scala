@@ -82,9 +82,12 @@ class ElasticSearchOutput(keyName: String,
 
   override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val timeDimension = getTimeFromOptions(options)
-    val sparkConfig = getSparkConfig(timeDimension)
     val dataFrameSchema = dataFrame.schema
+    val timeDimension = dataFrameSchema.fields.filter(stField => stField.metadata.contains(Output.TimeDimensionKey))
+      .map(_.name).headOption
+    getTimeFromOptions(options)
+    val sparkConfig = getSparkConfig(timeDimension)
+
 
     //Necessary this dataFrame transformation because ES not support java.sql.TimeStamp in the row values: use
     // dateType in the cube writer options and set to long, date or dateTime
@@ -92,7 +95,7 @@ class ElasticSearchOutput(keyName: String,
       val rdd = dataFrame.map(row => {
         val seqOfValues = row.toSeq.map { value =>
           value match {
-            case value: java.sql.Timestamp => value.asInstanceOf[java.sql.Timestamp].getTime
+            case value: java.sql.Timestamp => value.getTime
             case _ => value
           }
         }

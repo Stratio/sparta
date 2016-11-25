@@ -22,6 +22,7 @@ import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.gracefulStop
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder

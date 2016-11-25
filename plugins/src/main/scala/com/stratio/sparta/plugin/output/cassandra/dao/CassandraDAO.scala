@@ -97,7 +97,7 @@ trait CassandraDAO extends Closeable with Logging {
                             schema: StructType,
                             clusteringTime: Option[String]): Boolean = {
     val tableName = getTableName(table)
-    val schemaPkCloumns: Option[String] = schemaToPkCcolumns(schema, clusteringTime)
+    val schemaPkCloumns: Option[String] = schemaToPkColumns(schema)
     val compactSt = compactStorage match {
       case None => ""
       case Some(compact) => if (compact.toBoolean) " WITH COMPACT STORAGE" else ""
@@ -116,7 +116,7 @@ trait CassandraDAO extends Closeable with Logging {
         val seqResults = for {
           tableSchema <- tSchemas
           indexField <- fields
-          primaryKey = getPartitionKey(tableSchema.schema, tableSchema.timeDimension)
+          primaryKey = getPartitionKey(tableSchema.schema)
           created = if (!primaryKey.contains(indexField)) {
             createIndex(conn, getTableName(tableSchema.tableName), indexField)
           } else {
@@ -191,40 +191,33 @@ trait CassandraDAO extends Closeable with Logging {
   }
   //scalastyle:on
 
-  protected def pkConditions(field: StructField, clusteringTime: Option[String]): Boolean =
-    !field.nullable &&
-      !field.metadata.contains(Output.MeasureMetadataKey) &&
-      field.name != clusteringTime.getOrElse("") &&
+  protected def pkConditions(field: StructField): Boolean =
+    field.metadata.contains(Output.PrimaryKeyMetadataKey) &&
+      !field.metadata.contains(Output.TimeDimensionKey) &&
       clusteringPrecisions.forall(!_.contains(field.name))
 
-  protected def clusteringConditions(field: StructField, clusteringTime: Option[String]): Boolean =
-    !field.nullable &&
-      !field.metadata.contains(Output.MeasureMetadataKey) &&
-      (field.name == clusteringTime.getOrElse("") ||
-        clusteringPrecisions.exists(_.contains(field.name)))
+  protected def clusteringConditions(field: StructField): Boolean =
+      field.metadata.contains(Output.TimeDimensionKey) || clusteringPrecisions.exists(_.contains(field.name))
 
   //scalastyle:off
-  protected def schemaToPkCcolumns(schema: StructType,
-                                   clusteringTime: Option[String]): Option[String] = {
+  protected def schemaToPkColumns(schema: StructType): Option[String] = {
     val fields = schema.map(field => field.name + " " + dataTypeToCassandraType(field.dataType)).mkString(",")
-    val partitionKey = getPartitionKey(schema, clusteringTime).mkString(",")
-    val clusteringColumns =
-      schema.filter(field => clusteringConditions(field, clusteringTime)).map(_.name).mkString(",")
-    val pkCcolumns = clusteringColumns match {
+    val partitionKey = getPartitionKey(schema).mkString(",")
+    val clusteringColumns = schema.filter(field => clusteringConditions(field)).map(_.name).mkString(",")
+    val pkColumns = clusteringColumns match {
       case clusteringCol if !clusteringCol.isEmpty && partitionKey.isEmpty => s"($clusteringColumns)"
       case clusteringCol if clusteringCol.isEmpty && !partitionKey.isEmpty => s"($partitionKey)"
       case clusteringCol if !clusteringCol.isEmpty && !partitionKey.isEmpty => s"(($partitionKey), $clusteringColumns)"
+      case _ => ""
     }
 
-    if (!fields.isEmpty && !pkCcolumns.isEmpty) Some(s"($fields, PRIMARY KEY $pkCcolumns)")
+    if (!fields.isEmpty && !pkColumns.isEmpty) Some(s"($fields, PRIMARY KEY $pkColumns)")
     else None
   }
   //scalastyle:on
 
-  protected def getPartitionKey(schema: StructType,
-                                clusteringTime: Option[String]
-                               ): Seq[String] = {
-    val pkfields = schema.filter(field => pkConditions(field, clusteringTime))
+  protected def getPartitionKey(schema: StructType): Seq[String] = {
+    val pkfields = schema.filter(field => pkConditions(field))
     pkfields.map(_.name)
   }
 
