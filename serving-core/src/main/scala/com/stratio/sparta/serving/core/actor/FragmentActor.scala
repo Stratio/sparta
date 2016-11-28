@@ -52,6 +52,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
     case DeleteByTypeAndName(fragmentType, name) => deleteByTypeAndName(fragmentType, name)
     case Create(fragment) => create(fragment)
     case Update(fragment) => update(fragment)
+    case _ => log.info("Unrecognized message in Fragment Actor")
   }
 
   //scalastyle:on
@@ -82,7 +83,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
   }
 
   def findByTypeAndId(fragmentType: String, id: String): Unit =
-    sender ! new ResponseFragment(
+    sender ! ResponseFragment(
       Try {
         log.debug(s"> Retrieving information for path: ${FragmentActor.fragmentPathType(fragmentType)}/$id)")
         read[FragmentElementModel](new String(curatorFramework.getData.forPath(
@@ -115,7 +116,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
           ))
       })
 
-  def createNewFragment(fragment: FragmentElementModel): FragmentElementModel = {
+  private def createNewFragment(fragment: FragmentElementModel): FragmentElementModel = {
     val newFragment = fragment.copy(
       id = Option(UUID.randomUUID.toString),
       name = fragment.name.toLowerCase

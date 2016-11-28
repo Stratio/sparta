@@ -20,8 +20,7 @@ package com.stratio.sparta.serving.core.helpers
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByType, FindByTypeAndId, FindByTypeAndName, ResponseFragment}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, FindByTypeAndName, ResponseFragment}
 import com.stratio.sparta.serving.core.models.FragmentType._
 import com.stratio.sparta.serving.core.models._
 

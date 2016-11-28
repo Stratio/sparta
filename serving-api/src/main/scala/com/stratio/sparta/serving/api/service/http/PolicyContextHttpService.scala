@@ -190,7 +190,6 @@ trait PolicyContextHttpService extends BaseHttpService {
 
   // XXX Protected methods
 
-  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit = {
+  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit =
     fragments.foreach(fragment => fragmentActor ! FragmentActor.Create(fragment))
-  }
 }
