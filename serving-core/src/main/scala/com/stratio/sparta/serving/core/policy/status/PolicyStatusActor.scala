@@ -50,6 +50,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case PolicyStatusActor.Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
     case Delete(id) => sender ! delete(id)
+    case _ => log.info("Unrecognized message in Policy Status Actor")
   }
 
   def kill(policyName: String): Boolean = {
@@ -84,7 +85,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     //TODO check the correct statuses
     if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
       val ips = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
-      log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
+      log.info(s"Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
       curatorFramework.setData().forPath(statusPath, write(policyStatus).getBytes)
       Some(policyStatus)
     } else None
@@ -94,11 +95,11 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
     if (CuratorFactoryHolder.existsPath(statusPath)) {
       val ips = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
-      log.info(s">> Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
+      log.info(s"Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
       curatorFramework.setData().forPath(statusPath, write(policyStatus).getBytes)
       Some(policyStatus)
     } else {
-      log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+      log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
       validate(None, policyStatus.status)
       curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
       Some(policyStatus)
@@ -107,7 +108,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
 
   def setNotStartedStatus(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
-    log.info(s">> Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+    log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
     validate(None, policyStatus.status)
     curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
     Some(policyStatus)
@@ -143,7 +144,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
         policiesStatus.foreach(policyStatus => {
           val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
           if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-            log.info(s">> Deleting context ${policyStatus.id} >")
+            log.info(s"Deleting context ${policyStatus.id} >")
             curatorFramework.delete().forPath(statusPath)
           } else throw new ServingCoreException(ErrorModel.toString(
             new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id ${policyStatus.id}.")))

@@ -22,6 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.{TypeOp, _}
 import org.joda.time.DateTime
+import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import DateTimeField._
 
 case class DateTimeField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
@@ -42,7 +43,7 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
   override val operationProps: Map[String, JSerializable] = props
 
   override val properties: Map[String, JSerializable] = props ++ {
-    if (!props.contains(AggregationTime.GranularityPropertyName))
+    if (props.getString(AggregationTime.GranularityPropertyName, None).isEmpty)
       Map(AggregationTime.GranularityPropertyName -> AggregationTime.DefaultGranularity)
     else Map.empty[String, JSerializable]
   }

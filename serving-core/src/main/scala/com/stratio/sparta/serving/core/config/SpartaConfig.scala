@@ -46,7 +46,7 @@ object SpartaConfig extends SLF4JLogging {
       spartaHomeDefault
     })
     assert(spartaHome.isDefined, "Fatal error: spartaHome not found.")
-    log.info(s"> Setting configuration path to ${spartaHome.get}")
+    log.info(s"Setting configuration path to ${spartaHome.get}")
     spartaHome.get
   }
 
@@ -59,7 +59,7 @@ object SpartaConfig extends SLF4JLogging {
   def initConfig(node: String,
                  currentConfig: Option[Config] = None,
                  configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {
-    log.info(s"> Loading $node configuration")
+    log.info(s"Loading $node configuration")
     val configResult = currentConfig match {
       case Some(config) => Try(config.getConfig(node)) match {
         case Success(config) => Some(config)

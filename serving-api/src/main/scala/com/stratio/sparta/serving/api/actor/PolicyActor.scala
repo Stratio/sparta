@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
@@ -51,6 +52,8 @@ class PolicyActor(curatorFramework: CuratorFramework,
     case FindByFragment(fragmentType, id) => findByFragmentId(fragmentType, id)
     case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
     case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
+    case ResponseFragment(fragment) => loggingResponseFragment(fragment)
+    case _ => log.info("Unrecognized message in Policy Actor")
   }
 
   //scalastyle:on
