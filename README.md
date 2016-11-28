@@ -1,83 +1,114 @@
 [![Coverage Status](https://coveralls.io/repos/github/Stratio/Sparta/badge.svg?branch=master)](https://coveralls.io/github/Stratio/Sparta?branch=master)
 
-# About Stratio Sparta
+About [Stratio Sparta](http://www.stratio.com/sparta)
+============
 
+At Stratio, we have implemented several real-time analytics projects based on Apache Spark, Kafka, Flume, Cassandra, ElasticSearch or MongoDB.
+These technologies were always a perfect fit, but soon we found ourselves writing the same pieces of integration code over and over again.
+Stratio Sparta is the easiest way to make use of the Apache Spark Streaming technology and all its ecosystem.
+Choose your input, operations and outputs, and start extracting insights out of your data in real-time.
 
-Since Aryabhatta invented zero, Mathematicians such as John von Neuman have been in pursuit
-of efficient counting and architects have constantly built systems that computes counts quicker. In
-this age of social media, where 100s of 1000s events take place every second, we were inspired
-by twitter's Rainbird project to develop a distributed aggregation engine with this high level
-features:
+<img src="./images/StrataKibana.jpg" width="600" height="300" alt="Strata Twitter Analytics with Kibana"/>
+
+Main Features
+============
 
 - Pure Spark
 - No need of coding, only declarative aggregation workflows
 - Data continuously streamed in & processed in near real-time
-- Ready to use, plug&play
-- Flexible workflows (input, output, parsers, etc...)
-- High performance
-- Scalable
-- Business Activity Monitoring
-- Visualization
+- Ready to use out-of-the-box
+- Plug & play: flexible workflows (inputs, outputs, parsers, etc…)
+- High performance and Fault Tolerance
+- Scalable and High Availability
+- Big Data OLAP on real-time to small data
+- ETLs
+- Triggers over streaming data
+- Spark SQL language with streaming and batch data
+- Kerberos and CAS compatible
 
- [Strataconf London 2015 slideshare](http://es.slideshare.net/Stratio/strata-sparta)
-
-Introduction
-============
-Social media and networking sites are  part of the fabric of everyday life, changing the way the world shares and
-accesses information.
-The overwhelming amount of information gathered not only from messages, updates and images but also readings
-from sensors, GPS signals and many other sources was the origin of a (big) technological revolution.
-
-This vast amount of data allows us to learn from the users and explore our own world.
-
-We can follow in real-time the evolution of a topic, an event or even an incident just by exploring aggregated data.
-
- But beyond cool visualizations, there are some core services delivered in real-time, using aggregated data to
- answer common questions in the fastest way.
-
- These services are the heart of the business behind their nice logos.
-
- Site traffic, user engagement monitoring, service health, APIs, internal monitoring platforms, real-time dashboards…
-
- Aggregated data feeds directly to end users, publishers, and advertisers, among others.
-
- In Sparta we want to start delivering real-time services. Real-time monitoring could be really nice, but your
- company needs to work in the same way as digital companies:
-
- Rethinking existing processes to deliver them faster, better.
- Creating new opportunities for competitive advantages.
-
-Features
-========
-
-- Highly business-project oriented
-- Multiple application
-- Cubes
-    - Time-based
-    - Secondly, minutely, hourly,  daily, monthly, yearly...
-    - Hierarchical
-    - GeoRange: Areas with different sizes (rectangles)
-    - Flexible definition of aggregation policies (json, web app)
-- Operators:
-    - Max, min, count, sum, range
-    - Average, median
-    - Stdev, variance, count distinct
-    - Last value
-    - Full-text search
-
-
+<img src="./images/mainFeatures.jpg"  alt="Main Features"/>
 
 Architecture
 ============
 
+Send one workflow as a JSON to Sparta API and execute in one Spark Cluster your own real-time plugins
+![Architecture](./images/architecture.jpg)
 
-Sparta overview
+Sparta as a Job Manager
 ------------
 
-![Architecture](./images/sparta1.png)
+Send more than one Streaming Job in the Spark Cluster and manage them with a simple UI
+
+<img src="./images/jobManager.jpg" alt="Job Manager"/>
+
+Run workflows over Mesos, Yarn or SparkStandAlone
+
+<img src="./images/architectureJobs.jpg" alt="Job Manager Architecture"/>
+
+Sparta as a SDK
+------------
+
+Modular components extensible with simple SDK
+- You can extend several points of the platform to fulfill your needs, such as adding new inputs, outputs, operators, transformations.
+- Add new functions to Kite SDK in order to extend the data cleaning, enrichment and normalization capabilities.
+![Architecture Detail](./images/architectureDetail.jpg)
+
+Components
+========
+
+On each workflow multiple components can be defined, but now all have the following architecture
+![workflow](./images/workflow.jpg)
+![Components](./images/components.jpg)
+
+Core components
+------------
+
+Several plugins are been implemented by Stratio Sparta team
+![Main plugins](./images/plugins.jpg)
+
+Trigger component
+------------
+
+With Sparta is possible to execute queries over the streaming data, execute ETL, aggregations and Simple Event 
+Processing mixing streaming data with batch data on the trigger process. 
+![triggers](./images/triggers.jpg)
+
+Aggregation component
+------------
+
+The aggregation process in Sparta is very powerful because is possible to generate efficient OLAP processes with 
+streaming data
+![OLAP](./images/OLAPintegration.jpg)
+
+Advanced feature are been implemented in order to optimize the stateful operations over Spark Streaming
+![Aggregations](./images/aggregation.jpg)
+
+Inputs
+------------
+
+- Twitter
+- Kafka
+- Flume
+- RabbitMQ
+- Socket
+- WebSocket
+
+Outputs
+------------
+
+- MongoDB
+- Cassandra
+- ElasticSearch
+- Redis
+- JDBC
+- CSV
+- Parquet
+
+![Outputs](./images/outputs.png)
 
 Key technologies
-------------
+========
+
 - [Spark Streaming & Spark]  (http://spark.apache.org)
 - [SparkSQL] (https://spark.apache.org/sql)
 - [Akka] (http://akka.io)
@@ -93,33 +124,14 @@ Key technologies
 - [Spray] (http://spray.io/)
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
 
+Advantages
+========
 
-![Input/Outputs](./images/Inoutputs.png)
-
-Inputs
-------------
-
-- Twitter
-- Kafka
-- Flume
-- RabbitMQ
-- Socket
-
-
-Outputs
-------------
-
-- MongoDB
-- Cassandra
-- ElasticSearch
-- Redis
-- Spark's DataFrames Outputs
-- PrintOut
-- CSV
-- Parquet
+Sparta provide several advantages to final Users
+![Advantages](./images/features.jpg)
 
 Build
------
+========
 
 You can generate rpm and deb packages by running:
 
@@ -139,8 +151,26 @@ In a centOS distribution:
   - dpkg-dev
   - rpmdevtools
 
-
 Documentation
--------------
+========
 
 - [Stratio Sparta](https://stratio.atlassian.net/wiki)
+
+License
+========
+
+Licensed to STRATIO (C) under one or more contributor license agreements.
+See the NOTICE file distributed with this work for additional information
+regarding copyright ownership.  The STRATIO (C) licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
