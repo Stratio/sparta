@@ -74,6 +74,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
   def getString(key: K, default: String): String = {
     m.get(key) match {
       case Some(value: String) => value
+      case Some(null) => default
       case Some(value) => value.toString
       case None => default
     }
@@ -82,6 +83,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
   def getString(key: K, default: Option[String]): Option[String] = {
     m.get(key) match {
       case Some(value: String) => if (value != "") Some(value) else default
+      case Some(null) => default
       case Some(value) => if (value.toString != "") Some(value.toString) else default
       case None => default
     }

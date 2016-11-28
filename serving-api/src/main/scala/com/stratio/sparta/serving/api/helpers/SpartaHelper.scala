@@ -51,7 +51,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
       SpartaConfig.apiConfig.isDefined &&
       SpartaConfig.swaggerConfig.isDefined) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
-      log.info("> Initializing akka actors")
+      log.info("Initializing Sparta Actors System ...")
       system = ActorSystem(appName)
       val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
       val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
@@ -83,7 +83,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
       else loadSpartaWithHttp(controllerActor, swaggerActor)
 
       if(isLocalMode) updateAll(policyStatusActor, PolicyStatusEnum.NotStarted)
-    } else log.info("Config for Sparta is not defined")
+    } else log.info("Sparta Configuration is not defined")
   }
 
   def loadSpartaWithHttps(controllerActor: ActorRef, swaggerActor: ActorRef): Unit = {
@@ -95,7 +95,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
     IO(Http) ! Http.Bind(swaggerActor, interface = SpartaConfig.swaggerConfig.get.getString("host"),
       port = SpartaConfig.swaggerConfig.get.getInt("port"))
 
-    log.info("> Actors System UP!")
+    log.info("Sparta Actors System initiated correctly")
   }
 
   def loadSpartaWithHttp(controllerActor: ActorRef, swaggerActor: ActorRef): Unit = {
@@ -106,23 +106,8 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
     IO(Http) ! Http.Bind(swaggerActor, interface = SpartaConfig.swaggerConfig.get.getString("host"),
       port = SpartaConfig.swaggerConfig.get.getInt("port"))
 
-    log.info("> Actors System UP!")
+    log.info("Sparta Actors System initiated correctly")
   }
-
-  /*
-  def shutdown(destroySparkContext: Boolean = true): Unit = {
-    synchronized {
-      try {
-        SparkContextFactory.destroySparkStreamingContext()
-      } finally {
-        if (destroySparkContext)
-          SparkContextFactory.destroySparkContext()
-        CuratorFactoryHolder.resetInstance()
-        system.shutdown
-      }
-    }
-  }
-  */
 
   def getExecutionMode: String = {
     val detailConfig = SpartaConfig.getDetailConfig.getOrElse(throw new RuntimeException("Error getting Spark config"))

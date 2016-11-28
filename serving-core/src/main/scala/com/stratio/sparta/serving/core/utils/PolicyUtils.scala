@@ -25,11 +25,10 @@ import akka.util.Timeout
 import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.{ActorsConstant, AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentType}
+import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentElementModel, FragmentType}
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
@@ -42,18 +41,17 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   val fragmentActor: Option[ActorRef] = None
 
-  implicit val timeout: Timeout = Timeout(15.seconds)
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   /** METHODS TO MANAGE POLICIES IN ZOOKEEPER **/
 
   def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
+  def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit =
     if (existsByNameId(policy.name, policy.id, curatorFramework).isDefined) {
       log.info(s"Policy ${policy.name} already in zookeeper. Updating it...")
       updatePolicy(policy, curatorFramework)
     } else writePolicy(policy, curatorFramework)
-  }
 
   def deletePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit =
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
@@ -82,12 +80,11 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def existsByNameId(name: String,
                      id: Option[String] = None,
                      curatorFramework: CuratorFramework
-                    ): Option[AggregationPoliciesModel] = {
-    val nameToCompare = name.toLowerCase
+                    ): Option[AggregationPoliciesModel] =
     Try {
       if (existsPath) {
         getPolicies(curatorFramework).find(policy =>
-          if (id.isDefined && policy.id.isDefined) policy.id.get == id.get else policy.name == nameToCompare
+          if (id.isDefined && policy.id.isDefined) policy.id.get == id.get else policy.name == name.toLowerCase
         )
       } else None
     } match {
@@ -96,7 +93,6 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         log.error(exception.getLocalizedMessage, exception)
         None
     }
-  }
 
   def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
@@ -121,20 +117,18 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     }).copy(name = policyF.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
   }
 
-  def populatePolicyWithRandomUUID(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+  def populatePolicyWithRandomUUID(policy: AggregationPoliciesModel): AggregationPoliciesModel =
     policy.copy(id = Some(UUID.randomUUID.toString))
-  }
 
-  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] = {
+  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] =
     if (lastPolicy.cubes != newPolicy.cubes) {
       lastPolicy.version match {
         case Some(version) => Some(version + ActorsConstant.UnitVersion)
         case None => Some(ActorsConstant.UnitVersion)
       }
     } else lastPolicy.version
-  }
 
-  def policyWithFragments(policy: AggregationPoliciesModel)(implicit timeout: Timeout): AggregationPoliciesModel = {
+  def policyWithFragments(policy: AggregationPoliciesModel)(implicit timeout: Timeout): AggregationPoliciesModel =
     fragmentActor.fold(policy) { actorRef => {
       (populateFragmentFromPolicy(policy, FragmentType.input) ++
         populateFragmentFromPolicy(policy, FragmentType.output)
@@ -142,16 +136,17 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       getPolicyWithFragments(policy, actorRef)
     }
     }
-  }
 
-  /*
-    Other way to parse policies:
-      def parseJson(json: String): AggregationPoliciesModel = parse(json).extract[AggregationPoliciesModel]
-   */
-
-  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] = {
+  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] =
     apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
-  }
+
+  def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
+    response match {
+      case Success(fragment) =>
+        log.info(s"Fragment created correctly: \n\tId: ${fragment.id}\n\tName: ${fragment.name}")
+      case Failure(e) =>
+        log.error(s"Fragment creation failure. Error: ${e.getLocalizedMessage}", e)
+    }
 
   /** CHECKPOINT OPTIONS **/
 
@@ -204,7 +199,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         throw new RuntimeException("Error getting execution mode")
     }
 
-  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit = {
+  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit =
     Try {
       if (isLocalMode) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
@@ -212,7 +207,6 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
-  }
 
   def checkpointPath(policy: AggregationPoliciesModel): String =
     policy.checkpointPath.map { path =>

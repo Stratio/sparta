@@ -32,6 +32,9 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
     case obj : JObject => {
       new JsoneyString(write(obj)(implicitly(DefaultFormats + new JsoneyStringSerializer)))
     }
+    case obj : org.json4s.JsonAST.JNull.type => {
+      new JsoneyString(null)
+    }
     case obj : JArray => {
       new JsoneyString(write(obj)(implicitly(DefaultFormats + new JsoneyStringSerializer)))
     }
