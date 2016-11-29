@@ -34,12 +34,13 @@ class PrintOutput(keyName: String,
                   schemas: Seq[TableSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     if (log.isDebugEnabled) {
       log.debug(s"> Table name       : ${Output.getTableNameFromOptions(options)}")
       log.debug(s"> Time dimension       : ${Output.getTimeFromOptions(options)}")
       log.debug(s"> Version policy   : $version")
       log.debug(s"> Data frame count : " + dataFrame.count())
+      log.debug(s"> Data frame save Mode : " + saveMode)
       log.debug(s"> DataFrame schema")
       dataFrame.printSchema()
     }

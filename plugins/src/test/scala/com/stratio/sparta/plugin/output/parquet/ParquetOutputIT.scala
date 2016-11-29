@@ -19,7 +19,7 @@ import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.plugin.output.parquet.ParquetOutput
-import com.stratio.sparta.sdk.Output
+import com.stratio.sparta.sdk.{Output, SaveModeEnum}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
@@ -79,7 +79,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
-    output.upsert(data, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
     val read = sqlContext.read.parquet(tmpPath).toDF
     read.count should be(3)
     read should be eq (data)
@@ -88,7 +88,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   it should "throw an exception when path is not present" in new WithWrongOutput {
     an[Exception] should be thrownBy output
-      .upsert(data, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+      .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
   }
 }
 

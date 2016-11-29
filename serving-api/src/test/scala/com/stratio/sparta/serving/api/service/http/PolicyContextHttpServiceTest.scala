@@ -20,14 +20,12 @@ import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Create
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{FindAll, Update}
+import PolicyStatusActor.{FindAll, Update}
+import com.stratio.sparta.serving.core.models.policy.PoliciesStatusModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

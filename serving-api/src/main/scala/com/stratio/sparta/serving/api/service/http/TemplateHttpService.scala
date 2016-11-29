@@ -19,7 +19,7 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.service.http.BaseHttpService
-import com.stratio.sparta.serving.core.models.TemplateModel
+import com.stratio.sparta.serving.core.models.policy.fragment.TemplateModel
 import com.wordnik.swagger.annotations._
 import spray.routing._
 

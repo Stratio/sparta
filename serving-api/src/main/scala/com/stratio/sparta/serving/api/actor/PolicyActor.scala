@@ -19,9 +19,11 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -62,7 +64,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
     sender ! ResponsePolicies(Try {
       getPolicies(curatorFramework)
     }.recover {
-      case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+      case e: NoNodeException => Seq.empty[PolicyModel]
     })
 
   def deleteAll(): Unit =
@@ -84,7 +86,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
       Try {
         getPolicies(curatorFramework).filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
       }.recover {
-        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+        case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def findByFragmentId(fragmentType: String, id: String): Unit =
@@ -97,7 +99,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
             else false
           ))
       }.recover {
-        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+        case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def findByFragmentName(fragmentType: String, name: String): Unit =
@@ -106,7 +108,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
         getPolicies(curatorFramework)
           .filter(apm => apm.fragments.exists(f => f.name == name && f.fragmentType == fragmentType))
       }.recover {
-        case e: NoNodeException => Seq.empty[AggregationPoliciesModel]
+        case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def find(id: String): Unit =
@@ -125,10 +127,10 @@ class PolicyActor(curatorFramework: CuratorFramework,
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
     })
 
-  def associateStatus(model: AggregationPoliciesModel): Unit =
+  def associateStatus(model: PolicyModel): Unit =
     policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
 
-  def create(policy: AggregationPoliciesModel): Unit =
+  def create(policy: PolicyModel): Unit =
     sender ! ResponsePolicy(Try {
       val searchPolicy = existsByNameId(policy.name, policy.id, curatorFramework)
       if (searchPolicy.isDefined) {
@@ -143,7 +145,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
       policyWithName
     })
 
-  def update(policy: AggregationPoliciesModel): Unit = {
+  def update(policy: PolicyModel): Unit = {
     val response = ResponsePolicy(Try {
       val searchPolicy = existsByNameId(policy.name, policy.id, curatorFramework)
       if (searchPolicy.isEmpty) {
@@ -178,15 +180,15 @@ class PolicyActor(curatorFramework: CuratorFramework,
         ))
     })
 
-  def deleteCheckpoint(policy: AggregationPoliciesModel): Unit =
+  def deleteCheckpoint(policy: PolicyModel): Unit =
     sender ! Response(Try(deleteCheckpointPath(policy)))
 }
 
 object PolicyActor extends SLF4JLogging {
 
-  case class Create(policy: AggregationPoliciesModel)
+  case class Create(policy: PolicyModel)
 
-  case class Update(policy: AggregationPoliciesModel)
+  case class Update(policy: PolicyModel)
 
   case class Delete(name: String)
 
@@ -204,12 +206,12 @@ object PolicyActor extends SLF4JLogging {
 
   case class FindByFragmentName(fragmentType: String, name: String)
 
-  case class DeleteCheckpoint(policy: AggregationPoliciesModel)
+  case class DeleteCheckpoint(policy: PolicyModel)
 
   case class Response(status: Try[_])
 
-  case class ResponsePolicies(policies: Try[Seq[AggregationPoliciesModel]])
+  case class ResponsePolicies(policies: Try[Seq[PolicyModel]])
 
-  case class ResponsePolicy(policy: Try[AggregationPoliciesModel])
+  case class ResponsePolicy(policy: Try[PolicyModel])
 
 }

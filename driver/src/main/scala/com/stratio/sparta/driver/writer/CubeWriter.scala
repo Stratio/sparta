@@ -27,7 +27,8 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.{Failure, Success, Try}
 
 case class CubeWriterOptions(outputs: Seq[String],
-                             dateType: TypeOp.Value = TypeOp.Timestamp)
+                             dateType: TypeOp.Value = TypeOp.Timestamp,
+                             saveMode: SaveModeEnum.Value = SaveModeEnum.Append)
 
 case class CubeWriter(cube: Cube,
                       tableSchema: TableSchema,
@@ -37,7 +38,7 @@ case class CubeWriter(cube: Cube,
                       triggerSchemas: Seq[TableSchema])
   extends TriggerWriter with SLF4JLogging {
 
-  val upsertOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>
+  val saveOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>
     Map(Output.TimeDimensionKey -> timeName)
   } ++ Map(Output.TableNameKey -> tableSchema.tableName)
 
@@ -54,7 +55,7 @@ case class CubeWriter(cube: Cube,
         options.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
             case Some(outputWriter) => Try {
-              outputWriter.upsert(cubeDataFrameWithAutoCalculatedFields, upsertOptions)
+              outputWriter.save(cubeDataFrameWithAutoCalculatedFields, options.saveMode, saveOptions)
             } match {
               case Success(_) =>
                 log.debug(s"Data stored in ${tableSchema.tableName}")

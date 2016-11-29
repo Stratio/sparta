@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.jdbc
 
 import java.io.{Serializable => JSerializable}
@@ -44,10 +45,10 @@ class JdbcOutput(keyName: String,
     props
   }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     dataFrame.write
-      .mode(Append)
+      .mode(getSparkSaveMode(saveMode))
       .jdbc(url, tableName, connectionProperties)
   }
 }

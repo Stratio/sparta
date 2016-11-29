@@ -21,8 +21,10 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, FindByTypeAndName, ResponseFragment}
-import com.stratio.sparta.serving.core.models.FragmentType._
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType.`type`
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success}
@@ -40,8 +42,8 @@ object FragmentsHelper {
    * @param timeout       the limited time for the ask pattern in akka
    * @return the policy with the correct fragments
    */
-  def getPolicyWithFragments(policy: AggregationPoliciesModel, fragmentActor: ActorRef)
-                            (implicit timeout: Timeout): AggregationPoliciesModel = {
+  def getPolicyWithFragments(policy: PolicyModel, fragmentActor: ActorRef)
+                            (implicit timeout: Timeout): PolicyModel = {
     val policyWithFragments = parseFragments(fillFragments(policy, fragmentActor))
     if (policyWithFragments.fragments.isEmpty) {
       // This happens when the policy has been uploaded through policy POST endpoint
@@ -59,7 +61,7 @@ object FragmentsHelper {
    * @param apConfig with the policy.
    * @return a parsed policy with fragments included in input/outputs.
    */
-   def parseFragments(apConfig: AggregationPoliciesModel): AggregationPoliciesModel = {
+   def parseFragments(apConfig: PolicyModel): PolicyModel = {
 
     val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
@@ -76,7 +78,7 @@ object FragmentsHelper {
     * @param fragmentType type of fragment to parse to
     * @return a valid fragment element (input/output)
     */
-  def populateFragmentFromPolicy(policy: AggregationPoliciesModel, fragmentType: `type`): Seq[FragmentElementModel] =
+  def populateFragmentFromPolicy(policy: PolicyModel, fragmentType: `type`): Seq[FragmentElementModel] =
   fragmentType match {
     case FragmentType.input =>
       policy.input match {
@@ -96,8 +98,8 @@ object FragmentsHelper {
     * @param apConfig with the policy.
     * @return a fragment with all fields filled.
     */
-  private def fillFragments(apConfig: AggregationPoliciesModel, fragmentActor: ActorRef)
-                           (implicit timeout: Timeout): AggregationPoliciesModel = {
+  private def fillFragments(apConfig: PolicyModel, fragmentActor: ActorRef)
+                           (implicit timeout: Timeout): PolicyModel = {
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
       val future = fragmentActor ? {
         fragment.id match {

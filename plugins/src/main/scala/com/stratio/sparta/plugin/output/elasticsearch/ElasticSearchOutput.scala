@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.elasticsearch
 
 import java.io.{Serializable => JSerializable}
@@ -80,7 +81,7 @@ class ElasticSearchOutput(keyName: String,
         mappingName as getElasticsearchFields(tableSchemaTime))
     }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val dataFrameSchema = dataFrame.schema
     val timeDimension = dataFrameSchema.fields.filter(stField => stField.metadata.contains(Output.TimeDimensionKey))
@@ -109,7 +110,11 @@ class ElasticSearchOutput(keyName: String,
     }
     else dataFrame
 
-    newDataFrame.saveToEs(indexNameType(tableName), sparkConfig)
+    dataFrame.write
+      .format("org.elasticsearch.spark.sql")
+      .mode(getSparkSaveMode(saveMode))
+      .options(sparkConfig)
+      .save(indexNameType(tableName))
   }
 
   def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"

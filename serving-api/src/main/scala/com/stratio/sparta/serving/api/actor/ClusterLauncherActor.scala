@@ -23,12 +23,13 @@ import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.core.SpartaSerializer
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import PolicyStatusActor.Update
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.HdfsUtils
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.spark.launcher.SpartaLauncher
@@ -57,10 +58,10 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(policy: AggregationPoliciesModel) => doInitSpartaContext(policy)
+    case Start(policy: PolicyModel) => doInitSpartaContext(policy)
   }
 
-  def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
+  def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
       val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
       val PolicyId = policy.id.get.trim

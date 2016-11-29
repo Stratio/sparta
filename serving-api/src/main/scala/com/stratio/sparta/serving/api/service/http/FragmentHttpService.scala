@@ -19,21 +19,20 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.PolicyActor
 import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentElementModel}
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
 
 import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.FragmentPath, description = "Operations over fragments: inputs and outputs that will be " +
@@ -384,7 +383,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     }
   }
 
-  protected def updatePoliciesWithUpdatedFragments(policies: Seq[AggregationPoliciesModel]): Unit =
+  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel]): Unit =
     policies.foreach(policy => {
       val policyActor = actors.get(AkkaConstant.PolicyActor).get
 

@@ -22,13 +22,14 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{ActorsConstant, AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import org.apache.commons.io.FileUtils
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
@@ -47,31 +48,31 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  def savePolicyInZk(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit =
+  def savePolicyInZk(policy: PolicyModel, curatorFramework: CuratorFramework): Unit =
     if (existsByNameId(policy.name, policy.id, curatorFramework).isDefined) {
       log.info(s"Policy ${policy.name} already in zookeeper. Updating it...")
       updatePolicy(policy, curatorFramework)
     } else writePolicy(policy, curatorFramework)
 
-  def deletePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit =
+  def deletePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit =
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
 
-  def writePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
+  def writePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.create().creatingParentsIfNeeded().forPath(
       s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
   }
 
-  def updatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): Unit = {
+  def updatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.setData().forPath(
       s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
   }
 
-  def populatePolicy(policy: AggregationPoliciesModel, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
-    val policyInZk = read[AggregationPoliciesModel](new Predef.String(curatorFramework.getData.forPath(
+  def populatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
+    val policyInZk = read[PolicyModel](new Predef.String(curatorFramework.getData.forPath(
       s"${AppConstant.PoliciesBasePath}/${policy.id.get}")))
 
     policyWithFragments(policyInZk)
@@ -80,7 +81,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def existsByNameId(name: String,
                      id: Option[String] = None,
                      curatorFramework: CuratorFramework
-                    ): Option[AggregationPoliciesModel] =
+                    ): Option[PolicyModel] =
     Try {
       if (existsPath) {
         getPolicies(curatorFramework).find(policy =>
@@ -94,14 +95,14 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         None
     }
 
-  def getPolicies(curatorFramework: CuratorFramework): List[AggregationPoliciesModel] = {
+  def getPolicies(curatorFramework: CuratorFramework): List[PolicyModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
     JavaConversions.asScalaBuffer(children).toList.map(id => byId(id, curatorFramework))
   }
 
-  def byId(id: String, curatorFramework: CuratorFramework): AggregationPoliciesModel = {
-    val policy = read[AggregationPoliciesModel](
+  def byId(id: String, curatorFramework: CuratorFramework): PolicyModel = {
+    val policy = read[PolicyModel](
       new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
 
     policyWithFragments(policy)
@@ -109,7 +110,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   /** METHODS TO CALCULATE THE CORRECT ID IN POLICIES **/
 
-  def policyWithId(policy: AggregationPoliciesModel): AggregationPoliciesModel = {
+  def policyWithId(policy: PolicyModel): PolicyModel = {
     val policyF = policyWithFragments(policy)
     (policyF.id match {
       case None => populatePolicyWithRandomUUID(policyF)
@@ -117,10 +118,10 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     }).copy(name = policyF.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
   }
 
-  def populatePolicyWithRandomUUID(policy: AggregationPoliciesModel): AggregationPoliciesModel =
+  def populatePolicyWithRandomUUID(policy: PolicyModel): PolicyModel =
     policy.copy(id = Some(UUID.randomUUID.toString))
 
-  def setVersion(lastPolicy: AggregationPoliciesModel, newPolicy: AggregationPoliciesModel): Option[Int] =
+  def setVersion(lastPolicy: PolicyModel, newPolicy: PolicyModel): Option[Int] =
     if (lastPolicy.cubes != newPolicy.cubes) {
       lastPolicy.version match {
         case Some(version) => Some(version + ActorsConstant.UnitVersion)
@@ -128,7 +129,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       }
     } else lastPolicy.version
 
-  def policyWithFragments(policy: AggregationPoliciesModel)(implicit timeout: Timeout): AggregationPoliciesModel =
+  def policyWithFragments(policy: PolicyModel)(implicit timeout: Timeout): PolicyModel =
     fragmentActor.fold(policy) { actorRef => {
       (populateFragmentFromPolicy(policy, FragmentType.input) ++
         populateFragmentFromPolicy(policy, FragmentType.output)
@@ -137,7 +138,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     }
     }
 
-  def jarsFromPolicy(apConfig: AggregationPoliciesModel): Seq[File] =
+  def jarsFromPolicy(apConfig: PolicyModel): Seq[File] =
     apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
 
   def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
@@ -156,10 +157,10 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case None => true
     }
 
-  def deleteFromLocal(policy: AggregationPoliciesModel): Unit =
+  def deleteFromLocal(policy: PolicyModel): Unit =
     FileUtils.deleteDirectory(new File(checkpointPath(policy)))
 
-  def deleteFromHDFS(policy: AggregationPoliciesModel): Unit =
+  def deleteFromHDFS(policy: PolicyModel): Unit =
     HdfsUtils().delete(checkpointPath(policy))
 
   def isHadoopEnvironmentDefined: Boolean =
@@ -199,7 +200,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         throw new RuntimeException("Error getting execution mode")
     }
 
-  def deleteCheckpointPath(policy: AggregationPoliciesModel): Unit =
+  def deleteCheckpointPath(policy: PolicyModel): Unit =
     Try {
       if (isLocalMode) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
@@ -208,11 +209,11 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
 
-  def checkpointPath(policy: AggregationPoliciesModel): String =
+  def checkpointPath(policy: PolicyModel): String =
     policy.checkpointPath.map { path =>
       s"${cleanCheckpointPath(path)}/${policy.name}"
     } getOrElse checkpointPathFromProperties(policy.name)
 
-  def autoDeleteCheckpointPath(policy: AggregationPoliciesModel): Boolean =
+  def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
     policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
 }

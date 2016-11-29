@@ -57,14 +57,14 @@ class MongoDbOutput(keyName: String,
     db.close()
   }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val timeDimension = getTimeFromOptions(options)
     val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension)
 
     dataFrame.write
       .format(MongoDbSparkDatasource)
-      .mode(Append)
+      .mode(getSparkSaveMode(saveMode))
       .options(dataFrameOptions)
       .save()
   }

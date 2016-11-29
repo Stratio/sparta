@@ -20,13 +20,11 @@ import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import org.apache.spark.streaming.StreamingContext
 
@@ -39,10 +37,10 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(policy: AggregationPoliciesModel) => doInitSpartaContext(policy)
+    case Start(policy: PolicyModel) => doInitSpartaContext(policy)
   }
 
-  private def doInitSpartaContext(policy: AggregationPoliciesModel): Unit = {
+  private def doInitSpartaContext(policy: PolicyModel): Unit = {
 
     val jars = jarsFromPolicy(policy)
     jars.foreach(file => JarsHelper.addToClasspath(file))

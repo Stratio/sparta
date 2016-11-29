@@ -25,9 +25,8 @@ import spray.routing.{Directives, HttpService, StandardRoute}
 import spray.testkit.ScalatestRouteTest
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
-import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 
 @RunWith(classOf[JUnitRunner])
 class CustomExceptionHandlerTest extends WordSpec

@@ -17,7 +17,7 @@ package com.stratio.sparta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.{Output, TableSchema}
+import com.stratio.sparta.sdk.{Output, SaveModeEnum, TableSchema}
 import org.apache.spark.sql.DataFrame
 
 class OutputMock(keyName: String,
@@ -26,5 +26,5 @@ class OutputMock(keyName: String,
                  schemas: Seq[TableSchema])
   extends Output(keyName, version, properties, schemas) {
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {}
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
 }

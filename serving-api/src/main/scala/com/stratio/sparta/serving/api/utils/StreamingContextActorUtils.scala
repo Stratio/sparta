@@ -25,8 +25,8 @@ import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStr
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
@@ -40,10 +40,10 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
-  def launch(policy: AggregationPoliciesModel,
+  def launch(policy: PolicyModel,
              policyStatusActor: ActorRef,
              streamingContextService: StreamingContextService,
-             context: ActorContext): Future[Try[AggregationPoliciesModel]] =
+             context: ActorContext): Future[Try[PolicyModel]] =
     for {
       isAvailable <- isContextAvailable(policyStatusActor)
     } yield Try {
@@ -56,7 +56,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
       policy
     }
 
-  def getStreamingContextActor(policy: AggregationPoliciesModel,
+  def getStreamingContextActor(policy: PolicyModel,
                                policyStatusActor: ActorRef,
                                streamingContextService: StreamingContextService,
                                context: ActorContext): ActorRef = {
@@ -77,7 +77,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
     }
   }
 
-  def getLocalLauncher(policy: AggregationPoliciesModel,
+  def getLocalLauncher(policy: PolicyModel,
                        policyStatusActor: ActorRef,
                        streamingContextService: StreamingContextService,
                        context: ActorContext,
@@ -86,7 +86,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
       Props(new LocalSparkStreamingContextActor(streamingContextService, policyStatusActor)), actorName)
   }
 
-  def getClusterLauncher(policy: AggregationPoliciesModel,
+  def getClusterLauncher(policy: PolicyModel,
                          policyStatusActor: ActorRef,
                          context: ActorContext,
                          actorName: String): ActorRef = {

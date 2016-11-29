@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
@@ -27,6 +28,7 @@ import scala.util.Try
 
 /**
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
+ *
  * @param keyName
  * @param properties
  * @param schemas
@@ -45,22 +47,30 @@ class CsvOutput(keyName: String,
 
   val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
 
+  val codecOption = properties.getString("codec", None)
+
+  val compressExtension = properties.getString("compressExtension", None).getOrElse(".gz")
+
   val datePattern = properties.getString("datePattern", None)
 
   val dateGranularityFile = properties.getString("dateGranularityFile", "day")
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
     val tableName = getTableNameFromOptions(options)
-    saveAction(s"$pathParsed${versionedTableName(tableName)}$subPath.csv", dataFrame)
-  }
+    val optionsParsed =
+      Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString) ++
+        codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
+    val fullPath = s"$pathParsed${versionedTableName(tableName)}$subPath.csv"
+    val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
 
-  protected[plugin] def saveAction(path: String, dataFrame: DataFrame): Unit = {
-    import com.databricks.spark.csv.CsvSchemaRDD
-    dataFrame.saveAsCsvFile(path,
-      Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString))
+    dataFrame.write
+      .format("com.databricks.spark.csv")
+      .mode(getSparkSaveMode(saveMode))
+      .options(optionsParsed)
+      .save(pathWithExtension)
   }
 
   def getValidDelimiter(delimiter: String): String = {

@@ -17,14 +17,13 @@ package com.stratio.sparta.driver.utils
 
 import java.io.File
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
 
-case class ClusterSparkFilesUtils(policy: AggregationPoliciesModel, hdfs: HdfsUtils) extends PolicyUtils {
+case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends PolicyUtils {
 
   private val hdfsConfig = SpartaConfig.getHdfsConfig.get
   private val host = hdfsConfig.getString(AppConstant.HdfsMaster)

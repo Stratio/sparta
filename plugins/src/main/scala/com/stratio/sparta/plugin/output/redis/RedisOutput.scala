@@ -46,7 +46,7 @@ class RedisOutput(keyName: String,
 
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val schema = dataFrame.schema
     dataFrame.foreachPartition{ rowList =>

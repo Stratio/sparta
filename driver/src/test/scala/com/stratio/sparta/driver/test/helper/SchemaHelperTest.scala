@@ -16,11 +16,15 @@
 package com.stratio.sparta.driver.test.helper
 
 import java.io.{Serializable => JSerializable}
+
 import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith

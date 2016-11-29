@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, OutputFieldsModel, UserJar}
+import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, UserJar}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -27,7 +27,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
 
   val utils = spy(this)
   val basePath = "/samplePath"
-  val aggModel: AggregationPoliciesModel = mock[AggregationPoliciesModel]
+  val aggModel: PolicyModel = mock[PolicyModel]
 
   "PolicyUtils" should {
     "return files" in {
@@ -65,13 +65,13 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
 
   "PolicyUtils.policyWithId" should {
     "return a policy with random UUID when there is no set id yet" in {
-      val policy: AggregationPoliciesModel = utils.policyWithId(getPolicyModel(None))
+      val policy: PolicyModel = utils.policyWithId(getPolicyModel(None))
       policy.version should be(Some(1))
       policy.id shouldNot be(None)
     }
 
     "return a policy with the same id when there is set id" in {
-      val policy: AggregationPoliciesModel = utils.policyWithId(getPolicyModel(name = "TEST"))
+      val policy: PolicyModel = utils.policyWithId(getPolicyModel(name = "TEST"))
       policy.version should be(Some(1))
       policy.id should be(Some("id"))
       policy.name should be("test")
@@ -136,7 +136,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
         .when(utils)
         .getPolicies(curatorFramework)
 
-      val actualPolicy: AggregationPoliciesModel = utils.existsByNameId(name = "MYNAME", id = None,
+      val actualPolicy: PolicyModel = utils.existsByNameId(name = "MYNAME", id = None,
         curatorFramework).get
 
       actualPolicy.name should be("myname")

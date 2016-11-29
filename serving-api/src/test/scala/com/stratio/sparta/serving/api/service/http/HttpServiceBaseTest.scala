@@ -21,9 +21,12 @@ import akka.testkit.{TestActor, TestProbe}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.SpartaSerializer
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, TemplateModel}
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -79,7 +82,7 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getPolicyWithStatus(): PolicyWithStatus =
     PolicyWithStatus(PolicyStatusEnum.Launched, getPolicyModel())
 
-  protected def getPolicyModel(): AggregationPoliciesModel = {
+  protected def getPolicyModel(): PolicyModel = {
     val rawData = new RawDataModel
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -98,12 +101,12 @@ trait HttpServiceBaseTest extends WordSpec
     val cubes = Seq(CubeModel("cube1", dimensionModel, operators, writerModel))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = AggregationPoliciesModel(id = Option("id"),
+    val policy = PolicyModel(id = Option("id"),
       version = None,
-      storageLevel = AggregationPoliciesModel.storageDefaultValue,
+      storageLevel = PolicyModel.storageDefaultValue,
       name = "testpolicy",
       description = "whatever",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
       checkpointPath = Option("test/test"),
       rawData,
       transformations,

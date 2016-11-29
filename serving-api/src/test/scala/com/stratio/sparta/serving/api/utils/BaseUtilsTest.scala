@@ -40,9 +40,11 @@ import org.scalatest.mock.MockitoSugar
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.api.actor.{PolicyActor, SparkStreamingContextActor}
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 
 abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
 
@@ -138,7 +140,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
   val interval = 60000
 
   protected def getPolicyModel(id: Option[String] = Some("id"), name: String = "testPolicy"):
-  AggregationPoliciesModel = {
+  PolicyModel = {
     val rawData = new RawDataModel
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -154,13 +156,13 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
     val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = AggregationPoliciesModel(
+    val policy = PolicyModel(
       id = id,
       version = None,
-      storageLevel = AggregationPoliciesModel.storageDefaultValue,
+      storageLevel = PolicyModel.storageDefaultValue,
       name = name,
       description = "whatever",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
       checkpointPath = Option("test/test"),
       rawData,
       transformations,
