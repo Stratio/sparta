@@ -43,6 +43,15 @@ abstract class Output(keyName: String,
     }
     s"$tableName$versionChain"
   }
+
+  def supportedSaveModes : Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
+
+  def validateSaveMode(saveMode: SaveModeEnum.Value): Unit = {
+    if(!supportedSaveModes.contains(saveMode))
+      log.info(s"Save mode $saveMode selected not supported by the output $name." +
+          s" Using the default mode ${SaveModeEnum.Append}"
+      )
+  }
 }
 
 object Output extends Logging {
@@ -63,7 +72,7 @@ object Output extends Logging {
       case SaveModeEnum.Ignore => SaveMode.Ignore
       case SaveModeEnum.Upsert => SaveMode.Append
       case _ =>
-        log.info(s"Save Mode not supported, using default save mode ${SaveModeEnum.Append}")
+        log.info(s"Save Mode $saveModeEnum not supported, using default save mode ${SaveModeEnum.Append}")
         SaveMode.Append
     }
 

@@ -55,6 +55,9 @@ class CsvOutput(keyName: String,
 
   val dateGranularityFile = properties.getString("dateGranularityFile", "day")
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
@@ -66,6 +69,8 @@ class CsvOutput(keyName: String,
     val fullPath = s"$pathParsed${versionedTableName(tableName)}$subPath.csv"
     val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
 
+    validateSaveMode(saveMode)
+
     dataFrame.write
       .format("com.databricks.spark.csv")
       .mode(getSparkSaveMode(saveMode))
@@ -74,7 +79,7 @@ class CsvOutput(keyName: String,
   }
 
   def getValidDelimiter(delimiter: String): String = {
-    if (delimiter.size > 1) {
+    if (delimiter.length > 1) {
       val firstCharacter = delimiter.head.toString
       log.warn(s"Invalid length to delimiter in csv: '$delimiter' . The system choose the first: '$firstCharacter'")
       firstCharacter

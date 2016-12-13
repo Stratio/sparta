@@ -41,8 +41,14 @@ class JdbcOutput(keyName: String,
     props
   }
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
+
+    validateSaveMode(saveMode)
+
     dataFrame.write
       .mode(getSparkSaveMode(saveMode))
       .jdbc(url, tableName, connectionProperties)

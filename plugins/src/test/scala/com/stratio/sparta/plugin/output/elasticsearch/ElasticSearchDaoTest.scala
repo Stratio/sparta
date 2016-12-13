@@ -16,7 +16,7 @@
 package com.stratio.sparta.plugin.output.elasticsearch
 
 import com.stratio.sparta.plugin.output.elasticsearch.dao.ElasticSearchDAO
-import com.stratio.sparta.sdk.TypeOp
+import com.stratio.sparta.sdk.{SaveModeEnum, TypeOp}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, ShouldMatchers}
@@ -37,8 +37,8 @@ class ElasticSearchDAOTest extends FlatSpec with ShouldMatchers {
   }
 
   "ElasticSearchDao" should "return a valid configuration" in new ValuesMap {
-    dao.getSparkConfig(Option("")) should be(baseMap)
-    dao.getSparkConfig(Option("minutes")) should be(expectedWithTs)
+    dao.getSparkConfig(Option(""), SaveModeEnum.Upsert) should be(baseMap)
+    dao.getSparkConfig(Option("minutes"), SaveModeEnum.Upsert) should be(expectedWithTs)
   }
 
   it should "return a valid TypeOp from dateType" in new BaseValues {

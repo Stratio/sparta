@@ -60,7 +60,9 @@ class MongoDbOutput(keyName: String,
     override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
       val tableName = getTableNameFromOptions(options)
       val timeDimension = getTimeFromOptions(options)
-      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension)
+      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode))
+
+      validateSaveMode(saveMode)
 
       dataFrame.write
         .format(MongoDbSparkDatasource)
@@ -69,25 +71,30 @@ class MongoDbOutput(keyName: String,
         .save()
     }
 
-    private def getDataFrameOptions(tableName: String,
-                                    schema: StructType,
-                                    timeDimension: Option[String]
-                                   ): Map[String, String] =
-      Map(
-        MongodbConfig.Host -> hosts,
-        MongodbConfig.Database -> dbName,
-        MongodbConfig.Collection -> tableName
-      ) ++ getPrimaryKeyOptions(schema, timeDimension) ++ {
-        if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty
+  private def getDataFrameOptions(tableName: String,
+                                  schema: StructType,
+                                  timeDimension: Option[String],
+                                  saveMode: SaveModeEnum.Value): Map[String, String] =
+    Map(
+      MongodbConfig.Host -> hosts,
+      MongodbConfig.Database -> dbName,
+      MongodbConfig.Collection -> tableName
+    ) ++ {
+      saveMode match {
+        case SaveModeEnum.Upsert => getPrimaryKeyOptions(schema, timeDimension)
+        case _ => Map.empty[String, String]
       }
-
-    private def getPrimaryKeyOptions(schema: StructType,
-                                     timeDimension: Option[String]): Map[String, String] = {
-      val updateFields =
-        schema.fields.filter(stField => stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).mkString(",")
-
-      Map(MongodbConfig.UpdateFields -> updateFields)
+    } ++ {
+      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty[String, String]
     }
+
+  private def getPrimaryKeyOptions(schema: StructType,
+                                   timeDimension: Option[String]): Map[String, String] = {
+    val updateFields =
+      schema.fields.filter(stField => stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).mkString(",")
+
+    Map(MongodbConfig.UpdateFields -> updateFields)
+  }
 
     private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
       val conObj = properties.getMapFromJsoneyString(key)

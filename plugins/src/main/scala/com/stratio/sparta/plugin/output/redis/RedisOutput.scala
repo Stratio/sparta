@@ -44,6 +44,9 @@ class RedisOutput(keyName: String,
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val schema = dataFrame.schema
+
+    validateSaveMode(saveMode)
+
     dataFrame.foreachPartition{ rowList =>
       rowList.foreach{ row =>
         val valuesList = getValuesList(row,schema.fieldNames)

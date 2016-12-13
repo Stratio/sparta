@@ -60,6 +60,9 @@ class CassandraOutput(keyName: String,
 
   override val tableVersion = version
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def setup(options: Map[String, String]): Unit = {
     val connector = getCassandraConnector
     val keyspaceCreated = createKeypace(connector)
@@ -79,6 +82,8 @@ class CassandraOutput(keyName: String,
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableNameVersioned = getTableName(getTableNameFromOptions(options).toLowerCase)
+
+    validateSaveMode(saveMode)
 
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")

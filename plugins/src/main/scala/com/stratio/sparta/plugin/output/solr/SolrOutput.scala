@@ -48,6 +48,9 @@ class SolrOutput(keyName: String,
       tschemaFiltered.tableName -> getSolrServer(connection, isCloud)).toMap
   }
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def setup(options: Map[String, String]): Unit = {
     if (validConfiguration) createCores else log.info(SolrConfigurationError)
   }
@@ -64,6 +67,8 @@ class SolrOutput(keyName: String,
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val slrRelation = new SolrRelation(dataFrame.sqlContext, getConfig(connection, tableName), dataFrame)
+
+    validateSaveMode(saveMode)
 
     slrRelation.insert(dataFrame, true)
   }

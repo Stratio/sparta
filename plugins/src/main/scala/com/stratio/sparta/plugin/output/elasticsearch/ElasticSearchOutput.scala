@@ -87,7 +87,7 @@ class ElasticSearchOutput(keyName: String,
     val timeDimension = dataFrameSchema.fields.filter(stField => stField.metadata.contains(Output.TimeDimensionKey))
       .map(_.name).headOption
     getTimeFromOptions(options)
-    val sparkConfig = getSparkConfig(timeDimension)
+    val sparkConfig = getSparkConfig(timeDimension, saveMode)
 
 
     //Necessary this dataFrame transformation because ES not support java.sql.TimeStamp in the row values: use
@@ -109,6 +109,8 @@ class ElasticSearchOutput(keyName: String,
       SQLContext.getOrCreate(dataFrame.rdd.sparkContext).createDataFrame(rdd, newSchema)
     }
     else dataFrame
+
+    validateSaveMode(saveMode)
 
     dataFrame.write
       .format("org.elasticsearch.spark.sql")
