@@ -22,7 +22,6 @@ import com.stratio.sparta.plugin.output.kafka.producer.KafkaProducer
 import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql._
-import KafkaOutputFormat._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 
 class KafkaOutput(keyName: String,
@@ -31,20 +30,19 @@ class KafkaOutput(keyName: String,
                   schemas: Seq[TableSchema])
   extends Output(keyName, version, properties, schemas) with KafkaProducer {
 
-  val ouputFormat = KafkaOutputFormat.withName(properties.getString("format", "json").toUpperCase)
+  val outputFormat = OutputFormat.withName(properties.getString("format", "json").toUpperCase)
 
   val rowSeparator = properties.getString("rowSeparator", ",")
 
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
-    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
 
     validateSaveMode(saveMode)
 
-    ouputFormat match {
-      case KafkaOutputFormat.ROW => dataFrame.rdd.foreachPartition(messages =>
+    outputFormat match {
+      case OutputFormat.ROW => dataFrame.rdd.foreachPartition(messages =>
         messages.foreach(message => send(properties, tableName, message.mkString(rowSeparator))))
       case _ => dataFrame.toJSON.foreachPartition { messages =>
         messages.foreach(message => send(properties, tableName, message))
