@@ -37,6 +37,7 @@
       cube.writer = {};
 
       delete cube['writer.dateType'];
+      delete cube['writer.saveMode'];
       delete cube['writer.autoCalculatedFields'];
       cube['writer.outputs'] = [];
     }
@@ -58,6 +59,7 @@
       cube.operators = c.operators;
       cube.triggers = c.triggers;
       cube['writer.dateType'] = c['writer.dateType'];
+      cube['writer.saveMode'] = c['writer.saveMode'];
       cube['writer.outputs'] = c['writer.outputs'];
       cube['writer.autoCalculatedFields'] = c['writer.autoCalculatedFields'] ||c.writer.autoCalculatedFields;
       setPosition(position);
@@ -66,6 +68,7 @@
 
     function getParsedCube(cube) {
       cube['writer.dateType'] = cube.writer.dateType;
+      cube['writer.saveMode'] = cube.writer.saveMode;
       cube['writer.outputs'] = cube.writer.outputs;
       cube['writer.autoCalculatedFields'] = cube.writer.autoCalculatedFields;
       return cube;

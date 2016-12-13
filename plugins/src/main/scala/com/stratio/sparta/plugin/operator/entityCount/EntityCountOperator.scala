@@ -32,8 +32,6 @@ class EntityCountOperator(name: String,
 
   override val defaultTypeOperation = TypeOp.MapStringLong
 
-  override val writeOperation = WriteOp.EntityCount
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Seq[String]] =
     Try(Option(values.flatten.flatMap(_.asInstanceOf[Seq[String]]).toSeq))
       .getOrElse(None)

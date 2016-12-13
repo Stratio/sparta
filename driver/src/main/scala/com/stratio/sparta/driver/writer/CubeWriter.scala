@@ -72,7 +72,8 @@ case class CubeWriter(cube: Cube,
           cubeDataFrameWithAutoCalculatedFields,
           cube.triggers,
           tableSchema.tableName,
-          triggerSchemas, triggerOutputs
+          triggerSchemas,
+          triggerOutputs
         )
       } else log.debug("Empty event received")
     })

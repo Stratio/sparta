@@ -15,20 +15,14 @@
  */
 package com.stratio.sparta.plugin.output.solr
 
-import java.io.{Serializable => JSerializable}
+import com.lucidworks.spark.SolrRelation
 import com.stratio.sparta.sdk.Output._
+import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk._
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.spark.sql.DataFrame
 
 import scala.util.Try
-
-import com.lucidworks.spark.SolrRelation
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.spark.sql.{SQLContext, DataFrame}
-import org.apache.spark.streaming.dstream.DStream
-
-import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.WriteOp.WriteOp
-import com.stratio.sparta.sdk._
 
 class SolrOutput(keyName: String,
                  version: Option[Int],

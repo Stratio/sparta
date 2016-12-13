@@ -137,8 +137,6 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     override val defaultTypeOperation = TypeOp.Long
 
-    override val writeOperation = WriteOp.Inc
-
     override val defaultCastingFilterType = TypeOp.Number
 
     override def processMap(inputFields: Row): Option[Any] = {

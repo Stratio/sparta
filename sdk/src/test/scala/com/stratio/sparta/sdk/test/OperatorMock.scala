@@ -25,8 +25,6 @@ abstract class BaseOperatorMock(name: String, schema: StructType, properties: Ma
 
   override val defaultTypeOperation = TypeOp.Long
 
-  override val writeOperation = WriteOp.Inc
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Long] = None
 }
 

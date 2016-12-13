@@ -17,8 +17,7 @@ package com.stratio.sparta.sdk.test
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.WriteOp._
-import com.stratio.sparta.sdk.{OperatorEntityCount, WriteOp}
+import com.stratio.sparta.sdk.OperatorEntityCount
 import org.apache.spark.sql.types.StructType
 
 class OperatorEntityCountMock(name: String, schema: StructType, properties: Map[String, JSerializable])
@@ -26,5 +25,4 @@ class OperatorEntityCountMock(name: String, schema: StructType, properties: Map[
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = values.head
 
-  override def writeOperation: WriteOp = WriteOp.Inc
 }

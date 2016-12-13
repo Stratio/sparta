@@ -76,7 +76,8 @@ object SpartaClusterJob extends PolicyUtils {
         case Failure(exception) =>
           log.error(exception.getLocalizedMessage, exception)
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
-          DriverException(s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
+          throw DriverException(
+            s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
         case Success(_) =>
           log.info("The Policy is starting ...")
       }
@@ -101,7 +102,7 @@ object SpartaClusterJob extends PolicyUtils {
         case Failure(exception) =>
           val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
-          DriverException(message, exception)
+          throw DriverException(message, exception)
       }
     } match {
       case Success(_) =>

@@ -29,7 +29,6 @@ import org.scalatest.{FlatSpec, Matchers}
 class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with AnswerSugar {
 
   val s = "sum"
-  val operation = Option(Map(s ->(WriteOp.Inc, TypeOp.Int)))
   val properties = Map(("connectionHost", "127.0.0.1"), ("connectionPort", "9042"))
 
   "getSparkConfiguration" should "return a Seq with the configuration" in {

@@ -19,15 +19,10 @@ import java.io.Serializable
 
 import com.stratio.sparta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.WriteOp.WriteOp
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql.types.{StructField, StructType}
-import org.apache.spark.sql.{Row, DataFrame}
-import org.apache.spark.streaming.dstream.DStream
-
-import scala.collection.immutable.Iterable
+import org.apache.spark.sql.{DataFrame, Row}
 
 /**
  * Saves calculated cubes on Redis.
