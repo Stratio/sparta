@@ -34,8 +34,6 @@ with OperatorProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
-  override val writeOperation = WriteOp.AccSet
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     Try(Option(values.flatten.flatMap(value => {
       value match {

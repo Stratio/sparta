@@ -47,7 +47,7 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
           throw DriverException(exception.getMessage, exception)
       }
       val tableSchema = tableSchemas.find(_.tableName == trigger.name)
-      val upsertOptions = tableSchema.fold(Map.empty[String, String]) { schema =>
+      val saveOptions = tableSchema.fold(Map.empty[String, String]) { schema =>
         Map(Output.TableNameKey -> schema.tableName)
       }
 
@@ -63,7 +63,7 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
         trigger.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
             case Some(outputWriter) => Try{
-              outputWriter.upsert(queryDataFrameWithAutoCalculatedFields, upsertOptions)
+              outputWriter.save(queryDataFrameWithAutoCalculatedFields, trigger.saveMode, saveOptions)
             } match {
               case Success(_) =>
                 log.debug(s"Trigger data stored in ${trigger.name}")

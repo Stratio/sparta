@@ -57,27 +57,35 @@ class MongoDbOutput(keyName: String,
     db.close()
   }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val timeDimension = getTimeFromOptions(options)
-    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension)
+    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode)
+
+    validateSaveMode(saveMode)
 
     dataFrame.write
       .format(MongoDbSparkDatasource)
-      .mode(Append)
+      .mode(getSparkSaveMode(saveMode))
       .options(dataFrameOptions)
       .save()
   }
 
   private def getDataFrameOptions(tableName: String,
                                   schema: StructType,
-                                  timeDimension: Option[String]): Map[String, String] =
+                                  timeDimension: Option[String],
+                                  saveMode: SaveModeEnum.Value): Map[String, String] =
     Map(
       MongodbConfig.Host -> hosts,
       MongodbConfig.Database -> dbName,
       MongodbConfig.Collection -> tableName
-    ) ++ getPrimaryKeyOptions(schema, timeDimension) ++ {
-      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty
+    ) ++ {
+      saveMode match {
+        case SaveModeEnum.Upsert => getPrimaryKeyOptions(schema, timeDimension)
+        case _ => Map.empty[String, String]
+      }
+    } ++ {
+      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty[String, String]
     }
 
   private def getPrimaryKeyOptions(schema: StructType,

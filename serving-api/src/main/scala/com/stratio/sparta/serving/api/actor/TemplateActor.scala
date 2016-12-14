@@ -21,9 +21,9 @@ import java.net.{URI, URL}
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.actor.TemplateActor._
-import com.stratio.sparta.serving.core.SpartaSerializer
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.{ErrorModel, TemplateModel}
+import com.stratio.sparta.serving.core.models.policy.fragment.TemplateModel
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.json4s.jackson.Serialization.read
 import spray.httpx.Json4sJacksonSupport
 

@@ -19,15 +19,10 @@ import java.io.Serializable
 
 import com.stratio.sparta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.WriteOp.WriteOp
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql.types.{StructField, StructType}
-import org.apache.spark.sql.{Row, DataFrame}
-import org.apache.spark.streaming.dstream.DStream
-
-import scala.collection.immutable.Iterable
+import org.apache.spark.sql.{DataFrame, Row}
 
 /**
  * Saves calculated cubes on Redis.
@@ -46,9 +41,12 @@ class RedisOutput(keyName: String,
 
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val schema = dataFrame.schema
+
+    validateSaveMode(saveMode)
+
     dataFrame.foreachPartition{ rowList =>
       rowList.foreach{ row =>
         val valuesList = getValuesList(row,schema.fieldNames)

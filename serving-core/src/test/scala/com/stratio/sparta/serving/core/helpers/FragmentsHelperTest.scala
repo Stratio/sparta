@@ -16,6 +16,8 @@
 package com.stratio.sparta.serving.core.helpers
 
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel, RawDataModel}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -32,13 +34,13 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       Given("a policy with an input, an output and a fragment with an input")
       val checkpointDir = Option("checkpoint")
 
-      val ap = AggregationPoliciesModel(
+      val ap = PolicyModel(
         id = None,
         version = None,
         storageLevel,
         "policy-test",
         "policy description",
-        sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+        sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
         checkpointDir,
         new RawDataModel(),
         transformations = Seq(),
@@ -86,13 +88,13 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     Given("a policy with an input, an output and a fragment with an input")
     val checkpointDir = Option("checkpoint")
 
-    val ap = new AggregationPoliciesModel(
+    val ap = new PolicyModel(
       id = None,
       version = None,
       storageLevel,
       "policy-test",
       "policy description",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
       checkpointDir,
       new RawDataModel(),
       transformations = Seq(),

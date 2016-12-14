@@ -35,6 +35,9 @@ import akka.actor.ActorSystem
 import akka.testkit._
 import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
@@ -48,7 +51,7 @@ abstract class PolicyBaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
   val curatorFramework = mock[CuratorFramework]
 
   protected def getPolicyModel(id: Option[String] = Some("id"), name: String = "testPolicy"):
-  AggregationPoliciesModel = {
+  PolicyModel = {
     val rawData = new RawDataModel
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -64,13 +67,13 @@ abstract class PolicyBaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
     val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = AggregationPoliciesModel(
+    val policy = PolicyModel(
       id = id,
       version = None,
-      storageLevel = AggregationPoliciesModel.storageDefaultValue,
+      storageLevel = PolicyModel.storageDefaultValue,
       name = name,
       description = "whatever",
-      sparkStreamingWindow = AggregationPoliciesModel.sparkStreamingWindow,
+      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
       checkpointPath = Option("test/test"),
       rawData,
       transformations,

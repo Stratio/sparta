@@ -15,13 +15,10 @@
  */
 package com.stratio.sparta.driver.test
 
-import scala.util.Failure
-import scala.util.Try
-
 import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.{Input, JsoneyString, Parser}
-import com.stratio.sparta.serving.core.models.{AggregationPoliciesModel, PolicyElementModel}
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -31,18 +28,12 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
-import com.stratio.sparta.driver.SpartaJob
-import com.stratio.sparta.driver.utils.ReflectionUtils
-import com.stratio.sparta.sdk.Input
-import com.stratio.sparta.sdk.JsoneyString
-import com.stratio.sparta.sdk.Parser
-import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
-import com.stratio.sparta.serving.core.models.PolicyElementModel
+import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
 class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
-  val aggModel: AggregationPoliciesModel = mock[AggregationPoliciesModel]
+  val aggModel: PolicyModel = mock[PolicyModel]
 
   val method: String = "getSparkConfiguration"
 

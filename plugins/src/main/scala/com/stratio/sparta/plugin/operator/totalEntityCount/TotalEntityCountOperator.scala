@@ -32,8 +32,6 @@ class TotalEntityCountOperator(name: String,
 
   override val defaultTypeOperation = TypeOp.Int
 
-  override val writeOperation = WriteOp.WordCount
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Int] =
     Try(Option(values.flatten.map(value => {
       value match {

@@ -24,7 +24,6 @@ import akka.pattern.ask
 import akka.util.Timeout
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
-import com.stratio.sparta.serving.core.SpartaSerializer
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -37,7 +36,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
-import com.stratio.sparta.serving.core.models.FragmentElementModel
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 
 @RunWith(classOf[JUnitRunner])
 class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))

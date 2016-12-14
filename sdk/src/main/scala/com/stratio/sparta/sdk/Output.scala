@@ -19,7 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.TypeOp._
 import org.apache.spark.Logging
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types._
 
 import scala.util.Try
@@ -34,7 +34,7 @@ abstract class Output(keyName: String,
 
   def setup(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
-  def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit
+  def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
 
   def versionedTableName(tableName: String): String = {
     val versionChain = version match {
@@ -42,6 +42,15 @@ abstract class Output(keyName: String,
       case None => ""
     }
     s"$tableName$versionChain"
+  }
+
+  def supportedSaveModes : Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
+
+  def validateSaveMode(saveMode: SaveModeEnum.Value): Unit = {
+    if(!supportedSaveModes.contains(saveMode))
+      log.info(s"Save mode $saveMode selected not supported by the output $name." +
+          s" Using the default mode ${SaveModeEnum.Append}"
+      )
   }
 }
 
@@ -54,6 +63,18 @@ object Output extends Logging {
   final val TimeDimensionKey = "timeDimension"
   final val MeasureMetadataKey = "measure"
   final val PrimaryKeyMetadataKey = "pk"
+
+  def getSparkSaveMode(saveModeEnum: SaveModeEnum.Value) : SaveMode =
+    saveModeEnum match {
+      case SaveModeEnum.Append => SaveMode.Append
+      case SaveModeEnum.ErrorIfExists => SaveMode.ErrorIfExists
+      case SaveModeEnum.Overwrite => SaveMode.Overwrite
+      case SaveModeEnum.Ignore => SaveMode.Ignore
+      case SaveModeEnum.Upsert => SaveMode.Append
+      case _ =>
+        log.info(s"Save Mode $saveModeEnum not supported, using default save mode ${SaveModeEnum.Append}")
+        SaveMode.Append
+    }
 
   def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey)
 

@@ -35,8 +35,6 @@ class MeanAssociativeOperator(name: String, schema: StructType, properties: Map[
 
   override val defaultTypeOperation = TypeOp.MapStringDouble
 
-  override val writeOperation = WriteOp.Avg
-
   override val defaultCastingFilterType = TypeOp.Number
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Seq[Double]] = {

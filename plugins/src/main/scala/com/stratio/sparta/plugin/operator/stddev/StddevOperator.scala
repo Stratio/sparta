@@ -32,8 +32,6 @@ with OperatorProcessMapAsNumber {
 
   override val defaultTypeOperation = TypeOp.Double
 
-  override val writeOperation = WriteOp.Stddev
-
   override val defaultCastingFilterType = TypeOp.Number
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {

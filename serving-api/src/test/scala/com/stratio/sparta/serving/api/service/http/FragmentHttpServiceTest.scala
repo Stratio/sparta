@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.FragmentElementModel
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

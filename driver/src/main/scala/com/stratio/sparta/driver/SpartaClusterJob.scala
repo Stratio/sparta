@@ -25,15 +25,15 @@ import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
-import com.stratio.sparta.serving.core.models.PolicyStatusModel
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Update
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import PolicyStatusActor.Update
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
@@ -76,7 +76,8 @@ object SpartaClusterJob extends PolicyUtils {
         case Failure(exception) =>
           log.error(exception.getLocalizedMessage, exception)
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
-          DriverException(s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
+          throw DriverException(
+            s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
         case Success(_) =>
           log.info("The Policy is starting ...")
       }
@@ -101,7 +102,7 @@ object SpartaClusterJob extends PolicyUtils {
         case Failure(exception) =>
           val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
-          DriverException(message, exception)
+          throw DriverException(message, exception)
       }
     } match {
       case Success(_) =>

@@ -35,14 +35,15 @@ import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions, StreamWriter, StreamWriterOptions}
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AppConstant, ErrorCodes}
+import com.stratio.sparta.serving.core.constants.ErrorCodes
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
-import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 
-class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
+class SpartaJob(policy: PolicyModel) extends SLF4JLogging {
 
   private val ReflectionUtils = SpartaJob.ReflectionUtils
 
@@ -52,7 +53,8 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SpartaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
-    val cubes = SpartaJob.getCubes(policy, ReflectionUtils, getSchemaWithoutRaw(parserSchemas))
+    val schemaWithoutRaw = getSchemaWithoutRaw(parserSchemas)
+    val cubes = SpartaJob.getCubes(policy, ReflectionUtils, schemaWithoutRaw)
     val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes)
     val cubesOutputs = SpartaJob.getOutputs(policy, cubesSchemas, ReflectionUtils)
     val cubesTriggersSchemas = SchemaHelper.getSchemasFromCubeTrigger(policy.cubes, policy.outputs)
@@ -77,7 +79,7 @@ class SpartaJob(policy: AggregationPoliciesModel) extends SLF4JLogging {
           overLast,
           computeEvery,
           sparkStreamingWindow,
-          getSchemaWithoutRaw(parserSchemas),
+          schemaWithoutRaw,
           streamTriggersOutputs
         ).write(parsedData)
       }
@@ -102,11 +104,11 @@ object SpartaJob extends PolicyUtils {
 
   lazy val ReflectionUtils = new ReflectionUtils
 
-  def generateCheckpointPath(policy: AggregationPoliciesModel): String = checkpointPath(policy)
+  def generateCheckpointPath(policy: PolicyModel): String = checkpointPath(policy)
 
-  def apply(policy: AggregationPoliciesModel): SpartaJob = new SpartaJob(policy)
+  def apply(policy: PolicyModel): SpartaJob = new SpartaJob(policy)
 
-  def getInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+  def getInput(policy: PolicyModel, ssc: StreamingContext,
                refUtils: ReflectionUtils): DStream[Row] = {
     Try(createInput(policy, ssc, refUtils)) match {
       case Success(input) =>
@@ -119,7 +121,7 @@ object SpartaJob extends PolicyUtils {
     }
   }
 
-  private def createInput(policy: AggregationPoliciesModel, ssc: StreamingContext,
+  private def createInput(policy: PolicyModel, ssc: StreamingContext,
                           refUtils: ReflectionUtils): DStream[Row] = {
     require(policy.input.isDefined, "You need at least one input in your policy")
     val inputInstance = refUtils.tryToInstantiate[Input](policy.input.get.`type` + Input.ClassSuffix, (c) =>
@@ -127,7 +129,7 @@ object SpartaJob extends PolicyUtils {
     inputInstance.setUp(ssc, policy.storageLevel.get)
   }
 
-  def getParsers(policy: AggregationPoliciesModel,
+  def getParsers(policy: PolicyModel,
                  refUtils: ReflectionUtils,
                  schemas: Map[String, StructType]): Seq[Parser] =
     policy.transformations.map(parser => createParser(parser, refUtils, policy.id.get, schemas))
@@ -207,7 +209,7 @@ object SpartaJob extends PolicyUtils {
           write(model), ex, policyId, ErrorCodes.Policy.ParsingOperator)
     }
 
-  def getOutputs(policy: AggregationPoliciesModel,
+  def getOutputs(policy: PolicyModel,
                  schemas: Seq[TableSchema],
                  refUtils: ReflectionUtils): Seq[Output] = policy.outputs.map(o => {
     val schemasAssociated = schemas.filter(tableSchema => tableSchema.outputs.contains(o.name))
@@ -236,19 +238,19 @@ object SpartaJob extends PolicyUtils {
     }
   }
 
-  def getCubes(policy: AggregationPoliciesModel,
+  def getCubes(policy: PolicyModel,
                refUtils: ReflectionUtils,
                initSchema: StructType): Seq[Cube] = {
     policy.cubes.map(cube => createCube(cube, refUtils, policy.id.get, initSchema: StructType))
   }
 
-  private def createCube(cube: CubeModel,
+  private def createCube(cubeModel: CubeModel,
                          refUtils: ReflectionUtils,
                          policyId: String,
                          initSchema: StructType): Cube =
     Try {
-      val name = cube.name
-      val dimensions = cube.dimensions.map(dimensionDto => {
+      val name = cubeModel.name
+      val dimensions = cubeModel.dimensions.map(dimensionDto => {
         val fieldType = initSchema.find(stField => stField.name == dimensionDto.field).map(_.dataType)
         val defaultType = fieldType.flatMap(field => SchemaHelper.mapSparkTypes.get(field))
 
@@ -257,9 +259,9 @@ object SpartaJob extends PolicyUtils {
           dimensionDto.precision,
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils, defaultType))
       })
-      val operators = SpartaJob.getOperators(cube.operators, refUtils, policyId, initSchema)
-      val expiringDataConfig = SchemaHelper.getExpiringData(cube)
-      val triggers = getTriggers(cube.triggers, policyId)
+      val operators = SpartaJob.getOperators(cubeModel.operators, refUtils, policyId, initSchema)
+      val expiringDataConfig = SchemaHelper.getExpiringData(cubeModel)
+      val triggers = getTriggers(cubeModel.triggers, policyId)
 
       Cube(name, dimensions, operators, initSchema, expiringDataConfig, triggers)
     } match {
@@ -268,8 +270,8 @@ object SpartaJob extends PolicyUtils {
         created
       case Failure(ex) =>
         throw SpartaJob.logAndCreateEx(
-          s"Something gone wrong creating the cube: ${cube.name}. Please re-check the policy.",
-          write(cube), ex, policyId, ErrorCodes.Policy.ParsingCube)
+          s"Something gone wrong creating the cube: ${cubeModel.name}. Please re-check the policy.",
+          write(cubeModel), ex, policyId, ErrorCodes.Policy.ParsingCube)
     }
 
   def getTriggers(triggers: Seq[TriggerModel], policyId: String): Seq[Trigger] =
@@ -284,6 +286,7 @@ object SpartaJob extends PolicyUtils {
         trigger.overLast,
         trigger.computeEvery,
         trigger.primaryKey,
+        trigger.writer.saveMode,
         trigger.configuration)
     } match {
       case Success(created) =>
@@ -340,7 +343,7 @@ object SpartaJob extends PolicyUtils {
   def getCubeWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
     val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
 
-    CubeWriterOptions(cubeModel.writer.outputs, dateType)
+    CubeWriterOptions(cubeModel.writer.outputs, dateType, cubeModel.writer.saveMode)
   }
 
   def getStreamWriter(triggers: Seq[Trigger],
@@ -355,7 +358,7 @@ object SpartaJob extends PolicyUtils {
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }
 
-  def getSparkConfigs(policy: AggregationPoliciesModel, methodName: String, suffix: String,
+  def getSparkConfigs(policy: PolicyModel, methodName: String, suffix: String,
                       refUtils: Option[ReflectionUtils] = None): Map[String, String] = {
     log.info("Initializing reflection")
     policy.outputs.flatMap(o => {
@@ -372,7 +375,7 @@ object SpartaJob extends PolicyUtils {
     }).toMap
   }
 
-  def getSparkConfigFromPolicy(policy: AggregationPoliciesModel) : Map[String, String] =
+  def getSparkConfigFromPolicy(policy: PolicyModel) : Map[String, String] =
     policy.sparkConf.flatMap{ sparkProperty =>
       if(sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
           None

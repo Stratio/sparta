@@ -32,8 +32,6 @@ with OperatorProcessMapAsAny {
 
   override val defaultTypeOperation = TypeOp.ArrayString
 
-  override val writeOperation = WriteOp.Mode
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] = {
     val tupla = values.groupBy(x => x).mapValues(_.size)
     if (tupla.nonEmpty) {

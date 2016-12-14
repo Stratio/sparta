@@ -16,8 +16,7 @@
 package com.stratio.sparta.plugin.output.csv
 
 import com.databricks.spark.csv._
-import com.stratio.sparta.plugin.output.csv.CsvOutput
-import com.stratio.sparta.sdk.Output
+import com.stratio.sparta.sdk.{Output, SaveModeEnum}
 import org.apache.spark.sql._
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => meq}
@@ -33,10 +32,10 @@ class CsvOutputTest extends FlatSpec with Matchers with MockitoSugar {
     val out = spy(new CsvOutput("keyName", None, Map("path" -> "path"), Seq()))
     val dataframe = mock[DataFrame]
     implicit val savemock = mock[CsvSchemaRDD]
-    doNothing().when(out).saveAction(any[String], meq(dataframe))
+    doNothing().when(out).save(meq(dataframe), any[SaveModeEnum.Value], any[Map[String, String]])
 
-    out.upsert(dataframe, Map(Output.TableNameKey -> "tableName"))
+    out.save(dataframe, SaveModeEnum.Append, Map(Output.TableNameKey -> "tableName"))
 
-    verify(out).saveAction(any[String], meq(dataframe))
+    verify(out).save(meq(dataframe), any[SaveModeEnum.Value], any[Map[String, String]])
   }
 }

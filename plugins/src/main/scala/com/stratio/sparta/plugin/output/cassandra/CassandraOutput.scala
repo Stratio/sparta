@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.cassandra
 
 import java.io.{Serializable => JSerializable}
@@ -59,6 +60,9 @@ class CassandraOutput(keyName: String,
 
   override val tableVersion = version
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def setup(options: Map[String, String]): Unit = {
     val connector = getCassandraConnector
     val keyspaceCreated = createKeypace(connector)
@@ -76,16 +80,16 @@ class CassandraOutput(keyName: String,
     }
   }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableNameVersioned = getTableName(getTableNameFromOptions(options).toLowerCase)
-    write(dataFrame, tableNameVersioned)
-  }
 
-  def write(dataFrame: DataFrame, tableNameVersioned: String): Unit = {
+    validateSaveMode(saveMode)
+
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
-      .mode(Append)
-      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster)).save()
+      .mode(getSparkSaveMode(saveMode))
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster))
+      .save()
   }
 
   def getCassandraConnector: CassandraConnector = {

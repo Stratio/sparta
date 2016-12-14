@@ -32,8 +32,6 @@ with OperatorProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
-  override val writeOperation = WriteOp.FullText
-
   override def processReduce(values: Iterable[Option[Any]]): Option[String] = {
     Try(Option(values.flatten.map(_.toString).mkString(Operator.SpaceSeparator)))
       .getOrElse(Some(Operator.EmptyString))

@@ -27,6 +27,9 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.Milliseconds
 import org.apache.spark.streaming.dstream.DStream
 
+/*
+  Common options to grouped triggers by streaming windows
+ */
 case class StreamWriterOptions(overLast: Option[String],
                                computeEvery: Option[String],
                                sparkStreamingWindow: Long,

@@ -19,7 +19,6 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.WriteOp.WriteOp
 import org.apache.spark.Logging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -46,8 +45,6 @@ with Ordered[Operator] with TypeConversions {
   def key: String = name
 
   def distinct: Boolean = Try(properties.getString("distinct").toBoolean).getOrElse(false)
-
-  def writeOperation: WriteOp
 
   val inputField = properties.getString("inputField", None)
 

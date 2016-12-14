@@ -21,11 +21,11 @@ import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyWithStatus}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -162,7 +162,7 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
       Post(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
         testProbe.expectMsgType[Create]
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel())
+        responseAs[PolicyModel] should equal(getPolicyModel())
       }
     }
     "return a 500 if there was any error" in {

@@ -36,17 +36,22 @@ class ParquetOutput(keyName: String,
                     schemas: Seq[TableSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val timeDimension = getTimeFromOptions(options)
     val path = properties.getString("path", None)
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val partitionBy = properties.getString("partitionBy", None)
 
+    validateSaveMode(saveMode)
+
     val dataFrameWriter = dataFrame
       .write
       .format("parquet")
-      .mode(Append)
+      .mode(getSparkSaveMode(saveMode))
 
     partitionBy match {
       case Some(partition) => dataFrameWriter.partitionBy(partition)

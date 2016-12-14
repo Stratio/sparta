@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.{SaveModeEnum, _}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.junit.runner.RunWith
@@ -137,8 +137,6 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     override val defaultTypeOperation = TypeOp.Long
 
-    override val writeOperation = WriteOp.Inc
-
     override val defaultCastingFilterType = TypeOp.Number
 
     override def processMap(inputFields: Row): Option[Any] = {
@@ -156,7 +154,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
                    schemas: Seq[TableSchema])
     extends Output(keyName, version, properties, schemas) {
 
-    override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {}
+    override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
   }
 
   class DimensionTypeTest extends DimensionType {

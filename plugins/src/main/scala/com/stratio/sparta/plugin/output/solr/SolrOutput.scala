@@ -15,20 +15,14 @@
  */
 package com.stratio.sparta.plugin.output.solr
 
-import java.io.{Serializable => JSerializable}
+import com.lucidworks.spark.SolrRelation
 import com.stratio.sparta.sdk.Output._
+import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk._
+import org.apache.solr.client.solrj.SolrClient
+import org.apache.spark.sql.DataFrame
 
 import scala.util.Try
-
-import com.lucidworks.spark.SolrRelation
-import org.apache.solr.client.solrj.SolrClient
-import org.apache.spark.sql.{SQLContext, DataFrame}
-import org.apache.spark.streaming.dstream.DStream
-
-import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.WriteOp.WriteOp
-import com.stratio.sparta.sdk._
 
 class SolrOutput(keyName: String,
                  version: Option[Int],
@@ -54,6 +48,9 @@ class SolrOutput(keyName: String,
       tschemaFiltered.tableName -> getSolrServer(connection, isCloud)).toMap
   }
 
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
   override def setup(options: Map[String, String]): Unit = {
     if (validConfiguration) createCores else log.info(SolrConfigurationError)
   }
@@ -67,9 +64,11 @@ class SolrOutput(keyName: String,
     })
   }
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val slrRelation = new SolrRelation(dataFrame.sqlContext, getConfig(connection, tableName), dataFrame)
+
+    validateSaveMode(saveMode)
 
     slrRelation.insert(dataFrame, true)
   }

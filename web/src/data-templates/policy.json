@@ -859,6 +859,38 @@
     ],
     "outputProperties": [
       {
+        "propertyId": "writer.saveMode",
+        "propertyName": "_SAVE_MODE_",
+        "propertyType": "select",
+        "required": true,
+        "default": "Append",
+        "qa": "cube-save-mode",
+        "values": [
+          {
+            "label": "_APPEND_",
+            "value": "Append"
+          },
+          {
+            "label": "_ERROR_IF_EXISTS_",
+            "value": "ErrorIfExists"
+          },
+          {
+            "label": "_IGNORE_",
+            "value": "Ignore"
+          },
+          {
+            "label": "_OVERWRITE_",
+            "value": "Overwrite"
+          },
+          {
+            "label": "_UPSERT_",
+            "value": "Upsert"
+          }
+        ],
+        "width": 6,
+        "position": "left"
+      },
+      {
         "propertyId": "writer.dateType",
         "propertyName": "_DATE_TYPE_",
         "propertyType": "select",
@@ -1009,6 +1041,38 @@
           ]
         },
         {
+          "propertyId": "writer.saveMode",
+          "propertyName": "_SAVE_MODE_",
+          "propertyType": "select",
+          "required": true,
+          "default": "Append",
+          "qa": "trigger-save-mode",
+          "values": [
+            {
+              "label": "_APPEND_",
+              "value": "Append"
+            },
+            {
+              "label": "_ERROR_IF_EXISTS_",
+              "value": "ErrorIfExists"
+            },
+            {
+              "label": "_IGNORE_",
+              "value": "Ignore"
+            },
+            {
+              "label": "_OVERWRITE_",
+              "value": "Overwrite"
+            },
+            {
+              "label": "_UPSERT_",
+              "value": "Upsert"
+            }
+          ],
+          "width": 6,
+          "position": "left"
+        },
+        {
           "propertyId": "sql",
           "propertyName": "_SQL_",
           "propertyType": "textarea",
@@ -1028,6 +1092,38 @@
           "required": true,
           "qa": "trigger-name",
           "width": 12
+        },
+        {
+          "propertyId": "writer.saveMode",
+          "propertyName": "_SAVE_MODE_",
+          "propertyType": "select",
+          "required": true,
+          "default": "Append",
+          "qa": "cube-trigger-save-mode",
+          "values": [
+            {
+              "label": "_APPEND_",
+              "value": "Append"
+            },
+            {
+              "label": "_ERROR_IF_EXISTS_",
+              "value": "ErrorIfExists"
+            },
+            {
+              "label": "_IGNORE_",
+              "value": "Ignore"
+            },
+            {
+              "label": "_OVERWRITE_",
+              "value": "Overwrite"
+            },
+            {
+              "label": "_UPSERT_",
+              "value": "Upsert"
+            }
+          ],
+          "width": 6,
+          "position": "left"
         },
         {
           "propertyId": "sql",

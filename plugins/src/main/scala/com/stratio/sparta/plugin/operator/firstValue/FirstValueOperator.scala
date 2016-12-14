@@ -32,8 +32,6 @@ with OperatorProcessMapAsAny with Associative {
 
   override val defaultTypeOperation = TypeOp.String
 
-  override val writeOperation = WriteOp.Set
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
     Try(Option(values.flatten.head)).getOrElse(Some(Operator.EmptyString))
 

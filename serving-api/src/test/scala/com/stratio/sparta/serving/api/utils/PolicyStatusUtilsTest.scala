@@ -16,10 +16,11 @@
 
 package com.stratio.sparta.serving.api.utils
 
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
-import com.stratio.sparta.serving.core.models.{PoliciesStatusModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.Response
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusEnum
+import PolicyStatusActor.Response
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner

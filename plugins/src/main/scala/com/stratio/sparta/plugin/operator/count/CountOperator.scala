@@ -32,8 +32,6 @@ class CountOperator(name: String, schema: StructType, properties: Map[String, JS
 
   override val defaultTypeOperation = TypeOp.Long
 
-  override val writeOperation = WriteOp.Inc
-
   override val defaultCastingFilterType = TypeOp.Number
 
   override def processMap(inputFieldsValues: Row): Option[Any] = {

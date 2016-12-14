@@ -20,7 +20,7 @@ import java.io.File
 
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.AggregationPoliciesModel
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
 import org.json4s._
@@ -58,7 +58,7 @@ class StreamingContextServiceIT extends WordSpecLike
   "A StreamingContextService should" should {
     "create spark streaming context from a policy" in {
       val json = Source.fromFile(new File(PathToPolicy)).mkString
-      val apConfig = parse(json).extract[AggregationPoliciesModel]
+      val apConfig = parse(json).extract[PolicyModel]
       val spartaConfig = SpartaConfig.initConfig("sparta")
 
       SpartaConfig.spartaHome = getSpartaHome

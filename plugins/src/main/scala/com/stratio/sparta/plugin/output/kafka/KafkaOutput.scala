@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.kafka
 
 import java.io.{Serializable => JSerializable}
@@ -34,8 +35,13 @@ class KafkaOutput(keyName: String,
 
   val rowSeparator = properties.getString("rowSeparator", ",")
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
+
+    validateSaveMode(saveMode)
 
     ouputFormat match {
       case KafkaOutputFormat.ROW => dataFrame.rdd.foreachPartition(messages =>

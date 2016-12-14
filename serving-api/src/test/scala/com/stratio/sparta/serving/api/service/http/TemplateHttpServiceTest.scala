@@ -20,7 +20,7 @@ import com.stratio.sparkta.serving.api.service.http.TemplateHttpService
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.TemplateActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.models.TemplateModel
+import com.stratio.sparta.serving.core.models.policy.fragment.TemplateModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

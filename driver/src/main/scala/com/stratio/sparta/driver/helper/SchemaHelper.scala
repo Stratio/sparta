@@ -21,6 +21,9 @@ import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
+import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import org.apache.spark.sql.types._
 
 object SchemaHelper {

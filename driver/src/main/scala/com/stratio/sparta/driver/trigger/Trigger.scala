@@ -17,10 +17,13 @@ package com.stratio.sparta.driver.trigger
 
 import java.io._
 
+import com.stratio.sparta.sdk.SaveModeEnum
+
 case class Trigger(name: String,
                    sql: String,
                    outputs: Seq[String],
                    overLast: Option[String],
                    computeEvery: Option[String],
                    primaryKey: Seq[String],
+                   saveMode: SaveModeEnum.Value,
                    configuration: Map[String, Serializable])

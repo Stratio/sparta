@@ -21,12 +21,14 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.service.http.BaseHttpService
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor.{Delete, FindAll, _}
+import PolicyStatusActor.{Delete, FindAll, _}
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyResult, PolicyStatusModel, PolicyValidator}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -158,15 +160,15 @@ trait PolicyContextHttpService extends BaseHttpService {
   def create: Route = {
     path(HttpConstant.PolicyContextPath) {
       post {
-        entity(as[AggregationPoliciesModel]) { p =>
+        entity(as[PolicyModel]) { p =>
           val parsedP = FragmentsHelper.getPolicyWithFragments(p, actors.get(AkkaConstant.FragmentActor).get)
-          AggregationPoliciesValidator.validateDto(parsedP)
+          PolicyValidator.validateDto(parsedP)
           val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
           (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
           complete {
             for {
               policyResponseTry <- (supervisor ? SparkStreamingContextActor.Create(parsedP))
-                .mapTo[Try[AggregationPoliciesModel]]
+                .mapTo[Try[PolicyModel]]
             } yield {
               policyResponseTry match {
                 case Success(policy) =>

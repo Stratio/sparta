@@ -27,10 +27,12 @@ import scala.util.Success
 import scala.util.Try
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.helpers.SpartaHelper._
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.policy.status.PolicyStatusActor._
-import com.stratio.sparta.serving.core.policy.status.{PolicyStatusActor, PolicyStatusEnum}
+import PolicyStatusActor._
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 
 trait PolicyStatusUtils {
 
@@ -79,13 +81,13 @@ trait PolicyStatusUtils {
     (policyStatusActor ? FindAll).mapTo[Response]
   }
 
-  def updatePolicy(policy: AggregationPoliciesModel, status: PolicyStatusEnum.Value,
+  def updatePolicy(policy: PolicyModel, status: PolicyStatusEnum.Value,
                    policyStatusActor: ActorRef): Unit = {
     policyStatusActor ! Update(PolicyStatusModel(policy.id.get, status))
   }
 
   def createPolicy(policyStatusActor: ActorRef,
-                   policyWithIdModel: AggregationPoliciesModel): Future[Option[PolicyStatusModel]] = {
+                   policyWithIdModel: PolicyModel): Future[Option[PolicyStatusModel]] = {
     (policyStatusActor ? PolicyStatusActor.Create(PolicyStatusModel(
       id = policyWithIdModel.id.get,
       status = PolicyStatusEnum.NotStarted
