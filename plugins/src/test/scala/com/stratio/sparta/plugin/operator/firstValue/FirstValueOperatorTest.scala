@@ -15,6 +15,8 @@
  */
 package com.stratio.sparta.plugin.operator.firstValue
 
+import java.util.Date
+
 import com.stratio.sparta.plugin.operator.firstValue.FirstValueOperator
 import com.stratio.sparta.sdk.Operator
 import org.apache.spark.sql.Row
@@ -66,7 +68,7 @@ class FirstValueOperatorTest extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new FirstValueOperator("firstValue", initSchema, Map())
-      inputFields.processReduce(Seq()) should be(Some(""))
+      inputFields.processReduce(Seq()) should be(None)
 
       val inputFields2 = new FirstValueOperator("firstValue", initSchema, Map())
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1))
@@ -80,7 +82,7 @@ class FirstValueOperatorTest extends WordSpec with Matchers {
       val resultInput = Seq((Operator.OldValuesKey, Some(1L)),
         (Operator.NewValuesKey, Some(1L)),
         (Operator.NewValuesKey, None))
-      inputFields.associativity(resultInput) should be(Some("1"))
+      inputFields.associativity(resultInput) should be(Some(1L))
 
       val inputFields2 = new FirstValueOperator("firstValue", initSchema, Map("typeOp" -> "int"))
       val resultInput2 = Seq((Operator.OldValuesKey, Some(1L)),
@@ -91,7 +93,16 @@ class FirstValueOperatorTest extends WordSpec with Matchers {
       val resultInput3 = Seq((Operator.OldValuesKey, Some(1)),
         (Operator.NewValuesKey, Some(1)),
         (Operator.NewValuesKey, None))
-      inputFields3.associativity(resultInput3) should be(Some("1"))
+      inputFields3.associativity(resultInput3) should be(Some(1))
+
+      val inputFields4 = new FirstValueOperator("firstValue", initSchema, Map())
+      val resultInput4 = Seq()
+      inputFields4.associativity(resultInput4) should be(None)
+
+      val inputFields5 = new FirstValueOperator("firstValue", initSchema, Map())
+      val date = new Date()
+      val resultInput5 = Seq((Operator.NewValuesKey, Some(date)))
+      inputFields5.associativity(resultInput5) should be(Some(date))
     }
   }
 }
