@@ -30,16 +30,16 @@ with OperatorProcessMapAsAny with Associative {
 
   val inputSchema = schema
 
-  override val defaultTypeOperation = TypeOp.String
+  override val defaultTypeOperation = TypeOp.Any
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
-    Try(Option(values.flatten.last)).getOrElse(Some(Operator.EmptyString))
+    Try(Option(values.flatten.last)).getOrElse(None)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val newValues = extractValues(values, Option(Operator.NewValuesKey))
     val lastValue = if(newValues.nonEmpty) newValues
     else extractValues(values, Option(Operator.OldValuesKey))
 
-    Try(Option(transformValueByTypeOp(returnType, lastValue.last))).getOrElse(Option(Operator.EmptyString))
+    Try(Option(transformValueByTypeOp(returnType, lastValue.last))).getOrElse(None)
   }
 }

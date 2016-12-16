@@ -27,7 +27,7 @@ object TypeOp extends Enumeration {
 
   type TypeOp = Value
   val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
-  ArrayString, MapStringLong, MapStringDouble = Value
+  ArrayString, MapStringLong, MapStringDouble, Any = Value
 
   final val TypeOperationsNames = Map(
     "number" -> TypeOp.Number,
@@ -44,7 +44,8 @@ object TypeOp extends Enumeration {
     "arraydouble" -> TypeOp.ArrayDouble,
     "arraystring" -> TypeOp.ArrayString,
     "mapstringlong" -> TypeOp.MapStringLong,
-    "mapstringany" -> TypeOp.MapStringDouble
+    "mapstringany" -> TypeOp.MapStringDouble,
+    "any" -> TypeOp.Any
   )
 
   //scalastyle:off
@@ -62,6 +63,7 @@ object TypeOp extends Enumeration {
       case TypeOp.MapStringLong => checkMapStringLongType(origValue)
       case TypeOp.MapStringDouble => checkMapStringDoubleType(origValue)
       case TypeOp.Boolean => checkBooleanType(origValue)
+      case TypeOp.Any => origValue
       case _ => origValue
     }
   }
