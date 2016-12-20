@@ -37,11 +37,12 @@ object DateOperations {
     case value if value.isInstanceOf[Timestamp] => value.asInstanceOf[Timestamp].getTime
     case value if value.isInstanceOf[Date] => value.asInstanceOf[Date].getTime
     case value if value.isInstanceOf[DateTime] => value.asInstanceOf[DateTime].getMillis
+    case _ => new DateTime().getMillis
   }
 
   def subPath(granularity: String, datePattern: Option[String]): String = {
     val suffix = AggregationTime.truncateDate(DateTime.now, granularity)
-    if (!datePattern.isDefined || suffix.equals(0L)) s"/$suffix"
+    if (datePattern.isEmpty || suffix.equals(0L)) s"/$suffix"
     else s"/${DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix))}/$suffix"
   }
 

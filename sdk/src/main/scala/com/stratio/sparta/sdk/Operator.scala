@@ -17,6 +17,7 @@ package com.stratio.sparta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import org.apache.spark.Logging
@@ -25,22 +26,20 @@ import org.apache.spark.sql.types.StructType
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{DefaultFormats, Formats}
 
-import scala.collection.immutable.StringOps
 import scala.language.reflectiveCalls
-import scala.runtime.RichDouble
 import scala.util._
 
 abstract class Operator(name: String,
                         schema: StructType,
                         properties: Map[String, JSerializable]) extends Parameterizable(properties)
-with Ordered[Operator] with TypeConversions {
+with Ordered[Operator] with TypeConversions with SLF4JLogging {
 
   @transient
   implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
 
   override def operationProps: Map[String, JSerializable] = properties
 
-  override def defaultTypeOperation: TypeOp = TypeOp.Binary
+  override def defaultTypeOperation: TypeOp = TypeOp.String
 
   def key: String = name
 
@@ -80,16 +79,14 @@ with Ordered[Operator] with TypeConversions {
                           inputFields: Map[String, Any]): Boolean = {
     filters.map(filter =>
       if (inputField._1 == filter.field && (filter.fieldValue.isDefined || filter.value.isDefined)) {
-        filterCastingType(filter.fieldType) match {
-          case TypeOp.Number | TypeOp.Long | TypeOp.Double | TypeOp.Int => {
-            val doubleValues = getDoubleValues(inputField._2, filter, inputFields)
-            applyfilterCauses(filter, doubleValues._1, doubleValues._2, doubleValues._3)
-          }
-          case _ => {
-            val stringValues = getStringValues(inputField._2, filter, inputFields)
-            applyfilterCauses(filter, stringValues._1, stringValues._2, stringValues._3)
-          }
-        }
+
+        val filterType = filterCastingType(filter.fieldType)
+        val inputValue = TypeOp.transformAnyByTypeOp(filterType, inputField._2)
+        val filterValue = filter.value.map(value => TypeOp.transformAnyByTypeOp(filterType, value))
+        val dimensionValue = filter.fieldValue.flatMap(fieldValue =>
+          inputFields.get(fieldValue).map(value => TypeOp.transformAnyByTypeOp(filterType, value)))
+
+        applyFilterCauses(filter, inputValue, filterValue, dimensionValue)
       }
       else true
     ).forall(result => result)
@@ -101,51 +98,48 @@ with Ordered[Operator] with TypeConversions {
       case None => defaultCastingFilterType
     }
 
-  private def applyfilterCauses[T <: Ordered[U], U](filter: FilterModel,
-                                                    value: T,
-                                                    filterValue: Option[U],
-                                                    dimensionValue: Option[U]): Boolean = {
+  //scalastyle:off
+  private def applyFilterCauses(filter: FilterModel,
+                                                    value: Any,
+                                                    filterValue: Option[Any],
+                                                    dimensionValue: Option[Any]): Boolean = {
+    val valueOrdered = value
+    val filterValueOrdered = filterValue.map(filterVal => filterVal)
+    val dimensionValueOrdered = dimensionValue.map(dimensionVal => dimensionVal)
+
     Seq(
-      if (filter.value.isDefined && filterValue.isDefined)
-        doFilteringType(filter.`type`, value, filterValue.get)
+      if (filter.value.isDefined && filterValue.isDefined && filterValueOrdered.isDefined)
+        Try(doFilteringType(filter.`type`, valueOrdered, filterValueOrdered.get)) match {
+          case Success(filterResult) =>
+            filterResult
+          case Failure(e) =>
+            log.error(e.getLocalizedMessage)
+            true
+        }
       else true,
-      if (filter.fieldValue.isDefined && dimensionValue.isDefined)
-        doFilteringType(filter.`type`, value, dimensionValue.get)
+      if (filter.fieldValue.isDefined && dimensionValue.isDefined && dimensionValueOrdered.isDefined)
+        Try(doFilteringType(filter.`type`, valueOrdered, dimensionValueOrdered.get)) match {
+          case Success(filterResult) =>
+            filterResult
+          case Failure(e) =>
+            log.error(e.getLocalizedMessage)
+            true
+        }
       else true
     ).forall(result => result)
   }
 
-  private def getDoubleValues(inputValue: Any,
-                              filter: FilterModel,
-                              inputFields: Map[String, Any]): (RichDouble, Option[Double], Option[Double]) = {
-
-    (new RichDouble(inputValue.toString.toDouble),
-      if (filter.value.isDefined) Some(filter.value.get.toString.toDouble) else None,
-      if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
-        Some(inputFields.get(filter.fieldValue.get).get.toString.toDouble)
-      else None)
-  }
-
-  private def getStringValues(inputValue: Any,
-                              filter: FilterModel,
-                              inputFields: Map[String, Any])
-  : (StringOps, Option[String], Option[String]) = {
-
-    (new StringOps(inputValue.toString), if (filter.value.isDefined) Some(filter.value.get.toString) else None,
-      if (filter.fieldValue.isDefined && inputFields.contains(filter.fieldValue.get))
-        Some(inputFields.get(filter.fieldValue.get).get.toString)
-      else None)
-  }
-
-  private def doFilteringType[T <: Ordered[U], U](filterType: String, value: T, filterValue: U): Boolean =
+  private def doFilteringType(filterType: String, value: Any, filterValue: Any): Boolean = {
+    import OrderingAny._
     filterType match {
-      case "=" => value.compare(filterValue) == 0
-      case "!=" => value.compare(filterValue) != 0
+      case "=" => value == filterValue
+      case "!=" => value != filterValue
       case "<" => value < filterValue
       case "<=" => value <= filterValue
       case ">" => value > filterValue
       case ">=" => value >= filterValue
     }
+  }
 
   def isAssociative: Boolean = this.isInstanceOf[Associative]
 

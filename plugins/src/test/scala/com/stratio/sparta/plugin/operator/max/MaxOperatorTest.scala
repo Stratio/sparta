@@ -49,7 +49,7 @@ class MaxOperatorTest extends WordSpec with Matchers {
       inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
       val inputFields4 = new MaxOperator("max", initSchema, Map("inputField" -> "field1"))
-      inputFields3.processMap(Row("1", 2)) should be(Some(1))
+      inputFields3.processMap(Row("1", 2)) should be(Some("1"))
 
       val inputFields6 = new MaxOperator("max", initSchema, Map("inputField" -> "field1"))
       inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))
@@ -75,7 +75,7 @@ class MaxOperatorTest extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new MaxOperator("max", initSchema, Map())
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(None)
 
       val inputFields2 = new MaxOperator("max", initSchema, Map())
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1d))
@@ -84,12 +84,12 @@ class MaxOperatorTest extends WordSpec with Matchers {
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(3d))
 
       val inputFields4 = new MaxOperator("max", initSchema, Map())
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(None)
     }
 
     "processReduce distinct must be " in {
       val inputFields = new MaxOperator("max", initSchema, Map("distinct" -> "true"))
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(None)
 
       val inputFields2 = new MaxOperator("max", initSchema, Map("distinct" -> "true"))
       inputFields2.processReduce(Seq(Some(1), Some(1))) should be(Some(1d))
@@ -98,7 +98,7 @@ class MaxOperatorTest extends WordSpec with Matchers {
       inputFields3.processReduce(Seq(Some(3), Some(2), Some(3))) should be(Some(3d))
 
       val inputFields4 = new MaxOperator("max", initSchema, Map("distinct" -> "true"))
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(None)
     }
 
     "associative process must be " in {
@@ -121,7 +121,7 @@ class MaxOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new MaxOperator("max", initSchema, Map("typeOp" -> "string"))
       val resultInput4 = Seq((Operator.OldValuesKey, Some(1)),
         (Operator.NewValuesKey, Some(3)))
-      inputFields4.associativity(resultInput4) should be(Some("3.0"))
+      inputFields4.associativity(resultInput4) should be(Some("3"))
     }
   }
 }

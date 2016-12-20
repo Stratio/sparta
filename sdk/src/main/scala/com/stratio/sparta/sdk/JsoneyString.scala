@@ -47,7 +47,9 @@ class JsoneyStringSerializer extends CustomSerializer[JsoneyString](format => (
   },
   {
     case x: JsoneyString =>
-      if(x.string.contains("[") && x.string.contains("{")) {
+      if(x.string == null) {
+        new JString("")
+      } else if(x.string.contains("[") && x.string.contains("{")) {
         parse(x.string)
       } else if(x.string.equals("true") || x.string.equals("false")) {
         new JBool(x.string.toBoolean)
