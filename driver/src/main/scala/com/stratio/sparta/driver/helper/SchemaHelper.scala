@@ -20,24 +20,23 @@ import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.sdk.TypeOp.TypeOp
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
 import org.apache.spark.sql.types._
 
 object SchemaHelper {
 
-  final val Default_Precision = 10
-  final val Default_Scale = 0
-  final val Nullable = true
-  final val NotNullable = false
-  final val DefaultTimeStampTypeString = "timestamp"
-  final val DefaultTimeStampType = TypeOp.Timestamp
+  val Default_Precision = 10
+  val Default_Scale = 0
+  val Nullable = true
+  val NotNullable = false
+  val DefaultTimeStampTypeString = "timestamp"
+  val DefaultTimeStampType = TypeOp.Timestamp
   private val MetadataBuilder = new MetadataBuilder
-  final val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
-  final val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
-  final val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true)
+  val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
+  val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
+  val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true)
     .putBoolean(Output.TimeDimensionKey, true).build()
 
   val mapTypes = Map(

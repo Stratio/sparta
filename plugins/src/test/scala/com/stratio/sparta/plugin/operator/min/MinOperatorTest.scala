@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.operator.min
 
-import com.stratio.sparta.plugin.operator.min.MinOperator
 import com.stratio.sparta.sdk.Operator
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
@@ -49,7 +48,7 @@ class MinOperatorTest extends WordSpec with Matchers {
       inputFields3.processMap(Row(1, 2)) should be(Some(1))
 
       val inputFields4 = new MinOperator("min", initSchema, Map("inputField" -> "field1"))
-      inputFields3.processMap(Row("1", 2)) should be(Some(1))
+      inputFields3.processMap(Row("1", 2)) should be(Some("1"))
 
       val inputFields6 = new MinOperator("min", initSchema, Map("inputField" -> "field1"))
       inputFields6.processMap(Row(1.5, 2)) should be(Some(1.5))
@@ -75,7 +74,7 @@ class MinOperatorTest extends WordSpec with Matchers {
 
     "processReduce must be " in {
       val inputFields = new MinOperator("min", initSchema, Map())
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(None)
 
       val inputFields2 = new MinOperator("min", initSchema, Map())
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1d))
@@ -84,12 +83,12 @@ class MinOperatorTest extends WordSpec with Matchers {
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
 
       val inputFields4 = new MinOperator("min", initSchema, Map())
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(None)
     }
 
     "processReduce disctinct must be " in {
       val inputFields = new MinOperator("min", initSchema, Map("distinct" -> "true"))
-      inputFields.processReduce(Seq()) should be(Some(0d))
+      inputFields.processReduce(Seq()) should be(None)
 
       val inputFields2 = new MinOperator("min", initSchema, Map("distinct" -> "true"))
       inputFields2.processReduce(Seq(Some(1), Some(2))) should be(Some(1d))
@@ -98,7 +97,7 @@ class MinOperatorTest extends WordSpec with Matchers {
       inputFields3.processReduce(Seq(Some(1), Some(2), Some(3))) should be(Some(1d))
 
       val inputFields4 = new MinOperator("min", initSchema, Map("distinct" -> "true"))
-      inputFields4.processReduce(Seq(None)) should be(Some(0d))
+      inputFields4.processReduce(Seq(None)) should be(None)
     }
 
     "associative process must be " in {
@@ -121,7 +120,7 @@ class MinOperatorTest extends WordSpec with Matchers {
       val inputFields4 = new MinOperator("max", initSchema, Map("typeOp" -> "string"))
       val resultInput4 = Seq((Operator.OldValuesKey, Some(1)),
         (Operator.NewValuesKey, Some(3)))
-      inputFields4.associativity(resultInput4) should be(Some("1.0"))
+      inputFields4.associativity(resultInput4) should be(Some("1"))
     }
   }
 }

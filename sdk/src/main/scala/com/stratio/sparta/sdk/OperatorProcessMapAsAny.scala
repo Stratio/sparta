@@ -27,7 +27,7 @@ trait OperatorProcessMapAsAny {
   def applyFilters(inputFields: Row): Option[Map[String, Any]]
 
   def processMap(inputFieldsValues: Row): Option[Any] =
-    if (inputField.isDefined && inputSchema.fieldNames.contains(inputField.get)) {
-      applyFilters(inputFieldsValues).flatMap(filteredFields => Some(filteredFields.get(inputField.get).get))
-    } else None
+    if (inputField.isDefined && inputSchema.fieldNames.contains(inputField.get))
+      applyFilters(inputFieldsValues).flatMap(filteredFields => filteredFields.get(inputField.get))
+    else None
 }

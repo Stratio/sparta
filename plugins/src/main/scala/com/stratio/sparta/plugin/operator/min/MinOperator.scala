@@ -26,24 +26,18 @@ import scala.util.Try
 class MinOperator(name: String,
                   schema: StructType,
                   properties: Map[String, JSerializable]) extends Operator(name, schema, properties)
-with OperatorProcessMapAsNumber with Associative {
+with OperatorProcessMapAsAny with Associative {
 
   val inputSchema = schema
 
-  override val defaultTypeOperation = TypeOp.Double
+  override val defaultTypeOperation = TypeOp.Any
 
-  override val defaultCastingFilterType = TypeOp.Number
+  override def processReduce(values: Iterable[Option[Any]]): Option[Any] =
+    Try(Option(getDistinctValues(values.flatten).min)).getOrElse(None)
 
-  override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
-    Try(Option(getDistinctValues(values.flatten.map(_.asInstanceOf[Number].doubleValue())).min))
-      .getOrElse(Some(Operator.Zero.toDouble))
-  }
-
-  def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
+  def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val newValues = extractValues(values, None)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.map(value =>
-      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double]).min)))
-      .getOrElse(Option(Operator.Zero.toDouble))
+    Try(Option(transformValueByTypeOp(returnType, newValues.min))).getOrElse(None)
   }
 }
