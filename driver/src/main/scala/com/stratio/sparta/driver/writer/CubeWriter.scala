@@ -107,7 +107,7 @@ case class CubeWriter(cube: Cube,
   private def filterDimensionsByTime(dimensionValues: Seq[DimensionValue], timeDimension: String): Seq[DimensionValue] =
     dimensionValues.filter(dimensionValue => dimensionValue.dimension.name != timeDimension)
 
-  private def timeFromDateType[T](time: Long, dateType: TypeOp.Value): Any = {
+  private def timeFromDateType(time: Long, dateType: TypeOp.Value): Any = {
     dateType match {
       case TypeOp.Date | TypeOp.DateTime => new Date(time)
       case TypeOp.Long => time
