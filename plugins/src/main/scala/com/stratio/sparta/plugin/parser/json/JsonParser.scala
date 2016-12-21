@@ -18,12 +18,12 @@ package com.stratio.sparta.plugin.parser.json
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.Parser
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.plugin.parser.json.models.{JsonQueriesModel, JsonQueryModel}
+import com.stratio.sparta.sdk.{JsoneyStringSerializer, Parser}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
-
-import scala.util.{Failure, Success, Try}
+import org.json4s._
+import org.json4s.jackson.Serialization._
 
 class JsonParser(order: Integer,
                  inputField: String,
@@ -32,16 +32,12 @@ class JsonParser(order: Integer,
                  properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  private val QueriesByField = properties.get("queries").fold(Map.empty[String, String]) { values =>
-    values.asInstanceOf[Map[String, String]].mapValues(_.toString)
-  }
-
   override def parse(row: Row, removeRaw: Boolean): Row = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
       inputValue match {
         case Some(value) =>
-          val valuesParsed = JsonParser.jsonParse(value.toString, QueriesByField)
+          val valuesParsed = JsonParser.jsonParse(value.toString, properties)
 
           outputFields.map { outputField =>
             val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
@@ -67,15 +63,24 @@ class JsonParser(order: Integer,
 
     Row.fromSeq(prevData ++ newData)
   }
-
-
 }
 
 object JsonParser {
 
-  def jsonParse(jsonData: String, queries: Map[String, String]): Map[String, Any] = {
+  implicit val json4sJacksonFormats: Formats =
+    DefaultFormats +
+      new JsoneyStringSerializer()
+
+  var queriesByField: Option[JsonQueriesModel] = None
+
+  def jsonParse(jsonData: String, properties: Map[String, JSerializable]): Map[String, Any] = {
     val jsonPathExtractor = new JsonPathExtractor(jsonData)
 
-    queries.mapValues(values => jsonPathExtractor.query(values))
+    queriesByField.getOrElse {
+      queriesByField = Option(read[JsonQueriesModel](
+        s"""{"queries": ${properties.get("queries").fold("[]") { values => values.toString }}}""""
+      ))
+      queriesByField.get
+    }.queries.map(queryModel => (queryModel.field, jsonPathExtractor.query(queryModel.query))).toMap
   }
 }

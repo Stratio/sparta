@@ -22,6 +22,10 @@
       </div>
     </div>
     <div data-ng-switch="vm.model.type">
+      <!-- json -->
+      <div data-ng-switch-when="Json">
+        <ng-include src="'templates/policies/transformation/json-panel.tpl.html'"></ng-include>
+      </div>
       <!-- morphlines -->
       <div data-ng-switch-when="Morphlines">
         <ng-include src="'templates/policies/transformation/morphlines-panel.tpl.html'"></ng-include>

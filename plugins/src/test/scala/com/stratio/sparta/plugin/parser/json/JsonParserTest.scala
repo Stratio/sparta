@@ -21,6 +21,7 @@ import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructTy
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
+import java.io.{Serializable => JSerializable}
 
 @RunWith(classOf[JUnitRunner])
 class JsonParserTest extends WordSpecLike with Matchers {
@@ -69,18 +70,24 @@ class JsonParserTest extends WordSpecLike with Matchers {
     "parse json string" in {
       val input = Row(JSON)
       val outputsFields = Seq("color", "price")
-      val queries: Map[String, String] = Map(
-        "color" -> "$.store.bicycle.color",
-        "price" -> "$.store.bicycle.price"
-      )
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
       val result = new JsonParser(
         1,
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[Serializable])
+        Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-
       val expected = Row(JSON, "red", 19.95)
 
       assertResult(result)(expected)
@@ -89,18 +96,24 @@ class JsonParserTest extends WordSpecLike with Matchers {
     "parse json string removing raw" in {
       val input = Row(JSON)
       val outputsFields = Seq("color", "price")
-      val queries: Map[String, String] = Map(
-        "color" -> "$.store.bicycle.color",
-        "price" -> "$.store.bicycle.price"
-      )
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
       val result = new JsonParser(
         1,
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[Serializable])
+        Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, true)
-
       val expected = Row("red", 19.95)
 
       assertResult(result)(expected)
@@ -110,32 +123,48 @@ class JsonParserTest extends WordSpecLike with Matchers {
       val input = Row(JSON)
       val schema = StructType(Seq(StructField("wrongfield", StringType)))
       val outputsFields = Seq("color", "price")
-      val queries: Map[String, String] = Map(
-        "color" -> "$.store.bicycle.color",
-        "price" -> "$.store.bicycle.price"
-      )
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
+
       an[IllegalStateException] should be thrownBy new JsonParser(
         1,
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[Serializable])
+        Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
     }
 
     "not parse when input is wrong" in {
       val input = Row("{}")
       val outputsFields = Seq("color", "price")
-      val queries: Map[String, String] = Map(
-        "color" -> "$.store.bicycle.color",
-        "price" -> "$.store.bicycle.price"
-      )
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
+
       an[Exception] should be thrownBy new JsonParser(
         1,
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[Serializable])
+        Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
     }
   }

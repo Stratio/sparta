@@ -70,6 +70,9 @@
         case modelConstants.MORPHLINES:
           vm.model.configuration = vm.template.model[modelConstants.MORPHLINES].defaultConfiguration;
           break;
+        case modelConstants.JSON:
+          vm.model.configuration = vm.template.model[modelConstants.JSON].defaultConfiguration;
+          break;
         case modelConstants.GEO:
           delete vm.model.inputField;
           vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;
