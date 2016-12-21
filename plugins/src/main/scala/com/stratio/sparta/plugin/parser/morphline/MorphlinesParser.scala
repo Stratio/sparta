@@ -41,13 +41,13 @@ class MorphlinesParser(order: Integer,
     val inputValue = Option(row.get(inputFieldIndex))
     val result = inputValue match {
       case Some(s: String) =>
-        if (s.isEmpty) returnNullValue
+        if (s.isEmpty) returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
         else parseWithMorphline(new ByteArrayInputStream(s.getBytes("UTF-8")))
       case Some(b: Array[Byte]) =>
-        if (b.length == 0) returnNullValue
+        if (b.length == 0)  returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
         else parseWithMorphline(new ByteArrayInputStream(b))
       case _ =>
-        returnNullValue
+        returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
     }
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 

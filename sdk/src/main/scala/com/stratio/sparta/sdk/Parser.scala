@@ -18,7 +18,7 @@ package com.stratio.sparta.sdk
 import java.io.{Serializable => JSerializable}
 
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{StructField, StructType}
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
 
 import scala.util.Try
@@ -46,9 +46,12 @@ abstract class Parser(order: Integer,
   def compare(that: Parser): Int = this.getOrder.compareTo(that.getOrder)
 
   //scalastyle:off
-  def returnNullValue: Null =
-    if (errorWithNullInputs) throw new IllegalStateException(s"The input value is null or empty")
+  def returnNullValue(exception: Exception): Null =
+    if (errorWithNullInputs) throw exception
     else null
+
+  def parseToOutputType(outSchema: StructField, inputValue: Any): Any =
+    TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
 
   //scalastyle:on
 }
