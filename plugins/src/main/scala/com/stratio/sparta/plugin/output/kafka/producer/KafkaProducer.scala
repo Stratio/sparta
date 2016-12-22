@@ -19,7 +19,7 @@ import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
 import com.stratio.sparta.plugin.input.kafka.KafkaBase
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
 import scala.collection.mutable

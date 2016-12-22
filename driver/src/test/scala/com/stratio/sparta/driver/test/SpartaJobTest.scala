@@ -17,7 +17,8 @@ package com.stratio.sparta.driver.test
 
 import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.utils.ReflectionUtils
-import com.stratio.sparta.sdk.{Input, JsoneyString, Parser}
+import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.sdk.{Input, Parser}
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext

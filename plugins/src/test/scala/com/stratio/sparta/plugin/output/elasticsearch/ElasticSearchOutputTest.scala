@@ -21,11 +21,11 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.{FieldType, _}
 import com.stratio.sparta.plugin.output.elasticsearch.ElasticSearchOutput
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
 
 import scala.annotation.tailrec
 

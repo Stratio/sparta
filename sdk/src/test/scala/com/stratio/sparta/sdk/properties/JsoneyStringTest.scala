@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.sdk
+package com.stratio.sparta.sdk.properties
 
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write

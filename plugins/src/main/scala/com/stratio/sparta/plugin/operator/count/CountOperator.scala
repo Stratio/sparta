@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.operator.count
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.{TypeOp, _}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType

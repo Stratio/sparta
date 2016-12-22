@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models.policy.cube
 
-import com.stratio.sparta.sdk.JsoneyString
+import com.stratio.sparta.sdk.properties.JsoneyString
 
 case class OperatorModel(`type`: String, name: String, configuration: Map[String, JsoneyString]) {
 

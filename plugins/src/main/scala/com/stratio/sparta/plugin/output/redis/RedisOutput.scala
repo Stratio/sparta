@@ -19,7 +19,7 @@ import java.io.Serializable
 
 import com.stratio.sparta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row}

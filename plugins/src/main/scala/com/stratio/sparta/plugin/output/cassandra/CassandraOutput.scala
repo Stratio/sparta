@@ -21,10 +21,9 @@ import java.io.{Serializable => JSerializable}
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparta.plugin.output.cassandra.dao.CassandraDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql._
 
 class CassandraOutput(keyName: String,

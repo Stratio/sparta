@@ -19,8 +19,8 @@ import java.io.Serializable
 import java.util.Properties
 
 import org.apache.log4j.{Level, Logger}
-
 import com.stratio.sparta.plugin.output.kafka.producer.KafkaProducer
+import com.stratio.sparta.sdk.properties.JsoneyString
 import kafka.producer
 import org.apache.kafka.clients.producer.Producer
 import org.junit.runner.RunWith
@@ -28,8 +28,6 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 import scala.util._
-
-import com.stratio.sparta.sdk.JsoneyString
 
 @RunWith(classOf[JUnitRunner])
 class KafkaProducerTest extends FlatSpec with Matchers {

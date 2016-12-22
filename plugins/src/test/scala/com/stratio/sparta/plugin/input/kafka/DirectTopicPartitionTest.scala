@@ -16,7 +16,7 @@
 package com.stratio.sparta.plugin.input.kafka
 
 import com.stratio.sparta.plugin.input.kafka.KafkaDirectInput
-import com.stratio.sparta.sdk.JsoneyString
+import com.stratio.sparta.sdk.properties.JsoneyString
 import org.scalatest.{Matchers, WordSpec}
 
 

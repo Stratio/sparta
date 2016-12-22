@@ -19,7 +19,7 @@ import java.io.Serializable
 import java.net.InetSocketAddress
 
 import com.stratio.sparta.sdk.Input
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream

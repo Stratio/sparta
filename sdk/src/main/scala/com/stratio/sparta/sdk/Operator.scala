@@ -19,7 +19,8 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.{JsoneyStringSerializer, Parameterizable}
 import org.apache.spark.Logging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType

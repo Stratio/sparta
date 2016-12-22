@@ -34,7 +34,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
 import com.stratio.decision.commons.avro._
 import com.stratio.sparta.plugin.input.kafka.{KafkaDirectInput, KafkaInput}
 import com.stratio.sparta.plugin.input.websocket.WebSocketInput
-import com.stratio.sparta.sdk.{JsoneyString, Input}
+import com.stratio.sparta.sdk.Input
 
 @RunWith(classOf[JUnitRunner])
 class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {

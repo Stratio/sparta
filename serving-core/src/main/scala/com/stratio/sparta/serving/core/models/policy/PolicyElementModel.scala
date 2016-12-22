@@ -17,7 +17,7 @@
 
 package com.stratio.sparta.serving.core.models.policy
 
-import com.stratio.sparta.sdk.JsoneyString
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType.`type`
 

@@ -23,7 +23,7 @@ import java.util.{Date, TimeZone}
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.AggregationTime._
 import com.stratio.sparta.sdk.Parser
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}

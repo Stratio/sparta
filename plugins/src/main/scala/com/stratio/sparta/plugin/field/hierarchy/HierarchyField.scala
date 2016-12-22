@@ -18,11 +18,10 @@ package com.stratio.sparta.plugin.field.hierarchy
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-
 import HierarchyField._
 import com.stratio.sparta.sdk.TypeOp
 import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
 
 case class HierarchyField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)

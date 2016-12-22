@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.sdk
+package com.stratio.sparta.sdk.properties
 
 import akka.event.slf4j.SLF4JLogging
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization._
 
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
@@ -33,18 +34,14 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
+  def getPropertiesQueries(key: K): PropertiesQueriesModel = {
+    implicit val json4sJacksonFormats: Formats =
+      DefaultFormats +
+        new JsoneyStringSerializer()
 
-  def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
-    val conObj = getMapFromJsoneyString(key)
-    conObj.map(c =>
-      (c.get("node") match {
-        case Some(value) => value.toString
-        case None => defaultHost
-      },
-        c.get("defaultPort") match {
-          case Some(value) => value.toString.toInt
-          case None => defaultPort.toInt
-        }))
+    read[PropertiesQueriesModel](
+      s"""{"queries": ${m.get(key).fold("[]") { values => values.toString }}}""""
+    )
   }
 
   def getMapFromJsoneyString(key: K): Seq[Map[String, String]] = {

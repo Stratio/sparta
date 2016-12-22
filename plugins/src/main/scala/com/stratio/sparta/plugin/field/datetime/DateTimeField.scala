@@ -22,7 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.TypeOp._
 import com.stratio.sparta.sdk.{TypeOp, _}
 import org.joda.time.DateTime
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import DateTimeField._
 
 case class DateTimeField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
