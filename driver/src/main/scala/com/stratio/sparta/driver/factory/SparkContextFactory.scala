@@ -21,7 +21,7 @@ import java.io.File
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -73,7 +73,7 @@ object SparkContextFactory extends SLF4JLogging {
   StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     ssc.checkpoint(checkpointDir)
-    remember.foreach(value => ssc.remember(Duration(DateOperationsHelper.parseValueToMilliSeconds(value))))
+    remember.foreach(value => ssc.remember(Duration(AggregationTime.parseValueToMilliSeconds(value))))
     ssc
   }
 

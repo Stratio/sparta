@@ -17,9 +17,10 @@ package com.stratio.sparta.driver.writer
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.sdk.{Output, TableSchema}
 import org.apache.spark.sql.DataFrame
 import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 
 import scala.util.{Failure, Success, Try}
 
@@ -29,7 +30,7 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
   def writeTriggers(dataFrame: DataFrame,
                     triggers: Seq[Trigger],
                     inputTableName: String,
-                    tableSchemas: Seq[TableSchema],
+                    tableSchemas: Seq[SpartaSchema],
                     outputs: Seq[Output]) : Unit = {
     val sqlContext = dataFrame.sqlContext
 

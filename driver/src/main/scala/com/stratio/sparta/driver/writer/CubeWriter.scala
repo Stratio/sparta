@@ -21,6 +21,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValue, DimensionValuesTime, MeasuresValues}
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
@@ -31,11 +34,11 @@ case class CubeWriterOptions(outputs: Seq[String],
                              saveMode: SaveModeEnum.Value = SaveModeEnum.Append)
 
 case class CubeWriter(cube: Cube,
-                      tableSchema: TableSchema,
+                      tableSchema: SpartaSchema,
                       options: CubeWriterOptions,
                       outputs: Seq[Output],
                       triggerOutputs: Seq[Output],
-                      triggerSchemas: Seq[TableSchema])
+                      triggerSchemas: Seq[SpartaSchema])
   extends TriggerWriter with SLF4JLogging {
 
   val saveOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>

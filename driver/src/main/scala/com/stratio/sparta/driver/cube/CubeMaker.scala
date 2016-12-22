@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.driver.cube
 
-import com.stratio.sparta.sdk.{DimensionValuesTime, MeasuresValues}
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValuesTime, MeasuresValues}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 

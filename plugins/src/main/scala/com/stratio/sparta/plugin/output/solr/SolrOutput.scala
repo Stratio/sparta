@@ -16,9 +16,10 @@
 package com.stratio.sparta.plugin.output.solr
 
 import com.lucidworks.spark.SolrRelation
-import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.spark.sql.DataFrame
 
@@ -27,7 +28,7 @@ import scala.util.Try
 class SolrOutput(keyName: String,
                  version: Option[Int],
                  properties: Map[String, Serializable],
-                 schemas: Seq[TableSchema])
+                 schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with SolrDAO {
 
   override val idField = properties.getString("idField", None)

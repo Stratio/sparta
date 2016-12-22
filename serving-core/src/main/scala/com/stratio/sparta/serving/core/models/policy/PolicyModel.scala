@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.models.policy
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper._
+import com.stratio.sparta.sdk.utils.AggregationTime._
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel

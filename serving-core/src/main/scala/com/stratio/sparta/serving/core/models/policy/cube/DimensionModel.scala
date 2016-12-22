@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models.policy.cube
 
-import com.stratio.sparta.sdk.DimensionType
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 
 case class DimensionModel(name: String,
                           field: String,

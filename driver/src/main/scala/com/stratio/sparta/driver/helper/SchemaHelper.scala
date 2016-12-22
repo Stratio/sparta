@@ -17,9 +17,14 @@
 package com.stratio.sparta.driver.helper
 
 import com.stratio.sparta.driver.cube.Cube
-import com.stratio.sparta.sdk.TypeOp.TypeOp
-import com.stratio.sparta.sdk._
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, ExpiringData}
+import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
+import com.stratio.sparta.sdk.pipeline.autoCalculations._
+import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
@@ -117,7 +122,7 @@ object SchemaHelper {
 
   //scalastyle:off
   def getSchemasFromCubes(cubes: Seq[Cube],
-                          cubeModels: Seq[CubeModel]): Seq[TableSchema] = {
+                          cubeModels: Seq[CubeModel]): Seq[SpartaSchema] = {
     for {
       (cube, cubeModel) <- cubes.zip(cubeModels)
       measuresMerged = measuresFields(cube.operators, cubeModel.avoidNullValues).sortWith(_.name < _.name)
@@ -141,26 +146,26 @@ object SchemaHelper {
               fromFixedValueModel.value))
         )
       )
-    } yield TableSchema(outputs, cube.name, schema, timeDimension, dateType, autoCalculatedFields)
+    } yield SpartaSchema(outputs, cube.name, schema, timeDimension, dateType, autoCalculatedFields)
   }
 
   //scalastyle:on
 
-  def getExpiringData(cubeModel: CubeModel): Option[ExpiringDataConfig] = {
+  def getExpiringData(cubeModel: CubeModel): Option[ExpiringData] = {
     val timeDimension = cubeModel.dimensions
       .find(dimensionModel => dimensionModel.computeLast.isDefined)
 
     timeDimension match {
       case Some(dimensionModelValue) =>
-        Option(ExpiringDataConfig(
+        Option(ExpiringData(
           dimensionModelValue.name,
           dimensionModelValue.precision,
-          DateOperationsHelper.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
+          AggregationTime.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
       case _ => None
     }
   }
 
-  def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+  def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[SpartaSchema] = {
     for {
       trigger <- triggers
       structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
@@ -178,7 +183,7 @@ object SchemaHelper {
               fromFixedValueModel.value))
         )
       )
-    } yield TableSchema(
+    } yield SpartaSchema(
       outputs = trigger.writer.outputs,
       tableName = trigger.name,
       schema = schema,
@@ -188,7 +193,8 @@ object SchemaHelper {
     )
   }
 
-  def getSchemasFromCubeTrigger(cubeModels: Seq[CubeModel], outputModels: Seq[PolicyElementModel]): Seq[TableSchema] = {
+  def getSchemasFromCubeTrigger(cubeModels: Seq[CubeModel],
+                                outputModels: Seq[PolicyElementModel]): Seq[SpartaSchema] = {
     val tableSchemas = for {
       cube <- cubeModels
       tableSchemas = getSchemasFromTriggers(cube.triggers, outputModels)

@@ -21,6 +21,8 @@ import akka.testkit.{TestActor, TestProbe}
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy._

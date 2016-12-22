@@ -15,11 +15,11 @@
  */
 package com.stratio.sparta.plugin.output.http
 
-import com.stratio.sparta.sdk.{OutputFormat, TableSchema}
+import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.types._
 import org.apache.spark.sql._
-
 import org.junit.runner.RunWith
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
@@ -39,13 +39,13 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
 
-  val tableSchema = Seq(TableSchema(Seq("outputName"), "testTable", fields, Option("minute")))
+  val tableSchema = Seq(SpartaSchema(Seq("outputName"), "testTable", fields, Option("minute")))
   val OkHTTPResponse = 200
 
   "An object of type RestOutput " should "have the same values as the properties Map" in {
     val rest = new HttpOutput("key", Some(2), properties, tableSchema)
 
-    rest.outputFormat should be(OutputFormat.ROW)
+    rest.outputFormat should be(OutputFormatEnum.ROW)
     rest.readTimeout should be(5000)
   }
   it should "throw a NoSuchElementException" in {

@@ -16,8 +16,10 @@
 
 package com.stratio.sparta.plugin.output.elasticsearch.dao
 
-import com.stratio.sparta.sdk.TypeOp._
-import com.stratio.sparta.sdk.{TypeOp, _}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
+import com.stratio.sparta.sdk.{_}
 
 trait ElasticSearchDAO {
 

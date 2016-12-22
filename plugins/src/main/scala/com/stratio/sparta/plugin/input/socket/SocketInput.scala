@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.input.socket
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.Input
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext

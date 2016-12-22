@@ -18,7 +18,8 @@ package com.stratio.sparta.plugin.output.cassandra.dao
 import java.io.Closeable
 
 import com.datastax.spark.connector.cql.CassandraConnector
-import com.stratio.sparta.sdk.{Output, TableSchema}
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
 import org.apache.spark.sql.types._
 
@@ -64,14 +65,14 @@ trait CassandraDAO extends Closeable with Logging {
 
   def createKeypace(connector: CassandraConnector): Boolean = doCreateKeyspace(connector)
 
-  def createTables(connector: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean =
+  def createTables(connector: CassandraConnector, tSchemas: Seq[SpartaSchema]): Boolean =
     doCreateTables(connector, tSchemas)
 
-  def createIndexes(connector: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean =
+  def createIndexes(connector: CassandraConnector, tSchemas: Seq[SpartaSchema]): Boolean =
     doCreateIndexes(connector, tSchemas)
 
   def createTextIndexes(connector: CassandraConnector,
-                        tSchemas: Seq[TableSchema]): Boolean =
+                        tSchemas: Seq[SpartaSchema]): Boolean =
     doCreateTextIndexes(connector, tSchemas)
 
   protected def doCreateKeyspace(conn: CassandraConnector): Boolean = {
@@ -82,7 +83,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateTables(conn: CassandraConnector,
-                               tSchemas: Seq[TableSchema]): Boolean = {
+                               tSchemas: Seq[SpartaSchema]): Boolean = {
     tSchemas.map(tableSchema =>
         createTable(conn,
           tableSchema.tableName,
@@ -110,7 +111,7 @@ trait CassandraDAO extends Closeable with Logging {
   }
 
   protected def doCreateIndexes(conn: CassandraConnector,
-                                tSchemas: Seq[TableSchema]): Boolean = {
+                                tSchemas: Seq[SpartaSchema]): Boolean = {
     indexFields match {
       case Some(fields) => {
         val seqResults = for {
@@ -142,7 +143,7 @@ trait CassandraDAO extends Closeable with Logging {
     true
   }
 
-  protected def doCreateTextIndexes(conn: CassandraConnector, tSchemas: Seq[TableSchema]): Boolean = {
+  protected def doCreateTextIndexes(conn: CassandraConnector, tSchemas: Seq[SpartaSchema]): Boolean = {
     textIndexFields match {
       case Some(textFields) => {
         val seqResults = for {

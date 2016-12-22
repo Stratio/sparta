@@ -18,6 +18,9 @@ package com.stratio.sparta.driver.cube
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube._
+import com.stratio.sparta.sdk.pipeline.aggregation.operator.{Associative, Operator}
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import org.apache.spark.HashPartitioner
@@ -39,7 +42,7 @@ case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
                 initSchema: StructType,
-                expiringDataConfig: Option[ExpiringDataConfig] = None,
+                expiringDataConfig: Option[ExpiringData] = None,
                 triggers: Seq[Trigger]) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)

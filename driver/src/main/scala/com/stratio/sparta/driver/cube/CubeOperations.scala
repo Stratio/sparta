@@ -17,6 +17,9 @@ package com.stratio.sparta.driver.cube
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValue, DimensionValuesTime, InputFields, TimeConfig}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
+import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.joda.time.DateTime
@@ -73,7 +76,7 @@ case class CubeOperations(cube: Cube) extends SLF4JLogging {
       dimensionValues.filter(dimensionValue => dimensionValue.dimension.name == timeDimension)
 
     if (dimensionsDates.isEmpty) getDate
-    else DateOperations.getMillisFromSerializable(dimensionsDates.head.value)
+    else AggregationTime.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
   private def getDate: Long = {

@@ -18,9 +18,10 @@ package com.stratio.sparta.plugin.output.redis
 import java.io.Serializable
 
 import com.stratio.sparta.plugin.output.redis.dao.AbstractRedisDAO
-import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row}
 
@@ -28,12 +29,13 @@ import org.apache.spark.sql.{DataFrame, Row}
  * Saves calculated cubes on Redis.
  * The hashKey will have this kind of structure -> A:valueA:B:valueB:C:valueC.It is important to see that
  * values will be part of the key and the objective of it is to perform better searches in the hash.
+ *
  * @author anistal
  */
 class RedisOutput(keyName: String,
                   version: Option[Int],
                   properties: Map[String, Serializable],
-                  schemas: Seq[TableSchema])
+                  schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas)
   with AbstractRedisDAO with Serializable {
 

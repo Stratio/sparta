@@ -16,7 +16,8 @@
 package com.stratio.sparta.serving.core.models.policy
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.{Input, Parser}
+import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.transformation.Parser
 
 case class TransformationsModel(`type`: String,
                                 order: Integer,

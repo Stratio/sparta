@@ -38,7 +38,8 @@ import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.sdk.{DimensionType, Input}
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.api.actor.{PolicyActor, SparkStreamingContextActor}
 import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.models._

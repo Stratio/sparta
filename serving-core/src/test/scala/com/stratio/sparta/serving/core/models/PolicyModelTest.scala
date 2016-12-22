@@ -16,9 +16,9 @@
 
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.sdk.{DimensionType, Input}
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
