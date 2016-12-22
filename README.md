@@ -103,6 +103,7 @@ Outputs
 - JDBC
 - CSV
 - Parquet
+- Http
 
 ![Outputs](./images/outputs.png)
 
