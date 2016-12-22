@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.parser.json
+package com.stratio.sparta.plugin.parser.xpath
 
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.Parser
 import com.stratio.sparta.sdk.properties.PropertiesQueriesModel
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import kantan.xpath._
+import kantan.xpath.ops._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
-class JsonParser(order: Integer,
-                 inputField: String,
-                 outputFields: Seq[String],
-                 schema: StructType,
-                 properties: Map[String, JSerializable])
+class XPathParser(order: Integer,
+                  inputField: String,
+                  outputFields: Seq[String],
+                  schema: StructType,
+                  properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
   val queriesModel = properties.getPropertiesQueries("queries")
@@ -38,7 +40,7 @@ class JsonParser(order: Integer,
     val newData = {
       inputValue match {
         case Some(value) =>
-          val valuesParsed = JsonParser.jsonParse(value.toString, queriesModel)
+          val valuesParsed = XPathParser.xPathParse(value.toString, queriesModel)
 
           outputFields.map { outputField =>
             val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
@@ -66,11 +68,30 @@ class JsonParser(order: Integer,
   }
 }
 
-object JsonParser {
+object XPathParser {
 
-  def jsonParse(jsonData: String, queriesModel: PropertiesQueriesModel): Map[String, Any] = {
-    val jsonPathExtractor = new JsonPathExtractor(jsonData)
+  def xPathParse(xmlData: String, queriesModel: PropertiesQueriesModel): Map[String, Any] =
+    queriesModel.queries.map(queryModel => (queryModel.field, parse[String](xmlData, queryModel.query))).toMap
 
-    queriesModel.queries.map(queryModel => (queryModel.field, jsonPathExtractor.query(queryModel.query))).toMap
-  }
+  /**
+   * Receives a query and returns the elements found. If there was an error,
+   * an exception will be thrown
+   *
+   * @param query search to apply
+   * @tparam T type of the elements returned
+   * @return elements found
+   */
+  private def parse[T: Compiler](source: String, query: String): T =
+    applyQuery(source, query).get
+
+  /**
+   * Receives a query and returns an XPathResult with the try of apply
+   * the query to the source value
+   *
+   * @param query search to apply
+   * @tparam T type of the elements returned.
+   * @return a XPathResult with the try of apply the query
+   */
+  private def applyQuery[T: Compiler](source: String, query: String): XPathResult[T] =
+    source.evalXPath[T](query)
 }

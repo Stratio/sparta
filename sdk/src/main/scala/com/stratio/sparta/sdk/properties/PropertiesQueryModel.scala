@@ -13,11 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.sdk
 
-import java.io.Serializable
+package com.stratio.sparta.sdk.properties
 
-abstract case class Parameterizable(properties: Map[String, Serializable]) {
-
-  require(Option(properties).isDefined, "The properties map cannot be null")
-}
+case class PropertiesQueryModel(field : String, query: String)

@@ -310,6 +310,10 @@
         "name": "Json"
       },
       {
+        "iconName": "code",
+        "name": "Xml"
+      },
+      {
         "iconName": "kite",
         "name": "Morphlines"
       },
@@ -394,6 +398,32 @@
           {
             "field":"field2",
             "query":"$.field2-in-json"
+          }
+        ]
+      }
+    },
+    "Xml": {
+      "properties": [
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-transformation-xml-errorWithNullValues"
+        }
+      ],
+      "defaultConfiguration": {
+        "queries": [
+          {
+            "field":"field1",
+            "query":"//element_path/@field1_in_xml"
+          },
+          {
+            "field":"field2",
+            "query":"//element_path/@field1_in_xml"
           }
         ]
       }

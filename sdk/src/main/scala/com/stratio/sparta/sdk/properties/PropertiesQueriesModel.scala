@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.parser.json.models
+package com.stratio.sparta.sdk.properties
 
-case class JsonQueryModel(field : String, query: String)
+case class PropertiesQueriesModel(queries: Seq[PropertiesQueryModel])

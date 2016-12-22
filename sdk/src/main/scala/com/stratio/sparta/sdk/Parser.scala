@@ -17,9 +17,10 @@ package com.stratio.sparta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.Parameterizable
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StructField, StructType}
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
 
 import scala.util.Try
 

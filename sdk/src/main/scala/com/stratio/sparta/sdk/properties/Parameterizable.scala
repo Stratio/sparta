@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.sdk.properties
 
-package com.stratio.sparta.plugin.parser.json.models
+import java.io.Serializable
 
-case class JsonQueriesModel(queries: Seq[JsonQueryModel])
+abstract case class Parameterizable(properties: Map[String, Serializable]) {
+
+  require(Option(properties).isDefined, "The properties map cannot be null")
+}

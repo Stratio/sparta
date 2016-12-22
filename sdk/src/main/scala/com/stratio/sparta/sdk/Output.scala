@@ -18,6 +18,7 @@ package com.stratio.sparta.sdk
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.TypeOp._
+import com.stratio.sparta.sdk.properties.Parameterizable
 import org.apache.spark.Logging
 import org.apache.spark.sql.{DataFrame, SaveMode}
 import org.apache.spark.sql.types._

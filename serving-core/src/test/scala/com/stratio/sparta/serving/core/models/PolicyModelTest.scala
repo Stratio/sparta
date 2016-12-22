@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.{DimensionType, Input, JsoneyString}
+import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.sdk.{DimensionType, Input}
 import com.stratio.sparta.serving.core.models._

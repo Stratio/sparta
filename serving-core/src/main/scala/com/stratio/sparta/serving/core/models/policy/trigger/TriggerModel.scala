@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.serving.core.models.policy.trigger
 
-import com.stratio.sparta.sdk.JsoneyString
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 
 case class TriggerModel(name: String,

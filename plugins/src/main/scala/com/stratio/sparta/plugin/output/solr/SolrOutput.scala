@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.output.solr
 
 import com.lucidworks.spark.SolrRelation
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.spark.sql.DataFrame

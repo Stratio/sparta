@@ -17,6 +17,7 @@ package com.stratio.sparta.sdk
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.Parameterizable
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel

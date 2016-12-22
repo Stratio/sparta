@@ -22,10 +22,9 @@ import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql.types.StructType
 
 class MongoDbOutput(keyName: String,

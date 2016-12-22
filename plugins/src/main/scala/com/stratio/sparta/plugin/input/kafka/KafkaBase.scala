@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 trait KafkaBase {
 

@@ -23,7 +23,7 @@ import com.sksamuel.elastic4s.mappings._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.stratio.sparta.plugin.output.elasticsearch.dao.ElasticSearchDAO
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._

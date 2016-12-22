@@ -73,6 +73,9 @@
         case modelConstants.JSON:
           vm.model.configuration = vm.template.model[modelConstants.JSON].defaultConfiguration;
           break;
+        case modelConstants.XML:
+          vm.model.configuration = vm.template.model[modelConstants.XML].defaultConfiguration;
+          break;
         case modelConstants.GEO:
           delete vm.model.inputField;
           vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;

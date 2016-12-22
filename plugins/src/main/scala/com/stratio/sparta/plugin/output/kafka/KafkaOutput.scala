@@ -22,7 +22,7 @@ import com.stratio.sparta.plugin.output.kafka.producer.KafkaProducer
 import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk._
 import org.apache.spark.sql._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 class KafkaOutput(keyName: String,
                   version: Option[Int],

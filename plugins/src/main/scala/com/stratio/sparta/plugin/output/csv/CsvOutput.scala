@@ -19,8 +19,8 @@ package com.stratio.sparta.plugin.output.csv
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.Output._
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.Logging
 import org.apache.spark.sql._
 

@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.input.kafka
 
 import java.io.Serializable
 
-import com.stratio.sparta.sdk.JsoneyString
+import com.stratio.sparta.sdk.properties.JsoneyString
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}

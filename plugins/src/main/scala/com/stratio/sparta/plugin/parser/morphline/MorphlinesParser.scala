@@ -20,7 +20,7 @@ import java.io.{ByteArrayInputStream, Serializable => JSerializable}
 import java.util.concurrent.ConcurrentHashMap
 
 import com.stratio.sparta.sdk.Parser
-import com.stratio.sparta.sdk.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StructField, StructType}

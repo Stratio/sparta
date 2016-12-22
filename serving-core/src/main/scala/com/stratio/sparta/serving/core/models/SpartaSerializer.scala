@@ -15,7 +15,8 @@
  */
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.{JsoneyStringSerializer, SaveModeEnum}
+import com.stratio.sparta.sdk.SaveModeEnum
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.{DefaultFormats, Formats}
