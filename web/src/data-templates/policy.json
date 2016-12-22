@@ -306,6 +306,10 @@
         "name": "Ingestion"
       },
       {
+        "iconName": "type",
+        "name": "Json"
+      },
+      {
         "iconName": "kite",
         "name": "Morphlines"
       },
@@ -367,6 +371,32 @@
     "defaultInput": {
       "label": "_attachment_body",
       "value": "_attachment_body"
+    },
+    "Json": {
+      "properties": [
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-transformation-json-errorWithNullValues"
+        }
+      ],
+      "defaultConfiguration": {
+        "queries": [
+          {
+            "field":"field1",
+            "query":"$.field1-in-json"
+          },
+          {
+            "field":"field2",
+            "query":"$.field2-in-json"
+          }
+        ]
+      }
     },
     "Morphlines": {
       "properties": [

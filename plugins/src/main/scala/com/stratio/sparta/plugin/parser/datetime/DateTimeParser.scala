@@ -22,10 +22,10 @@ import java.util.{Date, TimeZone}
 
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.AggregationTime._
+import com.stratio.sparta.sdk.Parser
 import com.stratio.sparta.sdk.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.{Parser, TypeOp}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.StructType
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 
 class DateTimeParser(order: Integer,
@@ -51,16 +51,19 @@ class DateTimeParser(order: Integer,
                 case Some(value: DateTime) =>
                   parseToOutputType(outSchema, applyGranularity(value))
                 case Some(value: String) =>
-                  if (value.isEmpty) returnNullValue
+                  if (value.isEmpty)
+                    returnNullValue(new IllegalStateException(
+                      s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case Some(value) =>
                   parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case None =>
-                  returnNullValue
+                  returnNullValue(new IllegalStateException(
+                    s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
               }
             }
           case None =>
-            throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")
+            returnNullValue(new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema"))
         }
       })
     }
@@ -110,9 +113,6 @@ class DateTimeParser(order: Integer,
   private def applyGranularity(inputValue: DateTime): Long =
     GranularityProperty.fold(inputValue.getMillis) { granularity => truncateDate(inputValue, granularity) }
 
-  private def parseToOutputType(outSchema: StructField, inputValue: Long): Any =
-    TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
-
   private def getDateFromHiveFormat(hiveFormatDate: String): Date = {
     val sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"))
@@ -123,5 +123,4 @@ class DateTimeParser(order: Integer,
 object DateTimeParser {
 
   val FormatMethods = classOf[ISODateTimeFormat].getMethods.toSeq.map(x => (x.getName, x)).toMap
-
 }
