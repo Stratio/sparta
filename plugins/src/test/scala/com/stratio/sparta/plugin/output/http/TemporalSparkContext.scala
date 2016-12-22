@@ -13,12 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.kafka
+package com.stratio.sparta.plugin.output.http
 
-object KafkaOutputFormat extends Enumeration {
+import org.scalatest.{BeforeAndAfterAll, FlatSpec, FunSuite, Suite}
+import org.apache.spark._
 
-  type Status = Value
-  val ROW, JSON = Value
+
+private[http] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterAll{
+
+  val conf = new SparkConf()
+    .setAppName("Rest-simulator-test")
+    .setIfMissing("spark.master", "local[*]")
+
+  @transient private var _sc: SparkContext = _
+
+  def sc: SparkContext = _sc
+
+  override def beforeAll()  {
+    _sc = new SparkContext(conf)
+  }
+
+  override def afterAll() : Unit = {
+    if (sc != null) {
+      sc.stop()
+      _sc = null
+    }
+
+    System.gc()
+  }
+
 
 }
-
