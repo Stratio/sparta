@@ -18,14 +18,13 @@ package com.stratio.sparta.sdk.utils
 import java.io.{Serializable => JSerializable}
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.{Date, TimeZone}
 
 import com.github.nscala_time.time.Imports._
 import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
 import AggregationTime._
 
 @RunWith(classOf[JUnitRunner])
@@ -34,12 +33,17 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
   trait CommonValues {
     
     val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.ZZZ")
-    val dateTime = formatter.parseDateTime("2016-01-19 14:49:19.CET")
+      .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("UTC")))
+    val dateTime = formatter.parseDateTime("2016-01-19 14:49:19.UTC")
+      .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("UTC")))
+    val simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ")
+    simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
     val granularity = "day"
     val datePattern = "yyyy/MM/dd"
     val expectedPath = "/" + DateTimeFormat.forPattern(datePattern) +
-      truncateDate(DateTime.now, granularity)
+      truncateDate(DateTime.now.withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("UTC"))), granularity)
     val dt = DateTime.now
+      .withZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("UTC")))
     val date = new Date(dt.getMillis)
     val timestamp = new Timestamp(dt.getMillis)
     val minuteDT = dt.withMillisOfSecond(0).withSecondOfMinute(0)
@@ -92,103 +96,103 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
     val defaultPatternResult = DateTimeFormat.forPattern(defaultPattern).print(DateTime.now())
 
   }
-  
+
   it should "return the date in millis rounded to 15s" in new CommonValues {
 
     val result = truncateDate(dateTime,"15s")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:15.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:49:15.+0000")
   }
 
   it should "return the date in millis rounded to 15m" in new CommonValues {
 
     val result = truncateDate(dateTime,"15m")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:45:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:45:00.+0000")
   }
 
   it should "return the date in millis rounded to 15h" in new CommonValues {
 
     val result = truncateDate(dateTime,"15h")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 10:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 09:00:00.+0000")
   }
 
   it should "return the date in millis rounded to 15d" in new CommonValues {
 
     val result = truncateDate(dateTime,"15d")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-15 01:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-15 00:00:00.+0000")
   }
 
   it should "return the date in millis rounded to seconds" in new CommonValues {
 
     val result = truncateDate(dateTime,"second")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:19.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:49:19.+0000")
   }
 
   it should "return the date in millis rounded to minutes" in new CommonValues {
 
     val result = truncateDate(dateTime,"minute")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:49:00.+0000")
   }
 
   "AggregationTime with 45minute" should "return the date in millis rounded to minutes" in new CommonValues {
 
     val result = truncateDate(dateTime,"45minute")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:49:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:49:00.+0000")
   }
 
   it should "return the date in millis rounded to hours" in new CommonValues {
 
     val result = truncateDate(dateTime,"hour")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:00:00.+0000")
   }
 
   "AggregationTime with 3hour" should "return the date in millis rounded to hours" in new CommonValues {
 
     val result = truncateDate(dateTime,"3hour")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 14:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 14:00:00.+0000")
   }
 
   it should "return the date in millis rounded to days" in new CommonValues {
 
     val result = truncateDate(dateTime,"day")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 00:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 00:00:00.+0000")
   }
 
   "AggregationTime with 34day" should "return the date in millis rounded to days" in new CommonValues {
 
     val result = truncateDate(dateTime,"34day")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-19 00:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-19 00:00:00.+0000")
   }
 
   it should "return the date in millis rounded to year" in new CommonValues {
 
     val result = truncateDate(dateTime,"year")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-01 00:00:00.+0000")
   }
 
   "AggregationTime with 2month" should "return the date in millis rounded to month" in new CommonValues {
 
     val result = truncateDate(dateTime,"2month")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-01 00:00:00.+0000")
   }
 
   "AggregationTime with 2year" should "return the date in millis rounded to year" in new CommonValues {
 
     val result = truncateDate(dateTime,"2year")
 
-    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.ZZZ").format(new Date(result)) should be("2016-01-01 00:00:00.+0100")
+    simpleDateFormat.format(new Date(result)) should be("2016-01-01 00:00:00.+0000")
   }
 
   it should "return parsed timestamp with granularity" in new CommonValues {
@@ -212,16 +216,16 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
   }
 
   it should "round to 15 seconds" in new CommonValues {
-    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    truncateDate(now, "15s") should be(448373595000L)
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.UTC")
+    truncateDate(now, "15s") should be(448377195000L)
   }
   it should "round to 10 seconds" in new CommonValues {
-    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    truncateDate(now, "10s") should be(448373600000L)
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.UTC")
+    truncateDate(now, "10s") should be(448377200000L)
   }
   it should "round to 5 seconds" in new CommonValues {
-    val now = formatter.parseDateTime("1984-03-17 13:13:17.CET")
-    truncateDate(now, "5s") should be(448373595000L)
+    val now = formatter.parseDateTime("1984-03-17 13:13:17.UTC")
+    truncateDate(now, "5s") should be(448377195000L)
   }
 
   it should "return millis from a Serializable date" in new CommonValues {

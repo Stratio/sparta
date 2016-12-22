@@ -143,7 +143,7 @@ object AggregationTime extends SLF4JLogging {
   }
 
   def subPath(granularity: String, datePattern: Option[String]): String = {
-    val suffix = AggregationTime.truncateDate(DateTime.now, granularity)
+    val suffix = truncateDate(DateTime.now, granularity)
     if (datePattern.isEmpty || suffix.equals(0L)) s"/$suffix"
     else s"/${DateTimeFormat.forPattern(datePattern.get).print(new DateTime(suffix))}/$suffix"
   }
