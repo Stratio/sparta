@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.input.twitter
 import java.io.{Serializable => JSerializable}
 
 import com.google.gson.Gson
-import com.stratio.sparta.sdk.Input
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap
 import org.apache.spark.sql.Row

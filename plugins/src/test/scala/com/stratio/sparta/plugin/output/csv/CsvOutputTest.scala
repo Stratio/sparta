@@ -16,7 +16,7 @@
 package com.stratio.sparta.plugin.output.csv
 
 import com.databricks.spark.csv._
-import com.stratio.sparta.sdk.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.spark.sql._
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => meq}

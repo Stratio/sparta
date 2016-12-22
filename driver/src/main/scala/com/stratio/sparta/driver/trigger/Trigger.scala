@@ -17,7 +17,7 @@ package com.stratio.sparta.driver.trigger
 
 import java.io._
 
-import com.stratio.sparta.sdk.SaveModeEnum
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
 
 case class Trigger(name: String,
                    sql: String,

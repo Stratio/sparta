@@ -17,14 +17,14 @@
 
 package com.stratio.sparta.driver.test.cube
 
-import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.plugin.cube.operator.count.CountOperator
+import com.stratio.sparta.plugin.cube.operator.sum.SumOperator
 import com.stratio.sparta.plugin.default.DefaultField
-import com.stratio.sparta.plugin.operator.count.CountOperator
-import com.stratio.sparta.plugin.operator.sum.SumOperator
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube._
+import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.streaming.TestSuiteBase
@@ -45,7 +45,7 @@ class CubeTest extends TestSuiteBase {
     val name = "cubeName"
     val timeConfig = Option(TimeConfig(eventGranularity, checkpointGranularity))
 
-    val expiringDataConfig = ExpiringDataConfig(
+    val expiringDataConfig = ExpiringData(
       checkpointGranularity, checkpointGranularity, checkpointTimeAvailability
     )
     val initSchema = StructType(Seq(

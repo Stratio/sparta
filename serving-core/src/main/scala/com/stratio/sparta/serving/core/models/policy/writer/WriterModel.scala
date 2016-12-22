@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.models.policy.writer
 
-import com.stratio.sparta.sdk.SaveModeEnum
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
 
 case class WriterModel(
                         outputs: Seq[String] = Seq.empty[String],

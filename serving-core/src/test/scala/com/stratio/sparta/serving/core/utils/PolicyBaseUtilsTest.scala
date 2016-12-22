@@ -33,7 +33,8 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.ActorSystem
 import akka.testkit._
-import com.stratio.sparta.sdk.{DimensionType, Input}
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}

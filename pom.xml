@@ -44,7 +44,7 @@
         <module>dist</module>
     </modules>
 
-    <name>Stratio SpaRTA</name>
+    <name>Stratio Sparta</name>
     <description>Spark Real-Time Analytics</description>
     <inceptionYear>2015</inceptionYear>
 

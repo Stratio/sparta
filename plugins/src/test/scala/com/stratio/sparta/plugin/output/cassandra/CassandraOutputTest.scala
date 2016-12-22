@@ -19,6 +19,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
 
   "setup" should "return X" in {
 
-    val tableSchema = Seq(TableSchema(Seq("outputName"), "dim1", StructType(Array(
+    val tableSchema = Seq(SpartaSchema(Seq("outputName"), "dim1", StructType(Array(
       StructField("dim1", StringType, false))), Option("minute")))
 
     val cassandraConnector: CassandraConnector = mock[CassandraConnector]

@@ -17,7 +17,8 @@ package com.stratio.sparta.plugin.output.cassandra
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparta.plugin.output.cassandra.dao.CassandraDAO
-import com.stratio.sparta.sdk.{Output, TableSchema}
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType, _}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -28,7 +29,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class CassandraDaoTest extends FlatSpec with Matchers with MockitoSugar with CassandraDAO {
 
   val cassandraConector = mock[CassandraConnector]
-  val tableSchema = Seq(TableSchema(Seq("outputName"), "myCube", StructType(Array(
+  val tableSchema = Seq(SpartaSchema(Seq("outputName"), "myCube", StructType(Array(
     StructField("dim1", StringType, false))), Option("minute")))
   val MetadataBuilder = new MetadataBuilder
   val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()

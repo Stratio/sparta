@@ -18,6 +18,8 @@ package com.stratio.sparta.plugin.output.print
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
 import org.apache.spark.sql._
 
@@ -31,7 +33,7 @@ import org.apache.spark.sql._
 class PrintOutput(keyName: String,
                   version: Option[Int],
                   properties: Map[String, JSerializable],
-                  schemas: Seq[TableSchema])
+                  schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {

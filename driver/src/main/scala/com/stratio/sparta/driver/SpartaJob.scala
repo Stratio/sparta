@@ -33,11 +33,16 @@ import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions, StreamWriter, StreamWriterOptions}
-import com.stratio.sparta.sdk.TypeOp.TypeOp
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType}
+import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
+import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.constants.ErrorCodes
 import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
@@ -49,7 +54,7 @@ class SpartaJob(policy: PolicyModel) extends SLF4JLogging {
 
   def run(sc: SparkContext): StreamingContext = {
     val checkpointPolicyPath = SpartaJob.generateCheckpointPath(policy)
-    val sparkStreamingWindow = DateOperationsHelper.parseValueToMilliSeconds(policy.sparkStreamingWindow)
+    val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = SpartaJob.getParsers(policy, ReflectionUtils, parserSchemas).sorted
@@ -210,13 +215,13 @@ object SpartaJob extends PolicyUtils {
     }
 
   def getOutputs(policy: PolicyModel,
-                 schemas: Seq[TableSchema],
+                 schemas: Seq[SpartaSchema],
                  refUtils: ReflectionUtils): Seq[Output] = policy.outputs.map(o => {
     val schemasAssociated = schemas.filter(tableSchema => tableSchema.outputs.contains(o.name))
     createOutput(o, schemasAssociated, refUtils, policy.version)
   })
 
-  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[TableSchema], refUtils: ReflectionUtils,
+  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[SpartaSchema], refUtils: ReflectionUtils,
                    version: Option[Int]): Output = {
     Try {
       refUtils.tryToInstantiate[Output](model.`type` + Output.ClassSuffix, (c) =>
@@ -224,7 +229,7 @@ object SpartaJob extends PolicyUtils {
           classOf[String],
           classOf[Option[Int]],
           classOf[Map[String, Serializable]],
-          classOf[Seq[TableSchema]])
+          classOf[Seq[SpartaSchema]])
           .newInstance(model.name, version, model.configuration, schemasAssociated)
           .asInstanceOf[Output])
     } match {
@@ -324,8 +329,8 @@ object SpartaJob extends PolicyUtils {
 
   def getCubeWriter(cubeName: String,
                     cubes: Seq[Cube],
-                    schemas: Seq[TableSchema],
-                    triggerSchemas: Seq[TableSchema],
+                    schemas: Seq[SpartaSchema],
+                    triggerSchemas: Seq[SpartaSchema],
                     cubeModels: Seq[CubeModel],
                     outputs: Seq[Output],
                     triggersOuputs: Seq[Output]): CubeWriter = {
@@ -347,7 +352,7 @@ object SpartaJob extends PolicyUtils {
   }
 
   def getStreamWriter(triggers: Seq[Trigger],
-                      tableSchemas: Seq[TableSchema],
+                      tableSchemas: Seq[SpartaSchema],
                       overLast: Option[String],
                       computeEvery: Option[String],
                       sparkStreamingWindow: Long,

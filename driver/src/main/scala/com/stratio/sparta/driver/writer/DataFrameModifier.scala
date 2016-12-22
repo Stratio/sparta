@@ -16,7 +16,8 @@
 
 package com.stratio.sparta.driver.writer
 
-import com.stratio.sparta.sdk.{AutoCalculatedField, Output}
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
+import com.stratio.sparta.sdk.pipeline.output.Output
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame}

@@ -19,9 +19,10 @@ package com.stratio.sparta.plugin.output.jdbc
 import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
-import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql._
 
 import scala.collection.JavaConversions._
@@ -29,7 +30,7 @@ import scala.collection.JavaConversions._
 class JdbcOutput(keyName: String,
                  version: Option[Int],
                  properties: Map[String, JSerializable],
-                 bcSchema: Seq[TableSchema])
+                 bcSchema: Seq[SpartaSchema])
   extends Output(keyName, version, properties, bcSchema) {
 
   require(properties.getString("url", None).isDefined, "url must be provided")

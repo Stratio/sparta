@@ -18,13 +18,11 @@ package com.stratio.sparta.serving.core.utils
 
 import java.io._
 import java.security.PrivilegedExceptionAction
-import javax.security.auth.login.LoginContext
 
-import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FSDataInputStream, FSDataOutputStream, FileStatus, FileSystem, Path}
@@ -117,7 +115,7 @@ object HdfsUtils extends SLF4JLogging {
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
 
     AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
-      DateOperationsHelper.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
+      AggregationTime.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
   }
 
   def hdfsConfiguration(userName: String): Configuration = {

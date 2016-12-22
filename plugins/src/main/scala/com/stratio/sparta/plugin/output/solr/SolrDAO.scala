@@ -22,7 +22,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.{OutputKeys, TransformerFactory}
 
-import com.stratio.sparta.sdk.Output
+import com.stratio.sparta.sdk.pipeline.output.Output
 import org.apache.commons.io.FileUtils
 import org.apache.solr.client.solrj.SolrClient
 import org.apache.solr.client.solrj.impl.{CloudSolrClient, HttpSolrClient}

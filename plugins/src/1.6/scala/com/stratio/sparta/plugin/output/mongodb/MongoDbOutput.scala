@@ -21,16 +21,17 @@ import java.io.{Serializable => JSerializable}
 import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
-import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StructType
 
 class MongoDbOutput(keyName: String,
                     version: Option[Int],
                     properties: Map[String, JSerializable],
-                    schemas: Seq[TableSchema])
+                    schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with MongoDbDAO {
 
   RegisterJodaTimeConversionHelpers()

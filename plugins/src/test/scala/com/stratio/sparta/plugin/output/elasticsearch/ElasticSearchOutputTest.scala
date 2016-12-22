@@ -21,6 +21,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.{FieldType, _}
 import com.stratio.sparta.plugin.output.elasticsearch.ElasticSearchOutput
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -64,7 +65,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val tableName = "spartaTable"
     val baseFields = Seq(StructField("string", StringType), StructField("int", IntegerType))
     val schema = StructType(baseFields)
-    val tableSchema = TableSchema(Seq("ES-out"), tableName, schema, Option("timestamp"))
+    val tableSchema = SpartaSchema(Seq("ES-out"), tableName, schema, Option("timestamp"))
     val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", LongType, false))
     val expectedSchema = StructType(baseFields)
     val expectedTableSchema =
@@ -95,7 +96,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       StructField("string", StringType),
       StructField("binary", BinaryType))
     val completeSchema = StructType(fields)
-    val completeTableSchema = TableSchema(Seq("elasticsearch"), "table", completeSchema, Option("timestamp"))
+    val completeTableSchema = SpartaSchema(Seq("elasticsearch"), "table", completeSchema, Option("timestamp"))
     val definitions = Seq(
       "long".typed(FieldType.LongType),
       "double".typed(FieldType.DoubleType),

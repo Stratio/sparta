@@ -22,13 +22,13 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings._
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.stratio.sparta.plugin.output.elasticsearch.dao.ElasticSearchDAO
-import com.stratio.sparta.sdk.Output._
+import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
 import org.apache.spark.sql._
 import org.apache.spark.sql.types._
 import org.elasticsearch.common.settings._
-import org.elasticsearch.spark.sql._
 
 /**
  *
@@ -41,7 +41,7 @@ import org.elasticsearch.spark.sql._
 class ElasticSearchOutput(keyName: String,
                           version: Option[Int],
                           properties: Map[String, JSerializable],
-                          schemas: Seq[TableSchema])
+                          schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with ElasticSearchDAO {
 
   override val idField = properties.getString("idField", None)
@@ -75,7 +75,7 @@ class ElasticSearchOutput(keyName: String,
     elasticClient.close
   }
 
-  private def createIndexAccordingToSchema(tableSchemaTime: TableSchema) =
+  private def createIndexAccordingToSchema(tableSchemaTime: SpartaSchema) =
     elasticClient.execute {
       create index tableSchemaTime.tableName.toLowerCase shards 5 replicas 1 mappings (
         mappingName as getElasticsearchFields(tableSchemaTime))
@@ -122,7 +122,7 @@ class ElasticSearchOutput(keyName: String,
   def indexNameType(tableName: String): String = s"${tableName.toLowerCase}/$mappingName"
 
   //scalastyle:off
-  def getElasticsearchFields(tableSchemaTime: TableSchema): Seq[TypedFieldDefinition] = {
+  def getElasticsearchFields(tableSchemaTime: SpartaSchema): Seq[TypedFieldDefinition] = {
     tableSchemaTime.schema.map(structField =>
       filterDateTypeMapping(structField, tableSchemaTime.timeDimension, tableSchemaTime.dateType).dataType match {
         case LongType => structField.name typed FieldType.LongType

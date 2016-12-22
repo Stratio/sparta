@@ -21,6 +21,11 @@ import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, ExpiringData, Precision}
+import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
+import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
@@ -80,13 +85,13 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-      Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+      Option(ExpiringData("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
 
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
-    val tableSchema = TableSchema(
+    val tableSchema = SpartaSchema(
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
@@ -109,7 +114,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
-    val tableSchema = TableSchema(
+    val tableSchema = SpartaSchema(
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
@@ -132,7 +137,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
     val cubes = Seq(cube)
     val cubesModel = Seq(cubeModel)
-    val tableSchema = TableSchema(
+    val tableSchema = SpartaSchema(
       Seq("outputName"),
       "cubeTest",
       StructType(Array(
@@ -152,13 +157,13 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
   it should "return a list of schemas with timeDimension with DateFormat" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringDataConfig("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+        Option(ExpiringData("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
       val cubeModel = CubeModel(
         cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDate
       )
       val cubes = Seq(cube)
       val cubesModel = Seq(cubeModel)
-      val tableSchema = TableSchema(
+      val tableSchema = SpartaSchema(
         Seq("outputName"),
         "cubeTest",
         StructType(Array(
@@ -229,8 +234,8 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     }
 
   class OperatorTest(name: String,
-                     initSchema: StructType,
-                     properties: Map[String, JSerializable]) extends Operator(name, initSchema, properties) {
+                     val schema: StructType,
+                     properties: Map[String, JSerializable]) extends Operator(name, schema, properties) {
 
     override val defaultTypeOperation = TypeOp.Long
 

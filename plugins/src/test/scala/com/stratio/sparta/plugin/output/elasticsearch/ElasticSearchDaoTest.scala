@@ -16,7 +16,8 @@
 package com.stratio.sparta.plugin.output.elasticsearch
 
 import com.stratio.sparta.plugin.output.elasticsearch.dao.ElasticSearchDAO
-import com.stratio.sparta.sdk.{SaveModeEnum, TypeOp}
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FlatSpec, ShouldMatchers}

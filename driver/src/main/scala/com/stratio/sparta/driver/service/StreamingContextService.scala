@@ -25,10 +25,11 @@ import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.SpartaJob._
 import com.stratio.sparta.driver.factory._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
@@ -121,7 +122,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
                   .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultAwaitStopTermination)
               log.info(s"Starting scheduler to supervise the Spark Job termination timeout, with time: $awaitTimeOut")
               AppConstant.SchedulerSystem.scheduler.scheduleOnce(
-                DateOperationsHelper.parseValueToMilliSeconds(awaitTimeOut) milli)(closeForcibly(
+                AggregationTime.parseValueToMilliSeconds(awaitTimeOut) milli)(closeForcibly(
                 policyId, policyStatusActor.get, exit))
 
               SparkContextFactory.destroySparkStreamingContext()

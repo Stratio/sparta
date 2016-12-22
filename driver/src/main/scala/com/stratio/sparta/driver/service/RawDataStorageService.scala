@@ -16,7 +16,7 @@
 package com.stratio.sparta.driver.service
 
 import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.sdk.DateOperations
+import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.{StringType, StructField, StructType, TimestampType}
 import org.apache.spark.streaming.dstream.DStream
@@ -29,7 +29,7 @@ object RawDataStorageService {
     StructType(Seq(StructField(TimeStampField, TimestampType, false), StructField(DataField, StringType)))
 
   def save(raw: DStream[Row], path: String): Unit = {
-    val eventTime = DateOperations.millisToTimeStamp(System.currentTimeMillis())
+    val eventTime = AggregationTime.millisToTimeStamp(System.currentTimeMillis())
     raw.map(row => Row.merge(Row(eventTime), row))
       .foreachRDD(rdd => {
         if (rdd.take(1).length > 0) {

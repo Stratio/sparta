@@ -18,11 +18,14 @@ package com.stratio.sparta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.Output._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.Logging
 import org.apache.spark.sql._
+import Output._
+import com.stratio.sparta.sdk.utils.AggregationTime
 
 import scala.util.Try
 
@@ -36,7 +39,7 @@ import scala.util.Try
 class CsvOutput(keyName: String,
                 version: Option[Int],
                 properties: Map[String, JSerializable],
-                schemas: Seq[TableSchema])
+                schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
   val path = properties.getString("path", None)
@@ -61,7 +64,7 @@ class CsvOutput(keyName: String,
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
-    val subPath = DateOperations.subPath(dateGranularityFile, datePattern)
+    val subPath = AggregationTime.subPath(dateGranularityFile, datePattern)
     val tableName = getTableNameFromOptions(options)
     val optionsParsed =
       Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString) ++

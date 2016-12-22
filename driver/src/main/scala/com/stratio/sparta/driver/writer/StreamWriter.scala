@@ -20,8 +20,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.writer.StreamWriter._
-import com.stratio.sparta.sdk.{Output, TableSchema}
-import com.stratio.sparta.serving.core.helpers.DateOperationsHelper
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.Milliseconds
@@ -37,16 +38,16 @@ case class StreamWriterOptions(overLast: Option[String],
                               )
 
 case class StreamWriter(triggers: Seq[Trigger],
-                        tableSchemas: Seq[TableSchema],
+                        tableSchemas: Seq[SpartaSchema],
                         options: StreamWriterOptions,
                         outputs: Seq[Output]) extends TriggerWriter with SLF4JLogging {
 
   def write(streamData: DStream[Row]): Unit = {
     val dStream = streamData.window(
       Milliseconds(options.overLast.fold(options.sparkStreamingWindow) { over =>
-        DateOperationsHelper.parseValueToMilliSeconds(over)}),
+        AggregationTime.parseValueToMilliSeconds(over)}),
       Milliseconds(options.computeEvery.fold(options.sparkStreamingWindow) { computeEvery =>
-          DateOperationsHelper.parseValueToMilliSeconds(computeEvery)
+        AggregationTime.parseValueToMilliSeconds(computeEvery)
       })
     )
 

@@ -19,6 +19,8 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
 import org.apache.spark.sql._
 
@@ -36,7 +38,7 @@ import scalaj.http._
 class HttpOutput(keyName: String,
                  version: Option[Int],
                  properties: Map[String, JSerializable],
-                 schemas: Seq[TableSchema])
+                 schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
   val MaxReadTimeout = 5000
@@ -52,13 +54,13 @@ class HttpOutput(keyName: String,
 
   val connTimeout = Try(properties.getInt("connTimeout")).getOrElse(MaxConnTimeout)
 
-  val outputFormat = OutputFormat.withName(properties.getString("outputFormat", "json").toUpperCase)
+  val outputFormat = OutputFormatEnum.withName(properties.getString("outputFormat", "json").toUpperCase)
 
   val postType = PostType.withName(properties.getString("postType", "body").toUpperCase)
 
   val parameterName = properties.getString("parameterName", "")
 
-  val contentType = if (outputFormat == OutputFormat.ROW) "text/plain" else "application/json"
+  val contentType = if (outputFormat == OutputFormatEnum.ROW) "text/plain" else "application/json"
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)
 
@@ -70,7 +72,7 @@ class HttpOutput(keyName: String,
 
   private def executor(dataFrame: DataFrame): Unit = {
     outputFormat match {
-      case OutputFormat.ROW => dataFrame.rdd.foreachPartition(partition =>
+      case OutputFormatEnum.ROW => dataFrame.rdd.foreachPartition(partition =>
         partition.foreach(row => sendData(row.mkString(delimiter))))
       case _ => dataFrame.toJSON.foreachPartition(partition =>
         partition.foreach(row => sendData(row)))

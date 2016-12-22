@@ -23,6 +23,8 @@ import com.mongodb.casbah.Imports
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.stratio.sparta.sdk._
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
 
 import scala.util.{Failure, Success, Try}
@@ -85,7 +87,7 @@ trait MongoDbDAO extends Logging {
     writeConcern = casbah.WriteConcern.Unacknowledged,
     threadsAllowedToBlockForConnectionMultiplier = threadsAllowedB)
 
-  protected def createPkAndTextIndex(mongoDatabase: MongoClient, tableSchema: TableSchema): Unit = {
+  protected def createPkAndTextIndex(mongoDatabase: MongoClient, tableSchema: SpartaSchema): Unit = {
     if (textIndexFields.isDefined && language.isDefined) {
       if (textIndexFields.get.length > 0) {
         createTextIndex(mongoDatabase,

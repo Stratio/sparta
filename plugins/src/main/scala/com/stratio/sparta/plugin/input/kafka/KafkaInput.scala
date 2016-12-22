@@ -17,7 +17,7 @@ package com.stratio.sparta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.Input
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.sql.Row
