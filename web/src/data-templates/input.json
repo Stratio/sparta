@@ -519,5 +519,27 @@
         "qa": "fragment-details-websocket-url"
       }
     ]
+  },
+  {
+    "name": "FileSystem",
+    "modelType": "file",
+    "description": {
+      "short": "Allows you load any file compatible with HDFS API.",
+      "long": "Input used for reading data from files on any file system compatible with the HDFS API (that is, HDFS, S3, NFS, etc.)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-FileSystem"
+    },
+
+    "properties": [
+      {
+        "propertyId": "directory",
+        "propertyName": "_DIRECTORY_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "Path to file (HDFS, S3, Azure,etc.)",
+        "qa": "fragment-details-filesystem-url"
+      }
+    ]
   }
 ]
