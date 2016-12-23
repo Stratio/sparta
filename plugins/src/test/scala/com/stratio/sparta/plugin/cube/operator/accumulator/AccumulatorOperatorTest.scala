@@ -52,13 +52,13 @@ class AccumulatorOperatorTest extends WordSpec with Matchers {
       inputFields4.processMap(Row(1, 2)) should be(Some(1L))
 
       val inputFields5 = new AccumulatorOperator("accumulator", initSchema,
-        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":\"2\"}]"))
+        Map("inputField" -> "field1", "filters" -> "[{\"field\":\"field1\", \"type\": \">\", \"value\":2}]"))
       inputFields5.processMap(Row(1, 2)) should be(None)
 
       val inputFields6 = new AccumulatorOperator("accumulator", initSchema,
         Map("inputField" -> "field1", "filters" -> {
-          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":\"2\"}," +
-            "{\"field\":\"field2\", \"type\": \"<\", \"value\":\"2\"}]"
+          "[{\"field\":\"field1\", \"type\": \"<\", \"value\":2}," +
+            "{\"field\":\"field2\", \"type\": \"<\", \"value\":2}]"
         }))
       inputFields6.processMap(Row(1, 2)) should be(None)
     }

@@ -40,13 +40,12 @@ class IngestionParser(order: Integer,
 
   val fieldNames = outputFieldsSchema.map(field => field.name)
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val input = row.get(schema.fieldIndex(inputField))
-
     val parsedValues = IngestionParser.parseRawData(input, fieldNames, outputFieldsSchema)
-
     val previousParserValues = if (removeRaw) row.toSeq.drop(1) else row.toSeq
-    Row.fromSeq(previousParserValues ++ parsedValues)
+
+    Option(Row.fromSeq(previousParserValues ++ parsedValues))
   }
 }
 

@@ -39,10 +39,10 @@ class OperatorMock(name: String, val schema: StructType, properties: Map[String,
   override val inputSchema: StructType = schema
 }
 
-class OperatorMockString(name: String, val schema: StructType, properties: Map[String, JSerializable])
+class OperatorMockAny(name: String, val schema: StructType, properties: Map[String, JSerializable])
   extends BaseOperatorMock(name: String, schema, properties: Map[String, JSerializable]) with OperatorProcessMapAsAny {
 
-  override val defaultCastingFilterType = TypeOp.String
+  override val defaultCastingFilterType = TypeOp.Any
 
   override val inputSchema: StructType = schema
 }

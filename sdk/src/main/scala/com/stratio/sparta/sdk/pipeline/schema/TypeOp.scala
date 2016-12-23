@@ -21,7 +21,10 @@ import java.util.Date
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime
+import org.apache.jute.compiler.JLong
 import org.apache.spark.sql.types._
+import org.json4s.JDecimal
+import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 
 object TypeOp extends Enumeration {
 
@@ -51,14 +54,32 @@ object TypeOp extends Enumeration {
   def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =
     TypeOperationsNames.getOrElse(nameOperation.toLowerCase, defaultTypeOperation)
 
+  //scalastyle:off
   implicit object OrderingAny extends Ordering[Any] {
     import math.Ordering
     override def compare(x: Any, y: Any): Int = (x, y) match {
       case (x: Int, y: Int) => Ordering[Int].compare(x, y)
+      case (x: Int, y: Double) => Ordering[Int].compare(x, y.toInt)
+      case (x: Int, y: Long) => Ordering[Int].compare(x, y.toInt)
+      case (x: Int, y: JInt) => Ordering[Int].compare(x, y.num.intValue())
+      case (x: Int, y: JDouble) => Ordering[Int].compare(x, y.num.intValue())
       case (x: Double, y: Double) => Ordering[Double].compare(x, y)
+      case (x: Double, y: Long) => Ordering[Double].compare(x, y.toDouble)
+      case (x: Double, y: JDouble) => Ordering[Double].compare(x, y.num)
+      case (x: Double, y: JInt) => Ordering[Double].compare(x, y.num.doubleValue())
       case (x: String, y: String) => Ordering[String].compare(x, y)
+      case (x: String, y: JString) => Ordering[String].compare(x, y.s)
+      case (x: String, y: JInt) => Ordering[String].compare(x, y.num.toString())
+      case (x: String, y: JDouble) => Ordering[String].compare(x, y.num.toString)
+      case (x: String, y: Int) => Ordering[String].compare(x, y.toString)
+      case (x: String, y: Long) => Ordering[String].compare(x, y.toString)
+      case (x: String, y: Double) => Ordering[String].compare(x, y.toString)
+      case (x: String, y: Boolean) => Ordering[String].compare(x, y.toString)
       case (x: Long, y: Long) => Ordering[Long].compare(x, y)
+      case (x: Long, y: JInt) => Ordering[Long].compare(x, y.num.longValue())
+      case (x: Long, y: JDouble) => Ordering[Long].compare(x, y.num.longValue())
       case (x: Boolean, y: Boolean) => Ordering[Boolean].compare(x, y)
+      case (x: Boolean, y: JBool) => Ordering[Boolean].compare(x, y.value)
       case (x: Date, y: Date) => Ordering[Date].compare(x, y)
       case (x: Timestamp, y: Timestamp) => Ordering[Long].compare(x.getTime, y.getTime)
       case (x: DateTime, y: DateTime) => Ordering[DateTime].compare(x, y)
@@ -66,7 +87,7 @@ object TypeOp extends Enumeration {
     }
   }
 
-  //scalastyle:off
+
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
       case TypeOp.String => checkStringType(origValue)
@@ -124,6 +145,7 @@ object TypeOp extends Enumeration {
 
   private def checkAnyStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[String] => value
+    case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s
     case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].mkString(Output.Separator)
     case _ => origValue.toString
   }
@@ -200,6 +222,9 @@ object TypeOp extends Enumeration {
   //scalastyle:off
   private def checkAnyLongType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Long] => value
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.longValue()
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.longValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.longValue()
     case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toLong
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toLong
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toLong
@@ -215,6 +240,9 @@ object TypeOp extends Enumeration {
 
   private def checkAnyDoubleType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Double] => value
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.doubleValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.doubleValue()
     case value if value.isInstanceOf[Int] => origValue.asInstanceOf[Int].toDouble
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toDouble
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toDouble
@@ -227,6 +255,9 @@ object TypeOp extends Enumeration {
 
   private def checkAnyIntType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Int] => value
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.intValue()
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.intValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.intValue()
     case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toInt
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toInt
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toInt
@@ -240,6 +271,7 @@ object TypeOp extends Enumeration {
 
   private def checkAnyBooleanType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Boolean] => value
+    case value if value.isInstanceOf[JBool] => value.asInstanceOf[JBool].value
     case _ => origValue.toString.toBoolean
   }
 }

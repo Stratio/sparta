@@ -88,7 +88,7 @@ class JsonParserTest extends WordSpecLike with Matchers {
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Row(JSON, "red", 19.95)
+      val expected = Option(Row(JSON, "red", 19.95))
 
       assertResult(result)(expected)
     }
@@ -114,7 +114,7 @@ class JsonParserTest extends WordSpecLike with Matchers {
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, true)
-      val expected = Row("red", 19.95)
+      val expected = Option(Row("red", 19.95))
 
       assertResult(result)(expected)
     }

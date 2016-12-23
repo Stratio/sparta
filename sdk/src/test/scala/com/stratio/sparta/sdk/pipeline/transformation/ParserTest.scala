@@ -38,7 +38,7 @@ class ParserTest extends WordSpec with Matchers {
 
     "Parse must be " in {
       val event = Row("value")
-      val expected = event
+      val expected = Option(event)
       val result = parserTest.parse(event, false)
       result should be(expected)
     }

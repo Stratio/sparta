@@ -39,7 +39,7 @@ class GeoParser(
   val latitudeField = properties.getOrElse("latitude", defaultLatitudeField).toString
   val longitudeField = properties.getOrElse("longitude", defaultLongitudeField).toString
 
-  def parse(row: Row, removeRaw: Boolean): Row = {
+  def parse(row: Row, removeRaw: Boolean): Option[Row] = {
 
     val geoValue = geoField(getLatitude(row), getLongitude(row))
     val newData = {
@@ -55,7 +55,7 @@ class GeoParser(
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Row.fromSeq(prevData ++ newData)
+    Option(Row.fromSeq(prevData ++ newData))
   }
 
   private def getLatitude(row: Row): String =

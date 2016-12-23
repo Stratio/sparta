@@ -37,7 +37,7 @@ class MorphlinesParser(order: Integer,
 
   private val config: String = properties.getString("morphline")
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val result = inputValue match {
       case Some(s: String) =>
@@ -51,7 +51,7 @@ class MorphlinesParser(order: Integer,
     }
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 
-    Row.merge(prevData, result)
+    Option(Row.merge(prevData, result))
   }
 
   private def parseWithMorphline(value: ByteArrayInputStream): Row = {

@@ -60,11 +60,11 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   it should "parse a event" in {
     val parser: Parser = mock[Parser]
     val event: Row = mock[Row]
-    val parsedEvent = mock[Row]
+    val parsedEvent = mock[Option[Row]]
     when(parser.parse(event, false)).thenReturn(parsedEvent)
 
     val result = SpartaJob.parseEvent(event, parser)
-    result should be(Some(parsedEvent))
+    result should be(parsedEvent)
   }
   it should "return none if a parse Event fails" in {
     val parser: Parser = mock[Parser]

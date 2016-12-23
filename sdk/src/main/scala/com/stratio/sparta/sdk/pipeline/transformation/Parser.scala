@@ -38,7 +38,7 @@ abstract class Parser(order: Integer,
 
   val errorWithNullInputs = Try(properties.getBoolean("errorWithNullValues")).getOrElse(true)
 
-  def parse(data: Row, removeRaw: Boolean): Row
+  def parse(data: Row, removeRaw: Boolean): Option[Row]
 
   def getOrder: Integer = order
 

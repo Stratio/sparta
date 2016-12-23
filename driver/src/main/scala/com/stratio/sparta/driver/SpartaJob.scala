@@ -177,9 +177,11 @@ object SpartaJob extends PolicyUtils {
   }
 
   def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Option[Row] =
-    Try(parser.parse(row, removeRaw)) match {
-      case Success(okEvent) =>
-        Some(okEvent)
+    Try {
+      parser.parse(row, removeRaw)
+    } match {
+      case Success(eventParsed) =>
+        eventParsed
       case Failure(exception) =>
         val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
           s" | Parser: ${parser.getClass.getSimpleName}"

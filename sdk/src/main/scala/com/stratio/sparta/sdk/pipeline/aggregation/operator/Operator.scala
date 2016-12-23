@@ -73,7 +73,7 @@ abstract class Operator(name: String,
 
   def filterInput: Option[String] = properties.getString("filters", None)
 
-  def defaultCastingFilterType: TypeOp = TypeOp.String
+  def defaultCastingFilterType: TypeOp = TypeOp.Any
 }
 
 object Operator extends Logging {

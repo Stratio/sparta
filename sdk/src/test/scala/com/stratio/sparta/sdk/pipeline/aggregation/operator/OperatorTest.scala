@@ -21,7 +21,8 @@ import com.stratio.sparta.sdk.pipeline.filter.FilterModel
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.json4s.JsonAST.JString
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -49,7 +50,7 @@ class OperatorTest extends WordSpec with Matchers {
         StructType(Seq(StructField("field1",StringType))),
         Map("filters" -> """[{"field":"field1", "type": "<", "value":2}]"""))
       val filters = operator.filters
-      filters should be equals Array(new FilterModel("field1", "<", Some("2"), None))
+      filters should be equals Array(new FilterModel("field1", "<", Some(JString("2")), None))
       filters.size should be(1)
 
       val operator2 = new OperatorMock("opTest", StructType(Seq(StructField("field1",StringType))), Map())
@@ -69,7 +70,7 @@ class OperatorTest extends WordSpec with Matchers {
         Map("filters" -> """[{"field":"field1", "type": "<", "value":"2"}]"""))
       val filters4 = operator4.filters
       filters4.size should be(1)
-      filters4 should be equals Array(new FilterModel("field1", "<", Some("2"), None))
+      filters4 should be equals Array(new FilterModel("field1", "<", Some(JString("2")), None))
 
       val operator5 = new OperatorMock("opTest",
         StructType(Seq(StructField("field1",StringType))),
@@ -79,8 +80,8 @@ class OperatorTest extends WordSpec with Matchers {
         ))
       val filters5 = operator5.filters
       filters5.size should be(2)
-      filters5 should be equals Array(new FilterModel("field1", "<", Some("2"), None),
-        new FilterModel("field2", "<", Some("2"), None))
+      filters5 should be equals Array(new FilterModel("field1", "<", Some(JString("2")), None),
+        new FilterModel("field2", "<", Some(JString("2")), None))
     }
 
     "getNumberFromSerializable must be " in {
@@ -259,10 +260,10 @@ class OperatorTest extends WordSpec with Matchers {
       val inputFields18 = Row(2,1)
       operator18.applyFilters(inputFields18) should be(None)
 
-      val operator19 = new OperatorMockString("opTest",
+      val operator19 = new OperatorMockAny("opTest",
         StructType(Seq(
-          StructField("field1", StringType),
-          StructField("field2", StringType)
+          StructField("field1", IntegerType),
+          StructField("field2", IntegerType)
         )),
         Map("filters" -> """[{"field":"field1", "type": "=", "value":2}]"""))
       val inputFields19 = Row(2,1)
@@ -271,7 +272,7 @@ class OperatorTest extends WordSpec with Matchers {
         "field2" -> 1
       )))
 
-      val operator20 = new OperatorMockString("opTest",
+      val operator20 = new OperatorMockAny("opTest",
         StructType(Seq(
           StructField("field1", StringType),
           StructField("field2", StringType)

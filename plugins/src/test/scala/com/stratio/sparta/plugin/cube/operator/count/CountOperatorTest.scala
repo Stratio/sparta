@@ -61,8 +61,7 @@ class CountOperatorTest extends WordSpec with Matchers {
 
       val inputFields2 =
         new CountOperator("count", initSchema, Map("distinctFields" -> s"field1${Operator.UnderscoreSeparator}field2"))
-      inputFields2.processMap(Row(1, 2)).get.toString should be
-      s"field1${Operator.UnderscoreSeparator}field2"
+      inputFields2.processMap(Row(1, 2)).get.toString should be s"field1${Operator.UnderscoreSeparator}field2"
 
       val inputFields3 = new CountOperator("count", initSchema, Map("distinctFields" -> ""))
       inputFields3.processMap(Row(1, 2)) should be(Some(CountOperator.One))
