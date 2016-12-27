@@ -352,7 +352,7 @@
   "_OUTPUT_FORMAT_": "Output format",
   "_POST_TYPE_": "Post type",
   "_PARAMETER_NAME_" : "Parameter name",
-  "_DIRECTORY_" : "Directory"
+  "_DIRECTORY_" : "Directory",
   "_ERROR_": {
     "_CHANGES_WITHOUT_SAVING_": "You have to save all your changes or cancel them before going to the next step",
     "_UNAVAILABLE_SERVER_": "Server is unavailable. Please, check your connection and try it again",
