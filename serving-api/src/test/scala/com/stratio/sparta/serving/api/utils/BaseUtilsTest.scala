@@ -33,21 +33,21 @@ package com.stratio.sparta.serving.api.utils
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit._
-import com.typesafe.config.ConfigFactory
-import org.apache.curator.framework.CuratorFramework
-import org.scalatest._
-import org.scalatest.mock.MockitoSugar
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.api.actor.{PolicyActor, SparkStreamingContextActor}
 import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
+import com.typesafe.config.ConfigFactory
+import org.apache.curator.framework.CuratorFramework
+import org.scalatest._
+import org.scalatest.mock.MockitoSugar
 
-abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
+abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConfig.daemonicAkkaConfig))
 
   with WordSpecLike
   with Matchers

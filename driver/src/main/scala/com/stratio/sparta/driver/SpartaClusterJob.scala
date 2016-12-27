@@ -23,15 +23,14 @@ import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
-import PolicyStatusActor.Update
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
@@ -66,7 +65,7 @@ object SpartaClusterJob extends PolicyUtils {
       addPluginsToClassPath(pluginsFiles)
 
       val curatorFramework = CuratorFactoryHolder.getInstance()
-      implicit val system = ActorSystem(policyId)
+      implicit val system = ActorSystem(policyId, SpartaConfig.daemonicAkkaConfig)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
       val policy = FragmentsHelper.getPolicyWithFragments(byId(policyId, curatorFramework), fragmentActor)
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),

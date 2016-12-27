@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.cube.field.datetime
 
 import java.io.{Serializable => JSerializable}
@@ -27,15 +28,15 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTime
 import org.joda.time.DateTime
 
-case class DateTimeField(props: Map[String, JSerializable], override val defaultTypeOperation : TypeOp)
+case class DateTimeField(props: Map[String, JSerializable], override val defaultTypeOperation: TypeOp)
   extends DimensionType with JSerializable with SLF4JLogging {
 
-  def this(defaultTypeOperation : TypeOp) {
+  def this(defaultTypeOperation: TypeOp) {
     this(Map.empty[String, JSerializable], defaultTypeOperation)
   }
 
   def this(props: Map[String, JSerializable]) {
-    this(props,  TypeOp.Timestamp)
+    this(props, TypeOp.Timestamp)
   }
 
   def this() {
@@ -59,8 +60,12 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
   override def precisionValue(keyName: String, value: Any): (Precision, Any) =
     try {
       val precisionKey = precision(keyName)
-      (precisionKey, getPrecision(TypeOp.transformValueByTypeOp(TypeOp.Date, value).asInstanceOf[Date],
-        precisionKey, properties))
+      (precisionKey,
+        getPrecision(
+          TypeOp.transformValueByTypeOp(TypeOp.DateTime, value).asInstanceOf[DateTime],
+          precisionKey,
+          properties
+        ))
     }
     catch {
       case cce: ClassCastException =>
@@ -68,9 +73,9 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
         throw cce
     }
 
-  private def getPrecision(value: Date, precision: Precision, properties: Map[String, JSerializable]): Any = {
+  private def getPrecision(value: DateTime, precision: Precision, properties: Map[String, JSerializable]): Any = {
     TypeOp.transformValueByTypeOp(precision.typeOp,
-      AggregationTime.truncateDate(new DateTime(value), precision match {
+      AggregationTime.truncateDate(value, precision match {
         case t if t == TimestampPrecision => if (properties.contains(AggregationTime.GranularityPropertyName))
           properties.get(AggregationTime.GranularityPropertyName).get.toString
         else AggregationTime.DefaultGranularity
@@ -82,5 +87,4 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
 object DateTimeField {
 
   final val TimestampPrecision = DimensionType.getTimestamp(Some(TypeOp.Timestamp), TypeOp.Timestamp)
-
 }

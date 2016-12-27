@@ -92,7 +92,7 @@ class SpartaHelperTest extends WordSpec with Matchers with MockFactory {
         """.stripMargin)
       SpartaConfig.initMainConfig(Option(config), new MockConfigFactory(config))
 
-      SpartaHelper.isClusterMode should be(false)
+      SpartaHelper.isClusterMode should be(true)
     }
 
     "return false when execution mode is yarn or mesos" in {

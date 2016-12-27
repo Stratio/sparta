@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.http
 
 import com.stratio.sparta.plugin.TemporalSparkContext
@@ -25,16 +26,18 @@ import org.junit.runner.RunWith
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.junit.JUnitRunner
 
-
 @RunWith(classOf[JUnitRunner])
 class HttpOutputTest extends TemporalSparkContext with Matchers {
 
-  val properties = Map(("url", "https://posttestserver.com/post.php?dir=strat"),
-    ("delimiter", ","),
-    ("parameterName", "thisIsAKeyName"),
-    ("readTimeOut", "5000"),
-    ("outputFormat", "ROW"),
-    ("postType", "body"))
+  val properties = Map(
+    "url" -> "https://httpbin.org/post",
+    "delimiter" -> ",",
+    "parameterName" -> "thisIsAKeyName",
+    "readTimeOut" -> "5000",
+    "outputFormat" -> "ROW",
+    "postType" -> "body",
+    "connTimeout" -> "6000"
+  )
 
   val fields = StructType(StructField("name", StringType, false) ::
     StructField("age", IntegerType, false) ::
@@ -55,7 +58,6 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
       new HttpOutput("keyName", Some(2), properties2, tableSchema)
     }
   }
-
 
   /* DataFrame generator */
   private def dfGen(): DataFrame = {
@@ -79,7 +81,6 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
     assertResult(dfGen().count())(size)
   }
 
-
   val restMock2 = new HttpOutput("key", Some(2), properties.updated("postType", "parameter"), tableSchema)
   it should "be parsed and send as a POST request along with a parameter stated by properties.parameterKey " in {
     dfGen().collect().foreach(row => {
@@ -96,7 +97,7 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
   }
 
   val restMock4 = new HttpOutput("key", Some(2), properties.updated("postType", "parameter")
-    .updated("format","JSON"), tableSchema)
+    .updated("format", "JSON"), tableSchema)
   it should "sent as a POST request along with a parameter stated by properties.parameterKey " in {
 
     dfGen().toJSON.collect().foreach(row => {
