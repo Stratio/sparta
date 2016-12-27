@@ -22,6 +22,10 @@
       </div>
     </div>
     <div data-ng-switch="vm.model.type">
+      <!-- filter -->
+      <div data-ng-switch-when="Filter">
+        <ng-include src="'templates/policies/transformation/filter-panel.tpl.html'"></ng-include>
+      </div>
       <!-- json -->
       <div data-ng-switch-when="Json">
         <ng-include src="'templates/policies/transformation/json-panel.tpl.html'"></ng-include>

@@ -34,8 +34,6 @@ class MeanAssociativeOperator(name: String, val schema: StructType, properties: 
 
   override val defaultTypeOperation = TypeOp.MapStringDouble
 
-  override val defaultCastingFilterType = TypeOp.Number
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Seq[Double]] = {
     Try(Option(getDistinctValues(values.flatten.flatMap(value => {
       value match {

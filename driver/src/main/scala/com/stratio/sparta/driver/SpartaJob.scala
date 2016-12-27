@@ -149,7 +149,7 @@ object SpartaJob extends PolicyUtils {
       refUtils.tryToInstantiate[Parser](model.`type` + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[Integer],
-          classOf[String],
+          classOf[Option[String]],
           classOf[Seq[String]],
           classOf[StructType],
           classOf[Map[String, Serializable]])

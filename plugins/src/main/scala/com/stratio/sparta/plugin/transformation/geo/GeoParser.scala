@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.transformation.geo
 
 import java.io.{Serializable => JSerializable}
@@ -25,12 +26,12 @@ import org.apache.spark.sql.types.StructType
 import scala.util.Try
 
 class GeoParser(
-  order: Integer,
-  inputField: String,
-  outputFields: Seq[String],
-  schema: StructType,
-  properties: Map[String, JSerializable]
-) extends Parser(order, inputField, outputFields, schema, properties) {
+                 order: Integer,
+                 inputField: Option[String],
+                 outputFields: Seq[String],
+                 schema: StructType,
+                 properties: Map[String, JSerializable]
+               ) extends Parser(order, inputField, outputFields, schema, properties) {
 
   val defaultLatitudeField = "latitude"
   val defaultLongitudeField = "longitude"
@@ -47,7 +48,7 @@ class GeoParser(
         val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
         outputSchemaValid match {
           case Some(outSchema) =>
-           TypeOp.transformValueByTypeOp(outSchema.dataType, geoValue)
+            TypeOp.transformValueByTypeOp(outSchema.dataType, geoValue)
           case None =>
             throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")
         }
@@ -68,6 +69,5 @@ class GeoParser(
       .getOrElse(throw new RuntimeException(s"Impossible to parse $latitudeField in the event: ${row.mkString(",")}"))
       .toString
 
-  private def geoField(latitude: String, longitude: String): String =  latitude + separator + longitude
-
+  private def geoField(latitude: String, longitude: String): String = latitude + separator + longitude
 }

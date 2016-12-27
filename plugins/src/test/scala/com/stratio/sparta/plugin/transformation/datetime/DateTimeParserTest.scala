@@ -25,7 +25,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 @RunWith(classOf[JUnitRunner])
 class DateTimeParserTest extends WordSpecLike with Matchers {
 
-  val inputField = "ts"
+  val inputField = Some("ts")
   val outputsFields = Seq("ts")
 
   //scalastyle:off

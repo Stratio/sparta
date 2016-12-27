@@ -30,8 +30,6 @@ class MeanOperator(name: String, val schema: StructType, properties: Map[String,
 
   override val defaultTypeOperation = TypeOp.Double
 
-  override val defaultCastingFilterType = TypeOp.Number
-
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val distinctValues = getDistinctValues(values.flatten)
     distinctValues.size match {

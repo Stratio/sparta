@@ -40,7 +40,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
     val schema: StructType
     val properties: Map[String, JSerializable]
 
-    lazy val resultantRow: Option[Row] = new GeoParser(1, "", Seq(outputField), schema, properties)
+    lazy val resultantRow: Option[Row] = new GeoParser(1, None, Seq(outputField), schema, properties)
       .parse(preRow, false)
   }
 

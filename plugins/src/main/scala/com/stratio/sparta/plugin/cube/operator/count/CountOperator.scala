@@ -34,8 +34,6 @@ class CountOperator(name: String, val schema: StructType, properties: Map[String
 
   override val defaultTypeOperation = TypeOp.Long
 
-  override val defaultCastingFilterType = TypeOp.Number
-
   override def processMap(inputFieldsValues: Row): Option[Any] = {
     applyFilters(inputFieldsValues).flatMap(filteredFields => distinctFields match {
       case None => Option(CountOperator.One.toLong)

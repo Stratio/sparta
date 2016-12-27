@@ -27,7 +27,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
 class FilterParser(order: Integer,
-                   inputField: String,
+                   inputField: Option[String],
                    outputFields: Seq[String],
                    val schema: StructType,
                    properties: Map[String, JSerializable])
@@ -38,27 +38,11 @@ class FilterParser(order: Integer,
   def defaultCastingFilterType: TypeOp = TypeOp.Any
 
   override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
-    applyFilters(row).map { case valuesFiltered =>
+    applyFilters(row).map { valuesFiltered =>
 
-      val newData = outputFields.map { outputField =>
-        val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
-        outputSchemaValid match {
-          case Some(outSchema) =>
-            valuesFiltered.get(outSchema.name) match {
-              case Some(valueParsed) =>
-                parseToOutputType(outSchema, valueParsed)
-              case None =>
-                returnNullValue(new IllegalStateException(
-                  s"The values parsed not have the schema field: ${outSchema.name}"))
-            }
-          case None =>
-            returnNullValue(new IllegalStateException(
-              s"Impossible to parse outputField: $outputField in the schema"))
-        }
-      }
       val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-      Row.fromSeq(prevData ++ newData)
+      Row.fromSeq(prevData)
     }
   }
 }

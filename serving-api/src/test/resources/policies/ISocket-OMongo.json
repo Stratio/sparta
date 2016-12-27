@@ -20,6 +20,7 @@
     {
       "name": "morphline-parser",
       "order": 0,
+      "inputField": "attachment_body",
       "outputFields": [
         {"name":"product"},
         {"name":"price"}

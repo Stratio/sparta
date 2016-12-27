@@ -56,7 +56,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
           }
           ]
                         """
-  val inputField = Input.RawDataKey
+  val inputField = Some(Input.RawDataKey)
   val outputsFields = Seq("col1", "col2")
   val props: Map[String, Serializable] = Map("morphline" -> morphlineConfig)
 

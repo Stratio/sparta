@@ -26,6 +26,7 @@
     "name": "morphline",
     "order": 0,
     "type": "Morphlines",
+    "inputField": "attachment_body",
     "outputFields": [{
       "name": "product"
     }, {

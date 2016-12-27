@@ -40,7 +40,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
   val ParserName = "IngestionParser"
   val ParserOrder = 1
-  val InputField = Input.RawDataKey
+  val InputField = Some(Input.RawDataKey)
   val OutputsFields = Seq("ColumnA", "ColumnB", "ColumnC", "ColumnD", "ColumnE", "ColumnF")
   val validSchema = StructType(Seq(StructField(Input.RawDataKey, StringType),
     StructField("ColumnA", StringType),

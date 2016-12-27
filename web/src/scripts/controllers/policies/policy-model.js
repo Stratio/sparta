@@ -70,6 +70,10 @@
         case modelConstants.MORPHLINES:
           vm.model.configuration = vm.template.model[modelConstants.MORPHLINES].defaultConfiguration;
           break;
+        case modelConstants.FILTER:
+        delete vm.model.inputField;
+          vm.model.configuration = vm.template.model[modelConstants.FILTER].defaultConfiguration;
+          break;
         case modelConstants.JSON:
           vm.model.configuration = vm.template.model[modelConstants.JSON].defaultConfiguration;
           break;
@@ -121,7 +125,7 @@
 
     function areValidOutputFields() {
       vm.invalidOutputField = undefined;
-      if (vm.model.outputFields.length == 0) {
+      if (vm.model.outputFields.length == 0 && vm.model.type != modelConstants.FILTER) {
         return false;
       }
       var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,

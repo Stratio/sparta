@@ -25,9 +25,9 @@ import org.scalatest._
 class XPathParserTest extends WordSpecLike with Matchers {
 
 
-  val inputField = "json"
+  val inputField = Some("xml")
   val schema = StructType(Seq(
-    StructField(inputField, StringType),
+    StructField(inputField.get, StringType),
     StructField("id", StringType),
     StructField("enabled", BooleanType))
   )

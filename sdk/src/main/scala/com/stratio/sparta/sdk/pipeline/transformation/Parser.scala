@@ -26,7 +26,7 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import scala.util.Try
 
 abstract class Parser(order: Integer,
-                      inputField: String,
+                      inputField: Option[String],
                       outputFields: Seq[String],
                       schema: StructType,
                       properties: Map[String, JSerializable])
@@ -34,7 +34,10 @@ abstract class Parser(order: Integer,
 
   val outputFieldsSchema = schema.fields.filter(field => outputFields.contains(field.name))
 
-  val inputFieldIndex = Try(schema.fieldIndex(inputField)).getOrElse(0)
+  val inputFieldIndex = inputField match {
+    case Some(field) => Try(schema.fieldIndex(field)).getOrElse(0)
+    case None => 0
+  }
 
   val errorWithNullInputs = Try(properties.getBoolean("errorWithNullValues")).getOrElse(true)
 

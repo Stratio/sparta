@@ -306,6 +306,10 @@
         "name": "Ingestion"
       },
       {
+        "iconName": "filter",
+        "name": "Filter"
+      },
+      {
         "iconName": "type",
         "name": "Json"
       },
@@ -398,6 +402,34 @@
           {
             "field":"field2",
             "query":"$.field2-in-json"
+          }
+        ]
+      }
+    },
+    "Filter": {
+      "properties": [
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-transformation-filter-errorWithNullValues"
+        }
+      ],
+      "defaultConfiguration": {
+        "filters": [
+          {
+            "field":"field1",
+            "type":"<",
+            "value":1
+          },
+          {
+            "field":"field2",
+            "type":"=",
+            "value":"sparta"
           }
         ]
       }

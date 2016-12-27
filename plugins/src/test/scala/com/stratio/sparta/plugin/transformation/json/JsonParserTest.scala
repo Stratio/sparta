@@ -26,9 +26,9 @@ import java.io.{Serializable => JSerializable}
 @RunWith(classOf[JUnitRunner])
 class JsonParserTest extends WordSpecLike with Matchers {
 
-  val inputField = "json"
+  val inputField = Some("json")
   val schema = StructType(Seq(
-    StructField(inputField, StringType),
+    StructField(inputField.get, StringType),
     StructField("color", StringType),
     StructField("price", DoubleType))
   )

@@ -45,7 +45,7 @@ class PolicyModelTest extends WordSpec with Matchers with MockitoSugar {
 
   val transformations = Seq(TransformationsModel("Morphlines",
     0,
-    Input.RawDataKey,
+    Some(Input.RawDataKey),
     Seq(OutputFieldsModel("out1"), OutputFieldsModel("out2")),
     Map()))
 
