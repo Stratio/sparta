@@ -5,7 +5,7 @@
     "description": {
       "short": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
       "long": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Flume"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Flume"
     },
     "properties": [
       {
@@ -173,7 +173,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Kafka"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
     },
     "properties": [
       {
@@ -272,7 +272,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
       "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the direct approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-KafkaDirect"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-KafkaDirect"
     },
     "properties": [
       {
@@ -360,7 +360,7 @@
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
       "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-RabbitMQ"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
     },
     "properties": [
       {
@@ -412,7 +412,7 @@
     "description": {
       "short": "A network socket is an endpoint of an inter-process communication across a computer network.",
       "long": "A network socket is an endpoint of an inter-process communication across a computer network.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Socket"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Socket"
     },
     "properties": [
       {
@@ -443,7 +443,7 @@
     "description": {
       "short": "Reads events from Twitter stream and return the status in a json.",
       "long": "Reads events from Twitter stream and return the status in a json.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-Twitter"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Twitter"
     },
     "properties": [
       {
@@ -504,7 +504,7 @@
     "description": {
       "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
       "long": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs#Inputs-WebSocket"
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-WebSocket"
     },
 
     "properties": [
@@ -517,6 +517,28 @@
         "required": true,
         "tooltip": "Websocket url.",
         "qa": "fragment-details-websocket-url"
+      }
+    ]
+  },
+  {
+    "name": "FileSystem",
+    "modelType": "Directory",
+    "description": {
+      "short": "Allows you to load files from a Hadoop-compatible monitored filesystem directory.",
+      "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-FileSystem"
+    },
+
+    "properties": [
+      {
+        "propertyId": "directory",
+        "propertyName": "_DIRECTORY_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "Path to the monitored directory (HDFS, S3, Azure,etc.)",
+        "qa": "fragment-details-filesystem-url"
       }
     ]
   }

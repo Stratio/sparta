@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.plugin.output.http
 
+import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.SQLContext
