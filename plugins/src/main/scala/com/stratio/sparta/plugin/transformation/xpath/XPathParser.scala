@@ -27,7 +27,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
 class XPathParser(order: Integer,
-                  inputField: String,
+                  inputField: Option[String],
                   outputFields: Seq[String],
                   schema: StructType,
                   properties: Map[String, JSerializable])
@@ -35,7 +35,7 @@ class XPathParser(order: Integer,
 
   val queriesModel = properties.getPropertiesQueries("queries")
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
       inputValue match {
@@ -64,7 +64,7 @@ class XPathParser(order: Integer,
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Row.fromSeq(prevData ++ newData)
+    Option(Row.fromSeq(prevData ++ newData))
   }
 }
 

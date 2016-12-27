@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.schema
 
 import java.sql.Timestamp
@@ -20,9 +21,14 @@ import java.util.Date
 
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTime._
 import org.apache.spark.sql.types._
+import org.json4s.JDecimal
+import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 
+import scala.util.Try
+
+//scalastyle:off
 object TypeOp extends Enumeration {
 
   type TypeOp = Value
@@ -52,21 +58,83 @@ object TypeOp extends Enumeration {
     TypeOperationsNames.getOrElse(nameOperation.toLowerCase, defaultTypeOperation)
 
   implicit object OrderingAny extends Ordering[Any] {
+
     import math.Ordering
+
     override def compare(x: Any, y: Any): Int = (x, y) match {
       case (x: Int, y: Int) => Ordering[Int].compare(x, y)
+      case (x: Int, y: Double) => Ordering[Int].compare(x, y.toInt)
+      case (x: Int, y: Long) => Ordering[Int].compare(x, y.toInt)
+      case (x: Int, y: JInt) => Ordering[Int].compare(x, y.num.intValue())
+      case (x: Int, y: JDouble) => Ordering[Int].compare(x, y.num.intValue())
+      case (x: Int, y: JString) => Try(Ordering[Int].compare(x, y.s.toInt))
+        .getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: Double, y: Double) => Ordering[Double].compare(x, y)
+      case (x: Double, y: Long) => Ordering[Double].compare(x, y.toDouble)
+      case (x: Double, y: JDouble) => Ordering[Double].compare(x, y.num)
+      case (x: Double, y: JInt) => Ordering[Double].compare(x, y.num.doubleValue())
+      case (x: Double, y: JString) => Try(Ordering[Double].compare(x, y.s.toDouble))
+        .getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: String, y: String) => Ordering[String].compare(x, y)
+      case (x: String, y: JString) => Ordering[String].compare(x, y.s)
+      case (x: String, y: JInt) => Try(Ordering[Int].compare(x.toInt, y.num.intValue()))
+        .getOrElse(Ordering[String].compare(x, y.num.toString()))
+      case (x: String, y: JDouble) => Try(Ordering[Double].compare(x.toDouble, y.num.toDouble))
+        .getOrElse(Ordering[String].compare(x, y.num.toString))
+      case (x: String, y: Int) => Try(Ordering[Int].compare(x.toInt, y))
+        .getOrElse(Ordering[String].compare(x, y.toString))
+      case (x: String, y: Long) => Try(Ordering[Long].compare(x.toLong, y))
+        .getOrElse(Ordering[String].compare(x, y.toString))
+      case (x: String, y: Double) => Try(Ordering[Double].compare(x.toDouble, y))
+        .getOrElse(Ordering[String].compare(x, y.toString))
+      case (x: String, y: Boolean) => Try(Ordering[Boolean].compare(x.toBoolean, y))
+        .getOrElse(Ordering[String].compare(x, y.toString))
       case (x: Long, y: Long) => Ordering[Long].compare(x, y)
+      case (x: Long, y: JInt) => Ordering[Long].compare(x, y.num.longValue())
+      case (x: Long, y: JDouble) => Ordering[Long].compare(x, y.num.longValue())
+      case (x: Long, y: JString) => Try(Ordering[Long].compare(x, y.s.toLong))
+        .getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: Boolean, y: Boolean) => Ordering[Boolean].compare(x, y)
+      case (x: Boolean, y: JBool) => Ordering[Boolean].compare(x, y.value)
+      case (x: Boolean, y: JString) => Try(Ordering[Boolean].compare(x, y.s.toBoolean))
+        .getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: Date, y: Date) => Ordering[Date].compare(x, y)
+      case (x: Date, y: Long) => Ordering[Long].compare(x.getTime, y)
+      case (x: Date, y: JInt) => Ordering[Long].compare(x.getTime, y.num.longValue())
+      case (x: Date, y: String) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
+        Ordering[Date].compare(x, dateParsed.date)
+      }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: Date, y: JString) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
+        Ordering[Date].compare(x, dateParsed.date)
+      }.getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: Timestamp, y: Timestamp) => Ordering[Long].compare(x.getTime, y.getTime)
+      case (x: Timestamp, y: Long) => Ordering[Long].compare(x.getTime, y)
+      case (x: Timestamp, y: JInt) => Ordering[Long].compare(x.getTime, y.num.longValue())
+      case (x: Timestamp, y: String) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
+        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
+      }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: Timestamp, y: JString) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
+        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
+      }.getOrElse(Ordering[String].compare(x.toString, y.s))
       case (x: DateTime, y: DateTime) => Ordering[DateTime].compare(x, y)
+      case (x: DateTime, y: Long) => Ordering[DateTime].compare(x, new DateTime(y))
+      case (x: DateTime, y: JInt) => Ordering[DateTime].compare(x, new DateTime(y.num.longValue()))
+      case (x: DateTime, y: String) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
+        Ordering[DateTime].compare(x, dateParsed.toDateTime)
+      }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: DateTime, y: JString) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
+        Ordering[DateTime].compare(x, dateParsed.toDateTime)
+      }.getOrElse(Ordering[String].compare(x.toString, y.s))
       case _ => throw new Exception(s"Incompatible types when comparing: ${x.toString} and ${y.toString}")
     }
   }
 
-  //scalastyle:off
   def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
       case TypeOp.String => checkStringType(origValue)
@@ -118,12 +186,11 @@ object TypeOp extends Enumeration {
     }
   }
 
-  //scalastyle:on
-
   private def checkStringType[T](origValue: T): T = checkAnyStringType(origValue).asInstanceOf[T]
 
   private def checkAnyStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[String] => value
+    case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s
     case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].mkString(Output.Separator)
     case _ => origValue.toString
   }
@@ -166,13 +233,15 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Timestamp] =>
       value
     case value if value.isInstanceOf[Date] =>
-      AggregationTime.millisToTimeStamp(value.asInstanceOf[Date].getTime)
+      millisToTimeStamp(value.asInstanceOf[Date].getTime)
     case value if value.isInstanceOf[DateTime] =>
-      AggregationTime.millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
+      millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
     case value if value.isInstanceOf[Long] =>
-      AggregationTime.millisToTimeStamp(value.asInstanceOf[Long])
+      millisToTimeStamp(value.asInstanceOf[Long])
+    case value if value.isInstanceOf[JString] =>
+      millisToTimeStamp(value.asInstanceOf[JString].s.toLong)
     case _ =>
-      AggregationTime.millisToTimeStamp(origValue.toString.toLong)
+      millisToTimeStamp(origValue.toString.toLong)
   }
 
   private def checkDateType[T](origValue: T): T = checkAnyDateType(origValue).asInstanceOf[T]
@@ -182,6 +251,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Timestamp] => new Date(value.asInstanceOf[Timestamp].getTime)
     case value if value.isInstanceOf[DateTime] => new Date(value.asInstanceOf[DateTime].getMillis)
     case value if value.isInstanceOf[Long] => new Date(value.asInstanceOf[Long])
+    case value if value.isInstanceOf[JString] => new Date(value.asInstanceOf[JString].s)
     case _ => new Date(origValue.toString.toLong)
   }
 
@@ -192,14 +262,17 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Timestamp] => new DateTime(value.asInstanceOf[Timestamp].getTime)
     case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date].getTime)
     case value if value.isInstanceOf[Long] => new DateTime(value.asInstanceOf[Long])
+    case value if value.isInstanceOf[JString] => new DateTime(origValue.asInstanceOf[JString].s)
     case _ => new DateTime(origValue.toString)
   }
 
   private def checkLongType[T](origValue: T): T = checkAnyLongType(origValue).asInstanceOf[T]
 
-  //scalastyle:off
   private def checkAnyLongType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Long] => value
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.longValue()
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.longValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.longValue()
     case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toLong
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toLong
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toLong
@@ -208,6 +281,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[DateTime] => origValue.asInstanceOf[DateTime].getMillis
     case value if value.isInstanceOf[Timestamp] => origValue.asInstanceOf[Timestamp].getTime
     case value if value.isInstanceOf[Date] => origValue.asInstanceOf[Date].getTime
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toLong
     case _ => origValue.toString.toLong
   }
 
@@ -215,11 +289,15 @@ object TypeOp extends Enumeration {
 
   private def checkAnyDoubleType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Double] => value
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.doubleValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.doubleValue()
     case value if value.isInstanceOf[Int] => origValue.asInstanceOf[Int].toDouble
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toDouble
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toDouble
     case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toDouble
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].doubleValue()
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toDouble
     case _ => origValue.toString.toDouble
   }
 
@@ -227,19 +305,26 @@ object TypeOp extends Enumeration {
 
   private def checkAnyIntType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Int] => value
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.intValue()
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.intValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.intValue()
     case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toInt
     case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toInt
     case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toInt
     case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toInt
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].intValue()
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toInt
     case _ => origValue.toString.toInt
   }
-  //scalastyle:on
 
   private def checkBooleanType[T](origValue: T): T = checkAnyBooleanType(origValue).asInstanceOf[T]
 
   private def checkAnyBooleanType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Boolean] => value
+    case value if value.isInstanceOf[JBool] => value.asInstanceOf[JBool].value
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toBoolean
     case _ => origValue.toString.toBoolean
   }
 }
+
+//scalastyle:on

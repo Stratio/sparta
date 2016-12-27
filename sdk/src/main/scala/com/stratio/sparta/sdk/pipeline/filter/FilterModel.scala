@@ -15,8 +15,11 @@
  */
 package com.stratio.sparta.sdk.pipeline.filter
 
+import org.json4s.JsonAST.JValue
+
 case class FilterModel(field: String,
                        `type`: String,
-                       value: Option[String] = None,
+                       value: Option[JValue] = None,
                        fieldValue: Option[String] = None,
                        fieldType: Option[String] = None)
+

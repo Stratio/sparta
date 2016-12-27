@@ -77,9 +77,10 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
     val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
     val transformationModel1 =
-      TransformationsModel("Parser", 0, Input.RawDataKey, Seq(outputFieldModel1, outputFieldModel2))
+      TransformationsModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2))
 
-    val transformationModel2 = TransformationsModel("Parser", 1, "field1", Seq(outputFieldModel3, outputFieldModel4))
+    val transformationModel2 = TransformationsModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
+      outputFieldModel4))
     val writerModel = WriterModel(Seq("outputName"))
   }
 

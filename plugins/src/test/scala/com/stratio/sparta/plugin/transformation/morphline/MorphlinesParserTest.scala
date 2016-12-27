@@ -56,7 +56,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
           }
           ]
                         """
-  val inputField = Input.RawDataKey
+  val inputField = Some(Input.RawDataKey)
   val outputsFields = Seq("col1", "col2")
   val props: Map[String, Serializable] = Map("morphline" -> morphlineConfig)
 
@@ -76,7 +76,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
       val input = Row(simpleJson)
       val result = parser.parse(input, false)
 
-      val expected = Row(simpleJson, "hello", "world")
+      val expected = Option(Row(simpleJson, "hello", "world"))
 
       result should be eq(expected)
     }
@@ -91,7 +91,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
       val input = Row(simpleJson)
       val result = parser.parse(input, true)
 
-      val expected = Row("hello", "world")
+      val expected = Option(Row("hello", "world"))
 
       result should be eq(expected)
     }
@@ -107,7 +107,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
       val input = Row(simpleJson)
       val result = parser.parse(input, false)
 
-      val expected = Row(simpleJson, "hello", "world")
+      val expected = Option(Row(simpleJson, "hello", "world"))
 
       result should be eq(expected)
     }

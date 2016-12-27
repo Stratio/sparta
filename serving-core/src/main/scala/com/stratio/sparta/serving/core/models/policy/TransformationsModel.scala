@@ -21,7 +21,7 @@ import com.stratio.sparta.sdk.pipeline.transformation.Parser
 
 case class TransformationsModel(`type`: String,
                                 order: Integer,
-                                inputField: String = Input.RawDataKey,
+                                inputField: Option[String] = None,
                                 outputFields: Seq[OutputFieldsModel],
                                 configuration: Map[String, JsoneyString] = Map()) {
 

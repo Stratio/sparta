@@ -29,15 +29,17 @@ import org.kitesdk.morphline.api.Record
 import scala.collection.JavaConverters._
 
 class MorphlinesParser(order: Integer,
-                       inputField: String,
+                       inputField: Option[String],
                        outputFields: Seq[String],
                        schema: StructType,
                        properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
+  assert(inputField.isDefined, "Is necessary define one inputField in the Morphline Transformation")
+
   private val config: String = properties.getString("morphline")
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val result = inputValue match {
       case Some(s: String) =>
@@ -51,12 +53,12 @@ class MorphlinesParser(order: Integer,
     }
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 
-    Row.merge(prevData, result)
+    Option(Row.merge(prevData, result))
   }
 
   private def parseWithMorphline(value: ByteArrayInputStream): Row = {
     val record = new Record()
-    record.put(inputField, value)
+    record.put(inputField.get, value)
     MorphlinesParser(order, config, outputFieldsSchema).process(record)
   }
 }

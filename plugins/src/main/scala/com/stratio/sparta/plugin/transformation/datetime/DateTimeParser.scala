@@ -29,7 +29,7 @@ import org.apache.spark.sql.types.StructType
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 
 class DateTimeParser(order: Integer,
-                     inputField: String,
+                     inputField: Option[String],
                      outputFields: Seq[String],
                      schema: StructType,
                      properties: Map[String, JSerializable])
@@ -38,7 +38,7 @@ class DateTimeParser(order: Integer,
   private val Formats = properties.getString("inputFormat", None)
   private val GranularityProperty = properties.getString(GranularityPropertyName, None)
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
       outputFields.map(outputField => {
@@ -69,7 +69,7 @@ class DateTimeParser(order: Integer,
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Row.fromSeq(prevData ++ newData)
+    Option(Row.fromSeq(prevData ++ newData))
   }
 
   private def extractFormatter(formats: Option[String]): Option[Either[DateTimeFormatter, String]] = {

@@ -28,7 +28,13 @@ class ParserTest extends WordSpec with Matchers {
 
   "Parser" should {
 
-    val parserTest = new ParserMock(1, "input", Seq("output"), StructType(Seq(StructField("some", StringType))), Map())
+    val parserTest = new ParserMock(
+      1,
+      Some("input"),
+      Seq("output"),
+      StructType(Seq(StructField("some", StringType))),
+      Map()
+    )
 
     "Order must be " in {
       val expected = 1
@@ -38,7 +44,7 @@ class ParserTest extends WordSpec with Matchers {
 
     "Parse must be " in {
       val event = Row("value")
-      val expected = event
+      val expected = Option(event)
       val result = parserTest.parse(event, false)
       result should be(expected)
     }

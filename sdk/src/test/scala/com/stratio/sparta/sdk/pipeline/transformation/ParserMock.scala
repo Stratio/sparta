@@ -21,11 +21,11 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
 class ParserMock(order: Integer,
-                 inputField: String,
+                 inputField: Option[String],
                  outputFields: Seq[String],
                  schema: StructType,
                  properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  override def parse(row: Row, removeRaw: Boolean): Row = row
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = Option(row)
 }

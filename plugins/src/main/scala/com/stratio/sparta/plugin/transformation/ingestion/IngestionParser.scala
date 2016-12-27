@@ -32,21 +32,22 @@ import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 
 class IngestionParser(order: Integer,
-                      inputField: String,
+                      inputField: Option[String],
                       outputFields: Seq[String],
                       schema: StructType,
                       properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) with SLF4JLogging {
 
+  assert(inputField.isDefined, "Is necessary define one inputField in the Morphline Transformation")
+
   val fieldNames = outputFieldsSchema.map(field => field.name)
 
-  override def parse(row: Row, removeRaw: Boolean): Row = {
-    val input = row.get(schema.fieldIndex(inputField))
-
+  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
+    val input = row.get(schema.fieldIndex(inputField.get))
     val parsedValues = IngestionParser.parseRawData(input, fieldNames, outputFieldsSchema)
-
     val previousParserValues = if (removeRaw) row.toSeq.drop(1) else row.toSeq
-    Row.fromSeq(previousParserValues ++ parsedValues)
+
+    Option(Row.fromSeq(previousParserValues ++ parsedValues))
   }
 }
 

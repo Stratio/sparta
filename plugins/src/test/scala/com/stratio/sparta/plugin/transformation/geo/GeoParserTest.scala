@@ -36,11 +36,11 @@ class GeoParserTest extends WordSpecLike with Matchers {
     val outputField = "geo"
 
     val preRow: Row
-    val postRow: Row
+    val postRow: Option[Row]
     val schema: StructType
     val properties: Map[String, JSerializable]
 
-    lazy val resultantRow: Row = new GeoParser(1, "", Seq(outputField), schema, properties)
+    lazy val resultantRow: Option[Row] = new GeoParser(1, None, Seq(outputField), schema, properties)
       .parse(preRow, false)
   }
 
@@ -56,7 +56,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val properties: Map[String, JSerializable] = Map("latitude" -> latitudeField)
 
         val preRow = Row.fromSeq(data)
-        val postRow = Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue"))
+        val postRow = Option(Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue")))
 
         postRow should be(resultantRow)
       }
@@ -71,7 +71,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val properties = Map("longitude" -> longitudeField)
 
         val preRow = Row.fromSeq(data)
-        val postRow = Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue"))
+        val postRow = Option(Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue")))
 
         postRow should be(resultantRow)
       }
@@ -86,7 +86,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val properties = Map.empty[String, Serializable]
 
         val preRow = Row.fromSeq(data)
-        val postRow = Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue"))
+        val postRow = Option(Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue")))
 
         postRow should be(resultantRow)
       }
@@ -101,7 +101,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val properties = Map.empty[String, Serializable]
 
         val preRow = Row.fromSeq(data)
-        val postRow = Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue"))
+        val postRow = Option(Row.fromSeq(data ++ Seq(s"${latitudeValue}__$longitudeValue")))
 
         postRow should be(resultantRow)
       }
@@ -114,7 +114,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         )
         val properties = Map("latitude" -> latitudeField)
         val preRow = Row.fromSeq(data)
-        val postRow = preRow
+        val postRow = Option(preRow)
 
         an[RuntimeException] should be thrownBy be(resultantRow)
       }
@@ -127,7 +127,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         )
         val properties = Map("longitude" -> longitudeField)
         val preRow = Row.fromSeq(data)
-        val postRow = preRow
+        val postRow = Option(preRow)
 
         an[RuntimeException] should be thrownBy be(resultantRow)
       }
@@ -138,7 +138,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val schema = StructType(Seq(StructField("longitude", DoubleType), StructField("geo", StringType)))
         val properties = Map.empty[String, Serializable]
         val preRow = Row.fromSeq(data)
-        val postRow = preRow
+        val postRow = Option(preRow)
 
         an[RuntimeException] should be thrownBy be(resultantRow)
       }
@@ -149,7 +149,7 @@ class GeoParserTest extends WordSpecLike with Matchers {
         val schema = StructType(Seq(StructField("latitude", DoubleType), StructField("geo", StringType)))
         val properties = Map.empty[String, Serializable]
         val preRow = Row.fromSeq(data)
-        val postRow = preRow
+        val postRow = Option(preRow)
 
         an[RuntimeException] should be thrownBy be(resultantRow)
       }

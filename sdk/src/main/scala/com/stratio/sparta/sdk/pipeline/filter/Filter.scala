@@ -59,10 +59,10 @@ trait Filter extends SLF4JLogging {
         val filterType = filterCastingType(filter.fieldType)
         val inputValue = TypeOp.transformAnyByTypeOp(filterType, inputField._2)
         val filterValue = filter.value.map(value => TypeOp.transformAnyByTypeOp(filterType, value))
-        val dimensionValue = filter.fieldValue.flatMap(fieldValue =>
+        val fieldValue = filter.fieldValue.flatMap(fieldValue =>
           inputFields.get(fieldValue).map(value => TypeOp.transformAnyByTypeOp(filterType, value)))
 
-        applyFilterCauses(filter, inputValue, filterValue, dimensionValue)
+        applyFilterCauses(filter, inputValue, filterValue, fieldValue)
       }
       else true
     ).forall(result => result)
@@ -108,8 +108,8 @@ trait Filter extends SLF4JLogging {
   private def doFilteringType(filterType: String, value: Any, filterValue: Any): Boolean = {
     import OrderingAny._
     filterType match {
-      case "=" => value == filterValue
-      case "!=" => value != filterValue
+      case "=" => value equiv filterValue
+      case "!=" => !(value equiv filterValue)
       case "<" => value < filterValue
       case "<=" => value <= filterValue
       case ">" => value > filterValue

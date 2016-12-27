@@ -60,7 +60,7 @@ abstract class PolicyBaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
     val transformations = Seq(TransformationsModel(
       "Morphlines",
       0,
-      Input.RawDataKey,
+      Some(Input.RawDataKey),
       Seq(outputFieldModel1, outputFieldModel2),
       Map()))
     val dimensionModel = getDimensionModel

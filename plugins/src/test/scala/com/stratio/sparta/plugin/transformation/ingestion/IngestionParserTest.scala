@@ -40,7 +40,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
   val ParserName = "IngestionParser"
   val ParserOrder = 1
-  val InputField = Input.RawDataKey
+  val InputField = Some(Input.RawDataKey)
   val OutputsFields = Seq("ColumnA", "ColumnB", "ColumnC", "ColumnD", "ColumnE", "ColumnF")
   val validSchema = StructType(Seq(StructField(Input.RawDataKey, StringType),
     StructField("ColumnA", StringType),
@@ -104,9 +104,9 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
       val event = ingestionParser.parse(row = inputEvent, removeRaw = false)
 
-      event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
-      event.size should be (6)
-      event should be eq Row.fromSeq(Seq(json) ++ values)
+      event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+      event.get.size should be (6)
+      event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config" in {
@@ -142,11 +142,11 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue", 1L)
 
-      event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+      event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.size should be (3)
+      event.get.size should be (3)
 
-      event should be eq Row.fromSeq(Seq(json) ++ values)
+      event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config and " +
@@ -184,11 +184,11 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val event = ingestionParser.parse(inputEvent, false)
       val values = Seq("columnAValue")
 
-      event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+      event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.size should be (2)
+      event.get.size should be (2)
 
-      event should be eq Row.fromSeq(Seq(json) ++ values)
+      event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
     "parse an event with an input that has different number of columns that the schema specified in the config and " +
@@ -226,11 +226,11 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val event = ingestionParser.parse(inputEvent, true)
       val values = Seq("columnAValue")
 
-      event should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
+      event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.size should be (1)
+      event.get.size should be (1)
 
-      event should be eq Row.fromSeq(values)
+      event.get should be eq Row.fromSeq(values)
     }
 
     "one exception was returned when element is not defined in the schema" in {

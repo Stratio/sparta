@@ -25,9 +25,9 @@ import org.scalatest._
 class XPathParserTest extends WordSpecLike with Matchers {
 
 
-  val inputField = "json"
+  val inputField = Some("xml")
   val schema = StructType(Seq(
-    StructField(inputField, StringType),
+    StructField(inputField.get, StringType),
     StructField("id", StringType),
     StructField("enabled", BooleanType))
   )
@@ -67,7 +67,7 @@ class XPathParserTest extends WordSpecLike with Matchers {
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Row(XML, "1", true)
+      val expected = Option(Row(XML, "1", true))
 
       assertResult(result)(expected)
     }
@@ -95,7 +95,7 @@ class XPathParserTest extends WordSpecLike with Matchers {
         Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input, true)
 
-      val expected = Row("1", true)
+      val expected = Option(Row("1", true))
 
       assertResult(result)(expected)
     }
