@@ -35,6 +35,7 @@ import akka.actor.ActorSystem
 import akka.testkit._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
@@ -43,7 +44,7 @@ import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 
-abstract class PolicyBaseUtilsTest extends TestKit(ActorSystem("UtilsText"))
+abstract class PolicyBaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender

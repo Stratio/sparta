@@ -19,7 +19,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.SpartaSystem
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.{ConfigDAO, ErrorDAO}
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.util.{Failure, Success, Try}
 
@@ -166,4 +166,11 @@ object SpartaConfig extends SLF4JLogging {
       case None => false
     }
   }
+
+  def daemonicAkkaConfig : Config = mainConfig match {
+    case Some(mainSpartaConfig) =>
+      mainSpartaConfig.withFallback(ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
+    case None => ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on"))
+  }
+
 }

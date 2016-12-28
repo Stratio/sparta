@@ -15,29 +15,27 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
 import java.util
 
-import scala.util.{Success, Try}
-import akka.pattern.ask
-import akka.util.Timeout
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import akka.util.Timeout
+import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
 import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.read
-import org.junit.{Assert, Ignore}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+
+import scala.concurrent.duration._
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))

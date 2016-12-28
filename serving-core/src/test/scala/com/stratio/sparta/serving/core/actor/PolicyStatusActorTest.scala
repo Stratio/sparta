@@ -33,9 +33,10 @@ import scala.concurrent.duration._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import PolicyStatusActor.ResponseDelete
+import com.stratio.sparta.serving.core.config.SpartaConfig
 
 @RunWith(classOf[JUnitRunner])
-class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
+class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender

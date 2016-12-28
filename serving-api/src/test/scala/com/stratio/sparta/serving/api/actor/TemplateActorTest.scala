@@ -21,6 +21,7 @@ import java.net.{URI, URL}
 import scala.util.Success
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import org.apache.commons.io.IOUtils
 import org.json4s.jackson.Serialization._
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ import com.stratio.sparta.serving.core.models.policy.fragment.TemplateModel
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 
 @RunWith(classOf[JUnitRunner])
-class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
+class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec", SpartaConfig.daemonicAkkaConfig))
 with DefaultTimeout
 with ImplicitSender
 with WordSpecLike

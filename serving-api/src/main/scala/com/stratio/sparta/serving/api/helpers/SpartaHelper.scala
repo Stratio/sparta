@@ -20,9 +20,6 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.io.IO
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
-
-import scala.concurrent.duration._
-import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.utils.PolicyStatusUtils
@@ -33,6 +30,8 @@ import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import spray.can.Http
+
+import scala.concurrent.duration._
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
@@ -53,7 +52,7 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
       SpartaConfig.swaggerConfig.isDefined) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
       log.info("Initializing Sparta Actors System ...")
-      system = ActorSystem(appName)
+      system = ActorSystem(appName, SpartaConfig.mainConfig)
       val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
       val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultControllerActorInstances
@@ -117,6 +116,8 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
 
   def isClusterMode: Boolean = {
     val executionMode = getExecutionMode
-    executionMode == AppConstant.ConfigMesos || executionMode == AppConstant.ConfigYarn
+    executionMode == AppConstant.ConfigMesos ||
+      executionMode == AppConstant.ConfigYarn ||
+      executionMode == AppConstant.ConfigStandAlone
   }
 }

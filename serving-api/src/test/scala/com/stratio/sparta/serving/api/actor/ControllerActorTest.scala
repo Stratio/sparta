@@ -24,6 +24,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 
 @RunWith(classOf[JUnitRunner])
@@ -34,7 +35,8 @@ with Matchers
 with BeforeAndAfterAll
 with MockFactory {
 
-  def this() = this(ActorSystem("ControllerActorSpec"))
+  def this() =
+    this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
 
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = mock[StreamingContextService]

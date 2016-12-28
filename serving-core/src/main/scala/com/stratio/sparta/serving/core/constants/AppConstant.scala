@@ -16,6 +16,7 @@
 package com.stratio.sparta.serving.core.constants
 
 import akka.actor.ActorSystem
+import com.stratio.sparta.serving.core.config.SpartaConfig
 
 /**
  * Global constants of the application.
@@ -118,6 +119,6 @@ object AppConstant {
   final val ErrorsZkPath = s"$BaseZKPath/error"
 
   //Scheduler system to schedule threads executions
-  val SchedulerSystem = ActorSystem("SchedulerSystem")
+  val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
 
 }
