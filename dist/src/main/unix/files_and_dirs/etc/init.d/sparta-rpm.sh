@@ -35,7 +35,7 @@
 
 # Only configuration needed here
 NAME="sparta"
-DESC="Sparta real time aggregation engine"
+DESC="Sparta: Real-Time Analytics Engine"
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 VARIABLES="/etc/default/$NAME-variables"

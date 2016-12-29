@@ -15,18 +15,24 @@
 # limitations under the License.
 #
 
+NAME="sparta"
+VARIABLES="/etc/default/$NAME-variables"
+
+# Source service configuration
+# Source service configuration
+if [ -r $VARIABLES ]; then
+    . $VARIABLES
+fi
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Get options
-while getopts "p:l:" option; do
-  case $option in
-     p)      PIDFILE=$OPTARG ;;
-     l)      LOGFILE=$OPTARG ;;
-     *)      echo "Unknown option" ; exit 1 ;;
-  esac
+while getopts "p:l:D:X:" option; do
+   case $option in
+      p)    PIDFILE="${OPTARG}" ;;
+      l)    LOGFILE="${OPTARG}" ;;
+      *)    echo "Unknown option" ; exit 1 ;;
+   esac
 done
 
-# Set defatult values
-PIDFILE=${PIDFILE:-"/var/run/sds/sparta.pid"}
-
-bash $DIR/run >> /dev/null 2>/var/log/sds/sparta/sparta.log & echo $! >$PIDFILE
+bash $DIR/run >> /dev/null 2>$LOG_FILE & echo $! >$PIDFILE

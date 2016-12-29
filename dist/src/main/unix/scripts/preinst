@@ -1,47 +1,39 @@
-#!/bin/bash
- 
-set -e
- 
-# summary of how this script can be called:
-#        * <new-preinst> `install'
-#        * <new-preinst> `install' <old-version>
-#        * <new-preinst> `upgrade' <old-version>
-#        * <old-preinst> `abort-upgrade' <new-version>
- 
-GROUP='stratio'
- 
+#!/usr/bin/env bash
+#
+# Copyright (C) 2015 Stratio (http://stratio.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+GROUP=stratio
+USER=sparta
+
+createCredentials () {
+    if ! getent group ${GROUP} >/dev/null 2>&1; then
+        groupadd ${GROUP}
+    fi
+    if ! getent passwd ${USER} >/dev/null 2>&1; then
+         useradd -M -d /opt/sds/sparta -g ${GROUP} -s /bin/nologin ${USER}
+    fi
+}
+
 case "$1" in
-    install|upgrade)
-        if ! getent group ${GROUP} >/dev/null 2>&1; then
-            groupadd ${GROUP}
-        fi
-        if [ ! -d /etc/sds ]; then
-            mkdir /etc/sds
-            chown root:${GROUP} /etc/sds
-            chmod 775 /etc/sds
-        fi
-        if [ ! -d /var/log/sds ]; then
-        mkdir /var/log/sds
-            chown root:${GROUP} /var/log/sds
-            chmod 775 /var/log/sds
-        fi
-        if [ ! -d /var/run/sds ]; then
-            mkdir /var/run/sds
-            chown root:${GROUP} /var/run/sds
-            chmod 775 /var/run/sds
-        fi
-        if [ ! -d /opt/sds ]; then
-            mkdir /opt/sds
-            chown root:${GROUP} /opt/sds
-            chmod 775 /opt/sds
-        fi
-    ;;
-    abort-upgrade)
-    ;;
-    *)
-        echo "preinst called with unknown argument \`$1'" >&2
-        exit 1
-    ;;
+	install)
+	    createCredentials
+	;;
+	upgrade)
+	    createCredentials
+	;;
 esac
- 
+
 exit 0

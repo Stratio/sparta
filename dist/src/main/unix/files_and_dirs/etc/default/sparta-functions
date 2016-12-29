@@ -1,3 +1,10 @@
+############################################### CHECK FUNCTIONS ###############################################
+# Validate daemon installation
+checkDaemon() {
+    # Exit if the package is not installed
+    test -x "$DAEMON" || exit 0
+}
+
 # Validate java installation
 function checkJava() {
     if [ -x "$JAVA_HOME/bin/java" ]; then
@@ -35,6 +42,16 @@ function checkRunDirectory() {
     fi
 }
 
+# Validate lock file
+function checkLockFile() {
+        if [ -e "$LOCKFILE" ]; then
+                echo "service is being managed, please wait..."
+                exit
+        fi
+        touch "$LOCKFILE"
+        CREATED_LOCKFILE="yes"
+}
+
 # Check for sparta environment folders
 function checkSpartaFolders(){
     if [ ! -d $LOG_DIR -a ! -d $DATA_DIR -a ! -d $WORK_DIR ]; then
@@ -43,15 +60,6 @@ function checkSpartaFolders(){
         exit 1
     fi
 }
-
-# Export Sparta service variables
-exportSpartaVariables(){
-    export SPARTA_HEAP_SIZE
-    export SPARTA_HEAP_NEWSIZE
-    export SPARTA_DIRECT_SIZE
-    export SPARTA_JAVA_OPTS
-}
-
 
 # Prepare environment
 function prepareEnvironment(){
@@ -85,14 +93,15 @@ function checkEnvironmentVar(){
 
 # Validate service
 function validateService() {
+    checkDaemon
     checkUser
     checkRunDirectory
-    exportSpartaVariables
     checkEnvironmentVar
 }
 
 # Validate start
 function validateStart() {
+    checkLockFile
     checkJava
     checkSpartaFolders
     prepareEnvironment

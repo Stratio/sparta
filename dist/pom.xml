@@ -113,8 +113,7 @@
                                     <configurationSourceDirectory>${config.directory}</configurationSourceDirectory>
                                     <configurationDirectory>:/etc/sds/sparta</configurationDirectory>
                                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                                    <includeConfigurationDirectoryInClasspath>true
-                                    </includeConfigurationDirectoryInClasspath>
+                                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
                                     <assembleDirectory>target/appassembler</assembleDirectory>
                                     <extraJvmArguments>$SPARTA_OPTS</extraJvmArguments>
                                     <filterConfigurationDirectory>true</filterConfigurationDirectory>
@@ -155,7 +154,7 @@
                                 <requires>bash</requires>
                                 <requires>jq</requires>
                             </rpm>
-                            <name>Engine</name>
+                            <name>Sparta</name>
                             <excludeDirectoryAttributes>
                                 <dir>/etc</dir>
                                 <dir>/etc/init.d</dir>
@@ -213,6 +212,14 @@
                                     </attributes>
                                 </mkdirs>
                                 <mkdirs>
+                                    <path>/var/sds</path>
+                                    <attributes>
+                                        <user>root</user>
+                                        <group>stratio</group>
+                                        <mode>0775</mode>
+                                    </attributes>
+                                </mkdirs>
+                                <mkdirs>
                                     <path>/var/sds/sparta</path>
                                 </mkdirs>
                                 <mkdirs>
@@ -233,10 +240,6 @@
                                 <copyDirectory>
                                     <from>target/appassembler/repo/driver</from>
                                     <to>/opt/sds/sparta/driver</to>
-                                </copyDirectory>
-                                <copyDirectory>
-                                    <from>target/appassembler/repo/serving-api</from>
-                                    <to>/opt/sds/sparta/serving-api</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/benchmark</from>
