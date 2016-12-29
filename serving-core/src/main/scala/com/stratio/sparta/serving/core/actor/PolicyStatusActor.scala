@@ -101,18 +101,9 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
       Some(policyStatus)
     } else {
       log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
-      validate(None, policyStatus.status)
       curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
       Some(policyStatus)
     }
-  }
-
-  def setNotStartedStatus(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
-    val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
-    log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
-    validate(None, policyStatus.status)
-    curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
-    Some(policyStatus)
   }
 
   def findAll(): Unit = {
@@ -209,31 +200,4 @@ object PolicyStatusActor {
 
   case class ResponseDelete(value: Try[Unit])
 
-  /**
-   * This map represents the state machine of one context.
-   */
-  val StateMachine = Map(
-    None -> Seq(PolicyStatusEnum.NotStarted),
-    Some(PolicyStatusEnum.NotStarted) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Launched) -> Seq(PolicyStatusEnum.Starting, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Starting) -> Seq(PolicyStatusEnum.Started, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Started) -> Seq(PolicyStatusEnum.Stopping, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Stopping) -> Seq(PolicyStatusEnum.Stopped, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Stopped) -> Seq(PolicyStatusEnum.Launched, PolicyStatusEnum.Failed),
-    Some(PolicyStatusEnum.Failed) -> Seq(PolicyStatusEnum.Launched)
-
-  )
-
-  /**
-   * Validates with the StateMachine if one status could be changed to another.
-   *
-   * @param initialStatus that contains the currently status.
-   * @param finalStatus   to change. If not one exception will be thrown.
-   */
-  def validate(initialStatus: Option[PolicyStatusEnum.Value], finalStatus: PolicyStatusEnum.Value): Unit = {
-    if (!StateMachine.exists(_._1 == initialStatus))
-      throw new IllegalStateException(s"The status ${initialStatus.get} is not in the StateMachine")
-    if (!StateMachine.get(initialStatus).get.contains(finalStatus))
-      throw new IllegalStateException(s"Imposible change status from $initialStatus to $finalStatus")
-  }
 }

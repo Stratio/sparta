@@ -1,38 +1,62 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Copyright (C) 2015 Stratio (http://stratio.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 set -e
 
-GROUP='stratio'
-USER='sparta'
+USER=sparta
+GROUP=stratio
+
+changeMode () {
+    chown -R ${USER}:${GROUP} $1
+    chmod -R $2 $1
+}
+
+changeModeRoot () {
+    chown root:${GROUP} $1
+    chmod $2 $1
+}
+
+changeModeInstall () {
+    changeModeRoot /opt/sds 0775
+    changeModeRoot /etc/sds 0775
+    changeModeRoot /var/log/sds 0775
+    changeModeRoot /var/run/sds 0775
+    changeModeRoot /var/sds 0775
+
+    changeMode /opt/sds/sparta 0755
+    changeMode /var/sds/sparta 0755
+    changeMode /var/log/sds/sparta 0755
+    changeMode /etc/sds/sparta 0755
+
+    changeMode /etc/sds/sparta/application.conf 0640
+    changeMode /etc/default/sparta-variables 0640
+    changeMode /etc/default/sparta-functions 0640
+    changeMode /etc/sds/sparta/logback.xml 0640
+
+    chown -R root:stratio /etc/init.d/sparta
+    chmod  0755 /etc/init.d/sparta
+}
 
 case "$1" in
     configure)
-    if ! getent group ${GROUP} >/dev/null 2>&1; then
-       groupadd ${GROUP}
-    fi
-    if ! getent passwd ${USER} >/dev/null 2>&1; then
-       useradd -M -d /opt/sds/sparta -g ${GROUP} -s /sbin/nologin ${USER}
-    fi
-
-    chown root:root /etc/init.d/sparta
-    chown root:root /etc/default/sparta-functions
-    chown root:root /etc/default/sparta-variables
-
-    chown -R ${USER}:${GROUP} /etc/sds/sparta
-    chown -R ${USER}:${GROUP} /var/log/sds/sparta
-    chown -R ${USER}:${GROUP} /opt/sds/sparta
-
-    chmod 755 /etc/init.d/sparta
-    chmod 755 /etc/sds/sparta
-    chmod 755 /var/log/sds/sparta
-    chmod 755 /opt/sds/sparta
-    chmod 750 /opt/sds/sparta/bin/*
-    
-    chmod 644 /etc/default/sparta-functions
-    chmod 644 /etc/default/sparta-variables
-
-    update-rc.d sparta defaults
-  ;;
+        changeModeInstall
+        echo "Adding Sparta service"
+        update-rc.d sparta defaults > /dev/null 2>&1
+    ;;
 esac
 
 exit 0

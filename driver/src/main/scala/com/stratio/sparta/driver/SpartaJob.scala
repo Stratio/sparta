@@ -48,12 +48,12 @@ import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorMo
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 
-class SpartaJob(policy: PolicyModel) extends SLF4JLogging {
+class SpartaJob(policy: PolicyModel) extends PolicyUtils {
 
   private val ReflectionUtils = SpartaJob.ReflectionUtils
 
   def run(sc: SparkContext): StreamingContext = {
-    val checkpointPolicyPath = SpartaJob.generateCheckpointPath(policy)
+    val checkpointPolicyPath = checkpointPath(policy)
     val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
@@ -108,8 +108,6 @@ class SpartaJob(policy: PolicyModel) extends SLF4JLogging {
 object SpartaJob extends PolicyUtils {
 
   lazy val ReflectionUtils = new ReflectionUtils
-
-  def generateCheckpointPath(policy: PolicyModel): String = checkpointPath(policy)
 
   def apply(policy: PolicyModel): SpartaJob = new SpartaJob(policy)
 

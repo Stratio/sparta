@@ -1,47 +1,40 @@
 ######################### SPARTA VARIABLES #########################
 
-
 # Directory where the sparta binary distribution resides
 export SPARTA_HOME=/opt/sds/$NAME
-
-# Heap Size (defaults to 256m min, 1g max)
-export SPARTA_HEAP_SIZE=-Xmx2048m
-
-export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
-
-export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
-
-export SPARTA_JMX_PORT=-Dcom.sun.management.jmxremote.port=7183
-
-export SPARTA_JMX_AUTHENTICATE=-Dcom.sun.management.jmxremote.authenticate=false
-
-export SPARTA_JMX_SSL=-Dcom.sun.management.jmxremote.ssl=false
-
-# max direct memory
-#export SPARTA_DIRECT_SIZE=
-
-# Additional Java OPTS
-export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_JMX_PORT $SPARTA_JMX_AUTHENTICATE $SPARTA_JMX_SSL"
-
-# Maximum number of open files
-export MAX_OPEN_FILES=65535
-
-# Maximum amount of locked memory
-#export MAX_LOCKED_MEMORY=
-
-# sparta log directory
-export LOG_DIR=/var/log/sds/$NAME
-export LOG_FILE=$LOG_DIR/sparta.log
-
-# sparta data directory
-export DATA_DIR=/var/sds/$NAME
-
-# sparta work directory
-export WORK_DIR=/tmp/$NAME
 
 # sparta configuration directory
 export SERVER_PROPERTIES=/etc/sds/$NAME
 
+# Log directory
+export LOG_DIR=/var/log/sds/$NAME
+export LOG_FILE=$LOG_DIR/sparta.log
+export LOG_CONFIG_FILE=$SERVER_PROPERTIES/logback.xml
+
+# Data directory
+export DATA_DIR=/var/sds/$NAME
+
+# Config file
+export CONFIG_FILE=$SERVER_PROPERTIES/application.conf
+
+# Work directory
+export WORK_DIR=/tmp/$NAME
+
+# Heap Size (defaults to 256m min, 1g max)
+export SPARTA_HEAP_SIZE=-Xmx2048m
+export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
+export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
+
+# Jmx properties
+export SPARTA_JMX_PORT=-Dcom.sun.management.jmxremote.port=7183
+export SPARTA_JMX_AUTHENTICATE=-Dcom.sun.management.jmxremote.authenticate=false
+export SPARTA_JMX_SSL=-Dcom.sun.management.jmxremote.ssl=false
+
+# Additional Java OPTS
+export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM_SIZE $SPARTA_JMX_PORT $SPARTA_JMX_AUTHENTICATE $SPARTA_JMX_SSL"
+
+# Maximum number of open files
+export MAX_OPEN_FILES=65535
 
 # Maximum number of VMA (Virtual Memory Areas) a process can own
 export MAX_MAP_COUNT=262144
@@ -61,5 +54,5 @@ if [ -d $LOCKDIR/subsys ]; then # It's most likely a CentOS
 fi
 LOCKFILE=$LOCKDIR/$NAME
 DAEMON=$SPARTA_HOME/bin/sparta.sh
-DAEMON_OPTS=
+export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE"
 

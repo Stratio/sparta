@@ -151,23 +151,60 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   /** CHECKPOINT OPTIONS **/
 
+  /* PUBLIC METHODS */
+
   def isLocalMode: Boolean =
     SpartaConfig.getDetailConfig match {
       case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
       case None => true
     }
 
-  def deleteFromLocal(policy: PolicyModel): Unit =
-    FileUtils.deleteDirectory(new File(checkpointPath(policy)))
+  def deleteFromLocal(policy: PolicyModel): Unit = {
+    val checkpointDirectory = checkpointPath(policy)
+    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
+    FileUtils.deleteDirectory(new File(checkpointDirectory))
+  }
 
-  def deleteFromHDFS(policy: PolicyModel): Unit =
-    HdfsUtils().delete(checkpointPath(policy))
+  def deleteFromHDFS(policy: PolicyModel): Unit = {
+    val checkpointDirectory = checkpointPath(policy)
+    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
+    HdfsUtils().delete(checkpointDirectory)
+  }
 
   def isHadoopEnvironmentDefined: Boolean =
     Option(System.getenv(AppConstant.SystemHadoopConfDir)) match {
       case Some(_) => true
       case None => false
     }
+
+  def deleteCheckpointPath(policy: PolicyModel): Unit =
+    Try {
+      if (isLocalMode) deleteFromLocal(policy)
+      else deleteFromHDFS(policy)
+    } match {
+      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
+      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
+    }
+
+  def createLocalCheckpointPath(policy: PolicyModel) : Unit = {
+    if (isLocalMode)
+      Try {
+        createFromLocal(policy)
+      } match {
+        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(policy)}")
+        case Failure(ex) => log.error("Cannot create checkpoint folder", ex)
+      }
+  }
+
+  def checkpointPath(policy: PolicyModel): String =
+    policy.checkpointPath.map { path =>
+      s"${cleanCheckpointPath(path)}/${policy.name}"
+    } getOrElse checkpointPathFromProperties(policy.name)
+
+  def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
+    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
+
+  /* PRIVATE METHODS */
 
   private def cleanCheckpointPath(path: String): String = {
     val hdfsPrefix = "hdfs://"
@@ -200,20 +237,9 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         throw new RuntimeException("Error getting execution mode")
     }
 
-  def deleteCheckpointPath(policy: PolicyModel): Unit =
-    Try {
-      if (isLocalMode) deleteFromLocal(policy)
-      else deleteFromHDFS(policy)
-    } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
-      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
-    }
-
-  def checkpointPath(policy: PolicyModel): String =
-    policy.checkpointPath.map { path =>
-      s"${cleanCheckpointPath(path)}/${policy.name}"
-    } getOrElse checkpointPathFromProperties(policy.name)
-
-  def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
-    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
+  private def createFromLocal(policy: PolicyModel): Unit = {
+    val checkpointDirectory = checkpointPath(policy)
+    log.info(s"Creating checkpoint directory: $checkpointDirectory")
+    FileUtils.forceMkdir(new File(checkpointDirectory))
+  }
 }

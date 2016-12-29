@@ -27,7 +27,7 @@
 
 # Only configuration needed here
 NAME="sparta"
-DESC="Sparta real time aggregation engine"
+DESC="Sparta: Real-Time Analytics Engine"
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
@@ -58,16 +58,12 @@ fi
 # Function that starts the daemon/service
 #
 do_start(){
+    validateStart
 	# Return
 	#   0 if daemon has been started
 	#   1 if daemon was already running
 	#   2 if daemon could not be started
-    if lockfile-check $LOCKFILE; then # Do not start if lockfile found
-        echo "Service doesn't start. Lockfile found"
-    	return 0
-    fi
 
-    lockfile-create $LOCKFILE
     start-stop-daemon --start --user $USER -c $USER --pidfile $PIDFILE --exec $DAEMON --test > /dev/null || return 1
     start-stop-daemon --start --user $USER -c $USER -b --quiet --pidfile $PIDFILE --exec $DAEMON start -- $DAEMON_OPTS || return 2
 	# Add code here, if necessary, that waits for the process to be ready
@@ -98,6 +94,7 @@ do_stop(){
         fi
         rm -f "$PIDFILE"
         lockfile-remove $LOCKFILE
+        rm -r "$LOCKFILE"
     else
         log_progress_msg "(not running)"
     fi

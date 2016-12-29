@@ -59,30 +59,4 @@ object JarsHelper extends SLF4JLogging {
     }
   }
 
-  /**
-   *
-   * @param file file to search
-   * @param excludedDirectories list of directories names excluded from the search
-   * @return
-   */
-  private def isFileNotExcluded(file : File, excludedDirectories : Option[Seq[String]]) : Boolean =
-    file.exists && (!file.isDirectory || isExcludedDirectory(file, excludedDirectories))
-
-  /**
-   *
-   * @param directory file to search
-   * @param excludedDirectories list of directories names excluded from the search
-   * @return
-   */
-  private def isDirectoryNotExluded(directory : File, excludedDirectories : Option[Seq[String]]) : Boolean =
-    directory.exists && (directory.isDirectory || isExcludedDirectory(directory, excludedDirectories))
-
-  /**
-   *
-   * @param path to check if is excluded
-   * @param excludedDirectories list of directories names excluded from the search
-   * @return
-   */
-  private def isExcludedDirectory(path : File, excludedDirectories : Option[Seq[String]]) : Boolean =
-    path.isDirectory && excludedDirectories.forall(folder => !folder.contains(path.getName))
 }

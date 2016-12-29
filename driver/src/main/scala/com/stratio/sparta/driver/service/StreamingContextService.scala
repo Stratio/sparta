@@ -33,6 +33,7 @@ import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
@@ -43,19 +44,18 @@ import scala.concurrent.duration._
 import scala.util.Try
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
-                                   generalConfig: Option[Config] = None) {
+                                   generalConfig: Option[Config] = None) extends PolicyUtils {
 
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(policy: PolicyModel, files: Seq[File]): StreamingContext = {
     runStatusListener(policy.id.get, policy.name, exit = false)
+
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
-    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
-      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
-      SpartaJob(policy).run(getStandAloneSparkContext(policy, files))
-    })
+    createLocalCheckpointPath(policy)
+
+    val ssc = SpartaJob(policy).run(getStandAloneSparkContext(policy, files))
 
     SparkContextFactory.setSparkContext(ssc.sparkContext)
     SparkContextFactory.setSparkStreamingContext(ssc)
@@ -72,8 +72,8 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     runStatusListener(policy.id.get, policy.name, exitWhenStop)
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
-    val ssc = StreamingContext.getOrCreate(generateCheckpointPath(policy), () => {
-      log.info(s"Nothing in checkpoint path: ${generateCheckpointPath(policy)}")
+    val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
+      log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
       SpartaJob(policy).run(getClusterSparkContext(policy, files, detailConfig))
     })
 
@@ -88,8 +88,6 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
     val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)).toOption
-
-
 
     SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
   }
@@ -121,11 +119,13 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
                 Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.AwaitStopTermination)).toOption
                   .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultAwaitStopTermination)
               log.info(s"Starting scheduler to supervise the Spark Job termination timeout, with time: $awaitTimeOut")
-              AppConstant.SchedulerSystem.scheduler.scheduleOnce(
+              val closeSparkContext = AppConstant.SchedulerSystem.scheduler.scheduleOnce(
                 AggregationTime.parseValueToMilliSeconds(awaitTimeOut) milli)(closeForcibly(
                 policyId, policyStatusActor.get, exit))
 
               SparkContextFactory.destroySparkStreamingContext()
+
+              if(SparkContextFactory.sparkStreamingInstance.isEmpty) closeSparkContext.cancel()
             } finally {
               try {
                 Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
