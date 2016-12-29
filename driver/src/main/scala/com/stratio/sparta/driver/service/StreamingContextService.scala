@@ -18,19 +18,15 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 
-import akka.actor.ActorRef
+import akka.actor.{ActorRef, Cancellable}
 import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparta.driver.SpartaJob
-import com.stratio.sparta.driver.SpartaJob._
-import com.stratio.sparta.driver.factory._
-import com.stratio.sparta.sdk._
+import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.sdk.utils.AggregationTime
-import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyUtils
@@ -57,9 +53,9 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
 
     val ssc = SpartaJob(policy).run(getStandAloneSparkContext(policy, files))
 
-    SparkContextFactory.setSparkContext(ssc.sparkContext)
-    SparkContextFactory.setSparkStreamingContext(ssc)
-    SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setSparkContext(ssc.sparkContext)
+    setSparkStreamingContext(ssc)
+    setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     ssc
   }
@@ -67,9 +63,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   def clusterStreamingContext(policy: PolicyModel,
                               files: Seq[String],
                               detailConfig: Map[String, String]): StreamingContext = {
-    val exitWhenStop = true
-
-    runStatusListener(policy.id.get, policy.name, exitWhenStop)
+    runStatusListener(policy.id.get, policy.name, exit = true)
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
@@ -77,28 +71,28 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
       SpartaJob(policy).run(getClusterSparkContext(policy, files, detailConfig))
     })
 
-    SparkContextFactory.setSparkContext(ssc.sparkContext)
-    SparkContextFactory.setSparkStreamingContext(ssc)
-    SparkContextFactory.setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setSparkContext(ssc.sparkContext)
+    setSparkStreamingContext(ssc)
+    setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     ssc
   }
 
   private def getStandAloneSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
-    val pluginsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
+    val outputsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
-    val standAloneConfig = Try(generalConfig.get.getConfig(AppConstant.ConfigLocal)).toOption
+    val standAloneConfig = Try(generalConfig.get.getConfig(ConfigLocal)).toOption
 
-    SparkContextFactory.sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ pluginsSparkConfig, jars)
+    sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ outputsSparkConfig, jars)
   }
 
   private def getClusterSparkContext(policy: PolicyModel,
                                      classPath: Seq[String],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val pluginsSparkConfig = SpartaJob.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+    val outputsSparkConfig = SpartaJob.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(policy)
 
-    SparkContextFactory.sparkClusterContextInstance(policySparkConfig ++ pluginsSparkConfig ++ detailConfig, classPath)
+    sparkClusterContextInstance(policySparkConfig ++ outputsSparkConfig ++ detailConfig, classPath)
   }
 
   //scalastyle:off
@@ -112,20 +106,13 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
           if (policyStatus.status.id equals Stopping.id) {
             try {
               log.info("Stopping message received from Zookeeper")
+              val closeStreamingContext = scheduleSparkContextStop(
+                AwaitStreamingContextStop,
+                DefaultAwaitStreamingContextStop
+              )(closeSpartaForcibly(policyId, policyStatusActor.get, exit))
 
-              import scala.concurrent.ExecutionContext.Implicits.global
-
-              val awaitTimeOut =
-                Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.AwaitStopTermination)).toOption
-                  .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultAwaitStopTermination)
-              log.info(s"Starting scheduler to supervise the Spark Job termination timeout, with time: $awaitTimeOut")
-              val closeSparkContext = AppConstant.SchedulerSystem.scheduler.scheduleOnce(
-                AggregationTime.parseValueToMilliSeconds(awaitTimeOut) milli)(closeForcibly(
-                policyId, policyStatusActor.get, exit))
-
-              SparkContextFactory.destroySparkStreamingContext()
-
-              if(SparkContextFactory.sparkStreamingInstance.isEmpty) closeSparkContext.cancel()
+              destroySparkStreamingContext()
+              if (sparkStreamingInstance.isEmpty) closeStreamingContext.cancel()
             } finally {
               try {
                 Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
@@ -144,10 +131,12 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
                   log.warn(s"The nodeCache in Zookeeper is not closed correctly.  Exception: ${e.getLocalizedMessage}")
               }
               if (exit) {
-                SparkContextFactory.destroySparkContext()
-                shutdownSchedulerSystem()
-                log.info("Closing the application")
-                System.exit(0)
+                val scheduledExit =
+                  scheduleSparkContextStop(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
+
+                destroySparkContext()
+                if (sparkContextInstance.isEmpty) scheduledExit.cancel()
+                exitApp()
               }
             }
           }
@@ -156,24 +145,42 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     }
   }
 
-  private def closeForcibly(policyId: String,
-                            policyStatusActor: ActorRef,
-                            exit: Boolean): Unit = {
+  private def scheduleSparkContextStop(timeProperty: String, defaultTime: String)(f: ⇒ Unit): Cancellable = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    val awaitContextStop = Try(SpartaConfig.getDetailConfig.get.getString(timeProperty)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
+
+    log.info(s"Starting scheduler to supervise the Context stop, with time: $timeProperty - $awaitContextStop")
+    SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(awaitContextStop) milli)(f)
+  }
+
+  private def closeSpartaForcibly(policyId: String,
+                                  policyStatusActor: ActorRef,
+                                  exit: Boolean): Unit = {
     val status = Stopped
+
     log.warn(s"The Spark Context will been stopped, the policy will be set in status: $status")
     policyStatusActor ! Update(PolicyStatusModel(policyId, status))
-    SparkContextFactory.destroySparkContext(destroyStreamingContext = false)
     if (exit) {
-      shutdownSchedulerSystem()
-      log.info("Closing the application")
-      System.exit(0)
-    }
+      val scheduledExit = scheduleSparkContextStop(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
+
+      destroySparkContext(destroyStreamingContext = false)
+      if (sparkContextInstance.isEmpty) scheduledExit.cancel()
+      exitApp()
+    } else destroySparkContext(destroyStreamingContext = false)
+  }
+
+  private def exitApp(): Unit = {
+    shutdownSchedulerSystem()
+    log.info("Closing the application")
+    System.exit(0)
   }
 
   private def shutdownSchedulerSystem(): Unit = {
-    if (!AppConstant.SchedulerSystem.isTerminated) {
-      log.info("Shutdown the scheduler system")
-      AppConstant.SchedulerSystem.shutdown()
+    if (!SchedulerSystem.isTerminated) {
+      log.info("Shutting down the scheduler system")
+      SchedulerSystem.shutdown()
     }
   }
 }
