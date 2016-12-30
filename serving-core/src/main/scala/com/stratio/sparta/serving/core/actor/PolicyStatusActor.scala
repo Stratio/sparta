@@ -22,11 +22,13 @@ import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.gracefulStop
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
@@ -36,9 +38,6 @@ import scala.collection.JavaConversions
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-import PolicyStatusActor._
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 
 class PolicyStatusActor(curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging with SpartaSerializer {
@@ -47,6 +46,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case Create(policyStatus) => sender ! create(policyStatus)
     case Update(policyStatus) => sender ! update(policyStatus)
     case FindAll => findAll()
+    case FindById(id) => sender ! findById(id)
     case DeleteAll => deleteAll()
     case PolicyStatusActor.Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
@@ -123,6 +123,17 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     )
   }
 
+  def findById(id: String): ResponseStatus =
+    ResponseStatus(
+      Try {
+        val statusPath = s"${AppConstant.ContextPath}/$id"
+        if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined)
+          read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+        else throw new ServingCoreException(
+          ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id $id.")))
+      }
+    )
+
   def deleteAll(): Unit = {
     sender ! ResponseDelete(Try({
       val contextPath = s"${AppConstant.ContextPath}"
@@ -196,7 +207,11 @@ object PolicyStatusActor {
 
   case object FindAll
 
+  case class FindById(id: String)
+
   case class Response(policyStatus: Try[PoliciesStatusModel])
+
+  case class ResponseStatus(policyStatus: Try[PolicyStatusModel])
 
   case class ResponseDelete(value: Try[Unit])
 

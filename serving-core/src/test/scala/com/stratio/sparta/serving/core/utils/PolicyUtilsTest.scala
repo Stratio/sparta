@@ -84,32 +84,6 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
     }
   }
 
-  "PolicyUtils.deleteCheckpointPath" should {
-    "delete path from HDFS when using not local mode" in {
-      doReturn(false)
-        .when(utils)
-        .isLocalMode
-
-      utils.deleteCheckpointPath(getPolicyModel())
-
-      verify(utils, times(1)).deleteFromHDFS(getPolicyModel())
-    }
-
-    "delete path from local when using local mode" in {
-      doReturn(true)
-        .when(utils)
-        .isLocalMode
-
-      doReturn(false)
-        .when(utils)
-        .isHadoopEnvironmentDefined
-
-      utils.deleteCheckpointPath(getPolicyModel())
-
-      verify(utils, times(1)).deleteFromLocal(getPolicyModel())
-    }
-  }
-
   "PolicyUtils.existsByNameId" should {
     "return an existing policy with \"existingId\" from zookeper" in {
       doReturn(true)
