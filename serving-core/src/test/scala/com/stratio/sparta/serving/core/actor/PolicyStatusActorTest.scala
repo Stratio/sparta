@@ -32,8 +32,10 @@ import org.scalatest.mock.MockitoSugar
 import scala.concurrent.duration._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import PolicyStatusActor.ResponseDelete
+import PolicyStatusActor.{ResponseDelete, ResponseStatus}
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 
 @RunWith(classOf[JUnitRunner])
 class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -52,8 +54,38 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
   val actor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
+  val status = new PolicyStatusModel("existingID", PolicyStatusEnum.Launched)
+  val statusRaw =
+    """
+      |{
+      |  "id": "existingID",
+      |  "status": "Launched"
+      |}
+    """.stripMargin
 
   "PolicyStatusActor" must {
+
+    "find: returns success when find an existing ID " in {
+      when(curatorFramework
+        .checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .thenReturn(new Stat)
+      // scalastyle:off null
+
+      when(curatorFramework.getData())
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData()
+        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .thenReturn(statusRaw.getBytes)
+
+      actor ! PolicyStatusActor.FindById(id)
+
+      expectMsg(ResponseStatus(Success(status)))
+      // scalastyle:on null
+
+    }
 
     "delete: returns success when deleting an existing ID " in {
       when(curatorFramework
