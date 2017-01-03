@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
 import PolicyStatusActor.{Delete, FindAll, _}
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyResult, PolicyStatusModel, PolicyValidator}
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyResult, PolicyStatusModel, PolicyValidator}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -39,12 +39,12 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  override def routes: Route = findAll ~ update ~ create ~ deleteAll ~ deleteById
+  override def routes: Route = findAll ~ update ~ create ~ deleteAll ~ deleteById ~ find
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
     httpMethod = "GET",
-    response = classOf[String],
+    response = classOf[PoliciesStatusModel],
     responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -54,10 +54,42 @@ trait PolicyContextHttpService extends BaseHttpService {
       get {
         complete {
           val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-          val future = policyStatusActor ? FindAll
-          Await.result(future, timeout.duration) match {
+          for {
+            policiesStatuses <- (policyStatusActor ? FindAll).mapTo[Response]
+          } yield policiesStatuses match {
             case Response(Failure(exception)) => throw exception
-            case Response(Success(policyStatuses)) => policyStatuses
+            case Response(Success(statuses)) => statuses
+          }
+        }
+      }
+    }
+  }
+
+  @ApiOperation(value = "Find a policy context from its id.",
+    notes = "Find a policy context from its id.",
+    httpMethod = "GET",
+    response = classOf[PolicyStatusModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the policy",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def find: Route = {
+    path(HttpConstant.PolicyContextPath / Segment) { (id) =>
+      get {
+        complete {
+          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          for {
+            policyStatus <- (policyStatusActor ? new FindById(id)).mapTo[ResponseStatus]
+          } yield policyStatus match {
+            case ResponseStatus(Failure(exception)) => throw exception
+            case ResponseStatus(Success(policy)) => policy
           }
         }
       }
@@ -75,8 +107,9 @@ trait PolicyContextHttpService extends BaseHttpService {
       delete {
         complete {
           val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-          val future = policyStatusActor ? DeleteAll
-          Await.result(future, timeout.duration) match {
+          for {
+            responseCode <- (policyStatusActor ? DeleteAll).mapTo[ResponseDelete]
+          } yield responseCode match {
             case ResponseDelete(Failure(exception)) => throw exception
             case ResponseDelete(Success(_)) => StatusCodes.OK
           }
@@ -103,8 +136,9 @@ trait PolicyContextHttpService extends BaseHttpService {
       delete {
         complete {
           val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
-          val future = policyStatusActor ? Delete(id)
-          Await.result(future, timeout.duration) match {
+          for {
+            responseDelete <- (policyStatusActor ? Delete(id)).mapTo[ResponseDelete]
+          } yield responseDelete match {
             case ResponseDelete(Failure(exception)) => throw exception
             case ResponseDelete(Success(_)) => StatusCodes.OK
           }
