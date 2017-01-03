@@ -24,14 +24,14 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import PolicyStatusActor.{FindAll, Update}
-import com.stratio.sparta.serving.core.models.policy.PoliciesStatusModel
+import PolicyStatusActor.{FindAll, FindById, ResponseStatus, Update}
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
 class PolicyContextHttpServiceTest extends WordSpec
@@ -78,6 +78,39 @@ with HttpServiceBaseTest {
       startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
         policyStatusActorTestProbe.expectMsg(FindAll)
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "PolicyContextHttpService.find" should {
+    "find policy contexts by id" in {
+      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case FindById(id) =>
+              sender ! ResponseStatus(Success(getPolicyStatusModel()))
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes ~> check {
+        policyStatusActorTestProbe.expectMsg(FindById("id"))
+        responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
+      }
+    }
+    "return a 500 if there was any error" in {
+      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
+          msg match {
+            case FindById(id) =>
+              sender ! ResponseStatus(Failure(new MockException))
+              TestActor.NoAutoPilot
+          }
+      })
+      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes ~> check {
+        policyStatusActorTestProbe.expectMsg(FindById("id"))
         status should be(StatusCodes.InternalServerError)
       }
     }

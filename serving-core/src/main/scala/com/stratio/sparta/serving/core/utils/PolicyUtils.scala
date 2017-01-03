@@ -23,14 +23,12 @@ import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.FragmentActor
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{ActorsConstant, AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import org.apache.commons.io.FileUtils
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 
@@ -148,98 +146,4 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case Failure(e) =>
         log.error(s"Fragment creation failure. Error: ${e.getLocalizedMessage}", e)
     }
-
-  /** CHECKPOINT OPTIONS **/
-
-  /* PUBLIC METHODS */
-
-  def isLocalMode: Boolean =
-    SpartaConfig.getDetailConfig match {
-      case Some(detailConfig) => detailConfig.getString(AppConstant.ExecutionMode).equalsIgnoreCase("local")
-      case None => true
-    }
-
-  def deleteFromLocal(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy)
-    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
-    FileUtils.deleteDirectory(new File(checkpointDirectory))
-  }
-
-  def deleteFromHDFS(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy)
-    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
-    HdfsUtils().delete(checkpointDirectory)
-  }
-
-  def isHadoopEnvironmentDefined: Boolean =
-    Option(System.getenv(AppConstant.SystemHadoopConfDir)) match {
-      case Some(_) => true
-      case None => false
-    }
-
-  def deleteCheckpointPath(policy: PolicyModel): Unit =
-    Try {
-      if (isLocalMode) deleteFromLocal(policy)
-      else deleteFromHDFS(policy)
-    } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
-      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
-    }
-
-  def createLocalCheckpointPath(policy: PolicyModel) : Unit = {
-    if (isLocalMode)
-      Try {
-        createFromLocal(policy)
-      } match {
-        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(policy)}")
-        case Failure(ex) => log.error("Cannot create checkpoint folder", ex)
-      }
-  }
-
-  def checkpointPath(policy: PolicyModel): String =
-    policy.checkpointPath.map { path =>
-      s"${cleanCheckpointPath(path)}/${policy.name}"
-    } getOrElse checkpointPathFromProperties(policy.name)
-
-  def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
-    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
-
-  /* PRIVATE METHODS */
-
-  private def cleanCheckpointPath(path: String): String = {
-    val hdfsPrefix = "hdfs://"
-
-    if (path.startsWith(hdfsPrefix))
-      log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
-    path.replace(hdfsPrefix, "")
-  }
-
-  private def checkpointPathFromProperties(policyName: String): String =
-    (for {
-      config <- SpartaConfig.getDetailConfig
-      checkpointPath <- Try(cleanCheckpointPath(config.getString(AppConstant.ConfigCheckpointPath))).toOption
-    } yield s"$checkpointPath/$policyName").getOrElse(generateDefaultCheckpointPath)
-
-  private def autoDeleteCheckpointPathFromProperties: Boolean =
-    Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigAutoDeleteCheckpoint))
-      .getOrElse(AppConstant.DefaultAutoDeleteCheckpoint)
-
-  private def generateDefaultCheckpointPath: String =
-    SpartaConfig.getDetailConfig.map(_.getString(AppConstant.ExecutionMode)) match {
-      case Some(mode) if mode == AppConstant.ConfigMesos || mode == AppConstant.ConfigYarn =>
-        AppConstant.DefaultCheckpointPathClusterMode +
-          Try(SpartaConfig.getHdfsConfig.get.getString(AppConstant.HadoopUserName))
-            .getOrElse(AppConstant.DefaultHdfsUser) +
-          AppConstant.DefaultHdfsUser
-      case Some(AppConstant.ConfigLocal) =>
-        AppConstant.DefaultCheckpointPathLocalMode
-      case _ =>
-        throw new RuntimeException("Error getting execution mode")
-    }
-
-  private def createFromLocal(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy)
-    log.info(s"Creating checkpoint directory: $checkpointDirectory")
-    FileUtils.forceMkdir(new File(checkpointDirectory))
-  }
 }

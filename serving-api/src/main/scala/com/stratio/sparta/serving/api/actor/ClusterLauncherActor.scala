@@ -27,10 +27,10 @@ import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import PolicyStatusActor.Update
+import PolicyStatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.HdfsUtils
+import com.stratio.sparta.serving.core.utils.{HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.spark.launcher.SpartaLauncher
 
@@ -44,7 +44,7 @@ import scala.util.{Failure, Properties, Success, Try}
 
 class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   with SLF4JLogging
-  with SpartaSerializer {
+  with SpartaSerializer with SchedulerUtils {
 
   private val SpartaDriver = "com.stratio.sparta.driver.SpartaClusterJob"
   private val StandaloneSupervise = "--supervise"
@@ -76,22 +76,23 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
       val driverParams =
         Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles), hdfsConfigEncoded)
+      val sparkArguments = sparkArgs
 
       log.info(s"Launching Sparta Job with options ... \n\tPolicy name: ${policy.name}\n\tMain: $SpartaDriver\n\t" +
-        s"Driver path: $driverPath\n\tMaster: $Master\n\tSpark arguments: ${sparkArgs.mkString(",")}\n\t" +
+        s"Driver path: $driverPath\n\tMaster: $Master\n\tSpark arguments: ${sparkArguments.mkString(",")}\n\t" +
         s"Driver params: $driverParams\n\tPlugins files: ${pluginsFiles.mkString(",")}")
-      launch(policy.id.get, policy.name, SpartaDriver, driverPath, Master, sparkArgs, driverParams, pluginsFiles)
+      launch(policy, SpartaDriver, driverPath, Master, sparkArguments, driverParams, pluginsFiles)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
-        setErrorStatus(policy.id.get)
+        setPolicyStatus(policy.id.get, PolicyStatusEnum.Failed)
       case Success(_) =>
         log.info("Sparta Cluster Job launched correctly")
     }
   }
 
-  private def setErrorStatus(policyId: String): Unit =
-    policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
+  private def setPolicyStatus(policyId: String, status: PolicyStatusEnum.Value): Unit =
+    policyStatusActor ! Update(PolicyStatusModel(policyId, status))
 
   private def sparkHome: String = Properties.envOrElse("SPARK_HOME", ClusterConfig.getString(AppConstant.SparkHome))
 
@@ -106,15 +107,14 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     *
     * @return The result of checks as boolean value
     */
-  def isSupervised: Boolean =
+  private def isSupervised: Boolean =
     if (DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigStandAlone ||
       DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigMesos) {
       Try(ClusterConfig.getBoolean(AppConstant.Supervise)).getOrElse(false)
     } else false
 
   //scalastyle:off
-  private def launch(policyId : String,
-                      policyName: String,
+  private def launch(policy : PolicyModel,
                      main: String,
                      hdfsDriverFile: String,
                      master: String,
@@ -149,7 +149,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     // Spark properties
     log.info("Adding Spark options to Sparta Job ... ")
     sparkConf.foreach { case (key: String, value: String) =>
-      val valueParsed = if (key == "spark.app.name") s"$value-$policyName" else value
+      val valueParsed = if (key == "spark.app.name") s"$value-${policy.name}" else value
       log.info(s"\t$key = $valueParsed")
       sparkLauncher.setConf(key, valueParsed)
     }
@@ -159,6 +159,14 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
 
     // Starting Spark Submit Process with Spark Launcher
     log.info("Executing SparkLauncher...")
+
+    scheduleOneTask(
+      AppConstant.AwaitPolicyChangeStatus,
+      AppConstant.DefaultAwaitPolicyChangeStatus
+    )(checkPolicyStatus(policy))
+
+    sparkLauncher.asInstanceOf[SpartaLauncher].startApplication()
+
     val sparkProcessStatus: Future[(Boolean, Process)] = for {
       sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
     } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
@@ -197,20 +205,28 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   }
 
   private def sparkArgs: Map[String, String] =
-    ClusterLauncherActor.toMap(AppConstant.DeployMode, "--deploy-mode", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.Name, "--name", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.PropertiesFile, "--properties-file", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.TotalExecutorCores, "--total-executor-cores", ClusterConfig) ++
+    toMap(AppConstant.DeployMode, "--deploy-mode", ClusterConfig) ++
+      toMap(AppConstant.Name, "--name", ClusterConfig) ++
+      toMap(AppConstant.PropertiesFile, "--properties-file", ClusterConfig) ++
+      toMap(AppConstant.TotalExecutorCores, "--total-executor-cores", ClusterConfig) ++
+      toMap(AppConstant.Packages, "--packages", ClusterConfig) ++
+      toMap(AppConstant.Repositories, "--repositories", ClusterConfig) ++
+      toMap(AppConstant.ExcludePackages, "--exclude-packages", ClusterConfig) ++
+      toMap(AppConstant.Jars, "--jars", ClusterConfig) ++
+      toMap(AppConstant.ProxyUser, "--proxy-user", ClusterConfig) ++
+      toMap(AppConstant.DriverJavaOptions, "--driver-java-options", ClusterConfig) ++
+      toMap(AppConstant.DriverLibraryPath, "--driver-library-path", ClusterConfig) ++
+      toMap(AppConstant.DriverClassPath, "--driver-class-path", ClusterConfig) ++
       // Yarn only
-      ClusterLauncherActor.toMap(AppConstant.YarnQueue, "--queue", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.Files, "--files", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.Archives, "--archives", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.AddJars, "--addJars", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.NumExecutors, "--num-executors", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.DriverCores, "--driver-cores", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.DriverMemory, "--driver-memory", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.ExecutorCores, "--executor-cores", ClusterConfig) ++
-      ClusterLauncherActor.toMap(AppConstant.ExecutorMemory, "--executor-memory", ClusterConfig)
+      toMap(AppConstant.YarnQueue, "--queue", ClusterConfig) ++
+      toMap(AppConstant.Files, "--files", ClusterConfig) ++
+      toMap(AppConstant.Archives, "--archives", ClusterConfig) ++
+      toMap(AppConstant.AddJars, "--addJars", ClusterConfig) ++
+      toMap(AppConstant.NumExecutors, "--num-executors", ClusterConfig) ++
+      toMap(AppConstant.DriverCores, "--driver-cores", ClusterConfig) ++
+      toMap(AppConstant.DriverMemory, "--driver-memory", ClusterConfig) ++
+      toMap(AppConstant.ExecutorCores, "--executor-cores", ClusterConfig) ++
+      toMap(AppConstant.ExecutorMemory, "--executor-memory", ClusterConfig)
 
   private def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
 
@@ -228,11 +244,8 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     ClusterConfig.entrySet()
       .filter(_.getKey.startsWith("spark.")).toSeq
       .map(e => (e.getKey, e.getValue.unwrapped.toString))
-}
 
-object ClusterLauncherActor extends SLF4JLogging {
-
-  def toMap(key: String, newKey: String, config: Config): Map[String, String] =
+  private def toMap(key: String, newKey: String, config: Config): Map[String, String] =
     Try(config.getString(key)) match {
       case Success(value) =>
         Map(newKey -> value)
@@ -240,4 +253,18 @@ object ClusterLauncherActor extends SLF4JLogging {
         log.debug(s"The key $key was not defined in config.")
         Map.empty[String, String]
     }
+
+  private def checkPolicyStatus(policy: PolicyModel) : Unit = {
+    for {
+      statusResponse <- (policyStatusActor ? FindById(policy.id.get)).mapTo[ResponseStatus]
+    } yield statusResponse match {
+      case PolicyStatusActor.ResponseStatus(Success(policyStatus)) =>
+        if(policyStatus.status == PolicyStatusEnum.Launched || policyStatus.status == PolicyStatusEnum.Starting){
+          log.info(s"The policy ${policy.name} was not started correctly, setting the failed status...")
+          setPolicyStatus(policy.id.get, PolicyStatusEnum.Failed)
+        } else log.info(s"The policy ${policy.name} was started correctly")
+      case PolicyStatusActor.ResponseStatus(Failure(exception)) =>
+        log.error(s"Error when extract policy status in scheduler task.", exception)
+    }
+  }
 }

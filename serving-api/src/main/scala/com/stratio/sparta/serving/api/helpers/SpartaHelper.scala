@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -36,7 +36,7 @@ import scala.concurrent.duration._
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
  */
-object SpartaHelper extends PolicyStatusUtils with PolicyUtils {
+object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUtils {
 
   implicit var system: ActorSystem = _
   override implicit val timeout: Timeout = Timeout(15.seconds)

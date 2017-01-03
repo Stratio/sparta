@@ -46,9 +46,9 @@ import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 
-class SpartaJob(policy: PolicyModel) extends PolicyUtils {
+class SpartaJob(policy: PolicyModel) extends PolicyUtils with CheckpointUtils {
 
   private val ReflectionUtils = SpartaJob.ReflectionUtils
 

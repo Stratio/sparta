@@ -46,8 +46,10 @@ object AppConstant {
   final val DefaultStopGracefully = true
   final val AwaitStreamingContextStop = "awaitStreamingContextStop"
   final val AwaitSparkContextStop = "awaitSparkContextStop"
+  final val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
   final val DefaultAwaitStreamingContextStop = "120s"
   final val DefaultAwaitSparkContextStop = "60s"
+  final val DefaultAwaitPolicyChangeStatus = "120s"
   final val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   final val DefaultAutoDeleteCheckpoint = true
   final val ConfigCheckpointPath = "checkpointPath"
@@ -85,6 +87,14 @@ object AppConstant {
   final val PropertiesFile = "propertiesFile"
   final val TotalExecutorCores = "totalExecutorCores"
   final val SparkHome = "sparkHome"
+  final val Packages = "packages"
+  final val ExcludePackages = "exclude-packages"
+  final val Repositories = "repositories"
+  final val Jars = "jars"
+  final val ProxyUser = "proxy-user"
+  final val DriverJavaOptions = "driver-java-options"
+  final val DriverLibraryPath = "driver-library-path"
+  final val DriverClassPath = "driver-class-path"
 
   //Mesos Options
   final val MesosMasterDispatchers = "master"

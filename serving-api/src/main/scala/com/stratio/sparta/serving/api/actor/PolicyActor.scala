@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 
@@ -35,7 +35,7 @@ import scala.util.Try
  */
 class PolicyActor(curatorFramework: CuratorFramework,
                   policyStatusActor: ActorRef,
-                  fragmentActorRef: ActorRef) extends Actor with PolicyUtils {
+                  fragmentActorRef: ActorRef) extends Actor with PolicyUtils with CheckpointUtils{
 
   import PolicyActor._
 

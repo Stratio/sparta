@@ -18,18 +18,18 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 
-import akka.actor.{ActorRef, Cancellable}
+import akka.actor.ActorRef
 import akka.pattern.ask
+import akka.util.Timeout
 import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor._
-import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
@@ -40,7 +40,9 @@ import scala.concurrent.duration._
 import scala.util.Try
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
-                                   generalConfig: Option[Config] = None) extends PolicyUtils {
+                                   generalConfig: Option[Config] = None) extends SchedulerUtils with CheckpointUtils {
+
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
@@ -99,61 +101,54 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   private def runStatusListener(policyId: String,
                                 name: String,
                                 exit: Boolean = false): Unit = {
-    if (policyStatusActor.isDefined) {
-      log.info(s"Listener added for: $policyId")
-      policyStatusActor.get ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
-        synchronized {
-          if (policyStatus.status.id equals Stopping.id) {
-            try {
-              log.info("Stopping message received from Zookeeper")
-              val closeStreamingContext = scheduleSparkContextStop(
-                AwaitStreamingContextStop,
-                DefaultAwaitStreamingContextStop
-              )(closeSpartaForcibly(policyId, policyStatusActor.get, exit))
-
-              destroySparkStreamingContext()
-              if (sparkStreamingInstance.isEmpty) closeStreamingContext.cancel()
-            } finally {
+    policyStatusActor match {
+      case Some(statusActor) =>
+        log.info(s"Listener added for: $policyId")
+        statusActor ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+          synchronized {
+            if (policyStatus.status.id equals Stopping.id) {
               try {
-                Await.result(policyStatusActor.get ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
-                match {
-                  case None => log.warn(s"The policy status can not be changed")
-                  case Some(_) => log.info(s"The policy status is changed to Stopped in finish action")
+                log.info("Stopping message received from Zookeeper")
+                val closeStreamingContext = scheduleOneTask(
+                  AwaitStreamingContextStop,
+                  DefaultAwaitStreamingContextStop
+                )(closeSpartaForcibly(policyId, statusActor, exit))
+
+                destroySparkStreamingContext()
+                if (sparkStreamingInstance.isEmpty) closeStreamingContext.cancel()
+              } finally {
+                try {
+                  Await.result(statusActor ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
+                  match {
+                    case None => log.warn(s"The policy status can not be changed")
+                    case Some(_) => log.info(s"The policy status is changed to Stopped in finish action")
+                  }
+                } catch {
+                  case e: Exception =>
+                    log.warn(s"The policy status could not be changed correctly. Exception: ${e.getLocalizedMessage}")
                 }
-              } catch {
-                case e: Exception =>
-                  log.warn(s"The policy status could not be changed correctly. Exception: ${e.getLocalizedMessage}")
-              }
-              try {
-                nodeCache.close()
-              } catch {
-                case e: Exception =>
-                  log.warn(s"The nodeCache in Zookeeper is not closed correctly.  Exception: ${e.getLocalizedMessage}")
-              }
-              if (exit) {
-                val scheduledExit =
-                  scheduleSparkContextStop(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
+                try {
+                  nodeCache.close()
+                } catch {
+                  case e: Exception =>
+                    log.warn(s"The nodeCache in Zookeeper is not closed correctly.  Exception: ${e.getLocalizedMessage}")
+                }
+                if (exit) {
+                  val scheduledExit = scheduleOneTask(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
 
-                destroySparkContext()
-                if (sparkContextInstance.isEmpty) scheduledExit.cancel()
-                exitApp()
+                  destroySparkContext()
+                  if (sparkContextInstance.isEmpty) scheduledExit.cancel()
+                  exitApp()
+                }
               }
             }
           }
-        }
-      })
+        })
+      case None => log.info("The status actor is not defined")
     }
   }
 
-  private def scheduleSparkContextStop(timeProperty: String, defaultTime: String)(f: ⇒ Unit): Cancellable = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-
-    val awaitContextStop = Try(SpartaConfig.getDetailConfig.get.getString(timeProperty)).toOption
-      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
-
-    log.info(s"Starting scheduler to supervise the Context stop, with time: $timeProperty - $awaitContextStop")
-    SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(awaitContextStop) milli)(f)
-  }
+  //scalastyle:on
 
   private def closeSpartaForcibly(policyId: String,
                                   policyStatusActor: ActorRef,
@@ -163,7 +158,7 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     log.warn(s"The Spark Context will been stopped, the policy will be set in status: $status")
     policyStatusActor ! Update(PolicyStatusModel(policyId, status))
     if (exit) {
-      val scheduledExit = scheduleSparkContextStop(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
+      val scheduledExit = scheduleOneTask(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
 
       destroySparkContext(destroyStreamingContext = false)
       if (sparkContextInstance.isEmpty) scheduledExit.cancel()
