@@ -22,7 +22,7 @@ import org.scalatest._
 
 import scala.io.Source
 
-class fileSystemInputTest extends TemporalSparkContext with Matchers {
+class FileSystemInputTest extends TemporalSparkContext with Matchers {
 
   val directory = getClass().getResource("/origin.txt")
   val lines = Source.fromURL(directory).getLines().toList
