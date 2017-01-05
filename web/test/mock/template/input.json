@@ -177,7 +177,7 @@
     },
     "properties": [
       {
-      "propertyId": "zookeeper.connect",
+      "propertyId": "bootstrap.servers",
       "propertyName": "",
       "propertyType": "list",
       "default": "",
@@ -212,11 +212,11 @@
       ]
       },
       {
-        "propertyId": "kafkaParams.group.id",
+        "propertyId": "group.id",
         "propertyName": "_GROUP_ID_",
         "propertyType": "text",
         "regexp": "",
-        "required": true,
+        "required": false,
         "tooltip": "",
         "qa": "fragment-details-kafka-group-id"
       },
@@ -241,17 +241,6 @@
           "tooltip": "Topic to connect.",
           "hidden": false,
           "qa": "fragment-details-kafka-topic"
-        },
-        {
-          "propertyId": "partition",
-          "propertyName": "_PARTITION_",
-          "propertyType": "text",
-          "regexp": "\\d*",
-          "default": "1",
-          "required": true,
-          "tooltip": "",
-          "hidden": false,
-          "qa": "fragment-details-kafka-partition"
         }
       ]
       }

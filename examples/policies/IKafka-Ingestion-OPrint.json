@@ -10,11 +10,11 @@
         "topic": "detector",
         "partition": "1"
       }],
-      "zookeeper.connect": [{
+      "bootstrap.servers": [{
         "host": "localhost",
         "port": "2181"
       }],
-      "kafkaParams.group.id": "testgroup4"
+      "group.id": "testgroup4"
     }
   },
   "transformations": [

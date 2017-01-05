@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.sdk.properties
+package com.stratio.sparta.sdk.properties.models
 
-case class PropertiesQueriesModel(queries: Seq[PropertiesQueryModel])
+case class HostPortModel(host: String, port: String)

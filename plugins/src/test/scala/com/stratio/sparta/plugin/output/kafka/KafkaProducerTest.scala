@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.kafka
 
 import java.io.Serializable
 import java.util.Properties
 
-import org.apache.log4j.{Level, Logger}
 import com.stratio.sparta.plugin.output.kafka.producer.KafkaProducer
-import com.stratio.sparta.sdk.properties.JsoneyString
-import kafka.producer
-import org.apache.kafka.clients.producer.Producer
+import org.apache.log4j.Logger
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -34,13 +32,14 @@ class KafkaProducerTest extends FlatSpec with Matchers {
 
   val log = Logger.getRootLogger
 
-  val mandatoryOptions: Map[String, ((Map[String, Serializable], String, String) => AnyRef, String)] = Map(
-    "metadata.broker.list" -> ((_, _, _) => "localhost:9092","localhost:9092"),
-    "serializer.class" -> ((_, _, _) => "kafka.serializer.StringEncoder","kafka.serializer.StringEncoder"),
-    "request.required.acks" -> ((_, _, _) => "1","1"),
-    "producer.type" -> ((_, _, _) => "sync","sync"),
-    "batch.num.messages" -> ((_, _, _) => "200","200")
-  )
+  class KafkaOutputTest(val properties: Map[String, Serializable]) extends KafkaProducer
+
+  val mandatoryOptions: Map[String, Serializable] = Map(
+    "metadata.broker.list" -> """[{"host":"localhost","port":"9092"}]""",
+    "serializer.class" -> "kafka.serializer.StringEncoder",
+    "request.required.acks" -> 1,
+    "producer.type" -> "sync",
+    "batch.num.messages" -> "200")
 
   val validProperties: Map[String, Serializable] = Map(
     "metadata.broker.list" -> """[{"host":"localhost","port":"9092"},{"host":"localhost2","port":"90922"}]""",
@@ -59,15 +58,21 @@ class KafkaProducerTest extends FlatSpec with Matchers {
   )
 
   "getProducerKey" should "concatenate topic with broker list" in {
-    KafkaProducer.getProducerKey("myTopic", validProperties) shouldBe "localhost:9092,localhost2:90922"
+    val kafkatest = new KafkaOutputTest(validProperties)
+
+    kafkatest.getProducerConnectionKey shouldBe "localhost:9092,localhost2:90922"
   }
 
   "getProducerKey" should "return default connection" in {
-    KafkaProducer.getProducerKey("myTopic", noValidProperties) shouldBe "localhost:9092"
+    val kafkatest = new KafkaOutputTest(noValidProperties)
+
+    kafkatest.getProducerConnectionKey shouldBe "localhost:9092"
   }
 
   "extractOptions" should "extract mandatory options" in {
-    val options: Properties = KafkaProducer.extractOptions(validProperties, mandatoryOptions)
+    val kafkatest = new KafkaOutputTest(mandatoryOptions)
+
+    val options: Properties = kafkatest.extractMandatoryProperties
     options.size shouldBe 5
     options.get("metadata.broker.list") shouldBe "localhost:9092"
     options.get("serializer.class") shouldBe "kafka.serializer.StringEncoder"
@@ -77,7 +82,22 @@ class KafkaProducerTest extends FlatSpec with Matchers {
   }
 
   "extractOptions" should "extract default mandatory options when map is empty" in {
-    val options: Properties = KafkaProducer.extractOptions(Map.empty, mandatoryOptions)
+
+    val kafkatest = new KafkaOutputTest(Map.empty)
+
+    val options: Properties = kafkatest.extractMandatoryProperties
+    options.size shouldBe 5
+    options.get("metadata.broker.list") shouldBe "localhost:9092"
+    options.get("serializer.class") shouldBe "kafka.serializer.StringEncoder"
+    options.get("request.required.acks") shouldBe "0"
+    options.get("producer.type") shouldBe "sync"
+    options.get("batch.num.messages") shouldBe "200"
+  }
+
+  "extractOptions" should "create a correct properties file" in {
+    val kafkatest = new KafkaOutputTest(mandatoryOptions)
+
+    val options: Properties = kafkatest.createProducerProps
     options.size shouldBe 5
     options.get("metadata.broker.list") shouldBe "localhost:9092"
     options.get("serializer.class") shouldBe "kafka.serializer.StringEncoder"
@@ -86,8 +106,11 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     options.get("batch.num.messages") shouldBe "200"
   }
 
-  "createProducer" should "return a valid KafkaProducer without zookeeper config" in {
-    val createProducer = Try(KafkaProducer.createProducer(validProperties))
+  "createProducer" should "return a valid KafkaProducer" in {
+    val kafkatest = new KafkaOutputTest(mandatoryOptions)
+
+    val options: Properties = kafkatest.extractMandatoryProperties
+    val createProducer = Try(KafkaProducer.getProducer("key", options))
 
     createProducer match {
       case Success(some) => log.info("Test OK!")
@@ -95,61 +118,5 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     }
 
     createProducer.isSuccess shouldBe true
-  }
-
-  "createProducer" should "return a valid KafkaProducer with zookeeper connection and default path" in {
-    val conn =
-      """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
-        |{"host": "localhost", "port": "2181"}]""".stripMargin
-    val zkProps = Map("zookeeper.connect" -> JsoneyString(conn))
-    val createProducer = Try(KafkaProducer.createProducer(validProperties ++ zkProps))
-
-    createProducer match {
-      case Success(producer) => {
-        producer.config.props.props.getProperty("zookeeper.connect") should
-          be("localhost:2181,localhost:2181,localhost:2181")
-        log.info("Test OK!")
-      }
-      case Failure(e) => log.error("Test KO", e)
-    }
-
-    createProducer.isSuccess shouldBe true
-  }
-
-  "createProducer" should "return a valid KafkaProducer with zookeeper connection and custom path" in {
-    val conn =
-      """[{"host": "localhost", "port": "2181"},{"host": "localhost", "port": "2181"},
-        |{"host": "localhost", "port": "2181"}]""".stripMargin
-    val zkProps = Map("zookeeper.connect" -> JsoneyString(conn), "zookeeper.path" -> "/test")
-    val createProducer = Try(KafkaProducer.createProducer(validProperties ++ zkProps))
-
-    createProducer match {
-      case Success(producer) => {
-        producer.config.props.props.getProperty("zookeeper.connect") should
-          be("localhost:2181,localhost:2181,localhost:2181/test")
-        log.info("Test OK!")
-      }
-      case Failure(e) => log.error("Test KO", e)
-    }
-
-    createProducer.isSuccess shouldBe true
-  }
-
-  "createProducer" should "return exception with no valid properties" in {
-    Try(KafkaProducer.createProducer(noValidProperties)).isSuccess shouldBe false
-  }
-
-  "getInstance" should "create new instance the first time" in {
-    Try(KafkaProducer.getInstance("myTopic", validProperties)).isInstanceOf[Producer[String, String]]
-  }
-  "getInstance" should "return the same instance always" in {
-    val instance = KafkaProducer.getInstance("myTopic", validProperties)
-
-    instance should equal(KafkaProducer.getInstance("myTopic", validProperties))
-  }
-
-  "getProducer" should "return a KafkaProducer" in {
-    Try(KafkaProducer.getProducer("myTopic", validProperties)).isSuccess shouldBe true
-
   }
 }

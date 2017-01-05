@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.transformation.ingestion
 
 import java.io.{ByteArrayOutputStream, Serializable => JSerializable}
 import java.util
-import java.util.Date
 
-import scala.collection.JavaConverters._
+import com.stratio.decision.commons.avro._
+import com.stratio.sparta.sdk.pipeline.input.Input
 import org.apache.avro.Schema
 import org.apache.avro.io.EncoderFactory
 import org.apache.avro.specific.SpecificDatumWriter
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpecLike}
-import com.stratio.decision.commons.avro._
-import com.stratio.sparta.plugin.input.kafka.{KafkaDirectInput, KafkaInput}
-import com.stratio.sparta.plugin.input.websocket.WebSocketInput
-import com.stratio.sparta.sdk.pipeline.input.Input
+
+import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
 class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter with BeforeAndAfterAll {
@@ -51,9 +48,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
     StructField("ColumnF", DateType)))
   val ParserConfig = Map.empty[String, JSerializable]
 
-
   "A IngestionParser" should {
-
 
     "parse an event with an input that has the same columns that the schema specified in the config" in {
       val json =
@@ -105,7 +100,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       val event = ingestionParser.parse(row = inputEvent, removeRaw = false)
 
       event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
-      event.get.size should be (6)
+      event.get.size should be(6)
       event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
 
@@ -144,7 +139,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
       event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.get.size should be (3)
+      event.get.size should be(3)
 
       event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
@@ -186,7 +181,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
       event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.get.size should be (2)
+      event.get.size should be(2)
 
       event.get should be eq Row.fromSeq(Seq(json) ++ values)
     }
@@ -228,7 +223,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
 
       event.get should be eq Row.fromSeq(Seq(json) ++ event.toSeq)
 
-      event.get.size should be (1)
+      event.get.size should be(1)
 
       event.get should be eq Row.fromSeq(values)
     }
@@ -267,7 +262,7 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       // scalastyle:off
       val encoder = EncoderFactory.get.binaryEncoder(out, null)
       // scalastyle:on
-      val Schema : Schema = new org.apache.avro.Schema.Parser()
+      val Schema: Schema = new org.apache.avro.Schema.Parser()
         .parse("{\"type\":\"record\",\"name\":\"InsertMessage\",\"namespace\":\"com.stratio.decision.commons.avro\"," +
           "\"fields\":[{\"name\":\"operation\",\"type\":[\"null\",\"string\"],\"default\":\"null\"}," +
           "{\"name\":\"streamName\",\"type\":\"string\"},{\"name\":\"sessionId\",\"type\":[\"null\",\"string\"]," +
@@ -285,6 +280,5 @@ class IngestionParserTest extends WordSpecLike with Matchers with BeforeAndAfter
       out.close
       out.toByteArray
     }
-
   }
 }

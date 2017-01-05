@@ -55,7 +55,7 @@
     "description": "Reads events from apache-kafka",
     "element": {
       "configuration": {
-        "zookeeper.connect":
+        "bootstrap.servers":
         [
           {
             "host":"localhost",
@@ -73,7 +73,7 @@
             "partition":"2"
           }
         ],
-        "kafkaParams.group.id": "aaaa"
+        "group.id": "aaaa"
       },
       "type": "Kafka",
       "name": "in-Kafka"
@@ -86,11 +86,11 @@
     "description": "Reads events from apache-kafka",
     "element": {
       "configuration": {
-        "kafkaParams.group.id": "eee",
+        "group.id": "eee",
         "topics": [{"topic":"111"},{"topic":"222"},{"topic":"3333"}],
-        "metadata.broker.list": [{"broker":"localhost","port":"9092"}]
+        "metadata.broker.list": [{"host":"localhost","port":"9092"}]
       },
-      "type": "KafkaDirect",
+      "type": "Kafka",
       "name": "in-KafkaDirect"
     },
     "fragmentType": "input",

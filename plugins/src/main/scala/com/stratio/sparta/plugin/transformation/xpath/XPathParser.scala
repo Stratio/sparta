@@ -19,8 +19,8 @@ package com.stratio.sparta.plugin.transformation.xpath
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
-import com.stratio.sparta.sdk.properties.PropertiesQueriesModel
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import kantan.xpath._
 import kantan.xpath.ops._
 import org.apache.spark.sql.Row
@@ -35,12 +35,17 @@ class XPathParser(order: Integer,
 
   val queriesModel = properties.getPropertiesQueries("queries")
 
+  //scalastyle:off
   override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
       inputValue match {
         case Some(value) =>
-          val valuesParsed = XPathParser.xPathParse(value.toString, queriesModel)
+          val valuesParsed = value match {
+            case valueCast: Array[Byte] => XPathParser.xPathParse(new Predef.String(valueCast), queriesModel)
+            case valueCast: String => XPathParser.xPathParse(valueCast, queriesModel)
+            case _ => XPathParser.xPathParse(value.toString, queriesModel)
+          }
 
           outputFields.map { outputField =>
             val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
@@ -66,6 +71,8 @@ class XPathParser(order: Integer,
 
     Option(Row.fromSeq(prevData ++ newData))
   }
+
+  //scalastyle:on
 }
 
 object XPathParser {

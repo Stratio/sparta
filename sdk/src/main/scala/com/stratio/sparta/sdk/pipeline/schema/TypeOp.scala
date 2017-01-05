@@ -75,6 +75,16 @@ object TypeOp extends Enumeration {
       case (x: Double, y: JInt) => Ordering[Double].compare(x, y.num.doubleValue())
       case (x: Double, y: JString) => Try(Ordering[Double].compare(x, y.s.toDouble))
         .getOrElse(Ordering[String].compare(x.toString, y.s))
+      case (x: Array[Byte], y: Array[Byte]) => Ordering[String].compare(new Predef.String(x), new Predef.String(y))
+      case (x: Array[Byte], y: JString) => Ordering[String].compare(new Predef.String(x), y.s)
+      case (x: Array[Byte], y: JInt) => Ordering[Int].compare(new Predef.String(x).toInt, y.num.intValue())
+      case (x: Array[Byte], y: JDouble) => Ordering[Double].compare(new Predef.String(x).toDouble, y.num.toDouble)
+      case (x: Array[Byte], y: JBool) => Ordering[Boolean].compare(new Predef.String(x).toBoolean, y.value)
+      case (x: Array[Byte], y: Int) => Ordering[Int].compare(new Predef.String(x).toInt, y)
+      case (x: Array[Byte], y: Long) => Ordering[Long].compare(new Predef.String(x).toLong, y)
+      case (x: Array[Byte], y: Double) => Ordering[Double].compare(new Predef.String(x).toDouble, y)
+      case (x: Array[Byte], y: Boolean) => Ordering[Boolean].compare(new Predef.String(x).toBoolean, y)
+      case (x: String, y: Array[Byte]) => Ordering[String].compare(x, new Predef.String(y))
       case (x: String, y: String) => Ordering[String].compare(x, y)
       case (x: String, y: JString) => Ordering[String].compare(x, y.s)
       case (x: String, y: JInt) => Try(Ordering[Int].compare(x.toInt, y.num.intValue()))
@@ -105,6 +115,10 @@ object TypeOp extends Enumeration {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
         Ordering[Date].compare(x, dateParsed.date)
       }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: Date, y: Array[Byte]) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
+        Ordering[Date].compare(x, dateParsed.date)
+      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
       case (x: Date, y: JString) => Try {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
         Ordering[Date].compare(x, dateParsed.date)
@@ -116,6 +130,10 @@ object TypeOp extends Enumeration {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
         Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
       }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: Timestamp, y: Array[Byte]) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
+        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
+      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
       case (x: Timestamp, y: JString) => Try {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
         Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
@@ -127,6 +145,10 @@ object TypeOp extends Enumeration {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
         Ordering[DateTime].compare(x, dateParsed.toDateTime)
       }.getOrElse(Ordering[String].compare(x.toString, y))
+      case (x: DateTime, y: Array[Byte]) => Try {
+        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
+        Ordering[DateTime].compare(x, dateParsed.toDateTime)
+      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
       case (x: DateTime, y: JString) => Try {
         val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
         Ordering[DateTime].compare(x, dateParsed.toDateTime)
@@ -190,6 +212,7 @@ object TypeOp extends Enumeration {
 
   private def checkAnyStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[String] => value
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(value.asInstanceOf[Array[Byte]])
     case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s
     case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].mkString(Output.Separator)
     case _ => origValue.toString
@@ -240,6 +263,8 @@ object TypeOp extends Enumeration {
       millisToTimeStamp(value.asInstanceOf[Long])
     case value if value.isInstanceOf[JString] =>
       millisToTimeStamp(value.asInstanceOf[JString].s.toLong)
+    case value if value.isInstanceOf[Array[Byte]] =>
+      millisToTimeStamp(new Predef.String(value.asInstanceOf[Array[Byte]]).toLong)
     case _ =>
       millisToTimeStamp(origValue.toString.toLong)
   }
@@ -252,6 +277,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[DateTime] => new Date(value.asInstanceOf[DateTime].getMillis)
     case value if value.isInstanceOf[Long] => new Date(value.asInstanceOf[Long])
     case value if value.isInstanceOf[JString] => new Date(value.asInstanceOf[JString].s)
+    case value if value.isInstanceOf[Array[Byte]] => new Date(new Predef.String(value.asInstanceOf[Array[Byte]]))
     case _ => new Date(origValue.toString.toLong)
   }
 
@@ -263,6 +289,8 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date].getTime)
     case value if value.isInstanceOf[Long] => new DateTime(value.asInstanceOf[Long])
     case value if value.isInstanceOf[JString] => new DateTime(origValue.asInstanceOf[JString].s)
+    case value if value.isInstanceOf[Array[Byte]] =>
+      new DateTime(new Predef.String(origValue.asInstanceOf[Array[Byte]]))
     case _ => new DateTime(origValue.toString)
   }
 
@@ -282,6 +310,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Timestamp] => origValue.asInstanceOf[Timestamp].getTime
     case value if value.isInstanceOf[Date] => origValue.asInstanceOf[Date].getTime
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toLong
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toLong
     case _ => origValue.toString.toLong
   }
 
@@ -298,6 +327,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toDouble
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].doubleValue()
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toDouble
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toDouble
     case _ => origValue.toString.toDouble
   }
 
@@ -314,6 +344,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toInt
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].intValue()
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toInt
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toInt
     case _ => origValue.toString.toInt
   }
 
@@ -323,6 +354,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Boolean] => value
     case value if value.isInstanceOf[JBool] => value.asInstanceOf[JBool].value
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toBoolean
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toBoolean
     case _ => origValue.toString.toBoolean
   }
 }

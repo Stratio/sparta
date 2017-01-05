@@ -8,18 +8,11 @@
   },
   "checkpointPath": "checkpoint",
   "input": {
-    "name": "in-kafka",
-    "type": "Kafka",
+    "name": "in-socket",
+    "type": "Socket",
     "configuration": {
-      "topics": [{
-        "topic": "test",
-        "partition": "1"
-      }],
-      "zookeeper.connect": [{
-        "host": "localhost",
-        "port": "2181"
-      }],
-      "kafkaParams.group.id": "my-spt-grp"
+      "hostname": "localhost",
+      "port": "10666"
     }
   },
   "transformations": [{

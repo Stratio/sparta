@@ -38,6 +38,7 @@ class DateTimeParser(order: Integer,
   private val Formats = properties.getString("inputFormat", None)
   private val GranularityProperty = properties.getString(GranularityPropertyName, None)
 
+  //scalastyle:off
   override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
@@ -55,6 +56,12 @@ class DateTimeParser(order: Integer,
                     returnNullValue(new IllegalStateException(
                       s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(value)))
+                case Some(value: Array[Byte]) =>
+                  val valueCasted = new Predef.String(value)
+                  if (value.isEmpty)
+                    returnNullValue(new IllegalStateException(
+                      s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
+                  else parseToOutputType(outSchema, applyGranularity(parseDate(valueCasted)))
                 case Some(value) =>
                   parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case None =>
@@ -71,6 +78,8 @@ class DateTimeParser(order: Integer,
 
     Option(Row.fromSeq(prevData ++ newData))
   }
+
+  //scalastyle:on
 
   private def extractFormatter(formats: Option[String]): Option[Either[DateTimeFormatter, String]] = {
     formats match {

@@ -12,9 +12,9 @@
       "name": "in-kafka",
       "type": "Kafka",
       "configuration": {
-        "topics": [{"topic": "test", "partition" : "1"}],
-        "zookeeper.connect": [{"host": "localhost", "port": "2181"}],
-        "kafkaParams.group.id": "my-spt-grp"
+        "topics": [{"topic": "test", "partition" : 1}],
+        "bootstrap.servers": [{"host": "localhost", "port": "2181"}],
+        "group.id": "my-spt-grp"
       }
     }
   ,

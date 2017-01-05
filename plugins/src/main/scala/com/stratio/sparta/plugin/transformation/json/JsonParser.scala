@@ -19,8 +19,8 @@ package com.stratio.sparta.plugin.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
-import com.stratio.sparta.sdk.properties.PropertiesQueriesModel
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
@@ -33,12 +33,17 @@ class JsonParser(order: Integer,
 
   val queriesModel = properties.getPropertiesQueries("queries")
 
+  //scalastyle:off
   override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = {
       inputValue match {
         case Some(value) =>
-          val valuesParsed = JsonParser.jsonParse(value.toString, queriesModel)
+          val valuesParsed = value match {
+          case valueCast: Array[Byte] => JsonParser.jsonParse(new Predef.String(valueCast), queriesModel)
+          case valueCast: String => JsonParser.jsonParse(valueCast, queriesModel)
+          case _ => JsonParser.jsonParse(value.toString, queriesModel)
+        }
 
           outputFields.map { outputField =>
             val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
@@ -64,6 +69,8 @@ class JsonParser(order: Integer,
 
     Option(Row.fromSeq(prevData ++ newData))
   }
+
+  //scalastyle:on
 }
 
 object JsonParser {

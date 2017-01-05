@@ -92,6 +92,7 @@ Inputs
 - RabbitMQ
 - Socket
 - WebSocket
+- HDFS/S3
 
 Outputs
 ------------
@@ -104,6 +105,9 @@ Outputs
 - CSV
 - Parquet
 - Http
+- Kafka
+- HDFS/S3
+- Http Rest
 
 ![Outputs](./images/outputs.png)
 

@@ -9,11 +9,11 @@
   "input":
     {
       "name": "in",
-      "type": "KafkaDirect",
+      "type": "Kafka",
       "configuration": {
         "topics": [{"topic": "test"}],
-        "metadata.broker.list": [{"broker": "localhost", "port": "9092"}],
-        "kafkaParams.group.id": "my-spt-grp"
+        "metadata.broker.list": [{"host": "localhost", "port": "9092"}],
+        "group.id": "my-spt-grp"
       }
     }
   ,
