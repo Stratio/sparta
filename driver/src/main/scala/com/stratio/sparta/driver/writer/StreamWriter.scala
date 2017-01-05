@@ -52,7 +52,6 @@ case class StreamWriter(triggers: Seq[Trigger],
     )
 
     dStream.foreachRDD(rdd => {
-      //val parsedDataFrame = SQLContext.getOrCreate(rdd.context).createDataFrame(rdd, options.initSchema)
       val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, options.initSchema)
 
       writeTriggers(parsedDataFrame, triggers, StreamTableName, tableSchemas, outputs)

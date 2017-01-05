@@ -45,15 +45,14 @@ trait KafkaProducer extends KafkaBase {
 
   def createProducerProps: Properties = {
     val props = extractMandatoryProperties
+
     addOptions(getAdditionalOptions(DefaultPropertiesKey, PropertiesKey, PropertiesValue), props)
-    if (properties.contains("zookeeper.connect")) {
-      addOptions(getHostPortZk("zookeeper.connect", DefaultHost, DefaultBrokerPort), props)
-    }
     props
   }
 
   def extractMandatoryProperties: Properties = {
     val props = new Properties()
+
     mandatoryOptions.foreach { case (key, value) => props.put(key, value)}
     props
   }

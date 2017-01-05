@@ -49,16 +49,6 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     "batch.num.messages" -> 200
   )
 
-  val validZkProperties: Map[String, Serializable] = Map(
-    "metadata.broker.list" -> """[{"host":"localhost","port":"9092"},{"host":"localhost2","port":"90922"}]""",
-    "serializer.class" -> "kafka.serializer.StringEncoder",
-    "request.required.acks" -> "true",
-    "producer.type" -> "async",
-    "zookeeper.connect" -> """[{"host":"localhost","port":"2181"}]""",
-    "zookeeper.path" -> "/sparta",
-    "batch.num.messages" -> 200
-  )
-
   val noValidProperties: Map[String, Serializable] = Map(
     "metadata.broker.list" -> "",
     "serializer.class" -> "",
@@ -116,20 +106,7 @@ class KafkaProducerTest extends FlatSpec with Matchers {
     options.get("batch.num.messages") shouldBe "200"
   }
 
-  "extractOptions" should "create a correct properties file with zookeeper path" in {
-    val kafkatest = new KafkaOutputTest(validZkProperties)
-
-    val options: Properties = kafkatest.createProducerProps
-    options.size shouldBe 6
-    options.get("metadata.broker.list") shouldBe "localhost:9092,localhost2:90922"
-    options.get("zookeeper.connect") shouldBe "localhost:2181/sparta"
-    options.get("serializer.class") shouldBe "kafka.serializer.StringEncoder"
-    options.get("request.required.acks") shouldBe "1"
-    options.get("producer.type") shouldBe "async"
-    options.get("batch.num.messages") shouldBe "200"
-  }
-
-  "createProducer" should "return a valid KafkaProducer without zookeeper config" in {
+  "createProducer" should "return a valid KafkaProducer" in {
     val kafkatest = new KafkaOutputTest(mandatoryOptions)
 
     val options: Properties = kafkatest.extractMandatoryProperties
