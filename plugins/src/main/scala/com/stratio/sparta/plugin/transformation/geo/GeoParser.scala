@@ -59,15 +59,27 @@ class GeoParser(
     Option(Row.fromSeq(prevData ++ newData))
   }
 
-  private def getLatitude(row: Row): String =
-    Try(row.get(schema.fieldIndex(latitudeField)))
+  private def getLatitude(row: Row): String = {
+    val latitude = Try(row.get(schema.fieldIndex(latitudeField)))
       .getOrElse(throw new RuntimeException(s"Impossible to parse $latitudeField in the event: ${row.mkString(",")}"))
-      .toString
 
-  private def getLongitude(row: Row): String =
-    Try(row.get(schema.fieldIndex(longitudeField)))
+    latitude match {
+      case valueCast: String => valueCast
+      case valueCast: Array[Byte] => new Predef.String(valueCast)
+      case _ => latitude.toString
+    }
+  }
+
+  private def getLongitude(row: Row): String = {
+    val longitude = Try(row.get(schema.fieldIndex(longitudeField)))
       .getOrElse(throw new RuntimeException(s"Impossible to parse $latitudeField in the event: ${row.mkString(",")}"))
-      .toString
+
+    longitude match {
+      case valueCast: String => valueCast
+      case valueCast: Array[Byte] => new Predef.String(valueCast)
+      case _ => longitude.toString
+    }
+  }
 
   private def geoField(latitude: String, longitude: String): String = latitude + separator + longitude
 }

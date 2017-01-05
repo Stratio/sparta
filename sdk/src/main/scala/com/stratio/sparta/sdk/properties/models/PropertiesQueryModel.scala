@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.sdk.properties
+package com.stratio.sparta.sdk.properties.models
 
 case class PropertiesQueryModel(field : String, query: String)

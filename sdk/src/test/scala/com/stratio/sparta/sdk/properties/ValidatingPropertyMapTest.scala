@@ -18,6 +18,7 @@ package com.stratio.sparta.sdk.properties
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.models._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -75,11 +76,6 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
     an[IllegalStateException] should be thrownBy data.getInt("theDouble")
   }
 
-  it should "returs value as map" in new ValuesMap {
-    data.getMap("one") should be(Some(Map("String" -> oneString)))
-    data.getMap("dummy") should be(None)
-  }
-
   it should "check key" in new ValuesMap {
     data.hasKey("someBoolean") should be(true)
     data.hasKey("dummy") should be(false)
@@ -96,4 +92,55 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
       Map("host" -> "host3", "port" -> "20304")
     ))
   }
+
+  it should "parse to hostPort Model" in {
+    val portStr = "20304"
+    val conn = """[{"host":"host1","port":20304},{"host":"host2","port":"20304"},{"host":"host3","port":"20304"}]"""
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
+      new ValidatingPropertyMap[String, JsoneyString](Map("hostsPorts" -> JsoneyString(conn)))
+
+    validating.getHostsPorts("hostsPorts") should be(HostsPortsModel(Seq(
+      HostPortModel("host1", portStr),
+      HostPortModel("host2", portStr),
+      HostPortModel("host3", portStr)
+    )))
+  }
+
+  it should "parse to queries Model" in {
+    val query = "select"
+    val conn =
+      """[
+        |{"field":"field1","query":"select"},
+        |{"field":"field2","query":"select"},
+        |{"field":"field3","query":"select"}
+        |]""".stripMargin
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
+      new ValidatingPropertyMap[String, JsoneyString](Map("queries" -> JsoneyString(conn)))
+
+    validating.getPropertiesQueries("queries") should be(PropertiesQueriesModel(Seq(
+      PropertiesQueryModel("field1", query),
+      PropertiesQueryModel("field2", query),
+      PropertiesQueryModel("field3", query)
+    )))
+  }
+
+  it should "parse to options" in {
+    val query = "select"
+    val conn =
+      """[
+        |{"field":"field1","query":"select"},
+        |{"field":"field2","query":"select"},
+        |{"field":"field3","query":"select"}
+        |]""".stripMargin
+    val validating: ValidatingPropertyMap[String, JsoneyString] =
+      new ValidatingPropertyMap[String, JsoneyString](Map("queries" -> JsoneyString(conn)))
+
+    validating.getOptionsList("queries", "field", "query") should be(Map(
+      "field1" -> query,
+      "field2" -> query,
+      "field3" -> query
+    ))
+  }
+
+
 }

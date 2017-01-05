@@ -36,7 +36,7 @@ class StreamingContextServiceIT extends WordSpecLike
   with Matchers
   with PolicyUtils {
 
-  val PathToPolicy = getClass.getClassLoader.getResource("policies/IKafka-OPrint.json").getPath
+  val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OPrint.json").getPath
 
   /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.

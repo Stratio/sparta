@@ -57,7 +57,11 @@ object IngestionParser extends SLF4JLogging {
   val javaToAvro = new JavaToAvroSerializer(datumReader)
 
   def parseRawData(rawData: Any, fieldNames: Seq[String], schemas: Array[StructField]): Seq[Any] = {
-    val stratioStreamingMessage = javaToAvro.deserialize(rawData.asInstanceOf[Array[Byte]])
+    val stratioStreamingMessage = rawData match {
+      case valueCast : Array[Byte] => javaToAvro.deserialize(valueCast)
+      case valueCast : String => javaToAvro.deserialize(valueCast.getBytes)
+      case _ => javaToAvro.deserialize(rawData.toString.getBytes)
+    }
     val columnsStratioStreamingMessage = stratioStreamingMessage.getColumns.toList
     val columnsNamesStratioStreamingMessage = columnsStratioStreamingMessage.map(_.getColumn)
 

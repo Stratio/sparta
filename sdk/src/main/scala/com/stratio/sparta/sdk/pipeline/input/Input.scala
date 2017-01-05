@@ -40,4 +40,3 @@ object Input {
   final val RawDataKey = "_attachment_body"
   final val InitSchema = Map(Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))))
 }
-

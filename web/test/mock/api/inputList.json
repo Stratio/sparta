@@ -35,7 +35,7 @@
     "description": "Reads events from apache-kafka",
     "element": {
       "configuration": {
-        "zookeeper.connect":
+        "bootstrap.servers":
         [
           {
             "host":"localhost",
@@ -53,7 +53,7 @@
             "partition":"2"
           }
         ],
-        "kafkaParams.group.id": "aaaa"
+        "group.id": "aaaa"
       },
       "type": "Kafka",
       "name": "in-Kafka"
@@ -99,7 +99,7 @@
     "description": "Reads events from apache-kafka",
     "element": {
       "configuration": {
-        "zookeeper.connect":
+        "bootstrap.servers":
         [
           {
             "host":"localhost",
@@ -117,7 +117,7 @@
             "partition":"2"
           }
         ],
-        "kafkaParams.group.id": "aaaa"
+        "group.id": "aaaa"
       },
       "type": "Kafka",
       "name": "in-Kafka"

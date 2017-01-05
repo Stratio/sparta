@@ -19,15 +19,12 @@ import java.io.{Serializable => JSerializable}
 
 import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.MongodbConfig
-import com.stratio.datasource.mongodb.config.MongodbConfig
 import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.SaveMode._
 import org.apache.spark.sql.types.StructType
 
 class MongoDbOutput(keyName: String,
@@ -62,7 +59,7 @@ class MongoDbOutput(keyName: String,
     override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
       val tableName = getTableNameFromOptions(options)
       val timeDimension = getTimeFromOptions(options)
-      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode))
+      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode)
 
       validateSaveMode(saveMode)
 

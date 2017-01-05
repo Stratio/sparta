@@ -1,5 +1,259 @@
 [
   {
+    "name": "Kafka",
+    "modelType": "Kafka",
+    "description": {
+      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
+      "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the directapproach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html). In Spark 1.6 profile is available one special compilation by Stratio to support Security in Kafka 0.10 and Spark version 1.6.2",
+      "learnMore": "https://github.com/Stratio/spark-kafka"
+    },
+    "properties": [
+      {
+        "propertyId": "bootstrap.servers",
+        "propertyName": "_BOOTSTRAP_SERVERS_",
+        "propertyType": "list",
+        "default": "",
+        "required": true,
+        "hidden": false,
+        "limit": 0,
+        "tooltip": "",
+        "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
+        "fields": [
+          {
+            "propertyId": "host",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "required": true,
+            "tooltip": "Server address.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-broker"
+          },
+          {
+            "propertyId": "port",
+            "propertyName": "_PORT_",
+            "propertyType": "text",
+            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+            "default": "9092",
+            "required": true,
+            "tooltip": "Server port.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-port"
+          }
+        ]
+      },
+      {
+        "propertyId": "group.id",
+        "propertyName": "_GROUP_ID_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-stratio-kafkadirect-group-id"
+      },
+      {
+        "propertyId": "topics",
+        "propertyName": "_TOPICS_",
+        "propertyType": "list",
+        "default": "",
+        "required": true,
+        "hidden": false,
+        "limit": 0,
+        "tooltip": "",
+        "qa": "fragment-details-stratio-kafkadirect-topics",
+        "fields": [
+          {
+            "propertyId": "topic",
+            "propertyName": "_TOPIC_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "required": true,
+            "tooltip": "Topic to connect.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-topic"
+          }
+        ]
+      },
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-stratiokafkadirect-key-serializer"
+      },
+      {
+        "propertyId": "value.serializer",
+        "propertyName": "_VALUE_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Int",
+            "value": "int"
+          },
+          {
+            "label": "Long",
+            "value": "long"
+          },
+          {
+            "label": "Double",
+            "value": "double"
+          },
+          {
+            "label": "Bytes",
+            "value": "bytes"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          },
+          {
+            "label": "Byte Buffer",
+            "value": "bytebuffer"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "In Spark 1.5.x only available String and Array Byte.",
+        "qa": "fragment-details-stratiokafkadirect-value-serializer"
+      },
+      {
+        "propertyId": "partition.assignment.strategy",
+        "propertyName": "_PARTITION_STRATEGY_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Range",
+            "value": "range"
+          },
+          {
+            "label": "Round Robin",
+            "value": "roundrobin"
+          }
+        ],
+        "default": "range",
+        "required": false,
+        "tooltip": "Only available with Spark 1.6.x",
+        "qa": "fragment-details-stratiokafkadirect-partition-assignment-strategy"
+      },
+      {
+        "propertyId": "locationStrategy",
+        "propertyName": "_LOCATION_STRATEGY_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Prefer Consistent",
+            "value": "preferconsistent"
+          },
+          {
+            "label": "Prefer Brokers",
+            "value": "preferbrokers"
+          }
+        ],
+        "default": "preferconsistent",
+        "required": false,
+        "tooltip": "Only available with Spark 1.6.x",
+        "qa": "fragment-details-stratiokafkadirect-locationStrategy"
+      },
+      {
+        "propertyId": "kafkaProperties",
+        "propertyName": "_KAFKA_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-properties",
+        "fields": [
+          {
+            "propertyId": "kafkaPropertyKey",
+            "propertyName": "_KAFKA_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyKey"
+          },
+          {
+            "propertyId": "kafkaPropertyValue",
+            "propertyName": "_KAFKA_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyValue"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "RabbitMQ",
+    "modelType": "RabbitMQ",
+    "description": {
+      "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
+    },
+    "properties": [
+      {
+        "propertyId": "receiverType",
+        "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
+        "propertyType": "text",
+        "default": "distributed",
+        "regexp": "",
+        "required": true,
+        "tooltip": "RabbitMQ receiver type, distributed or single node approach",
+        "qa": "fragment-details-rabbitMQ-receiverType"
+      },
+      {
+        "propertyId": "rabbitmqProperties",
+        "propertyName": "_RABBITMQ_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "rabbitmqPropertyKey",
+            "propertyName": "_RABBITMQ_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyKey"
+          },
+          {
+            "propertyId": "rabbitmqPropertyValue",
+            "propertyName": "_RABBITMQ_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyValue"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "name": "Flume",
     "modelType": "Flume",
     "description": {
@@ -163,245 +417,6 @@
               "value": "push"
             }
           ]
-        ]
-      }
-    ]
-  },
-  {
-    "name": "Kafka",
-    "modelType": "Kafka",
-    "description": {
-      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
-      "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
-    },
-    "properties": [
-      {
-      "propertyId": "zookeeper.connect",
-      "propertyName": "_ZOOKEEPER_CONNECT_",
-      "propertyType": "list",
-      "default": "",
-      "required": true,
-      "hidden": false,
-      "limit": 0,
-      "tooltip": "",
-      "qa": "fragment-details-kafka-zookeeper-connect",
-      "fields": [
-        {
-          "propertyId": "host",
-          "propertyName": "_ZOOKEEPER_HOST_",
-          "propertyType": "text",
-          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-          "default": "localhost",
-          "required": true,
-          "tooltip": "Zookeeper's address.",
-          "hidden": false,
-          "qa": "fragment-details-kafka-host"
-        },
-        {
-          "propertyId": "port",
-          "propertyName": "_ZOOKEEPER_PORT_",
-          "propertyType": "text",
-          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-          "default": "2181",
-          "required": true,
-          "tooltip": "Zookeeper's port.",
-          "hidden": false,
-          "qa": "fragment-details-kafka-port"
-        }
-      ]
-      },
-      {
-        "propertyId": "zookeeper.path",
-        "propertyName": "_ZOOKEEPER_PATH_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-zookeeper-path"
-      },
-      {
-        "propertyId": "kafkaParams.group.id",
-        "propertyName": "_GROUP_ID_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-kafka-group-id"
-      },
-      {
-      "propertyId": "topics",
-      "propertyName": "_TOPICS_",
-      "propertyType": "list",
-      "default": "",
-      "required": true,
-      "hidden": false,
-      "limit": 0,
-      "tooltip": "",
-      "qa": "fragment-details-kafka-topics",
-      "fields": [
-        {
-          "propertyId": "topic",
-          "propertyName": "_TOPIC_",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "required": true,
-          "tooltip": "Topic to connect.",
-          "hidden": false,
-          "qa": "fragment-details-kafka-topic"
-        },
-        {
-          "propertyId": "partition",
-          "propertyName": "_PARTITION_",
-          "propertyType": "text",
-          "regexp": "\\d*",
-          "default": "1",
-          "required": true,
-          "tooltip": "",
-          "hidden": false,
-          "qa": "fragment-details-kafka-partition"
-        }
-      ]
-      }
-    ]
-  },
-  {
-    "name": "Kafka Direct",
-    "modelType": "KafkaDirect",
-    "description": {
-      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
-      "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the direct approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-KafkaDirect"
-    },
-    "properties": [
-      {
-      "propertyId": "metadata.broker.list",
-      "propertyName": "_METADATA_BROKER_LIST_",
-      "propertyType": "list",
-      "default": "",
-      "required": true,
-      "hidden": false,
-      "limit": 0,
-      "tooltip": "",
-      "qa": "fragment-details-kafkadirect-broker-list",
-      "fields": [
-        {
-          "propertyId": "broker",
-          "propertyName": "_BROKER_",
-          "propertyType": "text",
-          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-          "default": "localhost",
-          "required": true,
-          "tooltip": "Broker's address.",
-          "hidden": false,
-          "qa": "fragment-details-kafkadirect-broker"
-        },
-        {
-          "propertyId": "port",
-          "propertyName": "_PORT_",
-          "propertyType": "text",
-          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-          "default": "9092",
-          "required": true,
-          "tooltip": "Broker's port.",
-          "hidden": false,
-          "qa": "fragment-details-kafkadirect-port"
-        }
-      ]
-      },
-      {
-        "propertyId": "kafkaParams.group.id",
-        "propertyName": "_GROUP_ID_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-kafkadirect-group-id"
-      },
-      {
-      "propertyId": "topics",
-      "propertyName": "_TOPICS_",
-      "propertyType": "list",
-      "default": "",
-      "required": true,
-      "hidden": false,
-      "limit": 0,
-      "tooltip": "",
-      "qa": "fragment-details-kafkadirect-topics",
-      "fields": [
-        {
-          "propertyId": "topic",
-          "propertyName": "_TOPIC_",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "required": true,
-          "tooltip": "Topic to connect.",
-          "hidden": false,
-          "qa": "fragment-details-kafkadirect-topic"
-        }
-      ]
-      },
-      {
-        "propertyId": "zookeeper.path",
-        "propertyName": "_ZOOKEEPER_PATH_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-zookeeper-path"
-      }
-    ]
-  },
-  {
-    "name": "RabbitMQ",
-    "modelType": "RabbitMQ",
-    "description": {
-      "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
-      "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
-    },
-    "properties": [
-      {
-        "propertyId": "receiverType",
-        "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
-        "propertyType": "text",
-        "default": "distributed",
-        "regexp": "",
-        "required": true,
-        "tooltip": "RabbitMQ receiver type, distributed or single node approach",
-        "qa": "fragment-details-rabbitMQ-receiverType"
-      },
-      {
-        "propertyId": "rabbitmqProperties",
-        "propertyName": "_RABBITMQ_PROPERTIES_",
-        "propertyType": "list",
-        "default": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-rabbitmq-properties",
-        "fields": [
-          {
-            "propertyId": "rabbitmqPropertyKey",
-            "propertyName": "_RABBITMQ_PROPERTY_KEY_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "fragment-details-rabbitmq-rabbitmqPropertyKey"
-          },
-          {
-            "propertyId": "rabbitmqPropertyValue",
-            "propertyName": "_RABBITMQ_PROPERTY_VALUE_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "fragment-details-rabbitmq-rabbitmqPropertyValue"
-          }
         ]
       }
     ]

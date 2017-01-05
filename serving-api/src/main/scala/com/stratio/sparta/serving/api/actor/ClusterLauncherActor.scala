@@ -165,8 +165,6 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       AppConstant.DefaultAwaitPolicyChangeStatus
     )(checkPolicyStatus(policy))
 
-    sparkLauncher.asInstanceOf[SpartaLauncher].startApplication()
-
     val sparkProcessStatus: Future[(Boolean, Process)] = for {
       sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
     } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
