@@ -787,5 +787,169 @@
         "qa": "fragment-details-http-parameter-name"
       }
     ]
+  },
+  {
+    "name": "FileSystem",
+    "modelType": "FileSystem",
+    "description": {
+      "short": "Saves the processed data to file into any storage service",
+      "long": "This output enables you to save the processed data into to a file into any storage service such as HDFS, Amazon S3, Azure or locally.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Filesystem"
+    },
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-filesystem-path"
+      },
+      {
+        "propertyId": "outputFormat",
+        "propertyName": "_OUTPUT_FORMAT_",
+        "propertyType": "select",
+        "regexp": "json|row",
+        "values": [
+          {
+            "label": "Json",
+            "value": "json"
+          },
+          {
+            "label": "Row",
+            "value": "row"
+          }
+        ],
+        "default": "json",
+        "required": true,
+        "tooltip": "Sets whether the output should be written as Json or plain text with just the row values.",
+        "qa": "fragment-details-filesystem-format"
+      },
+      {
+        "propertyId": "delimiter",
+        "propertyName": "_DELIMITER_",
+        "propertyType": "text",
+        "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
+        "maxLength": "1",
+        "default": ",",
+        "trim": false,
+        "required": false,
+        "qa": "fragment-details-filesystem-delimiter"
+      },
+      {
+        "propertyId": "fileWithDate",
+        "propertyName": "_FILE_WITH_DATE_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Yes",
+            "value": "true"
+          },
+          {
+            "label": "No",
+            "value": "false"
+          }
+        ],
+        "default": "true",
+        "required": true,
+        "tooltip": "Add the current date to the file name.",
+        "qa": "fragment-details-filesystem-file-with-date"
+      },
+      {
+        "propertyId": "dateFormat",
+        "propertyName": "_DATE_FORMAT_",
+        "propertyType": "select",
+        "regexp": "",
+        "values": [
+          {
+            "label": "yyyy-mm-dd'-'HH.mm",
+            "value": "YYYY-MM-DD'-'HH.mm"
+          },
+          {
+            "label": "yyyy-mm-dd'-'HH.mm.ss",
+            "value": "YYYY-MM-DD'-'HH.mm.ss"
+          },
+          {
+            "label": "yyyy-mm-dd'-'HH.mmZ",
+            "value": "YYYY-MM-DD'-'HH.mmZ"
+          },
+          {
+            "label": "yyyy-mm-dd'-'HH.mm.ssZ",
+            "value": "YYYY-MM-DD'-'HH.mm.ssZ"
+          },
+          {
+            "label": "yyyy-mm-dd'T'HH.mm",
+            "value": "YYYY-MM-DD'T'HH.mm"
+          },
+          {
+            "label": "yyyy-mm-dd'T'HH.mmZ",
+            "value": "YYYY-MM-DD'T'HH.mmZ"
+          },
+          {
+            "label": "yyyy-mm-dd'T'HH.mm.ss",
+            "value": "YYYY-MM-DD'T'HH.mm.ss"
+          },
+          {
+            "label": "yyyy-mm-dd'T'HH.mm.ssZ",
+            "value": "YYYY-MM-DD'T'HH.mm.ssZ"
+          },
+          {
+            "label": "yyyy-mm-dd",
+            "value": "YYYY-MM-DD"
+          },
+          {
+            "label": "yyyy-mm-ddZ",
+            "value": "YYYY-MM-DDZ"
+          }
+        ],
+        "default": "YYYY-MM-DD'-'HH.mm.ss",
+        "required": false,
+        "tooltip": "The date format to be appended to the file name. Only used if Append date is set to yes.",
+        "qa": "fragment-details-filesystem-date-format"
+      },
+      {
+        "propertyId": "partitionUntil",
+        "propertyName": "_PARTITION_UNTIL_",
+        "propertyType": "select",
+        "regexp": "",
+        "values": [
+          {
+            "label": "Year",
+            "value": "YYYY"
+          },
+          {
+            "label": "Month",
+            "value": "MM"
+          },
+          {
+            "label": "Day",
+            "value": "DD"
+          },
+          {
+            "label": "Hour",
+            "value": "HH"
+          },
+          {
+            "label": "Minutes",
+            "value": "mm"
+          },
+          {
+            "label": "Seconds",
+            "value": "ss"
+          },
+          {
+            "label": "No partition",
+            "value": "NONE"
+          }
+        ],
+        "default": "NONE",
+        "required": false,
+        "tooltip": "Sets the limit the date will be partitioned, creating sub-folders inside the specified the given path",
+        "qa": "fragment-details-filesystem--partition-until"
+      }
+    ]
   }
 ]
