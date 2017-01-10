@@ -35,7 +35,6 @@ object JarsHelper extends SLF4JLogging {
    * @param doAddToClassPath if it's true it will add the jars to the class path
    * @return a list of loaded jars.
    */
-
   def findJarsByPath(path: File,
                      endsWith: Option[String] = None,
                      contains: Option[String] = None,

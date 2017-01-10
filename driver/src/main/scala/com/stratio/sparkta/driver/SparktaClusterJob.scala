@@ -34,6 +34,7 @@ import com.stratio.sparkta.serving.core.policy.status.{PolicyStatusActor, Policy
 import com.stratio.sparkta.serving.core.{CuratorFactoryHolder, SparktaConfig}
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang.StringEscapeUtils
 import org.apache.curator.framework.CuratorFramework
 
 import scala.concurrent.duration._
@@ -49,9 +50,10 @@ object SparktaClusterJob extends SparktaSerializer {
   final val DetailConfigurationIndex = 4
 
   def main(args: Array[String]): Unit = {
-    assert(args.length == 5, s"Invalid number of params: ${args.length}")
+    assert(args.length == 5, s"Invalid number of params: ${args.length}, args: $args")
     Try {
-      initSparktaConfig(args(DetailConfigurationIndex), args(ZookeperConfigurationIndex))
+      initSparktaConfig(StringEscapeUtils.unescapeJavaScript(args(DetailConfigurationIndex)),
+        StringEscapeUtils.unescapeJavaScript(args(ZookeperConfigurationIndex)))
 
       val policyId = args(PolicyIdIndex)
       val curatorFramework = CuratorFactoryHolder.getInstance()
@@ -61,7 +63,8 @@ object SparktaClusterJob extends SparktaSerializer {
       val policy = PolicyHelper.parseFragments(
         PolicyHelper.fillFragments(policyZk, fragmentActor, timeout))
       val pluginsClasspathFiles = addPluginsAndClasspath(args(PluginsPathIndex), args(ClassPathIndex))
-      val policyStatusActor = system.actorOf(Props[PolicyStatusActor], AkkaConstant.PolicyStatusActor)
+      val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
+        AkkaConstant.PolicyStatusActor)
 
       Try {
         policyStatusActor ? Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
@@ -88,8 +91,9 @@ object SparktaClusterJob extends SparktaSerializer {
   }
 
   def initSparktaConfig(detailConfig: String, zKConfig: String): Unit = {
-    val configStr = s"$detailConfig,$zKConfig".stripPrefix(",").stripSuffix(",")
-    SparktaConfig.initMainConfig(Some(ConfigFactory.parseString(s"{$configStr}").atKey("sparkta")))
+    val configStr = s"${detailConfig.stripPrefix("{").stripSuffix("}")}\n${zKConfig.stripPrefix("{").stripSuffix("}")}"
+    log.info(s"Parsed config: sparkta { $configStr }")
+    SparktaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparkta{$configStr}")))
   }
 
   def addPluginsAndClasspath(pluginsPath: String, classPath: String): Seq[URI] = {

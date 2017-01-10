@@ -18,9 +18,9 @@ package com.stratio.sparkta.serving.core.constants
 
 /**
  * Akka constants with Akka's actor paths.
- * @author anistal
  */
 object AkkaConstant {
+
   final val StatusActor = "statusActor"
   final val FragmentActor = "fragmentActor"
   final val TemplateActor = "templateActor"
@@ -32,5 +32,4 @@ object AkkaConstant {
   final val ControllerActorInstances = "controllerActorInstances"
   final val DefaultControllerActorInstances = 5
   final val DefaultStreamingActorInstances = 3
-
 }
