@@ -12,6 +12,12 @@
         "sparkConfValue": "value"
       }
     ],
+  "sparkSubmitArguments": [
+    {
+      "submitArgument" : "--argument",
+      "submitValue": "value"
+    }
+  ],
     "initSqlSentences": [
       {
         "sentence": "select * from stream"

@@ -108,6 +108,7 @@
       "default": "MEMORY_ONLY_SER",
       "width": 7,
       "position": "left",
+      "tooltip": "Default Storage Level assigned to Spark Streaming batches",
       "qa": "policy-storage-level",
       "values": [
         {
@@ -186,6 +187,7 @@
       "position": "left",
       "propertyType": "text",
       "required": false,
+      "tooltip": "Checkpoint Path in HDFS when launch policies in cluster mode over SparkStandAlone, Mesos or Yarn",
       "qa": "checkpoint-path"
     },
     {
@@ -195,7 +197,37 @@
       "position": "right",
       "propertyType": "boolean",
       "required": false,
+      "tooltip": "Auto delete checkpoint path in HDFS when run policies",
       "qa": "auto-delete-checkpoint"
+    },
+    {
+      "propertyId": "executionMode",
+      "propertyName": "_EXECUTION_MODE_",
+      "width": 7,
+      "position": "left",
+      "required": false,
+      "propertyType": "select",
+      "regexp": "local|mesos|yarn|standalone",
+      "values": [
+        {
+          "label": "Local",
+          "value": "local"
+        },
+        {
+          "label": "Mesos",
+          "value": "mesos"
+        },
+        {
+          "label": "Yarn",
+          "value": "yarn"
+        },
+        {
+          "label": "StandAlone",
+          "value": "standalone"
+        }
+      ],
+      "tooltip": "Execution mode when the policy is launched, if don't select anything sparta use the configuration file property",
+      "qa": "policy-execution-mode"
     },
     {
       "propertyId": "sparkConf",
@@ -203,7 +235,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "Spark configuration properties when submit jobs in Spark, this override the property file properties",
       "qa": "policy-spark-conf",
       "fields": [
         {
@@ -215,6 +247,7 @@
           "default": "",
           "hidden": false,
           "required": false,
+          "tooltip": "Spark configuration property with the structure spark.xxx",
           "qa": "policy-sparkConfKey"
         },
         {
@@ -231,12 +264,46 @@
       ]
     },
     {
+      "propertyId": "sparkSubmitArguments",
+      "propertyName": "_SPARK_SUBMIT_ARGUMENTS_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "Spark submit arguments added when run the policy over Spark Clusters, this override the property file options",
+      "qa": "policy-spark-submit-argument",
+      "fields": [
+        {
+          "propertyId": "submitArgument",
+          "propertyName": "_SPARK_SUBMIT_ARGUMENT_",
+          "position": "left",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "tooltip": "Spark submit argument with the structure --xxx",
+          "qa": "policy-spark-submit-argument-key"
+        },
+        {
+          "propertyId": "submitValue",
+          "propertyName": "_SPARK_SUBMIT_ARGUMENT_VALUE_",
+          "position": "right",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-spark-submit-argument-value"
+        }
+      ]
+    },
+    {
       "propertyId": "initSqlSentences",
       "propertyName": "_SQL_SENTENCES_",
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user need to registry temporal/master tables from external datasources. After it's possible to mix them insisde the triggers",
       "qa": "policy-sql-sentences",
       "fields": [
         {
@@ -247,6 +314,7 @@
           "default": "",
           "hidden": false,
           "required": false,
+          "tooltip": "SQL sentence",
           "qa": "policy-sql-sentence"
         }
       ]
@@ -257,7 +325,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
       "qa": "policy-user-plugins-jars",
       "fields": [
         {

@@ -92,7 +92,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       SpartaConfig.initMainConfig(Option(yarnConfig), new MockConfigFactory(yarnConfig))
 
       for {
-        response <- spyActor.isContextAvailable(policyStatusActorRef)
+        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
       } yield response should be(true)
     }
 
@@ -108,7 +108,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       SpartaConfig.initMainConfig(Option(mesosConfig), new MockConfigFactory(mesosConfig))
 
       for {
-        response <- spyActor.isContextAvailable(policyStatusActorRef)
+        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
       } yield response should be(true)
     }
 
@@ -125,7 +125,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
 
       for {
-        response <- spyActor.isContextAvailable(policyStatusActorRef)
+        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
       } yield response should be(true)
     }
 
@@ -141,7 +141,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       SpartaConfig.initMainConfig(Option(standaloneConfig), new MockConfigFactory(standaloneConfig))
 
       for {
-        response <- spyActor.isContextAvailable(policyStatusActorRef)
+        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
       } yield response should be(true)
     }
 
@@ -154,7 +154,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
 
       for {
-        response <- spyActor.isContextAvailable(policyStatusActorRef)
+        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
       } yield response should be(false)
     }
   }

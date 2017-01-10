@@ -25,7 +25,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
@@ -68,8 +68,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment / "id" / Segment) { (fragmentType, id) =>
       get {
         complete {
-          val future = supervisor ? new FindByTypeAndId(fragmentType, id)
-          Await.result(future, timeout.duration) match {
+          for {
+            responseFragment <- (supervisor ? new FindByTypeAndId(fragmentType, id)).mapTo[ResponseFragment]
+          } yield responseFragment match {
             case ResponseFragment(Failure(exception)) => throw exception
             case ResponseFragment(Success(fragment)) => fragment
           }
@@ -103,8 +104,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
       get {
         complete {
-          val future = supervisor ? new FindByTypeAndName(fragmentType, name)
-          Await.result(future, timeout.duration) match {
+          for {
+            responseFragment <- (supervisor ? new FindByTypeAndName(fragmentType, name)).mapTo[ResponseFragment]
+          } yield responseFragment match {
             case ResponseFragment(Failure(exception)) => throw exception
             case ResponseFragment(Success(fragment)) => fragment
           }
@@ -134,8 +136,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       get {
         complete {
-          val future = supervisor ? new FindByType(fragmentType)
-          Await.result(future, timeout.duration) match {
+          for {
+            responseFragments <- (supervisor ? new FindByType(fragmentType)).mapTo[ResponseFragments]
+          } yield responseFragments match {
             case ResponseFragments(Failure(exception)) => throw exception
             case ResponseFragments(Success(fragments)) => fragments
           }
@@ -157,8 +160,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath) {
       get {
         complete {
-          val future = supervisor ? new FindAllFragments()
-          Await.result(future, timeout.duration) match {
+          for {
+            responseFragments <- (supervisor ? new FindAllFragments()).mapTo[ResponseFragments]
+          } yield responseFragments match {
             case ResponseFragments(Failure(exception)) => throw exception
             case ResponseFragments(Success(fragments)) => fragments
           }
@@ -208,8 +212,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
             val policyActor = actors.get(AkkaConstant.PolicyActor).get
             val fragmentStatusActor = actors.get(AkkaConstant.FragmentActor).get
             for {
-              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
               allPolicies <- policyActor ? PolicyActor.FindAll()
+              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
             } yield (updateResponse, allPolicies) match {
               case (FragmentActor.Response(Success(_)), PolicyActor.ResponsePolicies(Success(policies))) =>
                 val policiesInFragments = policies.flatMap(policy => {
@@ -254,8 +258,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-          val future = supervisor ? new DeleteByTypeAndId(fragmentType, id)
-          Await.result(future, timeout.duration) match {
+          for {
+            fragmentResponse <- (supervisor ? new DeleteByTypeAndId(fragmentType, id)).mapTo[Response]
+          } yield fragmentResponse match {
             case Response(Failure(exception)) =>
               throw exception
             case Response(Success(_)) =>
@@ -296,8 +301,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-          val future = supervisor ? new DeleteByTypeAndName(fragmentType, name)
-          Await.result(future, timeout.duration) match {
+          for {
+            fragmentResponse <- (supervisor ? new DeleteByTypeAndName(fragmentType, name)).mapTo[Response]
+          } yield fragmentResponse match {
             case Response(Failure(exception)) =>
               throw exception
             case Response(Success(_)) =>
@@ -332,8 +338,9 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActor).get
-          val future = supervisor ? new DeleteByType(fragmentType)
-          Await.result(future, timeout.duration) match {
+          for {
+            fragmentResponse <- (supervisor ? new DeleteByType(fragmentType)).mapTo[Response]
+          } yield fragmentResponse match {
             case Response(Failure(exception)) =>
               throw exception
             case Response(Success(_)) =>
@@ -360,17 +367,19 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath) {
       delete {
         complete {
-          val future = supervisor ? new DeleteAllFragments()
-          Await.result(future, timeout.duration) match {
-            case Response(Failure(exception)) =>
+          for {
+            fragmentsResponse <- (supervisor ? new DeleteAllFragments()).mapTo[ResponseFragments]
+          } yield fragmentsResponse match {
+            case ResponseFragments(Failure(exception)) =>
               throw exception
             case ResponseFragments(Success(fragments: List[FragmentElementModel])) =>
               val fragmentsTypes = fragments.map(fragment => fragment.fragmentType).distinct
               val policyActor = actors.get(AkkaConstant.PolicyActor).get
 
               fragmentsTypes.foreach(fragmentType =>
-                Await.result(
-                  policyActor ? FindByFragmentType(fragmentType), timeout.duration) match {
+                for {
+                  responsePolicies <- (policyActor ? FindByFragmentType(fragmentType)).mapTo[ResponsePolicies]
+                } yield responsePolicies match {
                   case ResponsePolicies(Failure(exception)) =>
                     throw exception
                   case ResponsePolicies(Success(policies)) =>
@@ -387,6 +396,6 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     policies.foreach(policy => {
       val policyActor = actors.get(AkkaConstant.PolicyActor).get
 
-      policyActor ! PolicyActor.Update(policy)
+      policyActor ! PolicyActor.Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]))
     })
 }

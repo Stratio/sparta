@@ -31,10 +31,14 @@ trait CheckpointUtils extends SLF4JLogging {
 
   /* PUBLIC METHODS */
 
-  def isLocalMode: Boolean =
-    SpartaConfig.getDetailConfig match {
-      case Some(detailConfig) => detailConfig.getString(ExecutionMode).equalsIgnoreCase("local")
-      case None => true
+  def isLocalMode(policyModel: PolicyModel): Boolean =
+    policyModel.executionMode match {
+      case Some(policyExecutionMode) if policyExecutionMode.nonEmpty => policyExecutionMode.equalsIgnoreCase("local")
+      case _ =>
+      SpartaConfig.getDetailConfig match {
+        case Some(detailConfig) => detailConfig.getString(ExecutionMode).equalsIgnoreCase("local")
+        case None => true
+      }
     }
 
   def deleteFromLocal(policy: PolicyModel): Unit = {
@@ -57,7 +61,7 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def deleteCheckpointPath(policy: PolicyModel): Unit =
     Try {
-      if (isLocalMode) deleteFromLocal(policy)
+      if (isLocalMode(policy)) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
@@ -65,7 +69,7 @@ trait CheckpointUtils extends SLF4JLogging {
     }
 
   def createLocalCheckpointPath(policy: PolicyModel) : Unit = {
-    if (isLocalMode)
+    if (isLocalMode(policy))
       Try {
         createFromLocal(policy)
       } match {
@@ -77,7 +81,7 @@ trait CheckpointUtils extends SLF4JLogging {
   def checkpointPath(policy: PolicyModel): String =
     policy.checkpointPath.map { path =>
       s"${cleanCheckpointPath(path)}/${policy.name}"
-    } getOrElse checkpointPathFromProperties(policy.name)
+    } getOrElse checkpointPathFromProperties(policy)
 
   def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
     policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
@@ -92,19 +96,24 @@ trait CheckpointUtils extends SLF4JLogging {
     path.replace(hdfsPrefix, "")
   }
 
-  private def checkpointPathFromProperties(policyName: String): String =
+  private def checkpointPathFromProperties(policy: PolicyModel): String =
     (for {
       config <- SpartaConfig.getDetailConfig
       checkpointPath <- Try(cleanCheckpointPath(config.getString(ConfigCheckpointPath))).toOption
-    } yield s"$checkpointPath/$policyName").getOrElse(generateDefaultCheckpointPath)
+    } yield s"$checkpointPath/${policy.name}").getOrElse(generateDefaultCheckpointPath(policy))
 
   private def autoDeleteCheckpointPathFromProperties: Boolean =
     Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAutoDeleteCheckpoint))
       .getOrElse(DefaultAutoDeleteCheckpoint)
 
-  private def generateDefaultCheckpointPath: String =
-    SpartaConfig.getDetailConfig.map(_.getString(ExecutionMode)) match {
-      case Some(mode) if mode == ConfigMesos || mode == ConfigYarn =>
+  private def generateDefaultCheckpointPath(policy: PolicyModel): String = {
+    val executionMode = policy.executionMode match {
+      case Some(execMode) if execMode.nonEmpty => Some(execMode)
+      case _ => SpartaConfig.getDetailConfig.map(_.getString(ExecutionMode))
+    }
+
+    executionMode match {
+      case Some(mode) if mode == ConfigMesos || mode == ConfigYarn || mode == ConfigStandAlone =>
         DefaultCheckpointPathClusterMode +
           Try(SpartaConfig.getHdfsConfig.get.getString(HadoopUserName))
             .getOrElse(DefaultHdfsUser) +
@@ -114,6 +123,7 @@ trait CheckpointUtils extends SLF4JLogging {
       case _ =>
         throw new RuntimeException("Error getting execution mode")
     }
+  }
 
   private def createFromLocal(policy: PolicyModel): Unit = {
     val checkpointDirectory = checkpointPath(policy)

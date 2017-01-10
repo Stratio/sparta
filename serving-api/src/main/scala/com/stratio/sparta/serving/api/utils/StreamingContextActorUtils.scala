@@ -36,8 +36,6 @@ import scala.util.Try
 trait StreamingContextActorUtils extends PolicyStatusUtils
   with SLF4JLogging {
 
-  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
-
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
   def launch(policy: PolicyModel,
@@ -45,7 +43,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
              streamingContextService: StreamingContextService,
              context: ActorContext): Future[Try[PolicyModel]] =
     for {
-      isAvailable <- isContextAvailable(policyStatusActor)
+      isAvailable <- isContextAvailable(policy, policyStatusActor)
     } yield Try {
       if (isAvailable) {
         val streamingLauncherActor =

@@ -63,16 +63,16 @@ trait PolicyStatusUtils {
     }
   }
 
-  def isContextAvailable(policyStatusActor: ActorRef): Future[Boolean] =
+  def isContextAvailable(policyModel: PolicyModel, policyStatusActor: ActorRef): Future[Boolean] =
     for {
       maybeStarted <- isAnyPolicyStarted(policyStatusActor)
-      clusterMode = isClusterMode
-    } yield (clusterMode, maybeStarted) match {
-      case (true, _) =>
+      localMode = isLocalMode(policyModel)
+    } yield (localMode, maybeStarted) match {
+      case (false, _) =>
         true
-      case (false, false) =>
+      case (true, false) =>
         true
-      case (false, true) =>
+      case (true, true) =>
         log.warn(s"One policy is already launched")
         false
     }

@@ -43,8 +43,10 @@ case class PolicyModel(
                         userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                         remember: Option[String] = None,
                         sparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
+                        sparkSubmitArguments: Seq[SubmitArgument] = Seq.empty[SubmitArgument],
                         initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
-                        autoDeleteCheckpoint: Option[Boolean] = None
+                        autoDeleteCheckpoint: Option[Boolean] = None,
+                        executionMode: Option[String] = None
                                    )
 
 
