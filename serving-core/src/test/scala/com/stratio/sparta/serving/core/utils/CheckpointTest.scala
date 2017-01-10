@@ -29,7 +29,7 @@ class CheckpointTest extends PolicyBaseUtilsTest with CheckpointUtils {
     "delete path from HDFS when using not local mode" in {
       doReturn(false)
         .when(utils)
-        .isLocalMode
+        .isLocalMode(getPolicyModel())
 
       utils.deleteCheckpointPath(getPolicyModel())
 
@@ -39,7 +39,7 @@ class CheckpointTest extends PolicyBaseUtilsTest with CheckpointUtils {
     "delete path from local when using local mode" in {
       doReturn(true)
         .when(utils)
-        .isLocalMode
+        .isLocalMode(getPolicyModel())
 
       doReturn(false)
         .when(utils)

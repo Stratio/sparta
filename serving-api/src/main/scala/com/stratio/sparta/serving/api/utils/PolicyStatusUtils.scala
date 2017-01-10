@@ -26,15 +26,15 @@ import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Try
 import akka.util.Timeout
-import com.stratio.sparta.serving.api.helpers.SpartaHelper._
+
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models._
 import PolicyStatusActor._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.CheckpointUtils
 
-trait PolicyStatusUtils {
+trait PolicyStatusUtils extends CheckpointUtils {
 
   implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
@@ -63,16 +63,16 @@ trait PolicyStatusUtils {
     }
   }
 
-  def isContextAvailable(policyStatusActor: ActorRef): Future[Boolean] =
+  def isContextAvailable(policyModel: PolicyModel, policyStatusActor: ActorRef): Future[Boolean] =
     for {
       maybeStarted <- isAnyPolicyStarted(policyStatusActor)
-      clusterMode = isClusterMode
-    } yield (clusterMode, maybeStarted) match {
-      case (true, _) =>
+      localMode = isLocalMode(policyModel)
+    } yield (localMode, maybeStarted) match {
+      case (false, _) =>
         true
-      case (false, false) =>
+      case (true, false) =>
         true
-      case (false, true) =>
+      case (true, true) =>
         log.warn(s"One policy is already launched")
         false
     }

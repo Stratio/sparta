@@ -17,71 +17,73 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
-import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
+import com.stratio.sparta.driver.SpartaClusterJob
 import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
+import com.stratio.sparta.serving.api.utils.SparkSubmitUtils
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import PolicyStatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.spark.launcher.SpartaLauncher
 
-import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.io.Source
 import scala.language.postfixOps
-import scala.util.{Failure, Properties, Success, Try}
+import scala.util.{Failure, Success, Try}
 
 class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
-  with SLF4JLogging
-  with SpartaSerializer with SchedulerUtils {
+  with SpartaSerializer with SchedulerUtils with SparkSubmitUtils {
 
-  private val SpartaDriver = "com.stratio.sparta.driver.SpartaClusterJob"
-  private val StandaloneSupervise = "--supervise"
-
-  private val ClusterConfig = SpartaConfig.getClusterConfig.get
-  private val ZookeeperConfig = SpartaConfig.getZookeeperConfig.get
-  private val HdfsConfig = SpartaConfig.getHdfsConfig.get
-  private val DetailConfig = SpartaConfig.getDetailConfig.get
-  private val Hdfs = HdfsUtils()
+  val DetailConfig = SpartaConfig.getDetailConfig.get
+  val SpartaDriver = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
+  val ZookeeperConfig = SpartaConfig.getZookeeperConfig.get
+  val HdfsConfig = SpartaConfig.getHdfsConfig.get
+  val Hdfs = HdfsUtils()
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
+    case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
+      val clusterConfig = SpartaConfig.getClusterConfig(policy.executionMode).get
+
+      validateSparkHome(clusterConfig)
+
       val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
       val PolicyId = policy.id.get.trim
-      val Master = ClusterConfig.getString(AppConstant.Master)
+      val Master = clusterConfig.getString(AppConstant.Master)
       val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
       val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
       val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
 
       log.info("Init new cluster streamingContext with name " + policy.name)
-      validateSparkHome()
+
       val driverPath = Uploader.getDriverFile(DriverJarPath)
       val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
       val driverParams =
         Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles), hdfsConfigEncoded)
-      val sparkArguments = sparkArgs
+      val sparkArguments = submitArgumentsFromProperties(clusterConfig) ++
+        submitArgumentsFromPolicy(policy.sparkSubmitArguments)
 
       log.info(s"Launching Sparta Job with options ... \n\tPolicy name: ${policy.name}\n\tMain: $SpartaDriver\n\t" +
         s"Driver path: $driverPath\n\tMaster: $Master\n\tSpark arguments: ${sparkArguments.mkString(",")}\n\t" +
         s"Driver params: $driverParams\n\tPlugins files: ${pluginsFiles.mkString(",")}")
-      launch(policy, SpartaDriver, driverPath, Master, sparkArguments, driverParams, pluginsFiles)
+      launch(policy, SpartaDriver, driverPath, Master, sparkArguments, driverParams, pluginsFiles, clusterConfig)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
@@ -91,47 +93,27 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     }
   }
 
-  private def setPolicyStatus(policyId: String, status: PolicyStatusEnum.Value): Unit =
-    policyStatusActor ! Update(PolicyStatusModel(policyId, status))
-
-  private def sparkHome: String = Properties.envOrElse("SPARK_HOME", ClusterConfig.getString(AppConstant.SparkHome))
-
-  /**
-    * Checks if we have a valid Spark home.
-    */
-  private def validateSparkHome(): Unit = require(Try(sparkHome).isSuccess,
-    "You must set the $SPARK_HOME path in configuration or environment")
-
-  /**
-    * Checks if supervise param is set when execution mode is standalone or mesos
-    *
-    * @return The result of checks as boolean value
-    */
-  private def isSupervised: Boolean =
-    if (DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigStandAlone ||
-      DetailConfig.getString(AppConstant.ExecutionMode) == AppConstant.ConfigMesos) {
-      Try(ClusterConfig.getBoolean(AppConstant.Supervise)).getOrElse(false)
-    } else false
-
   //scalastyle:off
-  private def launch(policy : PolicyModel,
-                     main: String,
-                     hdfsDriverFile: String,
-                     master: String,
-                     args: Map[String, String],
-                     driverParams: Seq[String],
-                     pluginsFiles: Seq[String]): Unit = {
+  def launch(policy: PolicyModel,
+             main: String,
+             driverFile: String,
+             master: String,
+             sparkArguments: Map[String, String],
+             driverArguments: Seq[String],
+             pluginsFiles: Seq[String],
+             clusterConfig: Config): Unit = {
     val sparkLauncher = new SpartaLauncher()
-      .setSparkHome(sparkHome)
-      .setAppResource(hdfsDriverFile)
+      .setSparkHome(sparkHome(clusterConfig))
+      .setAppResource(driverFile)
       .setMainClass(main)
       .setMaster(master)
+
     // Plugins files
     pluginsFiles.foreach(file => sparkLauncher.addJar(file))
 
     //Spark arguments
-    args.map { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
-    if (isSupervised) sparkLauncher.addSparkArg(StandaloneSupervise)
+    sparkArguments.map { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
+    if (isSupervised(policy, DetailConfig, clusterConfig)) sparkLauncher.addSparkArg(SubmitSupervise)
 
     // Kerberos Options
     val principalNameOption = HdfsUtils.getPrincipalName
@@ -140,46 +122,49 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       case (Some(principalName), Some(keyTabPath)) =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments... \n\t" +
           s"Principal: $principalName \n\tKeyTab: $keyTabPath")
-        sparkLauncher.addSparkArg("--principal", principalName)
-        sparkLauncher.addSparkArg("--keytab", keyTabPath)
+        sparkLauncher.addSparkArg(SubmitPrincipal, principalName)
+        sparkLauncher.addSparkArg(SubmitKeyTab, keyTabPath)
       case _ =>
         log.info("Launching Spark Submit without Kerberos security")
     }
 
     // Spark properties
     log.info("Adding Spark options to Sparta Job ... ")
-    sparkConf.foreach { case (key: String, value: String) =>
+    sparkConf(clusterConfig).foreach { case (key: String, value: String) =>
       val valueParsed = if (key == "spark.app.name") s"$value-${policy.name}" else value
       log.info(s"\t$key = $valueParsed")
       sparkLauncher.setConf(key, valueParsed)
     }
 
     // Driver (Sparta) params
-    driverParams.foreach(sparkLauncher.addAppArgs(_))
+    driverArguments.foreach(sparkLauncher.addAppArgs(_))
 
     // Starting Spark Submit Process with Spark Launcher
     log.info("Executing SparkLauncher...")
 
+    //Scheduling task to check policy status
     scheduleOneTask(
       AppConstant.AwaitPolicyChangeStatus,
       AppConstant.DefaultAwaitPolicyChangeStatus
     )(checkPolicyStatus(policy))
 
+    //Launch Job and manage future response
     val sparkProcessStatus: Future[(Boolean, Process)] = for {
       sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
     } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
     sparkProcessStatus.onComplete {
       case Success((exitCode, sparkProcess)) =>
         log.info("Command: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
-        if(!sparkLauncherStreams(exitCode, sparkProcess)) throw new Exception("TimeOut in Spark Launcher")
+        if (!sparkLauncherStreams(exitCode, sparkProcess)) throw new Exception("Errors in Spark Launcher")
       case Failure(exception) =>
         log.error(exception.getMessage)
         throw exception
     }
   }
+
   //scalastyle:on
 
-  private def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Boolean = {
+  def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Boolean = {
 
     def recursiveErrors(it: Iterator[String], count: Int): Unit = {
       log.info(it.next())
@@ -188,7 +173,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     }
 
     if (exitCode) log.info("Spark process exited successfully")
-    else log.info("Spark process exited with timeout")
+    else log.info("Spark process exited with errors")
 
     Source.fromInputStream(sparkProcess.getInputStream).close()
     sparkProcess.getOutputStream.close()
@@ -202,62 +187,31 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     exitCode
   }
 
-  private def sparkArgs: Map[String, String] =
-    toMap(AppConstant.DeployMode, "--deploy-mode", ClusterConfig) ++
-      toMap(AppConstant.Name, "--name", ClusterConfig) ++
-      toMap(AppConstant.PropertiesFile, "--properties-file", ClusterConfig) ++
-      toMap(AppConstant.TotalExecutorCores, "--total-executor-cores", ClusterConfig) ++
-      toMap(AppConstant.Packages, "--packages", ClusterConfig) ++
-      toMap(AppConstant.Repositories, "--repositories", ClusterConfig) ++
-      toMap(AppConstant.ExcludePackages, "--exclude-packages", ClusterConfig) ++
-      toMap(AppConstant.Jars, "--jars", ClusterConfig) ++
-      toMap(AppConstant.ProxyUser, "--proxy-user", ClusterConfig) ++
-      toMap(AppConstant.DriverJavaOptions, "--driver-java-options", ClusterConfig) ++
-      toMap(AppConstant.DriverLibraryPath, "--driver-library-path", ClusterConfig) ++
-      toMap(AppConstant.DriverClassPath, "--driver-class-path", ClusterConfig) ++
-      // Yarn only
-      toMap(AppConstant.YarnQueue, "--queue", ClusterConfig) ++
-      toMap(AppConstant.Files, "--files", ClusterConfig) ++
-      toMap(AppConstant.Archives, "--archives", ClusterConfig) ++
-      toMap(AppConstant.AddJars, "--addJars", ClusterConfig) ++
-      toMap(AppConstant.NumExecutors, "--num-executors", ClusterConfig) ++
-      toMap(AppConstant.DriverCores, "--driver-cores", ClusterConfig) ++
-      toMap(AppConstant.DriverMemory, "--driver-memory", ClusterConfig) ++
-      toMap(AppConstant.ExecutorCores, "--executor-cores", ClusterConfig) ++
-      toMap(AppConstant.ExecutorMemory, "--executor-memory", ClusterConfig)
+  /** Arguments functions **/
 
-  private def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
+  def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
 
-  private def encode(value: String): String = BaseEncoding.base64().encode(value.getBytes)
+  def encode(value: String): String = BaseEncoding.base64().encode(value.getBytes)
 
-  private def zkConfigEncoded: String = encode(render(ZookeeperConfig, "zookeeper"))
+  def zkConfigEncoded: String = encode(render(ZookeeperConfig, "zookeeper"))
 
-  private def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
+  def detailConfigEncoded: String = encode(render(DetailConfig, "config"))
 
-  private def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
+  def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
 
-  private def hdfsConfigEncoded: String = encode(render(HdfsConfig, "hdfs"))
+  def hdfsConfigEncoded: String = encode(render(HdfsConfig, "hdfs"))
 
-  private def sparkConf: Seq[(String, String)] =
-    ClusterConfig.entrySet()
-      .filter(_.getKey.startsWith("spark.")).toSeq
-      .map(e => (e.getKey, e.getValue.unwrapped.toString))
+  /** Policy Status Functions **/
 
-  private def toMap(key: String, newKey: String, config: Config): Map[String, String] =
-    Try(config.getString(key)) match {
-      case Success(value) =>
-        Map(newKey -> value)
-      case Failure(_) =>
-        log.debug(s"The key $key was not defined in config.")
-        Map.empty[String, String]
-    }
+  def setPolicyStatus(policyId: String, status: PolicyStatusEnum.Value): Unit =
+    policyStatusActor ! Update(PolicyStatusModel(policyId, status))
 
-  private def checkPolicyStatus(policy: PolicyModel) : Unit = {
+  def checkPolicyStatus(policy: PolicyModel): Unit = {
     for {
       statusResponse <- (policyStatusActor ? FindById(policy.id.get)).mapTo[ResponseStatus]
     } yield statusResponse match {
       case PolicyStatusActor.ResponseStatus(Success(policyStatus)) =>
-        if(policyStatus.status == PolicyStatusEnum.Launched || policyStatus.status == PolicyStatusEnum.Starting){
+        if (policyStatus.status == PolicyStatusEnum.Launched || policyStatus.status == PolicyStatusEnum.Starting) {
           log.info(s"The policy ${policy.name} was not started correctly, setting the failed status...")
           setPolicyStatus(policy.id.get, PolicyStatusEnum.Failed)
         } else log.info(s"The policy ${policy.name} was started correctly")

@@ -62,14 +62,14 @@ class PolicyActor(curatorFramework: CuratorFramework,
 
   def findAll(): Unit =
     sender ! ResponsePolicies(Try {
-      getPolicies(curatorFramework)
+      getPolicies(curatorFramework, withFragments = true)
     }.recover {
       case e: NoNodeException => Seq.empty[PolicyModel]
     })
 
   def deleteAll(): Unit =
     sender ! ResponsePolicies(Try {
-      val policiesModels = getPolicies(curatorFramework)
+      val policiesModels = getPolicies(curatorFramework, withFragments = false)
       policiesModels.foreach(policyModel => {
         deleteCheckpointPath(policyModel)
         deletePolicy(policyModel, curatorFramework)
@@ -84,7 +84,8 @@ class PolicyActor(curatorFramework: CuratorFramework,
   def findByFragmentType(fragmentType: String): Unit =
     sender ! ResponsePolicies(
       Try {
-        getPolicies(curatorFramework).filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
+        getPolicies(curatorFramework, withFragments = true)
+          .filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
       }.recover {
         case e: NoNodeException => Seq.empty[PolicyModel]
       })
@@ -92,7 +93,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
   def findByFragmentId(fragmentType: String, id: String): Unit =
     sender ! ResponsePolicies(
       Try {
-        getPolicies(curatorFramework)
+        getPolicies(curatorFramework, withFragments = true)
           .filter(apm => apm.fragments.exists(f =>
             if (f.id.isDefined)
               f.id.get == id && f.fragmentType == fragmentType
@@ -105,7 +106,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
   def findByFragmentName(fragmentType: String, name: String): Unit =
     sender ! ResponsePolicies(
       Try {
-        getPolicies(curatorFramework)
+        getPolicies(curatorFramework, withFragments = true)
           .filter(apm => apm.fragments.exists(f => f.name == name && f.fragmentType == fragmentType))
       }.recover {
         case e: NoNodeException => Seq.empty[PolicyModel]
@@ -113,7 +114,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
 
   def find(id: String): Unit =
     sender ! new ResponsePolicy(Try {
-      byId(id, curatorFramework)
+      policyWithFragments(byId(id, curatorFramework), withFragmentCreation = false)
     }.recover {
       case e: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
@@ -123,7 +124,9 @@ class PolicyActor(curatorFramework: CuratorFramework,
 
   def findByName(name: String): Unit =
     sender ! ResponsePolicy(Try {
-      existsByNameId(name, None, curatorFramework).getOrElse(throw new ServingCoreException(ErrorModel.toString(
+      existsByNameId(name, None, curatorFramework).map(policy =>
+        policyWithFragments(policy, withFragmentCreation = false))
+        .getOrElse(throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
     })
 
@@ -139,10 +142,9 @@ class PolicyActor(curatorFramework: CuratorFramework,
             s"Policy with name ${policy.name} exists. The actual policy name is: ${searchPolicy.get.name}")
         ))
       }
-      val policyWithName = policyWithId(policy)
-      writePolicy(policyWithName, curatorFramework)
-      associateStatus(policyWithName)
-      policyWithName
+      val policySaved = writePolicy(policyWithId(policy), curatorFramework)
+      associateStatus(policySaved)
+      policySaved
     })
 
   def update(policy: PolicyModel): Unit = {
@@ -154,9 +156,8 @@ class PolicyActor(curatorFramework: CuratorFramework,
             s"Policy with name ${policy.name} not exists.")
         ))
       } else {
-        val policyWithName = policyWithId(policy)
-        updatePolicy(policyWithName, curatorFramework)
-        policyWithName
+        val policySaved = updatePolicy(policyWithId(policy), curatorFramework)
+        policySaved
       }
     }.recover {
       case e: NoNodeException =>

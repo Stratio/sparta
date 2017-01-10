@@ -18,25 +18,19 @@ package com.stratio.sparta.serving.api.utils
 
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
-import akka.util.Timeout
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Start
 import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStreamingContextActor}
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
-import scala.concurrent.duration._
 import scala.util.Try
 
 trait StreamingContextActorUtils extends PolicyStatusUtils
   with SLF4JLogging {
-
-  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
@@ -45,7 +39,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
              streamingContextService: StreamingContextService,
              context: ActorContext): Future[Try[PolicyModel]] =
     for {
-      isAvailable <- isContextAvailable(policyStatusActor)
+      isAvailable <- isContextAvailable(policy, policyStatusActor)
     } yield Try {
       if (isAvailable) {
         val streamingLauncherActor =
@@ -67,13 +61,10 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
       case Some(actor) =>
         actor
       case None =>
-        SpartaConfig.getClusterConfig match {
-          case Some(clusterConfig) =>
-            log.info(s"launched -> $actorName")
-            getClusterLauncher(policy, policyStatusActor, context, actorName)
-          case None =>
-            getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
-        }
+        log.info(s"Launched -> $actorName")
+        if (isLocalMode(policy))
+          getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
+        else getClusterLauncher(policy, policyStatusActor, context, actorName)
     }
   }
 

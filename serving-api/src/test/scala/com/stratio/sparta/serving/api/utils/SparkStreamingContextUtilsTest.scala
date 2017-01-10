@@ -45,7 +45,7 @@ class SparkStreamingContextUtilsTest extends BaseUtilsTest
 
       doReturn(Future(true))
         .when(spyActor)
-        .isContextAvailable(policyStatusActorRef)
+        .isContextAvailable(getPolicyModel(), policyStatusActorRef)
       doNothing()
         .when(spyActor)
         .updatePolicy(policyModel, PolicyStatusEnum.Launched, policyStatusActorRef)

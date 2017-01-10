@@ -90,8 +90,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
           s"${FragmentActor.fragmentPathType(fragmentType)}/$id")))
       }.recover {
         case e: NoNodeException =>
+          val message = s"No fragment of type $fragmentType with id $id."
+          log.error(message, e)
           throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type $fragmentType with id $id.")
+            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, message)
           ))
       })
 
@@ -148,21 +150,16 @@ class FragmentActor(curatorFramework: CuratorFramework)
   def update(fragment: FragmentElementModel): Unit =
     sender ! Response(
       Try {
-        if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase, fragment.id)) {
-          throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeExistsFragmentWithName,
-              s"Fragment of type ${fragment.fragmentType} with name ${fragment.name} exists.")
-          ))
-        }
         val fragmentS = fragment.copy(name = fragment.name.toLowerCase)
 
         curatorFramework.setData().forPath(
           s"${FragmentActor.fragmentPathType(fragmentS.fragmentType)}/${fragment.id.get}", write(fragmentS).getBytes)
       }.recover {
         case e: NoNodeException =>
+          val message = s"No fragment of type ${fragment.fragmentType} with id ${fragment.id.get}."
+          log.error(message, e)
           throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId,
-              s"No fragment of type ${fragment.fragmentType} with id ${fragment.id.get}.")
+            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, message)
           ))
       })
 
@@ -225,8 +222,10 @@ class FragmentActor(curatorFramework: CuratorFramework)
         curatorFramework.delete().forPath(s"${FragmentActor.fragmentPathType(fragmentType)}/$id")
       }.recover {
         case e: NoNodeException =>
+          val message = s"No fragment of type $fragmentType with id $id."
+          log.error(message, e)
           throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type $fragmentType with id $id.")
+            new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, message)
           ))
       })
 
@@ -252,6 +251,7 @@ class FragmentActor(curatorFramework: CuratorFramework)
         }
       }.recover {
         case e: NoNodeException =>
+          log.error(s"No fragment of type $fragmentType with name $name.", e)
           throw new ServingCoreException(ErrorModel.toString(
             new ErrorModel(
               ErrorModel.CodeNotExistsFragmentWithId, s"No fragment of type $fragmentType with name $name.")

@@ -55,25 +55,20 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def deletePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit =
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
 
-  def writePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit = {
+  def writePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.create().creatingParentsIfNeeded().forPath(
       s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
+    policyParsed
   }
 
-  def updatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit = {
+  def updatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.setData().forPath(
       s"${AppConstant.PoliciesBasePath}/${policyParsed.id.get}", write(policyParsed).getBytes)
-  }
-
-  def populatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
-    val policyInZk = read[PolicyModel](new Predef.String(curatorFramework.getData.forPath(
-      s"${AppConstant.PoliciesBasePath}/${policy.id.get}")))
-
-    policyWithFragments(policyInZk)
+    policyParsed
   }
 
   def existsByNameId(name: String,
@@ -82,7 +77,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
                     ): Option[PolicyModel] =
     Try {
       if (existsPath) {
-        getPolicies(curatorFramework).find(policy =>
+        getPolicies(curatorFramework, withFragments = false).find(policy =>
           if (id.isDefined && policy.id.isDefined) policy.id.get == id.get else policy.name == name.toLowerCase
         )
       } else None
@@ -93,27 +88,24 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         None
     }
 
-  def getPolicies(curatorFramework: CuratorFramework): List[PolicyModel] = {
+  def getPolicies(curatorFramework: CuratorFramework, withFragments : Boolean): List[PolicyModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
     JavaConversions.asScalaBuffer(children).toList.map(id => byId(id, curatorFramework))
   }
 
   def byId(id: String, curatorFramework: CuratorFramework): PolicyModel = {
-    val policy = read[PolicyModel](
+    read[PolicyModel](
       new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
-
-    policyWithFragments(policy)
   }
 
   /** METHODS TO CALCULATE THE CORRECT ID IN POLICIES **/
 
   def policyWithId(policy: PolicyModel): PolicyModel = {
-    val policyF = policyWithFragments(policy)
-    (policyF.id match {
-      case None => populatePolicyWithRandomUUID(policyF)
-      case Some(_) => policyF
-    }).copy(name = policyF.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
+    (policy.id match {
+      case None => populatePolicyWithRandomUUID(policy)
+      case Some(_) => policy
+    }).copy(name = policy.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
   }
 
   def populatePolicyWithRandomUUID(policy: PolicyModel): PolicyModel =
@@ -127,9 +119,11 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       }
     } else lastPolicy.version
 
-  def policyWithFragments(policy: PolicyModel)(implicit timeout: Timeout): PolicyModel =
+  def policyWithFragments(policy: PolicyModel, withFragmentCreation : Boolean = true)
+                         (implicit timeout: Timeout): PolicyModel =
     fragmentActor.fold(policy) { actorRef => {
-      (populateFragmentFromPolicy(policy, FragmentType.input) ++
+      if(withFragmentCreation)
+        (populateFragmentFromPolicy(policy, FragmentType.input) ++
         populateFragmentFromPolicy(policy, FragmentType.output)
         ).foreach(fragment => actorRef ! FragmentActor.Create(fragment))
       getPolicyWithFragments(policy, actorRef)

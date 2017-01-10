@@ -33,7 +33,7 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
       case AppConstant.ConfigYarn => yarnLink
       case AppConstant.ConfigStandAlone => standaloneLink
       case AppConstant.ConfigLocal => localLink
-      case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: ${executionMode}")
+      case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")
     }
 
     checkConnectivity(host, port)
@@ -58,7 +58,7 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
   }
 
   private def mesosLink = {
-    val mesosDispatcherUrl = SpartaConfig.getClusterConfig.get.getString(AppConstant.MesosMasterDispatchers)
+    val mesosDispatcherUrl = SpartaConfig.getClusterConfig().get.getString(AppConstant.MesosMasterDispatchers)
     val host = mesosDispatcherUrl.replace("mesos://", "").replaceAll(":\\d+", "")
     val port = 5050
     (host, port)
@@ -71,14 +71,14 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
   }
 
   private def standaloneLink = {
-    val sparkUrl = SpartaConfig.getClusterConfig.get.getString("master")
+    val sparkUrl = SpartaConfig.getClusterConfig().get.getString("master")
     val host = sparkUrl.replace("spark://", "").replaceAll(":\\d+", "")
     val port = 8080
     (host, port)
   }
 
   private def localLink = {
-    val localhostName = java.net.InetAddress.getLocalHost().getHostName()
+    val localhostName = java.net.InetAddress.getLocalHost.getHostName
     (localhostName, 4040)
   }
 
