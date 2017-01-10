@@ -537,7 +537,7 @@
   },
   {
     "name": "FileSystem",
-    "modelType": "Directory",
+    "modelType": "FileSystem",
     "description": {
       "short": "Allows you to load files from a Hadoop-compatible monitored filesystem directory.",
       "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
