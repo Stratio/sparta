@@ -26,15 +26,15 @@ import scala.concurrent.duration._
 import scala.util.Success
 import scala.util.Try
 import akka.util.Timeout
-import com.stratio.sparta.serving.api.helpers.SpartaHelper._
+
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models._
 import PolicyStatusActor._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.CheckpointUtils
 
-trait PolicyStatusUtils {
+trait PolicyStatusUtils extends CheckpointUtils {
 
   implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 

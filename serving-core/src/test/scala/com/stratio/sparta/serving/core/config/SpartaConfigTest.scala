@@ -93,7 +93,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
       SpartaConfig.initMainConfig(Some(configCluster), new MockConfigFactory(configCluster))
 
-      val clusterConf = SpartaConfig.getClusterConfig.get.toString
+      val clusterConf = SpartaConfig.getClusterConfig().get.toString
 
       clusterConf should be ("""Config(SimpleConfigObject({"deployMode":"cluster","numExecutors":2}))""")
 
@@ -117,7 +117,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
       SpartaConfig.initMainConfig(Some(configCluster), new MockConfigFactory(configCluster))
 
-      val clusterConf = SpartaConfig.getClusterConfig
+      val clusterConf = SpartaConfig.getClusterConfig()
 
       clusterConf should be (None)
 
@@ -128,7 +128,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
       SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
-      val clusterConf = SpartaConfig.getClusterConfig
+      val clusterConf = SpartaConfig.getClusterConfig()
 
       clusterConf should be (None)
 
