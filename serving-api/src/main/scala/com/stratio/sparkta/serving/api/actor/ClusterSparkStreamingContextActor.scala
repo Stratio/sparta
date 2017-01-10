@@ -130,17 +130,15 @@ with SparktaSerializer {
                                    hdfsDriverFile: String,
                                    pluginsJarsPath: String,
                                    classpathJarsPath: String): Unit = {
-    val execMode = getExecutionMode.toLowerCase
-    if (execMode == AppConstant.ConfigMesos) {
-      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getMesosCommandString)
+    val commandString = getExecutionModel match {
+      case AppConstant.ConfigMesos => getMesosCommandString
+      case AppConstant.ConfigYarn => getYarnCommandString
+      case AppConstant.ConfigStandAlone => getStandAloneCommandString
+      case _ => throw new IllegalArgumentException(s"Execution model do not exist.")
     }
-    if (execMode == AppConstant.ConfigYarn) {
-      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode, getYarnCommandString)
-    }
-    if (execMode == AppConstant.ConfigStandAlone) {
-      sparkSubmitSentence(main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, execMode,
-        getStandAloneCommandString)
-    }
+
+    sparkSubmitSentence(
+      main, hdfsDriverFile, pluginsJarsPath, classpathJarsPath, getExecutionModel, commandString)
   }
 
   private def sparkSubmitSentence(main: String,
@@ -151,8 +149,10 @@ with SparktaSerializer {
                                   execModeSentence: String): Unit = {
     val cmd = s"$main $getGenericCommand $execModeSentence $getSparkConfig $hdfsDriverFile " +
       s"${policy.id.get} $pluginsJarsPath $classpathJarsPath $getZookeeperCommand $getDetailConfigCommand"
+
+    log.info(s"$cmd")
+
     cmd.!!
-    log.info(s"Spark submit to $execMode cluster executed")
   }
 
   private def checkPolicyJars(activeJars: Either[Seq[String], Seq[String]]): Boolean = {
@@ -228,13 +228,13 @@ with SparktaSerializer {
 
   private def getZookeeperCommand: String = {
     val config = zookeeperConfig.atKey("zk").root.render(ConfigRenderOptions.concise)
-    "\"" + StringEscapeUtils.escapeJavaScript(config.stripPrefix("{").stripSuffix("}")) + "\""
+    StringEscapeUtils.escapeJavaScript(config)
   }
 
   private def getDetailConfigCommand: String = {
     if (detailConfig.isDefined) {
       val config = detailConfig.get.atKey("config").root.render(ConfigRenderOptions.concise)
-      "\"" + StringEscapeUtils.escapeJavaScript(config.stripPrefix("{").stripSuffix("}")) + "\""
+      StringEscapeUtils.escapeJavaScript(config)
     } else ""
   }
 
@@ -246,7 +246,7 @@ with SparktaSerializer {
     }).mkString(" ")
   }
 
-  def getExecutionMode: String = detailConfig match {
+  def getExecutionModel: String = detailConfig match {
     case Some(config) => config.getString(AppConstant.ExecutionMode)
     case None => AppConstant.DefaultExecutionMode
   }

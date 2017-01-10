@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Stratio (http://stratio.com)
+ * Copyright (C) 2015 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package com.stratio.sparkta.sdk
 
+import akka.event.slf4j.SLF4JLogging
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+
 import scala.language.implicitConversions
-import scala.util.parsing.json.JSON
 import scala.util.{Failure, Success, Try}
 
-class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
+
+class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
 
   def getString(key: K): String =
     m.get(key) match {
@@ -30,10 +34,40 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) {
         throw new IllegalStateException(s"$key is mandatory")
     }
 
+
+  def getHostPortConfs(key: K, defaultHost: String, defaultPort: String): Seq[(String, Int)] = {
+    val conObj = getConnectionChain(key)
+    conObj.map(c =>
+      (c.get("node") match {
+        case Some(value) => value.toString
+        case None => defaultHost
+      },
+        c.get("defaultPort") match {
+          case Some(value) => value.toString.toInt
+          case None => defaultPort.toInt
+        }))
+  }
+
   def getConnectionChain(key: K): Seq[Map[String, String]] = {
     m.get(key) match {
-      case Some(value) => JSON.parseFull(value.asInstanceOf[JsoneyString].string)
-        .get.asInstanceOf[Seq[Map[String, String]]]
+      case Some(value) =>
+
+        val parsed = parse(s"""{"children": ${value.toString} }"""")
+
+        val result: List[Map[String, String]] =
+          for {
+            JArray(element) <- parsed \ "children"
+            JObject(list) <- element
+          } yield {
+            (for {
+              JField(key, JString(value)) <- list
+            } yield (key, value)).toMap
+          }
+        if(result.isEmpty) {
+          throw new IllegalStateException(s"$key is mandatory")
+        } else {
+          result
+        }
       case None => throw new IllegalStateException(s"$key is mandatory")
     }
   }
