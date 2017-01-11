@@ -213,12 +213,62 @@
       {
         "propertyId": "receiverType",
         "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
-        "propertyType": "text",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Distributed",
+            "value": "distributed"
+          },
+          {
+            "label": "Single Node",
+            "value": "singlenode"
+          }
+        ],
         "default": "distributed",
         "regexp": "",
         "required": true,
         "tooltip": "RabbitMQ receiver type, distributed or single node approach",
         "qa": "fragment-details-rabbitMQ-receiverType"
+      },
+      {
+        "propertyId": "hosts",
+        "propertyName": "_HOST_",
+        "propertyType": "text",
+        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+        "default": "localhost",
+        "required": true,
+        "tooltip": "Server address.",
+        "hidden": false,
+        "qa": "fragment-details-rabbitmq-hosts"
+      },
+      {
+        "propertyId": "queueName",
+        "propertyName": "_QUEUE_",
+        "propertyType": "text",
+        "default": "rabbitqueue",
+        "required": true,
+        "tooltip": "Incomming queue.",
+        "hidden": false,
+        "qa": "fragment-details-stratio-kafkadirect-queue-name"
+      },
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-key-serializer"
       },
       {
         "propertyId": "rabbitmqProperties",
