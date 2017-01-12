@@ -130,11 +130,11 @@
 
  if [[ -v HDFS_MASTER ]]; then
    sed -i "s|sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
+   HADOOP_CONF_DIR=${HADOOP_HOME}/conf
    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
-   YARN_SITE="${HADOOP_CONF_DIR}/yarn-site.xml.xml"
+   YARN_SITE="${HADOOP_CONF_DIR}/yarn-site.xml"
    MAPRED_SITE="${HADOOP_CONF_DIR}/mapred-site.xml"
-   HADOOP_CONF_DIR=${HADOOP_HOME}/conf
    wget "http://${HDFS_MASTER}:50070/conf"
    cp conf "${CORE_SITE}"
    cp conf "${HDFS_SITE}"

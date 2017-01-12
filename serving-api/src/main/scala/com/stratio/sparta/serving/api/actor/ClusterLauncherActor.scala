@@ -45,10 +45,25 @@ import scala.util.{Failure, Success, Try}
 class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   with SpartaSerializer with SchedulerUtils with SparkSubmitUtils {
 
-  val DetailConfig = SpartaConfig.getDetailConfig.get
+  val DetailConfig = SpartaConfig.getDetailConfig
+    .getOrElse{
+      val message = "Impossible to extract Detail Configuration"
+      log.error(message)
+      throw new RuntimeException(message)
+    }
   val SpartaDriver = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
-  val ZookeeperConfig = SpartaConfig.getZookeeperConfig.get
-  val HdfsConfig = SpartaConfig.getHdfsConfig.get
+  val ZookeeperConfig = SpartaConfig.getZookeeperConfig
+    .getOrElse{
+      val message = "Impossible to extract Zookeeper Configuration"
+      log.error(message)
+      throw new RuntimeException(message)
+    }
+  val HdfsConfig = SpartaConfig.getHdfsConfig
+    .getOrElse{
+      val message = "Impossible to extract HDFS Configuration"
+      log.error(message)
+      throw new RuntimeException(message)
+    }
   val Hdfs = HdfsUtils()
 
   implicit val timeout: Timeout = Timeout(3.seconds)
