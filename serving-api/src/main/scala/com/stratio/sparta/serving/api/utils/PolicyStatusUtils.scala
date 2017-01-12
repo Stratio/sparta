@@ -45,8 +45,7 @@ trait PolicyStatusUtils extends CheckpointUtils {
       case Success(policiesStatus) =>
         policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Started) ||
           policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Starting) ||
-          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Launched) ||
-          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Stopping)
+          policiesStatus.policiesStatus.exists(_.status == PolicyStatusEnum.Launched)
       case _ => false
     }
   }

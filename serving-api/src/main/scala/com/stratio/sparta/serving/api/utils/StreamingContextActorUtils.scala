@@ -42,6 +42,7 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
       isAvailable <- isContextAvailable(policy, policyStatusActor)
     } yield Try {
       if (isAvailable) {
+        log.info("Streaming Context Available, launching policy ... ")
         val streamingLauncherActor =
           getStreamingContextActor(policy, policyStatusActor, streamingContextService, context)
         updatePolicy(policy, PolicyStatusEnum.Launched, policyStatusActor)
@@ -62,9 +63,13 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
         actor
       case None =>
         log.info(s"Launched -> $actorName")
-        if (isLocalMode(policy))
+        if (isLocalMode(policy)) {
+          log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
           getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
-        else getClusterLauncher(policy, policyStatusActor, context, actorName)
+        } else {
+          log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
+          getClusterLauncher(policy, policyStatusActor, context, actorName)
+        }
     }
   }
 
