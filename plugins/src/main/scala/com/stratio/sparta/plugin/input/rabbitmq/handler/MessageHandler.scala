@@ -16,7 +16,10 @@
 
 package com.stratio.sparta.plugin.input.rabbitmq.handler
 
+import java.io.{Serializable => JSerializable}
+
 import com.rabbitmq.client.QueueingConsumer.Delivery
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 
 sealed abstract class MessageHandler {
@@ -24,6 +27,13 @@ sealed abstract class MessageHandler {
 }
 
 object MessageHandler {
+  val KeyDeserializer = "key.deserializer"
+  val DefaultSerializer = "string"
+
+  def apply(properties: Map[String, JSerializable]): MessageHandler = {
+    apply(properties.getString(KeyDeserializer, DefaultSerializer))
+  }
+
   def apply(handlerType: String): MessageHandler = handlerType match {
     case "arraybyte" => ByteArrayMessageHandler
     case _ => StringMessageHandler
