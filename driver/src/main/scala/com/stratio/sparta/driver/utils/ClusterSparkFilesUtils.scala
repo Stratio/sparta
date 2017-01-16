@@ -47,7 +47,7 @@ case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends 
 
   def getDriverFile(driverJarPath: String): String = {
     val driverJar =
-      JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.ClusterExecutionJarFolder)).head
+      JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.DefaultDriverFolder)).head
 
     log.info(s"Uploading Sparta Driver jar ($driverJar) to HDFS cluster .... ")
 

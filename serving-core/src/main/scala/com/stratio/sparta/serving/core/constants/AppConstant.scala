@@ -56,14 +56,20 @@ object AppConstant {
   final val DefaultCheckpointPath = "sparta/checkpoint"
   final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
   final val DefaultCheckpointPathClusterMode = "/user/"
+  final val DriverLocation = "driverLocation"
+  final val DriverURI = "driverURI"
+  final val DefaultDriverLocation = "provided"
+  final val PluginsLocation = "pluginsLocation"
+  final val DefaultPluginsLocation = "provided"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
   final val HdfsMaster = "hdfsMaster"
   final val HdfsPort = "hdfsPort"
   final val PluginsFolder = "pluginsFolder"
-  final val ClasspathFolder = "classpathFolder"
-  final val ExecutionJarFolder = "executionJarFolder"
+  final val DriverFolder = "driverFolder"
+  final val DefaultPluginsFolder = "plugins"
+  final val DefaultDriverFolder = "driver"
   final val DefaultHdfsUser = "stratio"
   final val KeytabPath = "keytabPath"
   final val PrincipalName = "principalName"
@@ -76,8 +82,7 @@ object AppConstant {
   final val SystemPrincipalName = "HADOOP_PRINCIPAL_NAME"
   final val SystemKeyTabPath = "HADOOP_KEYTAB_PATH"
   final val SystemHostName = "HOSTNAME"
-  final val JarPluginsFolder = "plugins"
-  final val ClusterExecutionJarFolder = "driver"
+
 
   //Generic Options
   final val Master = "master"

@@ -12,6 +12,8 @@ hose {
     DEBARCH = 'all'
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9090,9091]
+    BASEIMG = 'qa.stratio.com/stratio/mesosphere-spark-scala211:1.6.2'
+
 
     DEV = { config ->
     

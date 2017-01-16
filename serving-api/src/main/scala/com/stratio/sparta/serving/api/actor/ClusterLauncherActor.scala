@@ -84,7 +84,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       val Master = clusterConfig.getString(AppConstant.Master)
       val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
       val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
-      val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.ExecutionJarFolder)}/"
+      val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.DriverFolder)}/"
 
       log.info("Init new cluster streamingContext with name " + policy.name)
 

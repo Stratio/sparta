@@ -131,6 +131,7 @@
  if [[ -v HDFS_MASTER ]]; then
    sed -i "s|sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
    HADOOP_CONF_DIR=${HADOOP_HOME}/conf
+   mkdir "${HADOOP_CONF_DIR}"
    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
    YARN_SITE="${HADOOP_CONF_DIR}/yarn-site.xml"
@@ -165,11 +166,6 @@
    HDFS_DRIVER_FOLDER=jarDriver
  fi
  sed -i "s|sparta.hdfs.executionJarFolder.*|sparta.hdfs.executionJarFolder = ${HDFS_DRIVER_FOLDER}|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v HDFS_CLASSPATH_FOLDER ]]; then
-   HDFS_CLASSPATH_FOLDER=classpath
- fi
- sed -i "s|sparta.hdfs.classpathFolder.*|sparta.hdfs.classpathFolder = ${HDFS_CLASSPATH_FOLDER}|" ${SPARTA_CONF_FILE}
 
  if [[ -v HDFS_PRINCIPAL_NAME ]]; then
    sed -i "s|.*sparta.hdfs.principalName.*|sparta.hdfs.principalName = \""${HDFS_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
@@ -307,6 +303,21 @@
    SPARTA_EXECUTION_MODE=local
  fi
  sed -i "s|sparta.config.executionMode.*|sparta.config.executionMode = ${SPARTA_EXECUTION_MODE}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_DRIVER_LOCATION ]]; then
+   SPARTA_DRIVER_LOCATION=provided
+ fi
+ sed -i "s|sparta.config.driverLocation.*|sparta.config.driverLocation = ${SPARTA_DRIVER_LOCATION}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_DRIVER_URI ]]; then
+   SPARTA_DRIVER_URI="https://dl.dropboxusercontent.com/u/24168114/driver-plugin.jar"
+ fi
+ sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_PLUGINS_LOCATION ]]; then
+   SPARTA_PLUGINS_LOCATION=provided
+ fi
+ sed -i "s|sparta.config.pluginsLocation.*|sparta.config.pluginsLocation = ${SPARTA_PLUGINS_LOCATION}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_STOP_GRACEFULLY ]]; then
    SPARTA_STOP_GRACEFULLY=true
@@ -507,6 +518,10 @@
 
  if [[ -v SPARK_MESOS_EXECUTOR_DOCKER_IMAGE ]]; then
    sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.image.*|sparta.mesos.spark.mesos.executor.docker.image = \""${SPARK_MESOS_EXECUTOR_DOCKER_IMAGE}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [[ -v SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE ]]; then
+   sed -i "s|.*spark.mesos.executor.docker.forcePullImage.*|spark.mesos.executor.docker.forcePullImage = ${SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE}|" ${SPARTA_CONF_FILE}
  fi
 
  if [[ -v SPARK_MESOS_EXECUTOR_HOME ]]; then
