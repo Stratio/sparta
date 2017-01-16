@@ -310,6 +310,11 @@
  fi
  sed -i "s|sparta.config.driverLocation.*|sparta.config.driverLocation = ${SPARTA_DRIVER_LOCATION}|" ${SPARTA_CONF_FILE}
 
+ if [[ ! -v SPARTA_DRIVER_PACKAGE_LOCATION ]]; then
+   SPARTA_DRIVER_PACKAGE_LOCATION="/opt/sds/sparta/driver/"
+ fi
+ sed -i "s|sparta.config.driverPackageLocation.*|sparta.config.driverPackageLocation = \""${SPARTA_DRIVER_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
+
  if [[ ! -v SPARTA_DRIVER_URI ]]; then
    SPARTA_DRIVER_URI="https://dl.dropboxusercontent.com/u/24168114/driver-plugin.jar"
  fi

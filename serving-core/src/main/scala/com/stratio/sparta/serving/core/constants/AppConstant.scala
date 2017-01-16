@@ -56,6 +56,8 @@ object AppConstant {
   final val DefaultCheckpointPath = "sparta/checkpoint"
   final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
   final val DefaultCheckpointPathClusterMode = "/user/"
+  final val DriverPackageLocation = "driverPackageLocation"
+  final val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
   final val DriverLocation = "driverLocation"
   final val DriverURI = "driverURI"
   final val DefaultDriverLocation = "provided"

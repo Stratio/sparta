@@ -218,7 +218,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   def driverLocationConfigEncoded(executionMode: String, clusterConfig: Option[Config]): String =
     clusterConfig match {
       case Some(config) => encode(render(config, executionMode))
-      case None => encode("")
+      case None => encode(" ")
     }
 
   /** Policy Status Functions **/
