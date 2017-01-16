@@ -21,7 +21,6 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.SpartaClusterJob
-import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
 import com.stratio.sparta.serving.api.utils.SparkSubmitUtils
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor
@@ -45,26 +44,19 @@ import scala.util.{Failure, Success, Try}
 class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   with SpartaSerializer with SchedulerUtils with SparkSubmitUtils {
 
+  val SpartaDriverClass = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
   val DetailConfig = SpartaConfig.getDetailConfig
     .getOrElse{
       val message = "Impossible to extract Detail Configuration"
       log.error(message)
       throw new RuntimeException(message)
     }
-  val SpartaDriver = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
   val ZookeeperConfig = SpartaConfig.getZookeeperConfig
     .getOrElse{
       val message = "Impossible to extract Zookeeper Configuration"
       log.error(message)
       throw new RuntimeException(message)
     }
-  val HdfsConfig = SpartaConfig.getHdfsConfig
-    .getOrElse{
-      val message = "Impossible to extract HDFS Configuration"
-      log.error(message)
-      throw new RuntimeException(message)
-    }
-  val Hdfs = HdfsUtils()
 
   implicit val timeout: Timeout = Timeout(3.seconds)
 
@@ -76,29 +68,38 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
       val clusterConfig = SpartaConfig.getClusterConfig(policy.executionMode).get
+      val driverLocation = Try(policy.driverLocation.getOrElse(DetailConfig.getString(AppConstant.DriverLocation)))
+        .getOrElse(AppConstant.DefaultDriverLocation)
+      val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocation, SpartaConfig.mainConfig)
 
       validateSparkHome(clusterConfig)
 
-      val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
       val PolicyId = policy.id.get.trim
       val Master = clusterConfig.getString(AppConstant.Master)
-      val BasePath = s"/user/${Hdfs.userName}/${AppConstant.ConfigAppName}/$PolicyId"
-      val PluginsJarsPath = s"$BasePath/${HdfsConfig.getString(AppConstant.PluginsFolder)}/"
-      val DriverJarPath = s"$BasePath/${HdfsConfig.getString(AppConstant.DriverFolder)}/"
 
       log.info("Init new cluster streamingContext with name " + policy.name)
 
-      val driverPath = Uploader.getDriverFile(DriverJarPath)
-      val pluginsFiles = Uploader.getPluginsFiles(PluginsJarsPath)
+      val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
+      val pluginsFiles = pluginsSubmit(policy, DetailConfig)
       val driverParams =
-        Seq(PolicyId, zkConfigEncoded, detailConfigEncoded, pluginsEncoded(pluginsFiles), hdfsConfigEncoded)
+        Seq(PolicyId,
+          zkConfigEncoded,
+          detailConfigEncoded,
+          pluginsEncoded(pluginsFiles),
+          driverLocationConfigEncoded(driverLocation, driverLocationConfig)
+        )
       val sparkArguments = submitArgumentsFromProperties(clusterConfig) ++
         submitArgumentsFromPolicy(policy.sparkSubmitArguments)
 
-      log.info(s"Launching Sparta Job with options ... \n\tPolicy name: ${policy.name}\n\tMain: $SpartaDriver\n\t" +
-        s"Driver path: $driverPath\n\tMaster: $Master\n\tSpark arguments: ${sparkArguments.mkString(",")}\n\t" +
-        s"Driver params: $driverParams\n\tPlugins files: ${pluginsFiles.mkString(",")}")
-      launch(policy, SpartaDriver, driverPath, Master, sparkArguments, driverParams, pluginsFiles, clusterConfig)
+      log.info(s"Launching Sparta Job with options ... \n\t" +
+        s"Policy name: ${policy.name}\n\t" +
+        s"Main: $SpartaDriverClass\n\t" +
+        s"Driver path: $driverPath\n\t" +
+        s"Master: $Master\n\t" +
+        s"Spark arguments: ${sparkArguments.mkString(",")}\n\t" +
+        s"Driver params: $driverParams\n\t" +
+        s"Plugins files: ${pluginsFiles.mkString(",")}")
+      launch(policy, SpartaDriverClass, driverPath, Master, sparkArguments, driverParams, pluginsFiles, clusterConfig)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
@@ -214,7 +215,11 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
 
   def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
 
-  def hdfsConfigEncoded: String = encode(render(HdfsConfig, "hdfs"))
+  def driverLocationConfigEncoded(executionMode: String, clusterConfig: Option[Config]): String =
+    clusterConfig match {
+      case Some(config) => encode(render(config, executionMode))
+      case None => encode("")
+    }
 
   /** Policy Status Functions **/
 

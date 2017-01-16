@@ -126,6 +126,7 @@
    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${VARIABLES}
    echo "" >> ${SYSTEM_VARIABLES}
    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
+   sed -i "s|.*sparta.hdfs.hadoopUserName.*|sparta.hdfs.hadoopUserName = \""${HDFS_USER_NAME}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [[ -v HDFS_MASTER ]]; then

@@ -19,6 +19,58 @@
   ],
   "advancedSettings": [
     {
+      "propertyId": "driverLocation",
+      "propertyName": "_DRIVER_LOCATION_",
+      "width": 7,
+      "position": "left",
+      "required": false,
+      "propertyType": "select",
+      "regexp": "provided|hdfs",
+      "values": [
+        {
+          "label": "Provided",
+          "value": "provided"
+        },
+        {
+          "label": "Hdfs",
+          "value": "hdfs"
+        }
+      ],
+      "tooltip": "Sparta Driver jar location, when is provided is necessary specify the URI",
+      "qa": "policy-driver-location"
+    },
+    {
+      "propertyId": "pluginsLocation",
+      "propertyName": "_PLUGINS_LOCATION_",
+      "width": 6,
+      "position": "right",
+      "required": false,
+      "propertyType": "select",
+      "regexp": "provided|local",
+      "values": [
+        {
+          "label": "Provided",
+          "value": "provided"
+        },
+        {
+          "label": "Local",
+          "value": "local"
+        }
+      ],
+      "tooltip": "Sparta plugins locations, when is provided is necessary specify the artifactory or the http URIs",
+      "qa": "policy-plugins-location"
+    },
+    {
+      "propertyId": "driverUri",
+      "propertyName": "_DRIVER_URI_",
+      "width": 14,
+      "position": "left",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "When the driver location is provided, in this uri is allocated the driver jar file",
+      "qa": "policy-driver-uri"
+    },
+    {
       "propertyId": "sparkStreamingWindowNumber",
       "propertyName": "_SPARK_STREAMING_WINDOW_",
       "propertyType": "number",

@@ -17,8 +17,10 @@
 package com.stratio.sparta.serving.api.utils
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 import com.typesafe.config.Config
 
 import scala.collection.JavaConversions._
@@ -77,8 +79,34 @@ trait SparkSubmitUtils extends SLF4JLogging {
         Map.empty[String, String]
     }
 
+  def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
+    Try(policy.driverLocation.getOrElse(detailConfig.getString(DriverLocation)))
+      .getOrElse(DefaultDriverLocation) match {
+      case location if location == "hdfs" =>
+        val driverFolder = hdfsConfig match {
+          case Some(config) => Try(config.getString(DriverFolder)).getOrElse(DefaultDriverFolder)
+          case None => DefaultDriverFolder
+        }
+        val Hdfs = HdfsUtils()
+        val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
+        val BasePath = Try(policy.driverUri.getOrElse(detailConfig.getString(DriverURI)))
+          .getOrElse(s"/user/${Hdfs.userName}/$ConfigAppName") + s"/${policy.id.get.trim}"
+        val DriverJarPath = s"$BasePath/$driverFolder/"
+
+        Uploader.uploadDriverFile(DriverJarPath)
+      case _ =>
+        policy.driverUri.getOrElse(detailConfig.getString(DriverURI))
+    }
+
+  def pluginsSubmit(policy: PolicyModel, detailConfig: Config): Seq[String] =
+    Try(policy.pluginsLocation.getOrElse(detailConfig.getString(PluginsLocation)))
+      .getOrElse(DefaultPluginsLocation) match {
+      case location if location == "local" => policy.userPluginsJars.map(userJar => userJar.jarPath)
+      case _ => Seq.empty[String]
+    }
+
   def sparkHome(clusterConfig: Config): String =
-    Properties.envOrElse("SPARK_HOME", clusterConfig.getString(AppConstant.SparkHome))
+    Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome))
 
   /**
    * Checks if we have a valid Spark home.
@@ -94,16 +122,16 @@ trait SparkSubmitUtils extends SLF4JLogging {
   def isSupervised(policy: PolicyModel, detailConfig: Config, clusterConfig: Config): Boolean = {
     val executionMode = policy.executionMode match {
       case Some(mode) if mode.nonEmpty => mode
-      case _ => detailConfig.getString(AppConstant.ExecutionMode)
+      case _ => detailConfig.getString(ExecutionMode)
     }
-    if (executionMode == AppConstant.ConfigStandAlone || executionMode == AppConstant.ConfigMesos) {
-      Try(clusterConfig.getBoolean(AppConstant.Supervise)).getOrElse(false)
+    if (executionMode == ConfigStandAlone || executionMode == ConfigMesos) {
+      Try(clusterConfig.getBoolean(Supervise)).getOrElse(false)
     } else false
   }
 
   def submitArgumentsFromPolicy(submitArgs: Seq[SubmitArgument]): Map[String, String] =
     submitArgs.flatMap(argument => {
-      if(argument.submitArgument.nonEmpty) {
+      if (argument.submitArgument.nonEmpty) {
         if (!SubmitArguments.contains(argument.submitArgument))
           log.warn(s"Spark submit argument added unrecognized by Sparta. \n" +
             s"Argument: ${argument.submitArgument}\nValue: ${argument.submitValue}")
@@ -112,26 +140,26 @@ trait SparkSubmitUtils extends SLF4JLogging {
     }).toMap
 
   def submitArgumentsFromProperties(clusterConfig: Config): Map[String, String] =
-    toMap(AppConstant.DeployMode, SubmitDeployMode, clusterConfig) ++
-      toMap(AppConstant.Name, SubmitName, clusterConfig) ++
-      toMap(AppConstant.PropertiesFile, SubmitPropertiesFile, clusterConfig) ++
-      toMap(AppConstant.TotalExecutorCores, SubmitTotalExecutorCores, clusterConfig) ++
-      toMap(AppConstant.Packages, SubmitPackages, clusterConfig) ++
-      toMap(AppConstant.Repositories, SubmitRepositories, clusterConfig) ++
-      toMap(AppConstant.ExcludePackages, SubmitExcludePackages, clusterConfig) ++
-      toMap(AppConstant.Jars, SubmitJars, clusterConfig) ++
-      toMap(AppConstant.ProxyUser, SubmitProxyUser, clusterConfig) ++
-      toMap(AppConstant.DriverJavaOptions, SubmitDriverJavaOptions, clusterConfig) ++
-      toMap(AppConstant.DriverLibraryPath, SubmitDriverLibraryPath, clusterConfig) ++
-      toMap(AppConstant.DriverClassPath, SubmitDriverClassPath, clusterConfig) ++
+    toMap(DeployMode, SubmitDeployMode, clusterConfig) ++
+      toMap(Name, SubmitName, clusterConfig) ++
+      toMap(PropertiesFile, SubmitPropertiesFile, clusterConfig) ++
+      toMap(TotalExecutorCores, SubmitTotalExecutorCores, clusterConfig) ++
+      toMap(Packages, SubmitPackages, clusterConfig) ++
+      toMap(Repositories, SubmitRepositories, clusterConfig) ++
+      toMap(ExcludePackages, SubmitExcludePackages, clusterConfig) ++
+      toMap(Jars, SubmitJars, clusterConfig) ++
+      toMap(ProxyUser, SubmitProxyUser, clusterConfig) ++
+      toMap(DriverJavaOptions, SubmitDriverJavaOptions, clusterConfig) ++
+      toMap(DriverLibraryPath, SubmitDriverLibraryPath, clusterConfig) ++
+      toMap(DriverClassPath, SubmitDriverClassPath, clusterConfig) ++
       // Yarn only
-      toMap(AppConstant.YarnQueue, SubmitYarnQueue, clusterConfig) ++
-      toMap(AppConstant.Files, SubmitFiles, clusterConfig) ++
-      toMap(AppConstant.Archives, SubmitArchives, clusterConfig) ++
-      toMap(AppConstant.AddJars, SubmitAddJars, clusterConfig) ++
-      toMap(AppConstant.NumExecutors, SubmitNumExecutors, clusterConfig) ++
-      toMap(AppConstant.DriverCores, SubmitDriverCores, clusterConfig) ++
-      toMap(AppConstant.DriverMemory, SubmitDriverMemory, clusterConfig) ++
-      toMap(AppConstant.ExecutorCores, SubmitExecutorCores, clusterConfig) ++
-      toMap(AppConstant.ExecutorMemory, SubmitExecutorMemory, clusterConfig)
+      toMap(YarnQueue, SubmitYarnQueue, clusterConfig) ++
+      toMap(Files, SubmitFiles, clusterConfig) ++
+      toMap(Archives, SubmitArchives, clusterConfig) ++
+      toMap(AddJars, SubmitAddJars, clusterConfig) ++
+      toMap(NumExecutors, SubmitNumExecutors, clusterConfig) ++
+      toMap(DriverCores, SubmitDriverCores, clusterConfig) ++
+      toMap(DriverMemory, SubmitDriverMemory, clusterConfig) ++
+      toMap(ExecutorCores, SubmitExecutorCores, clusterConfig) ++
+      toMap(ExecutorMemory, SubmitExecutorMemory, clusterConfig)
 }

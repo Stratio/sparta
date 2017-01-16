@@ -46,9 +46,11 @@ case class PolicyModel(
                         sparkSubmitArguments: Seq[SubmitArgument] = Seq.empty[SubmitArgument],
                         initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
                         autoDeleteCheckpoint: Option[Boolean] = None,
-                        executionMode: Option[String] = None
-                                   )
-
+                        executionMode: Option[String] = None,
+                        driverLocation: Option[String] = None,
+                        pluginsLocation: Option[String] = None,
+                        driverUri: Option[String] = None
+                      )
 
 case object PolicyModel extends SLF4JLogging {
 
@@ -150,7 +152,7 @@ object PolicyValidator extends SpartaSerializer {
     errorModels
   }
 
-  private def outputNamesFromPolicy(policy : PolicyModel): Seq[String] = {
+  private def outputNamesFromPolicy(policy: PolicyModel): Seq[String] = {
     val outputsNames = policy.outputs.map(_.name)
     val outputsFragmentsNames = policy.fragments.flatMap(fragment =>
       if (fragment.fragmentType == FragmentType.OutputValue) Some(fragment.name) else None)
