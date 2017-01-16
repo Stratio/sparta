@@ -29,21 +29,22 @@ sealed abstract class MessageHandler {
 object MessageHandler {
   val KeyDeserializer = "key.deserializer"
   val DefaultSerializer = "string"
+  val ArraySerializerKey = "arraybyte"
 
   def apply(properties: Map[String, JSerializable]): MessageHandler = {
     apply(properties.getString(KeyDeserializer, DefaultSerializer))
   }
 
   def apply(handlerType: String): MessageHandler = handlerType match {
-    case "arraybyte" => ByteArrayMessageHandler
+    case ArraySerializerKey => ByteArrayMessageHandler
     case _ => StringMessageHandler
   }
-}
 
-case object StringMessageHandler extends MessageHandler {
-  override def handler: (Delivery) => Row = (rawMessage: Delivery) => Row(new Predef.String(rawMessage.getBody))
-}
+  case object StringMessageHandler extends MessageHandler {
+    override def handler: (Delivery) => Row = (rawMessage: Delivery) => Row(new Predef.String(rawMessage.getBody))
+  }
 
-case object ByteArrayMessageHandler extends MessageHandler {
-  override def handler: (Delivery) => Row = (rawMessage: Delivery) => Row(rawMessage.getBody)
+  case object ByteArrayMessageHandler extends MessageHandler {
+    override def handler: (Delivery) => Row = (rawMessage: Delivery) => Row(rawMessage.getBody)
+  }
 }

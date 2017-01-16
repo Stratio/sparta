@@ -16,6 +16,7 @@
 package com.stratio.sparta.plugin.input.rabbitmq.handler
 
 import com.rabbitmq.client.QueueingConsumer.Delivery
+import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler.{ByteArrayMessageHandler, StringMessageHandler}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -27,6 +28,15 @@ class MessageHandlerTest extends WordSpec with Matchers with MockitoSugar {
 
   val message = "This is the message for testing"
   "RabbitMQ MessageHandler Factory " should {
+
+    "Get correct handler for string with a map " in {
+      MessageHandler(Map(MessageHandler.KeyDeserializer -> "")) should matchPattern { case StringMessageHandler => }
+      MessageHandler(Map.empty[String, String]) should matchPattern { case StringMessageHandler => }
+      MessageHandler(Map(MessageHandler.KeyDeserializer -> "badInput")) should
+        matchPattern { case StringMessageHandler => }
+      MessageHandler(Map(MessageHandler.KeyDeserializer -> "arraybyte")) should
+        matchPattern { case ByteArrayMessageHandler => }
+    }
 
     "Get correct handler for string " in {
       val result = MessageHandler("string")

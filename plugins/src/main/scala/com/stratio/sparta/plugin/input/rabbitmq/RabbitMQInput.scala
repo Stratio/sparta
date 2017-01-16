@@ -16,58 +16,30 @@
 
 package com.stratio.sparta.plugin.input.rabbitmq
 
+
 import java.io.{Serializable => JSerializable}
 
+import com.rabbitmq.client.QueueingConsumer.Delivery
 import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.rabbitmq.ConfigParameters
-import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
-import org.apache.spark.streaming.rabbitmq.distributed.RabbitMQDistributedKey
+import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
+import org.apache.spark.streaming.rabbitmq.RabbitMQUtils
 
-import scala.util.Try
-
-class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties) {
-
-  val DefaultReceiver = "distributed"
-  val RabbitmqProperties = "rabbitmqProperties"
-  val RabbitmqPropertyKey = "rabbitmqPropertyKey"
-  val RabbitmqPropertyValue = "rabbitmqPropertyValue"
-  val KeyDeserializer = "key.deserializer"
-  val ReceiverType: String = properties.getString("receiverType", DefaultReceiver).toLowerCase
+class RabbitMQInput(properties: Map[String, JSerializable])
+  extends Input(properties) with RabbitMQGenericProps {
 
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
-    val handler = MessageHandler(properties.getString(KeyDeserializer, "string")).handler
-    val props = propsWithStorageLevel(sparkStorageLevel)
-    ReceiverType match {
-      case DefaultReceiver =>
-        createDistributedStream[Row](ssc, Seq.empty[RabbitMQDistributedKey], props, handler)
-      case _ =>
-        createStream[Row](ssc, props, handler)
-    }
+    val messageHandler = MessageHandler(properties).handler
+    val params = propsWithStorageLevel(sparkStorageLevel)
+    createStream(ssc, params, messageHandler)
   }
 
-  def propsWithStorageLevel(sparkStorageLevel: String): Map[String, String] = {
-    val rabbitMQProperties = getRabbitMQProperties
-    Map(ConfigParameters.StorageLevelKey -> sparkStorageLevel) ++
-      rabbitMQProperties.mapValues(value => value.toString) ++
-      properties.mapValues(value => value.toString)
+  def createStream(ssc: StreamingContext,
+                   params: Map[String, String],
+                   messageHandler: Delivery => Row
+                  ): ReceiverInputDStream[Row] = {
+    RabbitMQUtils.createStream[Row](ssc, params, messageHandler)
   }
-
-  private def getRabbitMQProperties: Map[String, String] =
-    Try(
-      properties.getMapFromJsoneyString(RabbitmqProperties))
-      .getOrElse(Seq.empty[Map[String, String]])
-      .map(c =>
-        (c.get(RabbitmqPropertyKey) match {
-          case Some(value) => value.toString
-          case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyKey is mandatory")
-        },
-          c.get(RabbitmqPropertyValue) match {
-            case Some(value) => value.toString
-            case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyValue is mandatory")
-          })).toMap
 }

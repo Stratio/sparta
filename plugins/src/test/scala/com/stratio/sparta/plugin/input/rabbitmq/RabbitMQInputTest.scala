@@ -24,23 +24,6 @@ class RabbitMQInputTest extends WordSpec with Matchers {
 
   "RabbitMQInput " should {
 
-    "Get correct receiverType for distributed " in {
-      val props = Map("receiverType" -> "distributed")
-      val input = new RabbitMQInput(props)
-      input.ReceiverType shouldBe "distributed"
-    }
-
-    "Get correct receiverType for singlenode " in {
-      val props = Map("receiverType" -> "singlenode")
-      val input = new RabbitMQInput(props)
-      input.ReceiverType shouldBe "singlenode"
-    }
-
-    "Get correct receiverType for empty value " in {
-      val input = new RabbitMQInput(Map.empty[String, String])
-      input.ReceiverType shouldBe "distributed"
-    }
-
     "Add storage level to properties" in {
       val input = new RabbitMQInput(Map.empty[String, String])
       val result = input.propsWithStorageLevel("MEMORY_AND_DISK_SER_2")

@@ -17,20 +17,26 @@ package com.stratio.sparta.plugin.input.rabbitmq
 
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.streaming.rabbitmq.ConfigParameters
 
 import scala.util.Try
 
 trait RabbitMQGenericProps {
-
   this: Input =>
 
   val RabbitmqProperties = "rabbitmqProperties"
   val RabbitmqPropertyKey = "rabbitmqPropertyKey"
   val RabbitmqPropertyValue = "rabbitmqPropertyValue"
 
+  def propsWithStorageLevel(sparkStorageLevel: String): Map[String, String] = {
+    val rabbitMQProperties = getRabbitMQProperties
+    Map(ConfigParameters.StorageLevelKey -> sparkStorageLevel) ++
+      rabbitMQProperties.mapValues(value => value.toString) ++
+      properties.mapValues(value => value.toString)
+  }
+
   def getRabbitMQProperties: Map[String, String] =
-    Try(
-      properties.getMapFromJsoneyString(RabbitmqProperties))
+    Try(properties.getMapFromJsoneyString(RabbitmqProperties))
       .getOrElse(Seq.empty[Map[String, String]])
       .map(c =>
         (c.get(RabbitmqPropertyKey) match {
@@ -41,5 +47,4 @@ trait RabbitMQGenericProps {
             case Some(value) => value.toString
             case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyValue is mandatory")
           })).toMap
-
 }
