@@ -21,12 +21,16 @@ import org.apache.spark.streaming.rabbitmq.ConfigParameters
 
 import scala.util.Try
 
-trait RabbitMQGenericProps {
-  this: Input =>
-
+object RabbitMQGenericProps {
   val RabbitmqProperties = "rabbitmqProperties"
   val RabbitmqPropertyKey = "rabbitmqPropertyKey"
   val RabbitmqPropertyValue = "rabbitmqPropertyValue"
+}
+
+trait RabbitMQGenericProps {
+  this: Input =>
+
+  import RabbitMQGenericProps._
 
   def propsWithStorageLevel(sparkStorageLevel: String): Map[String, String] = {
     val rabbitMQProperties = getRabbitMQProperties

@@ -31,9 +31,7 @@ import org.apache.spark.streaming.rabbitmq.models.ExchangeAndRouting
 
 import scala.util.Try
 
-class RabbitMQDistributedInput(properties: Map[String, JSerializable])
-  extends Input(properties) with RabbitMQGenericProps {
-
+object RabbitMQDistributedInput {
   //Keys from UI
   val DistributedPropertyKey = "distributedProperties"
   val QueuePropertyKey = "distributedQueue"
@@ -45,6 +43,13 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
   //Default values
   val QueueDefaultValue = "queue"
   val HostDefaultValue = "localhost"
+}
+
+class RabbitMQDistributedInput(properties: Map[String, JSerializable])
+  extends Input(properties) with RabbitMQGenericProps {
+
+  import RabbitMQDistributedInput._
+
 
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val messageHandler = MessageHandler(properties).handler
@@ -60,13 +65,12 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
 
   def getKey(params: Map[String, String], rabbitMQParams: Map[String, String]): RabbitMQDistributedKey = {
     val exchangeAndRouting = ExchangeAndRouting(
-      params.get(ExchangeNamePropertyKey).filterNot(_.isEmpty),
-      params.get(ExchangeTypePropertyKey).filterNot(_.isEmpty),
-      params.get(RoutingKeysPropertyKey).filterNot(_.isEmpty)
+      params.get(ExchangeNamePropertyKey).notBlank,
+      params.get(ExchangeTypePropertyKey).notBlank,
+      params.get(RoutingKeysPropertyKey).notBlank
     )
-    val hosts = HostPropertyKey -> params.get(HostPropertyKey)
-      .filterNot(_.isEmpty).getOrElse(HostDefaultValue)
-    val queueName = params.get(QueuePropertyKey).filterNot(_.isEmpty).getOrElse(QueueDefaultValue)
+    val hosts = HostPropertyKey -> params.get(HostPropertyKey).notBlankWithDefault(HostDefaultValue)
+    val queueName = params.get(QueuePropertyKey).notBlankWithDefault(QueueDefaultValue)
 
     RabbitMQDistributedKey(
       queueName,
@@ -83,4 +87,13 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
                              ): InputDStream[Row] = {
     RabbitMQUtils.createDistributedStream[Row](ssc, distributedKeys, rabbitMQParams, messageHandler)
   }
+
+  class NotBlankOption(s: Option[String]) {
+    def notBlankWithDefault(default: String): String = notBlank.getOrElse(default)
+
+    def notBlank: Option[String] = s.map(_.trim).filterNot(_.isEmpty)
+  }
+
+  implicit def toNotBlankOption(s: Option[String]): NotBlankOption = new NotBlankOption(s)
+
 }

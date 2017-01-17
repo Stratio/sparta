@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.plugin.input.rabbitmq
 
+import com.stratio.sparta.plugin.input.rabbitmq.RabbitMQGenericProps._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -22,26 +23,26 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class RabbitMQInputTest extends WordSpec with Matchers {
 
+  val DefaultStorageLevel = "MEMORY_AND_DISK_SER_2"
   "RabbitMQInput " should {
 
     "Add storage level to properties" in {
       val input = new RabbitMQInput(Map.empty[String, String])
-      val result = input.propsWithStorageLevel("MEMORY_AND_DISK_SER_2")
-      result should contain("storageLevel", "MEMORY_AND_DISK_SER_2")
+      val result = input.propsWithStorageLevel(DefaultStorageLevel)
+      result should contain("storageLevel", DefaultStorageLevel)
       result should have size 1
     }
 
     "Add queue and host to properties" in {
       val props = Map(
-        "receiverType" -> "distributed",
         "host" -> "host",
         "queue" -> "queue")
       val input = new RabbitMQInput(props)
-      val result = input.propsWithStorageLevel("MEMORY_AND_DISK_SER_2")
+      val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host")
       result should contain("queue", "queue")
-      result should contain("storageLevel", "MEMORY_AND_DISK_SER_2")
-      result should have size 4
+      result should contain("storageLevel", DefaultStorageLevel)
+      result should have size 3
     }
 
     "Flat rabbitmqProperties " in {
@@ -57,14 +58,12 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |  }
           |]
         """.stripMargin
-      val props = Map(
-        "rabbitmqProperties" -> rabbitmqProperties
-      )
+      val props = Map(RabbitmqProperties -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
-      val result = input.propsWithStorageLevel("MEMORY_AND_DISK_SER_2")
+      val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host1")
       result should contain("queue", "queue1")
-      result should contain("storageLevel", "MEMORY_AND_DISK_SER_2")
+      result should contain("storageLevel", DefaultStorageLevel)
       result should have size 4
     }
 
@@ -75,7 +74,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |   "rabbitmqPropertyKey": "host"
           |}]
         """.stripMargin
-      val props = Map("rabbitmqProperties" -> rabbitmqProperties)
+      val props = Map(RabbitmqProperties -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
       the[IllegalArgumentException] thrownBy {
         input.propsWithStorageLevel("")
@@ -90,7 +89,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |   "rabbitmqPropertyValue": "host1"
           |}]
         """.stripMargin
-      val props = Map("rabbitmqProperties" -> rabbitmqProperties)
+      val props = Map(RabbitmqProperties -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
       the[IllegalArgumentException] thrownBy {
         input.propsWithStorageLevel("")
@@ -112,18 +111,16 @@ class RabbitMQInputTest extends WordSpec with Matchers {
         """.stripMargin
 
       val props = Map(
-        "receiverType" -> "distributed",
         "host" -> "host",
         "queue" -> "queue",
-        "rabbitmqProperties" -> rabbitmqProperties
+        RabbitmqProperties -> rabbitmqProperties
       )
       val input = new RabbitMQInput(props)
-      val result = input.propsWithStorageLevel("MEMORY_AND_DISK_SER_2")
+      val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host")
       result should contain("queue", "queue")
-      result should contain("storageLevel", "MEMORY_AND_DISK_SER_2")
-      result should have size 5
+      result should contain("storageLevel", DefaultStorageLevel)
+      result should have size 4
     }
-
   }
 }
