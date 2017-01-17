@@ -19,13 +19,12 @@ package com.stratio.sparta.plugin.input.rabbitmq
 
 import java.io.{Serializable => JSerializable}
 
-import com.rabbitmq.client.QueueingConsumer.Delivery
 import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler
 import com.stratio.sparta.sdk.pipeline.input.Input
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
-import org.apache.spark.streaming.rabbitmq.RabbitMQUtils
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
 
 class RabbitMQInput(properties: Map[String, JSerializable])
   extends Input(properties) with RabbitMQGenericProps {
@@ -36,10 +35,5 @@ class RabbitMQInput(properties: Map[String, JSerializable])
     createStream(ssc, params, messageHandler)
   }
 
-  def createStream(ssc: StreamingContext,
-                   params: Map[String, String],
-                   messageHandler: Delivery => Row
-                  ): ReceiverInputDStream[Row] = {
-    RabbitMQUtils.createStream[Row](ssc, params, messageHandler)
-  }
+
 }

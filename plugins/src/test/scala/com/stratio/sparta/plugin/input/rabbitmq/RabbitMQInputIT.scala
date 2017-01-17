@@ -87,11 +87,11 @@ class RabbitMQInputIT extends RabbitIntegrationSpec {
 
     "Read all the records" in {
       val props = Map(
-        "host" -> hosts,
+        "hosts" -> hosts,
         "queueName" -> queueName)
+
       val input = new RabbitMQInput(props)
       val distributedStream = input.setUp(ssc.get, DefaultStorageLevel)
-
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 
       // Fires each time the configured window has passed.
