@@ -21,7 +21,7 @@
     {
       "propertyId": "driverLocation",
       "propertyName": "_DRIVER_LOCATION_",
-      "width": 7,
+      "width": 6,
       "position": "left",
       "required": false,
       "propertyType": "select",
@@ -63,12 +63,94 @@
     {
       "propertyId": "driverUri",
       "propertyName": "_DRIVER_URI_",
-      "width": 14,
+      "width": 12,
       "position": "left",
       "propertyType": "text",
       "required": false,
       "tooltip": "When the driver location is provided, in this uri is allocated the driver jar file",
       "qa": "policy-driver-uri"
+    },
+    {
+      "propertyId": "executionMode",
+      "propertyName": "_EXECUTION_MODE_",
+      "width": 6,
+      "position": "left",
+      "required": false,
+      "propertyType": "select",
+      "regexp": "local|mesos|yarn|standalone",
+      "values": [
+        {
+          "label": "Local",
+          "value": "local"
+        },
+        {
+          "label": "Mesos",
+          "value": "mesos"
+        },
+        {
+          "label": "Yarn",
+          "value": "yarn"
+        },
+        {
+          "label": "StandAlone",
+          "value": "standalone"
+        }
+      ],
+      "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
+      "qa": "policy-execution-mode"
+    },
+    {
+      "propertyId": "storageLevel",
+      "propertyName": "_STORAGELEVEL_",
+      "propertyType": "select",
+      "required": true,
+      "default": "MEMORY_ONLY_SER",
+      "width": 6,
+      "position": "right",
+      "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+      "qa": "policy-storage-level",
+      "values": [
+        {
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+        {
+          "label": "DISK_ONLY_2",
+          "value": "DISK_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY",
+          "value": "MEMORY_ONLY"
+        },
+        {
+          "label": "MEMORY_ONLY_2",
+          "value": "MEMORY_ONLY_2"
+        },
+        {
+          "label": "MEMORY_ONLY_SER",
+          "value": "MEMORY_ONLY_SER"
+        },
+        {
+          "label": "MEMORY_ONLY_SER_2",
+          "value": "MEMORY_ONLY_SER_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK",
+          "value": "MEMORY_AND_DISK"
+        },
+        {
+          "label": "MEMORY_AND_DISK_2",
+          "value": "MEMORY_AND_DISK_2"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER",
+          "value": "MEMORY_AND_DISK_SER"
+        },
+        {
+          "label": "MEMORY_AND_DISK_SER_2",
+          "value": "MEMORY_AND_DISK_SER_2"
+        }
+      ]
     },
     {
       "propertyId": "sparkStreamingWindowNumber",
@@ -154,63 +236,30 @@
       ]
     },
     {
-      "propertyId": "storageLevel",
-      "propertyName": "_STORAGELEVEL_",
-      "propertyType": "select",
-      "required": true,
-      "default": "MEMORY_ONLY_SER",
-      "width": 7,
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "width": 12,
       "position": "left",
-      "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
-      "qa": "policy-storage-level",
-      "values": [
-        {
-          "label": "DISK_ONLY",
-          "value": "DISK_ONLY"
-        },
-        {
-          "label": "DISK_ONLY_2",
-          "value": "DISK_ONLY_2"
-        },
-        {
-          "label": "MEMORY_ONLY",
-          "value": "MEMORY_ONLY"
-        },
-        {
-          "label": "MEMORY_ONLY_2",
-          "value": "MEMORY_ONLY_2"
-        },
-        {
-          "label": "MEMORY_ONLY_SER",
-          "value": "MEMORY_ONLY_SER"
-        },
-        {
-          "label": "MEMORY_ONLY_SER_2",
-          "value": "MEMORY_ONLY_SER_2"
-        },
-        {
-          "label": "MEMORY_AND_DISK",
-          "value": "MEMORY_AND_DISK"
-        },
-        {
-          "label": "MEMORY_AND_DISK_2",
-          "value": "MEMORY_AND_DISK_2"
-        },
-        {
-          "label": "MEMORY_AND_DISK_SER",
-          "value": "MEMORY_AND_DISK_SER"
-        },
-        {
-          "label": "MEMORY_AND_DISK_SER_2",
-          "value": "MEMORY_AND_DISK_SER_2"
-        }
-      ]
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
+      "qa": "checkpoint-path"
+    },
+    {
+      "propertyId": "autoDeleteCheckpoint",
+      "propertyName": "_AUTO_DELETE_CHECKPOINT_",
+      "width": 6,
+      "position": "left",
+      "propertyType": "boolean",
+      "required": false,
+      "tooltip": "Auto delete checkpoint path in HDFS when running policies",
+      "qa": "auto-delete-checkpoint"
     },
     {
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
-      "width": 5,
+      "width": 6,
       "position": "right",
       "default": false,
       "qa": "policy-raw-data"
@@ -218,7 +267,7 @@
     {
       "propertyId": "rawDataPath",
       "propertyName": "_PATH_",
-      "width": 7,
+      "width": 12,
       "position": "left",
       "propertyType": "text",
       "required": true,
@@ -232,55 +281,6 @@
       ],
       "default": "/tmp/checkpoint",
       "qa": "raw-data-path"
-    },
-    {
-      "propertyId": "checkpointPath",
-      "propertyName": "_CHECKPOINT_PATH_",
-      "width": 7,
-      "position": "left",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
-      "qa": "checkpoint-path"
-    },
-    {
-      "propertyId": "autoDeleteCheckpoint",
-      "propertyName": "_AUTO_DELETE_CHECKPOINT_",
-      "width": 5,
-      "position": "right",
-      "propertyType": "boolean",
-      "required": false,
-      "tooltip": "Auto delete checkpoint path in HDFS when running policies",
-      "qa": "auto-delete-checkpoint"
-    },
-    {
-      "propertyId": "executionMode",
-      "propertyName": "_EXECUTION_MODE_",
-      "width": 7,
-      "position": "left",
-      "required": false,
-      "propertyType": "select",
-      "regexp": "local|mesos|yarn|standalone",
-      "values": [
-        {
-          "label": "Local",
-          "value": "local"
-        },
-        {
-          "label": "Mesos",
-          "value": "mesos"
-        },
-        {
-          "label": "Yarn",
-          "value": "yarn"
-        },
-        {
-          "label": "StandAlone",
-          "value": "standalone"
-        }
-      ],
-      "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
-      "qa": "policy-execution-mode"
     },
     {
       "propertyId": "sparkConf",

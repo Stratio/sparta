@@ -158,15 +158,10 @@
  fi
  sed -i "s|sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v HDFS_PLUGINS_FOLDER ]]; then
-   HDFS_PLUGINS_FOLDER=plugins
- fi
- sed -i "s|sparta.hdfs.pluginsFolder.*|sparta.hdfs.pluginsFolder = ${HDFS_PLUGINS_FOLDER}|" ${SPARTA_CONF_FILE}
-
  if [[ ! -v HDFS_DRIVER_FOLDER ]]; then
    HDFS_DRIVER_FOLDER=jarDriver
  fi
- sed -i "s|sparta.hdfs.executionJarFolder.*|sparta.hdfs.executionJarFolder = ${HDFS_DRIVER_FOLDER}|" ${SPARTA_CONF_FILE}
+ sed -i "s|sparta.hdfs.driverFolder.*|sparta.hdfs.driverFolder = ${HDFS_DRIVER_FOLDER}|" ${SPARTA_CONF_FILE}
 
  if [[ -v HDFS_PRINCIPAL_NAME ]]; then
    sed -i "s|.*sparta.hdfs.principalName.*|sparta.hdfs.principalName = \""${HDFS_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
@@ -310,6 +305,11 @@
  fi
  sed -i "s|sparta.config.driverLocation.*|sparta.config.driverLocation = ${SPARTA_DRIVER_LOCATION}|" ${SPARTA_CONF_FILE}
 
+ if [[ ! -v SPARTA_PLUGINS_LOCATION ]]; then
+   SPARTA_PLUGINS_LOCATION=provided
+ fi
+ sed -i "s|sparta.config.pluginsLocation.*|sparta.config.pluginsLocation = ${SPARTA_PLUGINS_LOCATION}|" ${SPARTA_CONF_FILE}
+
  if [[ ! -v SPARTA_DRIVER_PACKAGE_LOCATION ]]; then
    SPARTA_DRIVER_PACKAGE_LOCATION="/opt/sds/sparta/driver/"
  fi
@@ -319,11 +319,6 @@
    SPARTA_DRIVER_URI="https://dl.dropboxusercontent.com/u/24168114/driver-plugin.jar"
  fi
  sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v SPARTA_PLUGINS_LOCATION ]]; then
-   SPARTA_PLUGINS_LOCATION=provided
- fi
- sed -i "s|sparta.config.pluginsLocation.*|sparta.config.pluginsLocation = ${SPARTA_PLUGINS_LOCATION}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_STOP_GRACEFULLY ]]; then
    SPARTA_STOP_GRACEFULLY=true
