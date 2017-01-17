@@ -48,7 +48,7 @@ abstract class RabbitIntegrationSpec extends WordSpec with Matchers with Timeout
   /**
     * RabbitMQ Properties
     */
-  val RabbitTimeOut = 1 second
+  val RabbitTimeOut = 3 second
   val configQueueName = Try(config.getString("rabbitmq.queueName")).getOrElse("rabbitmq-queue")
   val configExchangeName = Try(config.getString("rabbitmq.exchangeName")).getOrElse("rabbitmq-exchange")
   val exchangeType = Try(config.getString("rabbitmq.exchangeType")).getOrElse("topic")

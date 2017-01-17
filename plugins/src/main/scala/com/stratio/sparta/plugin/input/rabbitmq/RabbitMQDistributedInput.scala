@@ -18,17 +18,17 @@ package com.stratio.sparta.plugin.input.rabbitmq
 
 import java.io.{Serializable => JSerializable}
 
-import com.rabbitmq.client.QueueingConsumer.Delivery
 import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.{DStream, InputDStream}
-import org.apache.spark.streaming.rabbitmq.RabbitMQUtils
+import org.apache.spark.streaming.dstream.DStream
+import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
 import org.apache.spark.streaming.rabbitmq.distributed.RabbitMQDistributedKey
 import org.apache.spark.streaming.rabbitmq.models.ExchangeAndRouting
 
+import scala.language.implicitConversions
 import scala.util.Try
 
 object RabbitMQDistributedInput {
@@ -77,15 +77,6 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
       exchangeAndRouting,
       rabbitMQParams + hosts
     )
-  }
-
-  def createDistributedStream(
-                               ssc: StreamingContext,
-                               distributedKeys: Seq[RabbitMQDistributedKey],
-                               rabbitMQParams: Map[String, String],
-                               messageHandler: Delivery => Row
-                             ): InputDStream[Row] = {
-    RabbitMQUtils.createDistributedStream[Row](ssc, distributedKeys, rabbitMQParams, messageHandler)
   }
 
   class NotBlankOption(s: Option[String]) {

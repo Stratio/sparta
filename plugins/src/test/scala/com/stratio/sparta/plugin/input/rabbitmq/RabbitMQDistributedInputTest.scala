@@ -140,13 +140,13 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
       second.connectionParams should have size 2
       second.connectionParams should contain(HostPropertyKey, HostDefaultValue)
     }
-    "Get keys for empty string distributedProperties " in {
+    "Get 0 keys for empty string distributedProperties " in {
       val props = Map(DistributedPropertyKey -> "")
       val input = new RabbitMQDistributedInput(props)
       val result = input.getKeys(props)
       result should have size 0
     }
-    "Get keys for empty map" in {
+    "Get 0 keys for empty map" in {
       val props = Map.empty[String, String]
       val input = new RabbitMQDistributedInput(props)
       val result = input.getKeys(props)
