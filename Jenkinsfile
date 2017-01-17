@@ -13,15 +13,14 @@ hose {
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9091]
 
-     ITSERVICES = [[
-            'RABBITMQ': [
-              'image': 'library/rabbitmq:3.6.6'
-                ]
-            ]]
+    ITSERVICES = [
+            ['RABBITMQ': [
+               'image': 'rabbitmq:3-management'
+            ]],
+          ]
 
- ITPARAMETERS = """
-      |    -D=%%rabbitmq.hosts=RABBITMQ
-      | """
+    ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
+
 
     DEV = { config ->
     
