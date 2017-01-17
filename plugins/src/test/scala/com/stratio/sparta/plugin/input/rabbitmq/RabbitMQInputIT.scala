@@ -85,9 +85,9 @@ class RabbitMQInputIT extends RabbitIntegrationSpec {
 
   "RabbitMQInput " should {
 
-    "Should read all the records" in {
+    "Read all the records" in {
       val props = Map(
-        "host" -> "localhost",
+        "host" -> hosts,
         "queueName" -> queueName)
       val input = new RabbitMQInput(props)
       val distributedStream = input.setUp(ssc.get, DefaultStorageLevel)

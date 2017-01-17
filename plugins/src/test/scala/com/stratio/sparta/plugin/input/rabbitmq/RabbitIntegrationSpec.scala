@@ -82,6 +82,7 @@ abstract class RabbitIntegrationSpec extends WordSpec with Matchers with Timeout
     initSpark()
     log.info("Sending messages to queue..")
     initRabbitMQ()
+    log.info("Messages in queue.")
   }
 
   after {
