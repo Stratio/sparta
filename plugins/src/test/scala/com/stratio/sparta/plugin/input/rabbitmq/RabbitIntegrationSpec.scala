@@ -20,6 +20,8 @@ import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf, SparkContext}
+import org.scalatest.concurrent.TimeLimitedTests
+import org.scalatest.time.{Minute, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpec}
 
 import scala.concurrent.duration._
@@ -27,12 +29,14 @@ import scala.language.postfixOps
 import scala.util.Try
 
 
-abstract class RabbitIntegrationSpec extends WordSpec with Matchers with Logging
+abstract class RabbitIntegrationSpec extends WordSpec with Matchers with Logging with TimeLimitedTests
   with BeforeAndAfter with BeforeAndAfterAll {
+  private lazy val config = ConfigFactory.load()
+
 
   implicit val system = ActorSystem("ActorRabbitMQSystem")
   implicit val timeout = Timeout(10 seconds)
-  private lazy val config = ConfigFactory.load()
+  val timeLimit = Span(1, Minute)
   /**
     * Spark Properties
     */
