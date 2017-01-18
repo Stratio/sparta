@@ -236,16 +236,6 @@
       ]
     },
     {
-      "propertyId": "checkpointPath",
-      "propertyName": "_CHECKPOINT_PATH_",
-      "width": 12,
-      "position": "left",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
-      "qa": "checkpoint-path"
-    },
-    {
       "propertyId": "autoDeleteCheckpoint",
       "propertyName": "_AUTO_DELETE_CHECKPOINT_",
       "width": 6,
@@ -256,11 +246,20 @@
       "qa": "auto-delete-checkpoint"
     },
     {
+      "propertyId": "stopGracefully",
+      "propertyName": "_STOP_GRACEFULLY_",
+      "propertyType": "boolean",
+      "width": 6,
+      "position": "right",
+      "tooltip": "Stop gracefully the spark streaming context when run in cluster mode",
+      "qa": "policy-stop-gracefully"
+    },
+    {
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "default": false,
       "qa": "policy-raw-data"
     },

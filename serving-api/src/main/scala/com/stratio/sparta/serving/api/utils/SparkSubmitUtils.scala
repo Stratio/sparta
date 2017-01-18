@@ -73,40 +73,40 @@ trait SparkSubmitUtils extends SLF4JLogging {
   def toMap(key: String, newKey: String, config: Config): Map[String, String] =
     Try(config.getString(key)) match {
       case Success(value) =>
-        Map(newKey -> value)
+        Map(newKey.trim -> value.trim)
       case Failure(_) =>
         log.debug(s"The key $key was not defined in config.")
         Map.empty[String, String]
     }
 
+  def optionFromPolicyAndProperties(policyOption: Option[String],
+                                    configuration: Config, configurationKey: String): String =
+    policyOption.filter(_.trim.nonEmpty).getOrElse(configuration.getString(configurationKey)).trim
+
   def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
     Try(policy.driverLocation.getOrElse(detailConfig.getString(DriverLocation)))
       .getOrElse(DefaultDriverLocation) match {
       case location if location == "hdfs" =>
-        val driverFolder = hdfsConfig match {
-          case Some(config) => Try(config.getString(DriverFolder)).getOrElse(DefaultDriverFolder)
-          case None => DefaultDriverFolder
-        }
         val Hdfs = HdfsUtils()
         val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
-        val BasePath = Try(policy.driverUri.getOrElse(detailConfig.getString(DriverURI)))
-          .getOrElse(s"/user/${Hdfs.userName}/$ConfigAppName") + s"/${policy.id.get.trim}"
-        val DriverJarPath = s"$BasePath/$driverFolder/"
+        val BasePath = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
+          .getOrElse(s"/user/${Hdfs.userName}/$ConfigAppName") + s"/${policy.id.get.trim}/"
 
-        Uploader.uploadDriverFile(DriverJarPath)
+        Uploader.uploadDriverFile(BasePath)
       case _ =>
-        policy.driverUri.getOrElse(detailConfig.getString(DriverURI))
+        Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
+          .getOrElse(DefaultProvidedDriverURI)
     }
 
-  def pluginsSubmit(policy: PolicyModel, detailConfig: Config): Seq[String] =
-    Try(policy.pluginsLocation.getOrElse(detailConfig.getString(PluginsLocation)))
-      .getOrElse(DefaultPluginsLocation) match {
-      case location if location == "local" => policy.userPluginsJars.map(userJar => userJar.jarPath)
-      case _ => Seq.empty[String]
+  def pluginsSubmit(policy: PolicyModel, detailConfig: Config, fromLocation: String): Seq[String] =
+    Try(policy.pluginsLocation.getOrElse(detailConfig.getString(PluginsLocation))) match {
+      case Success(location) if (location == LocalPluginsLocation) && (location == fromLocation) =>
+        policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
+      case _ => policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
     }
 
   def sparkHome(clusterConfig: Config): String =
-    Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome))
+    Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
   /**
    * Checks if we have a valid Spark home.
@@ -129,13 +129,18 @@ trait SparkSubmitUtils extends SLF4JLogging {
     } else false
   }
 
+  def gracefulStop(policy: PolicyModel, detailConfig: Config): Boolean = {
+    Try(policy.stopGracefully.getOrElse(detailConfig.getBoolean(ConfigStopGracefully)))
+      .getOrElse(DefaultStopGracefully)
+  }
+
   def submitArgumentsFromPolicy(submitArgs: Seq[SubmitArgument]): Map[String, String] =
     submitArgs.flatMap(argument => {
       if (argument.submitArgument.nonEmpty) {
         if (!SubmitArguments.contains(argument.submitArgument))
           log.warn(s"Spark submit argument added unrecognized by Sparta. \n" +
             s"Argument: ${argument.submitArgument}\nValue: ${argument.submitValue}")
-        Some(argument.submitArgument -> argument.submitValue)
+        Some(argument.submitArgument.trim -> argument.submitValue.trim)
       } else None
     }).toMap
 

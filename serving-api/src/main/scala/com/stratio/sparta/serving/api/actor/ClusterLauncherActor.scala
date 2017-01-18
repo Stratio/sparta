@@ -75,17 +75,18 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
       validateSparkHome(clusterConfig)
 
       val PolicyId = policy.id.get.trim
-      val Master = clusterConfig.getString(AppConstant.Master)
+      val Master = clusterConfig.getString(AppConstant.Master).trim
 
       log.info("Init new cluster streamingContext with name " + policy.name)
 
       val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
-      val pluginsFiles = pluginsSubmit(policy, DetailConfig)
+      val localPluginsFiles = pluginsSubmit(policy, DetailConfig, AppConstant.LocalPluginsLocation)
+      val allPluginsFiles = pluginsSubmit(policy, DetailConfig, AppConstant.ProvidedPluginsLocation)
       val driverParams =
         Seq(PolicyId,
           zkConfigEncoded,
           detailConfigEncoded,
-          pluginsEncoded(pluginsFiles),
+          pluginsEncoded(localPluginsFiles),
           driverLocationConfigEncoded(driverLocation, driverLocationConfig)
         )
       val sparkArguments = submitArgumentsFromProperties(clusterConfig) ++
@@ -98,8 +99,9 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
         s"Master: $Master\n\t" +
         s"Spark arguments: ${sparkArguments.mkString(",")}\n\t" +
         s"Driver params: $driverParams\n\t" +
-        s"Plugins files: ${pluginsFiles.mkString(",")}")
-      launch(policy, SpartaDriverClass, driverPath, Master, sparkArguments, driverParams, pluginsFiles, clusterConfig)
+        s"Plugins files: ${allPluginsFiles.mkString(",")}")
+      launch(policy, SpartaDriverClass, driverPath, Master, sparkArguments, driverParams, allPluginsFiles,
+        clusterConfig)
     } match {
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
@@ -128,8 +130,10 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     pluginsFiles.foreach(file => sparkLauncher.addJar(file))
 
     //Spark arguments
-    sparkArguments.map { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
-    if (isSupervised(policy, DetailConfig, clusterConfig)) sparkLauncher.addSparkArg(SubmitSupervise)
+    sparkArguments.filter(_._2.nonEmpty).foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
+    sparkArguments.filter(_._2.isEmpty).foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k) }
+    if(!sparkArguments.contains(SubmitSupervise) && isSupervised(policy, DetailConfig, clusterConfig))
+      sparkLauncher.addSparkArg(SubmitSupervise)
 
     // Kerberos Options
     val principalNameOption = HdfsUtils.getPrincipalName
@@ -149,8 +153,9 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
     sparkConf(clusterConfig).foreach { case (key: String, value: String) =>
       val valueParsed = if (key == "spark.app.name") s"$value-${policy.name}" else value
       log.info(s"\t$key = $valueParsed")
-      sparkLauncher.setConf(key, valueParsed)
+      sparkLauncher.setConf(key.trim, valueParsed.trim)
     }
+    sparkLauncher.setConf(AppConstant.SparkGracefullyStopProperty, gracefulStop(policy, DetailConfig).toString)
 
     // Driver (Sparta) params
     driverArguments.foreach(sparkLauncher.addAppArgs(_))

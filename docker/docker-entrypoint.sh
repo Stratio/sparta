@@ -55,70 +55,6 @@
   echo "" >> ${SYSTEM_VARIABLES}
  echo "export SPARK_HOME=${SPARK_HOME}" >> ${SYSTEM_VARIABLES}
 
- if [[ ! -v DOWNLOAD_SPARK ]]; then
-   DOWNLOAD_SPARK=false
- fi
-
- if [[ ! -v SPARK_MESOSPHERE ]]; then
-   SPARK_MESOSPHERE=false
- fi
-
- if [[ "${DOWNLOAD_SPARK}" == "true" ]]; then
-   if [[ "${SPARK_MESOSPHERE}" == "true" ]]; then
-     SPARK_DIRECTORY=spark-1.6.2-bin-2.6.0
-     SPARK_FILE=spark-mesosphere-scala211-1.6.2-bin-hadoop2.6.0.tgz
-     wget "http://tools.stratio.com/spark/${SPARK_FILE}"
-     tar -xf ${SPARK_FILE}
-     cp -R ${SPARK_DIRECTORY} ${SPARK_HOME}
-     rm -f ${SPARK_FILE}
-     rm -f -R ${SPARK_DIRECTORY}
-   else
-     if [[ ! -v SPARK_VERSION ]]; then
-       SPARK_VERSION=spark-1.6.2
-     fi
-     if [[ ! -v HADOOP_SPARK_VERSION ]]; then
-       HADOOP_SPARK_VERSION=hadoop2.6
-     fi
-
-     rm -f -R ${SPARK_HOME}
-     SPARK_DIRECTORY="${SPARK_VERSION}-bin-${HADOOP_SPARK_VERSION}"
-     SPARK_HADOOP_VERSION_FILE="${SPARK_DIRECTORY}.tgz"
-     wget "http://apache.rediris.es/spark/${SPARK_VERSION}/${SPARK_HADOOP_VERSION_FILE}"
-     tar -xvzf ${SPARK_HADOOP_VERSION_FILE}
-     cp -R ${SPARK_DIRECTORY} ${SPARK_HOME}
-     rm -f ${SPARK_HADOOP_VERSION_FILE}
-     rm -f -R ${SPARK_DIRECTORY}
-   fi
- fi
-
-
- # HADOOP DOWNLOAD OPTIONS
- if [[ ! -v HADOOP_HOME ]]; then
-   HADOOP_HOME="/opt/sds/hadoop"
- fi
- echo "" >> ${VARIABLES}
- echo "export HADOOP_HOME=${HADOOP_HOME}" >> ${VARIABLES}
- echo "" >> ${SYSTEM_VARIABLES}
- echo "export HADOOP_HOME=${HADOOP_HOME}" >> ${SYSTEM_VARIABLES}
-
-
- if [[ ! -v DOWNLOAD_HADOOP ]]; then
-   DOWNLOAD_HADOOP=false
- fi
-
- if [[ ! -v HADOOP_VERSION ]]; then
-   HADOOP_VERSION=hadoop-2.7.1
- fi
-
- if [[ "${DOWNLOAD_HADOOP}" == "true" ]]; then
-   rm -f -R ${HADOOP_HOME}
-   HADOOP_VERSION_FILE="${HADOOP_VERSION}.tar.gz"
-   wget "http://www.eu.apache.org/dist/hadoop/common/${HADOOP_VERSION}/${HADOOP_VERSION_FILE}"
-   tar -xvzf ${HADOOP_VERSION_FILE}
-   cp -R ${HADOOP_VERSION} ${HADOOP_HOME}
-   rm -f -R ${HADOOP_VERSION_FILE}
-   rm -f -R ${HADOOP_VERSION}
- fi
 
  # HDFS OPTIONS
  if [[ -v HDFS_USER_NAME ]]; then
@@ -131,22 +67,16 @@
 
  if [[ -v HDFS_MASTER ]]; then
    sed -i "s|sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
-   HADOOP_CONF_DIR=${HADOOP_HOME}/conf
-   mkdir "${HADOOP_CONF_DIR}"
+   HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+   mkdir -p "${HADOOP_CONF_DIR}"
    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
-   YARN_SITE="${HADOOP_CONF_DIR}/yarn-site.xml"
-   MAPRED_SITE="${HADOOP_CONF_DIR}/mapred-site.xml"
    wget "http://${HDFS_MASTER}:50070/conf"
    cp conf "${CORE_SITE}"
    cp conf "${HDFS_SITE}"
-   cp conf "${YARN_SITE}"
-   cp conf "${MAPRED_SITE}"
    rm -f conf
    sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${CORE_SITE}
    sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${HDFS_SITE}
-   sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${YARN_SITE}
-   sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${MAPRED_SITE}
    echo "" >> ${VARIABLES}
    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
    echo "" >> ${SYSTEM_VARIABLES}
@@ -157,11 +87,6 @@
    HDFS_PORT=9000
  fi
  sed -i "s|sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v HDFS_DRIVER_FOLDER ]]; then
-   HDFS_DRIVER_FOLDER=jarDriver
- fi
- sed -i "s|sparta.hdfs.driverFolder.*|sparta.hdfs.driverFolder = ${HDFS_DRIVER_FOLDER}|" ${SPARTA_CONF_FILE}
 
  if [[ -v HDFS_PRINCIPAL_NAME ]]; then
    sed -i "s|.*sparta.hdfs.principalName.*|sparta.hdfs.principalName = \""${HDFS_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
@@ -316,7 +241,7 @@
  sed -i "s|sparta.config.driverPackageLocation.*|sparta.config.driverPackageLocation = \""${SPARTA_DRIVER_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_DRIVER_URI ]]; then
-   SPARTA_DRIVER_URI="https://dl.dropboxusercontent.com/u/24168114/driver-plugin.jar"
+   SPARTA_DRIVER_URI="http://sparta:9090/driverJar/driver-plugin.jar"
  fi
  sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
 
@@ -626,10 +551,10 @@
 
 
  # SPRAY OPTIONS
-  if [[ ! -v SPR_CAN_SERVER_SSL_ENCRYPTION ]]; then
-   SPR_CAN_SERVER_SSL_ENCRYPTION=off
+  if [[ ! -v SPRAY_CAN_SERVER_SSL_ENCRYPTION ]]; then
+   SPRAY_CAN_SERVER_SSL_ENCRYPTION=off
  fi
- sed -i "s|spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPARTA_AUTO_DELETE_CHECKPOINT}|" ${SPARTA_CONF_FILE}
+ sed -i "s|spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION}|" ${SPARTA_CONF_FILE}
 
 
  if [[ "${SSH}" == "true" ]]; then

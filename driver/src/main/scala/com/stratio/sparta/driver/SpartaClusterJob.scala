@@ -97,9 +97,10 @@ object SpartaClusterJob extends PolicyUtils {
         ssc.awaitTermination()
       } match {
         case Success(_) =>
-          log.info(s"Finished correctly Sparta Cluster Job for policy: ${policy.id.get}")
+          log.info(s"Finished correctly Streaming Context Job for policy: ${policy.id.get}")
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
         case Failure(exception) =>
-          val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
+          val message = s"Error initiating Sparta context: ${exception.getLocalizedMessage}"
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
           throw DriverException(message, exception)
       }
@@ -108,8 +109,10 @@ object SpartaClusterJob extends PolicyUtils {
         log.info("Finished correctly Sparta Cluster Job")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
+        throw driverException
       case Failure(exception: Exception) =>
         log.error(s"Error initiating Sparta environment: ${exception.getLocalizedMessage}", exception)
+        throw exception
     }
   }
 

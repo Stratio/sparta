@@ -49,7 +49,8 @@ case class PolicyModel(
                         executionMode: Option[String] = None,
                         driverLocation: Option[String] = None,
                         pluginsLocation: Option[String] = None,
-                        driverUri: Option[String] = None
+                        driverUri: Option[String] = None,
+                        stopGracefully: Option[Boolean] = None
                       )
 
 case object PolicyModel extends SLF4JLogging {

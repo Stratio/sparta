@@ -188,6 +188,7 @@
   "_CHECKPOINT_PATH_": "Checkpoint path",
   "_AUTO_DELETE_CHECKPOINT_": "Auto-delete checkpoint",
   "_PERSIST_RAW_DATA_": "Persist raw data",
+  "_STOP_GRACEFULLY_": "Stop Gracefully",
   "_PARTITION_FORMAT_": "Partition format",
   "_ADVANCED_SETTINGS_": "Advanced settings",
   "_INSERT_DESCRIPTION_": "Insert Description",
