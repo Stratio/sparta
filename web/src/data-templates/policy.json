@@ -66,6 +66,7 @@
       "propertyType": "number",
       "width": 6,
       "position": "left",
+      "tooltip": "Maximum time a certain query will be executed before being aborted.",
       "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
       "qa": "policy-remember-number"
     },
@@ -108,7 +109,7 @@
       "default": "MEMORY_ONLY_SER",
       "width": 7,
       "position": "left",
-      "tooltip": "Default Storage Level assigned to Spark Streaming batches",
+      "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
       "qa": "policy-storage-level",
       "values": [
         {
@@ -187,7 +188,7 @@
       "position": "left",
       "propertyType": "text",
       "required": false,
-      "tooltip": "Checkpoint Path in HDFS when launch policies in cluster mode over SparkStandAlone, Mesos or Yarn",
+      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
       "qa": "checkpoint-path"
     },
     {
@@ -197,7 +198,7 @@
       "position": "right",
       "propertyType": "boolean",
       "required": false,
-      "tooltip": "Auto delete checkpoint path in HDFS when run policies",
+      "tooltip": "Auto delete checkpoint path in HDFS when running policies",
       "qa": "auto-delete-checkpoint"
     },
     {
@@ -226,7 +227,7 @@
           "value": "standalone"
         }
       ],
-      "tooltip": "Execution mode when the policy is launched, if don't select anything sparta use the configuration file property",
+      "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
       "qa": "policy-execution-mode"
     },
     {
@@ -235,7 +236,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "Spark configuration properties when submit jobs in Spark, this override the property file properties",
+      "tooltip": "Spark configuration properties, values set here will override the ones set in the configuration file.",
       "qa": "policy-spark-conf",
       "fields": [
         {
@@ -269,7 +270,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "Spark submit arguments added when run the policy over Spark Clusters, this override the property file options",
+      "tooltip": "Spark submit arguments added when the policy is executed over a Spark cluster. Values set here will override the property file options",
       "qa": "policy-spark-submit-argument",
       "fields": [
         {
@@ -303,7 +304,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user need to registry temporal/master tables from external datasources. After it's possible to mix them insisde the triggers",
+      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources.Once launched it's possible to mix them inside the triggers",
       "qa": "policy-sql-sentences",
       "fields": [
         {
@@ -488,6 +489,7 @@
         }
       ],
       "defaultConfiguration": {
+        "tooltip" : "A previously defined transformation is required in order to define filtering rules over a given field.",
         "filters": [
           {
             "field":"field1",
@@ -873,6 +875,7 @@
         "propertyType": "text",
         "width": 6,
         "position": "left",
+        "tooltip": "Sets the value used to group by the incoming data. Only valid if the metric chosen is  between Millisecon(s) and Day(s).",
         "required": false,
         "qa": "policy-cube-dimension-dateTime-precisionNumber"
       },
@@ -971,6 +974,7 @@
         "propertyType": "select",
         "width": 6,
         "position": "right",
+        "tooltip": "Sets the time window for aggregation operations.",
         "qa": "policy-cube-dimension-dateTime-computeLastTime",
         "default": "m",
         "required": true,
