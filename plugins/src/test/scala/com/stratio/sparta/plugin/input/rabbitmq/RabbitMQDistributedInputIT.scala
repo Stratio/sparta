@@ -18,6 +18,7 @@ package com.stratio.sparta.plugin.input.rabbitmq
 import java.util.UUID
 
 import akka.pattern.{ask, gracefulStop}
+import akka.testkit.TestProbe
 import com.github.sstone.amqp.Amqp._
 import com.github.sstone.amqp.{Amqp, ChannelOwner, ConnectionOwner, Consumer}
 import com.rabbitmq.client.ConnectionFactory
@@ -52,10 +53,11 @@ class RabbitMQDistributedInputIT extends RabbitIntegrationSpec {
     val connFactory = new ConnectionFactory()
     connFactory.setUri(RabbitConnectionURI)
     val conn = system.actorOf(ConnectionOwner.props(connFactory, RabbitTimeOut))
+    val probe = TestProbe()
     Amqp.waitForConnection(system, conn).await()
     val consumer = ConnectionOwner.createChildActor(
       conn,
-      Consumer.props(listener = None),
+      Consumer.props(listener = Some(probe.ref)),
       timeout = RabbitTimeOut,
       name = Some("RabbitMQ.consumer")
     )
