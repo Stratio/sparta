@@ -15,6 +15,15 @@ hose {
     USERBASEIMG = 'qa.stratio.com/stratio/mesosphere-spark-scala211:1.6.2'
 
 
+    ITSERVICES = [
+            ['RABBITMQ': [
+               'image': 'rabbitmq:3-management'
+            ]],
+          ]
+
+    ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
+
+
     DEV = { config ->
     
         doCompile(config)
