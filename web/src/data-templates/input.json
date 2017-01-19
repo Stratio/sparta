@@ -203,7 +203,7 @@
     ]
   },
   {
-    "name": "RabbitMQ",
+    "name": "RabbitMQ Single Node",
     "modelType": "RabbitMQ",
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
@@ -212,14 +212,169 @@
     },
     "properties": [
       {
-        "propertyId": "receiverType",
-        "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
+        "propertyId": "hosts",
+        "propertyName": "_HOST_",
         "propertyType": "text",
-        "default": "distributed",
-        "regexp": "",
+        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+        "default": "localhost",
         "required": true,
-        "tooltip": "RabbitMQ receiver type, distributed or single node approach",
-        "qa": "fragment-details-rabbitMQ-receiverType"
+        "tooltip": "Server address.",
+        "hidden": false,
+        "qa": "fragment-details-rabbitmq-hosts"
+      },
+      {
+        "propertyId": "queueName",
+        "propertyName": "_QUEUE_",
+        "propertyType": "text",
+        "default": "rabbitqueue",
+        "required": true,
+        "tooltip": "Incomming queue.",
+        "hidden": false,
+        "qa": "fragment-details-rabbitmq-queue-name"
+      },
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-key-serializer"
+      },
+      {
+        "propertyId": "rabbitmqProperties",
+        "propertyName": "_RABBITMQ_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "rabbitmqPropertyKey",
+            "propertyName": "_RABBITMQ_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyKey"
+          },
+          {
+            "propertyId": "rabbitmqPropertyValue",
+            "propertyName": "_RABBITMQ_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyValue"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "RabbitMQ Distributed Node",
+    "modelType": "RabbitMQDistributed",
+    "description": {
+      "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
+    },
+    "properties": [
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-key-serializer"
+      },
+      {
+        "propertyId": "distributedProperties",
+        "propertyName": "_RABBITMQ_DISTRIBUTED_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "hosts",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "required": true,
+            "tooltip": "Server address.",
+            "hidden": false,
+            "qa": "fragment-details-rabbitmq-hosts"
+          },
+          {
+            "propertyId": "distributedQueue",
+            "propertyName": "_RABBITMQ_QUEUE_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedQueue"
+          },
+          {
+            "propertyId": "distributedExchangeName",
+            "propertyName": "_RABBITMQ_EXCHANGE_NAME_KEY_",
+            "position": "right",
+            "width": 15,
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedExchangeName"
+          },
+          {
+            "propertyId": "distributedExchangeType",
+            "propertyName": "_RABBITMQ_EXCHANGE_TYPE_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedExchangeType"
+          },
+          {
+            "propertyId": "distributedRoutingKeys",
+            "propertyName": "_RABBITMQ_ROUTING_KEYS_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedRoutingKeys"
+          }
+        ]
       },
       {
         "propertyId": "rabbitmqProperties",

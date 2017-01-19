@@ -13,6 +13,15 @@ hose {
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9091]
 
+    ITSERVICES = [
+            ['RABBITMQ': [
+               'image': 'rabbitmq:3-management'
+            ]],
+          ]
+
+    ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
+
+
     DEV = { config ->
     
         doCompile(config)

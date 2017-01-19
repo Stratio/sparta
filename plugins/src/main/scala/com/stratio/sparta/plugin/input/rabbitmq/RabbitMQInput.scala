@@ -16,53 +16,24 @@
 
 package com.stratio.sparta.plugin.input.rabbitmq
 
+
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.rabbitmq.ConfigParameters
 import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
-import org.apache.spark.streaming.rabbitmq.distributed.RabbitMQDistributedKey
 
-import scala.util.Try
-
-class RabbitMQInput(properties: Map[String, JSerializable]) extends Input(properties) {
-
-  val DefaultReceiver = "distributed"
-  val RabbitmqProperties = "rabbitmqProperties"
-  val RabbitmqPropertyKey = "rabbitmqPropertyKey"
-  val RabbitmqPropertyValue = "rabbitmqPropertyValue"
-  val ReceiverType = properties.getString("receiverType", DefaultReceiver).toLowerCase
+class RabbitMQInput(properties: Map[String, JSerializable])
+  extends Input(properties) with RabbitMQGenericProps {
 
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
-
-    val messageHandler = (rawMessage: Array[Byte]) => Row(new Predef.String(rawMessage))
-    val rabbitMQProperties = getRabbitMQProperties
-    val propsWithStorageLevel = properties.mapValues(value => value.toString) ++
-        Map(ConfigParameters.StorageLevelKey -> sparkStorageLevel) ++
-      rabbitMQProperties.mapValues(value => value.toString)
-
-    ReceiverType match {
-      case DefaultReceiver =>
-        createDistributedStream[Row](ssc, Seq.empty[RabbitMQDistributedKey], propsWithStorageLevel, messageHandler)
-      case _ =>
-        createStream[Row](ssc, propsWithStorageLevel, messageHandler)
-    }
+    val messageHandler = MessageHandler(properties).handler
+    val params = propsWithStorageLevel(sparkStorageLevel)
+    createStream(ssc, params, messageHandler)
   }
 
-  private def getRabbitMQProperties: Map[String, String] =
-    Try(properties.getMapFromJsoneyString(RabbitmqProperties))
-      .getOrElse(Seq.empty[Map[String, String]])
-      .map(c =>
-        (c.get(RabbitmqPropertyKey) match {
-          case Some(value) => value.toString
-          case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyKey is mandatory")
-        },
-          c.get(RabbitmqPropertyValue) match {
-            case Some(value) => value.toString
-            case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyValue is mandatory")
-          })).toMap
+
 }
