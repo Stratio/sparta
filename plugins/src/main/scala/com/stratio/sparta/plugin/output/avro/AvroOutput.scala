@@ -41,8 +41,8 @@ class AvroOutput(keyName: String,
 
 
     val tableName = getTableNameFromOptions(options)
-    val timeDimension = getTimeFromOptions(options)
-    val path = properties.getString("path", None)
+    val timeDimension = getTimeFromOptions(options).notBlank
+    val path = properties.getString("path", None).notBlank
     require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
     val partitionBy = properties.getString("partitionBy", None)
 

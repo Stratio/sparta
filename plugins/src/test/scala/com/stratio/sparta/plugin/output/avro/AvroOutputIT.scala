@@ -100,13 +100,23 @@ class AvroOutputIT extends WordSpec with Matchers with Logging with TimeLimitedT
     val output = new AvroOutput("avro-test", None, properties, Seq())
   }
 
-  trait WithWrongOutput extends CommonValues {
+  trait NonePath extends CommonValues {
+    val output = new AvroOutput("avro-test", None, Map.empty, Seq())
+  }
+
+  trait EmptyPath extends CommonValues {
+    val properties = Map("path" -> "    ")
     val output = new AvroOutput("avro-test", None, Map.empty, Seq())
   }
 
   "AvroOutput" should {
 
-    "throw an exception when path is not present" in new WithWrongOutput {
+    "throw an exception when path is not present" in new NonePath {
+      an[Exception] should be thrownBy output
+        .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+    }
+
+    "throw an exception when empty path " in new EmptyPath {
       an[Exception] should be thrownBy output
         .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
     }
