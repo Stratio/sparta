@@ -47,20 +47,20 @@ object SpartaClusterJob extends PolicyUtils {
   final val ZookeperConfigurationIndex = 1
   final val DetailConfigurationIndex = 2
   final val PluginsFilesIndex = 3
-  final val HdfsConfigIndex = 4
+  final val DriverLocationConfigIndex = 4
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
     assert(args.length == 5, s"Invalid number of params: ${args.length}, args: $args")
     Try {
       val policyId = args(PolicyIdIndex)
-      val detailConfiguration = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
-      val zookeperConfiguration = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
+      val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
+      val zookeperConf = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
         .split(",").filter(s => s != " " && s.nonEmpty && s != "")
-      val hdfsConfiguration = new String(BaseEncoding.base64().decode(args(HdfsConfigIndex)))
+      val driverLocationConf = new String(BaseEncoding.base64().decode(args(DriverLocationConfigIndex)))
 
-      initSpartaConfig(detailConfiguration, zookeperConfiguration, hdfsConfiguration)
+      initSpartaConfig(detailConf, zookeperConf, driverLocationConf)
 
       addPluginsToClassPath(pluginsFiles)
 
@@ -97,9 +97,10 @@ object SpartaClusterJob extends PolicyUtils {
         ssc.awaitTermination()
       } match {
         case Success(_) =>
-          log.info(s"Finished correctly Sparta Cluster Job for policy: ${policy.id.get}")
+          log.info(s"Finished correctly Streaming Context Job for policy: ${policy.id.get}")
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
         case Failure(exception) =>
-          val message = s"Error initiating Sparta environment: ${exception.getLocalizedMessage}"
+          val message = s"Error initiating Sparta context: ${exception.getLocalizedMessage}"
           policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
           throw DriverException(message, exception)
       }
@@ -108,33 +109,27 @@ object SpartaClusterJob extends PolicyUtils {
         log.info("Finished correctly Sparta Cluster Job")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
+        throw driverException
       case Failure(exception: Exception) =>
         log.error(s"Error initiating Sparta environment: ${exception.getLocalizedMessage}", exception)
+        throw exception
     }
   }
 
   //scalastyle:on
-  private def addPluginsToClassPath(pluginsFiles: Array[String]) = {
+  private def addPluginsToClassPath(pluginsFiles: Array[String]) : Unit = {
     log.info(pluginsFiles.mkString(","))
-    pluginsFiles.foreach {
-      fileHdfsPath => {
-        log.info(s"Getting file from HDFS: $fileHdfsPath")
-        val inputStream = HdfsUtils().getFile(fileHdfsPath)
-        val fileName = fileHdfsPath.split("/").last
-        log.info(s"HDFS file name is $fileName")
-        val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/$fileName")
-        log.info(s"Downloading HDFS file to local file system: ${file.getAbsoluteFile}")
-        FileUtils.copyInputStreamToFile(inputStream, file)
-        JarsHelper.addToClasspath(file)
-      }
-    }
+    pluginsFiles.foreach(filePath => {
+      val file = new File(filePath)
+      JarsHelper.addToClasspath(file)
+    })
   }
 
-  def initSpartaConfig(detailConfig: String, zKConfig: String, hdfsConfig: String): Unit = {
+  def initSpartaConfig(detailConfig: String, zKConfig: String, clusterConfig: String): Unit = {
     val configStr =
       s"${detailConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
-        s"\n${hdfsConfig.stripPrefix("{").stripSuffix("}")}"
+        s"\n${clusterConfig.stripPrefix("{").stripSuffix("}")}"
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
     SpartaConfig.initDAOs

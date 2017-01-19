@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparta.serving.core.utils
 
 import java.io.File
@@ -33,12 +32,13 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def isLocalMode(policyModel: PolicyModel): Boolean =
     policyModel.executionMode match {
-      case Some(policyExecutionMode) if policyExecutionMode.nonEmpty => policyExecutionMode.equalsIgnoreCase("local")
+      case Some(policyExecutionMode) if policyExecutionMode.nonEmpty =>
+        policyExecutionMode.equalsIgnoreCase(ConfigLocal)
       case _ =>
-      SpartaConfig.getDetailConfig match {
-        case Some(detailConfig) => detailConfig.getString(ExecutionMode).equalsIgnoreCase("local")
-        case None => true
-      }
+        SpartaConfig.getDetailConfig match {
+          case Some(detailConfig) => detailConfig.getString(ExecutionMode).equalsIgnoreCase(ConfigLocal)
+          case None => true
+        }
     }
 
   def deleteFromLocal(policy: PolicyModel): Unit = {
@@ -68,7 +68,7 @@ trait CheckpointUtils extends SLF4JLogging {
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
 
-  def createLocalCheckpointPath(policy: PolicyModel) : Unit = {
+  def createLocalCheckpointPath(policy: PolicyModel): Unit = {
     if (isLocalMode(policy))
       Try {
         createFromLocal(policy)
