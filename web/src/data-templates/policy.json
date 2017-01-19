@@ -36,7 +36,7 @@
           "value": "hdfs"
         }
       ],
-      "tooltip": "Sparta Driver jar location, when is provided is necessary specify the URI",
+      "tooltip": "Sparta Driver jar location, when is provided is necessary specify the URI. If nothing is selected Sparta will use the values in the configuration file.",
       "qa": "policy-driver-location"
     },
     {
@@ -57,7 +57,7 @@
           "value": "local"
         }
       ],
-      "tooltip": "Sparta plugins locations, when is provided is necessary specify the artifactory or the http URIs",
+      "tooltip": "Sparta plugins locations, when is provided is necessary specify the artifactory or the http URIs. If nothing is selected Sparta will use the values in the configuration file.",
       "qa": "policy-plugins-location"
     },
     {
@@ -159,6 +159,7 @@
       "default": 6,
       "width": 6,
       "position": "left",
+      "tooltip": "Streaming window assigned to Spark Streaming.",
       "required": true,
       "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
     },
@@ -242,7 +243,7 @@
       "position": "left",
       "propertyType": "boolean",
       "required": false,
-      "tooltip": "Auto delete checkpoint path in HDFS when running policies",
+      "tooltip": "Auto delete checkpoint path in HDFS when running policies. Override the value in the configuration file.",
       "qa": "auto-delete-checkpoint"
     },
     {
@@ -251,7 +252,7 @@
       "propertyType": "boolean",
       "width": 6,
       "position": "right",
-      "tooltip": "Stop gracefully the spark streaming context when run in cluster mode",
+      "tooltip": "Stop gracefully the spark streaming context when run in cluster mode. Override the value in the configuration file.",
       "qa": "policy-stop-gracefully"
     },
     {
@@ -260,6 +261,7 @@
       "propertyType": "boolean",
       "width": 6,
       "position": "left",
+      "tooltip": "Save the raw data in HDFS with parquet format.",
       "default": false,
       "qa": "policy-raw-data"
     },
@@ -269,6 +271,7 @@
       "width": 12,
       "position": "left",
       "propertyType": "text",
+      "tooltip": "Path in HDFS",
       "required": true,
       "visible": [
         [

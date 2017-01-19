@@ -178,8 +178,7 @@ class ClusterLauncherActor(policyStatusActor: ActorRef) extends Actor
         log.info("Command: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
         if (!sparkLauncherStreams(exitCode, sparkProcess)) throw new Exception("Errors in Spark Launcher")
       case Failure(exception) =>
-        log.error(exception.getMessage)
-        throw exception
+        throw new Exception(exception.getMessage)
     }
   }
 
