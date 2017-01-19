@@ -17,10 +17,9 @@ package com.stratio.sparta.plugin.output.http
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.Logging
 import org.apache.spark.sql._
 
@@ -42,24 +41,17 @@ class HttpOutput(keyName: String,
   extends Output(keyName, version, properties, schemas) with Logging {
 
   val MaxReadTimeout = 5000
-
   val MaxConnTimeout = 1000
 
   require(properties.getString("url", None).isDefined, "url must be provided")
+
   val url = properties.getString("url")
-
   val delimiter = properties.getString("delimiter", ",")
-
   val readTimeout = Try(properties.getInt("readTimeout")).getOrElse(MaxReadTimeout)
-
   val connTimeout = Try(properties.getInt("connTimeout")).getOrElse(MaxConnTimeout)
-
   val outputFormat = OutputFormatEnum.withName(properties.getString("outputFormat", "json").toUpperCase)
-
   val postType = PostType.withName(properties.getString("postType", "body").toUpperCase)
-
   val parameterName = properties.getString("parameterName", "")
-
   val contentType = if (outputFormat == OutputFormatEnum.ROW) "text/plain" else "application/json"
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)

@@ -40,23 +40,6 @@ class CassandraOutputTest extends FlatSpec with Matchers with MockitoSugar with 
     cass should be(List(("spark.cassandra.connection.host", "127.0.0.1"), ("spark.cassandra.connection.port", "9042")))
   }
 
-  "setup" should "return X" in {
-
-    val tableSchema = Seq(SpartaSchema(Seq("outputName"), "dim1", StructType(Array(
-      StructField("dim1", StringType, false))), Option("minute")))
-
-    val cassandraConnector: CassandraConnector = mock[CassandraConnector]
-
-    val out = new CassandraOutput("key", Option(1), properties, tableSchema) {
-      override val textIndexFields = Option(Array("test"))
-
-      override def getCassandraConnector(): CassandraConnector = {
-        cassandraConnector
-      }
-    }
-    out.setup()
-  }
-
   "getSparkConfiguration" should "return all cassandra-spark config" in {
     val config: Map[String, JSerializable] = Map(
       ("sparkProperties" -> JsoneyString(
