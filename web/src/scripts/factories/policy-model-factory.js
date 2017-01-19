@@ -36,6 +36,7 @@
       policy.cubes = [];
       policy.streamTriggers = [];
       policy.sparkConf = {};
+      policy.sparkSubmitArguments = {};
       delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
       delete policy.sparkStreamingWindowNumber;
@@ -46,8 +47,10 @@
       delete policy.checkpointPath;
       delete policy.autoDeleteCheckpoint;
       delete policy.sparkConf;
+      delete policy.sparkSubmitArguments;
       delete policy.initSqlSentences;
       delete policy.userPluginsJars;
+      delete policy.executionMode;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -61,6 +64,7 @@
       policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.autoDeleteCheckpoint = inputPolicyJSON.autoDeleteCheckpoint;
+      policy.executionMode = inputPolicyJSON.executionMode;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = setCubes(inputPolicyJSON.cubes);
       policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
@@ -68,6 +72,7 @@
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
       policy.sparkConf = inputPolicyJSON.sparkConf;
+      policy.sparkSubmitArguments = inputPolicyJSON.sparkSubmitArguments;
       policy.initSqlSentences = inputPolicyJSON.initSqlSentences;
       policy.userPluginsJars = inputPolicyJSON.userPluginsJars;
     }

@@ -39,7 +39,7 @@ import scala.concurrent.duration._
 object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUtils {
 
   implicit var system: ActorSystem = _
-  override implicit val timeout: Timeout = Timeout(15.seconds)
+  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   /**
    * Initializes Sparta's akka system running an embedded http server with the REST API.
@@ -49,7 +49,8 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
   def initAkkaSystem(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined &&
       SpartaConfig.apiConfig.isDefined &&
-      SpartaConfig.swaggerConfig.isDefined) {
+      SpartaConfig.swaggerConfig.isDefined
+    ) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
       log.info("Initializing Sparta Actors System ...")
       system = ActorSystem(appName, SpartaConfig.mainConfig)
@@ -82,7 +83,6 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
       if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
       else loadSpartaWithHttp(controllerActor, swaggerActor)
 
-      if(isLocalMode) updateAll(policyStatusActor, PolicyStatusEnum.NotStarted)
     } else log.info("Sparta Configuration is not defined")
   }
 
@@ -107,17 +107,5 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
       port = SpartaConfig.swaggerConfig.get.getInt("port"))
 
     log.info("Sparta Actors System initiated correctly")
-  }
-
-  def getExecutionMode: String = {
-    val detailConfig = SpartaConfig.getDetailConfig.getOrElse(throw new RuntimeException("Error getting Spark config"))
-    detailConfig.getString(AppConstant.ExecutionMode)
-  }
-
-  def isClusterMode: Boolean = {
-    val executionMode = getExecutionMode
-    executionMode == AppConstant.ConfigMesos ||
-      executionMode == AppConstant.ConfigYarn ||
-      executionMode == AppConstant.ConfigStandAlone
   }
 }

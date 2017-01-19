@@ -50,10 +50,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
   "PolicyUtils.savePolicyInZk" should {
 
     "write policy when this does not exist" in {
-      doThrow(new RuntimeException)
-        .when(utils)
-        .populatePolicy(getPolicyModel(), curatorFramework)
-      doNothing()
+      doReturn(getPolicyModel())
         .when(utils)
         .writePolicy(getPolicyModel(), curatorFramework)
 
@@ -94,7 +91,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework)
+        .getPolicies(curatorFramework, withFragments = false)
       utils.existsByNameId(name = "myName", id = Some("existingID"), curatorFramework).get should be(
         getPolicyModel(id = Some("existingID")))
     }
@@ -108,7 +105,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework)
+        .getPolicies(curatorFramework, withFragments = false)
 
       val actualPolicy: PolicyModel = utils.existsByNameId(name = "MYNAME", id = None,
         curatorFramework).get
@@ -126,7 +123,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework)
+        .getPolicies(curatorFramework, withFragments = true)
 
       utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
     }
@@ -137,7 +134,7 @@ class PolicyUtilsTest extends PolicyBaseUtilsTest
         .existsPath
       doThrow(new RuntimeException)
         .when(utils)
-        .getPolicies(curatorFramework)
+        .getPolicies(curatorFramework, withFragments = true)
 
       utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
     }

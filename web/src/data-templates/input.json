@@ -49,7 +49,7 @@
         "propertyType": "text",
         "regexp": "",
         "required": false,
-        "tooltip": "",
+        "tooltip": "Identifies the consumer group this consumer belongs to.",
         "qa": "fragment-details-stratio-kafkadirect-group-id"
       },
       {
@@ -60,7 +60,7 @@
         "required": true,
         "hidden": false,
         "limit": 0,
-        "tooltip": "",
+        "tooltip": "Kafka topic name. At least one is required.",
         "qa": "fragment-details-stratio-kafkadirect-topics",
         "fields": [
           {
@@ -77,8 +77,8 @@
         ]
       },
       {
-        "propertyId": "key.serializer",
-        "propertyName": "_KEY_SERIALIZER_",
+        "propertyId": "key.deserializer",
+        "propertyName": "_KEY_DESERIALIZER_",
         "propertyType": "select",
         "values": [
           {
@@ -89,11 +89,11 @@
         "default": "string",
         "required": false,
         "tooltip": "",
-        "qa": "fragment-details-stratiokafkadirect-key-serializer"
+        "qa": "fragment-details-stratiokafkadirect-key-deserializer"
       },
       {
-        "propertyId": "value.serializer",
-        "propertyName": "_VALUE_SERIALIZER_",
+        "propertyId": "value.deserializer",
+        "propertyName": "_VALUE_DESERIALIZER_",
         "propertyType": "select",
         "values": [
           {
@@ -127,8 +127,8 @@
         ],
         "default": "string",
         "required": false,
-        "tooltip": "In Spark 1.5.x only available String and Array Byte.",
-        "qa": "fragment-details-stratiokafkadirect-value-serializer"
+        "tooltip": "Note String and Array Byte are the only available  types in Spark 1.5.x.",
+        "qa": "fragment-details-stratiokafkadirect-value-deserializer"
       },
       {
         "propertyId": "partition.assignment.strategy",
@@ -146,13 +146,14 @@
         ],
         "default": "range",
         "required": false,
-        "tooltip": "Only available with Spark 1.6.x",
+        "tooltip": "Field valid only for Spark 1.6.x",
         "qa": "fragment-details-stratiokafkadirect-partition-assignment-strategy"
       },
       {
         "propertyId": "locationStrategy",
         "propertyName": "_LOCATION_STRATEGY_",
         "propertyType": "select",
+        "tooltip" : "Only available in Spark 1.6.x",
         "values": [
           {
             "label": "Prefer Consistent",
@@ -165,7 +166,7 @@
         ],
         "default": "preferconsistent",
         "required": false,
-        "tooltip": "Only available with Spark 1.6.x",
+        "tooltip": "Field valid only for Spark 1.6.x",
         "qa": "fragment-details-stratiokafkadirect-locationStrategy"
       },
       {
@@ -174,7 +175,7 @@
         "propertyType": "list",
         "default": "",
         "required": false,
-        "tooltip": "",
+        "tooltip": "Values set here will override the ones in the default configuration.",
         "qa": "fragment-details-kafka-properties",
         "fields": [
           {
@@ -202,7 +203,7 @@
     ]
   },
   {
-    "name": "RabbitMQ",
+    "name": "RabbitMQ Single Node",
     "modelType": "RabbitMQ",
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
@@ -211,14 +212,169 @@
     },
     "properties": [
       {
-        "propertyId": "receiverType",
-        "propertyName": "_RABBITMQ_RECEIVER_TYPE_",
+        "propertyId": "hosts",
+        "propertyName": "_HOST_",
         "propertyType": "text",
-        "default": "distributed",
-        "regexp": "",
+        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+        "default": "localhost",
         "required": true,
-        "tooltip": "RabbitMQ receiver type, distributed or single node approach",
-        "qa": "fragment-details-rabbitMQ-receiverType"
+        "tooltip": "Server address.",
+        "hidden": false,
+        "qa": "fragment-details-rabbitmq-hosts"
+      },
+      {
+        "propertyId": "queueName",
+        "propertyName": "_QUEUE_",
+        "propertyType": "text",
+        "default": "rabbitqueue",
+        "required": true,
+        "tooltip": "Incomming queue.",
+        "hidden": false,
+        "qa": "fragment-details-rabbitmq-queue-name"
+      },
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-key-serializer"
+      },
+      {
+        "propertyId": "rabbitmqProperties",
+        "propertyName": "_RABBITMQ_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "rabbitmqPropertyKey",
+            "propertyName": "_RABBITMQ_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyKey"
+          },
+          {
+            "propertyId": "rabbitmqPropertyValue",
+            "propertyName": "_RABBITMQ_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-rabbitmqPropertyValue"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "RabbitMQ Distributed Node",
+    "modelType": "RabbitMQDistributed",
+    "description": {
+      "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "long": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
+    },
+    "properties": [
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          }
+        ],
+        "default": "string",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-key-serializer"
+      },
+      {
+        "propertyId": "distributedProperties",
+        "propertyName": "_RABBITMQ_DISTRIBUTED_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-rabbitmq-properties",
+        "fields": [
+          {
+            "propertyId": "hosts",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "required": true,
+            "tooltip": "Server address.",
+            "hidden": false,
+            "qa": "fragment-details-rabbitmq-hosts"
+          },
+          {
+            "propertyId": "distributedQueue",
+            "propertyName": "_RABBITMQ_QUEUE_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedQueue"
+          },
+          {
+            "propertyId": "distributedExchangeName",
+            "propertyName": "_RABBITMQ_EXCHANGE_NAME_KEY_",
+            "position": "right",
+            "width": 15,
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedExchangeName"
+          },
+          {
+            "propertyId": "distributedExchangeType",
+            "propertyName": "_RABBITMQ_EXCHANGE_TYPE_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedExchangeType"
+          },
+          {
+            "propertyId": "distributedRoutingKeys",
+            "propertyName": "_RABBITMQ_ROUTING_KEYS_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-rabbitmq-distributedRoutingKeys"
+          }
+        ]
       },
       {
         "propertyId": "rabbitmqProperties",
@@ -269,11 +425,11 @@
         "qa": "fragment-details-flume-type",
         "values": [
           {
-            "label": "pull",
+            "label": "Pull",
             "value": "pull"
           },
           {
-            "label": "push",
+            "label": "Push",
             "value": "push"
           }
         ],
@@ -332,7 +488,7 @@
         "regexp": "\\d*",
         "default": "1000",
         "required": false,
-        "tooltip": "",
+        "tooltip": "Maximum number of lines to read and send to the channel at a time.",
         "hidden": false,
         "qa": "fragment-details-flume-pull-max-batch-size",
         "visible": [
@@ -351,7 +507,7 @@
         "regexp": "\\d*",
         "default": "5",
         "required": false,
-        "tooltip": "",
+        "tooltip": "Number of concurrent requests the stream should send to the sink.",
         "hidden": false,
         "qa": "fragment-details-flume-pull-parallelism",
         "visible": [
@@ -468,7 +624,7 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's consumer key.",
+        "tooltip": "",
         "qa": "fragment-details-twitter-consumerKey"
       },
       {
@@ -478,7 +634,7 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's consumer secret",
+        "tooltip": "",
         "qa": "fragment-details-twitter-consumerSecret"
       },
       {
@@ -488,7 +644,7 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's access token.",
+        "tooltip": "",
         "qa": "fragment-details-twitter-accessToken"
       },
       {
@@ -498,7 +654,7 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Twitter's token secret.",
+        "tooltip": "",
         "qa": "fragment-details-twitter-accessTokenSecret"
       },
       {
@@ -508,7 +664,7 @@
         "regexp": "",
         "default": "",
         "required": false,
-        "tooltip": "It allows to search tweets based on the words of this field. If you donâ€™t use this field, it searches over global trending topics.",
+        "tooltip": "Allows to search tweets based on the words of this field. If you don't use this field, the search will be based over global trending topics.",
         "qa": "fragment-details-twitter-termsOfSearch"
       }
     ]
@@ -537,7 +693,7 @@
   },
   {
     "name": "FileSystem",
-    "modelType": "Directory",
+    "modelType": "FileSystem",
     "description": {
       "short": "Allows you to load files from a Hadoop-compatible monitored filesystem directory.",
       "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
@@ -552,7 +708,7 @@
         "regexp": "",
         "default": "",
         "required": true,
-        "tooltip": "Path to the monitored directory (HDFS, S3, Azure,etc.)",
+        "tooltip": "Path to directory to be monitired (HDFS, S3, Azure, etc.).",
         "qa": "fragment-details-filesystem-url"
       }
     ]

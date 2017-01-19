@@ -25,6 +25,7 @@ import org.json4s.jackson.Serialization._
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
+
 class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
 
   def getString(key: K): String =
@@ -95,17 +96,26 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
     }
   }
 
+  //scalastyle:off
   def getBoolean(key: K): Boolean =
-    m.getOrElse(key, throw new Exception(s"$key is mandatory")) match {
-      case value: String => value.toBoolean
-      case value: Int =>
+      m.get(key) match {
+      case Some(value: String) => value.toBoolean
+      case Some(value: Int) =>
         value.asInstanceOf[Int] match {
           case 1 => true
           case 0 => false
           case _ => throw new IllegalStateException(s"$value is not parsable as boolean")
         }
-      case value: Boolean => value
+      case Some(value: Boolean) => value
+      case Some(value) =>
+        Try(value.toString.toBoolean) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
+      case None => throw new IllegalStateException(s"$key is mandatory")
     }
+
+  //scalastyle:on
 
   def getInt(key: K): Int =
     m.get(key) match {

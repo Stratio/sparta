@@ -66,6 +66,7 @@
       "propertyType": "number",
       "width": 6,
       "position": "left",
+      "tooltip": "Maximum time a certain query will be executed before being aborted.",
       "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
       "qa": "policy-remember-number"
     },
@@ -108,6 +109,7 @@
       "default": "MEMORY_ONLY_SER",
       "width": 7,
       "position": "left",
+      "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
       "qa": "policy-storage-level",
       "values": [
         {
@@ -186,6 +188,7 @@
       "position": "left",
       "propertyType": "text",
       "required": false,
+      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
       "qa": "checkpoint-path"
     },
     {
@@ -195,7 +198,37 @@
       "position": "right",
       "propertyType": "boolean",
       "required": false,
+      "tooltip": "Auto delete checkpoint path in HDFS when running policies",
       "qa": "auto-delete-checkpoint"
+    },
+    {
+      "propertyId": "executionMode",
+      "propertyName": "_EXECUTION_MODE_",
+      "width": 7,
+      "position": "left",
+      "required": false,
+      "propertyType": "select",
+      "regexp": "local|mesos|yarn|standalone",
+      "values": [
+        {
+          "label": "Local",
+          "value": "local"
+        },
+        {
+          "label": "Mesos",
+          "value": "mesos"
+        },
+        {
+          "label": "Yarn",
+          "value": "yarn"
+        },
+        {
+          "label": "StandAlone",
+          "value": "standalone"
+        }
+      ],
+      "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
+      "qa": "policy-execution-mode"
     },
     {
       "propertyId": "sparkConf",
@@ -203,7 +236,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "Spark configuration properties, values set here will override the ones set in the configuration file.",
       "qa": "policy-spark-conf",
       "fields": [
         {
@@ -215,6 +248,7 @@
           "default": "",
           "hidden": false,
           "required": false,
+          "tooltip": "Spark configuration property with the structure spark.xxx",
           "qa": "policy-sparkConfKey"
         },
         {
@@ -231,12 +265,46 @@
       ]
     },
     {
+      "propertyId": "sparkSubmitArguments",
+      "propertyName": "_SPARK_SUBMIT_ARGUMENTS_",
+      "propertyType": "list",
+      "default": "",
+      "required": false,
+      "tooltip": "Spark submit arguments added when the policy is executed over a Spark cluster. Values set here will override the property file options",
+      "qa": "policy-spark-submit-argument",
+      "fields": [
+        {
+          "propertyId": "submitArgument",
+          "propertyName": "_SPARK_SUBMIT_ARGUMENT_",
+          "position": "left",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "tooltip": "Spark submit argument with the structure --xxx",
+          "qa": "policy-spark-submit-argument-key"
+        },
+        {
+          "propertyId": "submitValue",
+          "propertyName": "_SPARK_SUBMIT_ARGUMENT_VALUE_",
+          "position": "right",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "hidden": false,
+          "required": false,
+          "qa": "policy-spark-submit-argument-value"
+        }
+      ]
+    },
+    {
       "propertyId": "initSqlSentences",
       "propertyName": "_SQL_SENTENCES_",
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources.Once launched it's possible to mix them inside the triggers",
       "qa": "policy-sql-sentences",
       "fields": [
         {
@@ -247,6 +315,7 @@
           "default": "",
           "hidden": false,
           "required": false,
+          "tooltip": "SQL sentence",
           "qa": "policy-sql-sentence"
         }
       ]
@@ -257,7 +326,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "",
+      "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
       "qa": "policy-user-plugins-jars",
       "fields": [
         {
@@ -420,6 +489,7 @@
         }
       ],
       "defaultConfiguration": {
+        "tooltip" : "A previously defined transformation is required in order to define filtering rules over a given field.",
         "filters": [
           {
             "field":"field1",
@@ -805,6 +875,7 @@
         "propertyType": "text",
         "width": 6,
         "position": "left",
+        "tooltip": "Sets the value used to group by the incoming data. Only valid if the metric chosen is  between Millisecon(s) and Day(s).",
         "required": false,
         "qa": "policy-cube-dimension-dateTime-precisionNumber"
       },
@@ -903,6 +974,7 @@
         "propertyType": "select",
         "width": 6,
         "position": "right",
+        "tooltip": "Sets the time window for aggregation operations.",
         "qa": "policy-cube-dimension-dateTime-computeLastTime",
         "default": "m",
         "required": true,

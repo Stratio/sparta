@@ -33,7 +33,6 @@ import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
-import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)

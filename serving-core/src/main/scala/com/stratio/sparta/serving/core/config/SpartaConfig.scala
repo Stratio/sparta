@@ -25,6 +25,7 @@ import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
+ *
  * @author danielcsant
  */
 object SpartaConfig extends SLF4JLogging {
@@ -36,6 +37,7 @@ object SpartaConfig extends SLF4JLogging {
 
   /**
    * Initializes Sparta's base path.
+   *
    * @return the object described above.
    */
   var spartaHome: String = {
@@ -52,6 +54,7 @@ object SpartaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
+   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node          with the node needed to load the configuration.
    * @return the loaded configuration.
@@ -93,13 +96,20 @@ object SpartaConfig extends SLF4JLogging {
     sprayConfig
   }
 
-  def getClusterConfig: Option[Config] = Try(getDetailConfig.get.getString(AppConstant.ExecutionMode)) match {
-    case Success(executionMode) => {
-      if (executionMode != AppConstant.ConfigLocal) getOptionConfig(executionMode, mainConfig.get)
-      else None
+  def getClusterConfig(executionMode: Option[String] = None): Option[Config] =
+    Try {
+      executionMode match {
+        case Some(execMode) if execMode.nonEmpty => execMode
+        case _ => getDetailConfig.get.getString(AppConstant.ExecutionMode)
+      }
+    } match {
+      case Success(execMode) =>
+        if (execMode != AppConstant.ConfigLocal) getOptionConfig(execMode, mainConfig.get)
+        else None
+      case Failure(exception) =>
+        log.error("Error when extracting cluster configuration. ", exception)
+        None
     }
-    case _ => None
-  }
 
   def getHdfsConfig: Option[Config] = mainConfig match {
     case Some(config) => getOptionConfig(AppConstant.ConfigHdfs, config)
@@ -118,6 +128,7 @@ object SpartaConfig extends SLF4JLogging {
 
   /**
    * Initializes base configuration.
+   *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.
    * @param node          with the node needed to load the configuration.
    * @return the optional loaded configuration.
