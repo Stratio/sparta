@@ -23,7 +23,7 @@ import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, FlatSpec}
 private[plugin] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterAll with BeforeAndAfter {
 
   val conf = new SparkConf()
-    .setAppName("Rest-simulator-test")
+    .setAppName("simulator-test")
     .setIfMissing("spark.master", "local[*]")
 
   @transient private var _sc: SparkContext = _

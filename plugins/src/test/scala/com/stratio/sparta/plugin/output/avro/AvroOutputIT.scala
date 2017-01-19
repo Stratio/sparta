@@ -19,75 +19,29 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.databricks.spark.avro._
+import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.output.parquet.Person
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext}
 import org.junit.runner.RunWith
-import org.scalatest.concurrent.TimeLimitedTests
+import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.time.{Minute, Span}
-import org.scalatest.{BeforeAndAfter, Matchers, WordSpec}
 
 import scala.reflect.io.File
-import scala.util.{Random, Try}
+import scala.util.Random
 
 
 @RunWith(classOf[JUnitRunner])
-class AvroOutputIT extends WordSpec with Matchers with Logging with TimeLimitedTests
-  with BeforeAndAfter {
-
-  private lazy val config = ConfigFactory.load()
-  //Timeout for the test
-  val timeLimit = Span(1, Minute)
-  /**
-    * Spark Properties
-    */
-  val DefaultStorageLevel = "MEMORY_AND_DISK_SER_2"
-  val DefaultSparkTimeOut = 3000L
-  val SparkTimeOut: Long = Try(config.getLong("spark.timeout")).getOrElse(DefaultSparkTimeOut)
-  val conf: SparkConf = new SparkConf()
-    .setAppName("RabbitIntegrationSpec")
-    .setIfMissing("spark.master", "local[*]")
-
-  var sc: Option[SparkContext] = None
-  var ssc: Option[StreamingContext] = None
-
-  def initSpark(): Unit = {
-    sc = Some(new SparkContext(conf))
-    ssc = Some(new StreamingContext(sc.get, Seconds(1)))
-  }
-
-  def stopSpark(): Unit = {
-    ssc.foreach(_.stop())
-    sc.foreach(_.stop())
-
-    System.gc()
-  }
-
-
-  before {
-    log.info("Init spark")
-    initSpark()
-    log.info("Init spark OK")
-  }
-
-  after {
-    log.info("stop spark")
-    stopSpark()
-    log.info("spark stopped")
-  }
+class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
-    val sqlContext = SQLContext.getOrCreate(sc.get)
+    val sqlContext = SQLContext.getOrCreate(sc)
 
     import sqlContext.implicits._
 
     val data =
-      sc.get.parallelize(
+      sc.parallelize(
         Seq(
           Person("Kevin", Random.nextInt, Timestamp.from(Instant.now)),
           Person("Kira", Random.nextInt, Timestamp.from(Instant.now)),
@@ -109,26 +63,24 @@ class AvroOutputIT extends WordSpec with Matchers with Logging with TimeLimitedT
     val output = new AvroOutput("avro-test", None, Map.empty, Seq())
   }
 
-  "AvroOutput" should {
 
-    "throw an exception when path is not present" in new NonePath {
+  "AvroOutput" should  "throw an exception when path is not present" in new NonePath {
       an[Exception] should be thrownBy output
         .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
     }
 
-    "throw an exception when empty path " in new EmptyPath {
+  it should "throw an exception when empty path " in new EmptyPath {
       an[Exception] should be thrownBy output
         .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
     }
 
-    "save a dataframe with timedimension" in new WithEventData {
+  it should "save a dataframe with timedimension" in new WithEventData {
       output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
       val read = sqlContext.read.avro(tmpPath).toDF
       read.count should be(3)
       read should be eq data
       File(tmpPath).deleteRecursively
     }
-  }
 
 }
 
