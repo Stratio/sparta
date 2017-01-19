@@ -787,5 +787,35 @@
         "qa": "fragment-details-http-parameter-name"
       }
     ]
+  },
+  {
+    "name": "Avro",
+    "modelType": "Avro",
+    "description": {
+      "short": "Avro output uses the databricks implementation with DataFrames.",
+      "long": "Avro is a remote procedure call and data serialization framework developed within Apache's Hadoop project. It uses JSON for defining data types and protocols, and serializes data in a compact binary format. Its primary use is in Apache Hadoop, where it can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes, and from client programs to the Hadoop services.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Avro"
+    },
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-avro-path"
+      },
+      {
+        "propertyId": "partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-avro-partitionBy"
+      }
+    ]
   }
 ]
