@@ -64,7 +64,7 @@ class ElasticSearchOutput(keyName: String,
     val sparkConfig = getSparkConfig(timeDimension, saveMode)
 
 
-    //Necessary this dataFrame transformation because ES not support java.sql.TimeStamp in the row values: use
+    //This dataFrame transformation is necessary because ES doesn't support java.sql.TimeStamp in the row values: use
     // dateType in the cube writer options and set to long, date or dateTime
     val newDataFrame = if (dataFrameSchema.fields.exists(stField => stField.dataType == TimestampType)) {
       val rdd = dataFrame.map(row => {
@@ -89,7 +89,7 @@ class ElasticSearchOutput(keyName: String,
     dataFrame.write
       .format(ElasticSearchClass)
       .mode(getSparkSaveMode(saveMode))
-      .options(sparkConfig)
+      .options(sparkConfig ++ getCustomProperties)
       .save(indexNameType(tableName))
   }
 
