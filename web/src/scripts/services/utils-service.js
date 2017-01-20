@@ -25,6 +25,7 @@
   function UtilsService($filter) {
     var vm = this;
     vm.findElementInJSONArray = findElementInJSONArray;
+    vm.filterByAttribute = filterByAttribute;
     vm.removeItemsFromArray = removeItemsFromArray;
     vm.autoIncrementName = autoIncrementName;
     vm.getNamesJSONArray = getNamesJSONArray;
@@ -54,6 +55,13 @@
         }
       }
       return position;
+    }
+
+    function filterByAttribute(array, attr, value) {
+      var filter = {};
+      filter[attr] = value;
+
+      return $filter('filter')(array, filter, true);
     }
 
     function removeItemsFromArray(array, positions) {
