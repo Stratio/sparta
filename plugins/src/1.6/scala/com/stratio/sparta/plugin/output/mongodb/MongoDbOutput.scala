@@ -18,9 +18,7 @@ package com.stratio.sparta.plugin.output.mongodb
 
 import java.io.{Serializable => JSerializable}
 
-import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.config.MongodbConfig
-import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
@@ -32,30 +30,13 @@ class MongoDbOutput(keyName: String,
                     version: Option[Int],
                     properties: Map[String, JSerializable],
                     schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with MongoDbDAO {
+  extends Output(keyName, version, properties, schemas) {
 
-  RegisterJodaTimeConversionHelpers()
-
-  override val hosts = getConnectionConfs("hosts", "host", "port")
-
-  override val dbName = properties.getString("dbName", "sparta")
-
-  override val connectionsPerHost = properties.getString("connectionsPerHost", DefaultConnectionsPerHost).toInt
-
-  override val threadsAllowedB = properties.getString("threadsAllowedToBlock", DefaultThreadsAllowedToBlock).toInt
-
-  override val retrySleep = properties.getString("retrySleep", DefaultRetrySleep).toInt
-
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
-
-  override val language = properties.getString("language", None)
-
-  override def setup(options: Map[String, String]): Unit = {
-    val db = connectToDatabase
-
-    schemas.foreach(tableSchema => createPkAndTextIndex(db, tableSchema))
-    db.close()
-  }
+  val DefaultHost = "localhost"
+  val DefaultPort = "27017"
+  val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
+  val hosts = getConnectionConfs("hosts", "host", "port")
+  val dbName = properties.getString("dbName", "sparta")
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
@@ -84,8 +65,6 @@ class MongoDbOutput(keyName: String,
         case SaveModeEnum.Upsert => getPrimaryKeyOptions(schema, timeDimension)
         case _ => Map.empty[String, String]
       }
-    } ++ {
-      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty[String, String]
     }
 
   private def getPrimaryKeyOptions(schema: StructType,

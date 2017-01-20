@@ -40,7 +40,6 @@ class RedisOutput(keyName: String,
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
-
   override val port = properties.getString("port", DefaultRedisPort).toInt
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
