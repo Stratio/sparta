@@ -237,6 +237,16 @@
       ]
     },
     {
+      "propertyId": "checkpointPath",
+      "propertyName": "_CHECKPOINT_PATH_",
+      "width": 12,
+      "position": "left",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
+      "qa": "checkpoint-path"
+    },
+    {
       "propertyId": "autoDeleteCheckpoint",
       "propertyName": "_AUTO_DELETE_CHECKPOINT_",
       "width": 6,
@@ -281,7 +291,7 @@
           }
         ]
       ],
-      "default": "/tmp/checkpoint",
+      "default": "/tmp/rawData",
       "qa": "raw-data-path"
     },
     {
