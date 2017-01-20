@@ -21,11 +21,14 @@ import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, T
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.spray.oauth2.client.OauthClient
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
+
+import scala.util.Try
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -52,25 +55,29 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def webRoutes: Route =
     get {
-      pathPrefix("") {
-        pathEndOrSingleSlash {
-          noCache {
-            secured { user =>
-              getFromResource("classes/web/index.html")
-            }
-          }
-        }
-      } ~ getFromResourceDirectory("classes/web") ~
-        pathPrefix("") {
+      pathPrefix("driverJar") {
+        getFromDirectory(
+          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
+            .getOrElse(AppConstant.DefaultDriverPackageLocation))
+      } ~ pathPrefix("") {
           pathEndOrSingleSlash {
             noCache {
               secured { user =>
-                getFromResource("web/index.html")
+                getFromResource("classes/web/index.html")
               }
             }
           }
-        } ~ getFromResourceDirectory("web")
-    }
+        } ~ getFromResourceDirectory("classes/web") ~
+          pathPrefix("") {
+            pathEndOrSingleSlash {
+              noCache {
+                secured { user =>
+                  getFromResource("web/index.html")
+                }
+              }
+            }
+          } ~ getFromResourceDirectory("web")
+      }
 }
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {

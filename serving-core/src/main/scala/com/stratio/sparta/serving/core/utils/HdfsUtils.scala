@@ -119,6 +119,9 @@ object HdfsUtils extends SLF4JLogging {
   }
 
   def hdfsConfiguration(userName: String): Configuration = {
+
+    log.info("Creating HDFS configuration...")
+
     val DefaultFSProperty = "fs.defaultFS"
     val HdfsDefaultPort = 9000
     val hdfsConfig = SpartaConfig.getHdfsConfig
@@ -188,6 +191,9 @@ object HdfsUtils extends SLF4JLogging {
             userName: String,
             principalNameOption: Option[String],
             keytabPathOption: Option[String]): HdfsUtils = {
+
+    log.info("Creating HDFS connection...")
+
     Option(System.getenv(AppConstant.SystemHadoopConfDir)).foreach(
       hadoopConfDir => {
         val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
