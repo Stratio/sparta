@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 class PluginActor extends Actor
   with Json4sJacksonSupport
@@ -36,8 +36,14 @@ class PluginActor extends Actor
   val targetDir: String = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
     .getOrElse(AppConstant.DefaultDriverPackageLocation)
 
+  val targetUrl: String = "http://localhost:8080"
+
+  val url = s"$targetUrl/$AppConstant.PluginsURLLocation/"
+
   override def receive: Receive = {
-    case UploadFile(t: String, files: Seq[BodyPart]) => uploadFile(t, files)
+    case UploadFile(name, files) if name.matches(""".*\.jar""") => uploadFile(name, files)
+    case UploadFile(name, _) =>
+      sender ! PluginResponse(Failure(new IllegalArgumentException(s"$name is Not a valid file name")))
     case _ => log.info("Unrecognized message in Plugin Actor")
   }
 
@@ -46,6 +52,7 @@ class PluginActor extends Actor
       Try {
         val targetFile = s"$targetDir/$fileName"
         files.foreach(file => saveFile(file.entity.data.toByteArray, targetFile))
+        s"$targetUrl/$targetFile"
       }
     )
   }

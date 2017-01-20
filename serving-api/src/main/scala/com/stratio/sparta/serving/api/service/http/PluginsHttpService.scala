@@ -21,7 +21,7 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.spray.oauth2.client.OauthClient
-import com.wordnik.swagger.annotations.{Api, ApiImplicitParam, ApiImplicitParams, ApiOperation}
+import com.wordnik.swagger.annotations._
 import spray.http._
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
@@ -60,7 +60,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
             for {
               response <- supervisor ? UploadFile(fileName, form.fields)
             } yield response match {
-              case PluginResponse(Success(_)) => HttpResponse(StatusCodes.OK)
+              case PluginResponse(Success(a: String)) => FileCreated(a)
               case PluginResponse(Failure(exception)) => throw exception
             }
           }
@@ -69,4 +69,5 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
     }
   }
 
+  case class FileCreated(path: String)
 }

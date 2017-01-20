@@ -69,6 +69,7 @@ object AppConstant {
   final val LocalPluginsLocation = "local"
   final val PluginsPackageLocation = "pluginPackageLocation"
   final val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+  final val PluginsURLLocation = "drivers"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"

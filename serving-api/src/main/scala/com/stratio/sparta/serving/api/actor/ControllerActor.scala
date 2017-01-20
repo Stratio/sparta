@@ -57,7 +57,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def webRoutes: Route =
     get {
-      pathPrefix("drivers") {
+      pathPrefix(AppConstant.PluginsURLLocation) {
         getFromDirectory(
           Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
             .getOrElse(AppConstant.DefaultPluginsPackageLocation))
