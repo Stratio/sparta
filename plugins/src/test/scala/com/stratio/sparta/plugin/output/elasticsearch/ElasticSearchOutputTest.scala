@@ -15,20 +15,12 @@
  */
 package com.stratio.sparta.plugin.output.elasticsearch
 
-import java.io.{Serializable => JSerializable}
-
-import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.mappings.{FieldType, _}
-import com.stratio.sparta.plugin.output.elasticsearch.ElasticSearchOutput
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-
-import scala.annotation.tailrec
 
 @RunWith(classOf[JUnitRunner])
 class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
@@ -97,56 +89,13 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       StructField("binary", BinaryType))
     val completeSchema = StructType(fields)
     val completeTableSchema = SpartaSchema(Seq("elasticsearch"), "table", completeSchema, Option("timestamp"))
-    val definitions = Seq(
-      "long".typed(FieldType.LongType),
-      "double".typed(FieldType.DoubleType),
-      "decimal".typed(FieldType.DoubleType),
-      "int".typed(FieldType.IntegerType),
-      "boolean".typed(FieldType.BooleanType),
-      "date".typed(FieldType.DateType),
-      "timestamp".typed(FieldType.LongType),
-      "array".typed(FieldType.MultiFieldType),
-      "map".typed(FieldType.ObjectType),
-      "string" typed FieldType.StringType index "not_analyzed",
-      "binary".typed(FieldType.BinaryType)
-    )
-
-    def equals(a: TypedFieldDefinition, b: TypedFieldDefinition): Boolean = (a.name, a.`type`) ==(b.name, b.`type`)
-
-    @tailrec
-    final def equals(a: Seq[TypedFieldDefinition], b: Seq[TypedFieldDefinition]): Boolean = {
-      if (a.nonEmpty && b.nonEmpty)
-        if (!equals(a.head, b.head)) false
-        else equals(a.drop(1), b.drop(1))
-      else true
-    }
   }
 
   "ElasticSearchOutput" should "format properties" in new NodeValues with SchemaValues {
-    output.tcpNodes should be(Seq(("localhost", 9300)))
     output.httpNodes should be(Seq(("localhost", 9200)))
-    outputMultipleNodes.tcpNodes should be(Seq(("host-a", 9300), ("host-b", 9301)))
     outputMultipleNodes.httpNodes should be(Seq(("host-a", 9200), ("host-b", 9201)))
     completeTableSchema.dateType should be(TypeOp.Timestamp)
     output.clusterName should be("elasticsearch")
-    output.isLocalhost should be(true)
-    ipOutput.isLocalhost should be(true)
-    remoteOutput.isLocalhost should be(false)
-    ipv6Output.isLocalhost should be(true)
-  }
-
-  it should "return correct types" in new SchemaValues {
-    val result = output.getElasticsearchFields(completeTableSchema)
-    equals(result, definitions) should be(true)
-  }
-
-  it should "return a correct date type" in new TestingValues {
-    val result = output.filterDateTypeMapping(dateField, Option("timestamp"), TypeOp.Long) should be(expectedDateField)
-  }
-
-  it should "return a correct type" in new TestingValues {
-    val result =
-      output.filterDateTypeMapping(stringField, Option("timestamp"), TypeOp.Long) should be(expectedStringField)
   }
 
   it should "parse correct index name type" in new TestingValues {

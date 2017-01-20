@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.mongodb
 
 import java.io.{Serializable => JSerializable}
 
 import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.MongodbConfig
-import com.stratio.sparta.plugin.output.mongodb.dao.MongoDbDAO
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
@@ -31,44 +31,27 @@ class MongoDbOutput(keyName: String,
                     version: Option[Int],
                     properties: Map[String, JSerializable],
                     schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with MongoDbDAO {
+  extends Output(keyName, version, properties, schemas) {
 
-    RegisterJodaTimeConversionHelpers()
+  val DefaultHost = "localhost"
+  val DefaultPort = "27017"
+  val MongoDbSparkDatasource = "com.stratio.datasource.mongodb"
+  val hosts = getConnectionConfs("hosts", "host", "port")
+  val dbName = properties.getString("dbName", "sparta")
 
-    override val hosts = getConnectionConfs("hosts", "host", "port")
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+    val tableName = getTableNameFromOptions(options)
+    val timeDimension = getTimeFromOptions(options)
+    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode)
 
-    override val dbName = properties.getString("dbName", "sparta")
+    validateSaveMode(saveMode)
 
-    override val connectionsPerHost = properties.getString("connectionsPerHost", DefaultConnectionsPerHost).toInt
-
-    override val threadsAllowedB = properties.getString("threadsAllowedToBlock", DefaultThreadsAllowedToBlock).toInt
-
-    override val retrySleep = properties.getString("retrySleep", DefaultRetrySleep).toInt
-
-    override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
-
-    override val language = properties.getString("language", None)
-
-    override def setup(options: Map[String, String]): Unit = {
-      val db = connectToDatabase
-
-      schemas.foreach(tableSchema => createPkAndTextIndex(db, tableSchema))
-      db.close()
-    }
-
-    override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-      val tableName = getTableNameFromOptions(options)
-      val timeDimension = getTimeFromOptions(options)
-      val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode)
-
-      validateSaveMode(saveMode)
-
-      dataFrame.write
-        .format(MongoDbSparkDatasource)
-        .mode(getSparkSaveMode(saveMode))
-        .options(dataFrameOptions)
-        .save()
-    }
+    dataFrame.write
+      .format(MongoDbSparkDatasource)
+      .mode(getSparkSaveMode(saveMode))
+      .options(dataFrameOptions)
+      .save()
+  }
 
   private def getDataFrameOptions(tableName: String,
                                   schema: StructType,
@@ -83,8 +66,6 @@ class MongoDbOutput(keyName: String,
         case SaveModeEnum.Upsert => getPrimaryKeyOptions(schema, timeDimension)
         case _ => Map.empty[String, String]
       }
-    } ++ {
-      if (language.isDefined) Map(MongodbConfig.Language -> language.get) else Map.empty[String, String]
     }
 
   private def getPrimaryKeyOptions(schema: StructType,
@@ -95,12 +76,12 @@ class MongoDbOutput(keyName: String,
     Map(MongodbConfig.UpdateFields -> updateFields)
   }
 
-    private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
-      val conObj = properties.getMapFromJsoneyString(key)
-      conObj.map(c => {
-        val host = c.getOrElse(firstJsonItem, DefaultHost)
-        val port = c.getOrElse(secondJsonItem, DefaultPort)
-        s"$host:$port"
-      }).mkString(",")
-    }
+  private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
+    val conObj = properties.getMapFromJsoneyString(key)
+    conObj.map(c => {
+      val host = c.getOrElse(firstJsonItem, DefaultHost)
+      val port = c.getOrElse(secondJsonItem, DefaultPort)
+      s"$host:$port"
+    }).mkString(",")
   }
+}

@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.output.fileSystem
 
-
 object PartitionLimit extends Enumeration {
 
   type Limit = Value
