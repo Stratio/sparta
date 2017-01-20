@@ -27,6 +27,7 @@ object AkkaConstant {
   final val TemplateActor = "templateActor"
   final val PolicyActor = "policyActor"
   final val SparkStreamingContextActor = "sparkStreamingContextActor"
+  final val PluginActor = "pluginActor"
   final val ControllerActor = "controllerActor"
   final val SwaggerActor = "swaggerActor"
   final val PolicyStatusActor = "supervisorContextActor"

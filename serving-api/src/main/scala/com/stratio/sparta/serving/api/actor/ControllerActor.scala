@@ -43,66 +43,73 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route =
-    cors {
-      secRoute ~ webRoutes ~
-        authorized { user =>
-          serviceRoutes.fragmentRoute ~
-            serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
-            serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
-        }
-    }
+  def getRoutes: Route = serviceRoutes.pluginsRoute
+
+  cors {
+    secRoute ~ webRoutes ~
+      authorized { user =>
+        serviceRoutes.fragmentRoute ~
+          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+          serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute ~
+          serviceRoutes.pluginsRoute
+      }
+  }
 
   def webRoutes: Route =
     get {
-      pathPrefix("driverJar") {
+      pathPrefix("drivers") {
         getFromDirectory(
-          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
-            .getOrElse(AppConstant.DefaultDriverPackageLocation))
-      } ~ pathPrefix("") {
+          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
+            .getOrElse(AppConstant.DefaultPluginsPackageLocation))
+      } ~
+        pathPrefix("driverJar") {
+          getFromDirectory(
+            Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
+              .getOrElse(AppConstant.DefaultDriverPackageLocation))
+        } ~ pathPrefix("") {
+        pathEndOrSingleSlash {
+          noCache {
+            secured { user =>
+              getFromResource("classes/web/index.html")
+            }
+          }
+        }
+      } ~ getFromResourceDirectory("classes/web") ~
+        pathPrefix("") {
           pathEndOrSingleSlash {
             noCache {
               secured { user =>
-                getFromResource("classes/web/index.html")
+                getFromResource("web/index.html")
               }
             }
           }
-        } ~ getFromResourceDirectory("classes/web") ~
-          pathPrefix("") {
-            pathEndOrSingleSlash {
-              noCache {
-                secured { user =>
-                  getFromResource("web/index.html")
-                }
-              }
-            }
-          } ~ getFromResourceDirectory("web")
-      }
+        } ~ getFromResourceDirectory("web")
+    }
 }
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
 
   val fragmentRoute: Route = new FragmentHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.FragmentActor).get
+    override val supervisor = actorsMap(AkkaConstant.FragmentActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val templateRoute: Route = new TemplateHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
+    override val supervisor = actorsMap(AkkaConstant.TemplateActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyRoute: Route = new PolicyHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.PolicyActor).get
+    override val supervisor = actorsMap(AkkaConstant.PolicyActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.SparkStreamingContextActor).get
+    override val supervisor = actorsMap(AkkaConstant.SparkStreamingContextActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
@@ -111,5 +118,11 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
     override val curatorInstance = curatorFramework
+  }.routes
+
+  val pluginsRoute: Route = new PluginsHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
+    override val actorRefFactory: ActorRefFactory = context
   }.routes
 }

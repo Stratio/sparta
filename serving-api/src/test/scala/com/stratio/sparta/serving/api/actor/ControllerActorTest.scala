@@ -17,15 +17,15 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
+import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 
 @RunWith(classOf[JUnitRunner])
 class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
@@ -34,26 +34,27 @@ with WordSpecLike
 with Matchers
 with BeforeAndAfterAll
 with MockFactory {
-
-  def this() =
-    this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
-
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = mock[StreamingContextService]
-
   val policyStatusActor = _system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val templateActor = _system.actorOf(Props(new TemplateActor()))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor, fragmentActor)))
   val sparkStreamingContextActor = _system.actorOf(
     Props(new SparkStreamingContextActor(streamingContextService,policyActor, policyStatusActor, curatorFramework)))
+  val pluginActor = _system.actorOf(Props(new PluginActor()))
+
+  def this() =
+    this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
 
   implicit val actors = Map(
     AkkaConstant.PolicyStatusActor -> policyStatusActor,
     AkkaConstant.FragmentActor -> fragmentActor,
     AkkaConstant.TemplateActor -> templateActor,
     AkkaConstant.PolicyActor -> policyActor,
-    AkkaConstant.SparkStreamingContextActor -> sparkStreamingContextActor)
+    AkkaConstant.SparkStreamingContextActor -> sparkStreamingContextActor,
+    AkkaConstant.PluginActor -> pluginActor
+  )
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)

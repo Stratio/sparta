@@ -15,19 +15,19 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
-
-import scala.reflect.runtime.universe._
 import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.wordnik.swagger.model.ApiInfo
-import org.apache.curator.framework.CuratorFramework
-import spray.routing._
+import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.wordnik.swagger.model.ApiInfo
+import org.apache.curator.framework.CuratorFramework
+import spray.routing._
+
+import scala.reflect.runtime.universe._
 
 class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -36,28 +36,14 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
   override implicit def actorRefFactory: ActorContext = context
 
   val serviceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
-
-  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
-
-  def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
-    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
-    serviceRoutes.AppStatusRoute
-
-  def swaggerUIroutes: Route =
-    get {
-      pathPrefix(HttpConstant.SwaggerPath) {
-        pathEndOrSingleSlash {
-          getFromResource("swagger-ui/index.html")
-        }
-      } ~ getFromResourceDirectory("swagger-ui")
-    }
-
   val swaggerService = new SwaggerHttpService {
     override def apiTypes: Seq[Type] = Seq(
       typeOf[FragmentHttpService],
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
-      typeOf[PolicyContextHttpService])
+      typeOf[PolicyContextHttpService],
+      typeOf[PluginsHttpService]
+    )
 
     override def apiVersion: String = "1.0"
 
@@ -68,7 +54,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
 
     override def actorRefFactory: ActorContext = context
 
-    override def apiInfo: Option[ApiInfo] = Some(new ApiInfo(
+    override def apiInfo: Option[ApiInfo] = Some(ApiInfo(
       "SpaRTA",
       "A real time aggregation engine full spark based.",
       "TOC Url",
@@ -77,5 +63,20 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
       "http://www.apache.org/licenses/LICENSE-2.0"
     ))
   }.routes
+
+  def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
+
+  def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
+    serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute
+
+  def swaggerUIroutes: Route =
+    get {
+      pathPrefix(HttpConstant.SwaggerPath) {
+        pathEndOrSingleSlash {
+          getFromResource("swagger-ui/index.html")
+        }
+      } ~ getFromResourceDirectory("swagger-ui")
+    }
 }
 

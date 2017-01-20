@@ -225,6 +225,10 @@
                                 <mkdirs>
                                     <path>/var/log/sds/sparta</path>
                                 </mkdirs>
+                                <!-- For the jars plugin -->
+                                <mkdirs>
+                                    <path>/etc/sds/plugins</path>
+                                </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>
                                     <to>/opt/sds/sparta/bin</to>
