@@ -1,5 +1,8 @@
 ######################### SPARTA VARIABLES #########################
 
+# Application Name
+export NAME=sparta
+
 # Directory where the sparta binary distribution resides
 export SPARTA_HOME=/opt/sds/$NAME
 
@@ -35,9 +38,6 @@ export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM
 
 # Maximum number of open files
 export MAX_OPEN_FILES=65535
-
-# Maximum number of VMA (Virtual Memory Areas) a process can own
-export MAX_MAP_COUNT=262144
 
 ############################ SERVICE VARIABLES ############################
 SCRIPTNAME=/etc/init.d/$NAME

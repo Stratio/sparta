@@ -33,7 +33,7 @@ trait SchedulerUtils extends SLF4JLogging {
     val awaitContextStop = Try(SpartaConfig.getDetailConfig.get.getString(timeProperty)).toOption
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
 
-    log.info(s"Starting scheduler to supervise the Context stop, with time: $timeProperty - $awaitContextStop")
+    log.info(s"Starting scheduler task, with time: $timeProperty - $awaitContextStop")
     SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(awaitContextStop) milli)(f)
   }
 }

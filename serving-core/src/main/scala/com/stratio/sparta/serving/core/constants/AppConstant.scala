@@ -44,6 +44,7 @@ object AppConstant {
   final val DefaultRememberPartitioner = true
   final val ConfigStopGracefully = "stopGracefully"
   final val DefaultStopGracefully = true
+  final val SparkGracefullyStopProperty = "spark.streaming.stopGracefullyOnShutdown"
   final val AwaitStreamingContextStop = "awaitStreamingContextStop"
   final val AwaitSparkContextStop = "awaitSparkContextStop"
   final val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
@@ -56,14 +57,21 @@ object AppConstant {
   final val DefaultCheckpointPath = "sparta/checkpoint"
   final val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
   final val DefaultCheckpointPathClusterMode = "/user/"
+  final val DriverPackageLocation = "driverPackageLocation"
+  final val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
+  final val DefaultDriverFolder = "driver"
+  final val DriverLocation = "driverLocation"
+  final val DriverURI = "driverURI"
+  final val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
+  final val DefaultDriverLocation = "provided"
+  final val PluginsLocation = "pluginsLocation"
+  final val ProvidedPluginsLocation = "provided"
+  final val LocalPluginsLocation = "local"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"
   final val HdfsMaster = "hdfsMaster"
   final val HdfsPort = "hdfsPort"
-  final val PluginsFolder = "pluginsFolder"
-  final val ClasspathFolder = "classpathFolder"
-  final val ExecutionJarFolder = "executionJarFolder"
   final val DefaultHdfsUser = "stratio"
   final val KeytabPath = "keytabPath"
   final val PrincipalName = "principalName"
@@ -76,8 +84,7 @@ object AppConstant {
   final val SystemPrincipalName = "HADOOP_PRINCIPAL_NAME"
   final val SystemKeyTabPath = "HADOOP_KEYTAB_PATH"
   final val SystemHostName = "HOSTNAME"
-  final val JarPluginsFolder = "plugins"
-  final val ClusterExecutionJarFolder = "driver"
+
 
   //Generic Options
   final val Master = "master"

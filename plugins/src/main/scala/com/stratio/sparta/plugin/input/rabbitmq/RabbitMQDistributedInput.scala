@@ -78,13 +78,4 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
       rabbitMQParams + hosts
     )
   }
-
-  class NotBlankOption(s: Option[String]) {
-    def notBlankWithDefault(default: String): String = notBlank.getOrElse(default)
-
-    def notBlank: Option[String] = s.map(_.trim).filterNot(_.isEmpty)
-  }
-
-  implicit def toNotBlankOption(s: Option[String]): NotBlankOption = new NotBlankOption(s)
-
 }

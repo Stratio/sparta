@@ -29,25 +29,9 @@ case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends 
   private val host = hdfsConfig.getString(AppConstant.HdfsMaster)
   private val port = hdfsConfig.getInt(AppConstant.HdfsPort)
 
-  def getPluginsFiles(pluginsJarsPath: String): Seq[String] = {
-    jarsFromPolicy(policy).filter(file => !file.getName.contains("driver")).map(file => {
-
-      log.info(s"Uploading Sparta plugin jar ($file) to HDFS cluster .... ")
-
-      hdfs.write(file.getAbsolutePath, pluginsJarsPath, overwrite = true)
-
-      val uploadedFilePath = if(isHadoopEnvironmentDefined) file.getName -> s"hdfs://$pluginsJarsPath${file.getName}"
-      else file.getName -> s"hdfs://$host:$port$pluginsJarsPath${file.getName}"
-
-      log.info(s"Uploaded Sparta plugin jar to HDFS path: $uploadedFilePath")
-
-      uploadedFilePath
-    }).toMap.values.toSeq
-  }
-
-  def getDriverFile(driverJarPath: String): String = {
+  def uploadDriverFile(driverJarPath: String): String = {
     val driverJar =
-      JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.ClusterExecutionJarFolder)).head
+      JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.DefaultDriverFolder)).head
 
     log.info(s"Uploading Sparta Driver jar ($driverJar) to HDFS cluster .... ")
 
