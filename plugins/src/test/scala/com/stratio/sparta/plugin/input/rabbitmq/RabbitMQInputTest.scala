@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.input.rabbitmq
 
-import com.stratio.sparta.plugin.input.rabbitmq.RabbitMQGenericProps._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
@@ -24,6 +23,10 @@ import org.scalatest.{Matchers, WordSpec}
 class RabbitMQInputTest extends WordSpec with Matchers {
 
   val DefaultStorageLevel = "MEMORY_AND_DISK_SER_2"
+  val customKey = "inputOptions"
+  val customPropertyKey = "inputOptionsKey"
+  val customPropertyValue = "inputOptionsValue"
+
   "RabbitMQInput " should {
 
     "Add storage level to properties" in {
@@ -47,18 +50,18 @@ class RabbitMQInputTest extends WordSpec with Matchers {
 
     "Flat rabbitmqProperties " in {
       val rabbitmqProperties =
-        """
+        s"""
           |[{
-          |   "rabbitmqPropertyKey": "host",
-          |   "rabbitmqPropertyValue": "host1"
+          |   "$customPropertyKey": "host",
+          |   "$customPropertyValue": "host1"
           |  },
           |  {
-          |   "rabbitmqPropertyKey": "queue",
-          |   "rabbitmqPropertyValue": "queue1"
+          |   "$customPropertyKey": "queue",
+          |   "$customPropertyValue": "queue1"
           |  }
           |]
         """.stripMargin
-      val props = Map(RabbitmqProperties -> rabbitmqProperties)
+      val props = Map(customKey -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
       val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host1")
@@ -67,53 +70,53 @@ class RabbitMQInputTest extends WordSpec with Matchers {
       result should have size 4
     }
 
-    "Fail when no rabbitmqPropertyValue in rabbitmqProperties " in {
+    "Fail when no inputOptionsValue in customProperties " in {
       val rabbitmqProperties =
-        """
+        s"""
           |[{
-          |   "rabbitmqPropertyKey": "host"
+          |   "$customPropertyKey": "host"
           |}]
         """.stripMargin
-      val props = Map(RabbitmqProperties -> rabbitmqProperties)
+      val props = Map(customKey -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
-      the[IllegalArgumentException] thrownBy {
+      the[IllegalStateException] thrownBy {
         input.propsWithStorageLevel("")
-      } should have message "The field rabbitmqPropertyValue is mandatory"
+      } should have message "The field inputOptionsValue is mandatory"
 
     }
 
-    "Fail when no rabbitmqPropertyKey in rabbitmqProperties " in {
+    "Fail when no inputOptionsKey in customProperties" in {
       val rabbitmqProperties =
-        """
+        s"""
           |[{
-          |   "rabbitmqPropertyValue": "host1"
+          |   "$customPropertyValue": "host1"
           |}]
         """.stripMargin
-      val props = Map(RabbitmqProperties -> rabbitmqProperties)
+      val props = Map(customKey -> rabbitmqProperties)
       val input = new RabbitMQInput(props)
-      the[IllegalArgumentException] thrownBy {
+      the[IllegalStateException] thrownBy {
         input.propsWithStorageLevel("")
-      } should have message "The field rabbitmqPropertyKey is mandatory"
+      } should have message "The field inputOptionsKey is mandatory"
     }
 
     "Should preserve the UI fields " in {
       val rabbitmqProperties =
-        """
-          |[{
-          |   "rabbitmqPropertyKey": "host",
-          |   "rabbitmqPropertyValue": "host1"
-          |  },
-          |  {
-          |   "rabbitmqPropertyKey": "queue",
-          |   "rabbitmqPropertyValue": "queue1"
-          |  }
-          |]
+        s"""
+           |[{
+           |   "$customPropertyKey": "host",
+           |   "$customPropertyValue": "host1"
+           |  },
+           |  {
+           |   "$customPropertyKey": "queue",
+           |   "$customPropertyValue": "queue1"
+           |  }
+           |]
         """.stripMargin
 
       val props = Map(
         "host" -> "host",
         "queue" -> "queue",
-        RabbitmqProperties -> rabbitmqProperties
+        customKey -> rabbitmqProperties
       )
       val input = new RabbitMQInput(props)
       val result = input.propsWithStorageLevel(DefaultStorageLevel)

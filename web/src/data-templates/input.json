@@ -166,7 +166,6 @@
         ],
         "default": "preferconsistent",
         "required": false,
-        "tooltip": "Field valid only for Spark 1.6.x",
         "qa": "fragment-details-stratiokafkadirect-locationStrategy"
       },
       {
@@ -248,7 +247,7 @@
         ],
         "default": "string",
         "required": false,
-        "tooltip": "",
+        "tooltip": "Default value set to String.",
         "qa": "fragment-details-rabbitmq-key-serializer"
       },
       {
@@ -346,7 +345,6 @@
             "propertyId": "distributedExchangeName",
             "propertyName": "_RABBITMQ_EXCHANGE_NAME_KEY_",
             "position": "right",
-            "width": 15,
             "propertyType": "text",
             "regexp": "",
             "default": "",

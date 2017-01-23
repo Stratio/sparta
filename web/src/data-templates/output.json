@@ -915,6 +915,37 @@
         "required": false,
         "tooltip": "",
         "qa": "fragment-details-avro-partitionBy"
+      },
+      {
+        "propertyId": "saveOptions",
+        "propertyName": "_AVRO_SAVE_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-avro-save-properties",
+        "fields": [
+          {
+            "propertyId": "saveOptionsKey",
+            "propertyName": "_SAVE_OPTIONS_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-avro-saveOptionsKey"
+          },
+          {
+            "propertyId": "saveOptionsValue",
+            "propertyName": "_SAVE_OPTIONS_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-avro-saveOptionsValue"
+          }
+        ]
       }
     ]
   }
