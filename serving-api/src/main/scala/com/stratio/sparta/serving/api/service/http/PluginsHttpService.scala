@@ -20,13 +20,15 @@ import javax.ws.rs.Path
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http._
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PluginsPath, description = "Operations over plugins: now only for jars")
 trait PluginsHttpService extends BaseHttpService with OauthClient {
@@ -34,7 +36,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
 
-  override def routes: Route = create
+  override def routes: Route = upload ~ download
 
   @Path("/{fileName}")
   @ApiOperation(value = "Upload a file to plugin directory.",
@@ -52,8 +54,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       required = true,
       paramType = "formData")
   ))
-  def create: Route = {
-    path(HttpConstant.PluginsPath / Segment) { (fileName) =>
+  def upload: Route = {
+    path(HttpConstant.PluginsPath / Segment) { fileName =>
       put {
         entity(as[MultipartFormData]) { form =>
           complete {
@@ -68,6 +70,26 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       }
     }
   }
+
+  @Path("/{fileName}")
+  @ApiOperation(value = "Download a file to plugin directory.",
+    notes = "Creates a file in the server filesystem with the uploaded jar.",
+    httpMethod = "GET")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the jar",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  def download: Route =
+    get {
+      pathPrefix(HttpConstant.PluginsPath) {
+        getFromDirectory(
+          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
+            .getOrElse(AppConstant.DefaultPluginsPackageLocation))
+      }
+    }
 
   case class FileCreated(path: String)
 }

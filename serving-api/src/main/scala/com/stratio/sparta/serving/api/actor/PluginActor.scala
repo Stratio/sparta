@@ -48,6 +48,10 @@ class PluginActor extends Actor
   val jarFileName: Predicate[String] = Pattern.compile(""".*\.jar""").asPredicate()
 
   override def receive: Receive = {
+    case UploadFile(_, files) if files.isEmpty =>
+      sender ! PluginResponse(Failure(new IllegalArgumentException(s"A file is expected")))
+    case UploadFile(_, files) if files.size != 1 =>
+      sender ! PluginResponse(Failure(new IllegalArgumentException(s"More than one file is not supported")))
     case UploadFile(name, files) if jarFileName.test(name) => uploadFile(name, files)
     case UploadFile(name, _) =>
       sender ! PluginResponse(Failure(new IllegalArgumentException(s"$name is Not a valid file name")))
@@ -57,7 +61,7 @@ class PluginActor extends Actor
   def uploadFile(fileName: String, files: Seq[BodyPart]): Unit = {
     sender ! PluginResponse(
       Try {
-        files.foreach(file => saveFile(file.entity.data.toByteArray, s"$targetDir/$fileName"))
+        saveFile(files.head.entity.data.toByteArray, s"$targetDir/$fileName")
         s"$url/$fileName"
       }
     )
