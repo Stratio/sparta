@@ -13,46 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.plugin.output.avro
 
-package com.stratio.sparta.plugin.output.jdbc
+import java.io.Serializable
 
-import java.io.{Serializable => JSerializable}
-import java.util.Properties
-
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.Logging
 import org.apache.spark.sql._
 
-import scala.collection.JavaConversions._
 
-class JdbcOutput(keyName: String,
+/**
+  * This output save as avro file the information.
+  */
+class AvroOutput(keyName: String,
                  version: Option[Int],
-                 properties: Map[String, JSerializable],
-                 bcSchema: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, bcSchema) {
+                 properties: Map[String, Serializable],
+                 schemas: Seq[SpartaSchema])
+  extends Output(keyName, version, properties, schemas) with Logging {
 
-  require(properties.getString("url", None).isDefined, "url must be provided")
-
-  val url = properties.getString("url")
-
-  val connectionProperties = {
-    val props = new Properties()
-    props.putAll(properties.mapValues(_.toString))
-    props
-  }
-
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+
+
     val tableName = getTableNameFromOptions(options)
+    val timeDimension = getTimeFromOptions(options).notBlank
+    val path = properties.getString("path", None).notBlank
+    require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
+    val partitionBy = properties.getString("partitionBy", None)
 
     validateSaveMode(saveMode)
 
-    dataFrame.write
+    val dataFrameWriter = dataFrame
+      .write
+      .format("com.databricks.spark.avro")
       .mode(getSparkSaveMode(saveMode))
-      .jdbc(url, tableName, connectionProperties)
+
+    partitionBy match {
+      case Some(partition) => dataFrameWriter.partitionBy(partition)
+      case None => if (timeDimension.isDefined)
+        dataFrameWriter.partitionBy(timeDimension.get)
+    }
+
+    dataFrameWriter.save(s"${path.get}/${versionedTableName(tableName)}")
   }
 }

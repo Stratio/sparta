@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.print
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
@@ -37,16 +37,13 @@ class PrintOutput(keyName: String,
   extends Output(keyName, version, properties, schemas) with Logging {
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    if (log.isDebugEnabled) {
-      log.debug(s"> Table name       : ${Output.getTableNameFromOptions(options)}")
-      log.debug(s"> Time dimension       : ${Output.getTimeFromOptions(options)}")
-      log.debug(s"> Version policy   : $version")
-      log.debug(s"> Data frame count : " + dataFrame.count())
-      log.debug(s"> Data frame save Mode : " + saveMode)
-      log.debug(s"> DataFrame schema")
-      dataFrame.printSchema()
-    }
-
+    log.info(s"> Table name       : ${Output.getTableNameFromOptions(options)}")
+    log.info(s"> Time dimension       : ${Output.getTimeFromOptions(options)}")
+    log.info(s"> Version policy   : $version")
+    log.info(s"> Data frame count : " + dataFrame.count())
+    log.info(s"> Data frame save Mode : " + saveMode)
+    log.info(s"> DataFrame schema")
+    dataFrame.printSchema()
     dataFrame.foreach(row => log.info(row.mkString(",")))
   }
 }

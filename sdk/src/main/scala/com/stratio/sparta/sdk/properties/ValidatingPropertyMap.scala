@@ -152,8 +152,17 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
   def hasKey(key: K): Boolean = m.get(key).isDefined
 }
 
+class NotBlankOption(s: Option[String]) {
+  def notBlankWithDefault(default: String): String = notBlank.getOrElse(default)
+
+  def notBlank: Option[String] = s.map(_.trim).filterNot(_.isEmpty)
+}
+
 object ValidatingPropertyMap {
 
   implicit def map2ValidatingPropertyMap[K, V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
     new ValidatingPropertyMap[K, V](m)
+
+  implicit def option2NotBlankOption(s: Option[String]): NotBlankOption = new NotBlankOption(s)
+
 }
