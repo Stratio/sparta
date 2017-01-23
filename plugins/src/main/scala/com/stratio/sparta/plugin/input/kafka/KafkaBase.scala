@@ -32,9 +32,6 @@ trait KafkaBase {
   val DefaultBrokerPort = "9092"
   val DefaultZkPort = "2181"
   val DefaultZookeeperPath = ""
-  val DefaultPropertiesKey = "kafkaProperties"
-  val PropertiesKey = "kafkaPropertyKey"
-  val PropertiesValue = "kafkaPropertyValue"
 
   val properties: Map[String, JSerializable]
 
@@ -84,11 +81,4 @@ trait KafkaBase {
       throw new IllegalStateException(s"topics is mandatory")
     else topicsModel
   }
-
-  /** KAFKA ADDITIONAL OPTIONS **/
-
-  def getAdditionalOptions(key: String = DefaultPropertiesKey,
-                           propertyKey: String = PropertiesKey,
-                           propertyValue: String = PropertiesValue): Map[String, String] =
-    properties.getOptionsList(key, propertyKey, propertyValue)
 }

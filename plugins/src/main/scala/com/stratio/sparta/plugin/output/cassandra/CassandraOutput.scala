@@ -47,7 +47,8 @@ class CassandraOutput(keyName: String,
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(getSparkSaveMode(saveMode))
-      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster))
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster) ++ getCustomProperties
+      )
       .save()
   }
 

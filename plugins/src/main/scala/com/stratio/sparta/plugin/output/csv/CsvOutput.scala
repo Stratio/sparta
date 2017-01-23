@@ -69,7 +69,7 @@ class CsvOutput(keyName: String,
     dataFrame.write
       .format("com.databricks.spark.csv")
       .mode(getSparkSaveMode(saveMode))
-      .options(optionsParsed)
+      .options(optionsParsed ++ getCustomProperties)
       .save(pathWithExtension)
   }
 

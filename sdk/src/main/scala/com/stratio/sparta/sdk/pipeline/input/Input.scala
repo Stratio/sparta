@@ -17,7 +17,7 @@ package com.stratio.sparta.sdk.pipeline.input
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.properties.Parameterizable
+import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
@@ -25,7 +25,11 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 
-abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) {
+abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) with CustomProperties {
+
+  val customKey = "inputOptions"
+  val customPropertyKey = "inputOptionsKey"
+  val customPropertyValue = "inputOptionsValue"
 
   def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row]
 

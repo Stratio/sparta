@@ -53,6 +53,7 @@ class JdbcOutput(keyName: String,
 
     dataFrame.write
       .mode(getSparkSaveMode(saveMode))
+      .options(getCustomProperties)
       .jdbc(url, tableName, connectionProperties)
   }
 }
