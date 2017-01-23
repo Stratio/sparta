@@ -36,10 +36,10 @@ class PluginsHttpServiceTest extends WordSpec
   with HttpServiceBaseTest {
   override val supervisor: ActorRef = testProbe.ref
 
-  override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.PluginActor -> pluginTestProbe.ref
-  )
   val pluginTestProbe = TestProbe()
+
+  override implicit val actors: Map[String, ActorRef] = Map.empty
+
 
   override def beforeEach(): Unit = {
     SpartaConfig.initMainConfig(Option(localConfig), MockConfigFactory(localConfig))
