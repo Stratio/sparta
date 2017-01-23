@@ -41,22 +41,38 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
   }
 
   private def doInitSpartaContext(policy: PolicyModel): Unit = {
-
     val jars = jarsFromPolicy(policy)
-    jars.foreach(file => JarsHelper.addToClasspath(file))
 
+    jars.foreach(file => JarsHelper.addToClasspath(file))
     Try {
-      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting))
+      val startingInformation = s"Starting Sparta Streaming Context Job for policy:  ${policy.name}"
+      log.info(startingInformation)
+      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting, None, None,
+        Some(startingInformation)))
+
       Try(ErrorDAO().dao.delete(policy.id.get))
+
       ssc = Option(streamingContextService.standAloneStreamingContext(policy, jars))
-      log.info(s"Starting Streaming Context for policy:  ${policy.name}")
       ssc.get.start()
+
+      val startedInformation = s"The Sparta Streaming Context Job was started correctly"
+      log.info(startedInformation)
+      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started, None, None,
+        Some(startedInformation)))
+
+      ssc.get.awaitTermination()
     } match {
       case Success(_) =>
-        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started))
+        val information = s"Stopped correctly Sparta Streaming Context Job for policy: ${policy.id.get}"
+        log.info(information)
+        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Stopped, None, None,
+          Some(information)))
       case Failure(exception) =>
-        log.error(exception.getLocalizedMessage, exception)
-        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed))
+        val information = s"Error initiating Sparta Streaming Context Job: ${exception.getLocalizedMessage}"
+        log.error(information, exception)
+        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed, None, None,
+          Some(information)))
+
         SparkContextFactory.destroySparkContext(destroyStreamingContext = true)
     }
   }

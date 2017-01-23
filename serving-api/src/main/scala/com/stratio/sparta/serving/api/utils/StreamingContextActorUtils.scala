@@ -45,7 +45,6 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
         log.info("Streaming Context Available, launching policy ... ")
         val streamingLauncherActor =
           getStreamingContextActor(policy, policyStatusActor, streamingContextService, context)
-        updatePolicy(policy, PolicyStatusEnum.Launched, policyStatusActor)
         streamingLauncherActor ! Start(policy)
       }
       policy

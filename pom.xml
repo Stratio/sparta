@@ -191,6 +191,7 @@
         <scala.mock.version>3.2.2</scala.mock.version>
         <easy.mock.version>2.5.2</easy.mock.version>
         <mailapi.version>1.4.3</mailapi.version>
+        <scalaj.version>2.3.0</scalaj.version>
         <stratio.common.utils.version>0.6.0</stratio.common.utils.version>
         <commons-configuration.version>1.6</commons-configuration.version>
         <stratio-platform.target>1.7</stratio-platform.target>
@@ -556,6 +557,11 @@
                         <artifactId>zookeeper</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.scalaj</groupId>
+                <artifactId>scalaj-http_${scala.binary.version}</artifactId>
+                <version>${scalaj.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
