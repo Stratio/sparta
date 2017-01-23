@@ -16,6 +16,8 @@
 package com.stratio.sparta.serving.api.actor
 
 import java.io.{BufferedOutputStream, FileOutputStream}
+import java.util.function.Predicate
+import java.util.regex.Pattern
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
@@ -33,15 +35,20 @@ class PluginActor extends Actor
   with SLF4JLogging
   with SpartaSerializer {
 
-  val targetDir: String = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
-    .getOrElse(AppConstant.DefaultDriverPackageLocation)
-
-  val targetUrl: String = "http://localhost:8080"
-
-  val url = s"$targetUrl/$AppConstant.PluginsURLLocation/"
+  //The dir where the jars will be saved
+  val targetDir: String = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
+    .getOrElse(AppConstant.DefaultPluginsPackageLocation)
+  //Configuration of the app
+  val host: String = SpartaConfig.apiConfig.get.getString("host")
+  val port: Int = SpartaConfig.apiConfig.get.getInt("port")
+  val targetUrl: String = s"$host:$port"
+  //Url of the download endpoint
+  val url = s"$targetUrl/${AppConstant.PluginsURLLocation}"
+  //Regexp for jar name validation
+  val jarFileName: Predicate[String] = Pattern.compile(""".*\.jar""").asPredicate()
 
   override def receive: Receive = {
-    case UploadFile(name, files) if name.matches(""".*\.jar""") => uploadFile(name, files)
+    case UploadFile(name, files) if jarFileName.test(name) => uploadFile(name, files)
     case UploadFile(name, _) =>
       sender ! PluginResponse(Failure(new IllegalArgumentException(s"$name is Not a valid file name")))
     case _ => log.info("Unrecognized message in Plugin Actor")
@@ -50,9 +57,8 @@ class PluginActor extends Actor
   def uploadFile(fileName: String, files: Seq[BodyPart]): Unit = {
     sender ! PluginResponse(
       Try {
-        val targetFile = s"$targetDir/$fileName"
-        files.foreach(file => saveFile(file.entity.data.toByteArray, targetFile))
-        s"$targetUrl/$targetFile"
+        files.foreach(file => saveFile(file.entity.data.toByteArray, s"$targetDir/$fileName"))
+        s"$url/$fileName"
       }
     )
   }
@@ -63,13 +69,9 @@ class PluginActor extends Actor
     bos.write(array)
     bos.close()
   }
-
 }
 
 object PluginActor {
-
   case class UploadFile(t: String, files: Seq[BodyPart])
-
   case class PluginResponse(status: Try[_])
-
 }
