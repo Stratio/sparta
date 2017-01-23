@@ -43,9 +43,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route = serviceRoutes.pluginsRoute
-
-  cors {
+  def getRoutes: Route = cors {
     secRoute ~ webRoutes ~
       authorized { user =>
         serviceRoutes.fragmentRoute ~
