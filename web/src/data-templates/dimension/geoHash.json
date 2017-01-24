@@ -2,7 +2,7 @@
   "properties": [
     {
       "propertyId": "precision",
-      "propertyName": "",
+      "propertyName": "_PRECISION_",
       "propertyType": "select",
       "position": "left",
       "width": 12,

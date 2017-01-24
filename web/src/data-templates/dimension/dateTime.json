@@ -2,19 +2,19 @@
   "properties": [
     {
       "propertyId": "precisionNumber",
-      "propertyName": "_FIELD_",
+      "propertyName": "_PRECISION_",
       "propertyType": "number",
       "position": "left",
-      "width": 12,
+      "width": 6,
       "required": true,
       "qa": "policy-dimension-precision-number"
     },
     {
       "propertyId": "precisionTime",
-      "propertyName": "",
+      "propertyName": "_WHITE_SPACE_",
       "propertyType": "select",
       "position": "left",
-      "width": 12,
+      "width": 6,
       "required": true,
       "values":  [
         {
@@ -80,6 +80,65 @@
       "width": 12,
       "required": false,
       "qa": "policy-dimension-is-time-dimension"
+    },
+    {
+      "propertyId": "computeLastNumber",
+      "propertyName": "_COMPUTE_LAST_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "default": 10,
+      "required": true,
+      "tooltip": "Sets the time window for aggregation operations.",
+      "qa": "policy-cube-dimension-dateTime-computeLastNumber",
+      "visible": [
+        [
+          {
+            "propertyId": "isTimeDimension",
+            "value": true
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "computeLastTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-cube-dimension-dateTime-computeLastTime",
+      "default": "m",
+      "required": true,
+      "values": [
+        {
+          "label": "Millisecond(s)",
+          "value": "ms"
+        },
+        {
+          "label": "Second(s)",
+          "value": "s"
+        },
+        {
+          "label": "Minute(s)",
+          "value": "m"
+        },
+        {
+          "label": "Hour(s)",
+          "value": "h"
+        },
+        {
+          "label": "Day(s)",
+          "value": "d"
+        }
+      ],
+      "visible": [
+        [
+          {
+            "propertyId": "isTimeDimension",
+            "value": true
+          }
+        ]
+      ]
     }
   ]
 }
