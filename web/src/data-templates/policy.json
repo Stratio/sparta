@@ -451,6 +451,10 @@
         "name": "Xml"
       },
       {
+        "iconName": "csv",
+        "name": "Csv"
+      },
+      {
         "iconName": "kite",
         "name": "Morphlines"
       },
@@ -535,6 +539,30 @@
           {
             "field":"field2",
             "query":"$.field2-in-json"
+          }
+        ]
+      }
+    },
+    "Csv": {
+      "properties": [
+        {
+          "propertyId": "errorWithNullValues",
+          "propertyName": "_ERROR_WITH_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": true,
+          "required": false,
+          "qa": "policy-transformation-csv-errorWithNullValues"
+        }
+      ],
+      "defaultConfiguration": {
+        "fields": [
+          {
+            "name":"field1"
+          },
+          {
+            "name":"field2"
           }
         ]
       }

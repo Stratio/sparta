@@ -80,6 +80,9 @@
         case modelConstants.XML:
           vm.model.configuration = vm.template.model[modelConstants.XML].defaultConfiguration;
           break;
+        case modelConstants.CSV:
+          vm.model.configuration = vm.template.model[modelConstants.CSV].defaultConfiguration;
+          break;
         case modelConstants.GEO:
           delete vm.model.inputField;
           vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;
