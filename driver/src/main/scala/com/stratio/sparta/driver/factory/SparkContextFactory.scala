@@ -127,15 +127,12 @@ object SparkContextFactory extends SLF4JLogging {
     ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
       try {
         synchronized {
-          val stopGracefully =
-            Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigStopGracefully)).getOrElse(true)
           log.info(s"Stopping Streaming Context with name: ${streamingContext.sparkContext.appName}")
-          Try(streamingContext.stop(stopSparkContext = false, stopGracefully)) match {
+          Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
             case Success(_) =>
-              log.info("Streaming Context have been stopped gracefully")
+              log.info("Streaming Context have been stopped")
             case Failure(error) =>
-              log.error("Streaming Context is not stopped gracefully, now it will be stopped forcibly", error)
-              streamingContext.stop(stopSparkContext = false, stopGracefully = false)
+              log.error("Streaming Context is not been stopped correctly", error)
           }
         }
       } finally {

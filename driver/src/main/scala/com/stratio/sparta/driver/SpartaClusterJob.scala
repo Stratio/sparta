@@ -17,7 +17,6 @@
 package com.stratio.sparta.driver
 
 import java.io.File
-import java.util.UUID
 
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
@@ -33,9 +32,8 @@ import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
-import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
-import org.apache.commons.io.FileUtils
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
@@ -57,7 +55,7 @@ object SpartaClusterJob extends PolicyUtils {
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       val zookeperConf = new String(BaseEncoding.base64().decode(args(ZookeperConfigurationIndex)))
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
-        .split(",").filter(s => s != " " && s.nonEmpty && s != "")
+        .split(",").filter(s => s != " " && s.nonEmpty)
       val driverLocationConf = new String(BaseEncoding.base64().decode(args(DriverLocationConfigIndex)))
 
       initSpartaConfig(detailConf, zookeperConf, driverLocationConf)
@@ -71,42 +69,35 @@ object SpartaClusterJob extends PolicyUtils {
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 
-      Try(policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))) match {
-        case Failure(exception) =>
-          log.error(exception.getLocalizedMessage, exception)
-          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed))
-          throw DriverException(
-            s"Error updating context to Starting. Error: ${exception.getLocalizedMessage}", exception)
-        case Success(_) =>
-          log.info("The Policy is starting ...")
-      }
-
       Try(ErrorDAO().dao.delete(policy.id.get))
 
       Try {
+        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))
         val ssc = streamingContextService.clusterStreamingContext(
           policy,
           pluginsFiles,
           Map("spark.app.name" -> s"${policy.name}")
         )
-
         ssc.start
-        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started))
-        log.info(s"Starting Streaming Context for policy $policyId")
+        val information = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
+        log.info(information)
+        policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Started, Option(ssc.sparkContext.applicationId), None, Some(information)))
         ssc.awaitTermination()
       } match {
         case Success(_) =>
-          log.info(s"Finished correctly Streaming Context Job for policy: ${policy.id.get}")
-          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped))
+          val information = s"Stopped correctly Sparta Streaming Context Job for policy: ${policy.id.get}"
+          log.info(information)
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopped, None, None, Some(information)))
         case Failure(exception) =>
-          val message = s"Error initiating Sparta context: ${exception.getLocalizedMessage}"
-          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Stopping))
-          throw DriverException(message, exception)
+          val information = s"Error initiating Sparta Streaming Context Job: ${exception.getLocalizedMessage}"
+          log.error(information)
+          policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Failed, None, None, Some(information)))
+          throw DriverException(information, exception)
       }
     } match {
       case Success(_) =>
-        log.info("Finished correctly Sparta Cluster Job")
+        log.info("Finished correctly Sparta Streaming Context Job")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
@@ -117,7 +108,7 @@ object SpartaClusterJob extends PolicyUtils {
   }
 
   //scalastyle:on
-  private def addPluginsToClassPath(pluginsFiles: Array[String]) : Unit = {
+  private def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
     log.info(pluginsFiles.mkString(","))
     pluginsFiles.foreach(filePath => {
       val file = new File(filePath)

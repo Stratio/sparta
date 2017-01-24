@@ -37,4 +37,5 @@ object PolicyStatusEnum extends Enumeration {
   val Stopping = Value("Stopping")
   val Stopped = Value("Stopped")
   val NotStarted = Value("NotStarted")
+  val NotDefined = Value("NotDefined")
 }

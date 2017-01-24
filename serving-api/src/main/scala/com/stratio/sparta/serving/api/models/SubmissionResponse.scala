@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+package com.stratio.sparta.serving.api.models
 
-package com.stratio.sparta.serving.core.constants
 
-object ActorsConstant {
-
-  val UnitVersion = 1
-}
+case class SubmissionResponse(action: String,
+                              message: String,
+                              serverSparkVersion: String,
+                              submissionId: String,
+                              success: Boolean)
