@@ -21,14 +21,11 @@ import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, T
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.spray.oauth2.client.OauthClient
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
-
-import scala.util.Try
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -43,66 +40,62 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route =
-    cors {
-      secRoute ~ webRoutes ~
-        authorized { user =>
-          serviceRoutes.fragmentRoute ~
-            serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
-            serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute
-        }
-    }
+  def getRoutes: Route = cors {
+    secRoute ~ webRoutes ~
+      authorized { user =>
+        serviceRoutes.fragmentRoute ~
+          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+          serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute ~
+          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
+      }
+  }
 
   def webRoutes: Route =
     get {
-      pathPrefix("driverJar") {
-        getFromDirectory(
-          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
-            .getOrElse(AppConstant.DefaultDriverPackageLocation))
-      } ~ pathPrefix("") {
+      pathPrefix("") {
+        pathEndOrSingleSlash {
+          noCache {
+            secured { user =>
+              getFromResource("classes/web/index.html")
+            }
+          }
+        }
+      } ~ getFromResourceDirectory("classes/web") ~
+        pathPrefix("") {
           pathEndOrSingleSlash {
             noCache {
               secured { user =>
-                getFromResource("classes/web/index.html")
+                getFromResource("web/index.html")
               }
             }
           }
-        } ~ getFromResourceDirectory("classes/web") ~
-          pathPrefix("") {
-            pathEndOrSingleSlash {
-              noCache {
-                secured { user =>
-                  getFromResource("web/index.html")
-                }
-              }
-            }
-          } ~ getFromResourceDirectory("web")
-      }
+        } ~ getFromResourceDirectory("web")
+    }
 }
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
 
   val fragmentRoute: Route = new FragmentHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.FragmentActor).get
+    override val supervisor = actorsMap(AkkaConstant.FragmentActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val templateRoute: Route = new TemplateHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.TemplateActor).get
+    override val supervisor = actorsMap(AkkaConstant.TemplateActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyRoute: Route = new PolicyHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.PolicyActor).get
+    override val supervisor = actorsMap(AkkaConstant.PolicyActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap.get(AkkaConstant.SparkStreamingContextActor).get
+    override val supervisor = actorsMap(AkkaConstant.SparkStreamingContextActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
@@ -111,5 +104,17 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
     override val curatorInstance = curatorFramework
+  }.routes
+
+  val pluginsRoute: Route = new PluginsHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
+    override val actorRefFactory: ActorRefFactory = context
+  }.routes
+
+  val driversRoute: Route = new DriverHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
+    override val actorRefFactory: ActorRefFactory = context
   }.routes
 }

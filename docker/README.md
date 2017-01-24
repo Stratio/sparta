@@ -175,7 +175,7 @@ Usage examples
 
 docker run -dit --name sp -p 9090:9090 -p 9091:9091 --env RUN_MODE=debug --env SERVICE_LOG_LEVEL=INFO 
    --env SPARTA_LOG_LEVEL=INFO --env SPARK_LOG_LEVEL=INFO 
-   --env SPARTA_DRIVER_URI=http://sp.demo.stratio.com:9090/driverJar/driver-plugin.jar 
+   --env SPARTA_DRIVER_URI=http://sp.demo.stratio.com:9090/drivers/driver-plugin.jar 
    --env SPARTA_DRIVER_LOCATION=provided --env SPARTA_ZOOKEEPER_CONNECTION_STRING=zk.demo.stratio.com 
    --env SPARTA_EXECUTION_MODE=mesos --env SPARTA_CHECKPOINT_PATH=/user/stratio/checkpoint 
    --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 qa.stratio.com:8443/stratio/sparta:latest
@@ -219,15 +219,15 @@ docker run -dit --name hm --env NAMENODE_MODE=true qa.stratio.com/stratio/hadoop
       
   - MASTER: 
     
-    docker run -dit --volumes-from hm --name mm11 --env MODE=master -p 8077:7077 -p 6050:5050 
-      --env MESOS_ZK=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 
-      --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio 
+    docker run -dit --volumes-from hm --name mm11 --env MODE=master \
+      --env MESOS_ZK=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
+      --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio  \
       --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
 
   - SLAVE:
   
-    docker run -dit --volumes-from hm --name ms11 --env MODE=slave 
-    --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 
-    --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio 
-    --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
+    docker run -dit --volumes-from hm --name ms11 --env MODE=slave \
+        --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
+        --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio \
+        --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
 
