@@ -20,9 +20,9 @@
       .module('webApp')
       .controller('OutputsCtrl', OutputsCtrl);
 
-    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService'];
+    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService'];
 
-    function OutputsCtrl(FragmentFactory, $filter, $modal, UtilsService) {
+    function OutputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService) {
       /*jshint validthis: true*/
       var vm = this;
 
@@ -164,7 +164,7 @@
       }
 
       function createOutputModal(newOutputTemplateData) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           animation: true,
           templateUrl: 'templates/fragments/fragment-details.tpl.html',
           controller: 'NewFragmentModalCtrl as vm',
@@ -186,7 +186,7 @@
       }
 
       function editOutputModal(editOutputData) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             animation: true,
             templateUrl: 'templates/fragments/fragment-details.tpl.html',
             controller: 'EditFragmentModalCtrl as vm',
@@ -218,7 +218,7 @@
       }
 
       function deleteOutputConfirm(size, output) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           animation: true,
           templateUrl: 'templates/components/st-delete-modal.tpl.html',
           controller: 'DeleteFragmentModalCtrl as vm',
@@ -244,7 +244,7 @@
       }
 
       function setDuplicatedOutput(size, OutputData) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
           animation: true,
           templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
           controller: 'DuplicateFragmentModalCtrl as vm',

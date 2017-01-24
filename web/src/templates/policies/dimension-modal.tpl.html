@@ -7,74 +7,24 @@
 
   <form class="c-form" name="vm.form" novalidate>
     <div class="c-modal-inner">
+      <div class="c-form c-form-group angular-forms__error" data-ng-if="vm.error != ''" data-qa="error-msg">
+        <i class="c-icon icon-circle-cross"></i>
+        <span translate="{{vm.error | translate}}"></span>
+      </div>
       <form-field
               data-ng-repeat="properties in vm.template.properties"
+              data-ng-if="vm.isEnabledProperty(properties.propertyId)"
               class="c-col"
               data-ng-class="{'c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
               data-ng-form-id="{{properties.propertyId}}"
               data-field="properties"
-              data-model="vm.operator"
+              data-model="vm.dimension"
               data-form="vm.form"
-              data-st-name="trigger{{properties.propertyName}}Form"
+              data-st-name="dimension{{properties.propertyName}}"
+              data-disabled="properties.disabled"
               data-qa="{{properties.qa}}">
       </form-field>
 
-
-
-
-
-      <!--<div class="c-form-group">-->
-        <!--<form-field-input data-form="vm.form" data-st-name="fieldForm"-->
-                          <!--data-model="vm.dimension.field" data-label="{{'_POLICY_._CUBE_._FIELD_' | translate}}"-->
-                          <!--data-help="" data-pattern="" data-required="true" required="true" disabled="true"-->
-                          <!--data-qa="dimension-modal-field"></form-field-input>-->
-      <!--</div>-->
-      <!--<div class="c-form-group">-->
-        <!--<form-field-input class="c-col c-col&#45;&#45;12 c-form-group&#45;&#45;inline" data-form="vm.form" data-st-name="nameForm"-->
-          <!--data-model="vm.dimension.name" data-label="{{'_NAME_' | translate}}" data-help=""-->
-          <!--data-pattern="" data-required="true" placeholder="Ex. Name 1" required="true"-->
-          <!--data-qa="dimension-modal-name">-->
-        <!--</form-field-input>-->
-        <!--<div class="c-form c-form-group angular-forms__error" data-ng-if="vm.nameError != ''" data-qa="error-msg">-->
-          <!--<i class="c-icon icon-circle-cross"></i>-->
-          <!--<span translate="{{vm.nameError | translate}}"></span>-->
-        <!--</div>-->
-      <!--</div>-->
-      <!--<div class="c-form-group">-->
-        <!--<form-field-select select-class="c-combobox&#45;&#45;full-width"-->
-          <!--data-form="vm.form" data-st-name="precision-form"-->
-          <!--data-model="vm.dimension.type"-->
-          <!--data-options="vm.cubeTypes"-->
-          <!--data-field="label"-->
-          <!--data-label="{{'_TYPE_' | translate}}"-->
-          <!--data-help=""-->
-          <!--data-required="true"-->
-          <!--data-qa="dimension-modal-type">-->
-        <!--</form-field-select>-->
-      <!--</div>-->
-      <!--<div class="c-form-group" data-ng-if="vm.dimension.type !== 'DateTime'">-->
-        <!--<form-field-select data-ng-if="vm.dimension.type !== vm.defaultType" select-class="c-combobox&#45;&#45;full-width"-->
-          <!--data-form="vm.form" data-st-name="precision-form"-->
-          <!--data-model="vm.dimension.precision"-->
-          <!--data-options="vm.getPrecisionsOfType()"-->
-          <!--data-field="label"-->
-          <!--data-label="{{'_POLICY_._CUBE_._PRECISION_' | translate}}"-->
-          <!--data-required = "true"-->
-          <!--data-qa="dimension-modal-precision">-->
-        <!--</form-field-select>-->
-      <!--</div>-->
-      <!--<form-field data-ng-if = "vm.dimension.type === 'DateTime'"-->
-        <!--data-ng-repeat = "item in vm.dateTimeConfiguration"-->
-        <!--data-ng-class = "{'c-col c-col&#45;&#45;{{item.width}} c-form-gutter c-form-gutter__{{item.position}} c-col&#45;&#45;vertical-top': item.width}"-->
-        <!--data-ng-form-id = "{{item.propertyId}}"-->
-        <!--data-field = "item"-->
-        <!--data-model = "vm.dimension"-->
-        <!--data-form = "vm.form"-->
-        <!--data-st-name = "dateTime{{item.propertyName}}Form"-->
-        <!--data-disabled = "vm.setPropertyDisabled(item.propertyId, vm.isTimeDimesion)"-->
-        <!--data-extra-message = "vm.setExtraMessage(vm.isTimeDimesion)"-->
-        <!--data-qa="{{item.qa}}">-->
-      <!--</form-field>-->
       <div class="c-row c-row--separated">
         <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
           <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"

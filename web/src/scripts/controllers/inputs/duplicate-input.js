@@ -21,9 +21,9 @@
         .module('webApp')
         .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    DuplicateFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', '$filter'];
+    DuplicateFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'FragmentFactory', '$filter'];
 
-    function DuplicateFragmentModalCtrl($modalInstance, item, FragmentFactory, $filter) {
+    function DuplicateFragmentModalCtrl($uibModalInstance, item, FragmentFactory, $filter) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -71,7 +71,7 @@
             var newFragment = FragmentFactory.createFragment(vm.fragmentData);
 
             newFragment.then(function (result) {
-                $modalInstance.close(result);
+                $uibModalInstance.close(result);
 
             },function (error) {
                 vm.error = true;
@@ -80,7 +80,7 @@
         }
 
         function cancel() {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         }
     }
 })();

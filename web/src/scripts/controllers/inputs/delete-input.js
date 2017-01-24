@@ -21,9 +21,9 @@
         .module('webApp')
         .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    DeleteFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory', 'FragmentFactory', 'policiesAffected'];
+    DeleteFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'PolicyFactory', 'FragmentFactory', 'policiesAffected'];
 
-    function DeleteFragmentModalCtrl($modalInstance, item, PolicyFactory, FragmentFactory, policiesAffected) {
+    function DeleteFragmentModalCtrl($uibModalInstance, item, PolicyFactory, FragmentFactory, policiesAffected) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -75,7 +75,7 @@
             var fragmentToDelete = FragmentFactory.deleteFragment(vm.outputs.type, vm.outputs.id);
 
             fragmentToDelete.then(function (result) {
-                $modalInstance.close({"id": vm.outputs.id, 'type': vm.outputs.elementType});
+                $uibModalInstance.close({"id": vm.outputs.id, 'type': vm.outputs.elementType});
 
             },function (error) {
                 vm.error = true;
@@ -84,7 +84,7 @@
         }
 
         function cancel() {
-            $modalInstance.dismiss('cancel');
+            $uibModalInstance.dismiss('cancel');
         }
     }
 

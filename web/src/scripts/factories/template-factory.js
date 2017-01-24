@@ -32,11 +32,15 @@
       },
       getDimensionTemplateByType: function(dimensionType) {
         var defer = $q.defer();
-
+        dimensionType = dimensionType ? dimensionType.toLowerCase() : 'default';
         ApiTemplateService.getDimensionTemplateByType().get({'type': 'default.json'}).$promise.then(function(defaultTemplate){
+          if (dimensionType !== 'default'){
               ApiTemplateService.getDimensionTemplateByType().get({'type': dimensionType + '.json'}).$promise.then(function(specificTemplate){
                 defer.resolve({properties: defaultTemplate.properties.concat(specificTemplate.properties)});
               });
+          }else {
+            defer.resolve(defaultTemplate);
+          }
         });
         return defer.promise;
       },

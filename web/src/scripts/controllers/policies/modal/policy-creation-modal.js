@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('PolicyCreationModalCtrl', PolicyCreationModalCtrl);
 
-  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory', 'title', 'PolicyFactory', 'TemplateFactory', '$modalInstance'];
+  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory', 'title', 'PolicyFactory', 'TemplateFactory', '$uibModalInstance'];
 
-  function PolicyCreationModalCtrl(PolicyModelFactory, title, PolicyFactory, TemplateFactory, $modalInstance) {
+  function PolicyCreationModalCtrl(PolicyModelFactory, title, PolicyFactory, TemplateFactory, $uibModalInstance) {
     /*jshint validthis: true*/
     var vm = this;
     vm.cancel = cancel;
@@ -51,7 +51,7 @@
           vm.error = found;
           /* Policy name doesn't exist */
           if (!found) {
-            $modalInstance.close();
+            $uibModalInstance.close();
           }
           /* Policy name exists */
           else {
@@ -67,7 +67,7 @@
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 

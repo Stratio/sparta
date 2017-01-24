@@ -49,7 +49,7 @@
 
                     <span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[output.id]()" data-qa="output-context-menu-{{output.id}}">
                         <st-floating-menu toggle-id="{{output.id}}" align="right">
-                          <st-menu-element class-icon="icon-edit2" data-ng-click="outputs.editOutput(output)" data-qa="output-context-menu-{{output.id}}-edit">
+                          <st-menu-element class-icon="icon-edit" data-ng-click="outputs.editOutput(output)" data-qa="output-context-menu-{{output.id}}-edit">
                             {{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
                           </st-menu-element>
                           <st-menu-element class-icon="icon-copy" data-ng-click="outputs.duplicateOutput(output.id)" data-qa="output-context-menu-{{output.id}}-duplicate">
@@ -71,7 +71,7 @@
         </div>
 
         <footer class="c-row c-row--to-bottom c-row--to-right">
-          <i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" tooltip="{{output.description}}" tooltip-placement="left" tooltip-class="tooltip--left" tooltip-trigger="click" data-qa="output-tootip-{{output.id}}"></i>
+          <i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" uib-popover="{{output.description}}" popover-placement="left" popover-class="popover--left" popover-trigger="click" data-qa="output-tootip-{{output.id}}"></i>
         </footer>
       </li>
     </ul>

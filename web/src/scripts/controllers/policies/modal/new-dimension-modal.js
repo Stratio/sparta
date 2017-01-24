@@ -13,71 +13,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   /*DELETE INPUT MODALS CONTROLLER */
   angular
-    .module('webApp')
-    .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
+      .module('webApp')
+      .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['TemplateFactory', '$modalInstance', 'dimensionName', 'fieldName', 'dimensions',
-    '$filter', 'UtilsService', 'template', 'isTimeDimension'];
+  NewDimensionModalCtrl.$inject = ['TemplateFactory', '$uibModalInstance', 'dimensionName', 'fieldName', 'dimensions',
+    'UtilsService', 'isTimeDimension', '$scope'];
 
-  function NewDimensionModalCtrl(TemplateFactory, $modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template, isTimeDimension) {
+  function NewDimensionModalCtrl(TemplateFactory, $uibModalInstance, dimensionName, fieldName, dimensions,
+                                 UtilsService, isTimeDimension, $scope) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.ok = ok;
     vm.cancel = cancel;
-    vm.getPrecisionsOfType = getPrecisionsOfType;
-    vm.setPropertyDisabled = setPropertyDisabled;
+    vm.isEnabledProperty = isEnabledProperty;
     vm.setExtraMessage = setExtraMessage;
-    vm.isTimeDimesion = null;
 
     init();
 
     function init() {
       vm.dimension = {};
       vm.dimension.name = dimensionName;
-      vm.isTimeDimesion = isTimeDimension;
+      vm.isTimeDimension = isTimeDimension;
       vm.dimension.field = fieldName;
-      vm.cubeTypes = template.types;
-      vm.dimension.type = vm.cubeTypes[0].value;
-      vm.precisionOptions = template.precisionOptions;
-      vm.defaultType =  vm.cubeTypes[0].value;
-      vm.nameError = "";
-      vm.dateTimeConfiguration = template.DateTime;
+      vm.defaultType = 'Default';
+      vm.dimension.type =  vm.defaultType;
+      vm.error = "";
+      vm.loading = false;
 
-      TemplateFactory.getDimensionTemplateByType(vm.dimension.type).then(function(template) {
-        vm.template = template;
-      });
+      onChangeDimensionType();
     }
 
     ///////////////////////////////////////
-
-    function getPrecisionsOfType() {
-      var result = $filter('filter')(vm.precisionOptions, {type: vm.dimension.type});
-      if (result && result.length > 0) {
-        return result[0].precisions;
-      }else
-      return []
+    
+    function onChangeDimensionType() {
+      TemplateFactory.getDimensionTemplateByType(vm.dimension.type).then(function(template) {
+        vm.template = template;
+        vm.form.$commitViewValue();
+      });
     }
 
     function cleanPrecision() {
-      if (vm.dimension.type == vm.defaultType)
+      if (vm.dimension.type == vm.defaultType) {
         delete vm.dimension.precision;
+        delete vm.dimension.precisionNumber;
+        delete vm.dimension.precisionTime;
+      }
     }
 
-    function formatAttributes(){
-      if(vm.dimension.type === 'DateTime') {
+    function formatAttributes() {
+      if (vm.dimension.type === 'DateTime') {
         vm.dimension.precision = vm.dimension.precisionNumber + vm.dimension.precisionTime;
         delete vm.dimension.precisionNumber;
         delete vm.dimension.precisionTime;
         if (vm.dimension.isTimeDimension) {
           vm.dimension.computeLast = vm.dimension.computeLastNumber + vm.dimension.computeLastTime;
           /* Set unique cube timeDimension */
-          vm.isTimeDimesion = true;
+          vm.isTimeDimension = true;
           delete vm.dimension.computeLastNumber;
           delete vm.dimension.computeLastTime;
           delete vm.dimension.isTimeDimension;
@@ -86,9 +83,9 @@
     }
 
     function validatePrecision() {
-      var validPrecision = (vm.dimension.type == vm.defaultType) || (!(vm.dimension.type == vm.defaultType) && vm.dimension.precision);
+      var validPrecision = (vm.dimension.type == vm.defaultType) || (vm.dimension.type != vm.defaultType && vm.dimension.precision != '');
       if (!validPrecision) {
-        vm.nameError = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
+        vm.error = "_POLICY_._CUBE_._INVALID_DIMENSION_PRECISION_";
       }
       return validPrecision;
     }
@@ -97,39 +94,44 @@
       var position = UtilsService.findElementInJSONArray(dimensions, vm.dimension, "name");
       var repeated = position != -1;
       if (repeated) {
-        vm.nameError = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
-        document.querySelector('#nameForm').focus();
+        vm.error = "_POLICY_._CUBE_._DIMENSION_NAME_EXISTS_";
+        document.querySelector('#name').focus();
       }
       return repeated;
     }
 
-    function setPropertyDisabled (propertyId, isTimeDimension) {
-      var disabled = (propertyId === 'isTimeDimension' && isTimeDimension === true)? true : false;
-      return disabled;
+    function isEnabledProperty(propertyId) {
+      return propertyId !== 'isTimeDimension' || !vm.isTimeDimension;
     }
 
-    function setExtraMessage (isTimeDimesion) {
-      var message = (isTimeDimesion)? "_ONE_IS_TIME_DIMENSION_ALLOWED_" : "";
+    function setExtraMessage(isTimeDimesion) {
+      var message = (isTimeDimesion) ? "_ONE_IS_TIME_DIMENSION_ALLOWED_" : "";
       return message;
     }
 
     function ok() {
-      vm.nameError = "";
+      vm.error = "";
       if (vm.form.$valid) {
-        formatAttributes();
+        cleanPrecision();
         if (validatePrecision() && !isRepeated()) {
-          cleanPrecision();
+          formatAttributes();
           var dimensionData = {};
           dimensionData.dimension = vm.dimension;
-          dimensionData.isTimeDimension = vm.isTimeDimesion;
-          $modalInstance.close(dimensionData);
+          dimensionData.isTimeDimension = vm.isTimeDimension;
+          $uibModalInstance.close(dimensionData);
         }
       }
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
+
+    $scope.$watch('vm.dimension.type', function(newDimensionType, oldDimensionType) {
+      if (vm.dimension.type && (oldDimensionType !== vm.dimension.type)) {
+        onChangeDimensionType();
+      }
+    });
   }
 
 })();

@@ -1,5 +1,10 @@
 .panel-heading {
 	padding: 0 10px 0 0;
+
+}
+
+.panel-heading:hover {
+	outline: none;
 }
 
 .panel-title > a {

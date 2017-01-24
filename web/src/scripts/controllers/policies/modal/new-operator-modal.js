@@ -21,10 +21,10 @@
       .module('webApp')
       .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService',
+  NewOperatorModalCtrl.$inject = ['$uibModalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService',
     'template', 'inputFieldList', 'cubeConstants', 'TemplateFactory'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template,
+  function NewOperatorModalCtrl($uibModalInstance, operatorName, operatorType, operators, UtilsService, template,
                                 inputFieldList, cubeConstants, TemplateFactory) {
     /*jshint validthis: true*/
     var vm = this;
@@ -69,18 +69,18 @@
 
     function ok() {
       vm.nameError = "";
-      if (vm.operator.configuration.inputField == '') {
+      if (vm.operator.configuratio && vm.operator.configuration.inputField == '') {
         delete vm.operator.configuration.inputField
       }
       if (vm.form.$valid) {
         if (!isRepeated()) {
-          $modalInstance.close(vm.operator);
+          $uibModalInstance.close(vm.operator);
         }
       }
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 

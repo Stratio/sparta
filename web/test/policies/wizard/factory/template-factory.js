@@ -1,19 +1,19 @@
 describe('policies.wizard.factory.template-factory', function() {
   beforeEach(module('webApp'));
   beforeEach(module('template/dimension/default.json'));
-  beforeEach(module('template/dimension/dateTime.json'));
-  beforeEach(module('template/dimension/geoHash.json'));
+  beforeEach(module('template/dimension/datetime.json'));
+  beforeEach(module('template/dimension/geohash.json'));
 
   var factory, ApiTemplateService, q, promiseMock, scope, httpBackend,
       fakeGeoHashTemplate, fakeDefaultDimensionTemplate, fakeDateTimeTemplate = null;
 
   beforeEach(module(function($provide, _templateDimensionDefault_,
-                             _templateDimensionDateTime_, _templateDimensionGeoHash_) {
+                             _templateDimensionDatetime_, _templateDimensionGeohash_) {
     ApiTemplateService = jasmine.createSpyObj(['getFragmentTemplateByType', 'getPolicyTemplate',
       'getOperatorTemplateByType', 'getDimensionTemplateByType']);
-    fakeGeoHashTemplate = _templateDimensionGeoHash_;
+    fakeGeoHashTemplate = _templateDimensionGeohash_;
     fakeDefaultDimensionTemplate = _templateDimensionDefault_;
-    fakeDateTimeTemplate = _templateDimensionDateTime_;
+    fakeDateTimeTemplate = _templateDimensionDatetime_;
     // inject mocks
     $provide.value('ApiTemplateService', ApiTemplateService);
   }));
@@ -64,6 +64,16 @@ describe('policies.wizard.factory.template-factory', function() {
               "get": promiseMock
             });
         factory.getDimensionTemplateByType('default');
+
+        expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
+      });
+
+      it('if dimension type is empty, it returns only the common template', function() {
+        ApiTemplateService.getDimensionTemplateByType.and.returnValue(
+            {
+              "get": promiseMock
+            });
+        factory.getDimensionTemplateByType();
 
         expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
       });

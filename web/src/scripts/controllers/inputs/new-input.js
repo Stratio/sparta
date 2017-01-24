@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-  NewFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'fragmentTemplates', 'FragmentFactory', '$filter'];
+  NewFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'fragmentTemplates', 'FragmentFactory', '$filter'];
 
-  function NewFragmentModalCtrl($modalInstance, item, fragmentTemplates, FragmentFactory, $filter) {
+  function NewFragmentModalCtrl($uibModalInstance, item, fragmentTemplates, FragmentFactory, $filter) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -182,7 +182,7 @@
       newFragment.then(function (result) {
         var callBackData = result;
 
-        $modalInstance.close(callBackData);
+        $uibModalInstance.close(callBackData);
 
       }, function (error) {
         vm.error = true;
@@ -191,7 +191,7 @@
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 })();

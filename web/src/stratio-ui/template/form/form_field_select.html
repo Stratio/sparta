@@ -12,7 +12,9 @@
         <div ng-if="placeholder" class="st-form-field-placeholder">
             {{placeholder}}
         </div>
-        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-change="changeActionHandler()" data-ng-required="required" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" data-qa="{{qa}}" tooltip='{{help}}' tooltip-class="tooltip--bottom" tooltip-trigger="focus" tooltip-placement="bottom" data-ng-focus="mouseLeaveTooltip()">
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-change="changeActionHandler()"
+                data-ng-required="required" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" data-qa="{{qa}}"
+                uib-popover='{{help}}' popover-class="popover--bottom" popover-trigger="focus" popover-placement="bottom" data-ng-focus="mouseLeaveTooltip()">
             <option value="" class="placeholder" data-ng-if="!hideMessage" data-ng-disabled="disabled">{{"_SELECT_AN_OPTION_" | translate}}</option>
             <option value="{{item.value}}" data-ng-repeat="item in options" data-ng-selected="item.value === model" data-ng-disabled="disabled">
                 {{item.label | translate}}

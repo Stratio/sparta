@@ -6,8 +6,8 @@ describe('API.template-service', function () {
   beforeEach(module('template/operator/default.json'));
   beforeEach(module('template/operator/count.json'));
   beforeEach(module('template/dimension/default.json'));
-  beforeEach(module('template/dimension/dateTime.json'));
-  beforeEach(module('template/dimension/geoHash.json'));
+  beforeEach(module('template/dimension/datetime.json'));
+  beforeEach(module('template/dimension/geohash.json'));
 
   var srv, rootScope, httpBackend, fakeFragmentTemplateByTypeInput, fakeFragmentTemplateByTypeOutput, 
       fakePolicyTemplate, fakeDefaultOperatorTemplate, fakeCountOperatorTemplate,
@@ -16,13 +16,13 @@ describe('API.template-service', function () {
   beforeEach(
     inject(function ($httpBackend, $resource, $rootScope,_templateInput_, _templateOutput_, _templatePolicy_,
                      _templateOperatorCount_,_templateOperatorDefault_, _templateDimensionDefault_,
-                     _templateDimensionDateTime_, _templateDimensionGeoHash_, _ApiTemplateService_) {
+                     _templateDimensionDatetime_, _templateDimensionGeohash_, _ApiTemplateService_) {
       fakeFragmentTemplateByTypeInput = _templateInput_;
       fakeFragmentTemplateByTypeOutput = _templateOutput_;
       fakePolicyTemplate = _templatePolicy_;
       fakeDefaultDimensionTemplate =_templateDimensionDefault_;
-      fakeDateTimeTemplate = _templateDimensionDateTime_;
-      fakeGeoHashTemplate = _templateDimensionGeoHash_;
+      fakeDateTimeTemplate = _templateDimensionDatetime_;
+      fakeGeoHashTemplate = _templateDimensionGeohash_;
       fakeCountOperatorTemplate = _templateOperatorCount_;
       fakeDefaultOperatorTemplate = _templateOperatorDefault_;
       rootScope = $rootScope;
@@ -82,7 +82,7 @@ describe('API.template-service', function () {
       rootScope.$digest();
       httpBackend.flush();
     });
-
+    
     it ('if dimension is date time, date time template is returned', function() {
       var dimensionTypeJSON = {"type":"date-time.json"};
       srv.getDimensionTemplateByType().get(dimensionTypeJSON).$promise.then(function(result){

@@ -30,7 +30,7 @@ describe('policy-creation-modal-controller', function () {
     PolicyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['existsPolicy']);
     PolicyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setTemplate', 'resetPolicy', 'getCurrentPolicy', 'nextStep']);
     TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getPolicyTemplate']);
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close']);
+    modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close']);
     TemplateFactoryMock.getPolicyTemplate.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve(fakePolicyTemplate);
@@ -49,7 +49,7 @@ describe('policy-creation-modal-controller', function () {
       'PolicyModelFactory': PolicyModelFactoryMock,
       'PolicyFactory': PolicyFactoryMock,
       'TemplateFactory': TemplateFactoryMock,
-      '$modalInstance': modalInstanceMock,
+      '$uibModalInstance': modalInstanceMock,
       'title': titleMock
     });
 

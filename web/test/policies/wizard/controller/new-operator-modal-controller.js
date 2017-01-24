@@ -10,7 +10,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
 
     _cubeConstants = cubeConstants;
     scope = $rootScope.$new();
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close', 'dismiss']);
+    modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
     UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray', 'filterByAttribute']);
     TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getOperatorTemplateByType']);
     fakeOptionList = [{name: "fake option 1", value: "fake option value"}, {
@@ -36,7 +36,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
       fakeOperatorTemplate = _templateOperatorDefault_;
     });
     ctrl = $controller('NewOperatorModalCtrl', {
-      '$modalInstance': modalInstanceMock,
+      '$uibModalInstance': modalInstanceMock,
       'operatorName': fakeOperatorName,
       'operatorType': fakeOperatorType,
       'operators': fakeOperators,
@@ -66,28 +66,6 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
       expect(ctrl.error).toBeFalsy();
       expect(ctrl.nameError).toBe("");
     });
-
-    it("it generates an option list of input fields if 'inputField' exists (only for operators different to count)", inject(function($controller) {
-      var inputFieldProperty = {};
-      
-      fakeOperatorType = 'sum';
-      UtilsServiceMock.filterByAttribute.and.returnValue([inputFieldProperty]);
-      ctrl = $controller('NewOperatorModalCtrl', {
-        '$modalInstance': modalInstanceMock,
-        'operatorName': fakeOperatorName,
-        'operatorType': fakeOperatorType,
-        'operators': fakeOperators,
-        'UtilsService': UtilsServiceMock,
-        'template': fakeCubeTemplate,
-        'inputFieldList': fakeInputFieldList,
-        'TemplateFactory': TemplateFactoryMock,
-        'scope': scope
-      });
-
-      scope.$apply();
-
-      expect(inputFieldProperty.values).toBe(fakeOptionList);
-    }));
   });
 
   describe("should be able to accept the modal", function() {

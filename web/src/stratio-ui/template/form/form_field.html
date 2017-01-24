@@ -7,13 +7,14 @@
                     data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}"
                     data-input-default="field.default" data-pattern="field.regexp" data-required="isRequired()"
                     data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim"
-                    data-list-compressed="listCompressed" data-output-field="field.outputField"></form-field-input>
+                    data-disabled="disabled" data-list-compressed="listCompressed" data-output-field="field.outputField"></form-field-input>
   <!-- textarea -->
   <form-field-textarea ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'textarea' || field.propertyType == 'json') && isVisible()"
                        data-form="form" data-st-name="{{name}}" data-model="model[field.propertyId]"
                        data-label="{{modify.propertyName || field.propertyName | translate}}"
                        data-help="{{modify.tooltip || field.tooltip}}" data-pattern="field.regexp"
                        data-extra-info="field.extraInfo | translate"
+                       data-disabled="disabled"
                        data-required="isRequired()" data-list-compressed="listCompressed"
                        data-json = "field.propertyType == 'json'"
                        data-qa="{{qa}}"></form-field-textarea>
