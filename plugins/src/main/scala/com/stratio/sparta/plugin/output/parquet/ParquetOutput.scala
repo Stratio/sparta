@@ -52,6 +52,7 @@ class ParquetOutput(keyName: String,
     val dataFrameWriter = dataFrame
       .write
       .format("parquet")
+      .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
     partitionBy match {

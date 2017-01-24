@@ -48,7 +48,7 @@ class MongoDbOutput(keyName: String,
     dataFrame.write
       .format(MongoDbSparkDatasource)
       .mode(getSparkSaveMode(saveMode))
-      .options(dataFrameOptions)
+      .options(dataFrameOptions ++ getCustomProperties)
       .save()
   }
 

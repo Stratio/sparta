@@ -46,12 +46,12 @@ class MongoDbOutput(keyName: String,
 
     validateSaveMode(saveMode)
 
-    dataFrame.write
-      .format(MongoDbSparkDatasource)
-      .mode(getSparkSaveMode(saveMode))
-      .options(dataFrameOptions)
-      .save()
-  }
+      dataFrame.write
+        .format(MongoDbSparkDatasource)
+        .mode(getSparkSaveMode(saveMode))
+        .options(dataFrameOptions ++ getCustomProperties)
+        .save()
+    }
 
   private def getDataFrameOptions(tableName: String,
                                   schema: StructType,

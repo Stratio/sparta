@@ -21,18 +21,24 @@ import java.util.Properties
 
 import com.stratio.sparta.plugin.input.kafka.KafkaBase
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.properties.CustomProperties
 import kafka.producer.{KeyedMessage, Producer, ProducerConfig}
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-trait KafkaProducer extends KafkaBase {
+trait KafkaProducer extends KafkaBase with CustomProperties{
 
   val DefaultKafkaSerializer = "kafka.serializer.StringEncoder"
   val DefaultProducerType = "sync"
   val DefaultRequiredAck = false
   val DefaultBatchNumMessages = "200"
   val DefaultProducerPort = "9092"
+
+  override val customKey = "KafkaProperties"
+  override val customPropertyKey = "kafkaPropertyKey"
+  override val customPropertyValue = "kafkaPropertyValue"
+
 
   def send(properties: Map[String, JSerializable], topic: String, message: String): Unit = {
     val keyedMessage: KeyedMessage[String, String] = new KeyedMessage[String, String](topic, message)
@@ -46,7 +52,7 @@ trait KafkaProducer extends KafkaBase {
   def createProducerProps: Properties = {
     val props = extractMandatoryProperties
 
-    addOptions(getAdditionalOptions(DefaultPropertiesKey, PropertiesKey, PropertiesValue), props)
+    addOptions(getCustomProperties, props)
     props
   }
 
