@@ -18,7 +18,7 @@ package com.stratio.sparta.sdk.pipeline.output
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
-import com.stratio.sparta.sdk.properties.Parameterizable
+import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import org.apache.spark.Logging
 import org.apache.spark.sql.types._
@@ -28,7 +28,11 @@ abstract class Output(keyName: String,
                       version: Option[Int],
                       properties: Map[String, JSerializable],
                       schemas: Seq[SpartaSchema])
-  extends Parameterizable(properties) with Logging {
+  extends Parameterizable(properties) with Logging with CustomProperties {
+
+  val customKey = "saveOptions"
+  val customPropertyKey = "saveOptionsKey"
+  val customPropertyValue = "saveOptionsValue"
 
   def name: String = keyName
 

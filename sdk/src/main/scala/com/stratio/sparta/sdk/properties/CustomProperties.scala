@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.input.rabbitmq
 
-import com.stratio.sparta.sdk.pipeline.input.Input
-import org.apache.spark.streaming.rabbitmq.ConfigParameters
+package com.stratio.sparta.sdk.properties
 
-trait RabbitMQGenericProps {
-  this: Input =>
+import java.io.{Serializable => JSerializable}
 
-  def propsWithStorageLevel(sparkStorageLevel: String): Map[String, String] = {
-    val rabbitMQProperties = getCustomProperties
-    Map(ConfigParameters.StorageLevelKey -> sparkStorageLevel) ++
-      rabbitMQProperties.mapValues(value => value.toString) ++
-      properties.mapValues(value => value.toString)
-  }
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+
+trait CustomProperties {
+
+  val customKey: String
+  val customPropertyKey: String
+  val customPropertyValue: String
+  val properties: Map[String, JSerializable]
+
+  def getCustomProperties: Map[String, String] =
+    properties.getOptionsList(customKey, customPropertyKey, customPropertyValue)
 }
