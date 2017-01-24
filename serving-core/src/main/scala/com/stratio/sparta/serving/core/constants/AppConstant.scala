@@ -62,14 +62,13 @@ object AppConstant {
   final val DefaultDriverFolder = "driver"
   final val DriverLocation = "driverLocation"
   final val DriverURI = "driverURI"
-  final val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
+  final val DefaultProvidedDriverURI = "http://sparta:9090/drivers/driver-plugin.jar"
   final val DefaultDriverLocation = "provided"
   final val PluginsLocation = "pluginsLocation"
   final val ProvidedPluginsLocation = "provided"
   final val LocalPluginsLocation = "local"
   final val PluginsPackageLocation = "pluginPackageLocation"
   final val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
-  final val PluginsURLLocation = "drivers"
 
   //Hdfs Options
   final val HadoopUserName = "hadoopUserName"

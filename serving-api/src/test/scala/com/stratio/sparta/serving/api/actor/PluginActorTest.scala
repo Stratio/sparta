@@ -21,6 +21,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
+import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.typesafe.config.{Config, ConfigFactory}
@@ -100,7 +101,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadFile("test.jar", fileList)
       expectMsgPF() {
-        case PluginResponse(Success(msg)) => msg shouldBe "local:7777/drivers/test.jar"
+        case PluginResponse(Success(msg)) => msg shouldBe s"local:7777/${HttpConstant.PluginsPath}/test.jar"
       }
 
     }

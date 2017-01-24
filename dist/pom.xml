@@ -227,7 +227,7 @@
                                 </mkdirs>
                                 <!-- For the jars plugin -->
                                 <mkdirs>
-                                    <path>/etc/sds/plugins</path>
+                                    <path>/opt/sds/plugins</path>
                                 </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>

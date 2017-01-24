@@ -22,6 +22,7 @@ import java.util.regex.Pattern
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
+import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -36,14 +37,14 @@ class PluginActor extends Actor
   with SpartaSerializer {
 
   //The dir where the jars will be saved
-  val targetDir: String = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
+  val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
     .getOrElse(AppConstant.DefaultPluginsPackageLocation)
   //Configuration of the app
   val host: String = SpartaConfig.apiConfig.get.getString("host")
   val port: Int = SpartaConfig.apiConfig.get.getInt("port")
   val targetUrl: String = s"$host:$port"
   //Url of the download endpoint
-  val url = s"$targetUrl/${AppConstant.PluginsURLLocation}"
+  val url = s"$targetUrl/${HttpConstant.PluginsPath}"
   //Regexp for jar name validation
   val jarFileName: Predicate[String] = Pattern.compile(""".*\.jar""").asPredicate()
 

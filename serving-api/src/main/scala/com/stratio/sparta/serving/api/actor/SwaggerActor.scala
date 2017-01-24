@@ -42,7 +42,8 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
       typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
       typeOf[PolicyContextHttpService],
-      typeOf[PluginsHttpService]
+      typeOf[PluginsHttpService],
+      typeOf[DriverHttpService]
     )
 
     override def apiVersion: String = "1.0"
@@ -66,11 +67,11 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route = swaggerService ~ swaggerUIroutes ~ serviceRoutes.fragmentRoute ~
+  def getRoutes: Route = swaggerService ~ swaggerUIRoutes ~ serviceRoutes.fragmentRoute ~
     serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
-    serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute
+    serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
 
-  def swaggerUIroutes: Route =
+  def swaggerUIRoutes: Route =
     get {
       pathPrefix(HttpConstant.SwaggerPath) {
         pathEndOrSingleSlash {

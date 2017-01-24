@@ -241,9 +241,14 @@
  sed -i "s|sparta.config.driverPackageLocation.*|sparta.config.driverPackageLocation = \""${SPARTA_DRIVER_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_DRIVER_URI ]]; then
-   SPARTA_DRIVER_URI="http://sparta:9090/driverJar/driver-plugin.jar"
+   SPARTA_DRIVER_URI="http://sparta:9090/drivers/driver-plugin.jar"
  fi
  sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_PLUGIN_LOCATION ]]; then
+   SPARTA_PLUGIN_LOCATION="/opt/sds/plugins/"
+ fi
+ sed -i "s|sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_STOP_GRACEFULLY ]]; then
    SPARTA_STOP_GRACEFULLY=true
