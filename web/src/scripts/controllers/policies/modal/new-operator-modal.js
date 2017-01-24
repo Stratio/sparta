@@ -69,7 +69,7 @@
 
     function ok() {
       vm.nameError = "";
-      if (vm.operator.configuratio && vm.operator.configuration.inputField == '') {
+      if (vm.operator.configuration && vm.operator.configuration.inputField == '') {
         delete vm.operator.configuration.inputField
       }
       if (vm.form.$valid) {
