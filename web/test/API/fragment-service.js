@@ -13,7 +13,7 @@ describe('API.fragment-service', function () {
       rootScope 					= $rootScope;
       httpBackend 				= $httpBackend;
 
-      httpBackend.when('GET', 'languages/en-US.json').respond({});
+      httpBackend.when('GET', "languages/en-US.json").respond({});
     })
   );
 

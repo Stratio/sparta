@@ -20,15 +20,30 @@
     .module('webApp')
     .factory('TemplateFactory', TemplateFactory);
 
-  TemplateFactory.$inject = ['ApiTemplateService'];
+  TemplateFactory.$inject = ['$q', 'ApiTemplateService'];
 
-  function TemplateFactory(ApiTemplateService) {
+  function TemplateFactory($q, ApiTemplateService) {
     return {
       getNewFragmentTemplate: function (fragmentType) {
         return ApiTemplateService.getFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
       },
       getPolicyTemplate: function () {
         return ApiTemplateService.getPolicyTemplate().get().$promise;
+      },
+      getDimensionTemplateByType: function(dimensionType) {
+        var defer = $q.defer();
+
+        ApiTemplateService.getDimensionTemplateByType().get({'type': 'default.json'}).$promise.then(function(defaultTemplate){
+              ApiTemplateService.getDimensionTemplateByType().get({'type': dimensionType + '.json'}).$promise.then(function(specificTemplate){
+                defer.resolve({properties: defaultTemplate.properties.concat(specificTemplate.properties)});
+              });
+        });
+        return defer.promise;
+      },
+      getOperatorTemplateByType: function (operatorType) {
+        operatorType = operatorType ? operatorType.toLowerCase(): '';
+        operatorType = operatorType != 'count' ? 'default': operatorType;
+        return ApiTemplateService.getOperatorTemplateByType().get({'type': operatorType + '.json'}).$promise;
       }
     };
   };

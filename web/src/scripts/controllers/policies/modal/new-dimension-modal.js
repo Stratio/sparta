@@ -21,10 +21,10 @@
     .module('webApp')
     .controller('NewDimensionModalCtrl', NewDimensionModalCtrl);
 
-  NewDimensionModalCtrl.$inject = ['$modalInstance', 'dimensionName', 'fieldName', 'dimensions',
+  NewDimensionModalCtrl.$inject = ['TemplateFactory', '$modalInstance', 'dimensionName', 'fieldName', 'dimensions',
     '$filter', 'UtilsService', 'template', 'isTimeDimension'];
 
-  function NewDimensionModalCtrl($modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template, isTimeDimension) {
+  function NewDimensionModalCtrl(TemplateFactory, $modalInstance, dimensionName, fieldName, dimensions, $filter, UtilsService, template, isTimeDimension) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -48,6 +48,10 @@
       vm.defaultType =  vm.cubeTypes[0].value;
       vm.nameError = "";
       vm.dateTimeConfiguration = template.DateTime;
+
+      TemplateFactory.getDimensionTemplateByType(vm.dimension.type).then(function(template) {
+        vm.template = template;
+      });
     }
 
     ///////////////////////////////////////

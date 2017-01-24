@@ -6,43 +6,18 @@
   </div>
   <form class="c-form" name="vm.form" novalidate>
     <div class="c-modal-inner">
-      <div class="c-form-group">
-        <form-field-input data-form="vm.form" data-st-name="type-form" data-model="vm.operator.type"
-                          data-label="{{'_TYPE_' | translate}}" data-help="" data-pattern="" data-required="true"
-                          required="true" disabled="true" data-qa="operator-modal-type">
-        </form-field-input>
-      </div>
-      <div class="c-form-group">
-        <form-field-input class="c-col c-col--12 c-form-group--inline" data-form="vm.form" data-st-name="name-form"
-                          data-model="vm.operator.name" data-label="{{'_NAME_' | translate}}" data-help=""
-                          data-pattern="" data-required="true"
-                          placeholder="Ex. Name 1" required="true" data-qa="operator-modal-name">
-        </form-field-input>
-        <div class="c-form c-form-group angular-forms__error" data-ng-if="vm.nameError != ''" data-qa="error-msg">
-          <i class="c-icon icon-circle-cross"></i>
-          <span translate="{{vm.nameError | translate}}"></span>
-        </div>
-      </div>
-        <form-field-select data-ng-if="!vm.isCount()" select-class="c-combobox"
-                           data-label="{{'_INPUT_FIELD_' | translate}}"
-                           data-form="vm.form"
-                           data-st-name="cube-operator-input-list-type"
-                           data-model="vm.operator.configuration.inputField"
-                           data-options="vm.inputFieldList"
-                           data-required="false"
-                           data-qa="cube-operator-input-list-type">
-        </form-field-select>
+      <form-field
+              data-ng-repeat="properties in vm.template.properties"
+              class="c-col"
+              data-ng-class="{'c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
+              data-ng-form-id="{{properties.propertyId}}"
+              data-field="properties"
+              data-model="vm.operator"
+              data-form="vm.form"
+              data-st-name="trigger{{properties.propertyName}}Form"
+              data-qa="{{properties.qa}}">
+      </form-field>
 
-      <form-field-textarea data-json="true"
-                           data-label="{{'_CONFIGURATION_' | translate}}"
-                           data-form="vm.form"
-                           data-st-name="operator-configuration"
-                           data-model="vm.operator.configuration"
-                           data-required="true"
-                           data-extra-info="'_CONFIGURATION_INFO_' | translate"
-                           data-placeholder="vm.configPlaceholder"
-                           data-qa="operator-configuration-textarea">
-      </form-field-textarea>
       <div class="c-row c-row--separated">
         <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
           <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"
