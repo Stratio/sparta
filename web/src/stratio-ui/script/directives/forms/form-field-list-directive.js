@@ -56,8 +56,12 @@
                     }
                     scope.model[scope.field.propertyId].push(objectData);
                 }
-            };
+            }
 
+            scope.getColNumberWidth = function(item){
+                return item.width || parseInt(12 / scope.field.fields.length);
+            };
+            
             scope.addItem = function() {
                 var item = {};
 
