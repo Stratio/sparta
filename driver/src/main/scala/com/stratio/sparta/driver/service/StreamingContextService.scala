@@ -35,19 +35,16 @@ import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
                                    generalConfig: Option[Config] = None) extends SchedulerUtils with CheckpointUtils {
 
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
-
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
   def standAloneStreamingContext(policy: PolicyModel, files: Seq[File]): StreamingContext = {
-    runStatusListener(policy.id.get, policy.name, exit = false)
+    killLocalContextListener(policy.id.get, policy.name)
 
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
@@ -65,7 +62,6 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
   def clusterStreamingContext(policy: PolicyModel,
                               files: Seq[String],
                               detailConfig: Map[String, String]): StreamingContext = {
-    runStatusListener(policy.id.get, policy.name, exit = true)
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
@@ -97,48 +93,22 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     sparkClusterContextInstance(policySparkConfig ++ outputsSparkConfig ++ detailConfig, classPath)
   }
 
-  //scalastyle:off
-  private def runStatusListener(policyId: String,
-                                name: String,
-                                exit: Boolean = false): Unit = {
+  private def killLocalContextListener(policyId: String, name: String): Unit = {
     policyStatusActor match {
       case Some(statusActor) =>
         log.info(s"Listener added for: $policyId")
-        statusActor ? AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+        statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
           synchronized {
-            if (policyStatus.status.id equals Stopping.id) {
+            if (policyStatus.status == Stopping) {
               try {
                 log.info("Stopping message received from Zookeeper")
-                val closeStreamingContext = scheduleOneTask(
-                  AwaitStreamingContextStop,
-                  DefaultAwaitStreamingContextStop
-                )(closeSpartaForcibly(policyId, statusActor, exit))
-
-                destroySparkStreamingContext()
-                if (sparkStreamingInstance.isEmpty) closeStreamingContext.cancel()
+                closeContexts(policyId, statusActor)
               } finally {
-                try {
-                  Await.result(statusActor ? Update(PolicyStatusModel(policyId, Stopped)), timeout.duration)
-                  match {
-                    case None => log.warn(s"The policy status can not be changed")
-                    case Some(_) => log.info(s"The policy status is changed to Stopped in finish action")
-                  }
-                } catch {
-                  case e: Exception =>
-                    log.warn(s"The policy status could not be changed correctly. Exception: ${e.getLocalizedMessage}")
-                }
-                try {
-                  nodeCache.close()
-                } catch {
-                  case e: Exception =>
-                    log.warn(s"The nodeCache in Zookeeper is not closed correctly.  Exception: ${e.getLocalizedMessage}")
-                }
-                if (exit) {
-                  val scheduledExit = scheduleOneTask(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
-
-                  destroySparkContext()
-                  if (sparkContextInstance.isEmpty) scheduledExit.cancel()
-                  exitApp()
+                Try(nodeCache.close()) match {
+                  case Success(_) =>
+                    log.info("Node cache closed correctly")
+                  case Failure(e) =>
+                    log.error(s"The nodeCache in Zookeeper is not closed correctly", e)
                 }
               }
             }
@@ -148,34 +118,10 @@ case class StreamingContextService(policyStatusActor: Option[ActorRef] = None,
     }
   }
 
-  //scalastyle:on
-
-  private def closeSpartaForcibly(policyId: String,
-                                  policyStatusActor: ActorRef,
-                                  exit: Boolean): Unit = {
-    val status = Stopped
-
-    log.warn(s"The Spark Context will been stopped, the policy will be set in status: $status")
-    policyStatusActor ! Update(PolicyStatusModel(policyId, status))
-    if (exit) {
-      val scheduledExit = scheduleOneTask(AwaitSparkContextStop, DefaultAwaitSparkContextStop)(exitApp())
-
-      destroySparkContext(destroyStreamingContext = false)
-      if (sparkContextInstance.isEmpty) scheduledExit.cancel()
-      exitApp()
-    } else destroySparkContext(destroyStreamingContext = false)
-  }
-
-  private def exitApp(): Unit = {
-    shutdownSchedulerSystem()
-    log.info("Closing the application")
-    System.exit(0)
-  }
-
-  private def shutdownSchedulerSystem(): Unit = {
-    if (!SchedulerSystem.isTerminated) {
-      log.info("Shutting down the scheduler system")
-      SchedulerSystem.shutdown()
-    }
+  private def closeContexts(policyId: String, policyStatusActor: ActorRef): Unit = {
+    val information = "The Spark Context have been stopped correctly in the local listener"
+    log.info(information)
+    policyStatusActor ! Update(PolicyStatusModel(policyId, Stopped, None, None, Some(information)))
+    destroySparkContext(destroyStreamingContext = true)
   }
 }

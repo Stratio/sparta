@@ -28,6 +28,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
 import org.apache.curator.framework.CuratorFramework
@@ -83,12 +84,32 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
 
   def update(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
-    //TODO check the correct statuses
     if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-      val ips = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
-      log.info(s"Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
-      curatorFramework.setData().forPath(statusPath, write(policyStatus).getBytes)
-      Some(policyStatus)
+      val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+      val newStatus = policyStatus.copy(
+        status = if(policyStatus.status == PolicyStatusEnum.NotDefined)
+          actualStatus.status
+        else policyStatus.status,
+        submissionId = if(policyStatus.submissionId.isEmpty)
+          actualStatus.submissionId
+        else policyStatus.submissionId,
+        submissionStatus = if(policyStatus.submissionStatus.isEmpty)
+          actualStatus.submissionStatus
+        else policyStatus.submissionStatus,
+        information = if(policyStatus.information.isEmpty)
+          actualStatus.information
+        else policyStatus.information
+      )
+      log.info(s"Updating context ${newStatus.id} : " +
+        s"\n\t Status: ${actualStatus.status} to ${newStatus.status}" +
+        s"\n\t Submission Id: ${actualStatus.submissionId.getOrElse("undefined")}" +
+        s" to ${newStatus.submissionId.getOrElse("undefined")}" +
+        s"\n\t Submission Status: ${actualStatus.submissionStatus.getOrElse("undefined")}" +
+        s" to ${newStatus.submissionStatus.getOrElse("undefined")}" +
+        s"\n\t Information: ${actualStatus.information.getOrElse("undefined")}" +
+        s" to ${newStatus.information.getOrElse("undefined")}")
+      curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
+      Some(newStatus)
     } else None
   }
 

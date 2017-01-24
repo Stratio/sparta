@@ -255,16 +255,6 @@
  fi
  sed -i "s|sparta.config.stopGracefully.*|sparta.config.stopGracefully = ${SPARTA_STOP_GRACEFULLY}|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v SPARTA_AWAIT_STREAMING_CONTEXT_STOP ]]; then
-   SPARTA_AWAIT_STREAMING_CONTEXT_STOP=120s
- fi
- sed -i "s|sparta.config.awaitStreamingContextStop.*|sparta.config.awaitStreamingContextStop = ${SPARTA_AWAIT_STREAMING_CONTEXT_STOP}|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v SPARTA_AWAIT_SPARK_CONTEXT_STOP ]]; then
-   SPARTA_AWAIT_SPARK_CONTEXT_STOP=60s
- fi
- sed -i "s|sparta.config.awaitSparkContextStop.*|sparta.config.awaitSparkContextStop = ${SPARTA_AWAIT_SPARK_CONTEXT_STOP}|" ${SPARTA_CONF_FILE}
-
  if [[ ! -v SPARTA_AWAIT_POLICY_CHANGE_STATUS ]]; then
    SPARTA_AWAIT_POLICY_CHANGE_STATUS=120s
  fi
@@ -355,6 +345,11 @@
    SPARK_MESOS_MASTER="mesos://mesosDispatcherURI"
  fi
  sed -i "s|sparta.mesos.master.*|sparta.mesos.master = \""${SPARK_MESOS_MASTER}"\"|" ${SPARTA_CONF_FILE}
+
+  if [[ ! -v SPARK_MESOS_KILL_URL ]]; then
+   SPARK_MESOS_KILL_URL="/v1/submissions/kill"
+ fi
+ sed -i "s|sparta.mesos.killUrl.*|sparta.mesos.killUrl = \""${SPARK_MESOS_KILL_URL}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ -v SPARK_MESOS_JARS ]]; then
    sed -i "s|.*sparta.mesos.jars.*|sparta.mesos.jars = \""${SPARK_MESOS_JARS}"\"|" ${SPARTA_CONF_FILE}
