@@ -219,15 +219,15 @@ docker run -dit --name hm --env NAMENODE_MODE=true qa.stratio.com/stratio/hadoop
       
   - MASTER: 
     
-    docker run -dit --volumes-from hm --name mm11 --env MODE=master -p 8077:7077 -p 6050:5050 
-      --env MESOS_ZK=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 
-      --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio 
+    docker run -dit --volumes-from hm --name mm11 --env MODE=master \
+      --env MESOS_ZK=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
+      --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio  \
       --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
 
   - SLAVE:
   
-    docker run -dit --volumes-from hm --name ms11 --env MODE=slave 
-    --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 
-    --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio 
-    --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
+    docker run -dit --volumes-from hm --name ms11 --env MODE=slave \
+        --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
+        --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio \
+        --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
 
