@@ -18,21 +18,25 @@ package com.stratio.sparta
 import java.io.{Serializable => JSerializable}
 import java.util.Date
 
-import com.stratio.sparta.sdk.{TableSchema, Output}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
 import org.apache.spark.sql.DataFrame
 
 
 class FileOutput(keyName: String,
                  version: Option[Int],
                  properties: Map[String, JSerializable],
-                 schemas: Seq[TableSchema])
+                 schemas: Seq[SpartaSchema])
                   extends Output(keyName, version, properties, schemas) with Logging {
 
   val path = properties.get("path").getOrElse(throw new IllegalArgumentException("Property path is mandatory"))
   val createDifferentFiles = properties.get("createDifferentFiles").getOrElse("true")
 
-  override def upsert(dataFrame: DataFrame, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val finalPath = if (createDifferentFiles.asInstanceOf[String].toBoolean){
       path.toString + new Date().getTime
     } else {

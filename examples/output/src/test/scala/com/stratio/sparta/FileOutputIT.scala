@@ -20,7 +20,7 @@ import java.sql.Timestamp
 import java.util.UUID
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.sdk.Output
+import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.{SparkConf, SparkContext}
@@ -64,7 +64,7 @@ class FileOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
   }
 
   "FileOutputIT" should "save a dataframe" in new WithEventData {
-    output.upsert(data, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
 
     val source = new java.io.File(tmpPath).listFiles()
     val read = sqlContext.read.json(tmpPath).toDF
