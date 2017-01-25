@@ -54,6 +54,10 @@
           scope.showHelp = true;
         };
 
+        scope.thereAreAlternativeSteps = function (step) {
+          return step.subSteps != undefined;
+        };
+
         scope.showCurrentStepMessage = function(){
           return !scope.nextStepAvailable && !scope.visited[scope.current+1] || scope.current == scope.steps.length -1;
         };

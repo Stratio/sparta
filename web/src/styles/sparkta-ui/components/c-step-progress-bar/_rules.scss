@@ -1,6 +1,7 @@
 @mixin c-step-progress-bar {
   @include c-component;
 
+
   background: $c-step-progress-bar---background;
   display: block;
   padding: $c-step-progress-bar---padding;
@@ -8,6 +9,17 @@
   height: $c-step-progress-bar---height;
   margin-left: $c-step-progress-bar---margin-left;
   margin-top: $c-step-progress-bar---margin-top;
+
+  &__step-column {
+    margin-top: -$c-step-progress-bar---margin-top;
+    &:before {
+      content: '';
+      height: 100%;
+      margin: 20px;
+      border-left: 1px $c-step-progress-bar__line---color dashed;
+    }
+
+  }
 }
 
 .c-step-progress-bar {
