@@ -11,15 +11,39 @@
   margin-top: $c-step-progress-bar---margin-top;
 
   &__step-column {
-    margin-top: -$c-step-progress-bar---margin-top;
+    top: 22px;
+    margin-left: 18px;
     &:before {
       content: '';
-      height: 100%;
-      margin: 20px;
-      border-left: 1px $c-step-progress-bar__line---color dashed;
+      height: 50%;
+      position: absolute;
+      left: -19px;
+      top: 24px;
+      border-left: 1px $c-step-progress-bar__line---color solid;
     }
 
   }
+
+  &__alternative-step {
+    padding-top: 6px !important;
+    &:before {
+      content: '';
+      width: 19px;
+      left: -19px;
+      top: 50%;
+      position: absolute;
+      border-top: 1px $c-step-progress-bar__line---color solid;
+    }
+  }
+
+  & section:last-child {
+    padding-right: 0;
+
+   .c-step__progress-line {
+      width: 0px;
+    }
+  }
+
 }
 
 .c-step-progress-bar {

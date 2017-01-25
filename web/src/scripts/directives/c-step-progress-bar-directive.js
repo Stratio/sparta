@@ -53,7 +53,7 @@
           }
           scope.showHelp = true;
         };
-
+        
         scope.thereAreAlternativeSteps = function (step) {
           return step.subSteps != undefined;
         };

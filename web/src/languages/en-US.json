@@ -112,7 +112,7 @@
       "_INPUT_": "Input",
       "_TRANSFORMATION_": "Transformation",
       "_CUBES_": "Cubes",
-      "_TRIGGER_": "Trigger",
+      "_TRIGGERS_": "Triggers",
       "_FINISH_": "Finish"
     },
     "_TRANSFORMATION_OUTPUT_FIELD_ERROR_": "The output field {{outputField}} already exists in policy. Please remove it and try to save again",

@@ -21,11 +21,10 @@
     .module('webApp')
     .controller('PolicyTriggerAccordionCtrl', PolicyTriggerAccordionCtrl);
 
-  PolicyTriggerAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
-    'TriggerService', 'triggerConstants', '$scope'];
+  PolicyTriggerAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'TriggerService',
+    'triggerConstants', '$scope'];
 
-  function PolicyTriggerAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService,
-                                    TriggerService, triggerConstants, $scope) {
+  function PolicyTriggerAccordionCtrl(WizardStatusService, PolicyModelFactory, TriggerService, triggerConstants, $scope) {
     var vm = this;
 
     vm.init = init;

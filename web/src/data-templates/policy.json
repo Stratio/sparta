@@ -14,7 +14,7 @@
     {
       "subSteps": [
         {
-          "name": "_POLICY_._STEPS_._TRIGGER_",
+          "name": "_POLICY_._STEPS_._TRIGGERS_",
           "icon": "icon-content-left",
           "currentMessage": "_MESSAGE_._TRIGGER_STEP_",
           "availableMessage": "_MESSAGE_._TRIGGER_STEP_AVAILABLE_"

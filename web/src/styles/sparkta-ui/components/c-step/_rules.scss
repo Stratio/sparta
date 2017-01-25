@@ -25,11 +25,7 @@
   &:last-child {
     padding-right: 0;
 
-    & .c-step__progress-line {
-      width: 0px;
-    }
-
-    &.c-step--active {
+     &.c-step--active {
       .c-step__progress-line {
         background: $c-step--active---color;
       }

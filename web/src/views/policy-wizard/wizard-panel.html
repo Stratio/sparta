@@ -15,8 +15,8 @@
     <div class="c-step-content">
       <header class="alignleft">
         <h1 class="c-step-content__title">
-          <i class="c-icon {{wizard.steps[wizard.status.currentStep].icon}}"></i>
-          <span class="c-step-content__title-text">{{wizard.steps[wizard.status.currentStep].name | translate}}</span>
+          <i class="c-icon {{wizard.status.currentStep.icon}}"></i>
+          <span class="c-step-content__title-text">{{wizard.status.currentStep.name | translate}}</span>
         </h1>
         <c-animated-msg type="error" data-msg="wizard.error" data-on-click-close-msg="wizard.closeErrorMessage()"
                         data-timeout=10000></c-animated-msg>
@@ -28,9 +28,11 @@
         <ng-include src="'views/policy-wizard/transformation-step-content.html'"></ng-include>
       </div>
       <div data-ng-switch-when="2">
+        <ng-include src="'views/policy-wizard/trigger-step-content.html'"></ng-include>
+      </div>
+      <div data-ng-switch-when="3">
         <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
       </div>
-
       <footer class="c-row c-row--separated-bottom c-row--footer">
         <div class="c-col c-col--12 c-col--vertical-centered">
           <button class="c-button c-button--call-to-action-1" data-ng-if="wizard.showPreviousStepButton()"

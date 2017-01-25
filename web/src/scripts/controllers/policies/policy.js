@@ -21,8 +21,8 @@
     .module('webApp')
     .controller('PolicyCtrl', PolicyCtrl);
 
-  PolicyCtrl.$inject = ['WizardStatusService', 'TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', 'PolicyService', '$state', '$scope', '$timeout', '$stateParams', '$q'];
-  function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $timeout, $stateParams, $q) {
+  PolicyCtrl.$inject = ['WizardStatusService', 'TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', 'PolicyService', '$state', '$scope', '$stateParams', '$q'];
+  function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $stateParams, $q) {
     var vm = this;
 
     vm.confirmPolicy = confirmPolicy;

@@ -33,6 +33,7 @@
     vm.nextStep = nextStep;
     vm.enableNextStep = enableNextStep;
     vm.disableNextStep = disableNextStep;
+    vm.getStepNameByIndex = getStepNameByIndex;
 
     init();
 
@@ -64,5 +65,17 @@
     function disableNextStep(){
       status.nextStepAvailable = false;
     }
+
+    // function getStepNameByIndex(steps, index){
+    //   i = 0;
+    //   var step = '';
+    //   while (i <= index){
+    //    step = steps[i];
+    //     if (step.subSteps){
+    //       i = getStepNameByIndex();
+    //     }
+    //   }
+    // }
+
   }
 })();
