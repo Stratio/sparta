@@ -16,39 +16,15 @@
 package com.stratio.sparta.plugin.input.rabbitmq
 
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.streaming.rabbitmq.ConfigParameters
-
-import scala.util.Try
-
-object RabbitMQGenericProps {
-  val RabbitmqProperties = "rabbitmqProperties"
-  val RabbitmqPropertyKey = "rabbitmqPropertyKey"
-  val RabbitmqPropertyValue = "rabbitmqPropertyValue"
-}
 
 trait RabbitMQGenericProps {
   this: Input =>
 
-  import RabbitMQGenericProps._
-
   def propsWithStorageLevel(sparkStorageLevel: String): Map[String, String] = {
-    val rabbitMQProperties = getRabbitMQProperties
+    val rabbitMQProperties = getCustomProperties
     Map(ConfigParameters.StorageLevelKey -> sparkStorageLevel) ++
       rabbitMQProperties.mapValues(value => value.toString) ++
       properties.mapValues(value => value.toString)
   }
-
-  def getRabbitMQProperties: Map[String, String] =
-    Try(properties.getMapFromJsoneyString(RabbitmqProperties))
-      .getOrElse(Seq.empty[Map[String, String]])
-      .map(c =>
-        (c.get(RabbitmqPropertyKey) match {
-          case Some(value) => value.toString
-          case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyKey is mandatory")
-        },
-          c.get(RabbitmqPropertyValue) match {
-            case Some(value) => value.toString
-            case None => throw new IllegalArgumentException(s"The field $RabbitmqPropertyValue is mandatory")
-          })).toMap
 }

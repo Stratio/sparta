@@ -32,7 +32,6 @@ class KafkaOutput(keyName: String,
   extends Output(keyName, version, properties, schemas) with KafkaProducer {
 
   val outputFormat = OutputFormatEnum.withName(properties.getString("format", "json").toUpperCase)
-
   val rowSeparator = properties.getString("rowSeparator", ",")
 
   override def supportedSaveModes : Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)

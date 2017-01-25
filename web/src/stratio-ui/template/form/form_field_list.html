@@ -1,16 +1,19 @@
 <ng-form name="{{name}}" class="c-form-group">
   <div class="c-form-control c-form-control--full-width">
-    <div ng-if="!field.limit == 1 || listCompressed" class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
-            <span>
+    <div ng-if="!field.limit == 1 || listCompressed"
+         class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
+            <span tooltip="{{field.tooltip}}" tooltip-class="tooltip tooltip--top" tooltip-trigger="click"
+                  tooltip-placement="top">
                 {{field.propertyName | translate}}
-            </span>
+
+      <i data-ng-if="field.tooltip" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"
+         data-qa="{{helpQa}}"></i>
+                   </span>
     </div>
-    <div class="st-form-field-help">
-      <div class="st-form-field-help-button button"><i id="help-{{name}}" class="fa fa-question-circle" ng-click="toggleHelp($event)"></i></div>
-      <div class="st-form-field-help-text" ng-show="showHelp">{{field.tooltip}}</div>
-    </div>
-    <div class="c-form-group" data-ng-class="{'c-form-group--list-compressed': listCompressed, 'c-form-group--with-gutter': modal}" data-ng-repeat="row in model[field.propertyId] track by $index" data-ng-init="indexRow = $index">
-      <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)), 'c-col--12': (listCompressed && !modal), 'c-col--{{(12 / field.fields.length) | number: 0}}': (!listCompressed && !modal) || (listCompressed && modal)}">
+
+    <div class="c-form-group"
+         data-ng-class="{'c-form-group--list-compressed': listCompressed, 'c-form-group--with-gutter': modal}" data-ng-repeat="row in model[field.propertyId] track by $index" data-ng-init="indexRow = $index">
+      <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)), 'c-col--12': (listCompressed && !modal), 'c-col--{{getColNumberWidth(item)}}' : (!listCompressed && !modal) || (listCompressed && modal)}">
         <!-- input text -->
         <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-ng-if="(item.propertyType == 'text' || item.propertyType == 'password' || item.propertyType == 'number')" data-form="form" data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-col="item.col" data-output-field="item.outputField" data-qa="{{item.qa}}-{{indexRow}}"></form-field-input>
         <!-- checkbox -->

@@ -14,10 +14,19 @@
  * limitations under the License.
  */
 
+package com.stratio.sparta.sdk.properties
 
-package com.stratio.sparta.serving.core.constants
+import java.io.{Serializable => JSerializable}
 
-object ActorsConstant {
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-  val UnitVersion = 1
+trait CustomProperties {
+
+  val customKey: String
+  val customPropertyKey: String
+  val customPropertyValue: String
+  val properties: Map[String, JSerializable]
+
+  def getCustomProperties: Map[String, String] =
+    properties.getOptionsList(customKey, customPropertyKey, customPropertyValue)
 }

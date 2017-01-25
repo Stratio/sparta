@@ -22,18 +22,19 @@ package com.stratio.sparta.serving.core.constants
  */
 object AkkaConstant {
 
-  final val StatusActor = "statusActor"
-  final val FragmentActor = "fragmentActor"
-  final val TemplateActor = "templateActor"
-  final val PolicyActor = "policyActor"
-  final val SparkStreamingContextActor = "sparkStreamingContextActor"
-  final val ControllerActor = "controllerActor"
-  final val SwaggerActor = "swaggerActor"
-  final val PolicyStatusActor = "supervisorContextActor"
-  final val ControllerActorInstances = "controllerActorInstances"
-  final val DefaultControllerActorInstances = 5
+  val StatusActor = "statusActor"
+  val FragmentActor = "fragmentActor"
+  val TemplateActor = "templateActor"
+  val PolicyActor = "policyActor"
+  val SparkStreamingContextActor = "sparkStreamingContextActor"
+  val PluginActor = "pluginActor"
+  val ControllerActor = "controllerActor"
+  val SwaggerActor = "swaggerActor"
+  val PolicyStatusActor = "supervisorContextActor"
+  val ControllerActorInstances = "controllerActorInstances"
+  val DefaultControllerActorInstances = 5
 
-  final val DefaultTimeout = 15
+  val DefaultTimeout = 15
 
   def cleanActorName(initialName: String) : String = initialName.replace(" ", "_")
 

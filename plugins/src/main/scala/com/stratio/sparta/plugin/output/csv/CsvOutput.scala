@@ -18,7 +18,6 @@ package com.stratio.sparta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
@@ -43,19 +42,12 @@ class CsvOutput(keyName: String,
   extends Output(keyName, version, properties, schemas) with Logging {
 
   val path = properties.getString("path", None)
-
   val header = Try(properties.getString("header").toBoolean).getOrElse(false)
-
   val inferSchema = Try(properties.getString("inferSchema").toBoolean).getOrElse(false)
-
   val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
-
   val codecOption = properties.getString("codec", None)
-
   val compressExtension = properties.getString("compressExtension", None).getOrElse(".gz")
-
   val datePattern = properties.getString("datePattern", None)
-
   val dateGranularityFile = properties.getString("dateGranularityFile", "day")
 
   override def supportedSaveModes : Seq[SaveModeEnum.Value] =
@@ -77,7 +69,7 @@ class CsvOutput(keyName: String,
     dataFrame.write
       .format("com.databricks.spark.csv")
       .mode(getSparkSaveMode(saveMode))
-      .options(optionsParsed)
+      .options(optionsParsed ++ getCustomProperties)
       .save(pathWithExtension)
   }
 

@@ -27,7 +27,6 @@ import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import spray.can.Http
 
@@ -62,18 +61,21 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
       val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor, fragmentActor)),
         AkkaConstant.PolicyActor)
-      val streamingContextService = new StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
+      val streamingContextService = StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
       val templateActor = system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor)
       val streamingContextActor = system.actorOf(Props(
         new SparkStreamingContextActor(streamingContextService, policyActor, policyStatusActor, curatorFramework)),
         AkkaConstant.SparkStreamingContextActor
       )
+      val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
+
       implicit val actors = Map(
         AkkaConstant.PolicyStatusActor -> policyStatusActor,
         AkkaConstant.FragmentActor -> fragmentActor,
         AkkaConstant.TemplateActor -> templateActor,
         AkkaConstant.PolicyActor -> policyActor,
-        AkkaConstant.SparkStreamingContextActor -> streamingContextActor
+        AkkaConstant.SparkStreamingContextActor -> streamingContextActor,
+        AkkaConstant.PluginActor -> pluginActor
       )
       val swaggerActor = system.actorOf(
         Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)

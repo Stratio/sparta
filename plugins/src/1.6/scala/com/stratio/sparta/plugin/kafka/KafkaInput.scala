@@ -50,42 +50,41 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     val topics = extractTopics
     val partitionStrategy = getPartitionStrategy
     val locationStrategy = getLocationStrategy
-    val additionalOptions = getAdditionalOptions()
 
     serializerProperty match {
       case "long" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Long](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case "int" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Int](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case "double" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Double](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case "bytebuffer" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, ByteBuffer](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case "arraybyte" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Array[Byte]](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case "bytes" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Bytes](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
       case _ =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, String](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ additionalOptions)
+          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, String](ssc, locationStrategy, consumerStrategy)
           .map(data => Row(data.value()))
     }

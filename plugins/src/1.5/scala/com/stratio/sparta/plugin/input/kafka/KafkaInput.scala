@@ -38,16 +38,15 @@ class KafkaInput(properties: Map[String, JSerializable])
     else getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val groupId = getGroupId("group.id")
     val valueSerializer = properties.getString("value.deserializer", "string")
-    val additionalOptions = getAdditionalOptions()
     val topics = extractTopics
 
     valueSerializer match {
       case "arraybyte" =>
         KafkaUtils.createDirectStream[String, Array[Byte], StringDecoder, DefaultDecoder](
-          ssc, metaDataBrokerList ++ groupId ++ additionalOptions, topics).map(data => Row(data._2))
+          ssc, metaDataBrokerList ++ groupId ++ getCustomProperties, topics).map(data => Row(data._2))
       case _ =>
         KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](
-          ssc, metaDataBrokerList ++ groupId ++ additionalOptions, topics).map(data => Row(data._2))
+          ssc, metaDataBrokerList ++ groupId ++ getCustomProperties, topics).map(data => Row(data._2))
     }
   }
 }

@@ -14,10 +14,10 @@ Main Features
 ============
 
 - Pure Spark
-- No need of coding, only declarative aggregation workflows
+- No need of coding, only declarative analytical workflows
 - Data continuously streamed in & processed in near real-time
 - Ready to use out-of-the-box
-- Plug & play: flexible workflows (inputs, outputs, parsers, etc…)
+- Plug & play: flexible workflows (inputs, outputs, transformations, etc…)
 - High performance and Fault Tolerance
 - Scalable and High Availability
 - Big Data OLAP on real-time to small data
@@ -108,6 +108,7 @@ Outputs
 - Kafka
 - HDFS/S3
 - Http Rest
+- Avro
 
 ![Outputs](./images/outputs.png)
 
@@ -128,6 +129,7 @@ Key technologies
 - [RabbitMQ] (https://www.rabbitmq.com/)
 - [Spray] (http://spray.io/)
 - [KiteSDK (morphlines)] (http://kitesdk.org/docs/current)
+- [Apache Avro] (https://avro.apache.org/)
 
 Advantages
 ========

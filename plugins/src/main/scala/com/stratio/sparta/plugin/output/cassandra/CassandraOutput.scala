@@ -18,67 +18,26 @@ package com.stratio.sparta.plugin.output.cassandra
 
 import java.io.{Serializable => JSerializable}
 
-import com.datastax.spark.connector.cql.CassandraConnector
-import com.stratio.sparta.plugin.output.cassandra.dao.CassandraDAO
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.SparkConf
 import org.apache.spark.sql._
 
 class CassandraOutput(keyName: String,
                       version: Option[Int],
                       properties: Map[String, JSerializable],
                       schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas)
-  with CassandraDAO {
+  extends Output(keyName, version, properties, schemas) {
 
-  override val keyspace = properties.getString("keyspace", "sparta")
+  val MaxTableNameLength = 48
 
-  override val keyspaceClass = properties.getString("class", "SimpleStrategy")
-
-  override val replicationFactor = properties.getString("replication_factor", "1")
-
-  override val compactStorage = properties.getString("compactStorage", None)
-
-  override val clusteringPrecisions = properties.getString("clusteringPrecisions", None).map(_.split(FieldsSeparator))
-
-  override val indexFields = properties.getString("indexFields", None).map(_.split(FieldsSeparator))
-
-  override val textIndexFields = properties.getString("textIndexFields", None).map(_.split(FieldsSeparator))
-
-  override val analyzer = properties.getString("analyzer", DefaultAnalyzer)
-
-  override val dateFormat = properties.getString("dateFormat", DefaultDateFormat)
-
-  override val refreshSeconds = properties.getString("refreshSeconds", DefaultRefreshSeconds)
-
-  override val textIndexName = properties.getString("textIndexName", "lucene")
-
+  val keyspace = properties.getString("keyspace", "sparta")
   val cluster = properties.getString("cluster", "default")
+  val tableVersion = version
 
-  override val tableVersion = version
-
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
-
-  override def setup(options: Map[String, String]): Unit = {
-    val connector = getCassandraConnector
-    val keyspaceCreated = createKeypace(connector)
-    val tablesCreated = if (keyspaceCreated) {
-      createTables(connector, schemas)
-    } else false
-    if (keyspaceCreated && tablesCreated) {
-      if (indexFields.isDefined && indexFields.get.nonEmpty) {
-        createIndexes(connector, schemas)
-      }
-      if (textIndexFields.isDefined &&
-        textIndexFields.nonEmpty) {
-        createTextIndexes(connector, schemas)
-      }
-    }
-  }
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableNameVersioned = getTableName(getTableNameFromOptions(options).toLowerCase)
@@ -88,13 +47,17 @@ class CassandraOutput(keyName: String,
     dataFrame.write
       .format("org.apache.spark.sql.cassandra")
       .mode(getSparkSaveMode(saveMode))
-      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster))
+      .options(Map("table" -> tableNameVersioned, "keyspace" -> keyspace, "cluster" -> cluster) ++ getCustomProperties
+      )
       .save()
   }
 
-  def getCassandraConnector: CassandraConnector = {
-    val sparkConf = new SparkConf().setAll(CassandraOutput.getSparkConfiguration(properties))
-    CassandraConnector(sparkConf)
+  def getTableName(table: String): String = {
+    val tableNameCut = if (table.length > MaxTableNameLength - 3) table.substring(0, MaxTableNameLength - 3) else table
+    tableVersion match {
+      case Some(v) => s"$tableNameCut${Output.Separator}v$v"
+      case None => tableNameCut
+    }
   }
 }
 

@@ -51,6 +51,7 @@ class AvroOutput(keyName: String,
     val dataFrameWriter = dataFrame
       .write
       .format("com.databricks.spark.avro")
+      .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
     partitionBy match {

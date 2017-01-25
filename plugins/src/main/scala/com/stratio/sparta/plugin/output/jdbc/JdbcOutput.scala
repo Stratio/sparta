@@ -34,6 +34,7 @@ class JdbcOutput(keyName: String,
   extends Output(keyName, version, properties, bcSchema) {
 
   require(properties.getString("url", None).isDefined, "url must be provided")
+
   val url = properties.getString("url")
 
   val connectionProperties = {
@@ -52,6 +53,7 @@ class JdbcOutput(keyName: String,
 
     dataFrame.write
       .mode(getSparkSaveMode(saveMode))
+      .options(getCustomProperties)
       .jdbc(url, tableName, connectionProperties)
   }
 }

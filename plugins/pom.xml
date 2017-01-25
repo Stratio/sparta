@@ -31,7 +31,14 @@
         <morphline.version>0.17.0</morphline.version>
         <cassandra.spark.version>1.5.0</cassandra.spark.version>
         <decision.version>1.1.0</decision.version>
-        <avro.version>1.8.0</avro.version>
+        <avro.version>1.7.7</avro.version>
+        <breeze.version>0.11.1</breeze.version>
+        <scalawebsocket.version>0.1.1</scalawebsocket.version>
+        <amqp-client.version>3.5.1</amqp-client.version>
+        <geo.version>0.6.7</geo.version>
+        <json-path.version>2.2.0</json-path.version>
+        <xpath.version>0.1.3</xpath.version>
+        <gson.version>2.3.1</gson.version>
     </properties>
 
     <build>
@@ -80,12 +87,6 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.binary.version}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -129,19 +130,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>casbah-core_${scala.binary.version}</artifactId>
-            <version>2.8.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark_${scala.binary.version}</artifactId>
             <version>${elastic.spark.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sksamuel.elastic4s</groupId>
-            <artifactId>elastic4s-core_${scala.binary.version}</artifactId>
-            <version>1.7.4</version>
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>
@@ -161,7 +152,7 @@
         <dependency>
             <groupId>org.scalanlp</groupId>
             <artifactId>breeze_${scala.binary.version}</artifactId>
-            <version>0.11.1</version>
+            <version>${breeze.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.rwl</groupId>
@@ -169,76 +160,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-codecs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-kuromoji</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-phonetic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-grouping</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-join</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-memory</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-misc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queries</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-sandbox</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-suggest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
-            <artifactId>concurrentlinkedhashmap-lru</artifactId>
-            <version>1.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-useragent</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-avro</artifactId>
@@ -246,89 +168,7 @@
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-solr-core</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-codecs</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-analyzers-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-analyzers-kuromoji</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-analyzers-phonetic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-grouping</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-highlighter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-join</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-memory</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-misc</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-queries</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-queryparser</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-sandbox</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-spatial</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.lucene</groupId>
-                    <artifactId>lucene-suggest</artifactId>
-                </exclusion>
-            </exclusions>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-saxon</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-maxmind</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-twitter</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-tika-core</artifactId>
             <version>${morphline.version}</version>
         </dependency>
         <dependency>
@@ -343,11 +183,6 @@
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-tika-decompress</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-json</artifactId>
             <version>${morphline.version}</version>
         </dependency>
@@ -356,24 +191,14 @@
             <artifactId>nscala-time_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.solr</groupId>
-            <artifactId>solr-solrj</artifactId>
-            <version>5.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>eu.piotrbuda</groupId>
             <artifactId>scalawebsocket_2.10</artifactId>
-            <version>0.1.1</version>
+            <version>${scalawebsocket.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.3.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>3.5.1</version>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.receiver</groupId>
@@ -389,14 +214,7 @@
         <dependency>
             <groupId>com.github.davidmoten</groupId>
             <artifactId>geo</artifactId>
-            <version>0.6.7</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lucidworks.spark</groupId>
-            <artifactId>spark-solr</artifactId>
-            <version>1.4-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../lib/spark-solr-1.4-1.4.1-SNAPSHOT.jar</systemPath>
+            <version>${geo.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
@@ -415,7 +233,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.kafka</groupId>
-                    <artifactId>kafka_2.10</artifactId>
+                    <artifactId>kafka_${scala.binary.version}</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.apache.zookeeper</groupId>
@@ -426,17 +244,16 @@
         <dependency>
           <groupId>org.scalaj</groupId>
             <artifactId>scalaj-http_${scala.binary.version}</artifactId>
-            <version>2.3.0</version>
         </dependency>
       <dependency>
         <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.2.0</version>
+            <version>${json-path.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nrinaudo</groupId>
             <artifactId>kantan.xpath_${scala.binary.version}</artifactId>
-            <version>0.1.3</version>
+            <version>${xpath.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.sstone</groupId>

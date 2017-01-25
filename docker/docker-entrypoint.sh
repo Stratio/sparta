@@ -241,24 +241,19 @@
  sed -i "s|sparta.config.driverPackageLocation.*|sparta.config.driverPackageLocation = \""${SPARTA_DRIVER_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_DRIVER_URI ]]; then
-   SPARTA_DRIVER_URI="http://sparta:9090/driverJar/driver-plugin.jar"
+   SPARTA_DRIVER_URI="http://sparta:9090/drivers/driver-plugin.jar"
  fi
  sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_PLUGIN_LOCATION ]]; then
+   SPARTA_PLUGIN_LOCATION="/opt/sds/plugins/"
+ fi
+ sed -i "s|sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_STOP_GRACEFULLY ]]; then
    SPARTA_STOP_GRACEFULLY=true
  fi
  sed -i "s|sparta.config.stopGracefully.*|sparta.config.stopGracefully = ${SPARTA_STOP_GRACEFULLY}|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v SPARTA_AWAIT_STREAMING_CONTEXT_STOP ]]; then
-   SPARTA_AWAIT_STREAMING_CONTEXT_STOP=120s
- fi
- sed -i "s|sparta.config.awaitStreamingContextStop.*|sparta.config.awaitStreamingContextStop = ${SPARTA_AWAIT_STREAMING_CONTEXT_STOP}|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v SPARTA_AWAIT_SPARK_CONTEXT_STOP ]]; then
-   SPARTA_AWAIT_SPARK_CONTEXT_STOP=60s
- fi
- sed -i "s|sparta.config.awaitSparkContextStop.*|sparta.config.awaitSparkContextStop = ${SPARTA_AWAIT_SPARK_CONTEXT_STOP}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AWAIT_POLICY_CHANGE_STATUS ]]; then
    SPARTA_AWAIT_POLICY_CHANGE_STATUS=120s
@@ -350,6 +345,11 @@
    SPARK_MESOS_MASTER="mesos://mesosDispatcherURI"
  fi
  sed -i "s|sparta.mesos.master.*|sparta.mesos.master = \""${SPARK_MESOS_MASTER}"\"|" ${SPARTA_CONF_FILE}
+
+  if [[ ! -v SPARK_MESOS_KILL_URL ]]; then
+   SPARK_MESOS_KILL_URL="/v1/submissions/kill"
+ fi
+ sed -i "s|sparta.mesos.killUrl.*|sparta.mesos.killUrl = \""${SPARK_MESOS_KILL_URL}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ -v SPARK_MESOS_JARS ]]; then
    sed -i "s|.*sparta.mesos.jars.*|sparta.mesos.jars = \""${SPARK_MESOS_JARS}"\"|" ${SPARTA_CONF_FILE}
