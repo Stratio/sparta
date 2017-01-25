@@ -1,4 +1,4 @@
-.tooltip {
+.popover {
   position: absolute;
   z-index: 1000;
   display: block;
@@ -22,27 +22,27 @@
 
   line-break: auto;
 }
-.tooltip.in {
+.popover.in {
   filter: alpha(opacity=90);
   opacity: .9;
 }
-.tooltip.top {
+.popover.top {
   padding: 5px 0;
   margin-top: -3px;
 }
-.tooltip.right {
+.popover.right {
   padding: 0 5px;
   margin-left: 3px;
 }
-.tooltip.bottom {
+.popover.bottom {
   padding: 5px 0;
   margin-top: 3px;
 }
-.tooltip.left {
+.popover.left {
   padding: 0 5px;
   margin-left: -3px;
 }
-.tooltip-inner {
+.popover-inner {
   max-width: 200px;
   padding: 3px 8px;
   color: #fff;
@@ -50,63 +50,63 @@
   background-color: #000;
   border-radius: 4px;
 }
-.tooltip-arrow {
+.popover-arrow {
   position: absolute;
   width: 0;
   height: 0;
   border-color: transparent;
   border-style: solid;
 }
-.tooltip.top .tooltip-arrow {
+.popover.top .popover-arrow {
   bottom: 0;
   left: 50%;
   margin-left: -5px;
   border-width: 5px 5px 0;
   border-top-color: #000;
 }
-.tooltip.top-left .tooltip-arrow {
+.popover.top-left .popover-arrow {
   right: 5px;
   bottom: 0;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
   border-top-color: #000;
 }
-.tooltip.top-right .tooltip-arrow {
+.popover.top-right .popover-arrow {
   bottom: 0;
   left: 5px;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
   border-top-color: #000;
 }
-.tooltip.right .tooltip-arrow {
+.popover.right .popover-arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
   border-width: 5px 5px 5px 0;
   border-right-color: #000;
 }
-.tooltip.left .tooltip-arrow {
+.popover.left .popover-arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
   border-width: 5px 0 5px 5px;
   border-left-color: #000;
 }
-.tooltip.bottom .tooltip-arrow {
+.popover.bottom .popover-arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
   border-width: 0 5px 5px;
   border-bottom-color: #000;
 }
-.tooltip.bottom-left .tooltip-arrow {
+.popover.bottom-left .popover-arrow {
   top: 0;
   right: 5px;
   margin-top: -5px;
   border-width: 0 5px 5px;
   border-bottom-color: #000;
 }
-.tooltip.bottom-right .tooltip-arrow {
+.popover.bottom-right .popover-arrow {
   top: 0;
   left: 5px;
   margin-top: -5px;

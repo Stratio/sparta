@@ -3,7 +3,7 @@ describe('policies.wizard.factory.cube-model-factory', function () {
   beforeEach(module('api/cube.json'));
   beforeEach(module('model/cube.json'));
   beforeEach(module('template/policy.json'));
-
+  
   var factory, fakeCube, UtilsServiceMock, fakePolicyTemplate, PolicyModelFactoryMock, fakeApiCube = null;
 
   beforeEach(module(function ($provide) {

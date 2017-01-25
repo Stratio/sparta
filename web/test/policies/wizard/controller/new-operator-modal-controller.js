@@ -1,45 +1,64 @@
-describe('policies.wizard.controller.new-operator-modal-controller', function () {
+describe('policies.wizard.controller.new-operator-modal-controller', function() {
   beforeEach(module('webApp'));
   beforeEach(module('template/policy.json'));
+  beforeEach(module('template/operator/default.json'));
 
-  var ctrl, modalInstanceMock, UtilsServiceMock, fakeOperatorName, fakeOperatorType, fakeFieldName, fakeOperators, fakeCubeTemplate, fakeInputFieldList, fakeOptionList = null;
+  var ctrl, scope, _cubeConstants, modalInstanceMock, UtilsServiceMock, TemplateFactoryMock, fakeOperatorName, fakeOperatorType,
+      fakeFieldName, fakeOperators, fakeCubeTemplate, fakeInputFieldList, fakeOptionList, fakeOperatorTemplate = null;
 
-  beforeEach(inject(function ($controller) {
+  beforeEach(inject(function($controller, $q, $rootScope, $httpBackend, cubeConstants) {
 
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close', 'dismiss']);
-    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray']);
+    _cubeConstants = cubeConstants;
+    scope = $rootScope.$new();
+    modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
+    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray', 'filterByAttribute']);
+    TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getOperatorTemplateByType']);
     fakeOptionList = [{name: "fake option 1", value: "fake option value"}, {
       name: "fake option 2",
       value: "fake option value 2"
     }];
+    $httpBackend.when('GET', "languages/en-US.json").respond({});
+
     UtilsServiceMock.generateOptionListFromStringArray.and.returnValue(fakeOptionList);
+    TemplateFactoryMock.getOperatorTemplateByType.and.callFake(function() {
+      var defer = $q.defer();
+      defer.resolve(fakeOperatorTemplate);
+      return defer.promise;
+    });
     fakeOperatorName = "fake operator name";
-    fakeOperatorType = "fake operator type";
+    fakeOperatorType = _cubeConstants.COUNT;
     fakeFieldName = "fake field name";
     fakeOperators = [];
     fakeInputFieldList = ["input field 1", "input field 2", "input field 3"];
 
-    inject(function (_templatePolicy_) {
+    inject(function(_templatePolicy_, _templateOperatorDefault_) {
       fakeCubeTemplate = _templatePolicy_.cube;
+      fakeOperatorTemplate = _templateOperatorDefault_;
     });
-
     ctrl = $controller('NewOperatorModalCtrl', {
-      '$modalInstance': modalInstanceMock,
+      '$uibModalInstance': modalInstanceMock,
       'operatorName': fakeOperatorName,
       'operatorType': fakeOperatorType,
       'operators': fakeOperators,
       'UtilsService': UtilsServiceMock,
       'template': fakeCubeTemplate,
-      'inputFieldList': fakeInputFieldList
+      'inputFieldList': fakeInputFieldList,
+      'TemplateFactory': TemplateFactoryMock,
+      'scope': scope
     });
 
-    spyOn(document, "querySelector").and.callFake(function () {
+    spyOn(document, "querySelector").and.callFake(function() {
       return {"focus": jasmine.createSpy()}
     });
   }));
 
-  describe("when it is initialized", function () {
-    it("it creates a operator with the injected params", function () {
+  describe("when it is initialized", function() {
+    it('it retrieves its template according to its type', function() {
+      scope.$apply();
+      expect(TemplateFactoryMock.getOperatorTemplateByType).toHaveBeenCalledWith(fakeOperatorType);
+      expect(ctrl.template).toBe(fakeOperatorTemplate);
+    });
+    it("it creates a operator with the injected params", function() {
       expect(ctrl.operator.name).toBe(fakeOperatorName);
       expect(ctrl.operator.configuration).toEqual({});
       expect(ctrl.operator.type).toBe(fakeOperatorType);
@@ -47,20 +66,16 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
       expect(ctrl.error).toBeFalsy();
       expect(ctrl.nameError).toBe("");
     });
-
-    it("it generates an option list of input fields", function () {
-      expect(ctrl.inputFieldList).toBe(fakeOptionList);
-    });
   });
 
-  describe("should be able to accept the modal", function () {
-    describe("if view validations have been passed", function () {
-      beforeEach(function () {
+  describe("should be able to accept the modal", function() {
+    describe("if view validations have been passed", function() {
+      beforeEach(function() {
         ctrl.form = {"$valid": true};
       });
 
-      describe("name is validated", function () {
-        it("name is valid if there is not any operator with irs name", function () {
+      describe("name is validated", function() {
+        it("name is valid if there is not any operator with irs name", function() {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
 
           ctrl.ok();
@@ -68,7 +83,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
           expect(ctrl.nameError).toBe("");
         });
 
-        it("name is invalid if there is another operator with irs name", function () {
+        it("name is invalid if there is another operator with irs name", function() {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(2);
 
           ctrl.ok();
@@ -78,7 +93,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
 
       });
 
-      it("input field is cleaned if it is empty", function(){
+      it("input field is cleaned if it is empty", function() {
         ctrl.operator.configuration.inputField = fakeInputFieldList[0].value;
         ctrl.ok();
 
@@ -92,14 +107,14 @@ describe('policies.wizard.controller.new-operator-modal-controller', function ()
     });
   });
 
-  it("should be able to close the modal", function () {
+  it("should be able to close the modal", function() {
     ctrl.cancel();
 
     expect(modalInstanceMock.dismiss).toHaveBeenCalledWith('cancel');
   });
 
-  it("should return if a operator is a count", function () {
-   ctrl.operator.type = 'avg';
+  it("should return if a operator is a count", function() {
+    ctrl.operator.type = 'avg';
     expect(ctrl.isCount()).toBeFalsy();
 
     ctrl.operator.type = 'Count';

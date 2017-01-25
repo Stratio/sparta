@@ -13,7 +13,7 @@
 
     <div class="c-form-group"
          data-ng-class="{'c-form-group--list-compressed': listCompressed, 'c-form-group--with-gutter': modal}" data-ng-repeat="row in model[field.propertyId] track by $index" data-ng-init="indexRow = $index">
-      <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)), 'c-col--12': (listCompressed && !modal), 'c-col--{{(12 / field.fields.length) | number: 0}}': (!listCompressed && !modal) || (listCompressed && modal)}">
+      <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col" ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)), 'c-col--12': (listCompressed && !modal), 'c-col--{{getColNumberWidth(item)}}' : (!listCompressed && !modal) || (listCompressed && modal)}">
         <!-- input text -->
         <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}" data-ng-if="(item.propertyType == 'text' || item.propertyType == 'password' || item.propertyType == 'number')" data-form="form" data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}" data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required" data-col="item.col" data-output-field="item.outputField" data-qa="{{item.qa}}-{{indexRow}}"></form-field-input>
         <!-- checkbox -->

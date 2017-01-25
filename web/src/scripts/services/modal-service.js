@@ -20,16 +20,16 @@
     .module('webApp')
     .service('ModalService', ModalService);
 
-  ModalService.$inject = ['$modal', 'UtilsService'];
+  ModalService.$inject = ['$uibModal', 'UtilsService'];
 
-  function ModalService($modal, UtilsService) {
+  function ModalService($uibModal, UtilsService) {
     var vm = this;
     vm.openModal = openModal;
     vm.openModalByTemplate = openModalByTemplate;
     vm.showConfirmDialog = showConfirmDialog;
 
     function openModal(controller, templateUrl, resolve, extraClass, size) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: templateUrl,
         controller: controller + ' as vm',
