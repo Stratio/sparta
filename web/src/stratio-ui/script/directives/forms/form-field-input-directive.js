@@ -107,8 +107,8 @@
         var tooltipHolder = document.querySelector('#' + scope.name);
         if (tooltipHolder) {
           var tooltipParent = tooltipHolder.parentNode;
-          if (tooltipParent.querySelector('.tooltip')) {
-            tooltipParent.querySelector('.tooltip').addEventListener("mouseleave", function () {
+          if (tooltipParent.querySelector('.popover')) {
+            tooltipParent.querySelector('.popover').addEventListener("mouseleave", function () {
               tooltipParent.removeChild(this);
             });
           }

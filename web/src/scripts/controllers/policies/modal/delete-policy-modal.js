@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('DeletePolicyModalCtrl', DeletePolicyModalCtrl);
 
-  DeletePolicyModalCtrl.$inject = ['$modalInstance', 'item', 'PolicyFactory'];
+  DeletePolicyModalCtrl.$inject = ['$uibModalInstance', 'item', 'PolicyFactory'];
 
-  function DeletePolicyModalCtrl($modalInstance, item, PolicyFactory) {
+  function DeletePolicyModalCtrl($uibModalInstance, item, PolicyFactory) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -41,7 +41,7 @@
 
     function ok() {
       return PolicyFactory.deletePolicy(vm.policyData.id).then(function () {
-        $modalInstance.close(vm.policyData);
+        $uibModalInstance.close(vm.policyData);
 
       }, function (error) {
         vm.error = true;
@@ -50,7 +50,7 @@
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 

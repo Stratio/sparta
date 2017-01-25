@@ -20,9 +20,9 @@
     .module('webApp')
     .controller('InputsCtrl', InputsCtrl);
 
-  InputsCtrl.$inject = ['FragmentFactory', '$filter', '$modal', 'UtilsService', 'TemplateFactory', 'PolicyFactory'];
+  InputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService', 'TemplateFactory', 'PolicyFactory'];
 
-  function InputsCtrl(FragmentFactory, $filter, $modal, UtilsService, TemplateFactory, PolicyFactory) {
+  function InputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService, TemplateFactory, PolicyFactory) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -163,7 +163,7 @@
     }
 
     function createInputModal(newInputTemplateData) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/fragments/fragment-details.tpl.html',
         controller: 'NewFragmentModalCtrl as vm',
@@ -185,7 +185,7 @@
     }
 
     function editInputModal(editInputData) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/fragments/fragment-details.tpl.html',
         controller: 'EditFragmentModalCtrl as vm',
@@ -217,7 +217,7 @@
     }
 
     function deleteInputConfirm(input) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/components/st-delete-modal.tpl.html',
         controller: 'DeleteFragmentModalCtrl as vm',
@@ -243,7 +243,7 @@
     }
 
     function setDuplicatedInput(InputData) {
-      var modalInstance = $modal.open({
+      var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/components/st-duplicate-modal.tpl.html',
         controller: 'DuplicateFragmentModalCtrl as vm',

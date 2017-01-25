@@ -73,7 +73,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getNamesJSONArray', 'autoIncrementName', 'addFragmentCount', 'subtractFragmentCount']);
 
-    modalMock = jasmine.createSpyObj('$modal', ['open']);
+    modalMock = jasmine.createSpyObj('$uibModal', ['open']);
 
     templateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getNewFragmentTemplate']);
     templateFactoryMock.getNewFragmentTemplate.and.callFake(resolvedNewInputTemplate);
@@ -86,7 +86,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     ctrl = $controller('InputsCtrl', {
       'FragmentFactory': fragmentFactoryMock,
       '$filter': filter,
-      '$modal': modalMock,
+      '$uibModal': modalMock,
       'UtilsService': utilsServiceMock,
       'TemplateFactory': templateFactoryMock,
       'PolicyFactory': policyFactoryMock
@@ -107,7 +107,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       ctrl = $controller('InputsCtrl', {
         'FragmentFactory': fragmentFactoryMock,
         '$filter': filter,
-        '$modal': modalMock,
+        '$uibModal': modalMock,
         'UtilsService': utilsServiceMock,
         'TemplateFactory': templateFactoryMock,
         'PolicyFactory': policyFactoryMock
@@ -123,7 +123,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       ctrl = $controller('InputsCtrl', {
         'FragmentFactory': fragmentFactoryMock,
         '$filter': filter,
-        '$modal': modalMock,
+        '$uibModal': modalMock,
         'UtilsService': utilsServiceMock,
         'TemplateFactory': templateFactoryMock,
         'PolicyFactory': policyFactoryMock

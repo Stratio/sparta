@@ -1,0 +1,96 @@
+{
+  "properties": [
+    {
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "position": "left",
+      "width": 12,
+      "required": true,
+      "qa": "policy-operator-type"
+    },
+    {
+      "propertyId": "type",
+      "propertyName": "_TYPE_",
+      "propertyType": "text",
+      "position": "left",
+      "width": 12,
+      "required": true,
+      "qa": "policy-operator-type"
+    },
+    {
+      "propertyId": "inputField",
+      "propertyName": "_INPUT_FIELD_",
+      "propertyType": "select",
+      "position": "left",
+      "width": 12,
+      "required": false,
+      "qa": "policy-operator-input-field"
+    },
+    {
+      "propertyId": "configuration",
+      "propertyName": "_CONFIGURATION_",
+      "extraInfo": "_CONFIGURATION_INFO_",
+      "propertyType": "json",
+      "position": "left",
+      "width": 12,
+      "required": true,
+      "qa": "policy-operator-configuration"
+    },
+    {
+      "propertyId": "typeOp",
+      "propertyName": "_OUTPUT_TYPE_",
+      "propertyType": "select",
+      "position": "left",
+      "width": 12,
+      "required": false,
+      "values": [
+        {
+          "label": "String",
+          "value": "string"
+        },
+        {
+          "label": "Long",
+          "value": "long"
+        },
+        {
+          "label": "Double",
+          "value": "double"
+        },
+        {
+          "label": "Integer",
+          "value": "integer"
+        },
+        {
+          "label": "Boolean",
+          "value": "boolean"
+        },
+        {
+          "label": "Date",
+          "value": "date"
+        },
+        {
+          "label": "Datetime",
+          "value": "datetime"
+        },
+        {
+          "label": "Timestamp",
+          "value": "timestamp"
+        },
+        {
+          "label": "Array Double",
+          "value": "arraydouble"
+        },
+        {
+          "label": "Array String",
+          "value": "arraystring"
+        },
+        {
+          "label": "Text",
+          "value": "text"
+        }
+      ],
+      "qa": "policy-operator-output-type"
+    }
+  ]
+}

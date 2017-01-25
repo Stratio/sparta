@@ -1,6 +1,6 @@
 <div class="{{formControlClass}}">
   <span class="c-icon-label c-col c-col--12">
-  	<i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action icon-info1" tooltip='{{help}}' tooltip-class="t-tooltip" tooltip-trigger="click" data-qa="{{helpQa}}"></i>
+  	<i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action icon-info1" uib-popover='{{help}}' popover-class="t-uib-popover" popover-trigger="click" data-qa="{{helpQa}}"></i>
   	<label class="{{labelControlClass}}" data-ng-class = "{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
   </span>
   <div data-ng-if="inputs.length > 0" class="c-form-group c-form-group--full-width">

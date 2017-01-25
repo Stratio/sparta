@@ -23,11 +23,11 @@ describe('policies.wizard.controller.delete-policy-modal-controller', function (
     policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['deletePolicy']);
     policyFactoryMock.deletePolicy.and.callFake(resolvedPromise);
 
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close', 'dismiss']);
+    modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
     fakePolicy = {"id": "fake policy id"};
 
     ctrl = $controller('DeletePolicyModalCtrl', {
-      '$modalInstance': modalInstanceMock,
+      '$uibModalInstance': modalInstanceMock,
       'item': fakePolicy,
       'PolicyFactory': policyFactoryMock
     });

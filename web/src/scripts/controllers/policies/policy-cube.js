@@ -112,7 +112,7 @@
 
       return modalInstance.result.then(function (dimensionData) {
         vm.cube.dimensions.push(dimensionData.dimension);
-        vm.isTimeDimension = dimensionData.isTimeDimesion;
+        vm.isTimeDimension = dimensionData.isTimeDimension;
         createdDimensions++;
       });
     }

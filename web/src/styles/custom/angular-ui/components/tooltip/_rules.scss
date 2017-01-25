@@ -1,8 +1,8 @@
-@mixin tooltip {
+@mixin popover {
 
   z-index: 300;
 
-  &.tooltip--top:before {
+  &.popover--top:before {
     content: '';
     display: block;
     position: absolute;
@@ -14,7 +14,7 @@
     margin-left: -7px;
   }
 
-  &.tooltip--right:before {
+  &.popover--right:before {
     content: '';
     display: block;
     position: absolute;
@@ -26,7 +26,7 @@
     margin-top: -7px;
   }
 
-  &.tooltip--bottom:before {
+  &.popover--bottom:before {
     content: '';
     display: block;
     position: absolute;
@@ -38,7 +38,7 @@
     margin-left: -7px;
   }
 
-  &.tooltip--left:before {
+  &.popover--left:before {
     content: '';
     display: block;
     position: absolute;
@@ -50,7 +50,7 @@
     margin-top: -7px;
   }
 
-	.tooltip-inner {
+	.popover-inner {
 		background-color: getColor(n0);
 		color: getColor(n8);
 		border: 1px solid getColor(n4);
@@ -59,42 +59,42 @@
 	}
 }
 
-.tooltip.top .tooltip-arrow {
+.popover.top .popover-arrow {
   border-top-color: getColor(n0);
   border-width: 6px 5px 0;
 }
 
-.tooltip.top-left .tooltip-arrow {
+.popover.top-left .popover-arrow {
   border-top-color: getColor(n0);
 }
 
-.tooltip.top-right .tooltip-arrow {
+.popover.top-right .popover-arrow {
   border-top-color: getColor(n0);
 }
 
-.tooltip.right .tooltip-arrow {
+.popover.right .popover-arrow {
   border-right-color: getColor(n0);
   border-width: 5px 6px 5px 0;
 }
 
-.tooltip.left .tooltip-arrow {
+.popover.left .popover-arrow {
   border-left-color: getColor(n0);
   border-width: 5px 0 5px 6px;
 }
 
-.tooltip.bottom .tooltip-arrow {
+.popover.bottom .popover-arrow {
   border-bottom-color: getColor(n0);
   border-width: 0 5px 6px;
 }
 
-.tooltip.bottom-left .tooltip-arrow {
+.popover.bottom-left .popover-arrow {
   border-bottom-color: getColor(n0);
 }
 
-.tooltip.bottom-right .tooltip-arrow {
+.popover.bottom-right .popover-arrow {
   border-bottom-color: getColor(n0);
 }
 
-.tooltip {
-	@include tooltip;
+.popover {
+	@include popover;
 }

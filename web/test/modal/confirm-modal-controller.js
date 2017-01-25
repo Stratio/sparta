@@ -7,10 +7,10 @@ describe('modal.confirm-modal-controller', function () {
 
   beforeEach(inject(function ($controller) {
 
-    modalInstanceMock = jasmine.createSpyObj('$modalInstance', ['close', 'dismiss']);
+    modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
 
     ctrl = $controller('ConfirmModalCtrl', {
-      '$modalInstance': modalInstanceMock,
+      '$uibModalInstance': modalInstanceMock,
       'title': fakeTitle,
       'message': fakeMessage
     });

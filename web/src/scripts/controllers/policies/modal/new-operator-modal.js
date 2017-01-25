@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   /*NEW OPERATOR MODAL CONTROLLER */
   angular
-    .module('webApp')
-    .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
+      .module('webApp')
+      .controller('NewOperatorModalCtrl', NewOperatorModalCtrl);
 
-  NewOperatorModalCtrl.$inject = ['$modalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService', 'template', 'inputFieldList', 'cubeConstants'];
+  NewOperatorModalCtrl.$inject = ['$uibModalInstance', 'operatorName', 'operatorType', 'operators', 'UtilsService',
+    'template', 'inputFieldList', 'cubeConstants', 'TemplateFactory'];
 
-  function NewOperatorModalCtrl($modalInstance, operatorName, operatorType, operators, UtilsService, template, inputFieldList, cubeConstants) {
+  function NewOperatorModalCtrl($uibModalInstance, operatorName, operatorType, operators, UtilsService, template,
+                                inputFieldList, cubeConstants, TemplateFactory) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -39,7 +41,14 @@
       vm.operator.type = operatorType;
       vm.configHelpLink = template.configurationHelpLink;
       vm.nameError = "";
-      vm.inputFieldList = UtilsService.generateOptionListFromStringArray(inputFieldList);
+     
+      TemplateFactory.getOperatorTemplateByType(operatorType).then(function(template) {
+        vm.template = template;
+        if (operatorType != cubeConstants.COUNT) {
+          var inputField = UtilsService.filterByAttribute(vm.template.properties, 'propertyId', 'inputField')[0];
+          inputField.values = UtilsService.generateOptionListFromStringArray(inputFieldList);
+        }
+      });
     }
 
     ///////////////////////////////////////
@@ -60,18 +69,18 @@
 
     function ok() {
       vm.nameError = "";
-      if(vm.operator.configuration.inputField == ''){
+      if (vm.operator.configuration && vm.operator.configuration.inputField == '') {
         delete vm.operator.configuration.inputField
       }
       if (vm.form.$valid) {
         if (!isRepeated()) {
-          $modalInstance.close(vm.operator);
+          $uibModalInstance.close(vm.operator);
         }
       }
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 
