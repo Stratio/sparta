@@ -328,6 +328,7 @@
             "default": "localhost",
             "required": true,
             "tooltip": "Server address.",
+            "width": 4,
             "hidden": false,
             "qa": "fragment-details-rabbitmq-hosts"
           },
@@ -335,6 +336,7 @@
             "propertyId": "distributedQueue",
             "propertyName": "_RABBITMQ_QUEUE_KEY_",
             "propertyType": "text",
+            "width": 4,
             "regexp": "",
             "default": "",
             "hidden": false,
@@ -349,6 +351,7 @@
             "regexp": "",
             "default": "",
             "hidden": false,
+            "width": 4,
             "required": false,
             "qa": "fragment-details-rabbitmq-distributedExchangeName"
           },
@@ -360,6 +363,7 @@
             "default": "",
             "hidden": false,
             "required": false,
+            "width": 4,
             "qa": "fragment-details-rabbitmq-distributedExchangeType"
           },
           {
@@ -369,6 +373,7 @@
             "regexp": "",
             "default": "",
             "hidden": false,
+            "width": 4,
             "required": false,
             "qa": "fragment-details-rabbitmq-distributedRoutingKeys"
           }
