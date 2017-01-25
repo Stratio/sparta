@@ -230,11 +230,6 @@
  fi
  sed -i "s|sparta.config.driverLocation.*|sparta.config.driverLocation = ${SPARTA_DRIVER_LOCATION}|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v SPARTA_PLUGINS_LOCATION ]]; then
-   SPARTA_PLUGINS_LOCATION=provided
- fi
- sed -i "s|sparta.config.pluginsLocation.*|sparta.config.pluginsLocation = ${SPARTA_PLUGINS_LOCATION}|" ${SPARTA_CONF_FILE}
-
  if [[ ! -v SPARTA_DRIVER_PACKAGE_LOCATION ]]; then
    SPARTA_DRIVER_PACKAGE_LOCATION="/opt/sds/sparta/driver/"
  fi
