@@ -98,12 +98,8 @@ trait SparkSubmitUtils extends SLF4JLogging {
           .getOrElse(DefaultProvidedDriverURI)
     }
 
-  def pluginsSubmit(policy: PolicyModel, detailConfig: Config, fromLocation: String): Seq[String] =
-    Try(policy.pluginsLocation.getOrElse(detailConfig.getString(PluginsLocation))) match {
-      case Success(location) if (location == LocalPluginsLocation) && (location == fromLocation) =>
-        policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
-      case _ => policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
-    }
+  def pluginsSubmit(policy: PolicyModel): Seq[String] =
+    policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
 
   def sparkHome(clusterConfig: Config): String =
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
@@ -130,7 +126,7 @@ trait SparkSubmitUtils extends SLF4JLogging {
   }
 
   def isCluster(policy: PolicyModel, clusterConfig: Config): Boolean = {
-   policy.sparkConf.find(sparkProp =>
+    policy.sparkConf.find(sparkProp =>
       sparkProp.sparkConfKey == DeployMode && sparkProp.sparkConfValue == ClusterValue) match {
       case Some(mode) => true
       case _ => Try(clusterConfig.getString(DeployMode)) match {
@@ -141,9 +137,11 @@ trait SparkSubmitUtils extends SLF4JLogging {
   }
 
   def killUrl(clusterConfig: Config): String =
-    s"http://${clusterConfig.getString(Master).trim
-      .replace("spark://", "")
-      .replace("mesos://", "")}" + Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl)
+    s"http://${
+      clusterConfig.getString(Master).trim
+        .replace("spark://", "")
+        .replace("mesos://", "")
+    }" + Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl)
 
   def gracefulStop(policy: PolicyModel, detailConfig: Config): Boolean = {
     Try(policy.stopGracefully.getOrElse(detailConfig.getBoolean(ConfigStopGracefully)))

@@ -34,7 +34,7 @@
       "propertyType": "select",
       "position": "left",
       "width": 12,
-      "required": true,
+      "required": false,
       "values": [
         {
           "label": "String",
