@@ -16,8 +16,6 @@
 
 package com.stratio.sparta.driver
 
-import java.io.File
-
 import akka.actor.{ActorSystem, Props}
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
@@ -29,16 +27,16 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, JarsHelper}
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-object SpartaClusterJob extends PolicyUtils {
+object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
 
   override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
   final val PolicyIdIndex = 0
@@ -76,7 +74,7 @@ object SpartaClusterJob extends PolicyUtils {
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))
         val ssc = streamingContextService.clusterStreamingContext(
           policy,
-          pluginsFiles,
+          Seq.empty[String],
           Map("spark.app.name" -> s"${policy.name}")
         )
         ssc.start
@@ -108,13 +106,6 @@ object SpartaClusterJob extends PolicyUtils {
   }
 
   //scalastyle:on
-  private def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
-    log.info(pluginsFiles.mkString(","))
-    pluginsFiles.foreach(filePath => {
-      val file = new File(filePath)
-      JarsHelper.addToClasspath(file)
-    })
-  }
 
   def initSpartaConfig(detailConfig: String, zKConfig: String, clusterConfig: String): Unit = {
     val configStr =

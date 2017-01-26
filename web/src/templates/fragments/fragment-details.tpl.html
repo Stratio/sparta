@@ -26,8 +26,8 @@
             <label class="c-icon-radio__label" for="type-{{fragmentData.modelType | lowercase}}"
                    data-qa="fragment-detail-type-{{fragmentData.modelType | lowercase}}"><i
               class="c-icon c-icon--large c-icon-radio__icon icon-{{fragmentData.modelType | lowercase}}"
-              tooltip="{{fragmentData.name | lowercase}}" tooltip-placement="top" tooltip-class="tooltip--top"></i><span
-              class="c-icon-radio__text" data-ng-if="vm.dataSource.element.type === fragmentData.modelType">{{fragmentData.modelType}}</span></label>
+              uib-popover="{{fragmentData.description.short | lowercase}}" popover-placement="top" popover-class="popover--top"></i><span
+              class="c-icon-radio__text" data-ng-if="vm.dataSource.element.type === fragmentData.modelType">{{fragmentData.name}}</span></label>
           </label>
         </div>
       </ng-form>

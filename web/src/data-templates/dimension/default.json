@@ -1,0 +1,101 @@
+{
+  "properties": [
+    {
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "position": "left",
+      "width": 12,
+      "required": true,
+      "qa": "policy-dimension-name"
+    },
+    {
+      "propertyId": "field",
+      "propertyName": "_FIELD_",
+      "propertyType": "text",
+      "position": "left",
+      "width": 12,
+      "required": true,
+      "disabled": true,
+      "qa": "policy-dimension-field"
+    },
+    {
+      "propertyId": "type",
+      "propertyName": "_TYPE_",
+      "propertyType": "select",
+      "position": "left",
+      "width": 12,
+      "required": false,
+      "values": [
+        {
+          "label": "Default",
+          "value": "Default"
+        },
+        {
+          "label": "DateTime",
+          "value": "DateTime"
+        },
+        {
+          "label": "GeoHash",
+          "value": "GeoHash"
+        }
+      ],
+      "qa": "policy-dimension-type"
+    },
+    {
+      "propertyId": "typeOp",
+      "propertyName": "_OUTPUT_TYPE_",
+      "propertyType": "select",
+      "position": "left",
+      "width": 12,
+      "required": false,
+      "values": [
+        {
+          "label": "String",
+          "value": "string"
+        },
+        {
+          "label": "Long",
+          "value": "long"
+        },
+        {
+          "label": "Double",
+          "value": "double"
+        },
+        {
+          "label": "Integer",
+          "value": "integer"
+        },
+        {
+          "label": "Boolean",
+          "value": "boolean"
+        },
+        {
+          "label": "Date",
+          "value": "date"
+        },
+        {
+          "label": "Datetime",
+          "value": "datetime"
+        },
+        {
+          "label": "Timestamp",
+          "value": "timestamp"
+        },
+        {
+          "label": "Array Double",
+          "value": "arraydouble"
+        },
+        {
+          "label": "Array String",
+          "value": "arraystring"
+        },
+        {
+          "label": "Text",
+          "value": "text"
+        }
+      ],
+      "qa": "policy-operator-output-type"
+    }
+  ]
+}

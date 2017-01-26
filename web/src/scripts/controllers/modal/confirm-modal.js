@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('ConfirmModalCtrl', ConfirmModalCtrl);
 
-  ConfirmModalCtrl.$inject = ['$modalInstance', 'title', 'message'];
+  ConfirmModalCtrl.$inject = ['$uibModalInstance', 'title', 'message'];
 
-  function ConfirmModalCtrl($modalInstance, title, message) {
+  function ConfirmModalCtrl($uibModalInstance, title, message) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -35,11 +35,11 @@
     ///////////////////////////////////////
 
     function ok() {
-      $modalInstance.close();
+      $uibModalInstance.close();
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 

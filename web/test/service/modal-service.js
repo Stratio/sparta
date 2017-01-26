@@ -3,9 +3,9 @@ describe('policies.service.model-service', function () {
 
   var service, ModalMock = null;
   beforeEach(module(function ($provide) {
-    ModalMock = jasmine.createSpyObj('$modal', ['open']);
+    ModalMock = jasmine.createSpyObj('$uibModal', ['open']);
 
-    $provide.value('$modal', ModalMock);
+    $provide.value('$uibModal', ModalMock);
   }));
 
   beforeEach(inject(function (_ModalService_) {

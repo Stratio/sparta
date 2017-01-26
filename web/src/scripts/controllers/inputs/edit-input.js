@@ -21,9 +21,9 @@
         .module('webApp')
         .controller('EditFragmentModalCtrl', EditFragmentModalCtrl);
 
-    EditFragmentModalCtrl.$inject = ['$modalInstance', 'item', 'FragmentFactory', '$filter', 'fragmentTemplates', 'policiesAffected'];
+    EditFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'FragmentFactory', '$filter', 'fragmentTemplates', 'policiesAffected'];
 
-    function EditFragmentModalCtrl($modalInstance, item, FragmentFactory, $filter, fragmentTemplates, policiesAffected) {
+    function EditFragmentModalCtrl($uibModalInstance, item, FragmentFactory, $filter, fragmentTemplates, policiesAffected) {
         /*jshint validthis: true*/
         var vm = this;
 
@@ -189,7 +189,7 @@
         callBackData.originalFragment = item.fragmentSelected;
         callBackData.editedFragment = result;
 
-        $modalInstance.close(callBackData);
+        $uibModalInstance.close(callBackData);
 
       }, function (error) {
         vm.error = true;
@@ -198,7 +198,7 @@
     }
 
     function cancel() {
-      $modalInstance.dismiss('cancel');
+      $uibModalInstance.dismiss('cancel');
     }
   }
 })();

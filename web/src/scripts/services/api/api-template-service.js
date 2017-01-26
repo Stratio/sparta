@@ -27,7 +27,9 @@
 
     vm.getFragmentTemplateByType = getFragmentTemplateByType;
     vm.getPolicyTemplate = getPolicyTemplate;
-
+    vm.getDimensionTemplateByType = getDimensionTemplateByType;
+    vm.getOperatorTemplateByType = getOperatorTemplateByType;
+    
     /////////////////////////////////
 
     function getFragmentTemplateByType() {
@@ -48,6 +50,26 @@
             timeout: apiConfigSettings.timeout
           }
         });
+    }
+
+    function getDimensionTemplateByType() {
+      return $resource('/data-templates/dimension/:type', {type: '@type'},
+          {
+            'get': {
+              method: 'GET',
+              timeout: apiConfigSettings.timeout
+            }
+          });
+    }
+    
+    function getOperatorTemplateByType() {
+      return $resource('/data-templates/operator/:type', {type: '@type'},
+          {
+            'get': {
+              method: 'GET',
+              timeout: apiConfigSettings.timeout
+            }
+          });
     }
   }
 })();

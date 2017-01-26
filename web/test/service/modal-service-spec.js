@@ -15,14 +15,14 @@
  */
 describe('modal-service', function () {
   beforeEach(module('webApp'));
-  var service, $modalMock, utilsServiceMock, resolvedModal = null;
+  var service, $uibModalMock, utilsServiceMock, resolvedModal = null;
   beforeEach(module(function ($provide) {
-    $modalMock = jasmine.createSpyObj('$modal', ['open']);
+    $uibModalMock = jasmine.createSpyObj('$uibModal', ['open']);
 
 
     utilsServiceMock = jasmine.createSpyObj('UtilsService', ['getInCamelCase']);
     // inject mocks
-    $provide.value('$modal', $modalMock);
+    $provide.value('$uibModal', $uibModalMock);
     $provide.value('UtilsService', utilsServiceMock);
   }));
 
@@ -33,7 +33,7 @@ describe('modal-service', function () {
 
       return {"result": defer.promise};
     };
-    $modalMock.open.and.callFake(resolvedModal);
+    $uibModalMock.open.and.callFake(resolvedModal);
     service = ModalService;
   }));
 
@@ -46,7 +46,7 @@ describe('modal-service', function () {
 
     beforeEach(function () {
       spyOn(service, "openModal");
-      $modalMock.open.calls.reset();
+      $uibModalMock.open.calls.reset();
     });
 
     it("if template is null or undefined, it does not open any modal", function () {
@@ -66,7 +66,7 @@ describe('modal-service', function () {
 
         var controller = fakeTemplate.modalType + "ModalCtrl as vm";
         var templateUrl = "templates/modal/" + fakeTemplate.modalType + "-modal.tpl.html";
-        var openModalArgs = $modalMock.open.calls.mostRecent().args[0];
+        var openModalArgs = $uibModalMock.open.calls.mostRecent().args[0];
 
         expect(openModalArgs.templateUrl).toEqual(templateUrl);
         expect(openModalArgs.controller).toEqual(controller);
@@ -82,12 +82,12 @@ describe('modal-service', function () {
     var fakeTitle = "fake title";
     var question = "fake question";
     var message = "fake message";
-    $modalMock.open.calls.reset();
+    $uibModalMock.open.calls.reset();
     service.showConfirmDialog(fakeTitle, question, message);
 
     var controller = "ConfirmModalCtrl as vm";
     var templateUrl = "templates/modal/confirm-modal.tpl.html";
-    var openModalArgs = $modalMock.open.calls.mostRecent().args[0];
+    var openModalArgs = $uibModalMock.open.calls.mostRecent().args[0];
 
     expect(openModalArgs.templateUrl).toEqual(templateUrl);
     expect(openModalArgs.controller).toEqual(controller);

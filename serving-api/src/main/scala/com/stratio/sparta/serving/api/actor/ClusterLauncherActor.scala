@@ -84,12 +84,11 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
 
       val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val master = clusterConfig.getString(Master).trim
-      val localPluginsFiles = pluginsSubmit(policy, DetailConfig, LocalPluginsLocation)
-      val allPluginsFiles = pluginsSubmit(policy, DetailConfig, ProvidedPluginsLocation)
+      val pluginsFiles = pluginsSubmit(policy)
       val driverParams = Seq(policy.id.get.trim,
         zkConfigEncoded,
         detailConfigEncoded,
-        pluginsEncoded(localPluginsFiles),
+        pluginsEncoded(pluginsFiles),
         driverLocationConfigEncoded(driverLocation, driverLocationConfig))
       val sparkArguments = submitArgsFromProps(clusterConfig) ++ submitArgsFromPolicy(policy.sparkSubmitArguments)
 
@@ -100,9 +99,9 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
         s"Master: $master\n\t" +
         s"Spark arguments: ${sparkArguments.mkString(",")}\n\t" +
         s"Driver params: $driverParams\n\t" +
-        s"Plugins files: ${allPluginsFiles.mkString(",")}")
+        s"Plugins files: ${pluginsFiles.mkString(",")}")
 
-      (launch(policy, SpartaDriverClass, driverPath, master, sparkArguments, driverParams, allPluginsFiles,
+      (launch(policy, SpartaDriverClass, driverPath, master, sparkArguments, driverParams, pluginsFiles,
         clusterConfig), clusterConfig)
     } match {
       case Failure(exception) =>

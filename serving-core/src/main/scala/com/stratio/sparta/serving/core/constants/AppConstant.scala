@@ -60,9 +60,6 @@ object AppConstant {
   val DriverURI = "driverURI"
   val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
   val DefaultDriverLocation = "provided"
-  val PluginsLocation = "pluginsLocation"
-  val ProvidedPluginsLocation = "provided"
-  val LocalPluginsLocation = "local"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
 

@@ -40,31 +40,10 @@
       "qa": "policy-driver-location"
     },
     {
-      "propertyId": "pluginsLocation",
-      "propertyName": "_PLUGINS_LOCATION_",
-      "width": 6,
-      "position": "right",
-      "required": false,
-      "propertyType": "select",
-      "regexp": "provided|local",
-      "values": [
-        {
-          "label": "Provided",
-          "value": "provided"
-        },
-        {
-          "label": "Local",
-          "value": "local"
-        }
-      ],
-      "tooltip": "Sparta plugins locations, when is provided is necessary specify the artifactory or the http URIs. If nothing is selected Sparta will use the values in the configuration file.",
-      "qa": "policy-plugins-location"
-    },
-    {
       "propertyId": "driverUri",
       "propertyName": "_DRIVER_URI_",
-      "width": 12,
-      "position": "left",
+      "width": 6,
+      "position": "right",
       "propertyType": "text",
       "required": false,
       "tooltip": "When the driver location is provided, in this uri is allocated the driver jar file",
@@ -443,11 +422,11 @@
         "name": "Filter"
       },
       {
-        "iconName": "type",
+        "iconName": "json",
         "name": "Json"
       },
       {
-        "iconName": "code",
+        "iconName": "xml",
         "name": "Xml"
       },
       {
