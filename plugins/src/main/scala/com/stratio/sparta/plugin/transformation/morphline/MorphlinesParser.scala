@@ -27,6 +27,7 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.kitesdk.morphline.api.Record
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 class MorphlinesParser(order: Integer,
                        inputField: Option[String],
@@ -39,21 +40,23 @@ class MorphlinesParser(order: Integer,
 
   private val config: String = properties.getString("morphline")
 
-  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
+  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
-    val result = inputValue match {
-      case Some(s: String) =>
-        if (s.isEmpty) returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
-        else parseWithMorphline(new ByteArrayInputStream(s.getBytes("UTF-8")))
-      case Some(b: Array[Byte]) =>
-        if (b.length == 0)  returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
-        else parseWithMorphline(new ByteArrayInputStream(b))
-      case _ =>
-        returnNullValue(new IllegalStateException(s"Impossible to parse because value is empty"))
+    val newData = Try {
+      inputValue match {
+        case Some(s: String) =>
+          if (s.isEmpty) returnWhenError(new IllegalStateException(s"Impossible to parse because value is empty"))
+          else parseWithMorphline(new ByteArrayInputStream(s.getBytes("UTF-8")))
+        case Some(b: Array[Byte]) =>
+          if (b.length == 0)  returnWhenError(new IllegalStateException(s"Impossible to parse because value is empty"))
+          else parseWithMorphline(new ByteArrayInputStream(b))
+        case _ =>
+          returnWhenError(new IllegalStateException(s"Impossible to parse because value is empty"))
+      }
     }
     val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
 
-    Option(Row.merge(prevData, result))
+    returnData(newData, prevData)
   }
 
   private def parseWithMorphline(value: ByteArrayInputStream): Row = {

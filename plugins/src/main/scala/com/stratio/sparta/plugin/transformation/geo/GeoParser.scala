@@ -19,11 +19,11 @@ package com.stratio.sparta.plugin.transformation.geo
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.sdk.pipeline.transformation.{Parser, WhenError}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class GeoParser(
                  order: Integer,
@@ -40,23 +40,23 @@ class GeoParser(
   val latitudeField = properties.getOrElse("latitude", defaultLatitudeField).toString
   val longitudeField = properties.getOrElse("longitude", defaultLongitudeField).toString
 
-  def parse(row: Row, removeRaw: Boolean): Option[Row] = {
-
-    val geoValue = geoField(getLatitude(row), getLongitude(row))
-    val newData = {
+  def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
+    val newData = Try {
+      val geoValue = geoField(getLatitude(row), getLongitude(row))
       outputFields.map(outputField => {
         val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
         outputSchemaValid match {
           case Some(outSchema) =>
             TypeOp.transformValueByTypeOp(outSchema.dataType, geoValue)
           case None =>
-            throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")
+            returnWhenError(
+              throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema"))
         }
       })
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Option(Row.fromSeq(prevData ++ newData))
+    returnData(newData, prevData)
   }
 
   private def getLatitude(row: Row): String = {

@@ -194,12 +194,12 @@ object SpartaJob extends PolicyUtils {
     else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
   }
 
-  def executeParsers(row: Row, parsers: Seq[Parser]): Option[Row] = {
+  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
     if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
     else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
   }
 
-  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Option[Row] =
+  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Seq[Row] =
     Try {
       parser.parse(row, removeRaw)
     } match {
@@ -209,7 +209,7 @@ object SpartaJob extends PolicyUtils {
         val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
           s" | Parser: ${parser.getClass.getSimpleName}"
         log.error(error, exception)
-        None
+        Seq.empty[Row]
     }
 
   def getOutputs(policy: PolicyModel,

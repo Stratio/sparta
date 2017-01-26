@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.transformation
 
 import java.io.{Serializable => JSerializable}
@@ -23,7 +24,7 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StructField, StructType}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 abstract class Parser(order: Integer,
                       inputField: Option[String],
@@ -39,9 +40,10 @@ abstract class Parser(order: Integer,
     case None => 0
   }
 
-  val errorWithNullInputs = Try(properties.getBoolean("errorWithNullValues")).getOrElse(true)
+  val whenErrorDo = Try(WhenError.withName(properties.getString("whenError")))
+    .getOrElse(WhenError.Error)
 
-  def parse(data: Row, removeRaw: Boolean): Option[Row]
+  def parse(data: Row, removeRaw: Boolean): Seq[Row]
 
   def getOrder: Integer = order
 
@@ -51,14 +53,34 @@ abstract class Parser(order: Integer,
   def compare(that: Parser): Int = this.getOrder.compareTo(that.getOrder)
 
   //scalastyle:off
-  def returnNullValue(exception: Exception): Null =
-    if (errorWithNullInputs) throw exception
-    else null
+  def returnWhenError(exception: Exception): Null =
+    whenErrorDo match {
+      case WhenError.Null => null
+      case _ => throw exception
+    }
+
+  //scalastyle:on
 
   def parseToOutputType(outSchema: StructField, inputValue: Any): Any =
     TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
 
-  //scalastyle:on
+  def returnData(newData: Try[Seq[_]], prevData: Seq[_]): Seq[Row] =
+    newData match {
+      case Success(data) => Seq(Row.fromSeq(prevData ++ data))
+      case Failure(e) => whenErrorDo match {
+        case WhenError.Discard => Seq.empty[Row]
+        case _ => throw e
+      }
+    }
+
+  def returnData(newData: Try[Row], prevData: Row): Seq[Row] =
+    newData match {
+      case Success(data) => Seq(Row.merge(prevData, data))
+      case Failure(e) => whenErrorDo match {
+        case WhenError.Discard => Seq.empty[Row]
+        case _ => throw e
+      }
+    }
 }
 
 object Parser {

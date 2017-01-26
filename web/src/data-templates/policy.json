@@ -496,17 +496,59 @@
       "label": "_attachment_body",
       "value": "_attachment_body"
     },
+    "Ingestion": {
+      "properties": [
+        {
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
+          "position": "left",
+          "width": 6,
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-ingestion-whenError"
+        }
+      ]
+    },
     "Json": {
       "properties": [
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
           "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-transformation-json-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-json-whenError"
         }
       ],
       "defaultConfiguration": {
@@ -525,14 +567,28 @@
     "Csv": {
       "properties": [
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
-          "position": "right",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
+          "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-transformation-csv-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-csv-whenError"
         },
         {
           "propertyId": "delimiter",
@@ -559,14 +615,28 @@
     "Filter": {
       "properties": [
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
           "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-transformation-filter-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-filter-whenError"
         }
       ],
       "defaultConfiguration": {
@@ -588,14 +658,28 @@
     "Xml": {
       "properties": [
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
           "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-transformation-xml-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-xml-whenError"
         }
       ],
       "defaultConfiguration": {
@@ -614,14 +698,28 @@
     "Morphlines": {
       "properties": [
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
           "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-cube-dimension-dateTime-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-morphline-whenError"
         }
       ],
       "defaultConfiguration": {
@@ -850,18 +948,58 @@
           ]
         },
         {
-          "propertyId": "errorWithNullValues",
-          "propertyName": "_ERROR_WITH_NULL_VALUES_",
-          "propertyType": "boolean",
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
           "position": "left",
           "width": 6,
-          "default": true,
-          "required": false,
-          "qa": "policy-cube-dimension-dateTime-errorWithNullValues"
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-datetime-whenError"
         }
       ]
     },
     "Geo": {
+      "properties": [
+        {
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Error",
+              "value": "Error"
+            },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
+          "position": "left",
+          "width": 6,
+          "default": "Error",
+          "required": true,
+          "qa": "policy-transformation-geo-whenError"
+        }
+      ],
       "defaultConfiguration": {
         "latitude": "lat",
         "longitude": "long"
