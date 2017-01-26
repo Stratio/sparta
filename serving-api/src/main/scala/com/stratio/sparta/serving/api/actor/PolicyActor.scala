@@ -20,6 +20,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
@@ -31,8 +32,8 @@ import org.apache.zookeeper.KeeperException.NoNodeException
 import scala.util.Try
 
 /**
- * Implementation of supported CRUD operations over ZK needed to manage policies.
- */
+  * Implementation of supported CRUD operations over ZK needed to manage policies.
+  */
 class PolicyActor(curatorFramework: CuratorFramework,
                   policyStatusActor: ActorRef,
                   fragmentActorRef: ActorRef) extends Actor with PolicyUtils with CheckpointUtils{
@@ -55,6 +56,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
     case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
     case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
     case ResponseFragment(fragment) => loggingResponseFragment(fragment)
+    case Error(id) => error(id)
     case _ => log.info("Unrecognized message in Policy Actor")
   }
 
@@ -113,7 +115,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
       })
 
   def find(id: String): Unit =
-    sender ! new ResponsePolicy(Try {
+    sender ! ResponsePolicy(Try {
       policyWithFragments(byId(id, curatorFramework), withFragmentCreation = false)
     }.recover {
       case e: NoNodeException =>
@@ -127,11 +129,8 @@ class PolicyActor(curatorFramework: CuratorFramework,
       existsByNameId(name, None, curatorFramework).map(policy =>
         policyWithFragments(policy, withFragmentCreation = false))
         .getOrElse(throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
+          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
     })
-
-  def associateStatus(model: PolicyModel): Unit =
-    policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
 
   def create(policy: PolicyModel): Unit =
     sender ! ResponsePolicy(Try {
@@ -146,6 +145,9 @@ class PolicyActor(curatorFramework: CuratorFramework,
       associateStatus(policySaved)
       policySaved
     })
+
+  def associateStatus(model: PolicyModel): Unit =
+    policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
 
   def update(policy: PolicyModel): Unit = {
     val response = ResponsePolicy(Try {
@@ -183,6 +185,12 @@ class PolicyActor(curatorFramework: CuratorFramework,
 
   def deleteCheckpoint(policy: PolicyModel): Unit =
     sender ! Response(Try(deleteCheckpointPath(policy)))
+
+  def error(id: String): Unit = {
+    sender ! Try[PolicyErrorModel] {
+      ErrorDAO.getInstance.dao.get(id).getOrElse(throw new NoSuchElementException(s"No error data found for $id"))
+    }
+  }
 }
 
 object PolicyActor extends SLF4JLogging {
@@ -214,5 +222,7 @@ object PolicyActor extends SLF4JLogging {
   case class ResponsePolicies(policies: Try[Seq[PolicyModel]])
 
   case class ResponsePolicy(policy: Try[PolicyModel])
+
+  case class Error(id: String)
 
 }

@@ -24,6 +24,15 @@ hose {
     ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
 
 
+    ITSERVICES = [
+            ['RABBITMQ': [
+               'image': 'rabbitmq:3-management'
+            ]],
+          ]
+
+    ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
+
+
     DEV = { config ->
     
         doCompile(config)

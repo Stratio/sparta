@@ -19,38 +19,33 @@ package com.stratio.sparta.serving.api.service.http
 import java.io.File
 import javax.ws.rs.Path
 
-import akka.actor.ActorRef
-
-import scala.concurrent.Await
-import scala.util.{Failure, Success, Try}
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.PolicyActor._
+import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, PolicyValidator, PolicyWithStatus}
+import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
 import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
-import com.stratio.sparta.serving.api.actor.PolicyActor._
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, PolicyValidator, PolicyWithStatus}
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
-  case class Result(message: String, desc: Option[String] = None)
-
   override def routes: Route =
     find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~
-      removeAll ~ deleteCheckpoint
+      removeAll ~ deleteCheckpoint ~ error
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -72,7 +67,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "find" / Segment) { (id) =>
       get {
         complete {
-          val future = supervisor ? new Find(id)
+          val future = supervisor ? Find(id)
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
@@ -103,7 +98,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
       get {
         complete {
-          val future = supervisor ? new FindByName(name)
+          val future = supervisor ? FindByName(name)
           Await.result(future, timeout.duration) match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
@@ -139,7 +134,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
-          val future = supervisor ? new FindByFragment(fragmentType, id)
+          val future = supervisor ? FindByFragment(fragmentType, id)
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) => withStatus(policies)
@@ -162,7 +157,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "all") {
       get {
         complete {
-          val future = supervisor ? new FindAll()
+          val future = supervisor ? FindAll()
           Await.result(future, timeout.duration) match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) => withStatus(policies)
@@ -188,10 +183,10 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       post {
         entity(as[PolicyModel]) { policy =>
           PolicyValidator.validateDto(
-            getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+            getPolicyWithFragments(policy, actors(AkkaConstant.FragmentActor))
           )
           complete {
-            val future = supervisor ? new Create(policy)
+            val future = supervisor ? Create(policy)
             Await.result(future, timeout.duration) match {
               case ResponsePolicy(Failure(exception)) =>
                 throw exception
@@ -218,11 +213,10 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       put {
         entity(as[PolicyModel]) { policy =>
           PolicyValidator.validateDto(
-            getPolicyWithFragments(policy, actors.get(AkkaConstant.FragmentActor).get)
+            getPolicyWithFragments(policy, actors(AkkaConstant.FragmentActor))
           )
           complete {
-            val future = supervisor ? new Update(policy)
-            Await.result(future, timeout.duration) match {
+            for (result <- supervisor ? Update(policy)) yield result match {
               case ResponsePolicy(Failure(exception)) => throw exception
               case ResponsePolicy(Success(policy)) => HttpResponse(StatusCodes.OK)
             }
@@ -231,7 +225,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       }
     }
   }
-
 
   @ApiOperation(value = "Deletes all policies.",
     notes = "Deletes all policies.",
@@ -244,7 +237,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       delete {
         complete {
-          val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+          val policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
           for {
             policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
           } yield policies match {
@@ -283,7 +276,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           for {
             Response(Success(_)) <- (supervisor ? Delete(id)).mapTo[Response]
-            policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+            policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
             deleteContextResponse <- (policyStatusActor ? PolicyStatusActor.Delete(id))
               .mapTo[PolicyStatusActor.ResponseDelete]
           } yield deleteContextResponse match {
@@ -315,15 +308,14 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "checkpoint" / Segment) { (name) =>
       delete {
         complete {
-          val future = supervisor ? new FindByName(name)
-          Await.result(future, timeout.duration) match {
+          for (result <- supervisor ? FindByName(name)) yield result match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
               PolicyValidator.validateDto(policy)
               val response = (supervisor ? DeleteCheckpoint(policy)).mapTo[Response]
               Await.result(response, timeout.duration) match {
                 case Response(Failure(ex)) => throw ex
-                case Response(Success(_)) => new Result("Checkpoint deleted from policy: " + policy.name)
+                case Response(Success(_)) => Result("Checkpoint deleted from policy: " + policy.name)
               }
           }
         }
@@ -351,16 +343,15 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
         complete {
-          val future = supervisor ? new Find(id)
-          Await.result(future, timeout.duration) match {
+          for (result <- supervisor ? Find(id)) yield result match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
               PolicyValidator.validateDto(policy)
-              val response = actors.get(AkkaConstant.SparkStreamingContextActor).get ?
+              val response = actors(AkkaConstant.SparkStreamingContextActor) ?
                 SparkStreamingContextActor.Create(policy)
               Await.result(response, timeout.duration) match {
                 case Failure(ex) => throw ex
-                case Success(_) => new Result("Creating new context with name " + policy.name)
+                case Success(_) => Result("Creating new context with name " + policy.name)
               }
           }
         }
@@ -387,7 +378,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   def download: Route = {
     path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
       get {
-        val future = supervisor ? new Find(id)
+        val future = supervisor ? Find(id)
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) =>
             throw exception
@@ -406,18 +397,54 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     }
   }
 
-  // XXX Protected methods
+  @Path("/error/{id}")
+  @ApiOperation(value = "Get the error from id.",
+    notes = "Get the last error from the policy.",
+    httpMethod = "GET",
+    response = classOf[PolicyErrorModel])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the policy",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def error: Route = {
+
+    def handleResponse(error: Try[PolicyErrorModel]) = error match {
+      case Success(result) => StatusCodes.OK -> result
+      case Failure(e: NoSuchElementException) =>
+        StatusCodes.BadRequest -> new ErrorModel(ErrorModel.ErrorForPolicyNotFound, e.getLocalizedMessage)
+      case Failure(exception) => throw exception
+    }
+
+    path(HttpConstant.PolicyPath / "error" / Segment) { id =>
+      get {
+        complete {
+          for {
+            error <- (supervisor ? Error(id)).mapTo[Try[PolicyErrorModel]]
+          } yield handleResponse(error)
+        }
+      }
+    }
+  }
 
   protected def withStatus(policies: Seq[PolicyModel]): ToResponseMarshallable = {
 
     if (policies.nonEmpty) {
-      val policyStatusActor = actors.get(AkkaConstant.PolicyStatusActor).get
+      val policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
       for {
         response <- (policyStatusActor ? PolicyStatusActor.FindAll)
           .mapTo[PolicyStatusActor.Response]
       } yield policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get.policiesStatus))
     } else Seq()
   }
+
+  // XXX Protected methods
 
   protected def getPolicyWithStatus(policy: PolicyModel, statuses: Seq[PolicyStatusModel])
   : PolicyWithStatus = {
@@ -427,4 +454,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     }
     PolicyWithStatus(status, policy)
   }
+
+  case class Result(message: String, desc: Option[String] = None)
 }
