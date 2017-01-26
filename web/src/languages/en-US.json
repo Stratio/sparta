@@ -254,6 +254,7 @@
   "_GRANULARITY_": "Granularity",
   "_EXECUTION_MODE_": "Execution Mode",
   "_ERROR_WITH_NULL_VALUES_": "Error with null values",
+  "_CSV_DELIMITER_": "Delimiter character",
   "SELECT_PLACEHOLDER": "Select one",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to submit the form.",
   "_ERROR_ELEMENT_DUPLICATED_": "Item already exists!",

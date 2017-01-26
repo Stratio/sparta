@@ -549,11 +549,21 @@
           "propertyId": "errorWithNullValues",
           "propertyName": "_ERROR_WITH_NULL_VALUES_",
           "propertyType": "boolean",
-          "position": "left",
+          "position": "right",
           "width": 6,
           "default": true,
           "required": false,
           "qa": "policy-transformation-csv-errorWithNullValues"
+        },
+        {
+          "propertyId": "delimiter",
+          "propertyName": "_CSV_DELIMITER_",
+          "propertyType": "text",
+          "position": "left",
+          "width": 6,
+          "default": ",",
+          "required": false,
+          "qa": "policy-transformation-csv-delimiter"
         }
       ],
       "defaultConfiguration": {

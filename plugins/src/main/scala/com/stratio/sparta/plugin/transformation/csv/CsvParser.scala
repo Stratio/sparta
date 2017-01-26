@@ -34,7 +34,7 @@ class CsvParser(order: Integer,
   extends Parser(order, inputField, outputFields, schema, properties) {
 
   val fieldsModel = properties.getPropertiesFields("fields")
-  val fieldsSeparator = Try(properties.getString("separator")).getOrElse(",")
+  val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
 
   //scalastyle:off
   override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
