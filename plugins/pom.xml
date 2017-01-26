@@ -16,8 +16,8 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>parent</artifactId>
@@ -254,18 +254,6 @@
             <groupId>com.nrinaudo</groupId>
             <artifactId>kantan.xpath_${scala.binary.version}</artifactId>
             <version>${xpath.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.sstone</groupId>
-            <artifactId>amqp-client_${scala.binary.version}</artifactId>
-            <version>1.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_${scala.binary.version}</artifactId>
-            <version>2.3.11</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.github.sstone</groupId>
