@@ -67,8 +67,6 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
       val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
         AkkaConstant.PolicyStatusActor)
 
-      Try(ErrorDAO().dao.delete(policy.id.get))
-
       Try {
         policyStatusActor ! Update(PolicyStatusModel(policyId, PolicyStatusEnum.Starting))
         val streamingContextService = new StreamingContextService(Some(policyStatusActor))

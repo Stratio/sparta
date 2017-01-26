@@ -199,7 +199,6 @@ object SpartaJob extends PolicyUtils {
     else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
   }
 
-  //TODO: Check if we need to wrap this also
   def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Option[Row] =
     Try {
       parser.parse(row, removeRaw)
