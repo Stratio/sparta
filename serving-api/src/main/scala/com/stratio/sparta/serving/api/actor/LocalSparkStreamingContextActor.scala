@@ -50,8 +50,6 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
       policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting, None, None,
         Some(startingInformation)))
 
-      Try(ErrorDAO().dao.delete(policy.id.get))
-
       ssc = Option(streamingContextService.standAloneStreamingContext(policy, jars))
       ssc.get.start()
 

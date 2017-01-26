@@ -15,17 +15,23 @@
  */
 package com.stratio.sparta.serving.core.dao
 
-import com.typesafe.config.Config
 import com.stratio.common.utils.components.config.impl.TypesafeConfigComponent
 import com.stratio.common.utils.components.dao.GenericDAOComponent
 import com.stratio.common.utils.components.logger.impl.Slf4jLoggerComponent
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.{PolicyErrorModel, SpartaSerializer}
+import com.typesafe.config.Config
 
-class ErrorDAO(conf: Config) extends GenericDAOComponent[String] with TypesafeConfigComponent with
-  Slf4jLoggerComponent {
+class ErrorDAO(conf: Config) extends GenericDAOComponent[PolicyErrorModel] with TypesafeConfigComponent with
+  Slf4jLoggerComponent with SpartaSerializer {
+
+
+  override val formats = json4sJacksonFormats
 
   override val config = new TypesafeConfig(Option(conf))
   override val dao: DAO = new GenericDAO(Option(AppConstant.ErrorsZkPath))
+
+  def upsert(error: PolicyErrorModel): PolicyErrorModel = dao.upsert(error.policyId, error)
 
 }
 
@@ -33,12 +39,12 @@ object ErrorDAO {
 
   private var instance: Option[ErrorDAO] = None
 
+  def apply(): ErrorDAO = getInstance
+
   def getInstance: ErrorDAO = {
     require(instance.isDefined, "The instance was not created. You need to specify ZookeeperConfig")
     instance.get
   }
-
-  def apply(): ErrorDAO = getInstance
 
   def apply(conf: Config): ErrorDAO = {
     instance = Some(new ErrorDAO(conf))

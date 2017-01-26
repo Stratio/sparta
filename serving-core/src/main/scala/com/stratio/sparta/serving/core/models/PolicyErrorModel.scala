@@ -15,22 +15,19 @@
  */
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.{DefaultFormats, Formats}
-
-/**
- * Extends this class if you need serialize / unserialize Sparta's enums in any class / object.
- */
-trait SpartaSerializer {
-
-  implicit val json4sJacksonFormats: Formats =
-    DefaultFormats +
-      new JsoneyStringSerializer() +
-      new EnumNameSerializer(PolicyStatusEnum) +
-      new EnumNameSerializer(SaveModeEnum) +
-      new EnumNameSerializer(PhaseEnum)
-
+object PhaseEnum extends Enumeration {
+  val Input = Value("Input")
+  val InputStream = Value("InputStream")
+  val Parser = Value("Parser")
+  val Operator = Value("Operator")
+  val Cube = Value("Cube")
+  val Output = Value("Output")
+  val Trigger = Value("Trigger")
 }
+
+case class PolicyErrorModel(
+                             policyId: String,
+                             message: String,
+                             phase: PhaseEnum.Value,
+                             originalMsg: String
+                           )

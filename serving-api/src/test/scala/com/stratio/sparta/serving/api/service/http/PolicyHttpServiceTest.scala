@@ -21,8 +21,8 @@ import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
+import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyWithStatus}
@@ -37,9 +37,10 @@ import scala.util.{Failure, Success}
 class PolicyHttpServiceTest extends WordSpec
 with PolicyHttpService
 with HttpServiceBaseTest {
-
+  override val supervisor: ActorRef = testProbe.ref
   val sparkStreamingTestProbe = TestProbe()
   val fragmentActorTestProbe = TestProbe()
+
   val policyStatusActorTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
@@ -47,8 +48,6 @@ with HttpServiceBaseTest {
     AkkaConstant.FragmentActor -> fragmentActorTestProbe.ref,
     AkkaConstant.PolicyStatusActor -> policyStatusActorTestProbe.ref
   )
-
-  override val supervisor: ActorRef = testProbe.ref
 
   "PolicyHttpService.find" should {
     /*"find a policy from its id" in {
@@ -160,14 +159,14 @@ with HttpServiceBaseTest {
   "PolicyHttpService.create" should {
     "return the policy that was created" in {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
         testProbe.expectMsgType[Create]
         responseAs[PolicyModel] should equal(getPolicyModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
         testProbe.expectMsgType[Create]
         status should be(StatusCodes.InternalServerError)
       }
@@ -177,14 +176,14 @@ with HttpServiceBaseTest {
   "PolicyHttpService.update" should {
     "return an OK because the policy was updated" in {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
       }
@@ -278,6 +277,38 @@ with HttpServiceBaseTest {
       Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "PolicyHttpService.error" should {
+    "return an OK and the error " in {
+      val result = PolicyErrorModel(
+        policyId = "id",
+        message = "message",
+        phase = PhaseEnum.Cube,
+        originalMsg = "originalMsg"
+      )
+      startAutopilot(Success(result))
+      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
+        testProbe.expectMsgType[Error]
+        status should be(StatusCodes.OK)
+        responseAs[PolicyErrorModel] should equal(result)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Failure(new MockException()))
+      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
+        testProbe.expectMsgType[Error]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+    "return a 400 if there is no data in ZK" in {
+      startAutopilot(Failure(new NoSuchElementException("the msg")))
+      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
+        testProbe.expectMsgType[Error]
+        status should be(StatusCodes.BadRequest)
+        responseAs[ErrorModel] should equal(ErrorModel(ErrorModel.ErrorForPolicyNotFound, "the msg"))
       }
     }
   }

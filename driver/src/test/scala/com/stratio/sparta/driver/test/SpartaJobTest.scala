@@ -17,14 +17,15 @@ package com.stratio.sparta.driver.test
 
 import com.stratio.sparta.driver.SpartaJob
 import com.stratio.sparta.driver.utils.ReflectionUtils
-import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
+import org.mockito.Matchers.{any, eq => mockEq}
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -49,9 +50,7 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val reflecMoc = mock[ReflectionUtils]
     when(reflecMoc.getClasspathMap).thenReturn(Map("TestOutput" -> "TestOutput"))
     val result = Try(SpartaJob.getSparkConfigs(aggModel, method, suffix, Some(reflecMoc))) match {
-      case Failure(ex) => {
-        ex
-      }
+      case Failure(ex) => ex
     }
     result.isInstanceOf[ClassNotFoundException] should be(true)
   }
@@ -61,7 +60,7 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val parser: Parser = mock[Parser]
     val event: Row = mock[Row]
     val parsedEvent = mock[Option[Row]]
-    when(parser.parse(event, false)).thenReturn(parsedEvent)
+    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
 
     val result = SpartaJob.parseEvent(event, parser)
     result should be(parsedEvent)
@@ -69,7 +68,7 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   it should "return none if a parse Event fails" in {
     val parser: Parser = mock[Parser]
     val event: Row = mock[Row]
-    when(parser.parse(event, false)).thenThrow(new RuntimeException("testEx"))
+    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
 
     val result = SpartaJob.parseEvent(event, parser)
     result should be(None)
@@ -86,14 +85,9 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(myInput.get.`type`).thenReturn("Input")
     when(myInput.get.configuration).thenReturn(Map("" -> JsoneyString("")))
     when(myInputClass.setUp(ssc, aggModel.storageLevel.get)).thenReturn(mock[DStream[Row]])
-    when(reflection.tryToInstantiate[Input]("InputInput",
-      (c) => reflection.instantiateParameterizable[Input]
-        (c, Map("" -> JsoneyString(""))))).thenReturn(myInputClass)
+    when(reflection.tryToInstantiate[Input](mockEq("InputInput"), any())).thenReturn(myInputClass)
 
-
-    val result = Try(SpartaJob.getInput(aggModel, ssc, reflection)) match {
-      case Failure(ex) => ex
-    }
-    result.isInstanceOf[NullPointerException] should be(true)
+    val result = SpartaJob.getInput(aggModel, ssc, reflection)
+    result should be(myInputClass)
   }
 }
