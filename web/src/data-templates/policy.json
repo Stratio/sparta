@@ -422,11 +422,11 @@
         "name": "Filter"
       },
       {
-        "iconName": "type",
+        "iconName": "json",
         "name": "Json"
       },
       {
-        "iconName": "code",
+        "iconName": "xml",
         "name": "Xml"
       },
       {
