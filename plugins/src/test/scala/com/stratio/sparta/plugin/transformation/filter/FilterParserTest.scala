@@ -60,7 +60,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Option(Row.fromSeq(whiteValues))
+      val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
     }
@@ -85,7 +85,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, true)
-      val expected = Option(Row.fromSeq(Seq(5.0)))
+      val expected = Seq(Row.fromSeq(Seq(5.0)))
 
       assertResult(result)(expected)
     }
@@ -110,7 +110,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Option(Row.fromSeq(whiteValues))
+      val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
     }
@@ -135,7 +135,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Option(Row.fromSeq(whiteValues))
+      val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
     }
@@ -160,7 +160,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = None
+      val expected = Seq.empty
 
       assertResult(result)(expected)
     }
@@ -190,7 +190,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = None
+      val expected = Seq.empty
 
       assertResult(result)(expected)
     }
@@ -220,7 +220,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Option(Row.fromSeq(whiteValues))
+      val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
     }

@@ -57,7 +57,7 @@ class CsvParserTest extends WordSpecLike with Matchers {
         schema,
         Map("fields" -> fields.asInstanceOf[JSerializable])
       ).parse(input, false)
-      val expected = Option(Row(CSV, "red", 19.95))
+      val expected = Seq(Row(CSV, "red", 19.95))
 
       assertResult(result)(expected)
     }
@@ -81,7 +81,7 @@ class CsvParserTest extends WordSpecLike with Matchers {
         schema,
         Map("fields" -> fields.asInstanceOf[JSerializable])
       ).parse(input, true)
-      val expected = Option(Row("red", 19.95))
+      val expected = Seq(Row("red", 19.95))
 
       assertResult(result)(expected)
     }

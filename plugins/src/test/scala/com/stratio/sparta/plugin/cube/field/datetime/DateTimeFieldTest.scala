@@ -27,8 +27,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 @RunWith(classOf[JUnitRunner])
 class DateTimeFieldTest extends WordSpecLike with Matchers {
 
-  val dateTimeDimension: DateTimeField =
-    new DateTimeField(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
+  val dateTimeDimension = new DateTimeField(Map("second" -> "long", "minute" -> "date", "typeOp" -> "datetime"))
 
   "A DateTimeDimension" should {
     "In default implementation, get 6 dimensions for a specific time" in {

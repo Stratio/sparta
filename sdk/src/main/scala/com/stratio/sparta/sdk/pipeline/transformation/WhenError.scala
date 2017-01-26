@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.transformation
 
-import java.io.{Serializable => JSerializable}
+object WhenError extends Enumeration {
 
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
+  type WhenError = Value
+  val Error, Discard, Null = Value
 
-class ParserMock(order: Integer,
-                 inputField: Option[String],
-                 outputFields: Seq[String],
-                 schema: StructType,
-                 properties: Map[String, JSerializable])
-  extends Parser(order, inputField, outputFields, schema, properties) {
-
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = Seq(row)
 }
