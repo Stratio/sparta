@@ -2,15 +2,14 @@
   <form class="c-form c-panel c-panel--framed" novalidate>
     <ng-include src="'views/policy-wizard/trigger-accordion.html'">
     </ng-include>
-    <!--<div class="c-row">-->
-      <!--<div class="c-col c-col&#45;&#45;12 c-col&#45;&#45;to-right">-->
-        <!--<button class="c-button c-button&#45;&#45;call-to-action-7 c-button&#45;&#45;to-right" ng-if="!vm.isActiveTriggerCreationPanel()"-->
-                <!--data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">-->
-          <!--<i class="icon icon-circle-plus"></i>-->
-          <!--<span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>-->
-        <!--</button>-->
-      <!--</div>-->
-    <!--</div>-->
   </form>
-
+  <footer class="c-row c-row--footer">
+    <div class="c-col c-col--12 c-col--to-right">
+      <button class="c-button c-button--call-to-action-7" ng-if="!vm.isActiveTriggerCreationPanel()"
+              data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">
+        <i class="icon icon-circle-plus"></i>
+        <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
+      </button>
+    </div>
+  </footer>
 </section>

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   angular
-    .module('webApp')
-    .service('WizardStatusService', WizardStatusService);
+      .module('webApp')
+      .service('WizardStatusService', WizardStatusService);
 
   WizardStatusService.$inject = [];
 
@@ -33,8 +33,6 @@
     vm.nextStep = nextStep;
     vm.enableNextStep = enableNextStep;
     vm.disableNextStep = disableNextStep;
-    vm.getStepNameByIndex = getStepNameByIndex;
-
     init();
 
     function init() {
@@ -42,7 +40,7 @@
       status.currentStep = -1;
     }
 
-    function reset(){
+    function reset() {
       init();
     }
 
@@ -58,24 +56,13 @@
       status.currentStep++;
     }
 
-    function enableNextStep(){
+    function enableNextStep() {
       status.nextStepAvailable = true;
     }
 
-    function disableNextStep(){
+    function disableNextStep() {
       status.nextStepAvailable = false;
     }
-
-    // function getStepNameByIndex(steps, index){
-    //   i = 0;
-    //   var step = '';
-    //   while (i <= index){
-    //    step = steps[i];
-    //     if (step.subSteps){
-    //       i = getStepNameByIndex();
-    //     }
-    //   }
-    // }
 
   }
 })();

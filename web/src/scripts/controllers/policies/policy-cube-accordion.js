@@ -64,8 +64,8 @@
     $scope.$watchCollection(
       "vm.cubeCreationStatus",
       function (cubeCreationStatus) {
-        if (!cubeCreationStatus.enabled) {
-          WizardStatusService.enableNextStep();
+          if (!cubeCreationStatus.enabled && vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0) {
+            WizardStatusService.enableNextStep();
         } else {
           WizardStatusService.disableNextStep();
         }

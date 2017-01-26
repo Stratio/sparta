@@ -412,10 +412,12 @@
   },
   "_MESSAGE_": {
     "_TRANSFORMATION_STEP_": "You have to create, at least, one transformation",
-    "_TRANSFORMATION_STEP_AVAILABLE_": "Go to TRANSFORMATION. you have to create, at least, one model to be able to configure a cube in the next step",
-    "_CUBE_STEP_": "You have to add a cube to the policy and configure, at least, one dimension and one operator with the output fields configured in the model.",
+     "_TRIGGER_STEP_": "You can add triggers to policy",
+    "_CUBE_STEP_": "You can add a cube to the policy and configure, at least, one dimension and one operator with the output fields configured in the model.",
     "_INPUT_STEP_": "You have to select an input from your list to continue configuring the policy. You only can add one input to policy",
-    "_CUBE_STEP_AVAILABLE_": "Go to CUBES. You have to create, at least, one cube",
-    "_FINISH_STEP_AVAILABLE_": "Now, you can finish the policy"
+    "_CUBE_STEP_AVAILABLE_": "Go to CUBES or TRIGGER. You have to create, at least, one cube or a trigger",
+    "_FINISH_STEP_AVAILABLE_": "Now, you can finish the policy",
+    "_TRANSFORMATION_STEP_AVAILABLE_": "Go to TRANSFORMATION. You have to create, at least, one model to be able to configure a cube in the next step",
+    "_TRIGGER_STEP_AVAILABLE_": "Go to CUBES or save policy. If you add a trigger at least, you do not need to add any cube"
   }
 }
