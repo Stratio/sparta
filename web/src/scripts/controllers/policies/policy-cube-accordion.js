@@ -64,18 +64,7 @@
     $scope.$watchCollection(
         "vm.cubeCreationStatus",
         function (cubeCreationStatus) {
-          if (!cubeCreationStatus.enabled && vm.policy.cubes.length > 0) {
-            WizardStatusService.enableNextStep();
-          } else {
-            WizardStatusService.disableNextStep();
-          }
-        }
-    );
-
-    $scope.$watchCollection(
-        "vm.policy.cubes",
-        function (cubes) {
-          if (cubes.length > 0) {
+          if (!cubeCreationStatus.enabled) {
             WizardStatusService.enableNextStep();
           } else {
             WizardStatusService.disableNextStep();
@@ -84,16 +73,10 @@
     );
 
     $scope.$on("forceValidateForm", function () {
-      if (vm.policy.cubes.length == 0) {
-        PolicyModelFactory.setError("_CUBE_STEP_MESSAGE_");
-      } else {
-        PolicyModelFactory.setError("_CHANGES_WITHOUT_SAVING_ERROR_");
-      }
-
-      if ( vm.isActiveCubeCreationPanel()){
+      if (vm.isActiveCubeCreationPanel) {
+        PolicyModelFactory.setError("_ERROR_._CHANGES_WITHOUT_SAVING_", "error");
         vm.cubeAccordionStatus[vm.cubeAccordionStatus.length - 1] = true;
       }
-
     });
   }
 })();
