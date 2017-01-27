@@ -60,7 +60,7 @@
     $scope.$watchCollection(
       "vm.triggerCreationStatus",
       function (triggerCreationStatus) {
-        if (!triggerCreationStatus.enabled && vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0) {
+        if (!triggerCreationStatus.enabled) {
           WizardStatusService.enableNextStep();
         } else {
           WizardStatusService.disableNextStep();

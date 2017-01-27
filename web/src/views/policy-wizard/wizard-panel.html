@@ -43,7 +43,7 @@
           </button>
           <button class="c-button c-button--to-right c-button--left-margin" data-ng-if="wizard.isLastStep()"
                   data-ng-click="wizard.confirmPolicy()"
-                  data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
+                  data-ng-class="{'c-button--call-to-action-1':wizard.isValidPolicy(),'c-button--call-to-action-2':!wizard.isValidPolicy() }"
                   data-qa="policy-save-button">
             <i class="icon icon-rocket"></i>
             <span>{{"_POLICY_._SAVE_" | translate}}</span>

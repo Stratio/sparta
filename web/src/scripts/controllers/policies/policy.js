@@ -31,6 +31,7 @@
     vm.showPreviousStepButton = showPreviousStepButton;
     vm.showNextStepButton = showNextStepButton;
     vm.isLastStep = isLastStep;
+    vm.isValidPolicy = isValidPolicy;
     vm.onClickPreviousStep = WizardStatusService.previousStep;
     vm.getStepNameByIndex = WizardStatusService.getStepNameByIndex;
     
@@ -88,6 +89,10 @@
 
     function closeErrorMessage() {
       PolicyModelFactory.setError();
+    }
+
+    function isValidPolicy() {
+      return vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0);
     }
 
     function confirmPolicy() {

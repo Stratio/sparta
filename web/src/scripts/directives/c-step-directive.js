@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   /*STEP DIRECTIVE*/
   angular
-    .module('webApp')
-    .directive('cStep', step);
+      .module('webApp')
+      .directive('cStep', step);
 
   function step() {
     return {
       restrict: 'E',
       scope: {
         index: '=index',
+        order: '=order',
         name: '=name',
         icon: '=icon',
         current: '=currentStep',
@@ -34,17 +35,17 @@
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step.tpl.html',
-      link: function (scope) {
-        scope.isSelected = function () {
+      link: function(scope) {
+        scope.isSelected = function() {
           return scope.index == scope.current;
         };
 
-        scope.isVisited = function () {
+        scope.isVisited = function() {
           return (scope.index < scope.current || (scope.hasBeenVisited && !scope.isSelected() ));
         };
 
-        scope.isEnabled = function(){
-          return (scope.index == scope.current+1 &&  scope.isAvailable);
+        scope.isEnabled = function() {
+          return (scope.index == scope.current + 1 || scope.order <= scope.current + 1) && scope.isAvailable && !scope.isSelected();
         };
       }
     };

@@ -43,8 +43,10 @@
         scope.hideHelp = function() {
           scope.showHelp = false;
         };
-        scope.chooseStep = function(index) {
-          if ((scope.editionMode && scope.nextStepAvailable) || (index == scope.current + 1 && scope.nextStepAvailable) || (index < scope.current)) {
+        scope.chooseStep = function(index, order) {
+          if ((scope.editionMode && scope.nextStepAvailable)
+              || (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable
+              || (index < scope.current)) {
             scope.visited[scope.current] = true;
             scope.current = index;
           } else {
