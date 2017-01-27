@@ -30,6 +30,7 @@
         name: '=name',
         icon: '=icon',
         current: '=currentStep',
+        isAlternative: '=isAlternative',
         isAvailable: '=',
         hasBeenVisited: "="
       },

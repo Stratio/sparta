@@ -18,8 +18,8 @@
 
   /*POLICY CUBES CONTROLLER*/
   angular
-    .module('webApp')
-    .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
+      .module('webApp')
+      .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
   PolicyCubeAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'CubeModelFactory', 'CubeService', '$scope'];
 
@@ -62,21 +62,38 @@
     }
 
     $scope.$watchCollection(
-      "vm.cubeCreationStatus",
-      function (cubeCreationStatus) {
-          if (!cubeCreationStatus.enabled && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0)) {
+        "vm.cubeCreationStatus",
+        function (cubeCreationStatus) {
+          if (!cubeCreationStatus.enabled && vm.policy.cubes.length > 0) {
             WizardStatusService.enableNextStep();
-        } else {
-          WizardStatusService.disableNextStep();
+          } else {
+            WizardStatusService.disableNextStep();
+          }
         }
-      }
+    );
+
+    $scope.$watchCollection(
+        "vm.policy.cubes",
+        function (cubes) {
+          if (cubes.length > 0) {
+            WizardStatusService.enableNextStep();
+          } else {
+            WizardStatusService.disableNextStep();
+          }
+        }
     );
 
     $scope.$on("forceValidateForm", function () {
-      if (vm.isActiveCubeCreationPanel) {
-        PolicyModelFactory.setError("_ERROR_._CHANGES_WITHOUT_SAVING_", "error");
+      if (vm.policy.cubes.length == 0) {
+        PolicyModelFactory.setError("_CUBE_STEP_MESSAGE_");
+      } else {
+        PolicyModelFactory.setError("_CHANGES_WITHOUT_SAVING_ERROR_");
+      }
+
+      if ( vm.isActiveCubeCreationPanel()){
         vm.cubeAccordionStatus[vm.cubeAccordionStatus.length - 1] = true;
       }
+
     });
   }
 })();
