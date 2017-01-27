@@ -16,11 +16,9 @@
 
 package com.stratio.sparta.serving.core.models.policy
 
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.sdk.utils.AggregationTime._
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
@@ -53,17 +51,13 @@ case class PolicyModel(
                         stopGracefully: Option[Boolean] = None
                       )
 
-case object PolicyModel extends SLF4JLogging {
+case object PolicyModel {
 
   val sparkStreamingWindow = "2s"
   val storageDefaultValue = Some("MEMORY_AND_DISK_SER_2")
 }
 
-case class PolicyWithStatus(status: PolicyStatusEnum.Value, policy: PolicyModel)
-
-case class PolicyResult(policyId: String, policyName: String)
-
-object PolicyValidator extends SpartaSerializer {
+object PolicyValidator {
 
   def validateDto(policy: PolicyModel): Unit = {
     val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy))

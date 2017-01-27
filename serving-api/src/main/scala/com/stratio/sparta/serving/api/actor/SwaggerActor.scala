@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
@@ -39,7 +38,6 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
   val swaggerService = new SwaggerHttpService {
     override def apiTypes: Seq[Type] = Seq(
       typeOf[FragmentHttpService],
-      typeOf[TemplateHttpService],
       typeOf[PolicyHttpService],
       typeOf[PolicyContextHttpService],
       typeOf[PluginsHttpService],
@@ -68,7 +66,7 @@ class SwaggerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFr
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = swaggerService ~ swaggerUIRoutes ~ serviceRoutes.fragmentRoute ~
-    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.templateRoute ~
+    serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
     serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
 
   def swaggerUIRoutes: Route =

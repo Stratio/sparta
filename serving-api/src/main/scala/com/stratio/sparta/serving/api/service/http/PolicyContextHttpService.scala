@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package com.stratio.sparkta.serving.api.service.http
+package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.service.http.BaseHttpService
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.StatusActor.{Delete, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
-import StatusActor.{Delete, FindAll, _}
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyResult, PolicyStatusModel, PolicyValidator}
+import com.stratio.sparta.serving.core.models.policy._
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -54,10 +53,10 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors.get(AkkaConstant.statusActor).get
           for {
-            policiesStatuses <- (statusActor ? FindAll).mapTo[Response]
+            policiesStatuses <- (statusActor ? FindAll).mapTo[ResponseStatuses]
           } yield policiesStatuses match {
-            case Response(Failure(exception)) => throw exception
-            case Response(Success(statuses)) => statuses
+            case ResponseStatuses(Failure(exception)) => throw exception
+            case ResponseStatuses(Success(statuses)) => statuses
           }
         }
       }
@@ -162,13 +161,13 @@ trait PolicyContextHttpService extends BaseHttpService {
           complete {
             val statusActor = actors.get(AkkaConstant.statusActor).get
             for {
-              response <- (statusActor ? Update(policyStatus)).mapTo[Option[PolicyStatusModel]]
-            } yield {
-              if (response.isDefined)
-                HttpResponse(StatusCodes.Created)
-              else
+              response <- (statusActor ? Update(policyStatus)).mapTo[ResponseStatus]
+            } yield response match {
+              case ResponseStatus(Success(status)) => HttpResponse(StatusCodes.Created)
+              case ResponseStatus(Failure(ex)) =>
+                log.error("Can't update policy", ex)
                 throw new ServingCoreException(ErrorModel.toString(
-                  ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id ${policyStatus.id}.")
+                  ErrorModel(ErrorModel.CodeErrorUpdatingPolicy, "Can't update policy")
                 ))
             }
           }
@@ -177,7 +176,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Creates a policy context and launch the policy.",
+  @ApiOperation(value = "Creates a policy, the status context and launch the policy created.",
     notes = "Returns the result",
     httpMethod = "POST",
     response = classOf[PolicyResult])
@@ -200,14 +199,12 @@ trait PolicyContextHttpService extends BaseHttpService {
           (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
           complete {
             for {
-              policyResponseTry <- (supervisor ? LauncherActor.Create(parsedP))
-                .mapTo[Try[PolicyModel]]
+              policyResponseTry <- (supervisor ? LauncherActor.Create(parsedP)).mapTo[Try[PolicyModel]]
             } yield {
               policyResponseTry match {
                 case Success(policy) =>
                   val inputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
                   val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-
                   createFragments(fragmentActor, outputs.toList ::: inputs.toList)
                   PolicyResult(policy.id.getOrElse(""), p.name)
                 case Failure(ex: Throwable) =>

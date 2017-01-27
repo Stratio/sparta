@@ -15,11 +15,14 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import scala.util.{Failure, Success}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit._
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -30,12 +33,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
 import scala.concurrent.duration._
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
-import StatusActor.{ResponseDelete, ResponseStatus}
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -50,6 +48,8 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   val existsBuilder = mock[ExistsBuilder]
   val createBuilder = mock[CreateBuilder]
   val deleteBuilder = mock[DeleteBuilder]
+
+  SpartaConfig.initMainConfig()
 
   val actor = system.actorOf(Props(new StatusActor(curatorFramework)))
   implicit val timeout: Timeout = Timeout(15.seconds)

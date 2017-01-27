@@ -21,29 +21,28 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, FindByTypeAndName, ResponseFragment}
-import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType.`type`
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 
 import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 /**
- * Helper with operations over policies and policy fragments.
- */
+  * Helper with operations over policies and policy fragments.
+  */
 object FragmentsHelper {
 
   /**
-   * Extract the policy with the updated fragments and added as inputs and outputs
-   *
-   * @param policy        the input policy model
-   * @param fragmentActor actor necessary to find fragments from the repository
-   * @param timeout       the limited time for the ask pattern in akka
-   * @return the policy with the correct fragments
-   */
-  def getPolicyWithFragments(policy: PolicyModel, fragmentActor: ActorRef)
-                            (implicit timeout: Timeout): PolicyModel = {
+    * Extract the policy with the updated fragments and added as inputs and outputs
+    *
+    * @param policy        the input policy model
+    * @param fragmentActor actor necessary to find fragments from the repository
+    * @return the policy with the correct fragments
+    */
+  def getPolicyWithFragments(policy: PolicyModel, fragmentActor: ActorRef): PolicyModel = {
     val policyWithFragments = parseFragments(fillFragments(policy, fragmentActor))
     if (policyWithFragments.fragments.isEmpty) {
       // This happens when the policy has been uploaded through policy POST endpoint
@@ -56,12 +55,12 @@ object FragmentsHelper {
   }
 
   /**
-   * If the policy has fragments, it tries to parse them and depending of its type it composes input/outputs/etc.
-   *
-   * @param apConfig with the policy.
-   * @return a parsed policy with fragments included in input/outputs.
-   */
-   def parseFragments(apConfig: PolicyModel): PolicyModel = {
+    * If the policy has fragments, it tries to parse them and depending of its type it composes input/outputs/etc.
+    *
+    * @param apConfig with the policy.
+    * @return a parsed policy with fragments included in input/outputs.
+    */
+  def parseFragments(apConfig: PolicyModel): PolicyModel = {
 
     val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
@@ -79,15 +78,15 @@ object FragmentsHelper {
     * @return a valid fragment element (input/output)
     */
   def populateFragmentFromPolicy(policy: PolicyModel, fragmentType: `type`): Seq[FragmentElementModel] =
-  fragmentType match {
-    case FragmentType.input =>
-      policy.input match {
-        case Some(in) => Seq(in.parseToFragment(fragmentType))
-        case None => Seq.empty[FragmentElementModel]
-      }
-    case FragmentType.output =>
-      policy.outputs.map(output => output.parseToFragment(fragmentType))
-  }
+    fragmentType match {
+      case FragmentType.input =>
+        policy.input match {
+          case Some(in) => Seq(in.parseToFragment(fragmentType))
+          case None => Seq.empty[FragmentElementModel]
+        }
+      case FragmentType.output =>
+        policy.outputs.map(output => output.parseToFragment(fragmentType))
+    }
 
   //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
 
@@ -98,8 +97,8 @@ object FragmentsHelper {
     * @param apConfig with the policy.
     * @return a fragment with all fields filled.
     */
-  private def fillFragments(apConfig: PolicyModel, fragmentActor: ActorRef)
-                           (implicit timeout: Timeout): PolicyModel = {
+  private def fillFragments(apConfig: PolicyModel, fragmentActor: ActorRef): PolicyModel = {
+    implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
     val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
       val future = fragmentActor ? {
         fragment.id match {
@@ -116,9 +115,9 @@ object FragmentsHelper {
   }
 
   private def getFragmentFromType(fragments: Seq[FragmentElementModel], fragmentType: `type`)
-    : Seq[FragmentElementModel] = {
+  : Seq[FragmentElementModel] = {
     fragments.flatMap(fragment =>
-    if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
+      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
   }
 
   /**
@@ -129,16 +128,16 @@ object FragmentsHelper {
     * @return A policyElementModel with the input.
     */
   private def getCurrentInput(fragmentsInputs: Seq[FragmentElementModel],
-  inputs: Option[PolicyElementModel]): PolicyElementModel = {
+                              inputs: Option[PolicyElementModel]): PolicyElementModel = {
 
     if (fragmentsInputs.isEmpty && inputs.isEmpty) {
       throw new IllegalStateException("It is mandatory to define one input in the policy.")
     }
 
     if ((fragmentsInputs.size > 1) ||
-    (fragmentsInputs.size == 1 && inputs.isDefined &&
-    ((fragmentsInputs.head.name != inputs.get.name) ||
-    (fragmentsInputs.head.element.`type` != inputs.get.`type`)))) {
+      (fragmentsInputs.size == 1 && inputs.isDefined &&
+        ((fragmentsInputs.head.name != inputs.get.name) ||
+          (fragmentsInputs.head.element.`type` != inputs.get.`type`)))) {
       throw new IllegalStateException("Only one input is allowed in the policy.")
     }
 

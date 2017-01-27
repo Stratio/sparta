@@ -29,14 +29,14 @@ trait PluginsFilesUtils extends SLF4JLogging {
   def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
     log.info(pluginsFiles.mkString(","))
     pluginsFiles.foreach(filePath => {
-      if (filePath.startsWith("/")) addFromLocal(filePath)
+      if (filePath.startsWith("/") || filePath.startsWith("file://")) addFromLocal(filePath)
       if (filePath.startsWith("hdfs")) addFromHdfs(filePath)
       if (filePath.startsWith("http")) addFromHttp(filePath)
     })
   }
 
   private def addFromLocal(filePath: String): Unit = {
-    val file = new File(filePath)
+    val file = new File(filePath.replace("file://", ""))
     JarsHelper.addToClasspath(file)
   }
 

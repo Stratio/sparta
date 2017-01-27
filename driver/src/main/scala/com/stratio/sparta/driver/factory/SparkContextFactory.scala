@@ -19,8 +19,6 @@ package com.stratio.sparta.driver.factory
 import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.typesafe.config.Config
 import org.apache.spark.sql.SQLContext
@@ -51,10 +49,6 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   def setInitialSentences(sentences: Seq[String]): Unit = sqlInitialSentences = sentences
-
-  def sparkStreamingInstance: Option[StreamingContext] = ssc
-
-  def sparkContextInstance: Option[SparkContext] = sc
 
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
   Option[StreamingContext] = {

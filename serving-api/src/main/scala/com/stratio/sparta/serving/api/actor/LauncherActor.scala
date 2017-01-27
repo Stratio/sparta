@@ -18,32 +18,19 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
-import akka.event.slf4j.SLF4JLogging
-import akka.pattern.pipe
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.api.utils.LauncherActorUtils
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import org.apache.curator.framework.CuratorFramework
-import akka.pattern.ask
-
-import scala.concurrent.Await
-import scala.util.{Failure, Success}
-import com.stratio.sparta.serving.api.actor.PolicyActor.ResponsePolicy
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import org.apache.curator.framework.CuratorFramework
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
 import scala.util.Try
 
 class LauncherActor(streamingContextService: StreamingContextService,
                     policyActor: ActorRef,
                     statusActor: ActorRef,
-                    curatorFramework: CuratorFramework) extends Actor
-  with LauncherActorUtils
-  with SLF4JLogging
-  with SpartaSerializer {
+                    val curatorFramework: CuratorFramework) extends Actor with LauncherActorUtils {
 
   override val supervisorStrategy =
     OneForOneStrategy() {
@@ -52,26 +39,15 @@ class LauncherActor(streamingContextService: StreamingContextService,
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }
 
-  override def receive: PartialFunction[Any, Unit] = {
-    case Create(policy) => create(policy) pipeTo sender
+  override def receive: Receive = {
+    case Create(policy) => sender ! create(policy)
+    case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
-  /**
-   * Tries to create a spark streaming context with a given configuration.
-   *
-   * @param policy that contains the configuration to run.
-   */
-  def create(policy: PolicyModel): Future[Try[PolicyModel]] =
-    if (policy.id.isDefined)
+  def create(policy: PolicyModel): Try[PolicyModel] =
+    Try {
+      if (policy.id.isEmpty) policyActor ! PolicyActor.Create(policy)
       launch(policy, statusActor, streamingContextService, context)
-    else {
-      val result = policyActor ? PolicyActor.Create(policy)
-      Await.result(result, timeout.duration) match {
-        case ResponsePolicy(Failure(exception)) =>
-          throw exception
-        case ResponsePolicy(Success(policyCreated)) =>
-          launch(policyCreated, statusActor, streamingContextService, context)
-      }
     }
 }
 

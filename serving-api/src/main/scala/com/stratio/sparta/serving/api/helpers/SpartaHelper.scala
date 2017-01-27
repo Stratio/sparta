@@ -17,27 +17,23 @@
 package com.stratio.sparta.serving.api.helpers
 
 import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import akka.routing.RoundRobinPool
-import akka.util.Timeout
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyStatusUtils, PolicyUtils}
 import spray.can.Http
-
-import scala.concurrent.duration._
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
  */
-object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUtils {
+object SpartaHelper extends SLF4JLogging {
 
   implicit var system: ActorSystem = _
-  override implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   /**
    * Initializes Sparta's akka system running an embedded http server with the REST API.
@@ -61,19 +57,17 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
       val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)),
         AkkaConstant.PolicyActor)
       val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
-      val templateActor = system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor)
       val streamingContextActor = system.actorOf(Props(
         new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)),
-        AkkaConstant.SparkStreamingContextActor
+        AkkaConstant.LauncherActor
       )
       val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
 
       implicit val actors = Map(
         AkkaConstant.statusActor -> statusActor,
         AkkaConstant.FragmentActor -> fragmentActor,
-        AkkaConstant.TemplateActor -> templateActor,
         AkkaConstant.PolicyActor -> policyActor,
-        AkkaConstant.SparkStreamingContextActor -> streamingContextActor,
+        AkkaConstant.LauncherActor -> streamingContextActor,
         AkkaConstant.PluginActor -> pluginActor
       )
       val swaggerActor = system.actorOf(

@@ -20,6 +20,7 @@ import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
@@ -55,6 +56,7 @@ class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fra
     case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
     case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
     case ResponseFragment(fragment) => loggingResponseFragment(fragment)
+    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case Error(id) => error(id)
     case _ => log.info("Unrecognized message in Policy Actor")
   }
@@ -141,7 +143,12 @@ class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fra
         ))
       }
       val policySaved = writePolicy(policyWithId(policy), curatorFramework)
-      statusActor ! StatusActor.Create(PolicyStatusModel(policySaved.id.get, PolicyStatusEnum.NotStarted))
+      statusActor ! StatusActor.Create(PolicyStatusModel(
+        id = policySaved.id.get,
+        status = PolicyStatusEnum.NotStarted,
+        name = Option(policy.name),
+        description = Option(policy.description)
+      ))
       policySaved
     })
 

@@ -29,20 +29,22 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
-with ImplicitSender
-with WordSpecLike
-with Matchers
-with BeforeAndAfterAll
-with MockFactory {
+  with ImplicitSender
+  with WordSpecLike
+  with Matchers
+  with BeforeAndAfterAll
+  with MockFactory {
+
+  SpartaConfig.initMainConfig()
+  SpartaConfig.initApiConfig()
+
   val curatorFramework = mock[CuratorFramework]
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
   val streamingContextService = new StreamingContextService(statusActor)
-
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
-  val templateActor = _system.actorOf(Props(new TemplateActor()))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new LauncherActor(streamingContextService,policyActor, statusActor, curatorFramework)))
+    Props(new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)))
   val pluginActor = _system.actorOf(Props(new PluginActor()))
 
   def this() =
@@ -51,9 +53,8 @@ with MockFactory {
   implicit val actors = Map(
     AkkaConstant.statusActor -> statusActor,
     AkkaConstant.FragmentActor -> fragmentActor,
-    AkkaConstant.TemplateActor -> templateActor,
     AkkaConstant.PolicyActor -> policyActor,
-    AkkaConstant.SparkStreamingContextActor -> sparkStreamingContextActor,
+    AkkaConstant.LauncherActor -> sparkStreamingContextActor,
     AkkaConstant.PluginActor -> pluginActor
   )
 

@@ -17,39 +17,28 @@
 package com.stratio.sparta.serving.api.utils
 
 import akka.actor._
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor.Start
 import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalLauncherActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 
-import scala.concurrent.ExecutionContext.Implicits._
-import scala.concurrent.Future
-import scala.util.Try
+trait LauncherActorUtils extends PolicyStatusUtils {
 
-trait LauncherActorUtils extends PolicyStatusUtils
-  with SLF4JLogging {
-
-  val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
+  val SparkStreamingContextActorPrefix: String = "contextLauncherActor"
 
   def launch(policy: PolicyModel,
              statusActor: ActorRef,
              streamingContextService: StreamingContextService,
-             context: ActorContext): Future[Try[PolicyModel]] =
-    for {
-      isAvailable <- isAvailableToRun(policy, statusActor)
-    } yield Try {
-      if (isAvailable) {
-        log.info("Streaming Context Available, launching policy ... ")
-        val launcherActor =
-          getLauncherActor(policy, statusActor, streamingContextService, context)
-        launcherActor ! Start(policy)
-      }
-      policy
+             context: ActorContext): PolicyModel = {
+    if (isAvailableToRun(policy)) {
+      log.info("Streaming Context Available, launching policy ... ")
+      val launcherActor = getLauncherActor(policy, statusActor, streamingContextService, context)
+      launcherActor ! Start(policy)
     }
+    policy
+  }
 
   def getLauncherActor(policy: PolicyModel,
                        statusActor: ActorRef,
@@ -63,7 +52,7 @@ trait LauncherActorUtils extends PolicyStatusUtils
         actor
       case None =>
         log.info(s"Launched -> $actorName")
-        if (isLocalMode(policy)) {
+        if (isLocal(policy)) {
           log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
           getLocalLauncher(policy, statusActor, streamingContextService, context, actorName)
         } else {
@@ -73,19 +62,16 @@ trait LauncherActorUtils extends PolicyStatusUtils
     }
   }
 
-  def getLocalLauncher(policy: PolicyModel,
-                       statusActor: ActorRef,
-                       streamingContextService: StreamingContextService,
-                       context: ActorContext,
-                       actorName: String): ActorRef = {
-    context.actorOf(
-      Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
-  }
+  private def getLocalLauncher(policy: PolicyModel,
+                               statusActor: ActorRef,
+                               streamingContextService: StreamingContextService,
+                               context: ActorContext,
+                               actorName: String): ActorRef =
+    context.actorOf(Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
 
   def getClusterLauncher(policy: PolicyModel,
                          statusActor: ActorRef,
                          context: ActorContext,
-                         actorName: String): ActorRef = {
+                         actorName: String): ActorRef =
     context.actorOf(Props(new ClusterLauncherActor(statusActor)), actorName)
-  }
 }

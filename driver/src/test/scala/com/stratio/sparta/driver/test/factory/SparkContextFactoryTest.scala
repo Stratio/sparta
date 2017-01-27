@@ -18,7 +18,6 @@ package com.stratio.sparta.driver.test.factory
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.typesafe.config.ConfigFactory
-import org.apache.spark.SparkContext
 import org.apache.spark.streaming.Duration
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -64,7 +63,6 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
     val checkpointDir = "checkpoint/SparkContextFactorySpec"
     val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
-    SparkContextFactory.sparkStreamingInstance should be(None)
     val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
     ssc shouldNot be equals (None)
     val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)

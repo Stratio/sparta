@@ -54,9 +54,9 @@ trait LocalListenerUtils extends SLF4JLogging {
   }
 
   private def closeContexts(policyId: String, statusActor: ActorRef): Unit = {
-    val information = "The Spark Context have been stopped correctly in the local listener"
+    val information = "The Context have been stopped correctly in the local listener"
     log.info(information)
-    statusActor ! Update(PolicyStatusModel(policyId, Stopped, None, None, Some(information)))
+    statusActor ! Update(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
     destroySparkContext(destroyStreamingContext = true)
   }
 

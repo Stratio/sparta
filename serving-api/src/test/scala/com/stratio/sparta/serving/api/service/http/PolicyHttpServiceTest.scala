@@ -18,8 +18,8 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.actor.LauncherActor
+import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
@@ -44,24 +44,12 @@ with HttpServiceBaseTest {
   val statusActorTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.SparkStreamingContextActor -> sparkStreamingTestProbe.ref,
+    AkkaConstant.LauncherActor -> sparkStreamingTestProbe.ref,
     AkkaConstant.FragmentActor -> fragmentActorTestProbe.ref,
     AkkaConstant.statusActor -> statusActorTestProbe.ref
   )
 
   "PolicyHttpService.find" should {
-    /*"find a policy from its id" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
-        testProbe.expectMsgType[Find]
-        val fragments = Seq(
-          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
-          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
-        )
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
-        responseAs[AggregationPoliciesModel].fragments.isEmpty should be(false)
-      }
-    }*/
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
       Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
@@ -72,17 +60,6 @@ with HttpServiceBaseTest {
   }
 
   "PolicyHttpService.findByName" should {
-    /*"find a policy from its name" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
-        testProbe.expectMsgType[FindByName]
-        val fragments = Seq(
-          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
-          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
-        )
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
-      }
-    }*/
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
       Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
@@ -107,8 +84,8 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.FindAll =>
-              sender ! StatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
+            case StatusActor.FindById(id) =>
+              sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
       })
@@ -135,8 +112,8 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.FindAll =>
-              sender ! StatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
+            case StatusActor.FindById(id) =>
+              sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
       })

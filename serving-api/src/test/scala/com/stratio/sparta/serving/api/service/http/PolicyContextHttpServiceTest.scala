@@ -17,14 +17,13 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
-import com.stratio.sparkta.serving.api.service.http.PolicyContextHttpService
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
+import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
+import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -43,7 +42,7 @@ with HttpServiceBaseTest {
   val statusActorTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.SparkStreamingContextActor -> sparkStreamingTestProbe.ref,
+    AkkaConstant.LauncherActor -> sparkStreamingTestProbe.ref,
     AkkaConstant.FragmentActor -> fragmentActorTestProbe.ref,
     AkkaConstant.statusActor -> statusActorTestProbe.ref
   )
@@ -56,7 +55,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindAll =>
-              sender ! StatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()))))
+              sender ! StatusActor.ResponseStatuses(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()))))
               TestActor.NoAutoPilot
           }
       })
@@ -71,7 +70,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindAll =>
-              sender ! StatusActor.Response(Failure(new MockException))
+              sender ! StatusActor.ResponseStatuses(Failure(new MockException))
               TestActor.NoAutoPilot
           }
       })
@@ -122,7 +121,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case Update(policyStatus) =>
-              sender ! Option(policyStatus)
+              sender ! ResponseStatus(Try(policyStatus))
               TestActor.NoAutoPilot
           }
       })
@@ -137,7 +136,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case Update(policyStatus) =>
-              sender ! None
+              sender ! ResponseStatus(Try(throw new Exception))
               TestActor.NoAutoPilot
           }
       })

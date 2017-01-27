@@ -35,8 +35,7 @@ import org.json4s.jackson.Serialization._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-
-trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer with PolicyStatusUtils {
+trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   val statusActor: ActorRef
 
@@ -86,9 +85,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer with Polic
                       log.error("Impossible to parse submission killing response", e)
                   }
                 } finally {
-                  val message = s"The policy ${policy.name} was stopped correctly"
-                  log.info(message)
-                  statusActor ! Update(PolicyStatusModel(policy.id.get, Stopped, None, None, Some(message)))
+                  val information = s"Stopped correctly Sparta cluster job with Spark API"
+                  log.info(information)
+                  statusActor ! Update(PolicyStatusModel(
+                    id = policy.id.get, status = Stopped, statusInfo = Some(information)))
                 }
               case None =>
                 log.info(s"The Sparta System don't have submission id associated to policy ${policy.name}")
@@ -119,9 +119,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer with Polic
                   log.info("Stopping submission policy with handler")
                   handler.stop()
                 } finally {
-                  val message = s"The policy ${policy.name} was stopped correctly"
-                  log.info(message)
-                  statusActor ! Update(PolicyStatusModel(policy.id.get, Stopped, None, None, Some(message)))
+                  val information = s"Stopped correctly Sparta cluster job with Spark Handler"
+                  log.info(information)
+                  statusActor ! Update(PolicyStatusModel(
+                    id = policy.id.get, status = Stopped, statusInfo = Some(information)))
                 }
               case None =>
                 log.info(s"The Sparta System don't have submission id associated to policy ${policy.name}")
@@ -142,17 +143,6 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer with Polic
   }
 
   //scalastyle:on
-
-  def isCluster(policy: PolicyModel, clusterConfig: Config): Boolean = {
-    policy.sparkConf.find(sparkProp =>
-      sparkProp.sparkConfKey == DeployMode && sparkProp.sparkConfValue == ClusterValue) match {
-      case Some(mode) => true
-      case _ => Try(clusterConfig.getString(DeployMode)) match {
-        case Success(mode) => mode == ClusterValue
-        case Failure(e) => false
-      }
-    }
-  }
 
   private def killUrl(clusterConfig: Config): String =
     s"http://${

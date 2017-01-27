@@ -45,31 +45,31 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
 
     jars.foreach(file => JarsHelper.addToClasspath(file))
     Try {
-      val startingInformation = s"Starting Sparta Streaming Context Job for policy:  ${policy.name}"
-      log.info(startingInformation)
-      statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting, None, None,
-        Some(startingInformation)))
+      val startingInfo = s"Starting Sparta local job for policy"
+      log.info(startingInfo)
+      statusActor ! Update(PolicyStatusModel(
+        id = policy.id.get, status = PolicyStatusEnum.Starting, statusInfo = Some(startingInfo)))
 
       ssc = Option(streamingContextService.localStreamingContext(policy, jars))
       ssc.get.start()
 
-      val startedInformation = s"The Sparta Streaming Context Job was started correctly"
+      val startedInformation = s"The Sparta local job was started correctly"
       log.info(startedInformation)
-      statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started, None, None,
-        Some(startedInformation)))
+      statusActor ! Update(PolicyStatusModel(
+        id = policy.id.get, status = PolicyStatusEnum.Started, statusInfo = Some(startedInformation)))
 
       ssc.get.awaitTermination()
     } match {
       case Success(_) =>
-        val information = s"Stopped correctly Sparta Streaming Context Job for policy: ${policy.id.get}"
+        val information = s"Stopped correctly Sparta local job"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Stopped, None, None,
-          Some(information)))
+        statusActor ! Update(PolicyStatusModel(
+          id = policy.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
       case Failure(exception) =>
-        val information = s"Error initiating Sparta Streaming Context Job: ${exception.getLocalizedMessage}"
+        val information = s"Error initiating Sparta local job: ${exception.toString}"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed, None, None,
-          Some(information)))
+        statusActor ! Update(PolicyStatusModel(
+          id = policy.id.get, status = PolicyStatusEnum.Failed, statusInfo = Some(information)))
 
         SparkContextFactory.destroySparkContext(destroyStreamingContext = true)
     }

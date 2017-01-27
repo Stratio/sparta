@@ -40,9 +40,9 @@ class PluginActor extends Actor
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
     .getOrElse(AppConstant.DefaultPluginsPackageLocation)
   //Configuration of the app
-  val host: String = SpartaConfig.apiConfig.get.getString("host")
-  val port: Int = SpartaConfig.apiConfig.get.getInt("port")
-  val targetUrl: String = s"$host:$port"
+  val host = SpartaConfig.apiConfig.get.getString("host")
+  val port = SpartaConfig.apiConfig.get.getInt("port")
+  val targetUrl = s"$host:$port"
   //Url of the download endpoint
   val url = s"$targetUrl/${HttpConstant.PluginsPath}"
   //Regexp for jar name validation
@@ -77,6 +77,9 @@ class PluginActor extends Actor
 }
 
 object PluginActor {
+
   case class UploadFile(t: String, files: Seq[BodyPart])
+
   case class PluginResponse(status: Try[_])
+
 }
