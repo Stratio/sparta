@@ -19,7 +19,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
@@ -34,9 +34,8 @@ import scala.util.Try
 /**
   * Implementation of supported CRUD operations over ZK needed to manage policies.
   */
-class PolicyActor(curatorFramework: CuratorFramework,
-                  policyStatusActor: ActorRef,
-                  fragmentActorRef: ActorRef) extends Actor with PolicyUtils with CheckpointUtils{
+class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fragmentActorRef: ActorRef)
+  extends Actor with PolicyUtils with CheckpointUtils {
 
   import PolicyActor._
 
@@ -142,12 +141,9 @@ class PolicyActor(curatorFramework: CuratorFramework,
         ))
       }
       val policySaved = writePolicy(policyWithId(policy), curatorFramework)
-      associateStatus(policySaved)
+      statusActor ! StatusActor.Create(PolicyStatusModel(policySaved.id.get, PolicyStatusEnum.NotStarted))
       policySaved
     })
-
-  def associateStatus(model: PolicyModel): Unit =
-    policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
 
   def update(policy: PolicyModel): Unit = {
     val response = ResponsePolicy(Try {

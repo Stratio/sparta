@@ -188,6 +188,7 @@
         <reflections.version>0.9.10</reflections.version>
         <guava.version>18.0</guava.version>
         <curator.version>2.11.0</curator.version>
+        <http.client.version>4.5.2</http.client.version>
         <scala.mock.version>3.2.2</scala.mock.version>
         <easy.mock.version>2.5.2</easy.mock.version>
         <mailapi.version>1.4.3</mailapi.version>
@@ -501,6 +502,11 @@
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
                 <version>${curator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${http.client.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.mail</groupId>
