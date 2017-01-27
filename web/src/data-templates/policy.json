@@ -36,7 +36,7 @@
           "value": "hdfs"
         }
       ],
-      "tooltip": "Sparta Driver jar location, when is provided is necessary specify the URI. If nothing is selected Sparta will use the values in the configuration file.",
+      "tooltip": "When provided it's necessary to specify the URI. If nothing is selected Sparta will use the values in the configuration file.",
       "qa": "policy-driver-location"
     },
     {
@@ -46,7 +46,7 @@
       "position": "right",
       "propertyType": "text",
       "required": false,
-      "tooltip": "When the driver location is provided, in this uri is allocated the driver jar file",
+      "tooltip": "Path to the driver jar file (only for Provided mode).",
       "qa": "policy-driver-uri"
     },
     {
@@ -232,7 +232,7 @@
       "position": "left",
       "propertyType": "boolean",
       "required": false,
-      "tooltip": "Auto delete checkpoint path in HDFS when running policies. Override the value in the configuration file.",
+      "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file.",
       "qa": "auto-delete-checkpoint"
     },
     {
@@ -241,7 +241,7 @@
       "propertyType": "boolean",
       "width": 6,
       "position": "right",
-      "tooltip": "Stop gracefully the spark streaming context when run in cluster mode. Override the value in the configuration file.",
+      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
       "qa": "policy-stop-gracefully"
     },
     {
@@ -279,7 +279,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "Spark configuration properties, values set here will override the ones set in the configuration file.",
+      "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
       "qa": "policy-spark-conf",
       "fields": [
         {
@@ -313,7 +313,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "Spark submit arguments added when the policy is executed over a Spark cluster. Values set here will override the property file options",
+      "tooltip": "Spark submit arguments added when the policy is executed on a Spark cluster. Values set here will override the property file options",
       "qa": "policy-spark-submit-argument",
       "fields": [
         {
@@ -347,7 +347,7 @@
       "propertyType": "list",
       "default": "",
       "required": false,
-      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources.Once launched it's possible to mix them inside the triggers",
+      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources. Once launched it's possible to mix them inside the triggers",
       "qa": "policy-sql-sentences",
       "fields": [
         {
@@ -549,6 +549,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-json-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-json-rawDataEnabled"
         }
       ],
       "defaultConfiguration": {
@@ -589,6 +600,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-csv-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-json-rawDataEnabled"
         },
         {
           "propertyId": "delimiter",
@@ -680,6 +702,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-xml-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-xml-rawDataEnabled"
         }
       ],
       "defaultConfiguration": {
@@ -720,6 +753,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-morphline-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-morphlines-rawDataEnabled"
         }
       ],
       "defaultConfiguration": {
@@ -970,6 +1014,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-datetime-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-datetime-rawDataEnabled"
         }
       ]
     },

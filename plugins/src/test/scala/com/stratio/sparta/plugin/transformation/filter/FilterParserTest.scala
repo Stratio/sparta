@@ -59,33 +59,8 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row.fromSeq(whiteValues))
-
-      assertResult(result)(expected)
-    }
-
-    "parse filter string removing raw" in {
-      val input = whiteRow
-      val outputsFields = Seq()
-      val queries =
-        """[
-          |{
-          |   "field":"color",
-          |   "type":"=",
-          |   "value":"white"
-          |}
-          |]
-          |""".stripMargin
-
-      val result = new FilterParser(
-        1,
-        None,
-        outputsFields,
-        schema,
-        Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, true)
-      val expected = Seq(Row.fromSeq(Seq(5.0)))
 
       assertResult(result)(expected)
     }
@@ -109,7 +84,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
@@ -134,7 +109,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)
@@ -159,7 +134,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq.empty
 
       assertResult(result)(expected)
@@ -189,7 +164,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq.empty
 
       assertResult(result)(expected)
@@ -219,7 +194,7 @@ class FilterParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("filters" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row.fromSeq(whiteValues))
 
       assertResult(result)(expected)

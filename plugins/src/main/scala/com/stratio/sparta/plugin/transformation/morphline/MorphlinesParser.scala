@@ -40,7 +40,7 @@ class MorphlinesParser(order: Integer,
 
   private val config: String = properties.getString("morphline")
 
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
+  override def parse(row: Row): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = Try {
       inputValue match {
@@ -54,10 +54,17 @@ class MorphlinesParser(order: Integer,
           returnWhenError(new IllegalStateException(s"Impossible to parse because value is empty"))
       }
     }
-    val prevData = if (removeRaw) Row.fromSeq(row.toSeq.drop(1)) else row
-
-    returnData(newData, prevData)
+    returnData(newData, removeInputFieldMorphline(row))
   }
+
+   private def removeIndex(row: Row, inputFieldIndex: Int): Row =
+    if (row.size < inputFieldIndex) row
+    else Row.fromSeq(row.toSeq.take(inputFieldIndex) ++ row.toSeq.drop(inputFieldIndex + 1))
+
+
+   private def removeInputFieldMorphline(row: Row): Row =
+    if (inputFieldRemoved && inputField.isDefined) removeIndex(row, inputFieldIndex)
+    else row
 
   private def parseWithMorphline(value: ByteArrayInputStream): Row = {
     val record = new Record()

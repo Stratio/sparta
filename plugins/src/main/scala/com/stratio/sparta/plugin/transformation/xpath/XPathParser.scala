@@ -38,7 +38,7 @@ class XPathParser(order: Integer,
   val queriesModel = properties.getPropertiesQueries("queries")
 
   //scalastyle:off
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
+  override def parse(row: Row): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = Try {
       inputValue match {
@@ -69,9 +69,8 @@ class XPathParser(order: Integer,
           returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
     }
-    val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    returnData(newData, prevData)
+    returnData(newData, removeInputField(row))
   }
 
   //scalastyle:on

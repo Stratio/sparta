@@ -35,6 +35,8 @@ abstract class Parser(order: Integer,
 
   val outputFieldsSchema = schema.fields.filter(field => outputFields.contains(field.name))
 
+  val inputFieldRemoved = Try(properties.getBoolean("removeInputField")).getOrElse(false)
+
   val inputFieldIndex = inputField match {
     case Some(field) => Try(schema.fieldIndex(field)).getOrElse(0)
     case None => 0
@@ -43,7 +45,7 @@ abstract class Parser(order: Integer,
   val whenErrorDo = Try(WhenError.withName(properties.getString("whenError")))
     .getOrElse(WhenError.Error)
 
-  def parse(data: Row, removeRaw: Boolean): Seq[Row]
+  def parse(data: Row): Seq[Row]
 
   def getOrder: Integer = order
 
@@ -54,10 +56,10 @@ abstract class Parser(order: Integer,
 
   //scalastyle:off
   def returnWhenError(exception: Exception): Null =
-    whenErrorDo match {
-      case WhenError.Null => null
-      case _ => throw exception
-    }
+  whenErrorDo match {
+    case WhenError.Null => null
+    case _ => throw exception
+  }
 
   //scalastyle:on
 
@@ -81,6 +83,18 @@ abstract class Parser(order: Integer,
         case _ => throw e
       }
     }
+
+  def removeIndex(row: Seq[_], inputFieldIndex: Int): Seq[_] = if (row.size < inputFieldIndex) row
+    else row.take(inputFieldIndex) ++ row.drop(inputFieldIndex + 1)
+
+  def removeInputField(row: Row): Seq[_] = {
+    if (inputFieldRemoved && inputField.isDefined)
+      removeIndex(row.toSeq, inputFieldIndex)
+    else
+      row.toSeq
+  }
+
+
 }
 
 object Parser {
