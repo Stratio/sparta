@@ -125,24 +125,6 @@ trait SparkSubmitUtils extends SLF4JLogging {
     } else false
   }
 
-  def isCluster(policy: PolicyModel, clusterConfig: Config): Boolean = {
-    policy.sparkConf.find(sparkProp =>
-      sparkProp.sparkConfKey == DeployMode && sparkProp.sparkConfValue == ClusterValue) match {
-      case Some(mode) => true
-      case _ => Try(clusterConfig.getString(DeployMode)) match {
-        case Success(mode) => mode == ClusterValue
-        case Failure(e) => false
-      }
-    }
-  }
-
-  def killUrl(clusterConfig: Config): String =
-    s"http://${
-      clusterConfig.getString(Master).trim
-        .replace("spark://", "")
-        .replace("mesos://", "")
-    }" + Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl)
-
   def gracefulStop(policy: PolicyModel, detailConfig: Config): Boolean = {
     Try(policy.stopGracefully.getOrElse(detailConfig.getBoolean(ConfigStopGracefully)))
       .getOrElse(DefaultStopGracefully)

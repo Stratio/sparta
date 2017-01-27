@@ -19,8 +19,8 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor.Update
+import com.stratio.sparta.serving.api.actor.LauncherActor._
+import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
@@ -30,7 +30,7 @@ import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
 
-class LocalSparkStreamingContextActor(streamingContextService: StreamingContextService, policyStatusActor: ActorRef)
+class LocalLauncherActor(streamingContextService: StreamingContextService, statusActor: ActorRef)
   extends Actor
     with PolicyUtils {
 
@@ -47,15 +47,15 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
     Try {
       val startingInformation = s"Starting Sparta Streaming Context Job for policy:  ${policy.name}"
       log.info(startingInformation)
-      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting, None, None,
+      statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Starting, None, None,
         Some(startingInformation)))
 
-      ssc = Option(streamingContextService.standAloneStreamingContext(policy, jars))
+      ssc = Option(streamingContextService.localStreamingContext(policy, jars))
       ssc.get.start()
 
       val startedInformation = s"The Sparta Streaming Context Job was started correctly"
       log.info(startedInformation)
-      policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started, None, None,
+      statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Started, None, None,
         Some(startedInformation)))
 
       ssc.get.awaitTermination()
@@ -63,12 +63,12 @@ class LocalSparkStreamingContextActor(streamingContextService: StreamingContextS
       case Success(_) =>
         val information = s"Stopped correctly Sparta Streaming Context Job for policy: ${policy.id.get}"
         log.info(information)
-        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Stopped, None, None,
+        statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Stopped, None, None,
           Some(information)))
       case Failure(exception) =>
         val information = s"Error initiating Sparta Streaming Context Job: ${exception.getLocalizedMessage}"
         log.error(information, exception)
-        policyStatusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed, None, None,
+        statusActor ! Update(PolicyStatusModel(policy.id.get, PolicyStatusEnum.Failed, None, None,
           Some(information)))
 
         SparkContextFactory.destroySparkContext(destroyStreamingContext = true)

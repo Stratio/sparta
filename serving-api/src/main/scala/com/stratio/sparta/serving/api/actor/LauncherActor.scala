@@ -21,8 +21,8 @@ import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.pipe
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.api.utils.StreamingContextActorUtils
+import com.stratio.sparta.serving.api.actor.LauncherActor._
+import com.stratio.sparta.serving.api.utils.LauncherActorUtils
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import org.apache.curator.framework.CuratorFramework
@@ -37,11 +37,11 @@ import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.util.Try
 
-class SparkStreamingContextActor(streamingContextService: StreamingContextService,
-                                 policyActor: ActorRef,
-                                 policyStatusActor: ActorRef,
-                                 curatorFramework: CuratorFramework) extends Actor
-  with StreamingContextActorUtils
+class LauncherActor(streamingContextService: StreamingContextService,
+                    policyActor: ActorRef,
+                    statusActor: ActorRef,
+                    curatorFramework: CuratorFramework) extends Actor
+  with LauncherActorUtils
   with SLF4JLogging
   with SpartaSerializer {
 
@@ -63,19 +63,19 @@ class SparkStreamingContextActor(streamingContextService: StreamingContextServic
    */
   def create(policy: PolicyModel): Future[Try[PolicyModel]] =
     if (policy.id.isDefined)
-      launch(policy, policyStatusActor, streamingContextService, context)
+      launch(policy, statusActor, streamingContextService, context)
     else {
       val result = policyActor ? PolicyActor.Create(policy)
       Await.result(result, timeout.duration) match {
         case ResponsePolicy(Failure(exception)) =>
           throw exception
         case ResponsePolicy(Success(policyCreated)) =>
-          launch(policyCreated, policyStatusActor, streamingContextService, context)
+          launch(policyCreated, statusActor, streamingContextService, context)
       }
     }
 }
 
-object SparkStreamingContextActor {
+object LauncherActor {
 
   case class Create(policy: PolicyModel)
 

@@ -22,12 +22,11 @@ import akka.routing.RoundRobinPool
 import akka.util.Timeout
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
-import com.stratio.sparta.serving.api.utils.PolicyStatusUtils
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
+import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyStatusUtils, PolicyUtils}
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -56,21 +55,21 @@ object SpartaHelper extends PolicyStatusUtils with PolicyUtils with CheckpointUt
       val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
       val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultControllerActorInstances
-      val policyStatusActor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)),
-        AkkaConstant.PolicyStatusActor)
+      val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
+        AkkaConstant.statusActor)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActor, fragmentActor)),
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)),
         AkkaConstant.PolicyActor)
-      val streamingContextService = StreamingContextService(Some(policyStatusActor), SpartaConfig.mainConfig)
+      val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
       val templateActor = system.actorOf(Props(new TemplateActor()), AkkaConstant.TemplateActor)
       val streamingContextActor = system.actorOf(Props(
-        new SparkStreamingContextActor(streamingContextService, policyActor, policyStatusActor, curatorFramework)),
+        new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)),
         AkkaConstant.SparkStreamingContextActor
       )
       val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
 
       implicit val actors = Map(
-        AkkaConstant.PolicyStatusActor -> policyStatusActor,
+        AkkaConstant.statusActor -> statusActor,
         AkkaConstant.FragmentActor -> fragmentActor,
         AkkaConstant.TemplateActor -> templateActor,
         AkkaConstant.PolicyActor -> policyActor,

@@ -21,9 +21,9 @@ import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PolicyActor._
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
+import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
@@ -237,7 +237,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       delete {
         complete {
-          val policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
+          val statusActor = actors(AkkaConstant.statusActor)
           for {
             policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
           } yield policies match {
@@ -245,7 +245,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
               throw exception
             case ResponsePolicies(Success(policies: Seq[PolicyModel])) =>
               Try{
-                policyStatusActor ? PolicyStatusActor.DeleteAll
+                statusActor ? StatusActor.DeleteAll
               } match {
                 case Success(_) => StatusCodes.OK
                 case Failure(exception) => throw exception
@@ -276,12 +276,12 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           for {
             Response(Success(_)) <- (supervisor ? Delete(id)).mapTo[Response]
-            policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
-            deleteContextResponse <- (policyStatusActor ? PolicyStatusActor.Delete(id))
-              .mapTo[PolicyStatusActor.ResponseDelete]
+            statusActor = actors(AkkaConstant.statusActor)
+            deleteContextResponse <- (statusActor ? StatusActor.Delete(id))
+              .mapTo[StatusActor.ResponseDelete]
           } yield deleteContextResponse match {
-            case PolicyStatusActor.ResponseDelete(Success(_)) => StatusCodes.OK
-            case PolicyStatusActor.ResponseDelete(Failure(exception)) => throw exception
+            case StatusActor.ResponseDelete(Success(_)) => StatusCodes.OK
+            case StatusActor.ResponseDelete(Failure(exception)) => throw exception
           }
         }
       }
@@ -348,7 +348,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             case ResponsePolicy(Success(policy)) =>
               PolicyValidator.validateDto(policy)
               val response = actors(AkkaConstant.SparkStreamingContextActor) ?
-                SparkStreamingContextActor.Create(policy)
+                LauncherActor.Create(policy)
               Await.result(response, timeout.duration) match {
                 case Failure(ex) => throw ex
                 case Success(_) => Result("Creating new context with name " + policy.name)
@@ -436,10 +436,10 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   protected def withStatus(policies: Seq[PolicyModel]): ToResponseMarshallable = {
 
     if (policies.nonEmpty) {
-      val policyStatusActor = actors(AkkaConstant.PolicyStatusActor)
+      val statusActor = actors(AkkaConstant.statusActor)
       for {
-        response <- (policyStatusActor ? PolicyStatusActor.FindAll)
-          .mapTo[PolicyStatusActor.Response]
+        response <- (statusActor ? StatusActor.FindAll)
+          .mapTo[StatusActor.Response]
       } yield policies.map(policy => getPolicyWithStatus(policy, response.policyStatus.get.policiesStatus))
     } else Seq()
   }

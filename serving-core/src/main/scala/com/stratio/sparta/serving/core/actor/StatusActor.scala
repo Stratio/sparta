@@ -16,14 +16,9 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import java.util.concurrent.TimeUnit
-
 import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.gracefulStop
-import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor._
-import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
@@ -31,17 +26,16 @@ import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.collection.JavaConversions
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-class PolicyStatusActor(curatorFramework: CuratorFramework)
-  extends Actor with SLF4JLogging with SpartaSerializer {
+class StatusActor(curatorFramework: CuratorFramework)
+  extends Actor with SLF4JLogging with SpartaSerializer with PolicyStatusUtils {
 
   override def receive: Receive = {
     case Create(policyStatus) => sender ! create(policyStatus)
@@ -49,37 +43,9 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     case FindAll => findAll()
     case FindById(id) => sender ! findById(id)
     case DeleteAll => deleteAll()
-    case PolicyStatusActor.Kill(name) => sender ! kill(name)
     case AddListener(name, callback) => addListener(name, callback)
     case Delete(id) => sender ! delete(id)
     case _ => log.info("Unrecognized message in Policy Status Actor")
-  }
-
-  def kill(policyName: String): Boolean = {
-    implicit val timeout: Timeout = Timeout(3L, TimeUnit.SECONDS)
-    val Stopped = true
-    val NotStopped = false
-    val pActor = context.actorSelection(cleanActorName(policyName)).resolveOne().value
-
-    pActor match {
-      case Some(Success(actor)) =>
-        val stopped = gracefulStop(actor, 2 seconds)
-        Await.result(stopped, 3 seconds) match {
-          case false =>
-            log.warn(s"Sending the Kill message to the actor with name: $policyName")
-            context.system.stop(actor)
-          case true =>
-            log.warn(s"Stopped correctly the actor with name: $policyName")
-        }
-        Stopped
-      case Some(Failure(e)) =>
-        log.warn(s"Failure getting policy actor with name: $policyName actor to kill." +
-          s" Exception: ${e.getLocalizedMessage}")
-        NotStopped
-      case None =>
-        log.warn(s"There is no policy actor with name: $policyName actor to kill")
-        NotStopped
-    }
   }
 
   def update(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
@@ -87,16 +53,16 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
       val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
       val newStatus = policyStatus.copy(
-        status = if(policyStatus.status == PolicyStatusEnum.NotDefined)
+        status = if (policyStatus.status == PolicyStatusEnum.NotDefined)
           actualStatus.status
         else policyStatus.status,
-        submissionId = if(policyStatus.submissionId.isEmpty)
+        submissionId = if (policyStatus.submissionId.isEmpty)
           actualStatus.submissionId
         else policyStatus.submissionId,
-        submissionStatus = if(policyStatus.submissionStatus.isEmpty)
+        submissionStatus = if (policyStatus.submissionStatus.isEmpty)
           actualStatus.submissionStatus
         else policyStatus.submissionStatus,
-        information = if(policyStatus.information.isEmpty)
+        information = if (policyStatus.information.isEmpty)
           actualStatus.information
         else policyStatus.information
       )
@@ -116,10 +82,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
   def create(policyStatus: PolicyStatusModel): Option[PolicyStatusModel] = {
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
     if (CuratorFactoryHolder.existsPath(statusPath)) {
-      val ips = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
-      log.info(s"Updating context ${policyStatus.id} : <${ips.status}> to <${policyStatus.status}>")
-      curatorFramework.setData().forPath(statusPath, write(policyStatus).getBytes)
-      Some(policyStatus)
+      update(policyStatus)
     } else {
       log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
       curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
@@ -190,11 +153,11 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
     )
 
   /**
-   * Adds a listener to one policy and executes the callback when it changed.
-   *
-   * @param id       of the policy.
-   * @param callback with a function that will be executed.
-   */
+    * Adds a listener to one policy and executes the callback when it changed.
+    *
+    * @param id       of the policy.
+    * @param callback with a function that will be executed.
+    */
   def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit): Unit = {
     val contextPath = s"${AppConstant.ContextPath}/$id"
     val nodeCache: NodeCache = new NodeCache(curatorFramework, contextPath)
@@ -212,9 +175,7 @@ class PolicyStatusActor(curatorFramework: CuratorFramework)
   }
 }
 
-object PolicyStatusActor {
-
-  case class Kill(name: String)
+object StatusActor {
 
   case class Update(policyStatus: PolicyStatusModel)
 

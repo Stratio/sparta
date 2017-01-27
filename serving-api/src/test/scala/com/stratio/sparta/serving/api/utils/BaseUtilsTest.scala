@@ -36,8 +36,8 @@ import akka.testkit._
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.serving.api.actor.{PolicyActor, SparkStreamingContextActor}
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
+import com.stratio.sparta.serving.api.actor.{PolicyActor, LauncherActor}
+import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
@@ -57,25 +57,25 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = mock[StreamingContextService]
 
-  val policyStatusTestActorRef = TestActorRef(new PolicyStatusActor(curatorFramework))
+  val policyStatusTestActorRef = TestActorRef(new StatusActor(curatorFramework))
   val policyFragmentActor = TestActorRef(new FragmentActor(curatorFramework))
   val policyTestActorRef =
     TestActorRef(new PolicyActor(curatorFramework, policyStatusTestActorRef, policyFragmentActor))
-  val policyStatusActorRef = system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
+  val statusActorRef = system.actorOf(Props(new StatusActor(curatorFramework)))
   val policyActorRef =
-    system.actorOf(Props(new PolicyActor(curatorFramework, policyStatusActorRef, policyFragmentActor)))
-  val policyStatusActor = policyStatusTestActorRef.underlyingActor
+    system.actorOf(Props(new PolicyActor(curatorFramework, statusActorRef, policyFragmentActor)))
+  val statusActor = policyStatusTestActorRef.underlyingActor
   val policyActor = policyTestActorRef.underlyingActor
 
-  val sparkStreamingContextTestActorRef = TestActorRef(new SparkStreamingContextActor(
+  val sparkStreamingContextTestActorRef = TestActorRef(new LauncherActor(
     streamingContextService = streamingContextService,
     policyActor = policyActorRef,
-    policyStatusActor = policyStatusActorRef,
+    statusActor = statusActorRef,
     curatorFramework = curatorFramework))
-  val sparkStreamingContextActorRef = system.actorOf(Props(new SparkStreamingContextActor(
+  val sparkStreamingContextActorRef = system.actorOf(Props(new LauncherActor(
     streamingContextService = streamingContextService,
     policyActor = policyActorRef,
-    policyStatusActor = policyStatusActorRef,
+    statusActor = statusActorRef,
     curatorFramework = curatorFramework)))
 
   val localConfig = ConfigFactory.parseString(
