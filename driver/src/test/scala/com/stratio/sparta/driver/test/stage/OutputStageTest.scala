@@ -64,6 +64,19 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     result should be(List(outputClass))
   }
 
+  "OutputStage" should "Fail gracefully with bad input" in {
+    val policy = mockPolicy
+    val reflection = mock[ReflectionUtils]
+    val outputs = Seq(PolicyElementModel("output", "Output", Map.empty))
+    when(policy.outputs).thenReturn(outputs)
+    when(reflection.tryToInstantiate(any(), any())).thenThrow(new RuntimeException("Fake"))
+
+    the[IllegalArgumentException] thrownBy {
+      TestStage(policy).outputStage(Seq.empty, reflection)
+    } should have message "Something gone wrong creating the output: Output. Please re-check the policy."
+  }
+
+
   "OutputStage" should "Fail when reflectionUtils don't behave correctly" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]

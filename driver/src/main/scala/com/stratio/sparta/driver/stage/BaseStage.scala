@@ -32,7 +32,11 @@ trait ZooKeeperError extends ErrorPersistor with SLF4JLogging {
 
   def clearError(id: Option[String]): Unit = {
     Try {
-      id.foreach(ErrorDAO.getInstance.dao.delete(_))
+      id.foreach(id => {
+        if (ErrorDAO.getInstance.dao.exists(id)) {
+          ErrorDAO.getInstance.dao.delete(id)
+        }
+      })
     } recover {
       //Log the error but continue the execution
       case e => log.error(s"Error while deleting $id from ZK.", e)
@@ -70,7 +74,7 @@ trait BaseStage extends SLF4JLogging {
                     ): IllegalArgumentException = {
     val originalMsg = ex.getCause match {
       case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
-      case _: Exception => ex.getCause.toString
+      case exception: Exception => exception.toString
       case _ => "No more detail provided"
     }
     val policyError = PolicyErrorModel(policy.id.getOrElse("unknown"), message, code, originalMsg)

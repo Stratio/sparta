@@ -52,6 +52,7 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
   private val ReflectionUtils = SpartaPipeline.ReflectionUtils
 
   def run(sc: SparkContext): StreamingContext = {
+    clearError(policy.id)
     val checkpointPolicyPath = checkpointPath(policy)
     val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
@@ -65,7 +66,6 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
     val cubesTriggersOutputs = outputStage(cubesTriggersSchemas, ReflectionUtils)
     val streamTriggersSchemas = SchemaHelper.getSchemasFromTriggers(policy.streamTriggers, policy.outputs)
     val streamTriggersOutputs = outputStage(streamTriggersSchemas, ReflectionUtils)
-    clearError(policy.id)
     cubesOutputs.foreach(output => output.setup())
 
     val input = inputStage(ssc.get, ReflectionUtils)
@@ -117,10 +117,8 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
                       initSchema: StructType,
                       outputs: Seq[Output]): StreamWriter = {
     val writerOp = StreamWriterOptions(overLast, computeEvery, sparkStreamingWindow, initSchema)
-
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }
-
 
 }
 
