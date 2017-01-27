@@ -53,23 +53,23 @@ class SpartaPipelineTest extends FlatSpec with ShouldMatchers with MockitoSugar 
   //  }
 
 
-  //  it should "parse a event" in {
-  //    val parser: Parser = mock[Parser]
-  //    val event: Row = mock[Row]
-  //    val parsedEvent = mock[Option[Row]]
-  //    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
-  //
-  //    val result = SpartaPipeline.parseEvent(event, parser)
-  //    result should be(parsedEvent)
-  //  }
-  //  it should "return none if a parse Event fails" in {
-  //    val parser: Parser = mock[Parser]
-  //    val event: Row = mock[Row]
-  //    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
-  //
-  //    val result = SpartaPipeline.parseEvent(event, parser)
-  //    result should be(None)
-  //  }
+  it should "parse a event" in {
+    val parser: Parser = mock[Parser]
+    val event: Row = mock[Row]
+    val parsedEvent = Seq(mock[Row])
+    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
+
+    val result = SpartaJob.parseEvent(event, parser)
+    result should be(parsedEvent)
+  }
+  it should "return none if a parse Event fails" in {
+    val parser: Parser = mock[Parser]
+    val event: Row = mock[Row]
+    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
+
+    val result = SpartaJob.parseEvent(event, parser)
+    result should be(Seq.empty)
+  }
 
   it should "create a input" in {
     val myInput = Some(mock[PolicyElementModel])

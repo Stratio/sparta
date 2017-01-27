@@ -37,12 +37,11 @@ class FilterParser(order: Integer,
 
   def defaultCastingFilterType: TypeOp = TypeOp.Any
 
-  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
-    applyFilters(row).map { valuesFiltered =>
-
-      val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
-
-      Row.fromSeq(prevData)
+  override def parse(row: Row, removeRaw: Boolean): Seq[Row] =
+    applyFilters(row) match {
+      case Some(valuesFiltered) =>
+        val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
+        Seq(Row.fromSeq(prevData))
+      case None => Seq.empty[Row]
     }
-  }
 }

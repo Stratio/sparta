@@ -21,12 +21,14 @@ import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.sdk.pipeline.transformation.{Parser, WhenError}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTime._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
+
+import scala.util.{Failure, Success, Try}
 
 class DateTimeParser(order: Integer,
                      inputField: Option[String],
@@ -39,9 +41,9 @@ class DateTimeParser(order: Integer,
   private val GranularityProperty = properties.getString(GranularityPropertyName, None)
 
   //scalastyle:off
-  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
+  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
-    val newData = {
+    val newData = Try {
       outputFields.map(outputField => {
         val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
         outputSchemaValid match {
@@ -53,30 +55,30 @@ class DateTimeParser(order: Integer,
                   parseToOutputType(outSchema, applyGranularity(value))
                 case Some(value: String) =>
                   if (value.isEmpty)
-                    returnNullValue(new IllegalStateException(
+                    returnWhenError(new IllegalStateException(
                       s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case Some(value: Array[Byte]) =>
                   val valueCasted = new Predef.String(value)
                   if (value.isEmpty)
-                    returnNullValue(new IllegalStateException(
+                    returnWhenError(new IllegalStateException(
                       s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(valueCasted)))
                 case Some(value) =>
                   parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case None =>
-                  returnNullValue(new IllegalStateException(
+                  returnWhenError(new IllegalStateException(
                     s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
               }
             }
           case None =>
-            returnNullValue(new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema"))
+            returnWhenError(new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema"))
         }
       })
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Option(Row.fromSeq(prevData ++ newData))
+    returnData(newData, prevData)
   }
 
   //scalastyle:on

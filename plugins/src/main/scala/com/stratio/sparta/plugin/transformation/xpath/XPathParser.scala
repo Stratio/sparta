@@ -26,6 +26,8 @@ import kantan.xpath.ops._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
+import scala.util.Try
+
 class XPathParser(order: Integer,
                   inputField: Option[String],
                   outputFields: Seq[String],
@@ -36,9 +38,9 @@ class XPathParser(order: Integer,
   val queriesModel = properties.getPropertiesQueries("queries")
 
   //scalastyle:off
-  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
+  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
-    val newData = {
+    val newData = Try {
       inputValue match {
         case Some(value) =>
           val valuesParsed = value match {
@@ -55,21 +57,21 @@ class XPathParser(order: Integer,
                   case Some(valueParsed) =>
                     parseToOutputType(outSchema, valueParsed)
                   case None =>
-                    returnNullValue(new IllegalStateException(
+                    returnWhenError(new IllegalStateException(
                       s"The values parsed not have the schema field: ${outSchema.name}"))
                 }
               case None =>
-                returnNullValue(new IllegalStateException(
+                returnWhenError(new IllegalStateException(
                   s"Impossible to parse outputField: $outputField in the schema"))
             }
           }
         case None =>
-          returnNullValue(new IllegalStateException(s"The input value is null or empty"))
+          returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Option(Row.fromSeq(prevData ++ newData))
+    returnData(newData, prevData)
   }
 
   //scalastyle:on

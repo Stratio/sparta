@@ -18,13 +18,13 @@ package com.stratio.sparta.plugin.transformation.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.sdk.pipeline.transformation.{Parser, WhenError}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class CsvParser(order: Integer,
                  inputField: Option[String],
@@ -37,9 +37,9 @@ class CsvParser(order: Integer,
   val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
 
   //scalastyle:off
-  override def parse(row: Row, removeRaw: Boolean): Option[Row] = {
+  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
-    val newData = {
+    val newData = Try {
       inputValue match {
         case Some(value) =>
           val valuesSplitted = {
@@ -60,22 +60,22 @@ class CsvParser(order: Integer,
                     case Some(valueParsed) =>
                       parseToOutputType(outSchema, valueParsed)
                     case None =>
-                      returnNullValue(new IllegalStateException(
+                      returnWhenError(new IllegalStateException(
                         s"The values parsed not have the schema field: ${outSchema.name}"))
                   }
                 case None =>
-                  returnNullValue(new IllegalStateException(
+                  returnWhenError(new IllegalStateException(
                     s"Impossible to parse outputField: $outputField in the schema"))
               }
             }
-          } else returnNullValue(new IllegalStateException(s"The values splitted are more or less than properties fields"))
+          } else returnWhenError(new IllegalStateException(s"The values splitted are more or less than properties fields"))
         case None =>
-          returnNullValue(new IllegalStateException(s"The input value is null or empty"))
+          returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
     }
     val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    Option(Row.fromSeq(prevData ++ newData))
+    returnData(newData, prevData)
   }
 
   //scalastyle:on
