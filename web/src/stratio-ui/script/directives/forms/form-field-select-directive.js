@@ -101,18 +101,6 @@
         $('#'+scope.name).focus();
       };
 
-      scope.mouseLeaveTooltip = function() {
-        var tooltipHolder = document.querySelector('#' + scope.name);
-        if (tooltipHolder) {
-          var tooltipParent = tooltipHolder.parentNode;
-          if (tooltipParent.querySelector('.popover')) {
-            tooltipParent.querySelector('.popover').addEventListener("mouseleave", function () {
-              tooltipParent.removeChild(this);
-            });
-          }
-        }
-      };
-
       function externalClickHandler(event) {
         if (event.target.id == "help-"+scope.name)
           return;
