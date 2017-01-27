@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
+import org.apache.spark.streaming.StreamingContextState
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.junit.runner.RunWith
@@ -65,10 +66,10 @@ class StreamingContextServiceIT extends WordSpecLike
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
       val jars = jarsFromPolicy(apConfig)
-      val streamingContextService = new StreamingContextService(None, spartaConfig)
+      val streamingContextService = StreamingContextService(None, spartaConfig)
       val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
 
-      ssc should not be equals(null)
+      ssc.getState() should be(StreamingContextState.INITIALIZED)
     }
   }
 }

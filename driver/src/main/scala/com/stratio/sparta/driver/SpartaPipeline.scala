@@ -29,6 +29,7 @@ import com.stratio.sparta.driver.writer.{StreamWriter, StreamWriterOptions}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
@@ -37,6 +38,8 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
+
+import scala.util.{Failure, Success, Try}
 
 class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
   with CheckpointUtils
@@ -70,7 +73,7 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
 
     saveRawData(policy.rawData, inputDStream)
 
-    val parsedData = applyParsers(inputDStream, parsers)
+    val parsedData = SpartaPipeline.applyParsers(inputDStream, parsers)
 
     triggerStage(policy.streamTriggers)
       .groupBy(trigger => (trigger.overLast, trigger.computeEvery))
@@ -117,6 +120,8 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
 
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }
+
+
 }
 
 object SpartaPipeline extends PolicyUtils {
@@ -140,5 +145,28 @@ object SpartaPipeline extends PolicyUtils {
       }
     }).toMap
   }
+
+  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
+    if (parsers.isEmpty) input
+    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
+  }
+
+  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
+    if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
+    else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
+  }
+
+  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Seq[Row] =
+    Try {
+      parser.parse(row, removeRaw)
+    } match {
+      case Success(eventParsed) =>
+        eventParsed
+      case Failure(exception) =>
+        val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
+          s" | Parser: ${parser.getClass.getSimpleName}"
+        log.error(error, exception)
+        Seq.empty[Row]
+    }
 
 }

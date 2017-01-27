@@ -21,11 +21,7 @@ import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.models.PhaseEnum
 import com.stratio.sparta.serving.core.models.policy.TransformationsModel
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.dstream.DStream
-
-import scala.util.{Failure, Success, Try}
 
 trait ParserStage extends BaseStage {
   this: ErrorPersistor =>
@@ -53,28 +49,5 @@ trait ParserStage extends BaseStage {
           .asInstanceOf[Parser])
     }
   }
-
-  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
-    if (parsers.isEmpty) input
-    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
-  }
-
-  def executeParsers(row: Row, parsers: Seq[Parser]): Option[Row] = {
-    if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
-    else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
-  }
-
-  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Option[Row] =
-    Try {
-      parser.parse(row, removeRaw)
-    } match {
-      case Success(eventParsed) =>
-        eventParsed
-      case Failure(exception) =>
-        val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
-          s" | Parser: ${parser.getClass.getSimpleName}"
-        log.error(error, exception)
-        None
-    }
 
 }
