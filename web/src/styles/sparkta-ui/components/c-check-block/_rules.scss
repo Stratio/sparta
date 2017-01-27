@@ -4,7 +4,7 @@
 	color: $c-check-block---color;
 	cursor: pointer;
 	padding: $c-check-block---padding;
-  overflow: hidden;
+    overflow: hidden;
 
   &__title{
     max-width: 90%;
@@ -36,7 +36,6 @@
 		top: $c-check-block__checkbox---top;
 		right: $c-check-block__checkbox---right;
 		position: absolute;
-
 		&:before {
 			color: $c-check-block__checkbox---color;
 		}
