@@ -12,7 +12,7 @@
         <input ng-attr-id="{{name}}" name="{{name}}" class="c-col c-col--12 c-input" data-ng-class="{'c-input__outputField': outputField}" type="{{type}}" data-ng-model="model"
                data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern" data-ng-minlength="minlength" maxlength="{{maxlength}}" min="{{min}}" max="{{max}}" step="{{step}}"
                data-ng-blur="isFocused=false" data-st-match="match" ng-trim="{{type !== 'password' && stTrim}}" placeholder="{{placeholder}}" data-qa="{{qa}}"
-               uib-popover='{{help}}' popover-class="popover--bottom" popover-trigger="focus" popover-placement="bottom" data-ng-focus="mouseLeaveTooltip()"/>
+               uib-popover='{{help}}' popover-class="popover--bottom" popover-trigger="focus" popover-placement="bottom"/>
         <span class="c-arrow-label c-arrow-label__form" data-ng-if="outputField">
             {{'_FIELD_' | translate}}
         </span>

@@ -1,7 +1,7 @@
 @mixin c-form-group {
 
   .c-form-control .c-icon-label .c-icon{
-    vertical-align: bottom;
+    vertical-align: baseline;
   }
 
   .c-form-control .c-icon-radio__label .c-icon-radio__text{
