@@ -16,11 +16,12 @@
 
 package com.stratio.sparta.serving.api.utils
 
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
-import PolicyStatusActor.Response
+import StatusActor.Response
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -40,10 +41,10 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Started)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
       for {
-        response <- spyActor.isAnyPolicyStarted(policyStatusActorRef)
+        response <- spyActor.isAnyPolicyStarted(statusActorRef)
       } yield response should be(Future(true))
     }
 
@@ -54,10 +55,10 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Starting)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
       for {
-        response <- spyActor.isAnyPolicyStarted(policyStatusActorRef)
+        response <- spyActor.isAnyPolicyStarted(statusActorRef)
       } yield response should be(Future(true))
     }
 
@@ -70,11 +71,11 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
           PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopped),
           PolicyStatusModel(id = "id1", status = PolicyStatusEnum.Stopping)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
 
       for {
-        response <- spyActor.isAnyPolicyStarted(policyStatusActorRef)
+        response <- spyActor.isAnyPolicyStarted(statusActorRef)
       } yield response should be(Future(false))
     }
   }
@@ -86,13 +87,13 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Starting)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
 
       SpartaConfig.initMainConfig(Option(yarnConfig), new MockConfigFactory(yarnConfig))
 
       for {
-        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
+        response <- spyActor.isAvailableToRun(getPolicyModel(), statusActorRef)
       } yield response should be(true)
     }
 
@@ -102,13 +103,13 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Started)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
 
       SpartaConfig.initMainConfig(Option(mesosConfig), new MockConfigFactory(mesosConfig))
 
       for {
-        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
+        response <- spyActor.isAvailableToRun(getPolicyModel(), statusActorRef)
       } yield response should be(true)
     }
 
@@ -119,13 +120,13 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Stopped)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
 
       SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
 
       for {
-        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
+        response <- spyActor.isAvailableToRun(getPolicyModel(), statusActorRef)
       } yield response should be(true)
     }
 
@@ -135,13 +136,13 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
         Future(Response(Success(PoliciesStatusModel(Seq(PolicyStatusModel(id = "id1", status = PolicyStatusEnum
           .Failed)))))))
         .when(spyActor)
-        .findAllPolicies(policyStatusActorRef)
+        .findAllStatuses(statusActorRef)
 
 
       SpartaConfig.initMainConfig(Option(standaloneConfig), new MockConfigFactory(standaloneConfig))
 
       for {
-        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
+        response <- spyActor.isAvailableToRun(getPolicyModel(), statusActorRef)
       } yield response should be(true)
     }
 
@@ -149,12 +150,12 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
       val spyActor = spy(this)
       doReturn(Future(true))
         .when(spyActor)
-        .isAnyPolicyStarted(policyStatusActorRef)
+        .isAnyPolicyStarted(statusActorRef)
 
       SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
 
       for {
-        response <- spyActor.isContextAvailable(getPolicyModel(), policyStatusActorRef)
+        response <- spyActor.isAvailableToRun(getPolicyModel(), statusActorRef)
       } yield response should be(false)
     }
   }

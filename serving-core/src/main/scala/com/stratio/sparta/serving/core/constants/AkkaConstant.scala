@@ -30,7 +30,7 @@ object AkkaConstant {
   val PluginActor = "pluginActor"
   val ControllerActor = "controllerActor"
   val SwaggerActor = "swaggerActor"
-  val PolicyStatusActor = "supervisorContextActor"
+  val statusActor = "supervisorContextActor"
   val ControllerActorInstances = "controllerActorInstances"
   val DefaultControllerActorInstances = 5
 

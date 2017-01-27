@@ -19,41 +19,42 @@ package com.stratio.sparta.serving.api.utils
 import akka.actor._
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor.Start
-import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalSparkStreamingContextActor}
+import com.stratio.sparta.serving.api.actor.LauncherActor.Start
+import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalLauncherActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 
 import scala.concurrent.ExecutionContext.Implicits._
 import scala.concurrent.Future
 import scala.util.Try
 
-trait StreamingContextActorUtils extends PolicyStatusUtils
+trait LauncherActorUtils extends PolicyStatusUtils
   with SLF4JLogging {
 
   val SparkStreamingContextActorPrefix: String = "sparkStreamingContextActor"
 
   def launch(policy: PolicyModel,
-             policyStatusActor: ActorRef,
+             statusActor: ActorRef,
              streamingContextService: StreamingContextService,
              context: ActorContext): Future[Try[PolicyModel]] =
     for {
-      isAvailable <- isContextAvailable(policy, policyStatusActor)
+      isAvailable <- isAvailableToRun(policy, statusActor)
     } yield Try {
       if (isAvailable) {
         log.info("Streaming Context Available, launching policy ... ")
-        val streamingLauncherActor =
-          getStreamingContextActor(policy, policyStatusActor, streamingContextService, context)
-        streamingLauncherActor ! Start(policy)
+        val launcherActor =
+          getLauncherActor(policy, statusActor, streamingContextService, context)
+        launcherActor ! Start(policy)
       }
       policy
     }
 
-  def getStreamingContextActor(policy: PolicyModel,
-                               policyStatusActor: ActorRef,
-                               streamingContextService: StreamingContextService,
-                               context: ActorContext): ActorRef = {
+  def getLauncherActor(policy: PolicyModel,
+                       statusActor: ActorRef,
+                       streamingContextService: StreamingContextService,
+                       context: ActorContext): ActorRef = {
     val actorName = cleanActorName(s"$SparkStreamingContextActorPrefix-${policy.name}")
     val policyActor = context.children.find(children => children.path.name == actorName)
 
@@ -64,27 +65,27 @@ trait StreamingContextActorUtils extends PolicyStatusUtils
         log.info(s"Launched -> $actorName")
         if (isLocalMode(policy)) {
           log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
-          getLocalLauncher(policy, policyStatusActor, streamingContextService, context, actorName)
+          getLocalLauncher(policy, statusActor, streamingContextService, context, actorName)
         } else {
           log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
-          getClusterLauncher(policy, policyStatusActor, context, actorName)
+          getClusterLauncher(policy, statusActor, context, actorName)
         }
     }
   }
 
   def getLocalLauncher(policy: PolicyModel,
-                       policyStatusActor: ActorRef,
+                       statusActor: ActorRef,
                        streamingContextService: StreamingContextService,
                        context: ActorContext,
                        actorName: String): ActorRef = {
     context.actorOf(
-      Props(new LocalSparkStreamingContextActor(streamingContextService, policyStatusActor)), actorName)
+      Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
   }
 
   def getClusterLauncher(policy: PolicyModel,
-                         policyStatusActor: ActorRef,
+                         statusActor: ActorRef,
                          context: ActorContext,
                          actorName: String): ActorRef = {
-    context.actorOf(Props(new ClusterLauncherActor(policyStatusActor)), actorName)
+    context.actorOf(Props(new ClusterLauncherActor(statusActor)), actorName)
   }
 }
