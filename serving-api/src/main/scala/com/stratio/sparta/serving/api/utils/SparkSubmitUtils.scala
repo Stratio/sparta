@@ -16,17 +16,15 @@
 
 package com.stratio.sparta.serving.api.utils
 
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.utils.ClusterSparkFilesUtils
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
-import com.stratio.sparta.serving.core.utils.HdfsUtils
+import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyConfigUtils}
 import com.typesafe.config.Config
 
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Properties, Success, Try}
 
-trait SparkSubmitUtils extends SLF4JLogging {
+trait SparkSubmitUtils extends PolicyConfigUtils {
 
   val SubmitDeployMode = "--deploy-mode"
   val SubmitName = "--name"
@@ -84,8 +82,7 @@ trait SparkSubmitUtils extends SLF4JLogging {
     policyOption.filter(_.trim.nonEmpty).getOrElse(configuration.getString(configurationKey)).trim
 
   def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
-    Try(policy.driverLocation.getOrElse(detailConfig.getString(DriverLocation)))
-      .getOrElse(DefaultDriverLocation) match {
+    driverLocation(policy) match {
       case location if location == "hdfs" =>
         val Hdfs = HdfsUtils()
         val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
@@ -98,9 +95,6 @@ trait SparkSubmitUtils extends SLF4JLogging {
           .getOrElse(DefaultProvidedDriverURI)
     }
 
-  def pluginsSubmit(policy: PolicyModel): Seq[String] =
-    policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
-
   def sparkHome(clusterConfig: Config): String =
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
@@ -109,44 +103,6 @@ trait SparkSubmitUtils extends SLF4JLogging {
    */
   def validateSparkHome(clusterConfig: Config): Unit = require(Try(sparkHome(clusterConfig)).isSuccess,
     "You must set the $SPARK_HOME path in configuration or environment")
-
-  /**
-   * Checks if supervise param is set when execution mode is standalone or mesos
-   *
-   * @return The result of checks as boolean value
-   */
-  def isSupervised(policy: PolicyModel, detailConfig: Config, clusterConfig: Config): Boolean = {
-    val executionMode = policy.executionMode match {
-      case Some(mode) if mode.nonEmpty => mode
-      case _ => detailConfig.getString(ExecutionMode)
-    }
-    if (executionMode == ConfigStandAlone || executionMode == ConfigMesos) {
-      Try(clusterConfig.getBoolean(Supervise)).getOrElse(false)
-    } else false
-  }
-
-  def isCluster(policy: PolicyModel, clusterConfig: Config): Boolean = {
-    policy.sparkConf.find(sparkProp =>
-      sparkProp.sparkConfKey == DeployMode && sparkProp.sparkConfValue == ClusterValue) match {
-      case Some(mode) => true
-      case _ => Try(clusterConfig.getString(DeployMode)) match {
-        case Success(mode) => mode == ClusterValue
-        case Failure(e) => false
-      }
-    }
-  }
-
-  def killUrl(clusterConfig: Config): String =
-    s"http://${
-      clusterConfig.getString(Master).trim
-        .replace("spark://", "")
-        .replace("mesos://", "")
-    }" + Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl)
-
-  def gracefulStop(policy: PolicyModel, detailConfig: Config): Boolean = {
-    Try(policy.stopGracefully.getOrElse(detailConfig.getBoolean(ConfigStopGracefully)))
-      .getOrElse(DefaultStopGracefully)
-  }
 
   def submitArgsFromPolicy(submitArgs: Seq[SubmitArgument]): Map[String, String] =
     submitArgs.flatMap(argument => {

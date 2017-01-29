@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.utils
+package com.stratio.sparta.serving.api.utils
 
 import java.io.File
 

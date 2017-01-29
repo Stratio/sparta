@@ -21,56 +21,42 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.SpartaClusterJob
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor._
-import com.stratio.sparta.serving.api.models.SubmissionResponse
+import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.api.utils.SparkSubmitUtils
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor.{AddListener, FindById, ResponseStatus, Update}
+import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{HdfsUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.curator.framework.recipes.cache.NodeCache
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
-import org.json4s.jackson.Serialization._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.io.Source
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
-class ClusterLauncherActor(statusActor: ActorRef) extends Actor
-  with SpartaSerializer with SchedulerUtils with SparkSubmitUtils {
+class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
+  with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils {
+
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   val SpartaDriverClass = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
-  val DetailConfig = SpartaConfig.getDetailConfig.getOrElse {
-    val message = "Impossible to extract Detail Configuration"
-    log.error(message)
-    throw new RuntimeException(message)
-  }
   val ZookeeperConfig = SpartaConfig.getZookeeperConfig.getOrElse {
     val message = "Impossible to extract Zookeeper Configuration"
     log.error(message)
     throw new RuntimeException(message)
   }
 
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
-
-  val submissionHandlers = scala.collection.mutable.Map.empty[String, SparkAppHandle]
-
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
+  //scalastyle:off
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
       val clusterConfig = SpartaConfig.getClusterConfig(policy.executionMode).get
@@ -84,7 +70,7 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
 
       val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val master = clusterConfig.getString(Master).trim
-      val pluginsFiles = pluginsSubmit(policy)
+      val pluginsFiles = pluginsJars(policy)
       val driverParams = Seq(policy.id.get.trim,
         zkConfigEncoded,
         detailConfigEncoded,
@@ -105,21 +91,27 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
         clusterConfig), clusterConfig)
     } match {
       case Failure(exception) =>
-        log.error(exception.getLocalizedMessage, exception)
-        setPolicyStatus(policy.id.get, Failed, None, None, Some(exception.getLocalizedMessage))
+        val information = s"Error when launching the Sparta cluster job: ${exception.toString}"
+        log.error(information, exception)
+        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
       case Success((sparkHandler, clusterConfig)) =>
-        val information = "Sparta Cluster Job launched correctly"
+        val information = "Sparta cluster job launched correctly"
         log.info(information)
-        setPolicyStatus(policy.id.get,
-          Launched,
-          Option(sparkHandler.getAppId),
-          Option(sparkHandler.getState.name()),
-          Some(information))
-        contextListener(policy, clusterConfig)
+        statusActor ! Update(PolicyStatusModel(
+          id = policy.id.get,
+          status = Launched,
+          submissionId = Option(sparkHandler.getAppId),
+          submissionStatus = Option(sparkHandler.getState.name()),
+          statusInfo = Option(information),
+          lastExecutionMode = Option(executionMode(policy))
+        ))
+        if (isCluster(policy, clusterConfig)) addClusterContextListener(policy, clusterConfig)
+        else addClientContextListener(policy, clusterConfig, sparkHandler)
         scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
-        submissionHandlers.put(policy.id.get, sparkHandler)
     }
   }
+
+  //scalastyle:on
 
   def launch(policy: PolicyModel,
              main: String,
@@ -141,7 +133,7 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
     //Spark arguments
     sparkArguments.filter(_._2.nonEmpty).foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
     sparkArguments.filter(_._2.isEmpty).foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k) }
-    if (!sparkArguments.contains(SubmitSupervise) && isSupervised(policy, DetailConfig, clusterConfig))
+    if (!sparkArguments.contains(SubmitSupervise) && isSupervised(policy, clusterConfig))
       sparkLauncher.addSparkArg(SubmitSupervise)
 
     // Kerberos Options
@@ -164,28 +156,13 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
       log.info(s"\t$key = $valueParsed")
       sparkLauncher.setConf(key.trim, valueParsed.trim)
     }
-    sparkLauncher.setConf(SparkGracefullyStopProperty, gracefulStop(policy, DetailConfig).toString)
+    sparkLauncher.setConf(SparkGracefullyStopProperty, gracefulStop(policy).toString)
 
     // Driver (Sparta) params
     driverArguments.foreach(sparkLauncher.addAppArgs(_))
 
     // Launch SparkApp
     sparkLauncher.startApplication(addSparkListener(policy))
-  }
-
-  /** Spark Launcher functions **/
-
-  def addSparkListener(policy: PolicyModel): SparkAppHandle.Listener = {
-    new SparkAppHandle.Listener() {
-      override def stateChanged(handle: SparkAppHandle): Unit = {
-        log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        setPolicyStatus(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption)
-      }
-
-      override def infoChanged(handle: SparkAppHandle): Unit = {
-        log.info(s"Submission info changed with status ... ${handle.getState.name()}")
-      }
-    }
   }
 
   /** Arguments functions **/
@@ -206,94 +183,23 @@ class ClusterLauncherActor(statusActor: ActorRef) extends Actor
       case None => encode(" ")
     }
 
-  /** Policy Status Functions **/
-
-  def setPolicyStatus(policyId: String,
-                      status: PolicyStatusEnum.Value,
-                      submissionId: Option[String] = None,
-                      submissionStatus: Option[String] = None,
-                      information: Option[String] = None): Unit =
-    statusActor ! Update(PolicyStatusModel(policyId, status, submissionId, submissionStatus, information))
-
   def checkPolicyStatus(policy: PolicyModel): Unit = {
     for {
       statusResponse <- (statusActor ? FindById(policy.id.get)).mapTo[ResponseStatus]
     } yield statusResponse match {
-      case PolicyStatusActor.ResponseStatus(Success(policyStatus)) =>
+      case StatusActor.ResponseStatus(Success(policyStatus)) =>
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Stopping) {
-          val information = s"The policy-checker detects that the policy ${policy.name} was not started/stopped " +
-            s"correctly, setting the failed status..."
+          val information = s"The policy-checker detects that the policy was not started/stopped correctly"
           log.error(information)
-          setPolicyStatus(policy.id.get, Failed, None, None, Some(information))
+          statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
         } else {
-          val information = s"The policy-checker detects that the policy ${policy.name} was started/stopped correctly"
+          val information = s"The policy-checker detects that the policy was started/stopped correctly"
           log.info(information)
-          setPolicyStatus(policy.id.get, NotDefined, None, None, Some(information))
+          statusActor ! Update(PolicyStatusModel(
+            id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
         }
-      case PolicyStatusActor.ResponseStatus(Failure(exception)) =>
+      case StatusActor.ResponseStatus(Failure(exception)) =>
         log.error(s"Error when extract policy status in scheduler task.", exception)
     }
   }
-
-  //scalastyle:off
-  def contextListener(policy: PolicyModel, clusterConfig: Config): Unit = {
-    log.info(s"Listener added to ${policy.name} with id: ${policy.id.get}")
-    statusActor ! AddListener(policy.id.get, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
-      synchronized {
-        if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
-          log.info("Stopping message received from Zookeeper")
-          try {
-            policyStatus.submissionId match {
-              case Some(submissionId) =>
-                try {
-                  if (isCluster(policy, clusterConfig)) {
-                    val url = killUrl(clusterConfig)
-                    log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $url")
-                    val post = if (submissionId.contains("driver")) {
-                      val frameworkId = submissionId.substring(0, submissionId.indexOf("driver") - 1)
-                      val sparkApplicationId = submissionId.substring(submissionId.indexOf("driver"))
-                      log.info(s"The extracted Framework id is: $frameworkId")
-                      log.info(s"The extracted Spark application id is: $sparkApplicationId")
-                      new HttpPost(s"$url/$sparkApplicationId")
-                    } else new HttpPost(s"$url/$submissionId")
-                    val postResponse = new DefaultHttpClient().execute(post)
-                    Try {
-                      read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
-                    } match {
-                      case Success(submissionResponse) =>
-                        log.info(s"Kill submission response status: ${submissionResponse.success}")
-                      case Failure(e) =>
-                        log.error("Impossible to parse submission killing response", e)
-                    }
-                  } else {
-                    log.info("Stopping submission policy with handler")
-                    submissionHandlers.get(policy.id.get).get.stop()
-                  }
-                } finally {
-                  val message = s"The policy ${policy.name} was stopped correctly"
-                  log.info(message)
-                  setPolicyStatus(policy.id.get, Stopped, None, None, Some(message))
-                }
-              case None =>
-                log.info(s"The Sparta System don't have submission id associated to policy ${policy.name}")
-            }
-          } finally {
-            submissionHandlers.get(policy.id.get).foreach(handle => {
-              log.info("Killing submission policy with handler")
-              handle.kill()
-              submissionHandlers.remove(policy.id.get)
-            })
-            Try(nodeCache.close()) match {
-              case Success(_) =>
-                log.info("Node cache to contextListener closed correctly")
-              case Failure(e) =>
-                log.error(s"The node Cache to contextListener in Zookeeper is not closed correctly", e)
-            }
-          }
-        }
-      }
-    })
-  }
-
-  //scalastyle:on
 }

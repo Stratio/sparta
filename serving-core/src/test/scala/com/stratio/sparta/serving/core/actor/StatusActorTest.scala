@@ -15,11 +15,14 @@
  */
 package com.stratio.sparta.serving.core.actor
 
-import scala.util.{Failure, Success}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit._
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -30,15 +33,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
 import scala.concurrent.duration._
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
-import PolicyStatusActor.{ResponseDelete, ResponseStatus}
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
-class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
+class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender
@@ -51,7 +49,9 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
   val createBuilder = mock[CreateBuilder]
   val deleteBuilder = mock[DeleteBuilder]
 
-  val actor = system.actorOf(Props(new PolicyStatusActor(curatorFramework)))
+  SpartaConfig.initMainConfig()
+
+  val actor = system.actorOf(Props(new StatusActor(curatorFramework)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
   val status = new PolicyStatusModel("existingID", PolicyStatusEnum.Launched)
@@ -63,7 +63,7 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
       |}
     """.stripMargin
 
-  "PolicyStatusActor" must {
+  "statusActor" must {
 
     "find: returns success when find an existing ID " in {
       when(curatorFramework
@@ -80,7 +80,7 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(statusRaw.getBytes)
 
-      actor ! PolicyStatusActor.FindById(id)
+      actor ! StatusActor.FindById(id)
 
       expectMsg(ResponseStatus(Success(status)))
       // scalastyle:on null
@@ -102,7 +102,7 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(null)
 
-      actor ! PolicyStatusActor.Delete(id)
+      actor ! StatusActor.Delete(id)
 
       expectMsg(ResponseDelete(Success(null)))
       // scalastyle:on null
@@ -118,7 +118,7 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(null)
 
-     actor ! PolicyStatusActor.Delete(id)
+     actor ! StatusActor.Delete(id)
 
       expectMsgAnyClassOf(classOf[ResponseDelete])
       // scalastyle:on null
@@ -139,7 +139,7 @@ class PolicyStatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", Spa
       when(curatorFramework.delete()
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenThrow(new RuntimeException())
-      actor ! PolicyStatusActor.Delete(id)
+      actor ! StatusActor.Delete(id)
 
       expectMsgAnyClassOf(classOf[ResponseDelete])
       // scalastyle:on null

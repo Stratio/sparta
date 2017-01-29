@@ -18,11 +18,11 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
-import com.stratio.sparta.serving.api.actor.SparkStreamingContextActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
-import com.stratio.sparta.serving.core.actor.{FragmentActor, PolicyStatusActor}
+import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyWithStatus}
@@ -41,27 +41,15 @@ with HttpServiceBaseTest {
   val sparkStreamingTestProbe = TestProbe()
   val fragmentActorTestProbe = TestProbe()
 
-  val policyStatusActorTestProbe = TestProbe()
+  val statusActorTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.SparkStreamingContextActor -> sparkStreamingTestProbe.ref,
+    AkkaConstant.LauncherActor -> sparkStreamingTestProbe.ref,
     AkkaConstant.FragmentActor -> fragmentActorTestProbe.ref,
-    AkkaConstant.PolicyStatusActor -> policyStatusActorTestProbe.ref
+    AkkaConstant.statusActor -> statusActorTestProbe.ref
   )
 
   "PolicyHttpService.find" should {
-    /*"find a policy from its id" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
-        testProbe.expectMsgType[Find]
-        val fragments = Seq(
-          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
-          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
-        )
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
-        responseAs[AggregationPoliciesModel].fragments.isEmpty should be(false)
-      }
-    }*/
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
       Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
@@ -72,17 +60,6 @@ with HttpServiceBaseTest {
   }
 
   "PolicyHttpService.findByName" should {
-    /*"find a policy from its name" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
-        testProbe.expectMsgType[FindByName]
-        val fragments = Seq(
-          FragmentElementModel(None, "input", "kafka", "", "", PolicyElementModel("kafka", "Kafka", Map())),
-          FragmentElementModel(None, "output", "mongo", "", "", PolicyElementModel("mongo", "MongoDb", Map()))
-        )
-        responseAs[AggregationPoliciesModel] should equal(getPolicyModel().copy(fragments = fragments))
-      }
-    }*/
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
       Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
@@ -104,15 +81,15 @@ with HttpServiceBaseTest {
       })
       startAutopilot(None, fragmentActorTestProbe, fragmentActorAutoPilot)
 
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+      val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case PolicyStatusActor.FindAll =>
-              sender ! PolicyStatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
+            case StatusActor.FindById(id) =>
+              sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
       })
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
 
       startAutopilot(ResponsePolicies(Success(Seq(getPolicyModel()))))
       Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes ~> check {
@@ -132,16 +109,16 @@ with HttpServiceBaseTest {
   "PolicyHttpService.findAll" should {
     "find all policies" in {
       startAutopilot(ResponsePolicies(Success(Seq(getPolicyModel()))))
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+      val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case PolicyStatusActor.FindAll =>
-              sender ! PolicyStatusActor.Response(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()), None)))
+            case StatusActor.FindById(id) =>
+              sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
       })
 
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyPath}/all") ~> routes ~> check {
         testProbe.expectMsgType[FindAll]
         responseAs[Seq[PolicyWithStatus]] should equal(Seq(getPolicyWithStatus()))
@@ -192,16 +169,16 @@ with HttpServiceBaseTest {
 
   "PolicyHttpService.remove" should {
     "return an OK because the policy was deleted" in {
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+      val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case PolicyStatusActor.Delete(id) =>
-              sender ! PolicyStatusActor.ResponseDelete(Success(true))
+            case StatusActor.Delete(id) =>
+              sender ! StatusActor.ResponseDelete(Success(true))
               TestActor.NoAutoPilot
           }
       })
       startAutopilot(Response(Success(getFragmentModel())))
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.OK)
@@ -209,16 +186,16 @@ with HttpServiceBaseTest {
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      val policyStatusActorAutoPilot = Option(new TestActor.AutoPilot {
+      val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case PolicyStatusActor.Delete(id) =>
-              sender ! PolicyStatusActor.ResponseDelete(Success(true))
+            case StatusActor.Delete(id) =>
+              sender ! StatusActor.ResponseDelete(Success(true))
               TestActor.NoAutoPilot
           }
       })
       startAutopilot(Response(Failure(new MockException())))
-      startAutopilot(None, policyStatusActorTestProbe, policyStatusActorAutoPilot)
+      startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.InternalServerError)
@@ -231,7 +208,7 @@ with HttpServiceBaseTest {
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case SparkStreamingContextActor.Create(policy) =>
+            case LauncherActor.Create(policy) =>
               sender ! Success(getPolicyModel())
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot
@@ -248,7 +225,7 @@ with HttpServiceBaseTest {
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case SparkStreamingContextActor.Create(policy) =>
+            case LauncherActor.Create(policy) =>
               sender ! Success(getPolicyModel())
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot

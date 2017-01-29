@@ -21,26 +21,22 @@ import java.util.UUID
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.FragmentActor
-import com.stratio.sparta.serving.core.constants.{ActorsConstant, AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
-import scala.concurrent.duration._
 import scala.util._
 
 trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   val fragmentActor: Option[ActorRef] = None
-
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   /** METHODS TO MANAGE POLICIES IN ZOOKEEPER **/
 
@@ -88,7 +84,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         None
     }
 
-  def getPolicies(curatorFramework: CuratorFramework, withFragments : Boolean): List[PolicyModel] = {
+  def getPolicies(curatorFramework: CuratorFramework, withFragments: Boolean): List[PolicyModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
     JavaConversions.asScalaBuffer(children).toList.map(id => byId(id, curatorFramework))
@@ -119,13 +115,12 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       }
     } else lastPolicy.version
 
-  def policyWithFragments(policy: PolicyModel, withFragmentCreation : Boolean = true)
-                         (implicit timeout: Timeout): PolicyModel =
+  def policyWithFragments(policy: PolicyModel, withFragmentCreation: Boolean = true): PolicyModel =
     fragmentActor.fold(policy) { actorRef => {
-      if(withFragmentCreation)
+      if (withFragmentCreation)
         (populateFragmentFromPolicy(policy, FragmentType.input) ++
-        populateFragmentFromPolicy(policy, FragmentType.output)
-        ).foreach(fragment => actorRef ! FragmentActor.Create(fragment))
+          populateFragmentFromPolicy(policy, FragmentType.output)
+          ).foreach(fragment => actorRef ! FragmentActor.Create(fragment))
       getPolicyWithFragments(policy, actorRef)
     }
     }
@@ -139,5 +134,13 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         log.info(s"Fragment created correctly: \n\tId: ${fragment.id}\n\tName: ${fragment.name}")
       case Failure(e) =>
         log.error(s"Fragment creation failure. Error: ${e.getLocalizedMessage}", e)
+    }
+
+  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
+    response match {
+      case Success(statusModel) =>
+        log.info(s"Policy status model created correctly: \n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
+      case Failure(e) =>
+        log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }
 }

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.models
-
+package com.stratio.sparta.serving.core.models.submit
 
 case class SubmissionResponse(action: String,
                               message: String,
