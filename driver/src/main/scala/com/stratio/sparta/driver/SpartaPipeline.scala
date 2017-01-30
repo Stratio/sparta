@@ -17,6 +17,7 @@ package com.stratio.sparta.driver
 
 import java.io._
 
+import akka.actor.ActorRef
 import com.stratio.sparta.driver.cube.CubeMaker
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
@@ -38,7 +39,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
+class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends PolicyUtils
   with CheckpointUtils
   with InputStage
   with OutputStage
@@ -49,7 +50,7 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
   private val ReflectionUtils = SpartaPipeline.ReflectionUtils
 
   def run(sc: SparkContext): StreamingContext = {
-    clearError(policy.id)
+    clearError()
     val checkpointPolicyPath = checkpointPath(policy)
     val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
@@ -123,7 +124,7 @@ object SpartaPipeline extends PolicyUtils {
 
   lazy val ReflectionUtils = new ReflectionUtils
 
-  def apply(policy: PolicyModel): SpartaPipeline = new SpartaPipeline(policy)
+  def apply(policy: PolicyModel, statusActor: ActorRef): SpartaPipeline = new SpartaPipeline(policy, statusActor)
 
   def getSparkConfigs(policy: PolicyModel, methodName: String, suffix: String): Map[String, String] = {
     log.info("Initializing reflection")

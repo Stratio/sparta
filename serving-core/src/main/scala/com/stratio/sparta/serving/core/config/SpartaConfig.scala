@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.core.config
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.SpartaSystem
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.util.{Failure, Success, Try}
@@ -157,11 +156,6 @@ object SpartaConfig extends SLF4JLogging {
       case Success(config) => Some(config)
       case _ => None
     }
-  }
-
-  def initDAOs: Unit = {
-    val zkConfig = SpartaConfig.getZookeeperConfig.get.atKey(AppConstant.ConfigZookeeper)
-    ErrorDAO(zkConfig)
   }
 
   def isHttpsEnabled(): Boolean = {

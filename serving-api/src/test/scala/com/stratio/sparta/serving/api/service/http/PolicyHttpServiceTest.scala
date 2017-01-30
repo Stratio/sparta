@@ -24,8 +24,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyWithStatus}
+import com.stratio.sparta.serving.core.models.policy._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -254,38 +253,6 @@ with HttpServiceBaseTest {
       Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
-  "PolicyHttpService.error" should {
-    "return an OK and the error " in {
-      val result = PolicyErrorModel(
-        policyId = "id",
-        message = "message",
-        phase = PhaseEnum.Cube,
-        originalMsg = "originalMsg"
-      )
-      startAutopilot(Success(result))
-      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
-        testProbe.expectMsgType[Error]
-        status should be(StatusCodes.OK)
-        responseAs[PolicyErrorModel] should equal(result)
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Failure(new MockException()))
-      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
-        testProbe.expectMsgType[Error]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-    "return a 400 if there is no data in ZK" in {
-      startAutopilot(Failure(new NoSuchElementException("the msg")))
-      Get(s"/${HttpConstant.PolicyPath}/error/id") ~> routes ~> check {
-        testProbe.expectMsgType[Error]
-        status should be(StatusCodes.BadRequest)
-        responseAs[ErrorModel] should equal(ErrorModel(ErrorModel.ErrorForPolicyNotFound, "the msg"))
       }
     }
   }

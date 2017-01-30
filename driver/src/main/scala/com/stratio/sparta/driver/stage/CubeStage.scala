@@ -28,7 +28,7 @@ import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
-import com.stratio.sparta.serving.core.models.PhaseEnum
+import com.stratio.sparta.serving.core.models.policy.PhaseEnum
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import org.apache.spark.sql.types.StructType

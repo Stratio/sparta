@@ -44,7 +44,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     createLocalCheckpointPath(policy)
 
-    val ssc = SpartaPipeline(policy).run(getLocalSparkContext(policy, files))
+    val ssc = SpartaPipeline(policy, statusActor).run(getLocalSparkContext(policy, files))
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
@@ -60,7 +60,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      SpartaPipeline(policy).run(getClusterSparkContext(policy, files, detailConfig))
+      SpartaPipeline(policy, statusActor).run(getClusterSparkContext(policy, files, detailConfig))
     })
 
     setSparkContext(ssc.sparkContext)

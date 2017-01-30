@@ -21,7 +21,6 @@ import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
-import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}

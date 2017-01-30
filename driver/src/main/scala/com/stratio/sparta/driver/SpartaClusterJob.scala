@@ -68,7 +68,7 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
         log.info(startingInfo)
         statusActor ! Update(PolicyStatusModel(
           id = policyId, status = PolicyStatusEnum.Starting, statusInfo = Some(startingInfo)))
-        val streamingContextService = new StreamingContextService(statusActor)
+        val streamingContextService = StreamingContextService(statusActor)
         val ssc = streamingContextService.clusterStreamingContext(
           policy,
           Seq.empty[String],
@@ -115,6 +115,5 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
         s"\n${clusterConfig.stripPrefix("{").stripSuffix("}")}"
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
-    SpartaConfig.initDAOs
   }
 }

@@ -27,10 +27,10 @@ import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, PolicyWithStatus}
-import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -46,7 +46,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
   override def routes: Route =
     find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~
-      removeAll ~ deleteCheckpoint ~ error
+      removeAll ~ deleteCheckpoint
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -399,42 +399,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
                 write(policy.copy(fragments = Seq.empty[FragmentElementModel])))
               getFromFile(tempFile)
             }
-        }
-      }
-    }
-  }
-
-  @Path("/error/{id}")
-  @ApiOperation(value = "Get the error from id.",
-    notes = "Get the last error from the policy.",
-    httpMethod = "GET",
-    response = classOf[PolicyErrorModel])
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "id",
-      value = "id of the policy",
-      dataType = "string",
-      required = true,
-      paramType = "path")
-  ))
-  @ApiResponses(Array(
-    new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)
-  ))
-  def error: Route = {
-
-    def handleResponse(error: Try[PolicyErrorModel]) = error match {
-      case Success(result) => StatusCodes.OK -> result
-      case Failure(e: NoSuchElementException) =>
-        StatusCodes.BadRequest -> new ErrorModel(ErrorModel.ErrorForPolicyNotFound, e.getLocalizedMessage)
-      case Failure(exception) => throw exception
-    }
-
-    path(HttpConstant.PolicyPath / "error" / Segment) { id =>
-      get {
-        complete {
-          for {
-            error <- (supervisor ? Error(id)).mapTo[Try[PolicyErrorModel]]
-          } yield handleResponse(error)
         }
       }
     }

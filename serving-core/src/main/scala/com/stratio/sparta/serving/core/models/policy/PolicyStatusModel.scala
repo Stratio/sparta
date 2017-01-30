@@ -26,5 +26,5 @@ case class PolicyStatusModel(id: String,
                              name: Option[String] = None,
                              description: Option[String] = None,
                              lastExecutionMode: Option[String] = None,
-                             lastError: Option[String] = None
+                             lastError: Option[PolicyErrorModel] = None
                             )

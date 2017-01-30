@@ -30,6 +30,7 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor with Pol
   override def receive: Receive = {
     case Create(policyStatus) => sender ! ResponseStatus(createStatus(policyStatus))
     case Update(policyStatus) => sender ! ResponseStatus(updateStatus(policyStatus))
+    case ClearLastError(id) => sender ! clearLastError(id)
     case FindAll => sender ! ResponseStatuses(findAllStatuses())
     case FindById(id) => sender ! ResponseStatus(findStatusById(id))
     case DeleteAll => sender ! ResponseDelete(deleteAll())
@@ -60,5 +61,7 @@ object StatusActor {
   case class ResponseStatus(policyStatus: Try[PolicyStatusModel])
 
   case class ResponseDelete(value: Try[_])
+
+  case class ClearLastError(id: String)
 
 }

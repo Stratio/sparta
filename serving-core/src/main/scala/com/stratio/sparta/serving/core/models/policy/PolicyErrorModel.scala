@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.models
+package com.stratio.sparta.serving.core.models.policy
+
+import java.util.Date
 
 object PhaseEnum extends Enumeration {
   val Input = Value("Input")
@@ -26,8 +28,8 @@ object PhaseEnum extends Enumeration {
 }
 
 case class PolicyErrorModel(
-                             policyId: String,
                              message: String,
                              phase: PhaseEnum.Value,
-                             originalMsg: String
+                             originalMsg: String,
+                             date: Date = new Date
                            )
