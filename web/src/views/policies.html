@@ -23,7 +23,9 @@
         <tr>
           <th class="c-table__td c-col--3">{{"_NAME_" | translate}}</th>
           <th class="c-table__td">{{"_DESCRIPTION_" | translate}}</th>
-          <th class="c-table__td c-col--1"></th>
+          <th class="c-table__td">{{"_SUBMISSION_ID_" | translate}}</th>
+          <th class="c-table__td">{{"_INFORMATION_" | translate}}</th>
+          <th class="c-table__td c-col--1">{{"_STATUS_" | translate}}</th>
           <th class="c-table__td c-col--1"></th>
         </tr>
         </thead>
@@ -31,6 +33,8 @@
         <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData.list">
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-col--3">{{policyData.policy.name}}</td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.description}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.submissionId}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.information}}</td>
           <td class="c-table__td c-col--1 c-table__td--to-right"><span
             class="c-policy-status-badge c-policy-status-badge--small c-policy-status-badge--{{policyData.status | lowercase}}">{{policyData.status}}</span>
           </td>
