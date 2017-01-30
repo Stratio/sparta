@@ -97,6 +97,8 @@ object AppConstant {
   val DriverLibraryPath = "driver-library-path"
   val DriverClassPath = "driver-class-path"
   val ClusterValue = "cluster"
+  val ClientValue = "client"
+  val LocalValue = "local"
   val KillUrl = "killUrl"
   val DefaultkillUrl = "/v1/submissions/kill"
 

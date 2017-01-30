@@ -21,6 +21,7 @@ import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
@@ -31,8 +32,7 @@ import org.apache.spark.streaming.StreamingContext
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(streamingContextService: StreamingContextService, statusActor: ActorRef)
-  extends Actor
-    with PolicyUtils {
+  extends Actor with PolicyUtils {
 
   private var ssc: Option[StreamingContext] = None
 
@@ -48,7 +48,11 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
       val startingInfo = s"Starting Sparta local job for policy"
       log.info(startingInfo)
       statusActor ! Update(PolicyStatusModel(
-        id = policy.id.get, status = PolicyStatusEnum.Starting, statusInfo = Some(startingInfo)))
+        id = policy.id.get,
+        status = PolicyStatusEnum.Starting,
+        statusInfo = Some(startingInfo),
+        lastExecutionMode = Option(AppConstant.LocalValue)
+      ))
 
       ssc = Option(streamingContextService.localStreamingContext(policy, jars))
       ssc.get.start()
