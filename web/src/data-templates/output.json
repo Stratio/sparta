@@ -415,11 +415,53 @@
     "name": "Print",
     "modelType": "Print",
     "description": {
-      "short": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+      "short": "Print the number of elements, schemas and data",
       "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Print"
     },
     "properties": [
+      {
+        "propertyId": "printData",
+        "propertyName": "_PRINT_DATA_",
+        "propertyType": "boolean",
+        "default": false,
+        "required": false,
+        "tooltip": "Specifies if the data is printed by the logger in WARN level",
+        "qa": "fragment-details-print-printData"
+      },
+      {
+        "propertyId": "printSchema",
+        "propertyName": "_PRINT_SCHEMA_",
+        "propertyType": "boolean",
+        "default": false,
+        "required": false,
+        "tooltip": "Specifies if the schema is printed by the logger in WARN level",
+        "qa": "fragment-details-print-printSchema"
+      },
+      {
+        "propertyId": "logLevel",
+        "propertyName": "_LOG_LEVEL_",
+        "propertyType": "select",
+        "regexp": "info|error|warn",
+        "values": [
+          {
+            "label": "Warning",
+            "value": "warn"
+          },
+          {
+            "label": "Error",
+            "value": "error"
+          },
+          {
+            "label": "Info",
+            "value": "info"
+          }
+        ],
+        "default": "warn",
+        "required": true,
+        "tooltip": "Sets the log level when print the data",
+        "qa": "fragment-details-output-print-logLevel"
+      }
     ]
   },
   {
