@@ -19,13 +19,13 @@ package com.stratio.sparta.driver.service
 import java.io.File
 
 import akka.actor.ActorRef
-import com.stratio.sparta.driver.SpartaJob
+import com.stratio.sparta.driver.SpartaPipeline
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.utils.LocalListenerUtils
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils, SchedulerUtils}
 import com.typesafe.config.Config
 import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
@@ -33,7 +33,7 @@ import org.apache.spark.streaming.StreamingContext
 import scala.util.Try
 
 case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[Config] = None)
-  extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
+  extends SchedulerUtils with CheckpointUtils with LocalListenerUtils with PolicyUtils{
 
   final val OutputsSparkConfiguration = "getSparkConfiguration"
 
@@ -44,7 +44,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     createLocalCheckpointPath(policy)
 
-    val ssc = SpartaJob(policy).run(getLocalSparkContext(policy, files))
+    val ssc = SpartaPipeline(policy).run(getLocalSparkContext(policy, files))
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
@@ -60,7 +60,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      SpartaJob(policy).run(getClusterSparkContext(policy, files, detailConfig))
+      SpartaPipeline(policy).run(getClusterSparkContext(policy, files, detailConfig))
     })
 
     setSparkContext(ssc.sparkContext)
@@ -71,8 +71,8 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
   }
 
   private def getLocalSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
-    val outputsSparkConfig = SpartaJob.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
-    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(apConfig)
+    val outputsSparkConfig = SpartaPipeline.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = SpartaPipeline.getSparkConfigFromPolicy(apConfig)
     val standAloneConfig = Try(generalConfig.get.getConfig(ConfigLocal)).toOption
 
     sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ outputsSparkConfig, jars)
@@ -81,8 +81,8 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
   private def getClusterSparkContext(policy: PolicyModel,
                                      classPath: Seq[String],
                                      detailConfig: Map[String, String]): SparkContext = {
-    val outputsSparkConfig = SpartaJob.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
-    val policySparkConfig = SpartaJob.getSparkConfigFromPolicy(policy)
+    val outputsSparkConfig = SpartaPipeline.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = getSparkConfigFromPolicy(policy)
 
     sparkClusterContextInstance(policySparkConfig ++ outputsSparkConfig ++ detailConfig, classPath)
   }

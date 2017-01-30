@@ -15,12 +15,13 @@
  */
 package com.stratio.sparta.driver.test
 
-import com.stratio.sparta.driver.SpartaJob
+import com.stratio.sparta.driver.SpartaPipeline
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -31,10 +32,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpec, ShouldMatchers}
 
-import scala.util.{Failure, Try}
-
 @RunWith(classOf[JUnitRunner])
-class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
+class SpartaPipelineTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   val aggModel: PolicyModel = mock[PolicyModel]
 
@@ -44,35 +43,6 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   val myOutput: PolicyElementModel = mock[PolicyElementModel]
 
-  "SpartaJob" should "return configs" in {
-    when(myOutput.`type`).thenReturn("Test")
-    when(aggModel.outputs).thenReturn(Seq(myOutput))
-    val reflecMoc = mock[ReflectionUtils]
-    when(reflecMoc.getClasspathMap).thenReturn(Map("TestOutput" -> "TestOutput"))
-    val result = Try(SpartaJob.getSparkConfigs(aggModel, method, suffix, Some(reflecMoc))) match {
-      case Failure(ex) => ex
-    }
-    result.isInstanceOf[ClassNotFoundException] should be(true)
-  }
-
-
-  it should "parse a event" in {
-    val parser: Parser = mock[Parser]
-    val event: Row = mock[Row]
-    val parsedEvent = Seq(mock[Row])
-    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
-
-    val result = SpartaJob.parseEvent(event, parser)
-    result should be(parsedEvent)
-  }
-  it should "return none if a parse Event fails" in {
-    val parser: Parser = mock[Parser]
-    val event: Row = mock[Row]
-    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
-
-    val result = SpartaJob.parseEvent(event, parser)
-    result should be(Seq.empty)
-  }
 
   it should "create a input" in {
     val myInput = Some(mock[PolicyElementModel])
@@ -87,7 +57,22 @@ class SpartaJobTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(myInputClass.setUp(ssc, aggModel.storageLevel.get)).thenReturn(mock[DStream[Row]])
     when(reflection.tryToInstantiate[Input](mockEq("InputInput"), any())).thenReturn(myInputClass)
 
-    val result = SpartaJob.getInput(aggModel, ssc, reflection)
+    SpartaConfig.initMainConfig(Option(SpartaPipelineTest.config))
+
+    val result = new SpartaPipeline(aggModel).inputStage(ssc, reflection)
     result should be(myInputClass)
   }
+
+}
+
+object SpartaPipelineTest {
+
+  val config = ConfigFactory.parseString(
+    s"""
+      "sparta": {
+        "config": {
+          "executionMode": "local"
+        }
+      }
+    """.stripMargin)
 }

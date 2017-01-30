@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.test.service
 
 import java.io.File
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -26,6 +26,7 @@ import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
+import org.apache.spark.streaming.StreamingContextState
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.junit.runner.RunWith
@@ -69,10 +70,10 @@ class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFact
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
       val jars = jarsFromPolicy(apConfig)
-      val streamingContextService = new StreamingContextService(statusActorRef, spartaConfig)
+      val streamingContextService = StreamingContextService(statusActorRef, spartaConfig)
       val ssc = streamingContextService.localStreamingContext(apConfig.copy(id = Some("1")), jars)
 
-      ssc should not be equals(null)
+      ssc.getState() should be(StreamingContextState.INITIALIZED)
     }
   }
 }
