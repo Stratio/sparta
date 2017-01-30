@@ -40,10 +40,6 @@
       vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
       CubeService.resetCreatedCubes();
-      if (vm.policy.cubes.length == 0) {
-        activateCubeCreationPanel();
-        CubeService.changeCubeCreationPanelVisibility(true);
-      }
     }
 
     function activateCubeCreationPanel() {
