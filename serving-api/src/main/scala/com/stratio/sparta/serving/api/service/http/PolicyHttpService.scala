@@ -410,7 +410,12 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       val response = (statusActor ? StatusActor.FindById(policy.id.get)).mapTo[ResponseStatus]
       Await.result(response, timeout.duration) match {
         case ResponseStatus(Success(statusModel)) =>
-          PolicyWithStatus(statusModel.status, policy, statusModel.submissionId, statusModel.statusInfo)
+          PolicyWithStatus(status = statusModel.status,
+            policy = policy,
+            submissionId = statusModel.submissionId,
+            statusInfo = statusModel.statusInfo,
+            lastExecutionMode = statusModel.lastExecutionMode,
+            lastError = statusModel.lastError)
         case ResponseStatus(Failure(e)) =>
           log.error(s"Error extracting status in policy: ${policy.name}")
           PolicyWithStatus(PolicyStatusEnum.NotStarted, policy)

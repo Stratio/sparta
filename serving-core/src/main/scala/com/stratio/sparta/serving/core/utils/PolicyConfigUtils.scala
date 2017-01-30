@@ -48,6 +48,14 @@ trait PolicyConfigUtils extends SLF4JLogging {
       }
     }
 
+  def getDetailExecutionMode(policy: PolicyModel, clusterConfig: Config): String =
+    if (isLocal(policy)) LocalValue
+    else {
+      val execMode = executionMode(policy)
+      if (isCluster(policy, clusterConfig)) s"$execMode-$ClusterValue"
+      else s"$execMode-$ClientValue"
+    }
+
   def pluginsJars(policy: PolicyModel): Seq[String] =
     policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
 
@@ -70,5 +78,4 @@ trait PolicyConfigUtils extends SLF4JLogging {
     case Some(mode) if mode.nonEmpty => mode
     case _ => DetailConfig.getString(ExecutionMode)
   }
-
 }
