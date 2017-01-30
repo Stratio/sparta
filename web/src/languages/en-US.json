@@ -319,6 +319,7 @@
   "_OPTIONAL_": "(Optional)",
   "_ADD_": "Add",
   "_ZOOKEEPER_CONNECT_": "Zookeeper connect",
+  "_REMOVE_INPUT_FIELD_" : "Remove input field",
   "_METADATA_BROKER_LIST_": "Metadata broker list",
   "_BOOTSTRAP_SERVERS_": "Bootstrap servers list",
   "_SPARK_PROPERTIES_": "Spark properties",

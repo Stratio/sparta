@@ -40,7 +40,7 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
 
 object Input {
 
-  final val ClassSuffix = "Input"
-  final val RawDataKey = "_attachment_body"
-  final val InitSchema = Map(Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))))
+  val ClassSuffix = "Input"
+  val RawDataKey = "_attachment_body"
+  val InitSchema = Map(Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))))
 }

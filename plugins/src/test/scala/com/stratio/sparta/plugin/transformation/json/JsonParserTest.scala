@@ -23,6 +23,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.JsoneyString
+
 @RunWith(classOf[JUnitRunner])
 class JsonParserTest extends WordSpecLike with Matchers {
 
@@ -87,7 +89,7 @@ class JsonParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row(JSON, "red", 19.95))
 
       assertResult(result)(expected)
@@ -112,8 +114,8 @@ class JsonParserTest extends WordSpecLike with Matchers {
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, true)
+        Map("queries" -> queries.asInstanceOf[JSerializable], "removeInputField" -> "true")
+      ).parse(input)
       val expected = Seq(Row("red", 19.95))
 
       assertResult(result)(expected)
@@ -141,7 +143,7 @@ class JsonParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
 
     "not parse when input is wrong" in {
@@ -165,7 +167,7 @@ class JsonParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
   }
 }

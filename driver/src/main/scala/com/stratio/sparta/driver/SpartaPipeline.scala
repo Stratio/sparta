@@ -20,7 +20,6 @@ import java.io._
 import com.stratio.sparta.driver.cube.CubeMaker
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
-import com.stratio.sparta.driver.helper.SchemaHelper._
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.stage._
 import com.stratio.sparta.driver.trigger.Trigger
@@ -55,8 +54,7 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
     val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = parserStage(ReflectionUtils, parserSchemas).sorted
-    val schemaWithoutRaw = getSchemaWithoutRaw(parserSchemas)
-    val cubes = cubeStage(ReflectionUtils, schemaWithoutRaw)
+    val cubes = cubeStage(ReflectionUtils, parserSchemas.values.last)
     val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes)
     val cubesOutputs = outputStage(cubesSchemas, ReflectionUtils)
     val cubesTriggersSchemas = SchemaHelper.getSchemasFromCubeTrigger(policy.cubes, policy.outputs)
@@ -81,7 +79,7 @@ class SpartaPipeline(val policy: PolicyModel) extends PolicyUtils
           overLast,
           computeEvery,
           sparkStreamingWindow,
-          schemaWithoutRaw,
+          parserSchemas.values.last,
           streamTriggersOutputs
         ).write(parsedData)
       }

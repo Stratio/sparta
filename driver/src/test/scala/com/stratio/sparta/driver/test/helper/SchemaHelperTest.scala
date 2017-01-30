@@ -26,6 +26,7 @@ import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
@@ -219,17 +220,24 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
   it should "return a schema without the raw" in
     new CommonValues {
-      val transformationsModel = Seq(transformationModel1, transformationModel2)
 
-      val schemas = SchemaHelper.getSchemasFromParsers(transformationsModel, Input.InitSchema)
-      val schemaWithoutRaw = SchemaHelper.getSchemaWithoutRaw(schemas)
+      val transformationNoRaw1 =
+        TransformationsModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2),
+          Map("removeInputField" -> JsoneyString.apply("true")))
+      val transformationNoRaw2 = TransformationsModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
+        outputFieldModel4),Map("removeInputField" -> JsoneyString.apply("true")))
 
-      val expected = StructType(
-        Seq(
-          StructField("field1", LongType), StructField("field2", IntegerType),
-          StructField("field3", StringType), StructField("field4", StringType)
+      val transformationsModel = Seq(transformationNoRaw1, transformationNoRaw2)
+
+      val schemaWithoutRaw = SchemaHelper.getSchemasFromParsers(transformationsModel, Input.InitSchema)
+
+      val expected = Map(
+        Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
+        "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
+        "1" -> StructType(Seq(StructField("field2", IntegerType),StructField("field3", StringType),
+          StructField("field4", StringType)))
         )
-      )
+
 
       schemaWithoutRaw should be(expected)
     }

@@ -18,6 +18,7 @@ package com.stratio.sparta.plugin.transformation.xpath
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{BooleanType, StringType, StructField, StructType}
 import org.scalatest._
@@ -66,7 +67,7 @@ class XPathParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row(XML, "1", true))
 
       assertResult(result)(expected)
@@ -92,8 +93,8 @@ class XPathParserTest extends WordSpecLike with Matchers {
         inputField,
         outputsFields,
         schema,
-        Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, true)
+        Map("queries" -> queries.asInstanceOf[JSerializable], "removeInputField" -> JsoneyString.apply("true"))
+      ).parse(input)
 
       val expected = Seq(Row("1", true))
 
@@ -122,7 +123,7 @@ class XPathParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
 
     "not parse when input is wrong" in {
@@ -146,7 +147,7 @@ class XPathParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
   }
 
