@@ -1,4 +1,37 @@
 {
+  "steps": [
+    {
+      "name": "_POLICY_._STEPS_._INPUT_",
+      "icon": "icon-input",
+      "currentMessage": "_MESSAGE_._INPUT_STEP_",
+      "order": 0
+    },
+    {
+      "name": "_POLICY_._STEPS_._TRANSFORMATION_",
+      "icon": "icon-content-left",
+      "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
+      "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_",
+      "order": 1
+    },
+    {
+      "name": "_POLICY_._STEPS_._TRIGGERS_",
+      "icon": "icon-bell",
+      "currentMessage": "_MESSAGE_._TRIGGER_STEP_",
+      "availableMessage": "_MESSAGE_._TRIGGER_STEP_AVAILABLE_",
+      "order": 2,
+      "isSubStep": true,
+      "isLastStep": true
+    },
+    {
+      "name": "_POLICY_._STEPS_._CUBES_",
+      "icon": "icon-box",
+      "currentMessage": "_MESSAGE_._CUBE_STEP_",
+      "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_",
+      "order": 2,
+      "isSubStep": true,
+      "isLastStep": true
+    }
+  ],
   "basicSettings": [
     {
       "propertyId": "name",
@@ -385,25 +418,6 @@
       ]
     }
   ],
-  "steps": [
-    {
-      "name": "_POLICY_._STEPS_._INPUT_",
-      "icon": "icon-input",
-      "currentMessage": "_MESSAGE_._INPUT_STEP_"
-    },
-    {
-      "name": "_POLICY_._STEPS_._TRANSFORMATION_",
-      "icon": "icon-content-left",
-      "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
-      "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_"
-    },
-    {
-      "name": "_POLICY_._STEPS_._CUBES_",
-      "icon": "icon-box",
-      "currentMessage": "_MESSAGE_._CUBE_STEP_",
-      "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_"
-    }
-  ],
   "helpLinks": [
     "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Create+and+Submit+Policy",
     "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs",
@@ -565,12 +579,12 @@
       "defaultConfiguration": {
         "queries": [
           {
-            "field":"field1",
-            "query":"$.field1-in-json"
+            "field": "field1",
+            "query": "$.field1-in-json"
           },
           {
-            "field":"field2",
-            "query":"$.field2-in-json"
+            "field": "field2",
+            "query": "$.field2-in-json"
           }
         ]
       }
@@ -662,17 +676,17 @@
         }
       ],
       "defaultConfiguration": {
-        "tooltip" : "A previously defined transformation is required in order to define filtering rules over a given field.",
+        "tooltip": "A previously defined transformation is required in order to define filtering rules over a given field.",
         "filters": [
           {
-            "field":"field1",
-            "type":"<",
-            "value":1
+            "field": "field1",
+            "type": "<",
+            "value": 1
           },
           {
-            "field":"field2",
-            "type":"=",
-            "value":"sparta"
+            "field": "field2",
+            "type": "=",
+            "value": "sparta"
           }
         ]
       }
@@ -718,12 +732,12 @@
       "defaultConfiguration": {
         "queries": [
           {
-            "field":"field1",
-            "query":"//element_path/@field1_in_xml"
+            "field": "field1",
+            "query": "//element_path/@field1_in_xml"
           },
           {
-            "field":"field2",
-            "query":"//element_path/@field1_in_xml"
+            "field": "field2",
+            "query": "//element_path/@field1_in_xml"
           }
         ]
       }
