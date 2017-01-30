@@ -18,27 +18,31 @@ package com.stratio.sparta.driver.test.service
 
 import java.io.File
 
+import akka.actor.{ActorSystem, Props}
 import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.StreamingContextState
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.junit.runner.RunWith
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class StreamingContextServiceIT extends WordSpecLike
-  with Matchers
-  with PolicyUtils {
+class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFactory with PolicyUtils {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OPrint.json").getPath
-
+  val curatorFramework = mock[CuratorFramework]
+  val system = ActorSystem("test", SpartaConfig.mainConfig)
+  val statusActorRef = system.actorOf(Props(new StatusActor(curatorFramework)))
   /**
    * This is a workaround to find the jars either in the IDE or in a maven execution.
    * This test should be moved to acceptance tests when available
@@ -66,8 +70,8 @@ class StreamingContextServiceIT extends WordSpecLike
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
       val jars = jarsFromPolicy(apConfig)
-      val streamingContextService = StreamingContextService(None, spartaConfig)
-      val ssc = streamingContextService.standAloneStreamingContext(apConfig.copy(id = Some("1")), jars)
+      val streamingContextService = StreamingContextService(statusActorRef, spartaConfig)
+      val ssc = streamingContextService.localStreamingContext(apConfig.copy(id = Some("1")), jars)
 
       ssc.getState() should be(StreamingContextState.INITIALIZED)
     }

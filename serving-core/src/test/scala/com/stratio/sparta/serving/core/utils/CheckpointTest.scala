@@ -21,7 +21,7 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class CheckpointTest extends PolicyBaseUtilsTest with CheckpointUtils {
+class CheckpointTest extends BaseUtilsTest with CheckpointUtils {
 
   val utils = spy(this)
 
@@ -29,7 +29,7 @@ class CheckpointTest extends PolicyBaseUtilsTest with CheckpointUtils {
     "delete path from HDFS when using not local mode" in {
       doReturn(false)
         .when(utils)
-        .isLocalMode(getPolicyModel())
+        .isLocal(getPolicyModel())
 
       utils.deleteCheckpointPath(getPolicyModel())
 
@@ -39,7 +39,7 @@ class CheckpointTest extends PolicyBaseUtilsTest with CheckpointUtils {
     "delete path from local when using local mode" in {
       doReturn(true)
         .when(utils)
-        .isLocalMode(getPolicyModel())
+        .isLocal(getPolicyModel())
 
       doReturn(false)
         .when(utils)

@@ -19,7 +19,8 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
-import com.stratio.sparta.serving.core.actor.PolicyStatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
@@ -34,9 +35,8 @@ import scala.util.Try
 /**
   * Implementation of supported CRUD operations over ZK needed to manage policies.
   */
-class PolicyActor(curatorFramework: CuratorFramework,
-                  policyStatusActor: ActorRef,
-                  fragmentActorRef: ActorRef) extends Actor with PolicyUtils with CheckpointUtils{
+class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fragmentActorRef: ActorRef)
+  extends Actor with PolicyUtils with CheckpointUtils {
 
   import PolicyActor._
 
@@ -56,6 +56,7 @@ class PolicyActor(curatorFramework: CuratorFramework,
     case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
     case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
     case ResponseFragment(fragment) => loggingResponseFragment(fragment)
+    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case Error(id) => error(id)
     case _ => log.info("Unrecognized message in Policy Actor")
   }
@@ -142,12 +143,14 @@ class PolicyActor(curatorFramework: CuratorFramework,
         ))
       }
       val policySaved = writePolicy(policyWithId(policy), curatorFramework)
-      associateStatus(policySaved)
+      statusActor ! StatusActor.Create(PolicyStatusModel(
+        id = policySaved.id.get,
+        status = PolicyStatusEnum.NotStarted,
+        name = Option(policy.name),
+        description = Option(policy.description)
+      ))
       policySaved
     })
-
-  def associateStatus(model: PolicyModel): Unit =
-    policyStatusActor ! PolicyStatusActor.Create(PolicyStatusModel(model.id.get, PolicyStatusEnum.NotStarted))
 
   def update(policy: PolicyModel): Unit = {
     val response = ResponsePolicy(Try {

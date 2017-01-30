@@ -22,7 +22,7 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class PolicyUtilsTest extends PolicyBaseUtilsTest
+class PolicyUtilsTest extends BaseUtilsTest
   with PolicyUtils {
 
   val utils = spy(this)

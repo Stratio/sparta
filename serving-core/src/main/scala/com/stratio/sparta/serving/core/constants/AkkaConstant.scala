@@ -24,13 +24,12 @@ object AkkaConstant {
 
   val StatusActor = "statusActor"
   val FragmentActor = "fragmentActor"
-  val TemplateActor = "templateActor"
   val PolicyActor = "policyActor"
-  val SparkStreamingContextActor = "sparkStreamingContextActor"
+  val LauncherActor = "sparkStreamingContextActor"
   val PluginActor = "pluginActor"
   val ControllerActor = "controllerActor"
   val SwaggerActor = "swaggerActor"
-  val PolicyStatusActor = "supervisorContextActor"
+  val statusActor = "supervisorContextActor"
   val ControllerActorInstances = "controllerActorInstances"
   val DefaultControllerActorInstances = 5
 

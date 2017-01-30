@@ -17,7 +17,6 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, _}
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparkta.serving.api.service.http.{PolicyContextHttpService, TemplateHttpService}
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
@@ -44,8 +43,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     secRoute ~ webRoutes ~
       authorized { user =>
         serviceRoutes.fragmentRoute ~
-          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
-          serviceRoutes.templateRoute ~ serviceRoutes.AppStatusRoute ~
+          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.AppStatusRoute ~
           serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
       }
   }
@@ -81,12 +79,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
-  val templateRoute: Route = new TemplateHttpService {
-    implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.TemplateActor)
-    override val actorRefFactory: ActorRefFactory = context
-  }.routes
-
   val policyRoute: Route = new PolicyHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.PolicyActor)
@@ -95,7 +87,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.SparkStreamingContextActor)
+    override val supervisor = actorsMap(AkkaConstant.LauncherActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 

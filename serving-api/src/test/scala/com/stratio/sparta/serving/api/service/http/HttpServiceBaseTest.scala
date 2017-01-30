@@ -18,18 +18,17 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import spray.testkit.ScalatestRouteTest
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.serving.core.models.{SpartaSerializer, _}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, TemplateModel}
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 import com.typesafe.config.ConfigFactory
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import spray.testkit.ScalatestRouteTest
 
 /**
  * Common operations for http service specs. All of them must extend from this class.
@@ -67,9 +66,6 @@ trait HttpServiceBaseTest extends WordSpec
     """.stripMargin)
 
   // XXX Protected methods.
-
-  protected def getTemplateModel(): TemplateModel =
-    new TemplateModel("template", "input", Map(), Map(), Seq())
 
   protected def getFragmentModel(id: Option[String]): FragmentElementModel =
     new FragmentElementModel(id, "input", "name", "description", "shortDescription",

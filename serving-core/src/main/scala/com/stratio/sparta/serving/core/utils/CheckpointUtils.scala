@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.core.utils
 
 import java.io.File
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
@@ -26,20 +25,9 @@ import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
 
-trait CheckpointUtils extends SLF4JLogging {
+trait CheckpointUtils extends PolicyConfigUtils {
 
   /* PUBLIC METHODS */
-
-  def isLocalMode(policyModel: PolicyModel): Boolean =
-    policyModel.executionMode match {
-      case Some(policyExecutionMode) if policyExecutionMode.nonEmpty =>
-        policyExecutionMode.equalsIgnoreCase(ConfigLocal)
-      case _ =>
-        SpartaConfig.getDetailConfig match {
-          case Some(detailConfig) => detailConfig.getString(ExecutionMode).equalsIgnoreCase(ConfigLocal)
-          case None => true
-        }
-    }
 
   def deleteFromLocal(policy: PolicyModel): Unit = {
     val checkpointDirectory = checkpointPath(policy)
@@ -61,7 +49,7 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def deleteCheckpointPath(policy: PolicyModel): Unit =
     Try {
-      if (isLocalMode(policy)) deleteFromLocal(policy)
+      if (isLocal(policy)) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy)}")
@@ -69,7 +57,7 @@ trait CheckpointUtils extends SLF4JLogging {
     }
 
   def createLocalCheckpointPath(policy: PolicyModel): Unit = {
-    if (isLocalMode(policy))
+    if (isLocal(policy))
       Try {
         createFromLocal(policy)
       } match {
@@ -106,24 +94,18 @@ trait CheckpointUtils extends SLF4JLogging {
     Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAutoDeleteCheckpoint))
       .getOrElse(DefaultAutoDeleteCheckpoint)
 
-  private def generateDefaultCheckpointPath(policy: PolicyModel): String = {
-    val executionMode = policy.executionMode match {
-      case Some(execMode) if execMode.nonEmpty => Some(execMode)
-      case _ => SpartaConfig.getDetailConfig.map(_.getString(ExecutionMode))
-    }
-
-    executionMode match {
-      case Some(mode) if mode == ConfigMesos || mode == ConfigYarn || mode == ConfigStandAlone =>
+  private def generateDefaultCheckpointPath(policy: PolicyModel): String =
+    executionMode(policy) match {
+      case mode if mode == ConfigMesos || mode == ConfigYarn || mode == ConfigStandAlone =>
         DefaultCheckpointPathClusterMode +
           Try(SpartaConfig.getHdfsConfig.get.getString(HadoopUserName))
             .getOrElse(DefaultHdfsUser) +
           DefaultHdfsUser
-      case Some(ConfigLocal) =>
+      case ConfigLocal =>
         DefaultCheckpointPathLocalMode
       case _ =>
         throw new RuntimeException("Error getting execution mode")
     }
-  }
 
   private def createFromLocal(policy: PolicyModel): Unit = {
     val checkpointDirectory = checkpointPath(policy)
