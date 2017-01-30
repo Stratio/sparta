@@ -137,6 +137,21 @@
             </c-tag-list>
           </div>
         </div>
+      <div class="c-row">
+        <div class="c-col c-col--6">
+          <h1 class="c-step-content__title">
+            <i class="c-icon icon-bell"></i>
+            <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
+          </h1>
+        </div><!--
+ --><div class="c-col c-col--6 c-col--to-right">
+        <button class="c-button c-button--call-to-action-7" ng-if="!vm.isActiveTriggerCreationPanel()"
+                data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">
+          <i class="icon icon-circle-plus"></i>
+          <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
+        </button>
+      </div>
+      </div>
         <ng-include src="'views/policy-wizard/trigger-accordion.html'" novalidate></ng-include>
       <div class="c-col c-col--12 c-msg c-msg--small c-msg--error c-form c-form-group"
            data-ng-if="vm.showTriggerError()"

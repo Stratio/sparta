@@ -8,6 +8,33 @@
   height: $c-step-progress-bar---height;
   margin-left: $c-step-progress-bar---margin-left;
   margin-top: $c-step-progress-bar---margin-top;
+
+  &__step-column {
+    top: 22px;
+    margin-left: 18px;
+    &:before {
+      content: '';
+      height: 50%;
+      position: absolute;
+      left: -19px;
+      top: 24px;
+      border-left: 1px $c-step-progress-bar__line---color solid;
+    }
+    &--enabled {
+      &:before {
+        border-left: 1px $c-step-progress-bar__line--enabled---color solid;
+      }
+    }
+  }
+
+  & section:last-child {
+    padding-right: 0;
+
+    .c-step__progress-line {
+      width: 0px;
+    }
+  }
+
 }
 
 .c-step-progress-bar {

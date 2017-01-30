@@ -22,33 +22,24 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
-    'TriggerService', 'triggerConstants', '$scope'];
+    '$scope'];
 
-  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService,
-                                    TriggerService, triggerConstants, $scope) {
+  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService, $scope) {
     var vm = this;
 
     vm.init = init;
-    vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
     vm.isActiveModelCreationPanel = ModelService.isActiveModelCreationPanel;
-    vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
     vm.modelCreationStatus = ModelService.getModelCreationStatus();
-    vm.triggerCreationStatus = TriggerService.getTriggerCreationStatus();
     vm.changeOpenedModel = changeOpenedModel;
     vm.activateModelCreationPanel = activateModelCreationPanel;
-    vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
-
+  
     vm.init();
 
     function init() {
       vm.outputsWidth = "m";
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
-      TriggerService.setTriggerContainer(vm.policy.streamTriggers, triggerConstants.TRANSFORMATION);
-      vm.triggerContainer = vm.policy.streamTriggers;
       vm.modelAccordionStatus = [];
-      vm.triggerAccordionStatus = [];
-      TriggerService.changeVisibilityOfHelpForSql(true);
       if (vm.policy.transformations.length == 0) {
         ModelService.changeModelCreationPanelVisibility(true);
         activateModelCreationPanel();
@@ -58,14 +49,7 @@
     function activateModelCreationPanel() {
       vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
       ModelService.activateModelCreationPanel();
-      TriggerService.disableTriggerCreationPanel();
       ModelService.resetModel(vm.template);
-    }
-
-    function activateTriggerCreationPanel() {
-      vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
-      TriggerService.activateTriggerCreationPanel();
-      ModelService.disableModelCreationPanel();
     }
 
     function changeOpenedModel(selectedModelPosition) {
@@ -82,34 +66,19 @@
       if (vm.policy.transformations.length == 0) {
         PolicyModelFactory.setError("_ERROR_._TRANSFORMATION_STEP_", "error");
       } else {
-        if (vm.isActiveModelCreationPanel() || vm.isActiveTriggerCreationPanel()) {
+        if (vm.isActiveModelCreationPanel()) {
           PolicyModelFactory.setError("_ERROR_._CHANGES_WITHOUT_SAVING_", "error");
         }
       }
       if (vm.isActiveModelCreationPanel()) {
         vm.modelAccordionStatus[vm.modelAccordionStatus.length - 1] = true;
       }
-
-      if (vm.isActiveTriggerCreationPanel()) {
-        vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
-      }
     });
 
     $scope.$watchCollection(
       "vm.modelCreationStatus",
       function (modelCreationStatus) {
-        if (!modelCreationStatus.enabled && !vm.triggerCreationStatus.enabled && vm.policy.transformations.length > 0) {
-          WizardStatusService.enableNextStep();
-        } else {
-          WizardStatusService.disableNextStep();
-        }
-      }
-    );
-
-    $scope.$watchCollection(
-      "vm.triggerCreationStatus",
-      function (triggerCreationStatus) {
-        if (!triggerCreationStatus.enabled && !vm.modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
+        if (!modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
           WizardStatusService.enableNextStep();
         } else {
           WizardStatusService.disableNextStep();
