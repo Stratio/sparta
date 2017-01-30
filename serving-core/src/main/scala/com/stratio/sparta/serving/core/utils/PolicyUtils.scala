@@ -143,4 +143,11 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case Failure(e) =>
         log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }
+
+  def getSparkConfigFromPolicy(policy: PolicyModel): Map[String, String] =
+    policy.sparkConf.flatMap { sparkProperty =>
+      if (sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
+        None
+      else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))
+    }.toMap
 }
