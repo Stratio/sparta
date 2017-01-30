@@ -139,7 +139,7 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val parser: Parser = mock[Parser]
     val event: Row = mock[Row]
     val parsedEvent = Seq(mock[Row])
-    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
+    when(parser.parse(event)).thenReturn(parsedEvent)
 
     val result = ParserStage.parseEvent(event, parser)
     result should be(parsedEvent)
@@ -147,7 +147,7 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   it should "return none if a parse Event fails" in {
     val parser: Parser = mock[Parser]
     val event: Row = mock[Row]
-    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
+    when(parser.parse(event)).thenThrow(new RuntimeException("testEx"))
 
     val result = ParserStage.parseEvent(event, parser)
     result should be(Seq.empty)
@@ -161,5 +161,5 @@ class TestParser(val order: Integer,
                  override val properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  override def parse(data: Row, removeRaw: Boolean): Seq[Row] = throw new RuntimeException("Fake implementation")
+  override def parse(data: Row): Seq[Row] = throw new RuntimeException("Fake implementation")
 }

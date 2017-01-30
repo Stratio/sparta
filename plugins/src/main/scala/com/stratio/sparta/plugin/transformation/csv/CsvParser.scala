@@ -37,7 +37,7 @@ class CsvParser(order: Integer,
   val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
 
   //scalastyle:off
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
+  override def parse(row: Row): Seq[Row] = {
     val inputValue = Option(row.get(inputFieldIndex))
     val newData = Try {
       inputValue match {
@@ -73,9 +73,8 @@ class CsvParser(order: Integer,
           returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
     }
-    val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    returnData(newData, prevData)
+    returnData(newData, removeInputField(row))
   }
 
   //scalastyle:on

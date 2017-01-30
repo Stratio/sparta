@@ -18,8 +18,8 @@
 
   /*POLICY CUBES CONTROLLER*/
   angular
-    .module('webApp')
-    .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
+      .module('webApp')
+      .controller('PolicyCubeAccordionCtrl', PolicyCubeAccordionCtrl);
 
   PolicyCubeAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'CubeModelFactory', 'CubeService', '$scope'];
 
@@ -40,10 +40,6 @@
       vm.cubeAccordionStatus = [];
       vm.helpLink = vm.template.helpLinks.cubes;
       CubeService.resetCreatedCubes();
-      if (vm.policy.cubes.length == 0) {
-        activateCubeCreationPanel();
-        CubeService.changeCubeCreationPanelVisibility(true);
-      }
     }
 
     function activateCubeCreationPanel() {
@@ -62,14 +58,14 @@
     }
 
     $scope.$watchCollection(
-      "vm.cubeCreationStatus",
-      function (cubeCreationStatus) {
-        if (!cubeCreationStatus.enabled) {
-          WizardStatusService.enableNextStep();
-        } else {
-          WizardStatusService.disableNextStep();
+        "vm.cubeCreationStatus",
+        function (cubeCreationStatus) {
+          if (!cubeCreationStatus.enabled) {
+            WizardStatusService.enableNextStep();
+          } else {
+            WizardStatusService.disableNextStep();
+          }
         }
-      }
     );
 
     $scope.$on("forceValidateForm", function () {

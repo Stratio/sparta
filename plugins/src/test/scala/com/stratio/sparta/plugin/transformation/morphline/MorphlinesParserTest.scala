@@ -74,7 +74,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
             }
         """
       val input = Row(simpleJson)
-      val result = parser.parse(input, false)
+      val result = parser.parse(input)
 
       val expected = Seq(Row(simpleJson, "hello", "world"))
 
@@ -89,7 +89,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
             }
         """
       val input = Row(simpleJson)
-      val result = parser.parse(input, true)
+      val result = parser.parse(input)
 
       val expected = Seq(Row("hello", "world"))
 
@@ -105,7 +105,7 @@ class MorphlinesParserTest extends WordSpecLike with Matchers with BeforeAndAfte
             }
         """
       val input = Row(simpleJson)
-      val result = parser.parse(input, false)
+      val result = parser.parse(input)
 
       val expected = Seq(Row(simpleJson, "hello", "world"))
 

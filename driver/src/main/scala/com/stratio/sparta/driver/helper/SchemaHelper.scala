@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, ExpiringData}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.autoCalculations._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
@@ -29,6 +30,10 @@ import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
 import org.apache.spark.sql.types._
+
+import scala.util.Try
+
+
 
 object SchemaHelper {
 
@@ -106,7 +111,16 @@ object SchemaHelper {
             Nullable
           )
         )
-        val fields = schemas.values.flatMap(structType => structType.fields) ++ schema.map(_._2)
+
+        val inputFields = schemas.values.flatMap(structType => structType.fields)
+        val fieldsFiltered = {
+          if (Try(transformationModel.configuration.getBoolean("removeInputField")).getOrElse(false) == true &&
+            transformationModel.inputField.isDefined)
+            inputFields.filter(stField => stField.name != transformationModel.inputField.get)
+          else inputFields
+        }
+
+        val fields = fieldsFiltered ++ schema.map(_._2)
         val recursiveSchema = Map(transformationModel.order.toString -> StructType(fields.toSeq))
 
         if (transformationsModel.size == 1)
@@ -117,8 +131,6 @@ object SchemaHelper {
     }
   }
 
-  def getSchemaWithoutRaw(schemas: Map[String, StructType]): StructType =
-    StructType(schemas.values.last.filter(_.name != Input.RawDataKey))
 
   //scalastyle:off
   def getSchemasFromCubes(cubes: Seq[Cube],

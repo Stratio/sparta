@@ -77,19 +77,6 @@ describe('policies.wizard.controller.policy-cube-accordion-controller', function
     it('it should get the policy that is being created or edited from policy factory', function () {
       expect(ctrl.policy).toBe(fakePolicy);
     });
-
-    it("if policy has not any cube, panel of cube creation is shown", function () {
-      fakePolicy.cubes = [];
-      ctrl = $controller('PolicyCubeAccordionCtrl  as vm', {
-        'WizardStatusService': wizardStatusServiceMock,
-        'PolicyModelFactory': policyModelFactoryMock,
-        'CubeModelFactory': cubeModelFactoryMock,
-        'CubeService': cubeServiceMock,
-        '$scope': scope
-      });
-
-      expect(cubeServiceMock.changeCubeCreationPanelVisibility).toHaveBeenCalled();
-    });
   });
 
   describe("should be able to act accordingly the accordion status to update the cube of the cube factory", function () {

@@ -27,5 +27,5 @@ class ParserMock(order: Integer,
                  properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = Seq(row)
+  override def parse(row: Row): Seq[Row] = Seq(row)
 }

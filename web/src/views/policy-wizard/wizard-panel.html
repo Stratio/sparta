@@ -1,5 +1,5 @@
 <c-slider-section data-hidden-section-id="step-progress-bar">
-  <c-step-progress-bar steps="wizard.steps" class="c-slider-content" id="step-progress-bar"
+  <c-step-progress-bar data-ng-if="wizard.steps" steps="wizard.steps" class="c-slider-content" id="step-progress-bar"
                        data-ng-if="showHiddenSection"
                        data-current-step="(wizard.status.currentStep)"
                        data-next-step-available="(wizard.status.nextStepAvailable)"
@@ -28,9 +28,11 @@
         <ng-include src="'views/policy-wizard/transformation-step-content.html'"></ng-include>
       </div>
       <div data-ng-switch-when="2">
+        <ng-include src="'views/policy-wizard/trigger-step-content.html'"></ng-include>
+      </div>
+      <div data-ng-switch-when="3">
         <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
       </div>
-
       <footer class="c-row c-row--separated-bottom c-row--footer">
         <div class="c-col c-col--12 c-col--vertical-centered">
           <button class="c-button c-button--call-to-action-1" data-ng-if="wizard.showPreviousStepButton()"
@@ -38,6 +40,13 @@
                   data-qa="policy-previous-step-button">
             <i class="icon icon-arrow-left"></i>
             <span>{{"_COME_BACK_TO_" | translate}} {{wizard.steps[wizard.status.currentStep-1].name |translate}}</span>
+          </button>
+          <button class="c-button c-button--to-right c-button--left-margin" data-ng-if="wizard.isLastStep()"
+                  data-ng-click="wizard.confirmPolicy()"
+                  data-ng-class="{'c-button--call-to-action-1':wizard.isValidPolicy(),'c-button--call-to-action-2':!wizard.isValidPolicy() }"
+                  data-qa="policy-save-button">
+            <i class="icon icon-rocket"></i>
+            <span>{{"_POLICY_._SAVE_" | translate}}</span>
           </button>
           <button
             data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
@@ -47,13 +56,7 @@
             <i class="icon icon-arrow-right"></i>
             <span>{{"_GO_TO_" | translate}} {{wizard.steps[wizard.status.currentStep+1].name |translate}}</span>
           </button>
-          <button class="c-button c-button--to-right" data-ng-if="wizard.isLastStep()"
-                  data-ng-click="wizard.confirmPolicy()"
-                  data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
-                  data-qa="policy-save-button">
-            <i class="icon icon-rocket"></i>
-            <span>{{"_POLICY_._SAVE_" | translate}}</span>
-          </button>
+
         </div>
 
         <div data-ng-show="wizard.successfullySentPolicy" class="c-row c-msg c-msg--small c-msg--success"

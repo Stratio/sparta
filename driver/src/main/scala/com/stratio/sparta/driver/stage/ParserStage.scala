@@ -59,9 +59,14 @@ trait ParserStage extends BaseStage {
 
 object ParserStage extends SLF4JLogging {
 
-  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Seq[Row] =
+  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
+    if (parsers.size == 1) parseEvent(row, parsers.head)
+    else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
+  }
+
+  def parseEvent(row: Row, parser: Parser): Seq[Row] =
     Try {
-      parser.parse(row, removeRaw)
+      parser.parse(row)
     } match {
       case Success(eventParsed) =>
         eventParsed
@@ -71,11 +76,6 @@ object ParserStage extends SLF4JLogging {
         log.error(error, exception)
         Seq.empty[Row]
     }
-
-  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
-    if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
-    else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
-  }
 
   def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
     if (parsers.isEmpty) input

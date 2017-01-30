@@ -1,19 +1,5 @@
 <form class="c-form c-panel c-panel--framed c-panel--border-top" novalidate>
-  <div class="c-row">
-    <div class="c-col c-col--6">
-      <h1 class="c-step-content__title">
-        <i class="c-icon icon-bell"></i>
-        <span class="c-step-content__title-text">{{"_TRIGGERS_" | translate}}</span>
-      </h1>
-    </div><!--
- --><div class="c-col c-col--6 c-col--to-right">
-      <button class="c-button c-button--call-to-action-7" ng-if="!vm.isActiveTriggerCreationPanel()"
-              data-ng-click="vm.activateTriggerCreationPanel()" data-qa="policy-model-add-new-trigger-button">
-        <i class="icon icon-circle-plus"></i>
-        <span>{{"_POLICY_._ADD_TRIGGER_" | translate}}</span>
-      </button>
-    </div>
-  </div>
+
   <c-accordion items="vm.triggerContainer" data-ng-model = "vm.triggerContainer"
     item-template="'views/policy-wizard/trigger-panel.html'"
     on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"

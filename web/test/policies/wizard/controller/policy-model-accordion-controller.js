@@ -1,6 +1,6 @@
 describe('policies.wizard.controller.policy-model-accordion-controller', function () {
   var ctrl, scope, translate, fakeTranslation, fakePolicy, fakePolicyTemplate, fakeModel, policyModelFactoryMock,
-    modelFactoryMock, cubeServiceMock, modelServiceMock, triggerServiceMock, wizardStatusServiceMock = null;
+    modelFactoryMock, cubeServiceMock, modelServiceMock, wizardStatusServiceMock = null;
 
   beforeEach(module('webApp'));
   beforeEach(module('model/policy.json'));
@@ -35,20 +35,13 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['resetModel', 'getModel', 'setModel', 'isValidModel', 'updateModelInputs']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
 
-    cubeServiceMock = jasmine.createSpyObj('CubeService', ['findCubesUsingOutputs']);
-
     modelServiceMock = jasmine.createSpyObj('ModelService', ['isActiveModelCreationPanel', 'changeModelCreationPanelVisibility', 'getModelCreationStatus', 'activateModelCreationPanel', 'disableModelCreationPanel', 'resetModel']);
-    triggerServiceMock = jasmine.createSpyObj('TriggerService', ['setTriggerContainer', 'changeVisibilityOfHelpForSql', 'getTriggerCreationStatus', 'activateTriggerCreationPanel', 'disableTriggerCreationPanel', 'isActiveTriggerCreationPanel']);
-
 
     ctrl = $controller('PolicyModelAccordionCtrl  as vm', {
       'WizardStatusService': wizardStatusServiceMock,
       'PolicyModelFactory': policyModelFactoryMock,
       'ModelFactory': modelFactoryMock,
-      'CubeService': cubeServiceMock,
       'ModelService': modelServiceMock,
-      '$translate': translate,
-      'TriggerService': triggerServiceMock,
       '$scope': scope
     });
 
@@ -62,10 +55,6 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     it('it should get the policy that is being created or edited from policy factory', function () {
       expect(ctrl.policy).toBe(fakePolicy);
-    });
-
-    it('it should put as trigger container the attribute streamTriggers of policy', function () {
-      expect(triggerServiceMock.setTriggerContainer).toHaveBeenCalledWith(ctrl.policy.streamTriggers, "transformation");
     });
 
   });
@@ -112,31 +101,9 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
       expect(ctrl.modelAccordionStatus[ctrl.modelAccordionStatus.length - 1]).toBeTruthy();
     });
 
-    it("trigger service is called to disable the trigger creation", function () {
-      expect(triggerServiceMock.disableTriggerCreationPanel).toHaveBeenCalled();
-    });
-
     it("model service is called to modify visibility of new model panel and reset model", function () {
       expect(modelServiceMock.activateModelCreationPanel).toHaveBeenCalled();
       expect(modelServiceMock.resetModel).toHaveBeenCalledWith(ctrl.template);
-    });
-  });
-
-  describe("Should be able to activate the trigger creation panel", function () {
-    beforeEach(function () {
-      ctrl.activateTriggerCreationPanel();
-    });
-
-    it("trigger accordion status is updated to show last position", function () {
-      expect(ctrl.triggerAccordionStatus[ctrl.triggerAccordionStatus.length - 1]).toBeTruthy();
-    });
-
-    it("model service is called to disable the model creation", function () {
-      expect(modelServiceMock.disableModelCreationPanel).toHaveBeenCalled();
-    });
-
-    it("trigger service is called to modify visibility of new trigger panel", function () {
-      expect(triggerServiceMock.activateTriggerCreationPanel).toHaveBeenCalled();
     });
   });
 
@@ -150,83 +117,57 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
       expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._TRANSFORMATION_STEP_', 'error');
     });
-    it("if transformation array is not empty, but user is creating a transformation or trigger, " +
+    it("if transformation array is not empty, but user is creating a transformation, " +
       "policy error is updated to warn user about saving his changes'", function () {
       ctrl.policy.transformations = [fakeModel];
       ctrl.isActiveModelCreationPanel.and.returnValue(true);
-      ctrl.isActiveTriggerCreationPanel.and.returnValue(false);
 
       scope.$broadcast("forceValidateForm");
 
       expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
 
       ctrl.isActiveModelCreationPanel.and.returnValue(false);
-      ctrl.isActiveTriggerCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
 
       expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._CHANGES_WITHOUT_SAVING_', 'error');
     });
 
-    it("if transformation or trigger creation are activated, creation panel is opened", function(){
+    it("if transformation is activated, creation panel is opened", function(){
       ctrl.policy.transformations = [fakeModel];
       ctrl.isActiveModelCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
 
       expect(ctrl.modelAccordionStatus[ctrl.modelAccordionStatus.length-1]).toBeTruthy();
-
-      ctrl.isActiveTriggerCreationPanel.and.returnValue(true);
-
-      scope.$broadcast("forceValidateForm");
-
-      expect(ctrl.triggerAccordionStatus[ctrl.triggerAccordionStatus.length-1]).toBeTruthy();
     })
   });
 
-  describe("Should be able to see changes in model and trigger creation status and transformation array in order to enable or disable next step", function(){
-    it ("next step is enabled only if model and trigger creation are not activated and transformation array is not empty", function(){
+  describe("Should be able to see changes in model creation status and transformation array in order to enable or disable next step", function(){
+    it ("next step is enabled only if model is not activated and transformation array is not empty", function(){
       ctrl.modelCreationStatus = {};
-      ctrl.triggerCreationStatus = {};
       ctrl.policy.transformations = [];
 
       ctrl.modelCreationStatus.enabled = true;
-      ctrl.triggerCreationStatus.enabled = true;
       scope.$apply();
 
       expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
 
       ctrl.policy.transformations = [fakeModel];
       ctrl.modelCreationStatus.enabled = true;
-      ctrl.triggerCreationStatus.enabled = false;
       scope.$apply();
 
       expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
 
       ctrl.modelCreationStatus.enabled = true;
-      ctrl.triggerCreationStatus.enabled = true;
       scope.$apply();
 
       expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
 
       ctrl.modelCreationStatus.enabled = false;
-      ctrl.triggerCreationStatus.enabled = true;
       scope.$apply();
 
       expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
-
-      ctrl.triggerCreationStatus.enabled = true;
-
-      ctrl.modelCreationStatus.enabled = true;
-
-      scope.$apply();
-
-      expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
-      ctrl.modelCreationStatus.enabled = false;
-      ctrl.triggerCreationStatus.enabled = false;
-      scope.$apply();
-
-      expect(wizardStatusServiceMock.enableNextStep).toHaveBeenCalled();
     })
   });
 });

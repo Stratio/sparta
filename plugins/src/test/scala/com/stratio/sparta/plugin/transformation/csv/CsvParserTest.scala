@@ -18,6 +18,7 @@ package com.stratio.sparta.plugin.transformation.csv
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -56,7 +57,7 @@ class CsvParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("fields" -> fields.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
       val expected = Seq(Row(CSV, "red", 19.95))
 
       assertResult(result)(expected)
@@ -79,8 +80,8 @@ class CsvParserTest extends WordSpecLike with Matchers {
         inputField,
         outputsFields,
         schema,
-        Map("fields" -> fields.asInstanceOf[JSerializable])
-      ).parse(input, true)
+        Map("fields" -> fields.asInstanceOf[JSerializable], "removeInputField" -> JsoneyString.apply("true"))
+      ).parse(input)
       val expected = Seq(Row("red", 19.95))
 
       assertResult(result)(expected)
@@ -106,7 +107,7 @@ class CsvParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("fields" -> fields.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
 
     "not parse when input is wrong" in {
@@ -128,7 +129,7 @@ class CsvParserTest extends WordSpecLike with Matchers {
         outputsFields,
         schema,
         Map("fields" -> fields.asInstanceOf[JSerializable])
-      ).parse(input, false)
+      ).parse(input)
     }
   }
 }

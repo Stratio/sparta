@@ -42,16 +42,15 @@ class IngestionParser(order: Integer,
 
   val fieldNames = outputFieldsSchema.map(field => field.name)
 
-  override def parse(row: Row, removeRaw: Boolean): Seq[Row] = {
+  override def parse(row: Row): Seq[Row] = {
     val input = row.get(schema.fieldIndex(inputField.get))
     val newData = Try(IngestionParser.parseRawData(input, fieldNames, outputFieldsSchema)) match {
       case Success(data) =>
         Try(data)
       case Failure(e) => returnWhenError(new Exception(e))
     }
-    val prevData = if (removeRaw) row.toSeq.drop(1) else row.toSeq
 
-    returnData(newData, prevData)
+    returnData(newData, removeInputField(row))
   }
 }
 

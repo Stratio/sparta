@@ -25,11 +25,7 @@
   &:last-child {
     padding-right: 0;
 
-    & .c-step__progress-line {
-      width: 0px;
-    }
-
-    &.c-step--active {
+     &.c-step--active {
       .c-step__progress-line {
         background: $c-step--active---color;
       }
@@ -113,6 +109,24 @@
     & .c-step__box {
       border: $c-step__box--visited---border;
       color: $c-step--active---color;
+    }
+  }
+
+  &--alternative {
+    padding-top: 6px !important;
+    &:before {
+      content: '';
+      width: 19px;
+      left: -19px;
+      top: 50%;
+      position: absolute;
+      border-top: 1px $c-step-progress-bar__line---color solid;
+    }
+  }
+
+  &--alternative.c-step--enabled {
+    &:before {
+      border-top: 1px $c-step-progress-bar__line--enabled---color solid;
     }
   }
 
