@@ -715,5 +715,28 @@
         "qa": "fragment-details-filesystem-url"
       }
     ]
+  },
+
+  {
+    "name": "Custom",
+    "modelType": "Custom",
+    "description": {
+      "short": "Allows you to load files from a Hadoop-compatible monitored filesystem directory.",
+      "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-FileSystem"
+    },
+
+    "properties": [
+      {
+        "propertyId": "modelType",
+        "propertyName": "modelType",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "saa",
+        "required": true,
+        "tooltip": "Path to directory to be monitired (HDFS, S3, Azure, etc.).",
+        "qa": "fragment-details-filesystem-url"
+      }
+    ]
   }
 ]

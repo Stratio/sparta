@@ -1,5 +1,5 @@
 <section>
-  <div class="c-panel" data-ng-if="policies.policiesData.list.length > 0">
+  <div class="c-panel" data-ng-if="policies.policiesData.length > 0">
     <aside class="c-toolbar--filter c-toolbar--fixed">
       <div class="c-col c-col--10">
         <!-- Error message -->
@@ -24,48 +24,57 @@
           <th class="c-table__td c-col--3">{{"_NAME_" | translate}}</th>
           <th class="c-table__td">{{"_DESCRIPTION_" | translate}}</th>
           <th class="c-table__td">{{"_SUBMISSION_ID_" | translate}}</th>
-          <th class="c-table__td">{{"_INFORMATION_" | translate}}</th>
-          <th class="c-table__td c-col--1">{{"_STATUS_" | translate}}</th>
+          <th class="c-table__td c-col--5">{{"_STATUS_INFORMATION_" | translate}}</th>
+          <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>
         </tr>
         </thead>
         <tbody>
-        <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData.list">
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-col--3">{{policyData.policy.name}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.description}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.submissionId}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.policy.information}}</td>
+
+        <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData">
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.name}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.description}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.submissionId}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table__td--might-overflow c-col--5"
+          data-ng-class="{'c-table__td--might-overflow--show-all-content': unfoldContent}">
+
+            <span class="c-table__td--might-overflow__text">{{policyData.statusInfo}}</span>
+            <i data-ng-show="policyData.statusInfo" class="c-icon icon-circle-plus c-icon--call-to-action c-icon--to-right c-icon--is-clickable"
+               data-ng-class="{'icon-circle-plus': !unfoldContent, 'icon-circle-minus': unfoldContent}"
+               ng-click="unfoldContent = !unfoldContent"></i>
+
+          </td>
           <td class="c-table__td c-col--1 c-table__td--to-right"><span
             class="c-policy-status-badge c-policy-status-badge--small c-policy-status-badge--{{policyData.status | lowercase}}">{{policyData.status}}</span>
           </td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
             <i class="c-icon c-icon--is-clickable c-icon--call-to-action icon-actions"
-               data-ng-click="$root.stToggleFloatingMenu[policyData.policy.id]()"
-               data-qa="policy-context-menu-{{policyData.policy.id}}">
-              <st-floating-menu toggle-id="{{policyData.policy.id}}" align="right">
+               data-ng-click="$root.stToggleFloatingMenu[policyData.id]()"
+               data-qa="policy-context-menu-{{policyData.id}}">
+              <st-floating-menu toggle-id="{{policyData.id}}" align="right">
                 <st-menu-element class-icon="icon-cross"
-                                 data-ng-click="policies.deletePolicy(policyData.policy.id, policyData.status, $index)"
-                                 data-qa="policy-context-menu-{{policyData.policy.id}}-delete">
+                                 data-ng-click="policies.deletePolicy(policyData.id, policyData.status, $index)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-delete">
                   {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-edit2"
-                                 data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.policy.id, policyData.status)"
-                                 data-qa="policy-context-menu-{{policyData.policy.id}}-edit">
+                                 data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.id, policyData.status)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-edit">
                   {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-download"
-                                 data-ng-click="policies.downloadPolicy(policyData.policy.id)"
-                                 data-qa="policy-context-menu-{{policyData.policy.id}}-download">
+                                 data-ng-click="policies.downloadPolicy(policyData.id)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-play"
-                                 data-ng-click="policies.runPolicy(policyData.policy.id, policyData.status, policyData.policy.name)"
-                                 data-qa="policy-context-menu-{{policyData.policy.id}}-run">
+                                 data-ng-click="policies.runPolicy(policyData.id, policyData.status, policyData.name)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-run">
                   {{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-stop"
-                                 data-ng-click="policies.stopPolicy(policyData.policy.id, policyData.status, policyData.policy.name)"
-                                 data-qa="policy-context-menu-{{policyData.policy.id}}-stop">
+                                 data-ng-click="policies.stopPolicy(policyData.id, policyData.status, policyData.name)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-stop">
                   {{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
                 </st-menu-element>
 
@@ -86,7 +95,7 @@
     </div>
 
   </div>
-  <div class="c-msg--noitems c-msg--giant" data-ng-if="policies.policiesData.list.length === 0"
+  <div class="c-msg--noitems c-msg--giant" data-ng-if=" !policies.loading && policies.policiesData.length === 0"
        data-ng-click="policies.createPolicy()" data-qa="policy-first-message">
     <i class="c-icon icon-marquee-plus"></i>
     <span class="c-msg__text">{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
