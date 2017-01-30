@@ -53,6 +53,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
+    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
@@ -105,8 +106,8 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
           statusInfo = Option(information),
           lastExecutionMode = Option(getDetailExecutionMode(policy, clusterConfig))
         ))
-        if (isCluster(policy, clusterConfig)) addClusterContextListener(policy, clusterConfig)
-        else addClientContextListener(policy, clusterConfig, sparkHandler)
+        if (isCluster(policy, clusterConfig)) addClusterContextListener(policy.id.get, policy.name, clusterConfig)
+        else addClientContextListener(policy.id.get, policy.name, clusterConfig, sparkHandler)
         scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
     }
   }
@@ -202,4 +203,13 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         log.error(s"Error when extract policy status in scheduler task.", exception)
     }
   }
+
+  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
+    response match {
+      case Success(statusModel) =>
+        log.info(s"Policy status model created or updated correctly: " +
+          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
+      case Failure(e) =>
+        log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
+    }
 }

@@ -139,7 +139,8 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
   def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
     response match {
       case Success(statusModel) =>
-        log.info(s"Policy status model created correctly: \n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
+        log.info(s"Policy status model created or updated correctly: " +
+          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
       case Failure(e) =>
         log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }

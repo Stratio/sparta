@@ -123,7 +123,6 @@ describe('policies.wizard.controller.policy-model-controller', function() {
 
       ctrl.onChangeType();
 
-      expect(ctrl.model.configuration).toEqual(fakeModelTemplate.Geo.defaultConfiguration);
       expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate.Geo.outputFieldTypes);
       expect(ctrl.model.inputField).toBeUndefined();
 
@@ -185,7 +184,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
         utilsServiceMock.findElementInJSONArray.and.returnValue(5); // there is an output field with the same name
         ctrl.form = {$valid: true}; //view validations have been passed
       });
-      
+
       it('if it is not a dateTime transformation', function() {
         ctrl.model.type = modelConstants.MORPHLINES;
 
@@ -210,7 +209,7 @@ describe('policies.wizard.controller.policy-model-controller', function() {
         var fakeGranularityNumber = "5";
         var fakeGranularityTime = "minutes";
         ctrl.model.configuration = {granularityNumber: fakeGranularityNumber, granularityTime: fakeGranularityTime};
-        
+
         ctrl.addModel();
 
         expect(ctrl.model.configuration.granularity).toBe(fakeGranularityNumber + fakeGranularityTime);
