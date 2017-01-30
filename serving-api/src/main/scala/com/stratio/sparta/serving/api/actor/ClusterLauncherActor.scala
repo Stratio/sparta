@@ -103,7 +103,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
           submissionId = Option(sparkHandler.getAppId),
           submissionStatus = Option(sparkHandler.getState.name()),
           statusInfo = Option(information),
-          lastExecutionMode = Option(executionMode(policy))
+          lastExecutionMode = Option(getDetailExecutionMode(policy, clusterConfig))
         ))
         if (isCluster(policy, clusterConfig)) addClusterContextListener(policy, clusterConfig)
         else addClientContextListener(policy, clusterConfig, sparkHandler)

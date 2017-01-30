@@ -42,26 +42,19 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
       if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
         val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = policyStatus.copy(
-          status = if (policyStatus.status == PolicyStatusEnum.NotDefined)
-            actualStatus.status
+          status = if (policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.status
           else policyStatus.status,
-          name = if (policyStatus.name.isEmpty)
-            actualStatus.name
+          name = if (policyStatus.name.isEmpty) actualStatus.name
           else policyStatus.name,
-          description = if (policyStatus.description.isEmpty)
-            actualStatus.description
+          description = if (policyStatus.description.isEmpty) actualStatus.description
           else policyStatus.description,
-          lastError = if (policyStatus.lastError.isEmpty)
-            actualStatus.lastError
+          lastError = if (policyStatus.lastError.isEmpty) actualStatus.lastError
           else policyStatus.lastError,
-          submissionId = if (policyStatus.submissionId.isEmpty)
-            actualStatus.submissionId
+          submissionId = if (policyStatus.submissionId.isEmpty) actualStatus.submissionId
           else policyStatus.submissionId,
-          submissionStatus = if (policyStatus.submissionStatus.isEmpty)
-            actualStatus.submissionStatus
+          submissionStatus = if (policyStatus.submissionStatus.isEmpty) actualStatus.submissionStatus
           else policyStatus.submissionStatus,
-          statusInfo = if (policyStatus.statusInfo.isEmpty)
-            actualStatus.statusInfo
+          statusInfo = if (policyStatus.statusInfo.isEmpty) actualStatus.statusInfo
           else policyStatus.statusInfo
         )
         log.info(s"Updating context ${newStatus.id} with name ${newStatus.name}: " +

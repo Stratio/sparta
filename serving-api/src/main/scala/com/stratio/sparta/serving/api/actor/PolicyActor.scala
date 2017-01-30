@@ -162,6 +162,12 @@ class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fra
         ))
       } else {
         val policySaved = updatePolicy(policyWithId(policy), curatorFramework)
+        statusActor ! StatusActor.Update(PolicyStatusModel(
+          id = policySaved.id.get,
+          status = PolicyStatusEnum.NotDefined,
+          name = Option(policy.name),
+          description = Option(policy.description)
+        ))
         policySaved
       }
     }.recover {
