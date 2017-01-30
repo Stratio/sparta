@@ -134,6 +134,24 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
       TestStage(policy).parserStage(reflection, Map("1" -> outputScheme))
     } should have message "Something gone wrong creating the parser: Test. Please re-check the policy."
   }
+
+  it should "parse a event" in {
+    val parser: Parser = mock[Parser]
+    val event: Row = mock[Row]
+    val parsedEvent = Seq(mock[Row])
+    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
+
+    val result = ParserStage.parseEvent(event, parser)
+    result should be(parsedEvent)
+  }
+  it should "return none if a parse Event fails" in {
+    val parser: Parser = mock[Parser]
+    val event: Row = mock[Row]
+    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
+
+    val result = ParserStage.parseEvent(event, parser)
+    result should be(Seq.empty)
+  }
 }
 
 class TestParser(val order: Integer,

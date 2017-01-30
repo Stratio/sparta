@@ -18,7 +18,6 @@ package com.stratio.sparta.driver.test
 import com.stratio.sparta.driver.SpartaPipeline
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
@@ -44,23 +43,6 @@ class SpartaPipelineTest extends FlatSpec with ShouldMatchers with MockitoSugar 
 
   val myOutput: PolicyElementModel = mock[PolicyElementModel]
 
-  it should "parse a event" in {
-    val parser: Parser = mock[Parser]
-    val event: Row = mock[Row]
-    val parsedEvent = Seq(mock[Row])
-    when(parser.parse(event, removeRaw = false)).thenReturn(parsedEvent)
-
-    val result = SpartaPipeline.parseEvent(event, parser)
-    result should be(parsedEvent)
-  }
-  it should "return none if a parse Event fails" in {
-    val parser: Parser = mock[Parser]
-    val event: Row = mock[Row]
-    when(parser.parse(event, removeRaw = false)).thenThrow(new RuntimeException("testEx"))
-
-    val result = SpartaPipeline.parseEvent(event, parser)
-    result should be(Seq.empty)
-  }
 
   it should "create a input" in {
     val myInput = Some(mock[PolicyElementModel])

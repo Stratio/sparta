@@ -17,11 +17,16 @@ package com.stratio.sparta.driver.stage
 
 import java.io.Serializable
 
+import com.stratio.sparta.driver.SpartaPipeline.log
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.models.PhaseEnum
 import com.stratio.sparta.serving.core.models.policy.TransformationsModel
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.dstream.DStream
+
+import scala.util.{Failure, Success, Try}
 
 trait ParserStage extends BaseStage {
   this: ErrorPersistor =>
@@ -48,6 +53,34 @@ trait ParserStage extends BaseStage {
           .newInstance(model.order, model.inputField, outputFieldsNames, schema, model.configuration)
           .asInstanceOf[Parser])
     }
+  }
+
+
+}
+
+object ParserStage {
+
+  def parseEvent(row: Row, parser: Parser, removeRaw: Boolean = false): Seq[Row] =
+    Try {
+      parser.parse(row, removeRaw)
+    } match {
+      case Success(eventParsed) =>
+        eventParsed
+      case Failure(exception) =>
+        val error = s"Failure[Parser]: ${row.mkString(",")} | Message: ${exception.getLocalizedMessage}" +
+          s" | Parser: ${parser.getClass.getSimpleName}"
+        log.error(error, exception)
+        Seq.empty[Row]
+    }
+
+  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
+    if (parsers.size == 1) parseEvent(row, parsers.head, removeRaw = true)
+    else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
+  }
+
+  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
+    if (parsers.isEmpty) input
+    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
   }
 
 }
