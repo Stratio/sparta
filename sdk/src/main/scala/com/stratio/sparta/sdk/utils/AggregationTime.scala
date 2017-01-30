@@ -84,7 +84,7 @@ object AggregationTime extends SLF4JLogging {
           roundDateTime(date, genericDates(date, "day"))
         case "[1-9][0-9]*week" | "undefinedweek" | "[1-9][0-9]*w" =>
           log.debug(s"Cannot aggregate by $granularity. Aggregating by week...")
-          genericDates(date, "week").getMillis
+          date.weekOfWeekyear.get()
         case "[1-9][0-9]*month" | "undefinedmonth" | "[1-9][0-9]*M" =>
           log.debug(s"Cannot aggregate by $granularity. Aggregating by month...")
           roundDateTime(date, genericDates(date, "month"))
@@ -105,7 +105,6 @@ object AggregationTime extends SLF4JLogging {
     val minutesDate = secondsDate.withSecondOfMinute(0)
     val hourDate = minutesDate.withMinuteOfHour(0)
     val dayDate = hourDate.withHourOfDay(0)
-    val weekDate = dayDate.weekOfWeekyear.get()
     val monthDate = dayDate.withDayOfMonth(1)
     val yearDate = monthDate.withMonthOfYear(1)
 
@@ -115,7 +114,6 @@ object AggregationTime extends SLF4JLogging {
       case "minute" => Duration.millis(minutesDate.getMillis)
       case "hour" => Duration.millis(hourDate.getMillis)
       case "day" => Duration.millis(dayDate.getMillis)
-      case "week" => Duration.millis(weekDate)
       case "month" => Duration.millis(monthDate.getMillis)
       case "year" => Duration.millis(yearDate.getMillis)
       case _ => throw new IllegalArgumentException("The granularity value is not valid")
