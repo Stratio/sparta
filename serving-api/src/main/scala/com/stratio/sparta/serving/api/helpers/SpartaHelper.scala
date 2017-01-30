@@ -22,6 +22,7 @@ import akka.io.IO
 import akka.routing.RoundRobinPool
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
+import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -40,7 +41,7 @@ object SpartaHelper extends SLF4JLogging {
    *
    * @param appName with the name of the application.
    */
-  def initAkkaSystem(appName: String): Unit = {
+  def initSpartaAPI(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined &&
       SpartaConfig.apiConfig.isDefined &&
       SpartaConfig.swaggerConfig.isDefined
@@ -77,6 +78,8 @@ object SpartaHelper extends SLF4JLogging {
 
       if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
       else loadSpartaWithHttp(controllerActor, swaggerActor)
+
+      statusActor ! AddClusterListeners
 
     } else log.info("Sparta Configuration is not defined")
   }

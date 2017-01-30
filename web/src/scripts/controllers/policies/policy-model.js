@@ -85,7 +85,6 @@
           break;
         case modelConstants.GEO:
           delete vm.model.inputField;
-          vm.model.configuration = vm.template.model[modelConstants.GEO].defaultConfiguration;
           vm.outputFieldTypes = vm.template.model[modelConstants.GEO].outputFieldTypes;
           break;
         default:
