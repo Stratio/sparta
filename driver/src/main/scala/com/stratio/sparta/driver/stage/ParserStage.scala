@@ -17,11 +17,10 @@ package com.stratio.sparta.driver.stage
 
 import java.io.Serializable
 
-import com.stratio.sparta.driver.SpartaPipeline.log
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
-import com.stratio.sparta.serving.core.models.PhaseEnum
-import com.stratio.sparta.serving.core.models.policy.TransformationsModel
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationsModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
@@ -58,7 +57,7 @@ trait ParserStage extends BaseStage {
 
 }
 
-object ParserStage {
+object ParserStage extends SLF4JLogging {
 
   def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
     if (parsers.size == 1) parseEvent(row, parsers.head)

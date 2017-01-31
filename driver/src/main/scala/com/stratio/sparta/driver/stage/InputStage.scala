@@ -17,7 +17,7 @@ package com.stratio.sparta.driver.stage
 
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.serving.core.models.PhaseEnum
+import com.stratio.sparta.serving.core.models.policy.PhaseEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream

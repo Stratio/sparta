@@ -15,45 +15,37 @@
  */
 package com.stratio.sparta.driver.stage
 
+import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.dao.ErrorDAO
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.models.{PhaseEnum, PolicyErrorModel}
+import com.stratio.sparta.serving.core.actor.StatusActor.{ClearLastError, Update}
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 
 import scala.util.{Failure, Success, Try}
 
 
 trait ErrorPersistor {
-  def persistError(error: PolicyErrorModel): PolicyErrorModel
+  def persistError(error: PolicyErrorModel): Unit
 }
 
 trait ZooKeeperError extends ErrorPersistor with SLF4JLogging {
-  def persistError(error: PolicyErrorModel): PolicyErrorModel = ErrorDAO.getInstance.upsert(error)
+  def statusActor: ActorRef
 
-  def clearError(id: Option[String]): Unit = {
-    Try {
-      id.foreach(id => {
-        if (ErrorDAO.getInstance.dao.exists(id)) {
-          ErrorDAO.getInstance.dao.delete(id)
-        }
-      })
-    } recover {
-      //Log the error but continue the execution
-      case e => log.error(s"Error while deleting $id from ZK.", e)
-    }
-  }
+  def policy: PolicyModel
+
+  def persistError(error: PolicyErrorModel): Unit =
+    statusActor ! Update(PolicyStatusModel(policy.id.get, NotDefined, None, None, lastError = Some(error)))
+
+  def clearError(): Unit =
+    statusActor ! ClearLastError(policy.id.get)
 }
 
 trait LogError extends ErrorPersistor with SLF4JLogging {
-  def persistError(error: PolicyErrorModel): PolicyErrorModel = {
-    log.error(s"This error was not saved to ZK : $error")
-    error
-  }
+  def persistError(error: PolicyErrorModel): Unit = log.error(s"This error was not saved to ZK : $error")
 }
 
 trait BaseStage extends SLF4JLogging {
   this: ErrorPersistor =>
-
   def policy: PolicyModel
 
   def generalTransformation[T](code: PhaseEnum.Value, okMessage: String, errorMessage: String)
@@ -74,10 +66,10 @@ trait BaseStage extends SLF4JLogging {
                     ): IllegalArgumentException = {
     val originalMsg = ex.getCause match {
       case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
-      case exception: Exception => exception.toString
-      case _ => "No more detail provided"
+      case exception: Throwable => exception.toString
+      case _ => ex.toString
     }
-    val policyError = PolicyErrorModel(policy.id.getOrElse("unknown"), message, code, originalMsg)
+    val policyError = PolicyErrorModel(message, code, originalMsg)
     log.error("An error was detected : {}", policyError)
     Try {
       persistError(policyError)

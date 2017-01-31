@@ -21,7 +21,6 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
-import com.stratio.sparta.serving.core.dao.ErrorDAO
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
@@ -57,7 +56,6 @@ class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fra
     case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
     case ResponseFragment(fragment) => loggingResponseFragment(fragment)
     case ResponseStatus(status) => loggingResponsePolicyStatus(status)
-    case Error(id) => error(id)
     case _ => log.info("Unrecognized message in Policy Actor")
   }
 
@@ -195,11 +193,6 @@ class PolicyActor(curatorFramework: CuratorFramework, statusActor: ActorRef, fra
   def deleteCheckpoint(policy: PolicyModel): Unit =
     sender ! Response(Try(deleteCheckpointPath(policy)))
 
-  def error(id: String): Unit = {
-    sender ! Try[PolicyErrorModel] {
-      ErrorDAO.getInstance.dao.get(id).getOrElse(throw new NoSuchElementException(s"No error data found for $id"))
-    }
-  }
 }
 
 object PolicyActor extends SLF4JLogging {
@@ -231,7 +224,5 @@ object PolicyActor extends SLF4JLogging {
   case class ResponsePolicies(policies: Try[Seq[PolicyModel]])
 
   case class ResponsePolicy(policy: Try[PolicyModel])
-
-  case class Error(id: String)
 
 }

@@ -36,6 +36,19 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
 
   /** Functions used inside the StatusActor **/
 
+  def clearLastError(id: String): Try[Option[PolicyStatusModel]] = {
+    Try {
+      val statusPath = s"${AppConstant.ContextPath}/$id"
+      if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
+        val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+        val newStatus = actualStatus.copy(lastError = None)
+        log.info(s"Clearing last error for context: ${actualStatus.id}")
+        curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
+        Some(newStatus)
+      } else None
+    }
+  }
+
   def updateStatus(policyStatus: PolicyStatusModel): Try[PolicyStatusModel] = {
     Try {
       val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
