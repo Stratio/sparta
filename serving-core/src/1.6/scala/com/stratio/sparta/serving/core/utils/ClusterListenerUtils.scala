@@ -29,6 +29,7 @@ import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.spark.launcher.SparkAppHandle
 import org.json4s.jackson.Serialization._
 
 import scala.io.Source

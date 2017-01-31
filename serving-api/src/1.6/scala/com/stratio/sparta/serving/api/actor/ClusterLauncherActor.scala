@@ -32,7 +32,7 @@ import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.spark.launcher.SparkLauncher
+import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
