@@ -25,6 +25,7 @@ object PhaseEnum extends Enumeration {
   val Cube = Value("Cube")
   val Output = Value("Output")
   val Trigger = Value("Trigger")
+  val Execution = Value("Execution")
 }
 
 case class PolicyErrorModel(
