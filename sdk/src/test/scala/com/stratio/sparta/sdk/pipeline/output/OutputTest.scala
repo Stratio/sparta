@@ -15,8 +15,6 @@
  */
 package com.stratio.sparta.sdk.pipeline.output
 
-import java.io.{Serializable => JSerializable}
-
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionTypeMock, DimensionValue, DimensionValuesTime}
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.sdk.pipeline.transformation.OutputMock
@@ -54,22 +52,14 @@ class OutputTest extends WordSpec with Matchers {
     val outputName = "outputName"
 
     val output = new OutputMock(outputName,
-      None,
       Map(),
       Seq(tableSchema))
 
     val outputOperation = new OutputMock(outputName,
-      None,
       Map(),
       Seq(tableSchema))
 
     val outputProps = new OutputMock(outputName,
-      None,
-      Map(),
-      Seq(tableSchema))
-
-    val outputVersioned = new OutputMock(outputName,
-      Option(1),
       Map(),
       Seq(tableSchema))
   }
@@ -115,12 +105,6 @@ class OutputTest extends WordSpec with Matchers {
     "classSuffix must be " in {
       val expected = "Output"
       val result = Output.ClassSuffix
-      result should be(expected)
-    }
-
-    "the table name versioned must be " in new CommonValues {
-      val expected = "table_v1"
-      val result = outputVersioned.versionedTableName(tableName)
       result should be(expected)
     }
   }

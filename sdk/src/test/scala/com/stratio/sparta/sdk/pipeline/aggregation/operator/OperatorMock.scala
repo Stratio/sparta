@@ -17,8 +17,6 @@ package com.stratio.sparta.sdk.pipeline.aggregation.operator
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk._
-import com.stratio.sparta.sdk.pipeline.aggregation.operator.{Operator, OperatorProcessMapAsAny, OperatorProcessMapAsNumber}
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.sql.types.StructType
 

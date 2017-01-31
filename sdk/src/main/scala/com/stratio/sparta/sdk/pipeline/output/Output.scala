@@ -24,8 +24,7 @@ import org.apache.spark.Logging
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-abstract class Output(keyName: String,
-                      version: Option[Int],
+abstract class Output(val name: String,
                       properties: Map[String, JSerializable],
                       schemas: Seq[SpartaSchema])
   extends Parameterizable(properties) with Logging with CustomProperties {
@@ -34,19 +33,9 @@ abstract class Output(keyName: String,
   val customPropertyKey = "saveOptionsKey"
   val customPropertyValue = "saveOptionsValue"
 
-  def name: String = keyName
-
   def setup(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
   def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
-
-  def versionedTableName(tableName: String): String = {
-    val versionChain = version match {
-      case Some(v) => s"${Output.Separator}v$v"
-      case None => ""
-    }
-    s"$tableName$versionChain"
-  }
 
   def supportedSaveModes : Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
 

@@ -30,15 +30,14 @@ import scalaj.http._
 /**
   * This output send all AggregateOperations or DataFrames information through a REST operation.
   *
-  * @param keyName
+  * @param name
   * @param properties
   * @param schemas
   */
-class HttpOutput(keyName: String,
-                 version: Option[Int],
+class HttpOutput(name: String,
                  properties: Map[String, JSerializable],
                  schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   val MaxReadTimeout = 5000
   val MaxConnTimeout = 1000

@@ -36,7 +36,6 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
       val ap = PolicyModel(
         id = None,
-        version = None,
         storageLevel,
         "policy-test",
         "policy description",
@@ -90,7 +89,6 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
     val ap = new PolicyModel(
       id = None,
-      version = None,
       storageLevel,
       "policy-test",
       "policy description",

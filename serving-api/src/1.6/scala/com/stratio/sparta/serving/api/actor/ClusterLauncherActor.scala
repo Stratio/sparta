@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
 import org.apache.spark.launcher.SparkLauncher
@@ -92,9 +92,14 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         clusterConfig), clusterConfig)
     } match {
       case Failure(exception) =>
-        val information = s"Error when launching the Sparta cluster job: ${exception.toString}"
+        val information = s"Error when launching the Sparta cluster job"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
+        statusActor ! Update(PolicyStatusModel(
+          id = policy.id.get,
+          status = Failed,
+          statusInfo = Option(information),
+          lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
+        ))
       case Success((sparkHandler, clusterConfig)) =>
         val information = "Sparta cluster job launched correctly"
         log.info(information)
@@ -192,7 +197,12 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Stopping) {
           val information = s"The policy-checker detects that the policy was not started/stopped correctly"
           log.error(information)
-          statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
+          statusActor ! Update(PolicyStatusModel(
+            id = policy.id.get,
+            status = Failed,
+            statusInfo = Some(information),
+            lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, "No exception provided"))
+          ))
         } else {
           val information = s"The policy-checker detects that the policy was started/stopped correctly"
           log.info(information)

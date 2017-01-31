@@ -47,7 +47,7 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
   val OkHTTPResponse = 200
 
   "An object of type RestOutput " should "have the same values as the properties Map" in {
-    val rest = new HttpOutput("key", Some(2), properties, tableSchema)
+    val rest = new HttpOutput("key", properties, tableSchema)
 
     rest.outputFormat should be(OutputFormatEnum.ROW)
     rest.readTimeout should be(5000)
@@ -55,7 +55,7 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
   it should "throw a NoSuchElementException" in {
     val properties2 = properties.updated("postType", "vooooooody")
     a[NoSuchElementException] should be thrownBy {
-      new HttpOutput("keyName", Some(2), properties2, tableSchema)
+      new HttpOutput("keyName", properties2, tableSchema)
     }
   }
 
@@ -68,7 +68,7 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
     sqlCtx.createDataFrame(dataRDD, fields)
   }
 
-  val restMock1 = new HttpOutput("key", Some(2), properties, tableSchema)
+  val restMock1 = new HttpOutput("key", properties, tableSchema)
   "Given a DataFrame it" should "be parsed and send through a Raw data POST request" in {
 
     dfGen().collect().foreach(row => {
@@ -81,14 +81,14 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
     assertResult(dfGen().count())(size)
   }
 
-  val restMock2 = new HttpOutput("key", Some(2), properties.updated("postType", "parameter"), tableSchema)
+  val restMock2 = new HttpOutput("key", properties.updated("postType", "parameter"), tableSchema)
   it should "be parsed and send as a POST request along with a parameter stated by properties.parameterKey " in {
     dfGen().collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock2.sendData(row.mkString(restMock2.delimiter)).code)
     })
   }
 
-  val restMock3 = new HttpOutput("key", Some(2), properties.updated("outputFormat", "JSON"), tableSchema)
+  val restMock3 = new HttpOutput("key", properties.updated("outputFormat", "JSON"), tableSchema)
   "Given a DataFrame it" should "be sent as JSON through a Raw data POST request" in {
 
     dfGen().toJSON.collect().foreach(row => {
@@ -96,7 +96,7 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
     })
   }
 
-  val restMock4 = new HttpOutput("key", Some(2), properties.updated("postType", "parameter")
+  val restMock4 = new HttpOutput("key", properties.updated("postType", "parameter")
     .updated("format", "JSON"), tableSchema)
   it should "sent as a POST request along with a parameter stated by properties.parameterKey " in {
 

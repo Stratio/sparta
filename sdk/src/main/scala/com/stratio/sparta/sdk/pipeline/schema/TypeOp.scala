@@ -228,8 +228,8 @@ object TypeOp extends Enumeration {
   private def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
 
   private def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Map[Any, Any]] =>
-      value.asInstanceOf[Map[Any, Any]].map(cast => cast._1.toString -> cast._2.toString.toLong)
+    case value if value.isInstanceOf[Map[_, Any]] =>
+      value.asInstanceOf[Map[_, Any]].map(cast => cast._1.toString -> cast._2.toString.toLong)
     case _ =>
       origValue.asInstanceOf[Map[String, Long]]
   }
@@ -237,8 +237,8 @@ object TypeOp extends Enumeration {
   private def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
 
   private def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Map[Any, Any]] =>
-      value.asInstanceOf[Map[Any, Any]].map(cast => cast._1.toString -> cast._2.toString.toDouble)
+    case value if value.isInstanceOf[Map[_, Any]] =>
+      value.asInstanceOf[Map[_, Any]].map(cast => cast._1.toString -> cast._2.toString.toDouble)
     case _ =>
       origValue.asInstanceOf[Map[String, Double]]
   }

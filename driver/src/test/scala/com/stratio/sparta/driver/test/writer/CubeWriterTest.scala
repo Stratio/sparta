@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.test.writer
 
 import java.io.{Serializable => JSerializable}
@@ -23,7 +24,6 @@ import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, DimensionValue, DimensionValuesTime, ExpiringData, MeasuresValues, Precision}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -49,11 +49,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Option("minute")
       )
       val writerOptions = CubeWriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName",
-        None,
-        Map(),
-        Seq(tableSchema)
-      )
+      val output = new OutputMock("outputName", Map(), Seq(tableSchema))
       val cubeWriter =
         CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[SpartaSchema])
       val res = cubeWriter.toRow(dimensionValuesT, measures)
@@ -63,7 +59,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
   "CubeWriterTest" should "return a row with values without timeDimension" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,  None, Seq.empty[Trigger])
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
       val tableSchema = SpartaSchema(
         Seq("outputName"),
         "cubeTest",
@@ -74,11 +70,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         None
       )
       val writerOptions = CubeWriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName",
-        None,
-        Map(),
-        Seq(tableSchema)
-      )
+      val output = new OutputMock("outputName", Map(), Seq(tableSchema))
       val cubeWriter =
         CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[SpartaSchema])
       val res = cubeWriter.toRow(dimensionValuesNoTime, measures)
@@ -99,11 +91,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         None
       )
       val writerOptions = CubeWriterOptions(Seq("outputName"), TypeOp.Timestamp)
-      val output = new OutputMock("outputName",
-        None,
-        Map(),
-        Seq(tableSchema)
-      )
+      val output = new OutputMock("outputName", Map(), Seq(tableSchema))
       val cubeWriter =
         CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[SpartaSchema])
       val res = cubeWriter.toRow(dimensionValuesNoTime, measures)
@@ -124,11 +112,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         None
       )
       val writerOptions = CubeWriterOptions(Seq("outputName"), TypeOp.Timestamp)
-      val output = new OutputMock("outputName",
-        None,
-        Map(),
-        Seq(tableSchema)
-      )
+      val output = new OutputMock("outputName", Map(), Seq(tableSchema))
       val cubeWriter =
         CubeWriter(cube, tableSchema, writerOptions, Seq(output), Seq.empty[Output], Seq.empty[SpartaSchema])
       val res = cubeWriter.toRow(dimensionValuesT, measures)
@@ -153,10 +137,9 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
   }
 
   class OutputMock(keyName: String,
-                   version: Option[Int],
                    properties: Map[String, JSerializable],
                    schemas: Seq[SpartaSchema])
-    extends Output(keyName, version, properties, schemas) {
+    extends Output(keyName, properties, schemas) {
 
     override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
   }
@@ -202,7 +185,6 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
 
     val measures = MeasuresValues(Map("field" -> Option("value")))
     val initSchema = StructType(Seq(StructField("n", StringType, false)))
-
   }
 
 }

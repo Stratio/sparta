@@ -119,7 +119,6 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = PolicyModel(
       id = id,
-      version = None,
       storageLevel = PolicyModel.storageDefaultValue,
       name = name,
       description = "whatever",

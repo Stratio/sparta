@@ -39,7 +39,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
   val tableSchema = Seq(SpartaSchema(Seq("outputName"), "testTable", fields, Option("minute")))
-  val fsm = new FileSystemOutput("key", Some(2), properties, tableSchema)
+  val fsm = new FileSystemOutput("key", properties, tableSchema)
 
 
   "An object of type FileSystemOutput " should "have the same values as the properties Map" in {
@@ -70,7 +70,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
     fileExists(fsm.path) should equal(false)
   }
 
-  val fsm2 = new FileSystemOutput("key", Some(2), properties.updated("outputFormat", "json")
+  val fsm2 = new FileSystemOutput("key", properties.updated("outputFormat", "json")
     .updated("path", parentFile + "/testJson"), tableSchema)
 
   "Given another DataFrame, a directory" should "be created with the data inside in JSON format" in {
@@ -86,7 +86,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   }
 
   "The path" should "be formatted with the given date until days" in {
-    val fsm3 = new FileSystemOutput("key", Some(2), properties.updated("fileWithDate", "true"), tableSchema)
+    val fsm3 = new FileSystemOutput("key", properties.updated("fileWithDate", "true"), tableSchema)
     val testDate = new Date()
     val partitionFormat = new SimpleDateFormat("YYYY").format(testDate) + "/" +
       new SimpleDateFormat("MM").format(testDate) + "/" + new SimpleDateFormat("DD").format(testDate) + "/" +
@@ -98,7 +98,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   "When 'No partition' option is chosen the date" should "not be parsed with slashes and just be concatenated to " +
     "the path" in {
-    val fsm4 = new FileSystemOutput("key", Some(2), properties.updated("fileWithDate", "true").
+    val fsm4 = new FileSystemOutput("key", properties.updated("fileWithDate", "true").
       updated ("partitionUntil", "NONE"), tableSchema)
     val testDate = new Date()
 

@@ -33,11 +33,10 @@ import org.apache.spark.sql.types._
   * org/elasticsearch/hadoop/cfg/ConfigurationOptions.java
   *
   */
-class ElasticSearchOutput(keyName: String,
-                          version: Option[Int],
+class ElasticSearchOutput(name: String,
                           properties: Map[String, JSerializable],
                           schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) {
+  extends Output(name, properties, schemas) {
 
   val DefaultIndexType = "sparta"
   val DefaultNode = "localhost"
@@ -53,7 +52,7 @@ class ElasticSearchOutput(keyName: String,
   val clusterName = properties.getString("clusterName", DefaultCluster)
   val httpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
 
-  lazy val mappingName = versionedTableName(mappingType).toLowerCase
+  lazy val mappingName = mappingType.toLowerCase
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)

@@ -101,7 +101,6 @@ trait HttpServiceBaseTest extends WordSpec
     val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
     val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
     val policy = PolicyModel(id = Option("id"),
-      version = None,
       storageLevel = PolicyModel.storageDefaultValue,
       name = "testpolicy",
       description = "whatever",
