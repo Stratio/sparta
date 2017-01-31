@@ -23,4 +23,4 @@ case class PolicyWithStatus(status: PolicyStatusEnum.Value,
                             submissionId: Option[String] = None,
                             statusInfo: Option[String] = None,
                             lastExecutionMode: Option[String] = None,
-                            lastError: Option[String] = None)
+                            lastError: Option[PolicyErrorModel] = None)

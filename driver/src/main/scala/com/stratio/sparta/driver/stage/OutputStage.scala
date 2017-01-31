@@ -20,8 +20,7 @@ import java.io.Serializable
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import com.stratio.sparta.serving.core.models.PhaseEnum
-import com.stratio.sparta.serving.core.models.policy.PolicyElementModel
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel}
 
 trait OutputStage extends BaseStage {
   this: ErrorPersistor =>

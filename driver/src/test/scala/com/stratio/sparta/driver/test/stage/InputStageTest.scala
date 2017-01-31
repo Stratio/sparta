@@ -15,11 +15,15 @@
  */
 package com.stratio.sparta.driver.test.stage
 
+import akka.actor.{ActorRef, ActorSystem}
+import akka.testkit.{TestKit, TestProbe}
 import com.stratio.sparta.driver.stage.{InputStage, LogError, ZooKeeperError}
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.actor.StatusActor.Update
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel, PolicyModel, PolicyStatusModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -28,14 +32,16 @@ import org.mockito.Matchers.{any, eq => mockEq}
 import org.mockito.Mockito.{when, _}
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.{FlatSpecLike, ShouldMatchers}
 
 @RunWith(classOf[JUnitRunner])
-class InputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
+class InputStageTest
+  extends TestKit(ActorSystem("InputStageTest"))
+    with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
   case class TestInput(policy: PolicyModel) extends InputStage with LogError
 
-  case class TestInputZK(policy: PolicyModel) extends InputStage with ZooKeeperError
+  case class TestInputZK(policy: PolicyModel, statusActor: ActorRef) extends InputStage with ZooKeeperError
 
   def mockPolicy: PolicyModel = {
     val policy = mock[PolicyModel]
@@ -91,6 +97,8 @@ class InputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     the[IllegalArgumentException] thrownBy {
       TestInput(policy).inputStage(ssc, reflection)
     } should have message "Something gone wrong creating the input: input. Please re-check the policy."
+
+
   }
 
 
@@ -99,14 +107,26 @@ class InputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val input = mock[PolicyElementModel]
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
+    val actor = TestProbe()
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
 
+
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStage(ssc, reflection)
+      TestInputZK(policy, actor.ref).inputStage(ssc, reflection)
     } should have message "Something gone wrong creating the input: input. Please re-check the policy."
+
+    actor.expectMsgType[Update] match {
+      case Update(PolicyStatusModel(id, NotDefined, None, None, None, None, None, None, Some(policyErrorModel))) =>
+        id should be(policy.id.get)
+        policyErrorModel.phase should be(PhaseEnum.Input)
+        policyErrorModel.originalMsg should be("java.lang.RuntimeException: Fake")
+        policyErrorModel.message should
+          be("Something gone wrong creating the input: input. Please re-check the policy.")
+    }
+
   }
 
   "inputStreamStage" should "Generate a inputStream" in {

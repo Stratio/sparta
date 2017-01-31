@@ -15,6 +15,8 @@
  */
 package com.stratio.sparta.driver.test
 
+import akka.actor.ActorSystem
+import akka.testkit.{TestKit, TestProbe}
 import com.stratio.sparta.driver.SpartaPipeline
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
@@ -30,12 +32,13 @@ import org.mockito.Matchers.{any, eq => mockEq}
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, ShouldMatchers}
+import org.scalatest.{FlatSpecLike, ShouldMatchers}
 
 @RunWith(classOf[JUnitRunner])
-class SpartaPipelineTest extends FlatSpec with ShouldMatchers with MockitoSugar {
+class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
+  with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
-  val aggModel: PolicyModel = mock[PolicyModel]
+  val model: PolicyModel = mock[PolicyModel]
 
   val method: String = "getSparkConfiguration"
 
@@ -49,18 +52,21 @@ class SpartaPipelineTest extends FlatSpec with ShouldMatchers with MockitoSugar 
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val myInputClass = mock[Input]
-    when(aggModel.storageLevel).thenReturn(Some("StorageLevel"))
-    when(aggModel.input).thenReturn(myInput)
+    val actor = TestProbe()
+    when(model.storageLevel).thenReturn(Some("StorageLevel"))
+    when(model.input).thenReturn(myInput)
     when(myInput.get.name).thenReturn("myInput")
     when(myInput.get.`type`).thenReturn("Input")
     when(myInput.get.configuration).thenReturn(Map("" -> JsoneyString("")))
-    when(myInputClass.setUp(ssc, aggModel.storageLevel.get)).thenReturn(mock[DStream[Row]])
+    when(myInputClass.setUp(ssc, model.storageLevel.get)).thenReturn(mock[DStream[Row]])
     when(reflection.tryToInstantiate[Input](mockEq("InputInput"), any())).thenReturn(myInputClass)
 
     SpartaConfig.initMainConfig(Option(SpartaPipelineTest.config))
 
-    val result = new SpartaPipeline(aggModel).inputStage(ssc, reflection)
+    val result = new SpartaPipeline(model, actor.ref).inputStage(ssc, reflection)
     result should be(myInputClass)
+
+    actor.expectNoMsg()
   }
 
 }
