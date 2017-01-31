@@ -524,11 +524,6 @@
                 <version>${easy.mock.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.stratio.common</groupId>
-                <artifactId>common-utils_${scala.binary.version}</artifactId>
-                <version>${stratio.common.utils.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-configuration</groupId>
                 <artifactId>commons-configuration</artifactId>
                 <version>${commons-configuration.version}</version>
