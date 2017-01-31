@@ -5,8 +5,22 @@
 	border-collapse: collapse;
 	line-height: $c-table---line-height;
     overflow: auto;
+
 	&--margin-bottom {
 		margin-bottom: $c-table--margin-bottom---margin-bottom;
+	}
+
+
+	&--centered-content{
+		text-align: center;
+	}
+
+	&__warning-icon {
+		font-family: ico_stratio;
+		font-weight: 400;
+		font-style: normal;
+		font-size: 25px;
+		color: #FF9900;
 	}
 
 	@at-root &__thead {
@@ -49,7 +63,25 @@
 			text-overflow: ellipsis;
 			max-width: 0;
 		}
+		$font-size: 16px;
+		$line-height: 1.4;
+		$lines-to-show: 2;
 
+		&--ellipsis-multiline  {
+			display: inline-block;
+			max-width: 100%;
+			height: 60px;
+			word-break: normal;
+			white-space: normal;
+			word-break: inherit;
+			word-spacing: normal;
+			font-size: 16px;
+			line-height: 1.2;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 		&--might-overflow {
 			&__text {
 				width: 97%;

@@ -1,0 +1,28 @@
+<aside data-qa="confirm-modal">
+  <div class="c-titlebar">
+    <span class="c-titlebar__title">{{vm.policyName | translate}}</span>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()"
+       data-qa="modal-cancel-icon"></i>
+  </div>
+
+  <div class="c-modal-inner">
+    <p>
+      {{vm.error.phase}}
+    </p>
+    <p>
+      {{vm.error.message}}
+    </p>
+    <p>
+      {{vm.error.originalMsg}}
+    </p>
+
+    <div class="c-row c-row--separated">
+      <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.close()" data-qa="modal-ok-button">
+          <span class="icon icon-circle-check"></span>
+          <span>{{"_CLOSE_" | translate}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</aside>
