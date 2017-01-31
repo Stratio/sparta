@@ -10,6 +10,15 @@
 		font-size: $c-titlebar__title---font-size;
 	}
 
+	@at-root &__subtitle {
+		font-size: $c-titlebar__title---font-size - 6;
+		text-transform: none;
+		padding-top: 4px;
+		&::first-letter {
+			text-transform: uppercase;
+		}
+	}
+
 	@at-root &__close-icon {
 		@include c-icon();
 		@include is-clickable(true);

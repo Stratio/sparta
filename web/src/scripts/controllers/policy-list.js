@@ -21,10 +21,10 @@
       .controller('PolicyListCtrl', PolicyListCtrl);
 
   PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
-    '$translate', '$interval', '$scope', '$q', '$filter', '$uibModal'];
+    '$translate', '$interval', '$scope', '$q', '$filter'];
 
   function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
-                          $translate, $interval, $scope, $q, $filter, $uibModal) {
+                          $translate, $interval, $scope, $q, $filter) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -45,9 +45,8 @@
     vm.successMessage = {type: 'success', text: '', internalTrace: ''};
     vm.clusterUI = '';
     vm.loading = true;
-    vm.isEllipsedStatusInfo = isEllipsedStatusInfo; 
-    vm.showErrorModal = showErrorModal;
-    
+    vm.showInfoModal = showInfoModal;
+
     init();
 
     /////////////////////////////////
@@ -181,12 +180,7 @@
               policyData.lastError = policiesWithStatus[i].lastError;
               policyData.status = policiesWithStatus[i].status;
               policyData.lastExecutionMode = policiesWithStatus[i].lastExecutionMode;
-              policyData.lastError = {
-                message: "Something gone wrong creating the output: Cassandra. Please re-check the policy.",
-                phase: "Input",
-                originalMsg: "FULL ERROR TRACE!!"
-              }
-            }else {
+            } else {
               vm.policiesData.push(policiesWithStatus[i]);
             }
           }
@@ -196,11 +190,6 @@
         defer.reject();
       });
       return defer.promise;
-    }
-
-    function isEllipsedStatusInfo(index) {
-      var text = angular.element.find('#policy-status-text-' + index)[0];
-      return text.offsetWidth < text.scrollWidth;
     }
 
     function getPolicies() {
@@ -231,23 +220,35 @@
         a.remove();
       })
     }
-    
-    function showErrorModal(policyIndex) {
+
+    function showInfoModal(policyIndex) {
       var policy = vm.policiesData[policyIndex];
-      var modalInstance = $uibModal.open({
-        animation: true,
-        templateUrl: 'templates/modal/policy-error-modal.tpl.html',
-        controller: 'PolicyErrorModalCtrl as vm',
-        size: 'lg',
-        resolve: {
-          policyName: function() {
-            return policy.name;
-          },
-          error: function() {
-            return policy.lastError;
-          }
+      var controller = 'PolicyInfoModalCtrl';
+      var templateUrl = "templates/modal/policy-info-modal.tpl.html";
+      var resolve = {
+        policyName: function() {
+          return policy.name;
+        },
+        policyDescription: function() {
+          return policy.description;
+        },
+        status: function() {
+          return policy.status;
+        },
+        statusInfo: function() {
+          return policy.statusInfo;
+        },
+        submissionId: function() {
+          return policy.submissionId;
+        },
+        deployMode: function() {
+          return policy.lastExecutionMode;
+        },
+        error: function() {
+          return policy.lastError;
         }
-      });
+      };
+      ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
     }
 
     /*Stop $interval when changing the view*/

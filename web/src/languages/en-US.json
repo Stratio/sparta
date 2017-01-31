@@ -107,6 +107,9 @@
   "_OUTPUT_WINDOW_DUPLICATE_TITLE_": "Duplicate output",
   "_POLICY_HEADER_TITLE_MAIN_": "Policies",
   "_GO_TO_POLICY_": "Go to policy",
+  "_POLICY_LABEL_": "Policy",
+  "_NONE_REGISTERED_": "None registered",
+  "_ORIGINAL_MSG_": "Original Msg.",
   "_POLICY_": {
     "_STEPS_": {
       "_INPUT_": "Input",
@@ -195,9 +198,11 @@
   "_INSERT_NAME_": "Insert Name",
   "_CUBE_CONFIG_HELP_MESSAGE_": "Need help configuring your Cube? Use the Help tab in the upper right corner",
   "_INPUT_PLACEHOLDER_": "",
-  "_EXECUTION_MODE_": "Execution mode",
+  "_DEPLOY_MODE_": "Deploy mode",
   "_SUBMISSION_ID_": "Submission id",
   "_STATUS_": "Status",
+  "_PHASE_": "Phase",
+  "_LAST_ERROR_": "Last error",
   "_STATUS_INFORMATION_": "Status information",
   "_ERROR_LABEL_": "Error",
   "_INPUT_FIELD_": "Input field",

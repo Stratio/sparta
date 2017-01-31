@@ -8,6 +8,10 @@
   &--margin-left{
     margin-left: $c-text---margin-left;
   }
+
+  &--break-word {
+    word-break: break-word;
+  }
 }
 
 .c-text {

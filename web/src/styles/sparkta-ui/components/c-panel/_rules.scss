@@ -22,6 +22,15 @@
     padding-top: 10px;
   }
 
+
+  &--padding {
+    padding: 22px;
+  }
+
+  &--secondary {
+    background-color: get-color(n2);
+  }
+
   &--x-small {
     border: $c-panel--x-small---border;
     display: inline-block;

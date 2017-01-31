@@ -1,11 +1,21 @@
 @mixin c-fieldset {
-	@include c-component;
+  @include c-component;
 
-	&__title {
-		font-weight: $c-fieldset__title---font-weight;
-	}
+  &__title {
+    font-weight: $c-fieldset__title---font-weight;
+  }
+
+  &--bottom-border {
+    border-bottom: 1px solid get-color(n3);
+  }
+
+  &--padding-bottom {
+    padding-bottom: 6px;
+  }
+
+
 }
 
 .c-fieldset {
-	@include c-fieldset;
+  @include c-fieldset;
 }

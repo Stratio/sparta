@@ -112,7 +112,7 @@ describe('policies.wizard.controller.policies-controller', function() {
             expect(ctrl.policiesData[0].submissionId).toEqual(fakeNewStatus.submissionId);
           });
 
-          it ('if policy was not painted yet, it is added to policy list', function (){
+          it('if policy was not painted yet, it is added to policy list', function() {
             var oldPolicyListLength = fakePolicyStatusList.policiesStatus.length;
             var newPolicy = angular.copy(fakePolicyStatusList.policiesStatus[0]);
             newPolicy.id = 'new policy id';
@@ -120,7 +120,7 @@ describe('policies.wizard.controller.policies-controller', function() {
             fakePolicyStatusList.policiesStatus.push(newPolicy);
             $interval.flush(15000);
             scope.$digest();
-            
+
             expect(ctrl.policiesData.length).toEqual(oldPolicyListLength + 1);
           });
         });
@@ -140,6 +140,26 @@ describe('policies.wizard.controller.policies-controller', function() {
     it("a hidden element is created in order to force the file downloading", function() {
 
     })
-  })
+  });
+
+  it("should be able to open a modal with the information of the selected policy by its position", function() {
+    ctrl.policiesData = [fakePolicyStatusList.policiesStatus[0], fakePolicyStatusList.policiesStatus[1]];
+    for (var i = 0; i < ctrl.policiesData.length; ++i) {
+      ctrl.showInfoModal(i);
+
+      expect(modalServiceMock.openModal).toHaveBeenCalled();
+      var args = modalServiceMock.openModal.calls.mostRecent().args;
+      expect(args[0]).toBe('PolicyInfoModalCtrl');
+      expect(args[1]).toBe('templates/modal/policy-info-modal.tpl.html');
+      var resolveParam = args[2];
+      expect(resolveParam.policyName()).toBe(ctrl.policiesData[i].name);
+      expect(resolveParam.policyDescription()).toBe(ctrl.policiesData[i].description);
+      expect(resolveParam.status()).toBe(ctrl.policiesData[i].status);
+      expect(resolveParam.statusInfo()).toBe(ctrl.policiesData[i].statusInfo);
+      expect(resolveParam.submissionId()).toBe(ctrl.policiesData[i].submissionId);
+      expect(resolveParam.deployMode()).toBe(ctrl.policiesData[i].lastExecutionMode);
+      expect(resolveParam.error()).toEqual(ctrl.policiesData[i].lastError);
+    }
+  });
 
 });

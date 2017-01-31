@@ -3,23 +3,86 @@
     {
       "id": "b166855d-85ed-44ee-9a3b-bd607de4e9c1",
       "status": "Failed",
-      "statusInfo": "Error initiating Sparta local job: org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 12.0 failed 1 times, most recent failure: Lost task 0.0 in stage 12.0 (TID 22, localhost): java.lang.NullPointerException\r\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1012)\r\n\tat org.apache.hadoop.util.Shell.runCommand(Shell.java:404)\r\n\tat org.apache.hadoop.util.Shell.run(Shell.java:379)\r\n\tat org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:589)\r\n\tat org.apache.hadoop.util.Shell.execCommand(Shell.java:678)\r\n\tat org.apache.hadoop.util.Shell.execCommand(Shell.java:661)\r\n\tat org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:639)\r\n\tat org.apache.hadoop.fs.FilterFileSystem.setPermission(FilterFileSystem.java:468)\r\n\tat org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:456)\r\n\tat org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:424)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:905)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:886)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:848)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$.writePartitionToCheckpointFile(ReliableCheckpointRDD.scala:174)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$$anonfun$writeRDDToCheckpointDirectory$1.apply(ReliableCheckpointRDD.scala:136)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$$anonfun$writeRDDToCheckpointDirectory$1.apply(ReliableCheckpointRDD.scala:136)\r\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:66)\r\n\tat org.apache.spark.scheduler.Task.run(Task.scala:89)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:227)\r\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\r\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\r\n\tat java.lang.Thread.run(Thread.java:745)\r\n\nDriver stacktrace:",
+      "statusInfo": "Error initiating Sparta local job",
       "name": "dfdf",
-      "description": "dfdfd"
+      "description": "dfdfd",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Error initiating Sparta local job",
+        "phase": "Execution",
+        "originalMsg": "java.lang.IllegalArgumentException: Something gone wrong creating the input: fdfdfd. Please re-check the policy.",
+        "date": "2017-01-31T15:11:08Z"
+      }
     },
     {
       "id": "a2b4bc79-38cb-4248-8261-834f79cc573e",
       "status": "Failed",
-      "statusInfo": "Error initiating Sparta local job: java.lang.IllegalArgumentException: Something gone wrong creating the input: fdfdfd. Please re-check the policy.",
+      "statusInfo": "Error initiating Sparta local job",
       "name": "xcx",
-      "description": "ss"
+      "description": "ss",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Error initiating Sparta local job",
+        "phase": "Execution",
+        "originalMsg": "java.lang.IllegalArgumentException: Something gone wrong creating the input: fdfdfd. Please re-check the policy.",
+        "date": "2017-01-31T15:05:54Z"
+      }
+    },
+    {
+      "id": "af588429-642e-44e1-97d3-a599b30a0f23",
+      "status": "Failed",
+      "statusInfo": "Error initiating Sparta local job",
+      "name": "aaa",
+      "description": "assds",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Error initiating Sparta local job",
+        "phase": "Execution",
+        "originalMsg": "org.apache.spark.SparkException: Job aborted due to stage failure: Task 6 in stage 12.0 failed 1 times, most recent failure: Lost task 6.0 in stage 12.0 (TID 32, localhost): java.lang.NullPointerException\r\n\tat java.lang.ProcessBuilder.start(ProcessBuilder.java:1012)\r\n\tat org.apache.hadoop.util.Shell.runCommand(Shell.java:404)\r\n\tat org.apache.hadoop.util.Shell.run(Shell.java:379)\r\n\tat org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:589)\r\n\tat org.apache.hadoop.util.Shell.execCommand(Shell.java:678)\r\n\tat org.apache.hadoop.util.Shell.execCommand(Shell.java:661)\r\n\tat org.apache.hadoop.fs.RawLocalFileSystem.setPermission(RawLocalFileSystem.java:639)\r\n\tat org.apache.hadoop.fs.FilterFileSystem.setPermission(FilterFileSystem.java:468)\r\n\tat org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:456)\r\n\tat org.apache.hadoop.fs.ChecksumFileSystem.create(ChecksumFileSystem.java:424)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:905)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:886)\r\n\tat org.apache.hadoop.fs.FileSystem.create(FileSystem.java:848)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$.writePartitionToCheckpointFile(ReliableCheckpointRDD.scala:174)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$$anonfun$writeRDDToCheckpointDirectory$1.apply(ReliableCheckpointRDD.scala:136)\r\n\tat org.apache.spark.rdd.ReliableCheckpointRDD$$anonfun$writeRDDToCheckpointDirectory$1.apply(ReliableCheckpointRDD.scala:136)\r\n\tat org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:66)\r\n\tat org.apache.spark.scheduler.Task.run(Task.scala:89)\r\n\tat org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:227)\r\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\r\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\r\n\tat java.lang.Thread.run(Thread.java:745)\r\n\nDriver stacktrace:",
+        "date": "2017-01-31T15:10:06Z"
+      }
+    },
+    {
+      "id": "4ebc936e-96f0-45e9-ab9b-c8c554740010",
+      "status": "Failed",
+      "statusInfo": "Error initiating Sparta local job: java.lang.IllegalArgumentException: Something gone wrong creating the input: fdfdfd. Please re-check the policy.",
+      "name": "aa",
+      "description": "asas",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Something gone wrong creating the input: fdfdfd. Please re-check the policy.",
+        "phase": "Input",
+        "originalMsg": "The component couldn't be found in classpath. Please check the type.",
+        "date": "2017-01-31T12:02:05Z"
+      }
     },
     {
       "id": "2d9af028-5b89-4846-892f-409f583dd2d1",
       "status": "Failed",
-      "statusInfo": "Error initiating Sparta local job: com.stratio.sparta.driver.exception.DriverException: [1.1] failure: ``with'' expected but identifier rtrt found\n\nrtrt\n^",
+      "statusInfo": "Error initiating Sparta local job",
       "name": "d",
-      "description": "d"
+      "description": "d",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Error initiating Sparta local job",
+        "phase": "Execution",
+        "originalMsg": "com.stratio.sparta.driver.exception.DriverException: [1.1] failure: ``with'' expected but identifier rtrt found\n\nrtrt\n^",
+        "date": "2017-01-31T14:59:36Z"
+      }
+    },
+    {
+      "id": "9988ebdc-27b9-4f7b-ac2c-b6a539e835c5",
+      "status": "Failed",
+      "statusInfo": "Error initiating Sparta local job",
+      "name": "df",
+      "description": "dfdfd",
+      "lastExecutionMode": "local",
+      "lastError": {
+        "message": "Error initiating Sparta local job",
+        "phase": "Execution",
+        "originalMsg": "com.stratio.sparta.driver.exception.DriverException: [1.1] failure: ``with'' expected but identifier df found\n\ndf\n^",
+        "date": "2017-01-31T15:10:54Z"
+      }
     }
   ]
 }

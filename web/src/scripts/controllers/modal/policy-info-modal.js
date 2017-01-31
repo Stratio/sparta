@@ -19,16 +19,21 @@
   /*DELETE INPUT MODALS CONTROLLER */
   angular
     .module('webApp')
-    .controller('PolicyErrorModalCtrl', PolicyErrorModalCtrl);
+    .controller('PolicyInfoModalCtrl', PolicyInfoModalCtrl);
 
-  PolicyErrorModalCtrl.$inject = ['$uibModalInstance', 'policyName', 'error'];
+  PolicyInfoModalCtrl.$inject = ['$uibModalInstance', 'policyName', 'policyDescription', 'status','statusInfo','submissionId', 'deployMode',  'error'];
 
-  function PolicyErrorModalCtrl($uibModalInstance, policyName, error) {
+  function PolicyInfoModalCtrl($uibModalInstance, policyName, policyDescription, status, statusInfo, submissionId, deployMode, error) {
     /*jshint validthis: true*/
     var vm = this;
 
     vm.close = close;
     vm.policyName = policyName;
+    vm.policyDescription = policyDescription;
+    vm.status = status;
+    vm.statusInfo = statusInfo;
+    vm.submissionId = submissionId;
+    vm.deployMode = deployMode;
     vm.error = error;
 
     ///////////////////////////////////////

@@ -15,14 +15,20 @@
 		text-align: center;
 	}
 
-	&__warning-icon {
+	&__icon {
 		font-family: ico_stratio;
 		font-weight: 400;
 		font-style: normal;
 		font-size: 25px;
-		color: #FF9900;
-	}
 
+		&--info {
+			color: get-color(n5);
+		}
+
+		&--warning {
+			color: get-color(s2);
+		}
+	}
 	@at-root &__thead {
 		background: $c-table__thead---background;
 		color: $c-table__thead---color;
@@ -63,25 +69,7 @@
 			text-overflow: ellipsis;
 			max-width: 0;
 		}
-		$font-size: 16px;
-		$line-height: 1.4;
-		$lines-to-show: 2;
 
-		&--ellipsis-multiline  {
-			display: inline-block;
-			max-width: 100%;
-			height: 60px;
-			word-break: normal;
-			white-space: normal;
-			word-break: inherit;
-			word-spacing: normal;
-			font-size: 16px;
-			line-height: 1.2;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
 		&--might-overflow {
 			&__text {
 				width: 97%;
