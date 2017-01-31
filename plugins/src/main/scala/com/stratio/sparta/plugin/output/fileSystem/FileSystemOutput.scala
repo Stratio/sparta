@@ -33,15 +33,14 @@ import scala.collection.mutable.ListBuffer
   * This output sends all AggregateOperations or DataFrames data  to a directory stored in
   * HDFS, Amazon S3, Azure, etc.
   *
-  * @param keyName
+  * @param name
   * @param properties
   * @param schemas
   */
-class FileSystemOutput(keyName: String,
-                       version: Option[Int],
+class FileSystemOutput(name: String,
                        properties: Map[String, JSerializable],
                        schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   val DateFormat = "YYYY-MM-DD'-'HH.mm.ss"
   val FieldName = "extractedData"

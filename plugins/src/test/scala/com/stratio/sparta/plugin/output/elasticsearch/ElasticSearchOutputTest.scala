@@ -30,7 +30,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     final val localPort = 9200
     final val remotePort = 9300
     val output = getInstance()
-    val outputMultipleNodes = new ElasticSearchOutput("ES-out", None,
+    val outputMultipleNodes = new ElasticSearchOutput("ES-out",
       Map("nodes" ->
         new JsoneyString(
           s"""[{"node":"host-a","tcpPort":"$remotePort","httpPort":"$localPort"},{"node":"host-b",
@@ -39,7 +39,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
 
     def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort: Int = remotePort)
     : ElasticSearchOutput =
-      new ElasticSearchOutput("ES-out", None,
+      new ElasticSearchOutput("ES-out",
         Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
           "clusterName" -> "elasticsearch"), Seq())
   }
@@ -66,7 +66,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
       "clusterName" -> "elasticsearch")
-    override val output = new ElasticSearchOutput("ES-out", None, properties, schemas = Seq(tableSchema))
+    override val output = new ElasticSearchOutput("ES-out", properties, schemas = Seq(tableSchema))
     val dateField = StructField("timestamp", TimestampType, false)
     val expectedDateField = StructField("timestamp", LongType, false)
     val stringField = StructField("string", StringType)

@@ -125,8 +125,8 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     verify(reflection).tryToInstantiate(mockEq("OtherOutputOutput"), any())
-    verify(spyResult).createOutput(firstOutput, List(schema), reflection, policy.version)
-    verify(spyResult).createOutput(secondOutput, List.empty, reflection, policy.version)
+    verify(spyResult).createOutput(firstOutput, List(schema), reflection)
+    verify(spyResult).createOutput(secondOutput, List.empty, reflection)
     result should be(List(outputClass, outputClass))
   }
 

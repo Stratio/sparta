@@ -27,11 +27,10 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StructType
 
-class MongoDbOutput(keyName: String,
-                    version: Option[Int],
+class MongoDbOutput(name: String,
                     properties: Map[String, JSerializable],
                     schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) {
+  extends Output(name, properties, schemas) {
 
   val DefaultHost = "localhost"
   val DefaultPort = "27017"

@@ -63,13 +63,11 @@ class PolicyUtilsTest extends BaseUtilsTest
   "PolicyUtils.policyWithId" should {
     "return a policy with random UUID when there is no set id yet" in {
       val policy: PolicyModel = utils.policyWithId(getPolicyModel(None))
-      policy.version should be(Some(1))
       policy.id shouldNot be(None)
     }
 
     "return a policy with the same id when there is set id" in {
       val policy: PolicyModel = utils.policyWithId(getPolicyModel(name = "TEST"))
-      policy.version should be(Some(1))
       policy.id should be(Some("id"))
       policy.name should be("test")
     }
@@ -145,52 +143,6 @@ class PolicyUtilsTest extends BaseUtilsTest
         .existsPath
 
       utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
-    }
-
-    "PolicyUtils.setVersion" should {
-      "return lastVersion+1 when cubes are different and lastPolicy has version" in {
-        val lastPolicy = getPolicyModel().copy(version = Some(1))
-        val newPolicy = getPolicyModel().copy(cubes = Seq(
-          populateCube(
-            "cube1",
-            OutputFieldsModel("out1"),
-            OutputFieldsModel("out2"),
-            getDimensionModel,
-            getOperators),
-          populateCube(
-            "cube2",
-            OutputFieldsModel("out1"),
-            OutputFieldsModel("out2"),
-            getDimensionModel,
-            getOperators)
-        ))
-        utils.setVersion(lastPolicy, newPolicy) should be(Some(2))
-      }
-
-      "return 1 when cubes are different and lastPolicy has no version" in {
-        val lastPolicy = getPolicyModel()
-        val newPolicy = getPolicyModel().copy(cubes = Seq(
-          populateCube(
-            "cube1",
-            OutputFieldsModel("out1"),
-            OutputFieldsModel("out2"),
-            getDimensionModel,
-            getOperators),
-          populateCube(
-            "cube2",
-            OutputFieldsModel("out1"),
-            OutputFieldsModel("out2"),
-            getDimensionModel,
-            getOperators)
-        ))
-        utils.setVersion(lastPolicy, newPolicy) should be(Some(1))
-      }
-
-      "return lastPolicy version when cubes equal " in {
-        val lastPolicy = getPolicyModel().copy(version = Some(1))
-        val newPolicy = getPolicyModel()
-        utils.setVersion(lastPolicy, newPolicy) should be(Some(1))
-      }
     }
   }
 }

@@ -101,19 +101,11 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     (policy.id match {
       case None => populatePolicyWithRandomUUID(policy)
       case Some(_) => policy
-    }).copy(name = policy.name.toLowerCase, version = Some(ActorsConstant.UnitVersion))
+    }).copy(name = policy.name.toLowerCase)
   }
 
   def populatePolicyWithRandomUUID(policy: PolicyModel): PolicyModel =
     policy.copy(id = Some(UUID.randomUUID.toString))
-
-  def setVersion(lastPolicy: PolicyModel, newPolicy: PolicyModel): Option[Int] =
-    if (lastPolicy.cubes != newPolicy.cubes) {
-      lastPolicy.version match {
-        case Some(version) => Some(version + ActorsConstant.UnitVersion)
-        case None => Some(ActorsConstant.UnitVersion)
-      }
-    } else lastPolicy.version
 
   def policyWithFragments(policy: PolicyModel, withFragmentCreation: Boolean = true): PolicyModel =
     fragmentActor.fold(policy) { actorRef => {

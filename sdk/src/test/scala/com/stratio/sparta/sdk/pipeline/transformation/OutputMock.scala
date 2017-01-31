@@ -21,11 +21,10 @@ import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.DataFrame
 
-class OutputMock(keyName: String,
-                 version: Option[Int],
+class OutputMock(name: String,
                  properties: Map[String, JSerializable],
                  schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) {
+  extends Output(name, properties, schemas) {
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
 }

@@ -24,17 +24,15 @@ import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
 
-class CassandraOutput(keyName: String,
-                      version: Option[Int],
+class CassandraOutput(name: String,
                       properties: Map[String, JSerializable],
                       schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) {
+  extends Output(name, properties, schemas) {
 
   val MaxTableNameLength = 48
 
   val keyspace = properties.getString("keyspace", "sparta")
   val cluster = properties.getString("cluster", "default")
-  val tableVersion = version
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
@@ -52,13 +50,9 @@ class CassandraOutput(keyName: String,
       .save()
   }
 
-  def getTableName(table: String): String = {
-    val tableNameCut = if (table.length > MaxTableNameLength - 3) table.substring(0, MaxTableNameLength - 3) else table
-    tableVersion match {
-      case Some(v) => s"$tableNameCut${Output.Separator}v$v"
-      case None => tableNameCut
-    }
-  }
+  def getTableName(table: String): String =
+    if (table.length > MaxTableNameLength - 3) table.substring(0, MaxTableNameLength - 3) else table
+
 }
 
 object CassandraOutput {

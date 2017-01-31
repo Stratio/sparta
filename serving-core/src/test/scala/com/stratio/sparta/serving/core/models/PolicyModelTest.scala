@@ -95,7 +95,6 @@ class PolicyModelTest extends WordSpec with Matchers with MockitoSugar {
   val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
   val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
   val policy = PolicyModel(id = None,
-    version = None,
     storageLevel = PolicyModel.storageDefaultValue,
     name = "testpolicy",
     description = "whatever",
@@ -116,7 +115,6 @@ class PolicyModelTest extends WordSpec with Matchers with MockitoSugar {
   )
 
   val wrongComputeLastPolicy = PolicyModel(id = None,
-    version = None,
     storageLevel = PolicyModel.storageDefaultValue,
     name = "testpolicy",
     description = "whatever",
