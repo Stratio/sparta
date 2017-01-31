@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 
 trait LauncherActorUtils extends PolicyStatusUtils {
 
-  val SparkStreamingContextActorPrefix: String = "contextLauncherActor"
+  val contextLauncherActorPrefix = "contextLauncherActor"
 
   def launch(policy: PolicyModel,
              statusActor: ActorRef,
@@ -44,7 +44,7 @@ trait LauncherActorUtils extends PolicyStatusUtils {
                        statusActor: ActorRef,
                        streamingContextService: StreamingContextService,
                        context: ActorContext): ActorRef = {
-    val actorName = cleanActorName(s"$SparkStreamingContextActorPrefix-${policy.name}")
+    val actorName = cleanActorName(s"$contextLauncherActorPrefix-${policy.name}")
     val policyActor = context.children.find(children => children.path.name == actorName)
 
     policyActor match {

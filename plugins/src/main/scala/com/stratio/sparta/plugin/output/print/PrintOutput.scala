@@ -22,28 +22,41 @@ import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.Logging
 import org.apache.spark.sql._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-/**
- * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
- *
- * @param keyName
- * @param properties
- * @param schemas
- */
+import scala.util.Try
+
 class PrintOutput(keyName: String,
                   version: Option[Int],
                   properties: Map[String, JSerializable],
                   schemas: Seq[SpartaSchema])
   extends Output(keyName, version, properties, schemas) with Logging {
 
+  val printData = Try(properties.getBoolean("printData")).getOrElse(false)
+  val printSchema = Try(properties.getBoolean("printSchema")).getOrElse(false)
+  val logLevel = properties.getString("logLevel", "warn")
+
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    log.info(s"> Table name       : ${Output.getTableNameFromOptions(options)}")
-    log.info(s"> Time dimension       : ${Output.getTimeFromOptions(options)}")
-    log.info(s"> Version policy   : $version")
-    log.info(s"> Data frame count : " + dataFrame.count())
-    log.info(s"> Data frame save Mode : " + saveMode)
-    log.info(s"> DataFrame schema")
-    dataFrame.printSchema()
-    dataFrame.foreach(row => log.info(row.mkString(",")))
+    val metadataInfo = s"\tTable name : ${Output.getTableNameFromOptions(options)}\tElements: ${dataFrame.count()}"
+    val schemaInfo = if(printSchema) Option(s"DataFrame schema: ${dataFrame.schema.toString()}") else None
+        
+    logLevel match {
+      case "warn" =>
+        log.warn(metadataInfo)
+        schemaInfo.foreach(schema => log.warn(schema))
+        if(printData) dataFrame.foreach(row => log.warn(row.mkString(",")))
+      case "error" =>
+        log.error(metadataInfo)
+        schemaInfo.foreach(schema => log.error(schema))
+        if(printData) dataFrame.foreach(row => log.error(row.mkString(",")))
+      case _ =>
+        log.info(metadataInfo)
+        schemaInfo.foreach(schema => log.info(schema))
+        if(printData) dataFrame.foreach(row => log.info(row.mkString(",")))
+    }
+
+    if(printData) {
+
+    }
   }
 }

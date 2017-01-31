@@ -19,14 +19,18 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.{Actor, _}
 import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
+import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, PolicyStatusUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
-class StatusActor(val curatorFramework: CuratorFramework) extends Actor with PolicyStatusUtils {
+class StatusActor(val curatorFramework: CuratorFramework) extends Actor
+  with PolicyStatusUtils with ClusterListenerUtils {
 
+  override val statusActor = self
+
+  //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
     case Create(policyStatus) => sender ! ResponseStatus(createStatus(policyStatus))
     case Update(policyStatus) => sender ! ResponseStatus(updateStatus(policyStatus))
@@ -35,9 +39,11 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor with Pol
     case FindById(id) => sender ! ResponseStatus(findStatusById(id))
     case DeleteAll => sender ! ResponseDelete(deleteAll())
     case AddListener(name, callback) => addListener(name, callback)
+    case AddClusterListeners => addClusterListeners(findAllStatuses())
     case Delete(id) => sender ! ResponseDelete(delete(id))
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
+  //scalastyle:on cyclomatic.complexity
 }
 
 object StatusActor {
@@ -63,5 +69,7 @@ object StatusActor {
   case class ResponseDelete(value: Try[_])
 
   case class ClearLastError(id: String)
+
+  case object AddClusterListeners
 
 }

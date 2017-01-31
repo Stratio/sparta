@@ -18,18 +18,17 @@ package com.stratio.sparta.plugin.transformation.ingestion
 
 import java.io.{Serializable => JSerializable}
 
-import scala.collection.JavaConversions._
-import scala.util._
 import akka.event.slf4j.SLF4JLogging
-import org.apache.avro.specific.SpecificDatumReader
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{StructField, StructType}
 import com.stratio.decision.commons.avro.InsertMessage
-import com.stratio.decision.commons.constants.ColumnType
-import com.stratio.decision.commons.messages.ColumnNameTypeValue
 import com.stratio.sparta.plugin.transformation.ingestion.serializer.JavaToAvroSerializer
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import org.apache.avro.specific.SpecificDatumReader
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StructField, StructType}
+
+import scala.collection.JavaConversions._
+import scala.util._
 
 class IngestionParser(order: Integer,
                       inputField: Option[String],
@@ -38,7 +37,7 @@ class IngestionParser(order: Integer,
                       properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) with SLF4JLogging {
 
-  assert(inputField.isDefined, "Is necessary define one inputField in the Morphline Transformation")
+  assert(inputField.isDefined, "Is necessary define one inputField in the Ingestion Transformation")
 
   val fieldNames = outputFieldsSchema.map(field => field.name)
 
@@ -61,8 +60,8 @@ object IngestionParser extends SLF4JLogging {
 
   def parseRawData(rawData: Any, fieldNames: Seq[String], schemas: Array[StructField]): Seq[Any] = {
     val stratioStreamingMessage = rawData match {
-      case valueCast : Array[Byte] => javaToAvro.deserialize(valueCast)
-      case valueCast : String => javaToAvro.deserialize(valueCast.getBytes)
+      case valueCast: Array[Byte] => javaToAvro.deserialize(valueCast)
+      case valueCast: String => javaToAvro.deserialize(valueCast.getBytes)
       case _ => javaToAvro.deserialize(rawData.toString.getBytes)
     }
     val columnsStratioStreamingMessage = stratioStreamingMessage.getColumns.toList

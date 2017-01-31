@@ -535,6 +535,17 @@
           "default": "Error",
           "required": true,
           "qa": "policy-transformation-ingestion-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-xml-removeInputField"
         }
       ]
     },
@@ -573,7 +584,7 @@
           "default": false,
           "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-json-rawDataEnabled"
+          "qa": "policy-transformation-json-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -616,17 +627,6 @@
           "qa": "policy-transformation-csv-whenError"
         },
         {
-          "propertyId": "removeInputField",
-          "propertyName": "_REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
-          "default": false,
-          "required": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-json-rawDataEnabled"
-        },
-        {
           "propertyId": "delimiter",
           "propertyName": "_CSV_DELIMITER_",
           "propertyType": "text",
@@ -635,6 +635,17 @@
           "default": ",",
           "required": false,
           "qa": "policy-transformation-csv-delimiter"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 6,
+          "default": false,
+          "required": false,
+          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
+          "qa": "policy-transformation-json-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -726,7 +737,7 @@
           "default": false,
           "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-xml-rawDataEnabled"
+          "qa": "policy-transformation-xml-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -777,7 +788,7 @@
           "default": false,
           "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-morphlines-rawDataEnabled"
+          "qa": "policy-transformation-morphlines-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -1038,12 +1049,42 @@
           "default": false,
           "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-datetime-rawDataEnabled"
+          "qa": "policy-transformation-datetime-removeInputField"
         }
       ]
     },
     "Geo": {
       "properties": [
+        {
+          "propertyId": "latitude",
+          "propertyName": "_LATITUDE_",
+          "propertyType": "text",
+          "position": "left",
+          "width": 6,
+          "default": "lat",
+          "required": true,
+          "qa": "policy-transformation-geo-latitude"
+        },
+        {
+          "propertyId": "longitude",
+          "propertyName": "_LONGITUDE_",
+          "propertyType": "text",
+          "position": "right",
+          "width": 6,
+          "default": "long",
+          "required": true,
+          "qa": "policy-transformation-geo-longitude"
+        },
+        {
+          "propertyId": "delimiter",
+          "propertyName": "_GEO_DELIMITER_",
+          "propertyType": "text",
+          "position": "left",
+          "width": 6,
+          "default": "--",
+          "required": true,
+          "qa": "policy-transformation-geo-delimiter"
+        },
         {
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
@@ -1069,10 +1110,6 @@
           "qa": "policy-transformation-geo-whenError"
         }
       ],
-      "defaultConfiguration": {
-        "latitude": "lat",
-        "longitude": "long"
-      },
       "outputFieldTypes": [
         {
           "label": "String",

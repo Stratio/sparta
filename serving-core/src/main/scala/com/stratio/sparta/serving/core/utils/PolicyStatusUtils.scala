@@ -68,9 +68,11 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           submissionStatus = if (policyStatus.submissionStatus.isEmpty) actualStatus.submissionStatus
           else policyStatus.submissionStatus,
           statusInfo = if (policyStatus.statusInfo.isEmpty) actualStatus.statusInfo
-          else policyStatus.statusInfo
+          else policyStatus.statusInfo,
+          lastExecutionMode = if (policyStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
+          else policyStatus.lastExecutionMode
         )
-        log.info(s"Updating context ${newStatus.id} with name ${newStatus.name}: " +
+        log.info(s"Updating context ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
           s"\n\t Status: ${actualStatus.status} to ${newStatus.status}" +
           s"\n\t Status Information: ${actualStatus.statusInfo.getOrElse("undefined")}" +
           s" to ${newStatus.statusInfo.getOrElse("undefined")} " +
