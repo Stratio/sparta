@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import org.apache.spark.streaming.StreamingContext
 
@@ -69,10 +69,14 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
         statusActor ! Update(PolicyStatusModel(
           id = policy.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
       case Failure(exception) =>
-        val information = s"Error initiating Sparta local job: ${exception.toString}"
+        val information = s"Error initiating Sparta local job"
         log.error(information, exception)
         statusActor ! Update(PolicyStatusModel(
-          id = policy.id.get, status = PolicyStatusEnum.Failed, statusInfo = Some(information)))
+          id = policy.id.get,
+          status = PolicyStatusEnum.Failed,
+          statusInfo = Option(information),
+          lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
+        ))
 
         SparkContextFactory.destroySparkContext(destroyStreamingContext = true)
     }

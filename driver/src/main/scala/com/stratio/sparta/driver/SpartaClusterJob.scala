@@ -27,7 +27,7 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 
@@ -88,10 +88,14 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
           statusActor ! Update(PolicyStatusModel(
             id = policyId, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
         case Failure(exception) =>
-          val information = s"Error initiating Sparta cluster job: ${exception.toString}"
+          val information = s"Error initiating Sparta cluster job"
           log.error(information)
           statusActor ! Update(PolicyStatusModel(
-            id = policyId, status = PolicyStatusEnum.Failed, statusInfo = Some(information)))
+            id = policyId,
+            status = PolicyStatusEnum.Failed,
+            statusInfo = Option(information),
+            lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
+          ))
           throw DriverException(information, exception)
       }
     } match {
