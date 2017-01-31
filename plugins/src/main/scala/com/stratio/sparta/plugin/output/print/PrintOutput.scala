@@ -26,11 +26,10 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.util.Try
 
-class PrintOutput(keyName: String,
-                  version: Option[Int],
+class PrintOutput(name: String,
                   properties: Map[String, JSerializable],
                   schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   val printData = Try(properties.getBoolean("printData")).getOrElse(false)
   val printSchema = Try(properties.getBoolean("printSchema")).getOrElse(false)

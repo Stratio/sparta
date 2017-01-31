@@ -28,17 +28,15 @@ import org.apache.spark.sql._
 /**
   * This output save as avro file the information.
   */
-class AvroOutput(keyName: String,
-                 version: Option[Int],
+class AvroOutput(name: String,
                  properties: Map[String, Serializable],
                  schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-
 
     val tableName = getTableNameFromOptions(options)
     val timeDimension = getTimeFromOptions(options).notBlank
@@ -60,6 +58,6 @@ class AvroOutput(keyName: String,
         dataFrameWriter.partitionBy(timeDimension.get)
     }
 
-    dataFrameWriter.save(s"${path.get}/${versionedTableName(tableName)}")
+    dataFrameWriter.save(s"${path.get}/$tableName")
   }
 }

@@ -27,11 +27,10 @@ import org.apache.spark.sql._
 
 import scala.collection.JavaConversions._
 
-class JdbcOutput(keyName: String,
-                 version: Option[Int],
+class JdbcOutput(name: String,
                  properties: Map[String, JSerializable],
                  bcSchema: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, bcSchema) {
+  extends Output(name, properties, bcSchema) {
 
   require(properties.getString("url", None).isDefined, "url must be provided")
 
