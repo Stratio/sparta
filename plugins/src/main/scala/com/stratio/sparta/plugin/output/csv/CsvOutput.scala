@@ -31,15 +31,14 @@ import scala.util.Try
 /**
  * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
  *
- * @param keyName
+ * @param name
  * @param properties
  * @param schemas
  */
-class CsvOutput(keyName: String,
-                version: Option[Int],
+class CsvOutput(name: String,
                 properties: Map[String, JSerializable],
                 schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   val path = properties.getString("path", None)
   val header = Try(properties.getString("header").toBoolean).getOrElse(false)
@@ -61,7 +60,7 @@ class CsvOutput(keyName: String,
     val optionsParsed =
       Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString) ++
         codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
-    val fullPath = s"$pathParsed${versionedTableName(tableName)}$subPath.csv"
+    val fullPath = s"$pathParsed$tableName$subPath.csv"
     val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
 
     validateSaveMode(saveMode)

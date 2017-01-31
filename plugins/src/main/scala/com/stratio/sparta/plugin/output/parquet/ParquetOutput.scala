@@ -27,15 +27,14 @@ import org.apache.spark.sql._
 /**
  * This output save as parquet file the information.
  *
- * @param keyName
+ * @param name
  * @param properties
  * @param schemas
  */
-class ParquetOutput(keyName: String,
-                    version: Option[Int],
+class ParquetOutput(name: String,
                     properties: Map[String, JSerializable],
                     schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with Logging {
+  extends Output(name, properties, schemas) with Logging {
 
   override def supportedSaveModes : Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
@@ -61,6 +60,6 @@ class ParquetOutput(keyName: String,
         dataFrameWriter.partitionBy(timeDimension.get)
     }
 
-    dataFrameWriter.save(s"${path.get}/${versionedTableName(tableName)}")
+    dataFrameWriter.save(s"${path.get}/$tableName")
   }
 }

@@ -32,11 +32,10 @@ import org.apache.spark.sql.{DataFrame, Row}
  *
  * @author anistal
  */
-class RedisOutput(keyName: String,
-                  version: Option[Int],
+class RedisOutput(name: String,
                   properties: Map[String, Serializable],
                   schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas)
+  extends Output(name, properties, schemas)
   with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)

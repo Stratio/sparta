@@ -29,21 +29,20 @@ trait OutputStage extends BaseStage {
   def outputStage(schemas: Seq[SpartaSchema],
                   refUtils: ReflectionUtils): Seq[Output] = policy.outputs.map(o => {
     val schemasAssociated = schemas.filter(tableSchema => tableSchema.outputs.contains(o.name))
-    createOutput(o, schemasAssociated, refUtils, policy.version)
+    createOutput(o, schemasAssociated, refUtils)
   })
 
-  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[SpartaSchema],
-                   refUtils: ReflectionUtils, version: Option[Int]): Output = {
+  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[SpartaSchema], refUtils: ReflectionUtils)
+  : Output = {
     val errorMessage = s"Something gone wrong creating the output: ${model.`type`}. Please re-check the policy."
     val okMessage = s"Output: ${model.`type`} created correctly."
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {
       refUtils.tryToInstantiate[Output](model.`type` + Output.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
-          classOf[Option[Int]],
           classOf[Map[String, Serializable]],
           classOf[Seq[SpartaSchema]])
-          .newInstance(model.name, version, model.configuration, schemasAssociated)
+          .newInstance(model.name, model.configuration, schemasAssociated)
           .asInstanceOf[Output])
     }
   }

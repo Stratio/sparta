@@ -25,11 +25,10 @@ import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-class KafkaOutput(keyName: String,
-                  version: Option[Int],
+class KafkaOutput(name: String,
                   properties: Map[String, JSerializable],
                   schemas: Seq[SpartaSchema])
-  extends Output(keyName, version, properties, schemas) with KafkaProducer {
+  extends Output(name, properties, schemas) with KafkaProducer {
 
   val outputFormat = OutputFormatEnum.withName(properties.getString("format", "json").toUpperCase)
   val rowSeparator = properties.getString("rowSeparator", ",")

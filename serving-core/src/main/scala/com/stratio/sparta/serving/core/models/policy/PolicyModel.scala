@@ -25,7 +25,6 @@ import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
 
 case class PolicyModel(
                         id: Option[String] = None,
-                        version: Option[Int] = None,
                         storageLevel: Option[String] = PolicyModel.storageDefaultValue,
                         name: String,
                         description: String = "default description",
