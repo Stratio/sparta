@@ -54,7 +54,19 @@
                         <configuration>
                             <sources>
                                 <source>src/${spark.version.folder}/scala</source>
-                                <source>src/test-${spark.version.folder}/scala</source>
+
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/${spark.version.folder}/test</source>
                             </sources>
                         </configuration>
                     </execution>

@@ -18,19 +18,12 @@ package com.stratio.sparta.plugin.output.fileSystem
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.text.SimpleDateFormat
 
-
-import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.{OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.types._
-import org.apache.spark.sql._
-import org.junit.runner.RunWith
-import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
 import org.apache.commons.io.FileUtils
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{SQLContext, _}
 
 
 @RunWith(classOf[JUnitRunner])

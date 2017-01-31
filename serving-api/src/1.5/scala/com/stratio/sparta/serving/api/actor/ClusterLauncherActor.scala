@@ -26,16 +26,19 @@ import com.stratio.sparta.serving.api.utils.SparkSubmitUtils
 import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.spark.launcher.{SparkAppHandle, SparkLauncher}
+import org.apache.spark.launcher.{SparkLauncher, SpartaLauncher}
 
+import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
+import scala.io.Source
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -95,24 +98,12 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         val information = s"Error when launching the Sparta cluster job: ${exception.toString}"
         log.error(information, exception)
         statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
-      case Success((sparkHandler, clusterConfig)) =>
-        val information = "Sparta cluster job launched correctly"
-        log.info(information)
-        statusActor ! Update(PolicyStatusModel(
-          id = policy.id.get,
-          status = Launched,
-          submissionId = Option(sparkHandler.getAppId),
-          submissionStatus = Option(sparkHandler.getState.name()),
-          statusInfo = Option(information),
-          lastExecutionMode = Option(getDetailExecutionMode(policy, clusterConfig))
-        ))
-        if (isCluster(policy, clusterConfig)) addClusterContextListener(policy.id.get, policy.name, clusterConfig)
-        else addClientContextListener(policy.id.get, policy.name, clusterConfig, sparkHandler)
-        scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
+      case Success((_, clusterConfig)) =>
+        addClusterContextListener(policy.id.get, policy.name, clusterConfig)
+        log.info("Sparta Cluster Job launched correctly")
     }
   }
 
-  //scalastyle:on
 
   def launch(policy: PolicyModel,
              main: String,
@@ -121,7 +112,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
              sparkArguments: Map[String, String],
              driverArguments: Seq[String],
              pluginsFiles: Seq[String],
-             clusterConfig: Config): SparkAppHandle = {
+             clusterConfig: Config): Unit = {
     val sparkLauncher = new SparkLauncher()
       .setSparkHome(sparkHome(clusterConfig))
       .setAppResource(driverFile)
@@ -162,9 +153,53 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
     // Driver (Sparta) params
     driverArguments.foreach(sparkLauncher.addAppArgs(_))
 
-    // Launch SparkApp
-    sparkLauncher.startApplication(addSparkListener(policy))
+    // Starting Spark Submit Process with Spark Launcher
+    log.info("Executing SparkLauncher...")
+
+    //Scheduling task to check policy status
+    scheduleOneTask(
+      AppConstant.AwaitPolicyChangeStatus,
+      AppConstant.DefaultAwaitPolicyChangeStatus
+    )(checkPolicyStatus(policy))
+
+    //Launch Job and manage future response
+    val sparkProcessStatus: Future[(Boolean, Process)] = for {
+      sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
+    } yield (Await.result(Future(sparkProcess.waitFor() == 0), 20 seconds), sparkProcess)
+    sparkProcessStatus.onComplete {
+      case Success((exitCode, sparkProcess)) =>
+        log.info("Command: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
+        if (!sparkLauncherStreams(exitCode, sparkProcess)) throw new Exception("Errors in Spark Launcher")
+      case Failure(exception) =>
+        throw new Exception(exception.getMessage)
+    }
   }
+
+  //scalastyle:on
+
+  def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Boolean = {
+    @tailrec
+    def recursiveErrors(it: Iterator[String], count: Int): Unit = {
+      log.info(it.next())
+      if (it.hasNext && count < 50)
+        recursiveErrors(it, count + 1)
+    }
+
+    if (exitCode) log.info("Spark process exited successfully")
+    else log.info("Spark process exited with errors")
+
+    Source.fromInputStream(sparkProcess.getInputStream).close()
+    sparkProcess.getOutputStream.close()
+
+    log.info("ErrorStream:")
+
+    val error = Source.fromInputStream(sparkProcess.getErrorStream)
+    recursiveErrors(error.getLines(), 0)
+    error.close()
+
+    exitCode
+  }
+
 
   /** Arguments functions **/
 

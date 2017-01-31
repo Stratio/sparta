@@ -22,15 +22,13 @@ import com.stratio.sparta.serving.core.actor.StatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
-import org.apache.spark.launcher.SparkAppHandle
 import org.json4s.jackson.Serialization._
 
 import scala.io.Source
@@ -40,19 +38,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   val statusActor: ActorRef
 
-  /** Spark Launcher functions **/
 
-  def addSparkListener(policy: PolicyModel): SparkAppHandle.Listener =
-    new SparkAppHandle.Listener() {
-      override def stateChanged(handle: SparkAppHandle): Unit = {
-        log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        statusActor ! Update(PolicyStatusModel(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
-      }
-
-      override def infoChanged(handle: SparkAppHandle): Unit = {
-        log.info(s"Submission info changed with status ... ${handle.getState.name()}")
-      }
-    }
 
   /** Sparta Listener functions for PolicyStatus **/
 
@@ -114,42 +100,6 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                 log.info(s"The Sparta System don't have submission id associated to policy $policyName")
             }
           } finally {
-            Try(nodeCache.close()) match {
-              case Success(_) =>
-                log.info("Node cache to contextListener closed correctly")
-              case Failure(e) =>
-                log.error(s"The node Cache to contextListener in Zookeeper is not closed correctly", e)
-            }
-          }
-        }
-      }
-    })
-  }
-
-  def addClientContextListener(policyId: String, policyName: String, clusterConfig: Config, handler: SparkAppHandle): Unit = {
-    log.info(s"Listener added to $policyName with id: $policyId")
-    statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
-      synchronized {
-        if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
-          log.info("Stopping message received from Zookeeper")
-          try {
-            policyStatus.submissionId match {
-              case Some(submissionId) =>
-                try {
-                  log.info("Stopping submission policy with handler")
-                  handler.stop()
-                } finally {
-                  val information = s"Stopped correctly Sparta cluster job with Spark Handler"
-                  log.info(information)
-                  statusActor ! Update(PolicyStatusModel(
-                    id = policyId, status = Stopped, statusInfo = Some(information)))
-                }
-              case None =>
-                log.info(s"The Sparta System don't have submission id associated to policy $policyName")
-            }
-          } finally {
-            log.info("Killing submission policy with handler")
-            handler.kill()
             Try(nodeCache.close()) match {
               case Success(_) =>
                 log.info("Node cache to contextListener closed correctly")
