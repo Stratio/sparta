@@ -36,7 +36,7 @@ class MorphlinesParser(order: Integer,
                        properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  assert(inputField.isDefined, "Is necessary define one inputField in the Morphline Transformation")
+  assert(inputField.isDefined, "It's necessary to define one inputField in the Morphline Transformation")
 
   private val config: String = properties.getString("morphline")
 
