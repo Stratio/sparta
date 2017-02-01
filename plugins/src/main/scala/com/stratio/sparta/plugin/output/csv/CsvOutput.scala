@@ -75,7 +75,8 @@ class CsvOutput(name: String,
   def getValidDelimiter(delimiter: String): String = {
     if (delimiter.length > 1) {
       val firstCharacter = delimiter.head.toString
-      log.warn(s"Invalid length to delimiter in csv: '$delimiter' . The system choose the first: '$firstCharacter'")
+      log.warn(s"Invalid length for the delimiter: '$delimiter' . " +
+        s"The system chose the first character: '$firstCharacter'")
       firstCharacter
     }
     else delimiter

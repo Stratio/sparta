@@ -56,19 +56,19 @@ class DateTimeParser(order: Integer,
                 case Some(value: String) =>
                   if (value.isEmpty)
                     returnWhenError(new IllegalStateException(
-                      s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
+                      s"Impossible to parse because value for field: ${outSchema.name} is empty"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case Some(value: Array[Byte]) =>
                   val valueCasted = new Predef.String(value)
                   if (value.isEmpty)
                     returnWhenError(new IllegalStateException(
-                      s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
+                      s"Impossible to parse because value for field: ${outSchema.name} is empty"))
                   else parseToOutputType(outSchema, applyGranularity(parseDate(valueCasted)))
                 case Some(value) =>
                   parseToOutputType(outSchema, applyGranularity(parseDate(value)))
                 case None =>
                   returnWhenError(new IllegalStateException(
-                    s"Impossible to parse because value is empty in the field: ${outSchema.name}"))
+                    s"Impossible to parse because value for field: ${outSchema.name} is empty"))
               }
             }
           case None =>

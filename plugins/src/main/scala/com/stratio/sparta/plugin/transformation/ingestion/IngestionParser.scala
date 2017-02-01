@@ -37,7 +37,7 @@ class IngestionParser(order: Integer,
                       properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) with SLF4JLogging {
 
-  assert(inputField.isDefined, "Is necessary define one inputField in the Ingestion Transformation")
+  assert(inputField.isDefined, "It's necessary define one inputField in the Ingestion Transformation")
 
   val fieldNames = outputFieldsSchema.map(field => field.name)
 
