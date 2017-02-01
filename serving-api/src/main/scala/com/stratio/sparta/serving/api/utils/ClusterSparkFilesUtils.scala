@@ -39,11 +39,13 @@ case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends 
 
     log.info(s"Uploading Sparta Driver jar ($driverJar) to HDFS cluster .... ")
 
-    val driverJarWithoutBegin = driverJarPath.replace("hdfs://", "")
-    hdfs.write(driverJar.getAbsolutePath, driverJarWithoutBegin.replace("hdfs://", ""), overwrite = true)
+    val driverJarPathParsed = driverJarPath.replace("hdfs://", "") + {
+      if(driverJarPath.endsWith("/")) "" else "/"
+    }
+    hdfs.write(driverJar.getAbsolutePath, driverJarPathParsed, overwrite = true)
 
-    val uploadedFilePath = if(isHadoopEnvironmentDefined) s"hdfs://$driverJarWithoutBegin${driverJar.getName}"
-    else s"hdfs://$host:$port$driverJarWithoutBegin${driverJar.getName}"
+    val uploadedFilePath = if(isHadoopEnvironmentDefined) s"hdfs://$driverJarPathParsed${driverJar.getName}"
+    else s"hdfs://$host:$port$driverJarPathParsed${driverJar.getName}"
 
     log.info(s"Uploaded Sparta Driver jar to HDFS path: $uploadedFilePath")
 
