@@ -33,9 +33,9 @@
         <label class="c-label c-col c-col--12">{{"_LAST_ERROR_" | translate}}</label>
      <label data-ng-if="!vm.error" class="c-col c-col--12">{{"_NONE_REGISTERED_" | translate}}</label>
       <div data-ng-if="vm.error" class="c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-border c-fieldset--padding-bottom">
-          <span class="c-text c-text--bold c-text--break-word">{{"_DATE_" | translate}} {{vm.error.date | date}} // {{"_PHASE_" | translate}}: {{vm.error.phase}} // {{"_ORIGINAL_MSG_" | translate}}: {{vm.error.originalMsg}}</span>
+          <span class="c-text c-text--bold ">{{"_DATE_" | translate}} {{vm.error.date | date}} // {{"_PHASE_" | translate}}: {{vm.error.phase}} // {{"_ORIGINAL_MSG_" | translate}}: {{vm.error.message}}</span>
       </div>
-      {{vm.error.message}}</p>
+     <p class ="c-text c-text--small c-text--break-word c-text--scrollable"> {{vm.error.originalMsg}}</p>
     </div>
 
 
