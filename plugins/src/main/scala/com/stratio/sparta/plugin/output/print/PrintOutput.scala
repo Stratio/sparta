@@ -53,9 +53,5 @@ class PrintOutput(name: String,
         schemaInfo.foreach(schema => log.info(schema))
         if(printData) dataFrame.foreach(row => log.info(row.mkString(",")))
     }
-
-    if(printData) {
-
-    }
   }
 }
