@@ -36,7 +36,7 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
-    val sqlContext = SQLContext.getOrCreate(sc)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 
