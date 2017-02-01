@@ -1,7 +1,7 @@
 <ng-form name="{{name}}" class="c-form-group"
          ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled, submitted: form.$submitted, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed}">
   <div class="c-form-control c-form-control--full-width">
-        <span class="c-icon-label c-col c-col--12" data-ng-if="label">
+        <span class="c-icon-label c-col c-col--12">
           <input id="{{name}}" ng-attr-id="{{name}}" name="{{name}}" class="c-input c-checkbox" type="checkbox"
                  data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled"
                  data-ng-pattern="pattern"><label class="c-label" for="{{name}}" data-qa="{{qa}}"></label>
@@ -11,10 +11,9 @@
                 <span data-ng-if="required === false && !extraMessage" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
                 <span data-ng-if="extraMessage" class="c-label__optional">{{extraMessage}}</span>
                       </label>
-  <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"
-     data-qa="{{helpQa}}" uib-popover='{{help}}' popover-class="popover popover--top" popover-trigger="click"
-     popover-placement="top" data-ng-click="mouseLeaveTooltip()"></i>
-
+            <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"
+               data-qa="{{helpQa}}" uib-popover='{{help}}' popover-class="popover popover--top" popover-trigger="click"
+               popover-placement="top" data-ng-click="mouseLeaveTooltip()"></i>
         </span>
 
     <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error" data-qa="{{qa}}-error">
