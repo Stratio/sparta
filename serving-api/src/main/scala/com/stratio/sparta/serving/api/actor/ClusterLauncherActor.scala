@@ -61,22 +61,21 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
       val clusterConfig = SpartaConfig.getClusterConfig(policy.executionMode).get
-      val driverLocation = Try(policy.driverLocation.getOrElse(DetailConfig.getString(DriverLocation)))
-        .getOrElse(DefaultDriverLocation)
-      val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocation, SpartaConfig.mainConfig)
+      val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
+      val driverLocationKey = driverLocation(driverPath)
+      val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
 
       validateSparkHome(clusterConfig)
 
       log.info("Init new cluster streamingContext with name " + policy.name)
 
-      val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val master = clusterConfig.getString(Master).trim
       val pluginsFiles = pluginsJars(policy)
       val driverParams = Seq(policy.id.get.trim,
         zkConfigEncoded,
         detailConfigEncoded,
         pluginsEncoded(pluginsFiles),
-        driverLocationConfigEncoded(driverLocation, driverLocationConfig))
+        driverLocationConfigEncoded(driverLocationKey, driverLocationConfig))
       val sparkArguments = submitArgsFromProps(clusterConfig) ++ submitArgsFromPolicy(policy.sparkSubmitArguments)
 
       log.info(s"Launching Sparta Job with options ... \n\t" +

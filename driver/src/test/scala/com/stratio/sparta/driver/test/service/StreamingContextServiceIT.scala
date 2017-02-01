@@ -66,7 +66,6 @@ class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFact
       val apConfig = parse(json).extract[PolicyModel]
       val spartaConfig = SpartaConfig.initConfig("sparta")
 
-      SpartaConfig.spartaHome = getSpartaHome
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
       val jars = jarsFromPolicy(apConfig)

@@ -81,19 +81,29 @@ trait SparkSubmitUtils extends PolicyConfigUtils {
                                     configuration: Config, configurationKey: String): String =
     policyOption.filter(_.trim.nonEmpty).getOrElse(configuration.getString(configurationKey)).trim
 
-  def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
-    driverLocation(policy) match {
+  def driverLocation(driverPath: String): String = {
+    val begin = 0
+    val end = 4
+
+    Try(driverPath.substring(begin, end) match {
+      case "hdfs" => "hdfs"
+      case _ => "provided"
+    }).getOrElse(DefaultDriverLocation)
+  }
+
+  def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String = {
+    val driverStorageLocation = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
+      .getOrElse(DefaultProvidedDriverURI)
+    driverLocation(driverStorageLocation) match {
       case location if location == "hdfs" =>
         val Hdfs = HdfsUtils()
         val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
-        val BasePath = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
-          .getOrElse(s"/user/${Hdfs.userName}/$ConfigAppName") + s"/${policy.id.get.trim}/"
 
-        Uploader.uploadDriverFile(BasePath)
+        Uploader.uploadDriverFile(driverStorageLocation)
       case _ =>
-        Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
-          .getOrElse(DefaultProvidedDriverURI)
+        driverStorageLocation
     }
+  }
 
   def sparkHome(clusterConfig: Config): String =
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
