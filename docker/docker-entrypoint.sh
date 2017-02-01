@@ -225,11 +225,6 @@
  fi
  sed -i "s|sparta.config.executionMode.*|sparta.config.executionMode = ${SPARTA_EXECUTION_MODE}|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v SPARTA_DRIVER_LOCATION ]]; then
-   SPARTA_DRIVER_LOCATION=provided
- fi
- sed -i "s|sparta.config.driverLocation.*|sparta.config.driverLocation = ${SPARTA_DRIVER_LOCATION}|" ${SPARTA_CONF_FILE}
-
  if [[ ! -v SPARTA_DRIVER_PACKAGE_LOCATION ]]; then
    SPARTA_DRIVER_PACKAGE_LOCATION="/opt/sds/sparta/driver/"
  fi
@@ -240,10 +235,10 @@
  fi
  sed -i "s|sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v SPARTA_PLUGIN_LOCATION ]]; then
-   SPARTA_PLUGIN_LOCATION="/opt/sds/plugins/"
+ if [[ ! -v SPARTA_PLUGIN_PACKAGE_LOCATION ]]; then
+   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/plugins/"
  fi
- sed -i "s|sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_LOCATION}"\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_STOP_GRACEFULLY ]]; then
    SPARTA_STOP_GRACEFULLY=true

@@ -52,34 +52,13 @@
   ],
   "advancedSettings": [
     {
-      "propertyId": "driverLocation",
-      "propertyName": "_DRIVER_LOCATION_",
-      "width": 6,
-      "position": "left",
-      "required": false,
-      "propertyType": "select",
-      "regexp": "provided|hdfs",
-      "values": [
-        {
-          "label": "Provided",
-          "value": "provided"
-        },
-        {
-          "label": "Hdfs",
-          "value": "hdfs"
-        }
-      ],
-      "tooltip": "When provided it's necessary to specify the URI. If nothing is selected Sparta will use the values in the configuration file.",
-      "qa": "policy-driver-location"
-    },
-    {
       "propertyId": "driverUri",
       "propertyName": "_DRIVER_URI_",
-      "width": 6,
-      "position": "right",
+      "width": 12,
+      "position": "left",
       "propertyType": "text",
       "required": false,
-      "tooltip": "Path to the driver jar file (only for Provided mode).",
+      "tooltip": "Path to the driver jar file (hdfs, http or local URIs).",
       "qa": "policy-driver-uri"
     },
     {
