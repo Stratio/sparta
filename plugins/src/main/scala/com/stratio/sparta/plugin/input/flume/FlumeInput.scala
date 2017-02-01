@@ -62,7 +62,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
         case (Some(address), Some(port)) =>
           new InetSocketAddress(address, port.toInt)
         case _ =>
-          throw new IllegalStateException(s"Invalid conf value for addresses : ${properties.get("addresses")}")
+          throw new IllegalStateException(s"Invalid configuration value for addresses : ${properties.get("addresses")}")
       }
 
   private def enableDecompression: Boolean =

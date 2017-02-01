@@ -61,14 +61,14 @@ class CsvParser(order: Integer,
                       parseToOutputType(outSchema, valueParsed)
                     case None =>
                       returnWhenError(new IllegalStateException(
-                        s"The values parsed not have the schema field: ${outSchema.name}"))
+                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
                   }
                 case None =>
                   returnWhenError(new IllegalStateException(
                     s"Impossible to parse outputField: $outputField in the schema"))
               }
             }
-          } else returnWhenError(new IllegalStateException(s"The values splitted are more or less than properties fields"))
+          } else returnWhenError(new IllegalStateException(s"The values splitted are greater or lower than the properties fields"))
         case None =>
           returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
