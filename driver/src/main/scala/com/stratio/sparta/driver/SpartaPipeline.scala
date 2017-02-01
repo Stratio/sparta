@@ -30,6 +30,7 @@ import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import org.apache.spark.SparkContext
@@ -127,7 +128,8 @@ object SpartaPipeline extends PolicyUtils {
   def getSparkConfigs(policy: PolicyModel, methodName: String, suffix: String): Map[String, String] = {
     log.info("Initializing reflection")
     policy.outputs.flatMap(o => {
-      val clazzToInstance = ReflectionUtils.getClasspathMap.getOrElse(o.`type` + suffix, o.`type` + suffix)
+      val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.`type`).toString
+      val clazzToInstance = ReflectionUtils.getClasspathMap.getOrElse(classType + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
       clazz.getMethods.find(p => p.getName == methodName) match {
         case Some(method) =>

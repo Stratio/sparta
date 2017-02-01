@@ -20,6 +20,7 @@ import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import org.apache.spark.sql.types.StructType
 import org.junit.runner.RunWith
@@ -73,7 +74,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).outputStage(Seq.empty, reflection)
-    } should have message "Something gone wrong creating the output: Output. Please re-check the policy."
+    } should have message "Something gone wrong creating the output: output. Please re-check the policy."
   }
 
 
@@ -87,7 +88,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).outputStage(Seq.empty, reflection)
-    } should have message "Something gone wrong creating the output: Output. Please re-check the policy."
+    } should have message "Something gone wrong creating the output: output. Please re-check the policy."
   }
 
   "OutputStage" should "Generate a list of output for multiple Outputs " in {
