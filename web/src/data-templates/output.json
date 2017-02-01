@@ -4,7 +4,7 @@
     "modelType": "Cassandra",
     "description": {
       "short": "The Cassandra output uses the generic implementation with DataFrames.",
-      "long": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
+      "long": "Datastax Spark Connector:  goo.gl/PO4k4F",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Cassandra"
     },
     "properties": [
@@ -118,7 +118,7 @@
     "modelType": "Csv",
     "description": {
       "short": "Persist your data in HDFS with CSV format.",
-      "long": "Persist your data in HDFS with CSV format.",
+      "long": "https://github.com/databricks/spark-csv",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-CSV"
     },
     "properties": [
@@ -416,7 +416,7 @@
     "modelType": "Print",
     "description": {
       "short": "Print the number of elements, schemas and data",
-      "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with his schema.",
+      "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with its schema.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Print"
     },
     "properties": [
@@ -426,7 +426,7 @@
         "propertyType": "boolean",
         "default": false,
         "required": false,
-        "tooltip": "Specifies if the data is printed by the logger in WARN level",
+        "tooltip": "Specifies if the data is printed by the logger depending on the level set",
         "qa": "fragment-details-print-printData"
       },
       {
@@ -435,7 +435,7 @@
         "propertyType": "boolean",
         "default": false,
         "required": false,
-        "tooltip": "Specifies if the schema is printed by the logger in WARN level",
+        "tooltip": "Specifies if the schema is printed by the logger depending on the level set",
         "qa": "fragment-details-print-printSchema"
       },
       {
@@ -459,7 +459,7 @@
         ],
         "default": "warn",
         "required": true,
-        "tooltip": "Sets the log level when print the data",
+        "tooltip": "Sets the log level when printing the data",
         "qa": "fragment-details-output-print-logLevel"
       }
     ]
@@ -468,8 +468,8 @@
     "name": "Redis",
     "modelType": "Redis",
     "description": {
-      "short": "The output of Redis use the generic implementation with DataFrames.",
-      "long": "The output of Redis use the generic implementation with DataFrames. Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
+      "short": "The output of Redis doesnt use the generic implementation with DataFrames.",
+      "long": "Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Redis"
     },
     "properties": [
@@ -500,7 +500,7 @@
   "modelType": "Kafka",
   "description": {
     "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
-    "long": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log. Based on the received-based approach (https://spark.apache.org/docs/latest/streaming-kafka-integration.html)",
+    "long": "There is available in Sparta, a Kafka 0.10 fork made by Stratio using the Spark 1.6 profile to support security: https://github.com/Stratio/spark-kafka",
     "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Kafka"
   },
   "properties": [
@@ -615,8 +615,8 @@
     "name": "Jdbc",
     "modelType": "Jdbc",
     "description": {
-      "short": "With one jdbc connection is possible to write data into SQL Databases.",
-      "long": "With one jdbc connection is possible to write data into SQL Databases. Using the generic implementation provided by Spark Datasources Api.",
+      "short": "With one jdbc connection it's possible to write data into SQL Databases.",
+      "long": "To use a JDBC driver it's necessary to add the dependency to the system classpath. To add the dependency to the system classpath setup the file spark-defaults.conf in every instance of the cluster.",
       "learnMore": "http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"
     },
     "properties": [
@@ -668,7 +668,7 @@
     "modelType": "Http",
     "description": {
       "short": "Enables you to do POST requests to a certain URL",
-      "long": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with aparamter or attached in the request body.",
+      "long": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with a parameter name or attached in the request body.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-HTTPPost"
     },
     "properties": [
@@ -771,7 +771,7 @@
     "modelType": "FileSystem",
     "description": {
       "short": "Saves the processed data to file into any storage service",
-      "long": "This output enables you to save the processed data into to a file into any storage service such as HDFS, Amazon S3, Azure or locally.",
+      "long": "This output enables you to save the processed data in any HDFS-compatible storage service such as HDFS itself, Amazon S3, Azure or locally.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Filesystem"
     },
     "properties": [
@@ -935,7 +935,7 @@
     "modelType": "Avro",
     "description": {
       "short": "Avro output uses the databricks implementation with DataFrames.",
-      "long": "Avro is a remote procedure call and data serialization framework developed within Apache's Hadoop project. It uses JSON for defining data types and protocols, and serializes data in a compact binary format. Its primary use is in Apache Hadoop, where it can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes, and from client programs to the Hadoop services.",
+      "long": "Avro is a remote procedure call and data serialization framework developed within Apache's Hadoop project. It uses JSON for defining data types and protocols, and serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
       "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Avro"
     },
     "properties": [
