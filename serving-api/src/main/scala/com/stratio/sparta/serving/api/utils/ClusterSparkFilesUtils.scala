@@ -23,6 +23,8 @@ import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, HdfsUtils, PolicyUtils}
 
+import scala.util.Try
+
 case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends PolicyUtils with CheckpointUtils {
 
   private val hdfsConfig = SpartaConfig.getHdfsConfig.get
@@ -31,14 +33,17 @@ case class ClusterSparkFilesUtils(policy: PolicyModel, hdfs: HdfsUtils) extends 
 
   def uploadDriverFile(driverJarPath: String): String = {
     val driverJar =
-      JarsHelper.findDriverByPath(new File(SpartaConfig.spartaHome, AppConstant.DefaultDriverFolder)).head
+      JarsHelper.findDriverByPath(new File(
+        Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
+        .getOrElse(AppConstant.DefaultDriverPackageLocation))).head
 
     log.info(s"Uploading Sparta Driver jar ($driverJar) to HDFS cluster .... ")
 
-    hdfs.write(driverJar.getAbsolutePath, driverJarPath, overwrite = true)
+    val driverJarWithoutBegin = driverJarPath.replace("hdfs://", "")
+    hdfs.write(driverJar.getAbsolutePath, driverJarWithoutBegin.replace("hdfs://", ""), overwrite = true)
 
-    val uploadedFilePath = if(isHadoopEnvironmentDefined) s"hdfs://$driverJarPath${driverJar.getName}"
-    else s"hdfs://$host:$port$driverJarPath${driverJar.getName}"
+    val uploadedFilePath = if(isHadoopEnvironmentDefined) s"hdfs://$driverJarWithoutBegin${driverJar.getName}"
+    else s"hdfs://$host:$port$driverJarWithoutBegin${driverJar.getName}"
 
     log.info(s"Uploaded Sparta Driver jar to HDFS path: $uploadedFilePath")
 

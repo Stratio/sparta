@@ -35,23 +35,6 @@ object SpartaConfig extends SLF4JLogging {
   var sprayConfig: Option[Config] = None
 
   /**
-   * Initializes Sparta's base path.
-   *
-   * @return the object described above.
-   */
-  var spartaHome: String = {
-    val system = new SpartaSystem
-    val spartaHome = system.getenv("SPARTA_HOME").orElse({
-      val spartaHomeDefault = system.getProperty("user.dir", "./")
-      log.warn("SPARTA_HOME environment variable is not set, setting to default value")
-      spartaHomeDefault
-    })
-    assert(spartaHome.isDefined, "Fatal error: spartaHome not found.")
-    log.info(s"Setting configuration path to ${spartaHome.get}")
-    spartaHome.get
-  }
-
-  /**
    * Initializes base configuration.
    *
    * @param currentConfig if it is setted the function tries to load a node from a loaded config.

@@ -19,7 +19,7 @@ package com.stratio.sparta.sdk.pipeline.transformation
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
-import com.stratio.sparta.sdk.properties.Parameterizable
+import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StructField, StructType}
@@ -31,7 +31,11 @@ abstract class Parser(order: Integer,
                       outputFields: Seq[String],
                       schema: StructType,
                       properties: Map[String, JSerializable])
-  extends Parameterizable(properties) with Ordered[Parser] {
+  extends Parameterizable(properties) with Ordered[Parser] with CustomProperties {
+
+  val customKey = "transformationOptions"
+  val customPropertyKey = "transformationOptionsKey"
+  val customPropertyValue = "transformationOptionsValue"
 
   val outputFieldsSchema = schema.fields.filter(field => outputFields.contains(field.name))
 

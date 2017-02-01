@@ -70,10 +70,6 @@ trait PolicyConfigUtils extends SLF4JLogging {
     Try(policy.stopGracefully.getOrElse(DetailConfig.getBoolean(ConfigStopGracefully)))
       .getOrElse(DefaultStopGracefully)
 
-  def driverLocation(policy: PolicyModel): String =
-    Try(policy.driverLocation.getOrElse(DetailConfig.getString(DriverLocation)))
-      .getOrElse(DefaultDriverLocation)
-
   def executionMode(policy: PolicyModel): String = policy.executionMode match {
     case Some(mode) if mode.nonEmpty => mode
     case _ => DetailConfig.getString(ExecutionMode)

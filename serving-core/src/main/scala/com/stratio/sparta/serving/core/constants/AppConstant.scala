@@ -47,21 +47,21 @@ object AppConstant {
   val SparkGracefullyStopProperty = "spark.streaming.stopGracefullyOnShutdown"
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
   val DefaultAwaitPolicyChangeStatus = "120s"
+  val DriverPackageLocation = "driverPackageLocation"
+  val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
+  val DriverURI = "driverURI"
+  val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
+  val DefaultDriverLocation = "provided"
+  val PluginsPackageLocation = "pluginPackageLocation"
+  val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+
+  //Checkpooint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   val DefaultAutoDeleteCheckpoint = true
   val ConfigCheckpointPath = "checkpointPath"
   val DefaultCheckpointPath = "sparta/checkpoint"
   val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
   val DefaultCheckpointPathClusterMode = "/user/"
-  val DriverPackageLocation = "driverPackageLocation"
-  val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
-  val DefaultDriverFolder = "driver"
-  val DriverLocation = "driverLocation"
-  val DriverURI = "driverURI"
-  val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
-  val DefaultDriverLocation = "provided"
-  val PluginsPackageLocation = "pluginPackageLocation"
-  val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"
