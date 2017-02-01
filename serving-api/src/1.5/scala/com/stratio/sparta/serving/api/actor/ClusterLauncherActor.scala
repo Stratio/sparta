@@ -16,6 +16,9 @@
 
 package com.stratio.sparta.serving.api.actor
 
+
+import java.io.InputStream
+
 import akka.actor.{Actor, ActorRef}
 import akka.pattern.ask
 import akka.util.Timeout
@@ -28,11 +31,14 @@ import com.stratio.sparta.serving.core.actor.StatusActor.{FindById, ResponseStat
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, HdfsUtils, SchedulerUtils}
 import com.typesafe.config.{Config, ConfigRenderOptions}
-import org.apache.spark.launcher.{SparkLauncher, SpartaLauncher}
+import org.apache.spark.launcher.SpartaLauncher
+import org.json4s.jackson.Serialization.read
 
 import scala.annotation.tailrec
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -113,7 +119,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
              driverArguments: Seq[String],
              pluginsFiles: Seq[String],
              clusterConfig: Config): Unit = {
-    val sparkLauncher = new SparkLauncher()
+    val sparkLauncher = new SpartaLauncher()
       .setSparkHome(sparkHome(clusterConfig))
       .setAppResource(driverFile)
       .setMainClass(main)
@@ -169,15 +175,33 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
     sparkProcessStatus.onComplete {
       case Success((exitCode, sparkProcess)) =>
         log.info("Command: {}", sparkLauncher.asInstanceOf[SpartaLauncher].getSubmit)
-        if (!sparkLauncherStreams(exitCode, sparkProcess)) throw new Exception("Errors in Spark Launcher")
+        val submissionId = getSubmissionId(exitCode, sparkProcess)
+          .getOrElse(throw new Exception("Errors in Spark Launcher"))
+        statusActor ! Update(PolicyStatusModel(
+          id = policy.id.get, status = PolicyStatusEnum.NotDefined,
+          submissionId = Some(submissionId), statusInfo = Some("Planned correctly Sparta cluster job ")))
+
       case Failure(exception) =>
         throw new Exception(exception.getMessage)
     }
   }
 
   //scalastyle:on
+  val initLogResponseLine = 6
+  val SubmissionResponseSize = 6
 
-  def sparkLauncherStreams(exitCode: Boolean, sparkProcess: Process): Boolean = {
+  private def getResponse(input: InputStream): Option[SubmissionResponse] = {
+    Try {
+      val buffer = Source.fromInputStream(input)
+      val json = buffer.getLines().slice(initLogResponseLine, initLogResponseLine + SubmissionResponseSize).mkString
+      buffer.close()
+      val response = read[SubmissionResponse](json)
+      log.info(s"Planned correctly Sparta cluster job. The response from the server was:$response")
+      response
+    }.toOption
+  }
+
+  def getSubmissionId(exitCode: Boolean, sparkProcess: Process): Option[String] = {
     @tailrec
     def recursiveErrors(it: Iterator[String], count: Int): Unit = {
       log.info(it.next())
@@ -185,20 +209,22 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         recursiveErrors(it, count + 1)
     }
 
-    if (exitCode) log.info("Spark process exited successfully")
-    else log.info("Spark process exited with errors")
-
     Source.fromInputStream(sparkProcess.getInputStream).close()
     sparkProcess.getOutputStream.close()
 
-    log.info("ErrorStream:")
-
-    val error = Source.fromInputStream(sparkProcess.getErrorStream)
-    recursiveErrors(error.getLines(), 0)
-    error.close()
-
-    exitCode
+    if (!exitCode) {
+      log.info("Spark process exited with errors")
+      log.info("ErrorStream:")
+      val error = Source.fromInputStream(sparkProcess.getErrorStream)
+      recursiveErrors(error.getLines(), 0)
+      error.close()
+      None
+    } else {
+      log.info("Spark process exited successfully")
+      getResponse(sparkProcess.getErrorStream).flatMap(f => Some(f.submissionId))
+    }
   }
+
 
 
   /** Arguments functions **/

@@ -17,7 +17,7 @@
 package com.stratio.sparta.serving.core.models.submit
 
 case class SubmissionResponse(action: String,
-                              message: String,
+                              message: Option[String],
                               serverSparkVersion: String,
                               submissionId: String,
                               success: Boolean)

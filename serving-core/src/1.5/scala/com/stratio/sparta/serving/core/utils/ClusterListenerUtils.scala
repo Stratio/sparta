@@ -66,35 +66,34 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
     log.info(s"Listener added to $policyName with id: $policyId")
     statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
+        if (policyStatus.status == Stopping) {
           log.info("Stopping message received from Zookeeper")
           try {
             policyStatus.submissionId match {
               case Some(submissionId) =>
-                try {
+                Try {
                   val url = killUrl(clusterConfig)
                   log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $url")
-                  val post = if (submissionId.contains("driver")) {
-                    val frameworkId = submissionId.substring(0, submissionId.indexOf("driver") - 1)
-                    val sparkApplicationId = submissionId.substring(submissionId.indexOf("driver"))
-                    log.info(s"The extracted Framework id is: $frameworkId")
-                    log.info(s"The extracted Spark application id is: $sparkApplicationId")
-                    new HttpPost(s"$url/$sparkApplicationId")
-                  } else new HttpPost(s"$url/$submissionId")
+                  val post = new HttpPost(s"$url/$submissionId")
                   val postResponse = HttpClientBuilder.create().build().execute(post)
-                  Try {
-                    read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
-                  } match {
-                    case Success(submissionResponse) =>
-                      log.info(s"Kill submission response status: ${submissionResponse.success}")
-                    case Failure(e) =>
-                      log.error("Impossible to parse submission killing response", e)
-                  }
-                } finally {
-                  val information = s"Stopped correctly Sparta cluster job with Spark API"
-                  log.info(information)
-                  statusActor ! Update(PolicyStatusModel(
-                    id = policyId, status = Stopped, statusInfo = Some(information)))
+                  read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
+                } match {
+                  case Success(submissionResponse) if submissionResponse.success =>
+                    val information = s"Stopped correctly Sparta cluster job with Spark API"
+                    log.info(information)
+                    statusActor ! Update(PolicyStatusModel(
+                      id = policyId, status = Stopped, statusInfo = Some(information)))
+                  case Success(submissionResponse) =>
+                    log.debug(s"Failed response : $submissionResponse")
+                    val information = s"Error while stoping task : ${submissionResponse.message.getOrElse("N/A")}"
+                    log.info(information)
+                    statusActor ! Update(PolicyStatusModel(
+                      id = policyId, status = Failed, statusInfo = Some(information)))
+                  case Failure(e) =>
+                    val error = "Impossible to parse submission killing response"
+                    log.error(error, e)
+                    statusActor ! Update(PolicyStatusModel(
+                      id = policyId, status = Failed, statusInfo = Some(error)))
                 }
               case None =>
                 log.info(s"The Sparta System don't have submission id associated to policy $policyName")
