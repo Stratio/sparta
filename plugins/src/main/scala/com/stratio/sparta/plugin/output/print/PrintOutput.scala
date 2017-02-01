@@ -36,7 +36,7 @@ class PrintOutput(name: String,
   val logLevel = properties.getString("logLevel", "warn")
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    val metadataInfo = s"\tTable name : ${Output.getTableNameFromOptions(options)}\tElements: ${dataFrame.count()}"
+    val metadataInfo = s"Table name : ${Output.getTableNameFromOptions(options)}\tElements: ${dataFrame.count()}"
     val schemaInfo = if(printSchema) Option(s"DataFrame schema: ${dataFrame.schema.toString()}") else None
         
     logLevel match {
