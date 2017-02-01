@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.plugin.output.fileSystem
 
-package com.stratio.sparta.serving.core.models.submit
+object PartitionLimit extends Enumeration {
 
-case class SubmissionResponse(action: String,
-                              message: Option[String],
-                              serverSparkVersion: String,
-                              submissionId: String,
-                              success: Boolean)
+  type Limit = Value
+  val YYYY, MM, DD, HH, mm, ss, NONE = Value
+
+}

@@ -19,12 +19,11 @@ import java.io.{Serializable => JSerializable}
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.Logging
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions._
 
 import scala.collection.mutable.ListBuffer
 
@@ -62,7 +61,7 @@ class FileSystemOutput(name: String,
     if (!fileWithDate) path
     else {
 
-      if(partitionUntil == PartitionLimit.NONE)
+      if (partitionUntil == PartitionLimit.NONE)
         path + "/" + new SimpleDateFormat(partitionFormat(partitionUntil)).format(currentDate)
 
       else {
@@ -98,10 +97,7 @@ class FileSystemOutput(name: String,
     if (outputFormat == OutputFormatEnum.JSON)
       dataFrame.write.json(formatPath(dateNow))
     else {
-      val colSeq = dataFrame.schema.fields.flatMap(field => Some(col(field.name))).toSeq
-      val df = dataFrame.withColumn(FieldName, concat_ws(delimiter, colSeq: _*)).select(FieldName)
-
-      df.write.text(formatPath(dateNow))
+      dataFrame.rdd.saveAsTextFile(formatPath(dateNow))
     }
   }
 

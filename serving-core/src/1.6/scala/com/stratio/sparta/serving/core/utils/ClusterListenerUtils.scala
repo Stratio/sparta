@@ -22,7 +22,6 @@ import com.stratio.sparta.serving.core.actor.StatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse

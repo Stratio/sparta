@@ -18,7 +18,6 @@ package com.stratio.sparta.plugin.output.parquet
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.plugin.output.parquet.ParquetOutput
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SQLContext
@@ -47,7 +46,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   trait CommonValues {
 
-    val sqlContext = SQLContext.getOrCreate(sc)
+    val sqlContext = new SQLContext(sc)
 
     import sqlContext.implicits._
 

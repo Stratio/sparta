@@ -100,6 +100,7 @@
         <dependency>
             <groupId>org.scalamock</groupId>
             <artifactId>scalamock-scalatest-support_${scala.binary.version}</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
@@ -109,6 +110,23 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/${spark.version.folder}/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

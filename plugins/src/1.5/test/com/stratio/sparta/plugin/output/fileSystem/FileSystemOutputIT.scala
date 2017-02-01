@@ -18,19 +18,16 @@ package com.stratio.sparta.plugin.output.fileSystem
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.text.SimpleDateFormat
-
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.{OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.types._
-import org.apache.spark.sql._
-import org.junit.runner.RunWith
-import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.junit.JUnitRunner
 import org.apache.commons.io.FileUtils
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{SQLContext, _}
+import org.junit.runner.RunWith
+import org.scalatest.Matchers
+import org.scalatest.junit.JUnitRunner
 
 
 @RunWith(classOf[JUnitRunner])
@@ -99,16 +96,16 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
       new SimpleDateFormat("MM").format(testDate) + "/" + new SimpleDateFormat("DD").format(testDate) + "/" +
       new SimpleDateFormat("HHmmss").format(testDate)
 
-    fsm3.formatPath(testDate) should equal (fsm3.path + "/" + partitionFormat)
+    fsm3.formatPath(testDate) should equal(fsm3.path + "/" + partitionFormat)
 
   }
 
   "When 'No partition' option is chosen the date" should "not be parsed with slashes and just be concatenated to " +
     "the path" in {
     val fsm4 = new FileSystemOutput("key", properties.updated("fileWithDate", "true").
-      updated ("partitionUntil", "NONE"), tableSchema)
+      updated("partitionUntil", "NONE"), tableSchema)
     val testDate = new Date()
 
-    fsm4.formatPath(testDate) should equal (fsm4.path + "/" +  new SimpleDateFormat(fsm4.dateFormat).format(testDate))
+    fsm4.formatPath(testDate) should equal(fsm4.path + "/" + new SimpleDateFormat(fsm4.dateFormat).format(testDate))
   }
 }
