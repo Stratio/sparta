@@ -19,8 +19,7 @@
 		font-family: ico_stratio;
 		font-weight: 400;
 		font-style: normal;
-		font-size: 25px;
-
+		display: inline-block;
 		&--info {
 			color: get-color(n5);
 		}
@@ -49,7 +48,6 @@
 
 	@at-root &__td {
 		padding: $c-table---padding-top $c-table---cell-spacing $c-table---padding-bottom;
-		vertical-align: top;
 		@include container-to-right;
 
 		&:first-child {

@@ -19,23 +19,29 @@
         <p>{{vm.statusInfo}}</p>
       </div>
 
-      <div data-ng-if="submissionId" class="c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-border c-fieldset--padding-bottom ">
+      <div data-ng-if="submissionId"
+           class="c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-border c-fieldset--padding-bottom ">
         <label class="c-label">{{"_SUBMISSION_ID_" | translate}}</label>
         <p>{{vm.submissionId}}</p>
       </div>
       <div class="c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-border c-fieldset--padding-bottom ">
         <label class="c-label">{{"_EXECUTION_MODE_" | translate}}</label>
-        <p>{{vm.deployMode}}</p>
-
       </div>
     </div>
     <div class="c-col c-col--6 c-modal-inner__right-panel c-panel--padding c-panel--secondary c-panel--bottom-margin">
-        <label class="c-label c-col c-col--12">{{"_LAST_ERROR_" | translate}}</label>
-     <label data-ng-if="!vm.error" class="c-col c-col--12">{{"_NONE_REGISTERED_" | translate}}</label>
-      <div data-ng-if="vm.error" class="c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-border c-fieldset--padding-bottom">
-          <span class="c-text c-text--bold ">{{"_DATE_" | translate}} {{vm.error.date | date}} // {{"_PHASE_" | translate}}: {{vm.error.phase}} // {{"_ORIGINAL_MSG_" | translate}}: {{vm.error.message}}</span>
+      <label class="c-label c-col c-col--12">{{"_LAST_ERROR_" | translate}}</label>
+      <label data-ng-if="!vm.error" class="c-col c-col--12">{{"_NONE_REGISTERED_" | translate}}</label>
+      <div data-ng-if="vm.error"
+           class="c-fieldset c-fieldset--bottom-margin c-fieldset--padding-bottom">
+        <span class="c-text"> <i class="c-icon c-icon--small c-icon--to-top icon-calendar"></i><label class="c-text "> {{"_DATE_" | translate}}:</label></span>
+        <span class="c-text c-text--bold">{{vm.error.date | date}}</span>
+        <i class="c-icon c-icon--small icon-evolution c-icon c-icon--to-top c-icon--left-margin"></i> <label
+              class="c-text">{{"_PHASE_" | translate}}:</label>
+        <span class="c-text c-text--bold"> {{vm.error.phase}}</span>
+        <p class="c-text c-text--bold c-col--padding-top"> {{vm.error.message}}</p>
+        <p class="c-text c-text--small c-text--break-word c-text--scrollable"> {{vm.error.originalMsg}}</p>
       </div>
-     <p class ="c-text c-text--small c-text--break-word c-text--scrollable"> {{vm.error.originalMsg}}</p>
+
     </div>
 
 

@@ -39,6 +39,26 @@
     color: getColor(n6);
   }
 
+  &--to-top {
+    vertical-align: top;
+  }
+
+  &--circle-button {
+    height: $c-icon--circle-button---size;
+    width: $c-icon--circle-button---size;
+    text-align: center;
+    background-color: get-color(n3);
+    border-radius: $c-icon--circle-button---size;
+    font-size: 16px;
+    vertical-align: middle;
+    line-height: 32px;
+
+    &:hover {
+      background-color: get-color(a3);
+      color: white;
+    }
+  }
+
   @include item-to-right();
 
   @include font-sizes();
