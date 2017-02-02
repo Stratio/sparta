@@ -681,7 +681,6 @@
       "long": "",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-WebSocket"
     },
-
     "properties": [
       {
         "propertyId": "url",
@@ -703,7 +702,6 @@
       "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-FileSystem"
     },
-
     "properties": [
       {
         "propertyId": "directory",
@@ -714,6 +712,57 @@
         "required": true,
         "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
         "qa": "fragment-details-filesystem-url"
+      }
+    ]
+  },
+  {
+    "name": "Custom",
+    "modelType": "Custom",
+    "description": {
+      "short": "Custom input defined by user",
+      "long": "User can extend the Sparta SDK with his own implementation of Input class",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/SDK"
+    },
+    "properties": [
+      {
+        "propertyId": "modelType",
+        "propertyName": "_MODEL_TYPE_",
+        "propertyType": "text",
+        "default": "Custom",
+        "required": true,
+        "tooltip": "Input type is related to the user class extended by SDK",
+        "qa": "custom-input-modelType"
+      },
+      {
+        "propertyId": "inputOptions",
+        "propertyName": "_OPTION_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "custom-input-properties",
+        "fields": [
+          {
+            "propertyId": "inputOptionsKey",
+            "propertyName": "_OPTION_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "custom-input-properties-key"
+          },
+          {
+            "propertyId": "inputOptionsValue",
+            "propertyName": "_OPTION_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "custom-input-properties-value"
+          }
+        ]
       }
     ]
   }
