@@ -15,7 +15,7 @@
                  data-qa="policy-model-type-{{modelTypes.name | lowercase}}"
                  for="type-{{modelTypes.name + $parent.$index| lowercase}}">
             <i class="c-icon c-icon--large c-icon-radio__icon icon-{{modelTypes.iconName | lowercase}}"
-               uib-popover="{{modelTypes.name | lowercase}}" popover-placement="top" popover-class="tooltip--top">
+               uib-popover="{{modelTypes.name | lowercase}}" popover-placement="top" popover-trigger="mouseenter" popover-class="tooltip--top">
             </i>
           </label>
         </span>

@@ -13,6 +13,10 @@
 		text-transform: $c-modal-inner__title---text-transform;
 	}
 
+	&__right-panel {
+		float: right;
+	}
+
 	.c-list {
 		line-height: $c-modal-inner__c-list---line-height;
 		margin: $c-modal-inner__c-list---margin;

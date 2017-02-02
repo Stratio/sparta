@@ -1,10 +1,10 @@
 @font-face {
 	font-family: 'ico_stratio';
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?pu7eqt');
-	src:url('vendors/stratio-fonticon/ico_stratio.eot?pu7eqt#iefix') format('embedded-opentype'),
-		url('vendors/stratio-fonticon/ico_stratio.ttf?pu7eqt') format('truetype'),
-		url('vendors/stratio-fonticon/ico_stratio.woff?pu7eqt') format('woff'),
-		url('vendors/stratio-fonticon/ico_stratio.svg?pu7eqt#ico_stratio') format('svg');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?7gci6c');
+	src:url('vendors/stratio-fonticon/ico_stratio.eot?7gci6c#iefix') format('embedded-opentype'),
+		url('vendors/stratio-fonticon/ico_stratio.ttf?7gci6c') format('truetype'),
+		url('vendors/stratio-fonticon/ico_stratio.woff?7gci6c') format('woff'),
+		url('vendors/stratio-fonticon/ico_stratio.svg?7gci6c#ico_stratio') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -223,7 +223,7 @@
     content: "\e077";
 }
 .icon-history:before {
-    content: "\e928";
+    content: "\e922";
 }
 .icon-clock:before {
     content: "\e014";
@@ -264,6 +264,9 @@
 .icon-ribbon:before {
     content: "\e009";
 }
+.icon-ribbon2:before {
+    content: "\e910";
+}
 .icon-thermometer:before {
     content: "\e062";
 }
@@ -284,6 +287,12 @@
 }
 .icon-shield:before {
     content: "\e60e";
+}
+.icon-policy:before {
+    content: "\e923";
+}
+.icon-policy2:before {
+    content: "\e924";
 }
 .icon-speed:before {
     content: "\e95c";
@@ -517,7 +526,7 @@
     content: "\e95d";
 }
 .icon-exit:before {
-    content: "\e910";
+    content: "\e925";
 }
 .icon-exit2:before {
     content: "\e91d";
@@ -909,3 +918,4 @@
 .icon-lego:before {
     content: "\e904";
 }
+
