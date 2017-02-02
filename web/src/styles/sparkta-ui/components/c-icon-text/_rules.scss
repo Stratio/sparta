@@ -10,11 +10,14 @@
 	&__text {
 		vertical-align: middle;
 		font-size: 0.875rem;
-		text-transform: capitalize;
 		@include is-link;
 
 		&--required:after {
 			content: ' *';
+		}
+
+		&::first-letter {
+			text-transform: uppercase;
 		}
 	}
 

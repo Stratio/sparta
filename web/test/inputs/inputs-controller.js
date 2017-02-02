@@ -78,9 +78,6 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     templateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getNewFragmentTemplate']);
     templateFactoryMock.getNewFragmentTemplate.and.callFake(resolvedNewInputTemplate);
 
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getPolicyByFragmentId']);
-    policyFactoryMock.getPolicyByFragmentId.and.callFake(resolverPolicyList);
-
     filter = $filter;
 
     ctrl = $controller('InputsCtrl', {
@@ -88,8 +85,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       '$filter': filter,
       '$uibModal': modalMock,
       'UtilsService': utilsServiceMock,
-      'TemplateFactory': templateFactoryMock,
-      'PolicyFactory': policyFactoryMock
+      'TemplateFactory': templateFactoryMock
     });
 
     scope.$digest();
@@ -206,10 +202,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
           'title': '_INPUT_WINDOW_MODIFY_TITLE_',
           'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
           'button_icon': 'icon-circle-check',
-          'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
-          'policyRunningMain': '_INPUT_CANNOT_BE_MODIFIED_',
-          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
+          'secondaryText': '_INPUT_WINDOW_EDIT_MESSAGE_'
         }
       };
 
@@ -220,9 +213,6 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
       params.resolve.fragmentTemplates();
       expect(templateFactoryMock.getNewFragmentTemplate).toHaveBeenCalledWith(fakeEditInputData.fragmentSelected.fragmentType);
-
-      params.resolve.policiesAffected();
-      expect(policyFactoryMock.getPolicyByFragmentId).toHaveBeenCalledWith(fakeEditInputData.fragmentSelected.fragmentType, fakeEditInputData.fragmentSelected.id);
     });
 
     it('Should return OK when closing the edit modal and upload the inputs type dropdown', function () {
@@ -255,11 +245,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
         'texts': {
           'title': '_INPUT_WINDOW_DELETE_TITLE_',
           'mainText': '_ARE_YOU_SURE_',
-          'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
-          'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
-          'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
-          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
+          'secondaryText': '_INPUT_WINDOW_DELETE_MESSAGE_'
         }
       };
 
@@ -267,9 +253,6 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
       var params = modalMock.open.calls.mostRecent().args[0];
       expect(params.resolve.item()).toEqual(fakeInputToDelete);
-
-      params.resolve.policiesAffected();
-      expect(policyFactoryMock.getPolicyByFragmentId).toHaveBeenCalledWith(fakeInputToDelete.type, fakeInputToDelete.id);
     });
 
     it('Should return OK when closing the delete modal', function () {

@@ -30,19 +30,7 @@ describe('API.policy-service', function () {
     rootScope.$digest();
     httpBackend.flush();
   });
-
-  it("Should return a policy by fragment Id", function () {
-    var fragmentTypeIdJSON = {"type": "input", "id": "2581f20a-av83-4315-be45-192bc5sEdFff"};
-    httpBackend.when('GET', '/policy/fragment/input/2581f20a-av83-4315-be45-192bc5sEdFff').respond(fakePolicyList);
-
-    srv.getPolicyByFragmentId().get(fragmentTypeIdJSON).$promise.then(function(result){
-    	expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyList));
-    });
-
-    rootScope.$digest();
-    httpBackend.flush();
-  });
-
+	
   it("Should return all the policies", function () {
   	httpBackend.when('GET', '/policy/all').respond(fakePolicyList);
 

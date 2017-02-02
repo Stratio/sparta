@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function () {
+(function() {
   'use strict';
 
   angular
-    .module('webApp')
-    .controller('PolicyListCtrl', PolicyListCtrl);
+      .module('webApp')
+      .controller('PolicyListCtrl', PolicyListCtrl);
 
   PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
-    '$translate', '$interval', '$filter', '$scope', '$q', '$window'];
+    '$translate', '$interval', '$scope', '$q', '$filter'];
 
   function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
-                          $translate, $interval, $filter, $scope, $q, $window) {
+                          $translate, $interval, $scope, $q, $filter) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -39,12 +39,13 @@
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
 
-    vm.policiesData = {};
-    vm.policiesData.list = undefined;
+    vm.policiesData = [];
     vm.policiesJsonData = {};
     vm.errorMessage = {type: 'error', text: '', internalTrace: ''};
     vm.successMessage = {type: 'success', text: '', internalTrace: ''};
     vm.clusterUI = '';
+    vm.loading = true;
+    vm.showInfoModal = showInfoModal;
 
     init();
 
@@ -70,12 +71,12 @@
       var controller = 'PolicyCreationModalCtrl';
       var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
       var resolve = {
-        title: function () {
+        title: function() {
           return "_POLICY_._MODAL_CREATION_TITLE_";
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, null, 'lg');
-      return modalInstance.result.then(function () {
+      return modalInstance.result.then(function() {
         WizardStatusService.nextStep();
         $state.go('wizard.newPolicy');
       });
@@ -85,7 +86,7 @@
       vm.errorMessage.text = "";
       WizardStatusService.reset();
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-        policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         $state.go(route, {"id": policyId});
       }
       else {
@@ -95,7 +96,7 @@
 
     function deletePolicy(policyId, policyStatus, index) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-        policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         var policyToDelete =
         {
           'id': policyId,
@@ -110,12 +111,12 @@
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-        policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         var policyRunning = PolicyFactory.runPolicy(policyId);
 
-        policyRunning.then(function () {
+        policyRunning.then(function() {
           vm.successMessage.text = $translate.instant('_RUN_POLICY_OK_', {policyName: policyName});
-        }, function (error) {
+        }, function(error) {
           vm.errorMessage.text = "_ERROR_._" + error.data.i18nCode + "_";
           vm.errorMessage.internalTrace = 'Error: ' + error.data.message;
         });
@@ -136,9 +137,9 @@
 
         var policyStopping = PolicyFactory.stopPolicy(stopPolicy);
 
-        policyStopping.then(function () {
+        policyStopping.then(function() {
           vm.successMessage.text = $translate.instant('_STOP_POLICY_OK_', {policyName: policyName});
-        }, function (error) {
+        }, function(error) {
           vm.errorMessage.text = '_ERROR_._' + error.data.i18nCode + '_';
           vm.errorMessage.internalTrace = 'Error: ' + error.data.message;
         });
@@ -152,74 +153,106 @@
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
       var resolve = {
-        item: function () {
+        item: function() {
           return policy;
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
-      modalInstance.result.then(function (selectedPolicy) {
-        vm.policiesData.list.splice(selectedPolicy.index, 1);
+      modalInstance.result.then(function(selectedPolicy) {
+        vm.policiesData.splice(selectedPolicy.index, 1);
         vm.successMessage.text = '_POLICY_DELETE_OK_';
       });
     }
 
     function updatePoliciesStatus() {
       var defer = $q.defer();
-      if (vm.policiesData.list.length > 0) {
-        var policiesStatus = PolicyFactory.getPoliciesStatus();
-        policiesStatus.then(function (result) {
-          vm.clusterUI = result.resourceManagerUrl;
-          var policiesWithStatus = result.policiesStatus;
-          if (policiesWithStatus) {
-            for (var i = 0; i < policiesWithStatus.length; i++) {
-              var policyData = $filter('filter')(vm.policiesData.list, {'policy': {'id': policiesWithStatus[i].id}}, true)[0];
-              if (policyData) {
-                policyData.status = policiesWithStatus[i].status;
-              }
+      var policiesStatus = PolicyFactory.getPoliciesStatus();
+      policiesStatus.then(function(result) {
+        vm.clusterUI = result.resourceManagerUrl;
+        var policiesWithStatus = result.policiesStatus;
+        if (policiesWithStatus) {
+          for (var i = 0; i < policiesWithStatus.length; i++) {
+            var policyData = $filter('filter')(vm.policiesData, {'id': policiesWithStatus[i].id}, true)[0];
+            if (policyData) {
+              policyData.submissionId = policiesWithStatus[i].submissionId;
+              policyData.statusInfo = policiesWithStatus[i].statusInfo;
+              policyData.lastError = policiesWithStatus[i].lastError;
+              policyData.status = policiesWithStatus[i].status;
+              policyData.lastExecutionMode = policiesWithStatus[i].lastExecutionMode;
+            } else {
+              vm.policiesData.push(policiesWithStatus[i]);
             }
           }
-          defer.resolve();
-        }, function () {
-          defer.reject();
-        });
-      } else {
+        }
+        defer.resolve();
+      }, function() {
         defer.reject();
-      }
+      });
       return defer.promise;
     }
 
     function getPolicies() {
-      var policiesList = PolicyFactory.getAllPolicies();
-
-      policiesList.then(function (result) {
-        vm.policiesData.list = result;
-        updatePoliciesStatus();
-        checkPoliciesStatus = $interval(function () {
-          updatePoliciesStatus().then(null, function () {
+      var policiesStatus = PolicyFactory.getPoliciesStatus();
+      policiesStatus.then(function (result) {
+        vm.policiesData = result.policiesStatus;
+        vm.loading = false;
+        checkPoliciesStatus = $interval(function() {
+          updatePoliciesStatus().then(null, function() {
             $interval.cancel(checkPoliciesStatus);
           });
         }, 5000);
-      }, function (error) {
+      }, function(error) {
+        vm.loading = false;
         $interval.cancel(checkPoliciesStatus);
         vm.successMessage.text = '_ERROR_._' + error.data.i18nCode + '_';
       });
     }
 
     function downloadPolicy(policyId) {
-      PolicyFactory.downloadPolicy(policyId).then(function (policyFile) {
+      PolicyFactory.downloadPolicy(policyId).then(function(policyFile) {
         var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(policyFile));
         var a = document.createElement('a');
         a.href = 'data:' + data;
-        a.download =  policyFile.name + ".json";
+        a.download = policyFile.name + ".json";
         document.body.appendChild(a);
         a.click();
         a.remove();
       })
     }
 
+    function showInfoModal(policyIndex) {
+      var policy = vm.policiesData[policyIndex];
+      var controller = 'PolicyInfoModalCtrl';
+      var templateUrl = "templates/modal/policy-info-modal.tpl.html";
+      var resolve = {
+        policyName: function() {
+          return policy.name;
+        },
+        policyDescription: function() {
+          return policy.description;
+        },
+        status: function() {
+          return policy.status;
+        },
+        statusInfo: function() {
+          return policy.statusInfo;
+        },
+        submissionId: function() {
+          return policy.submissionId;
+        },
+        deployMode: function() {
+          return policy.lastExecutionMode;
+        },
+        error: function() {
+          return policy.lastError;
+        }
+      };
+      ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+    }
+
     /*Stop $interval when changing the view*/
-    $scope.$on("$destroy", function () {
+    $scope.$on("$destroy", function() {
       if (checkPoliciesStatus) {
         $interval.cancel(checkPoliciesStatus);
       }

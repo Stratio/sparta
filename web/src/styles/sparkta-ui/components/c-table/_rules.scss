@@ -5,10 +5,29 @@
 	border-collapse: collapse;
 	line-height: $c-table---line-height;
     overflow: auto;
+
 	&--margin-bottom {
 		margin-bottom: $c-table--margin-bottom---margin-bottom;
 	}
 
+
+	&--centered-content{
+		text-align: center;
+	}
+
+	&__icon {
+		font-family: ico_stratio;
+		font-weight: 400;
+		font-style: normal;
+		display: inline-table;
+		&--info {
+			color: get-color(n5);
+		}
+
+		&--warning {
+			color: get-color(s2);
+		}
+	}
 	@at-root &__thead {
 		background: $c-table__thead---background;
 		color: $c-table__thead---color;
@@ -29,7 +48,6 @@
 
 	@at-root &__td {
 		padding: $c-table---padding-top $c-table---cell-spacing $c-table---padding-bottom;
-
 		@include container-to-right;
 
 		&:first-child {
@@ -48,6 +66,20 @@
 			overflow: hidden;
 			text-overflow: ellipsis;
 			max-width: 0;
+		}
+
+		&--might-overflow {
+			&__text {
+				width: 97%;
+				display: inline-block;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+
+			&--show-all-content {
+				text-overflow: clip;
+				white-space: normal;
+			}
 		}
 	}
 
