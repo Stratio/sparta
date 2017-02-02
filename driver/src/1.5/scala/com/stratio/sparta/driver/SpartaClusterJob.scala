@@ -59,7 +59,7 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
       val curatorFramework = CuratorFactoryHolder.getInstance()
       implicit val system = ActorSystem(policyId, SpartaConfig.daemonicAkkaConfig)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policy = FragmentsHelper.getPolicyWithFragments(byId(policyId, curatorFramework), fragmentActor)
+      val policy = FragmentsHelper.getPolicyWithFragments(getPolicyById(policyId, curatorFramework), fragmentActor)
       val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
         AkkaConstant.statusActor)
 

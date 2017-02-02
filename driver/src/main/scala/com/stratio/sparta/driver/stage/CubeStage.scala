@@ -21,7 +21,6 @@ import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper.DefaultTimeStampTypeString
 import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
@@ -31,15 +30,14 @@ import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
 import com.stratio.sparta.serving.core.models.policy.PhaseEnum
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
+import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.types.StructType
 
 trait CubeStage extends BaseStage {
   this: ErrorPersistor =>
 
-  def cubeStage(refUtils: ReflectionUtils,
-                initSchema: StructType): Seq[Cube] = {
+  def cubeStage(refUtils: ReflectionUtils, initSchema: StructType): Seq[Cube] =
     policy.cubes.map(cube => createCube(cube, refUtils, initSchema: StructType))
-  }
 
   private def createCube(cubeModel: CubeModel,
                          refUtils: ReflectionUtils,

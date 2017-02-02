@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver
 
-import java.io._
+package com.stratio.sparta.driver
 
 import akka.actor.ActorRef
 import com.stratio.sparta.driver.cube.CubeMaker
@@ -24,30 +23,28 @@ import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.stage._
 import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.driver.writer.{StreamWriter, StreamWriterOptions}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.utils.AggregationTime
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy._
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends PolicyUtils
-  with CheckpointUtils
+class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends CheckpointUtils
   with InputStage
   with OutputStage
   with ParserStage
   with CubeStage
   with ZooKeeperError {
 
-  private val ReflectionUtils = SpartaPipeline.ReflectionUtils
+  private val ReflectionUtils = PolicyHelper.ReflectionUtils
 
   def run(sc: SparkContext): StreamingContext = {
     clearError()
@@ -116,30 +113,9 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
     val writerOp = StreamWriterOptions(overLast, computeEvery, sparkStreamingWindow, initSchema)
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }
-
 }
 
-object SpartaPipeline extends PolicyUtils {
-
-  lazy val ReflectionUtils = new ReflectionUtils
+object SpartaPipeline {
 
   def apply(policy: PolicyModel, statusActor: ActorRef): SpartaPipeline = new SpartaPipeline(policy, statusActor)
-
-  def getSparkConfigs(policy: PolicyModel, methodName: String, suffix: String): Map[String, String] = {
-    log.info("Initializing reflection")
-    policy.outputs.flatMap(o => {
-      val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.`type`).toString
-      val clazzToInstance = ReflectionUtils.getClasspathMap.getOrElse(classType + suffix, o.`type` + suffix)
-      val clazz = Class.forName(clazzToInstance)
-      clazz.getMethods.find(p => p.getName == methodName) match {
-        case Some(method) =>
-          method.setAccessible(true)
-          method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
-            .asInstanceOf[Seq[(String, String)]]
-        case None =>
-          Seq()
-      }
-    }).toMap
-  }
-
 }

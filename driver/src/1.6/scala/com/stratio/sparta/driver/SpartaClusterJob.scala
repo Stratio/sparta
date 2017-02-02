@@ -30,10 +30,11 @@ import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
+import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
+object SpartaClusterJob extends PluginsFilesUtils {
 
   final val PolicyIdIndex = 0
   final val ZookeeperConfigurationIndex = 1
@@ -56,11 +57,14 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
 
       addPluginsToClassPath(pluginsFiles)
 
-      val curatorFramework = CuratorFactoryHolder.getInstance()
+      val curatorInstance = CuratorFactoryHolder.getInstance()
+      val utils = new PolicyUtils {
+        override val curatorFramework: CuratorFramework = curatorInstance
+      }
       implicit val system = ActorSystem(policyId, SpartaConfig.daemonicAkkaConfig)
-      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policy = FragmentsHelper.getPolicyWithFragments(byId(policyId, curatorFramework), fragmentActor)
-      val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
+      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorInstance)), AkkaConstant.FragmentActor)
+      val policy = FragmentsHelper.getPolicyWithFragments(utils.getPolicyById(policyId), fragmentActor)
+      val statusActor = system.actorOf(Props(new StatusActor(curatorInstance)),
         AkkaConstant.statusActor)
 
       Try {
@@ -122,4 +126,6 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
   }
+
+  def extractSparkApplicationId(id : String) : String ={""}
 }

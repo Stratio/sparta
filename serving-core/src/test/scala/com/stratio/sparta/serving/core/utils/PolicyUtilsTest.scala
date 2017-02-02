@@ -16,47 +16,28 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, UserJar}
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class PolicyUtilsTest extends BaseUtilsTest
-  with PolicyUtils {
+class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
 
   val utils = spy(this)
   val basePath = "/samplePath"
   val aggModel: PolicyModel = mock[PolicyModel]
-
-  "PolicyUtils" should {
-    "return files" in {
-      when(aggModel.userPluginsJars).thenReturn(Seq(UserJar("path1"), UserJar("path2")))
-
-      val files = jarsFromPolicy(aggModel)
-
-      files.map(_.getName) shouldBe(Seq("path1", "path2"))
-    }
-
-    "return empty Seq" in {
-      when(aggModel.userPluginsJars).thenReturn(Seq(UserJar("")))
-
-      val files = jarsFromPolicy(aggModel)
-
-      files.size shouldBe(0)
-    }
-  }
 
   "PolicyUtils.savePolicyInZk" should {
 
     "write policy when this does not exist" in {
       doReturn(getPolicyModel())
         .when(utils)
-        .writePolicy(getPolicyModel(), curatorFramework)
+        .writePolicy(getPolicyModel())
 
-      utils.savePolicyInZk(policy = getPolicyModel(), curatorFramework)
+      utils.savePolicyInZk(policy = getPolicyModel())
 
-      verify(utils).writePolicy(getPolicyModel(), curatorFramework)
+      verify(utils).writePolicy(getPolicyModel())
     }
   }
 
@@ -89,8 +70,8 @@ class PolicyUtilsTest extends BaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework, withFragments = false)
-      utils.existsByNameId(name = "myName", id = Some("existingID"), curatorFramework).get should be(
+        .getPolicies(withFragments = false)
+      utils.existsPolicyByNameId(name = "myName", id = Some("existingID")).get should be(
         getPolicyModel(id = Some("existingID")))
     }
 
@@ -103,10 +84,9 @@ class PolicyUtilsTest extends BaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework, withFragments = false)
+        .getPolicies(withFragments = false)
 
-      val actualPolicy: PolicyModel = utils.existsByNameId(name = "MYNAME", id = None,
-        curatorFramework).get
+      val actualPolicy: PolicyModel = utils.existsPolicyByNameId(name = "MYNAME", id = None).get
 
       actualPolicy.name should be("myname")
       actualPolicy.id.get should be("id#1")
@@ -121,9 +101,9 @@ class PolicyUtilsTest extends BaseUtilsTest
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(curatorFramework, withFragments = true)
+        .getPolicies(withFragments = true)
 
-      utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
+      utils.existsPolicyByNameId(name = "noName", id = None) should be(None)
     }
 
     "return none when there is some error or exception" in {
@@ -132,9 +112,9 @@ class PolicyUtilsTest extends BaseUtilsTest
         .existsPath
       doThrow(new RuntimeException)
         .when(utils)
-        .getPolicies(curatorFramework, withFragments = true)
+        .getPolicies(withFragments = true)
 
-      utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
+      utils.existsPolicyByNameId(name = "noName", id = None) should be(None)
     }
 
     "return none when path not does not exists" in {
@@ -142,7 +122,7 @@ class PolicyUtilsTest extends BaseUtilsTest
         .when(utils)
         .existsPath
 
-      utils.existsByNameId(name = "noName", id = None, curatorFramework) should be(None)
+      utils.existsPolicyByNameId(name = "noName", id = None) should be(None)
     }
   }
 }

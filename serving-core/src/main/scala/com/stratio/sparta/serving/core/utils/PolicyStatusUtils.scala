@@ -127,7 +127,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
         ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id $id.")))
     }
 
-  def deleteAll(): Try[_] =
+  def deleteAllStatuses(): Try[_] =
     Try {
       val contextPath = s"${AppConstant.ContextPath}"
 
@@ -148,7 +148,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
       }
     }
 
-  def delete(id: String): Try[_] =
+  def deleteStatus(id: String): Try[_] =
     Try {
       val statusPath = s"${AppConstant.ContextPath}/$id"
       if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {

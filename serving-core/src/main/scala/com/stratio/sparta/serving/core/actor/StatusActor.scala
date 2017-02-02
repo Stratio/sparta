@@ -37,10 +37,10 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor
     case ClearLastError(id) => sender ! clearLastError(id)
     case FindAll => sender ! ResponseStatuses(findAllStatuses())
     case FindById(id) => sender ! ResponseStatus(findStatusById(id))
-    case DeleteAll => sender ! ResponseDelete(deleteAll())
+    case DeleteAll => sender ! ResponseDelete(deleteAllStatuses())
     case AddListener(name, callback) => addListener(name, callback)
     case AddClusterListeners => addClusterListeners(findAllStatuses())
-    case Delete(id) => sender ! ResponseDelete(delete(id))
+    case Delete(id) => sender ! ResponseDelete(deleteStatus(id))
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
   //scalastyle:on cyclomatic.complexity

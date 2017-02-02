@@ -22,6 +22,8 @@ import akka.actor.{ActorSystem, Props}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyUtils
 import com.typesafe.config.ConfigFactory
@@ -37,7 +39,7 @@ import org.scalatest.{Matchers, WordSpecLike}
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFactory with PolicyUtils {
+class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFactory with SpartaSerializer {
 
   val PathToPolicy = getClass.getClassLoader.getResource("policies/ISocket-OPrint.json").getPath
   val curatorFramework = mock[CuratorFramework]
@@ -68,7 +70,7 @@ class StreamingContextServiceIT extends WordSpecLike with Matchers with MockFact
 
       SpartaConfig.initMainConfig(Option(StreamingContextServiceIT.config))
 
-      val jars = jarsFromPolicy(apConfig)
+      val jars = PolicyHelper.jarsFromPolicy(apConfig)
       val streamingContextService = StreamingContextService(statusActorRef, spartaConfig)
       val ssc = streamingContextService.localStreamingContext(apConfig.copy(id = Some("1")), jars)
 
