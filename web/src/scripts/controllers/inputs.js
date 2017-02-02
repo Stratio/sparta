@@ -155,18 +155,18 @@
       }
     }
 
-    function createInputModal(newInputTemplateData) {
+    function createInputModal(creationFragmentData) {
       var modalInstance = $uibModal.open({
         animation: true,
         templateUrl: 'templates/fragments/fragment-details.tpl.html',
         controller: 'NewFragmentModalCtrl as vm',
         size: 'lg',
         resolve: {
-          item: function () {
-            return newInputTemplateData;
+          creationFragmentData: function () {
+            return creationFragmentData;
           },
-          fragmentTemplates: function () {
-            return TemplateFactory.getNewFragmentTemplate(newInputTemplateData.fragmentType);
+          fragmentTemplate: function () {
+            return TemplateFactory.getNewFragmentTemplate(creationFragmentData.fragmentType);
           }
         }
       });
@@ -184,10 +184,10 @@
         controller: 'EditFragmentModalCtrl as vm',
         size: 'lg',
         resolve: {
-          item: function () {
+          creationFragmentData: function () {
             return editInputData;
           },
-          fragmentTemplates: function () {
+          fragmentTemplate: function () {
             return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
           }
         }
@@ -213,7 +213,7 @@
         controller: 'DeleteFragmentModalCtrl as vm',
         size: 'lg',
         resolve: {
-          item: function () {
+          fragmentTemplate: function () {
             return input;
           }
         }
@@ -236,7 +236,7 @@
         controller: 'DuplicateFragmentModalCtrl as vm',
         size: 'lg',
         resolve: {
-          item: function () {
+          fragmentTemplate: function () {
             return InputData;
           }
         }

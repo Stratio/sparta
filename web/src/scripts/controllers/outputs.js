@@ -162,10 +162,10 @@
           controller: 'NewFragmentModalCtrl as vm',
           size: 'lg',
           resolve: {
-            item: function () {
+            creationFragmentData: function () {
               return newOutputTemplateData;
             },
-            fragmentTemplates: function (TemplateFactory) {
+            fragmentTemplate: function (TemplateFactory) {
               return TemplateFactory.getNewFragmentTemplate(newOutputTemplateData.fragmentType);
             }
           }
@@ -184,10 +184,10 @@
             controller: 'EditFragmentModalCtrl as vm',
             size: 'lg',
             resolve: {
-              item: function () {
+              creationFragmentData: function () {
                 return editOutputData;
               },
-              fragmentTemplates: function (TemplateFactory) {
+              fragmentTemplate: function (TemplateFactory) {
                 return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
               }
             }
@@ -213,7 +213,7 @@
           controller: 'DeleteFragmentModalCtrl as vm',
           size: size,
           resolve: {
-              item: function () {
+            fragmentTemplate: function () {
                   return output;
               }
           }
@@ -236,7 +236,7 @@
           controller: 'DuplicateFragmentModalCtrl as vm',
           size: 'lg',
           resolve: {
-              item: function () {
+            fragmentTemplate: function () {
                   return OutputData;
               }
           }

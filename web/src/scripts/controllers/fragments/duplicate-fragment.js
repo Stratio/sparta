@@ -16,43 +16,54 @@
 (function() {
   'use strict';
 
-    /*DELETE INPUT MODALS CONTROLLER */
+    /*DUPLICATE INPUT MODAL CONTROLLER */
     angular
         .module('webApp')
-        .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
+        .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
 
-    DeleteFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'PolicyFactory', 'FragmentFactory'];
+    DuplicateFragmentModalCtrl.$inject = ['$uibModalInstance', 'fragmentTemplate', 'FragmentFactory', 'FragmentService'];
 
-    function DeleteFragmentModalCtrl($uibModalInstance, item, PolicyFactory, FragmentFactory) {
+    function DuplicateFragmentModalCtrl($uibModalInstance, fragmentTemplate, FragmentFactory, FragmentService) {
         /*jshint validthis: true*/
         var vm = this;
 
         vm.ok = ok;
         vm.cancel = cancel;
         vm.error = false;
+        vm.errorText = '';
 
         init();
 
         ///////////////////////////////////////
 
         function init () {
-            vm.outputs = item;
-
-            setTexts(item.texts);
+            setTexts(fragmentTemplate.texts);
+            vm.fragmentData = fragmentTemplate.fragmentData;
         }
-      
+
         function setTexts(texts) {
           vm.modalTexts = {};
           vm.modalTexts.title = texts.title;
-          vm.modalTexts.secondaryText = texts.secondaryText;
-          vm.modalTexts.mainText = texts.mainText;
         }
 
         function ok() {
-            var fragmentToDelete = FragmentFactory.deleteFragment(vm.outputs.type, vm.outputs.id);
+            if (vm.form.$valid){
+              if (FragmentService.isValidFragmentName(vm.fragmentData, fragmentTemplate)){
+                createFragment();
+              }else {
+                vm.error = true;
+                vm.errorText = "_ERROR_._100_";
+              }
+              
+            }
+        }
 
-            fragmentToDelete.then(function (result) {
-                $uibModalInstance.close({"id": vm.outputs.id, 'type': vm.outputs.elementType});
+        function createFragment() {
+            delete vm.fragmentData['id'];
+            var newFragment = FragmentFactory.createFragment(vm.fragmentData);
+
+            newFragment.then(function (result) {
+                $uibModalInstance.close(result);
 
             },function (error) {
                 vm.error = true;
@@ -64,5 +75,4 @@
             $uibModalInstance.dismiss('cancel');
         }
     }
-
 })();

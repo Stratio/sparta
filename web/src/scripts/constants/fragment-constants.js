@@ -19,6 +19,7 @@
   angular
     .module('webApp').constant('fragmentConstants', {
       INPUT: "input",
-      OUTPUT: "output"
+      OUTPUT: "output",
+      CUSTOM: "Custom"
     });
 })();

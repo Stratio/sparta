@@ -16,62 +16,43 @@
 (function() {
   'use strict';
 
-    /*DUPLICATE INPUT MODAL CONTROLLER */
+    /*DELETE INPUT MODALS CONTROLLER */
     angular
         .module('webApp')
-        .controller('DuplicateFragmentModalCtrl', DuplicateFragmentModalCtrl);
+        .controller('DeleteFragmentModalCtrl', DeleteFragmentModalCtrl);
 
-    DuplicateFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'FragmentFactory', '$filter'];
+    DeleteFragmentModalCtrl.$inject = ['$uibModalInstance', 'fragmentTemplate', 'FragmentFactory'];
 
-    function DuplicateFragmentModalCtrl($uibModalInstance, item, FragmentFactory, $filter) {
+    function DeleteFragmentModalCtrl($uibModalInstance, fragmentTemplate, FragmentFactory) {
         /*jshint validthis: true*/
         var vm = this;
 
         vm.ok = ok;
         vm.cancel = cancel;
         vm.error = false;
-        vm.errorText = '';
 
         init();
 
         ///////////////////////////////////////
 
         function init () {
-            setTexts(item.texts);
-            vm.fragmentData = item.fragmentData;
-        }
+            vm.fragment = fragmentTemplate;
 
+            setTexts(fragmentTemplate.texts);
+        }
+      
         function setTexts(texts) {
           vm.modalTexts = {};
           vm.modalTexts.title = texts.title;
+          vm.modalTexts.secondaryText = texts.secondaryText;
+          vm.modalTexts.mainText = texts.mainText;
         }
 
         function ok() {
-            if (vm.form.$valid){
-                checkFragmnetname();
-            }
-        }
+            var fragmentToDelete = FragmentFactory.deleteFragment(vm.fragment.type, vm.fragment.id);
 
-        function checkFragmnetname() {
-          var fragmentNamesExisting = [];
-          var newFragmentName = vm.fragmentData.name.toLowerCase();
-          fragmentNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newFragmentName}, true);
-
-          if (fragmentNamesExisting.length > 0) {
-            vm.error = true;
-            vm.errorText = "_ERROR_._100_";
-          }
-          else {
-            createfragment();
-          }
-        }
-
-        function createfragment() {
-            delete vm.fragmentData['id'];
-            var newFragment = FragmentFactory.createFragment(vm.fragmentData);
-
-            newFragment.then(function (result) {
-                $uibModalInstance.close(result);
+            fragmentToDelete.then(function () {
+                $uibModalInstance.close({"id": vm.fragment.id, 'type': vm.fragment.elementType});
 
             },function (error) {
                 vm.error = true;
@@ -83,4 +64,5 @@
             $uibModalInstance.dismiss('cancel');
         }
     }
+
 })();
