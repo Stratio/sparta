@@ -43,7 +43,6 @@
     vm.policiesJsonData = {};
     vm.errorMessage = {type: 'error', text: '', internalTrace: ''};
     vm.successMessage = {type: 'success', text: '', internalTrace: ''};
-    vm.clusterUI = '';
     vm.loading = true;
     vm.showInfoModal = showInfoModal;
 
@@ -169,8 +168,7 @@
       var defer = $q.defer();
       var policiesStatus = PolicyFactory.getPoliciesStatus();
       policiesStatus.then(function(result) {
-        vm.clusterUI = result.resourceManagerUrl;
-        var policiesWithStatus = result.policiesStatus;
+        var policiesWithStatus = result;
         if (policiesWithStatus) {
           for (var i = 0; i < policiesWithStatus.length; i++) {
             var policyData = $filter('filter')(vm.policiesData, {'id': policiesWithStatus[i].id}, true)[0];
@@ -179,6 +177,7 @@
               policyData.statusInfo = policiesWithStatus[i].statusInfo;
               policyData.lastError = policiesWithStatus[i].lastError;
               policyData.status = policiesWithStatus[i].status;
+              policyData.clusterUI = policiesWithStatus[i].resourceManagerUrl;
               policyData.lastExecutionMode = policiesWithStatus[i].lastExecutionMode;
             } else {
               vm.policiesData.push(policiesWithStatus[i]);
@@ -195,7 +194,7 @@
     function getPolicies() {
       var policiesStatus = PolicyFactory.getPoliciesStatus();
       policiesStatus.then(function (result) {
-        vm.policiesData = result.policiesStatus;
+        vm.policiesData = result;
         vm.loading = false;
         checkPoliciesStatus = $interval(function() {
           updatePoliciesStatus().then(null, function() {

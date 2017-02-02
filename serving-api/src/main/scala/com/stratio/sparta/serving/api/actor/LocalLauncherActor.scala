@@ -23,15 +23,16 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, PolicyHelper}
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, PolicyHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.PolicyConfigUtils
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(streamingContextService: StreamingContextService, statusActor: ActorRef)
-  extends Actor with SLF4JLogging {
+  extends Actor with PolicyConfigUtils with SLF4JLogging {
 
   private var ssc: Option[StreamingContext] = None
 
@@ -59,7 +60,11 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
       val startedInformation = s"The Sparta local job was started correctly"
       log.info(startedInformation)
       statusActor ! Update(PolicyStatusModel(
-        id = policy.id.get, status = PolicyStatusEnum.Started, statusInfo = Some(startedInformation)))
+        id = policy.id.get,
+        status = PolicyStatusEnum.Started,
+        statusInfo = Some(startedInformation),
+        resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy))
+      ))
 
       ssc.get.awaitTermination()
     } match {

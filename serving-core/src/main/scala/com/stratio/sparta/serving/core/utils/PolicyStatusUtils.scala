@@ -19,9 +19,8 @@ package com.stratio.sparta.serving.core.utils
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
@@ -49,6 +48,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
     }
   }
 
+  //scalastyle:off
   def updateStatus(policyStatus: PolicyStatusModel): Try[PolicyStatusModel] = {
     Try {
       val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
@@ -70,7 +70,9 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           statusInfo = if (policyStatus.statusInfo.isEmpty) actualStatus.statusInfo
           else policyStatus.statusInfo,
           lastExecutionMode = if (policyStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-          else policyStatus.lastExecutionMode
+          else policyStatus.lastExecutionMode,
+          resourceManagerUrl = if (policyStatus.status == PolicyStatusEnum.Started) policyStatus.resourceManagerUrl
+          else if(policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
         )
         log.info(s"Updating context ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
           s"\n\t Status: ${actualStatus.status} to ${newStatus.status}" +
@@ -81,7 +83,11 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           s"\n\t Submission Status: ${actualStatus.submissionStatus.getOrElse("undefined")}" +
           s" to ${newStatus.submissionStatus.getOrElse("undefined")}" +
           s"\n\t Last Error: ${actualStatus.lastError.getOrElse("undefined")}" +
-          s" to ${newStatus.lastError.getOrElse("undefined")}")
+          s" to ${newStatus.lastError.getOrElse("undefined")}" +
+          s"\n\t Last Execution Mode: ${actualStatus.lastExecutionMode.getOrElse("undefined")}" +
+          s" to ${newStatus.lastExecutionMode.getOrElse("undefined")}" +
+          s"\n\t Resource Manager URL: ${actualStatus.resourceManagerUrl.getOrElse("undefined")}" +
+          s" to ${newStatus.resourceManagerUrl.getOrElse("undefined")}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         newStatus
       } else createStatus(policyStatus)
@@ -90,6 +96,8 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
             s"Is not possible to create policy context with id ${policyStatus.id}."))))
     }
   }
+
+  //scalastyle:on
 
   def createStatus(policyStatus: PolicyStatusModel): Try[PolicyStatusModel] = {
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
@@ -104,7 +112,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
     }
   }
 
-  def findAllStatuses(): Try[PoliciesStatusModel] =
+  def findAllStatuses(): Try[Seq[PolicyStatusModel]] =
     Try {
       val contextPath = s"${AppConstant.ContextPath}"
       if (CuratorFactoryHolder.existsPath(contextPath)) {
@@ -114,8 +122,8 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
             curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")
           ))
         )
-        PoliciesStatusModel(policiesStatus, ResourceManagerLinkHelper.getLink)
-      } else PoliciesStatusModel(Seq(), ResourceManagerLinkHelper.getLink)
+        policiesStatus
+      } else Seq.empty[PolicyStatusModel]
     }
 
   def findStatusById(id: String): Try[PolicyStatusModel] =
@@ -185,9 +193,9 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
   def isAnyPolicyStarted: Boolean =
     findAllStatuses() match {
       case Success(statuses) =>
-        statuses.policiesStatus.exists(_.status == PolicyStatusEnum.Started) ||
-          statuses.policiesStatus.exists(_.status == PolicyStatusEnum.Starting) ||
-          statuses.policiesStatus.exists(_.status == PolicyStatusEnum.Launched)
+        statuses.exists(_.status == PolicyStatusEnum.Started) ||
+          statuses.exists(_.status == PolicyStatusEnum.Starting) ||
+          statuses.exists(_.status == PolicyStatusEnum.Launched)
       case Failure(e) =>
         log.error("Error when find all policy statuses.", e)
         false

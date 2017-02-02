@@ -28,19 +28,6 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
   val basePath = "/samplePath"
   val aggModel: PolicyModel = mock[PolicyModel]
 
-  "PolicyUtils.savePolicyInZk" should {
-
-    "write policy when this does not exist" in {
-      doReturn(getPolicyModel())
-        .when(utils)
-        .writePolicy(getPolicyModel())
-
-      utils.savePolicyInZk(policy = getPolicyModel())
-
-      verify(utils).writePolicy(getPolicyModel())
-    }
-  }
-
   "PolicyUtils.policyWithId" should {
     "return a policy with random UUID when there is no set id yet" in {
       val policy: PolicyModel = utils.policyWithId(getPolicyModel(None))

@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -55,10 +55,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   /** Sparta Listener functions for PolicyStatus **/
 
-  def addClusterListeners(policiesStatus: Try[PoliciesStatusModel]): Unit = {
+  def addClusterListeners(policiesStatus: Try[Seq[PolicyStatusModel]]): Unit = {
     policiesStatus match {
       case Success(statuses) =>
-        statuses.policiesStatus.foreach(policyStatus =>
+        statuses.foreach(policyStatus =>
           policyStatus.lastExecutionMode.foreach(execMode => {
             val pStatus = policyStatus.status
             if ((pStatus == Started || pStatus == Starting || pStatus == Launched) && execMode.contains(ClusterValue))
@@ -87,13 +87,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                 try {
                   val url = killUrl(clusterConfig)
                   log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $url")
-                  val post = if (submissionId.contains("driver")) {
-                    val frameworkId = submissionId.substring(0, submissionId.indexOf("driver") - 1)
-                    val sparkApplicationId = submissionId.substring(submissionId.indexOf("driver"))
-                    log.info(s"The extracted Framework id is: $frameworkId")
-                    log.info(s"The extracted Spark application id is: $sparkApplicationId")
-                    new HttpPost(s"$url/$sparkApplicationId")
-                  } else new HttpPost(s"$url/$submissionId")
+                  val post = new HttpPost(s"$url/$submissionId")
                   val postResponse = HttpClientBuilder.create().build().execute(post)
                   Try {
                     read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)

@@ -96,9 +96,9 @@ describe('policies.wizard.controller.policies-controller', function() {
               statusInfo: 'Status info data',
               submissionId: 'fake submission id'
             };
-            fakePolicyStatusList.policiesStatus[0].status = fakeNewStatus.status;
-            fakePolicyStatusList.policiesStatus[0].statusInfo = fakeNewStatus.statusInfo;
-            fakePolicyStatusList.policiesStatus[0].submissionId = fakeNewStatus.submissionId;
+            fakePolicyStatusList[0].status = fakeNewStatus.status;
+            fakePolicyStatusList[0].statusInfo = fakeNewStatus.statusInfo;
+            fakePolicyStatusList[0].submissionId = fakeNewStatus.submissionId;
 
             $interval.flush(5000);
             expect(policyFactoryMock.getPoliciesStatus.calls.count()).toEqual(1);
@@ -113,11 +113,11 @@ describe('policies.wizard.controller.policies-controller', function() {
           });
 
           it('if policy was not painted yet, it is added to policy list', function() {
-            var oldPolicyListLength = fakePolicyStatusList.policiesStatus.length;
-            var newPolicy = angular.copy(fakePolicyStatusList.policiesStatus[0]);
+            var oldPolicyListLength = fakePolicyStatusList.length;
+            var newPolicy = angular.copy(fakePolicyStatusList[0]);
             newPolicy.id = 'new policy id';
 
-            fakePolicyStatusList.policiesStatus.push(newPolicy);
+            fakePolicyStatusList.push(newPolicy);
             $interval.flush(15000);
             scope.$digest();
 
@@ -143,7 +143,7 @@ describe('policies.wizard.controller.policies-controller', function() {
   });
 
   it("should be able to open a modal with the information of the selected policy by its position", function() {
-    ctrl.policiesData = [fakePolicyStatusList.policiesStatus[0], fakePolicyStatusList.policiesStatus[1]];
+    ctrl.policiesData = [fakePolicyStatusList[0], fakePolicyStatusList[1]];
     for (var i = 0; i < ctrl.policiesData.length; ++i) {
       ctrl.showInfoModal(i);
 

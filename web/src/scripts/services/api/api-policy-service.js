@@ -45,7 +45,7 @@
           timeout: apiConfigSettings.timeout
         });
     }
-    
+
     function getAllPolicies() {
       return $resource('/policy/all', {},
         {
@@ -121,6 +121,7 @@
         {
           'get': {
             method: 'GET',
+            isArray: true,
             timeout: apiConfigSettings.timeout
           }
         });

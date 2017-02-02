@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{Actor, _}
 import com.stratio.sparta.serving.core.actor.StatusActor._
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, PolicyStatusUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -35,7 +35,7 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor
     case Create(policyStatus) => sender ! ResponseStatus(createStatus(policyStatus))
     case Update(policyStatus) => sender ! ResponseStatus(updateStatus(policyStatus))
     case ClearLastError(id) => sender ! clearLastError(id)
-    case FindAll => sender ! ResponseStatuses(findAllStatuses())
+    case FindAll => sender ! findAllStatuses()
     case FindById(id) => sender ! ResponseStatus(findStatusById(id))
     case DeleteAll => sender ! ResponseDelete(deleteAllStatuses())
     case AddListener(name, callback) => addListener(name, callback)
@@ -43,6 +43,7 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor
     case Delete(id) => sender ! ResponseDelete(deleteStatus(id))
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
+
   //scalastyle:on cyclomatic.complexity
 }
 
@@ -61,8 +62,6 @@ object StatusActor {
   case object FindAll
 
   case class FindById(id: String)
-
-  case class ResponseStatuses(policyStatus: Try[PoliciesStatusModel])
 
   case class ResponseStatus(policyStatus: Try[PolicyStatusModel])
 

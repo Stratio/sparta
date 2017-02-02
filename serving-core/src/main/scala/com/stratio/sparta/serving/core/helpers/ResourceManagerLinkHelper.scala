@@ -26,8 +26,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 
 object ResourceManagerLinkHelper extends SLF4JLogging {
 
-  def getLink: Option[String] = {
-    val executionMode = SpartaConfig.getDetailConfig.get.getString(AppConstant.ExecutionMode)
+  def getLink(executionMode : String): Option[String] = {
     val (host: String, port: Int) = executionMode match {
       case AppConstant.ConfigMesos => mesosLink
       case AppConstant.ConfigYarn => yarnLink

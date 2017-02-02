@@ -38,12 +38,6 @@ trait PolicyUtils extends PolicyStatusUtils {
 
   def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  def savePolicyInZk(policy: PolicyModel): Unit =
-    if (existsPolicyByNameId(policy.name, policy.id).isDefined) {
-      log.info(s"Policy ${policy.name} already in zookeeper. Updating it...")
-      updatePolicy(policy)
-    } else writePolicy(policy)
-
   def deletePolicy(policy: PolicyModel): Unit = {
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
     deleteStatus(policy.id.get)

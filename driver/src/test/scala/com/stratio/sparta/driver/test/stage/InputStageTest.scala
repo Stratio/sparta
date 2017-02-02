@@ -122,7 +122,8 @@ class InputStageTest
     } should have message "Something gone wrong creating the input: input. Please re-check the policy."
 
     actor.expectMsgType[Update] match {
-      case Update(PolicyStatusModel(id, NotDefined, None, None, None, None, None, None, Some(policyErrorModel))) =>
+      case Update(PolicyStatusModel(id, NotDefined, None, None, None, None, None, None, Some(policyErrorModel), None))
+      =>
         id should be(policy.id.get)
         policyErrorModel.phase should be(PhaseEnum.Input)
         policyErrorModel.originalMsg should be("java.lang.RuntimeException: Fake")

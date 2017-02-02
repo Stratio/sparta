@@ -25,22 +25,22 @@ import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper
+import com.stratio.sparta.serving.core.helpers.{FragmentsHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyConfigUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-object SpartaClusterJob extends PluginsFilesUtils {
+object SpartaClusterJob extends PluginsFilesUtils with PolicyConfigUtils {
 
-  final val PolicyIdIndex = 0
-  final val ZookeeperConfigurationIndex = 1
-  final val DetailConfigurationIndex = 2
-  final val PluginsFilesIndex = 3
-  final val DriverLocationConfigIndex = 4
+  val PolicyIdIndex = 0
+  val ZookeeperConfigurationIndex = 1
+  val DetailConfigurationIndex = 2
+  val PluginsFilesIndex = 3
+  val DriverLocationConfigIndex = 4
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
@@ -79,13 +79,19 @@ object SpartaClusterJob extends PluginsFilesUtils {
           Map("spark.app.name" -> s"${policy.name}")
         )
         statusActor ! Update(PolicyStatusModel(
-          id = policyId, status = PolicyStatusEnum.NotDefined, submissionId = Option(ssc.sparkContext.applicationId)))
+          id = policyId,
+          status = PolicyStatusEnum.NotDefined,
+          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
         ssc.start
         val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
         log.info(startedInfo)
         statusActor ! Update(PolicyStatusModel(
-          id = policyId, status = PolicyStatusEnum.Started, submissionId = Option(ssc.sparkContext.applicationId),
-          statusInfo = Some(startedInfo)))
+          id = policyId,
+          status = PolicyStatusEnum.Started,
+          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
+          statusInfo = Some(startedInfo),
+          resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy))
+        ))
         ssc.awaitTermination()
       } match {
         case Success(_) =>
@@ -127,5 +133,12 @@ object SpartaClusterJob extends PluginsFilesUtils {
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
   }
 
-  def extractSparkApplicationId(id : String) : String ={""}
+  def extractSparkApplicationId(contextId : String) : String = {
+    if (contextId.contains("driver")) {
+      val sparkApplicationId = contextId.substring(contextId.indexOf("driver"))
+      log.info(s"The extracted Framework id is: ${contextId.substring(0, contextId.indexOf("driver") - 1)}")
+      log.info(s"The extracted Spark application id is: $sparkApplicationId")
+      sparkApplicationId
+    } else contextId
+  }
 }

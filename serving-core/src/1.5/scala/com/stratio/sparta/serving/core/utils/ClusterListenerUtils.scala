@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -42,10 +42,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   /** Sparta Listener functions for PolicyStatus **/
 
-  def addClusterListeners(policiesStatus: Try[PoliciesStatusModel]): Unit = {
+  def addClusterListeners(policiesStatus: Try[Seq[PolicyStatusModel]]): Unit = {
     policiesStatus match {
       case Success(statuses) =>
-        statuses.policiesStatus.foreach(policyStatus =>
+        statuses.foreach(policyStatus =>
           policyStatus.lastExecutionMode.foreach(execMode => {
             val pStatus = policyStatus.status
             if ((pStatus == Started || pStatus == Starting || pStatus == Launched) && execMode.contains(ClusterValue))
