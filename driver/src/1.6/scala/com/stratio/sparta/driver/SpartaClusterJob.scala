@@ -74,6 +74,8 @@ object SpartaClusterJob extends PolicyUtils with PluginsFilesUtils {
           Seq.empty[String],
           Map("spark.app.name" -> s"${policy.name}")
         )
+        statusActor ! Update(PolicyStatusModel(
+          id = policyId, status = PolicyStatusEnum.NotDefined, submissionId = Option(ssc.sparkContext.applicationId)))
         ssc.start
         val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
         log.info(startedInfo)

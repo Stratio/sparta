@@ -21,6 +21,7 @@ import com.stratio.sparta.driver.stage.{InputStage, LogError, ZooKeeperError}
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel, PolicyModel, PolicyStatusModel}
@@ -59,6 +60,7 @@ class InputStageTest
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
+    when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(myInputClass)
 
     val result = TestInput(policy).inputStage(ssc, reflection)
@@ -111,6 +113,7 @@ class InputStageTest
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
+    when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
 
 

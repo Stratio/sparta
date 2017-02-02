@@ -20,6 +20,7 @@ import java.io.Serializable
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationsModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -37,12 +38,13 @@ trait ParserStage extends BaseStage {
   private def createParser(model: TransformationsModel,
                            refUtils: ReflectionUtils,
                            schemas: Map[String, StructType]): Parser = {
-    val errorMessage = s"Something gone wrong creating the parser: ${model.`type`}. Please re-check the policy."
-    val okMessage = s"Parser: ${model.`type`} created correctly."
+    val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
+    val errorMessage = s"Something gone wrong creating the parser: $classType. Please re-check the policy."
+    val okMessage = s"Parser: $classType created correctly."
     generalTransformation(PhaseEnum.Parser, okMessage, errorMessage) {
       val outputFieldsNames = model.outputFieldsTransformed.map(_.name)
       val schema = schemas.getOrElse(model.order.toString, throw new Exception("Can not find transformation schema"))
-      refUtils.tryToInstantiate[Parser](model.`type` + Parser.ClassSuffix, (c) =>
+      refUtils.tryToInstantiate[Parser](classType + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[Integer],
           classOf[Option[String]],

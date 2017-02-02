@@ -20,6 +20,7 @@ import java.io.Serializable
 import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel}
 
 trait OutputStage extends BaseStage {
@@ -33,10 +34,11 @@ trait OutputStage extends BaseStage {
 
   def createOutput(model: PolicyElementModel, schemasAssociated: Seq[SpartaSchema], refUtils: ReflectionUtils)
   : Output = {
-    val errorMessage = s"Something gone wrong creating the output: ${model.`type`}. Please re-check the policy."
-    val okMessage = s"Output: ${model.`type`} created correctly."
+    val errorMessage = s"Something gone wrong creating the output: ${model.name}. Please re-check the policy."
+    val okMessage = s"Output: ${model.name} created correctly."
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {
-      refUtils.tryToInstantiate[Output](model.`type` + Output.ClassSuffix, (c) =>
+      val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
+      refUtils.tryToInstantiate[Output](classType + Output.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[Map[String, Serializable]],

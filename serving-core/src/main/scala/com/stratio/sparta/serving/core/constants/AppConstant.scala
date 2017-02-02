@@ -138,4 +138,5 @@ object AppConstant {
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
 
+  val CustomTypeKey = "customType"
 }
