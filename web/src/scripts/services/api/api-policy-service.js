@@ -26,7 +26,6 @@
     var vm = this;
 
     vm.getPolicyById = getPolicyById;
-    vm.getPolicyByFragmentId = getPolicyByFragmentId;
     vm.getAllPolicies = getAllPolicies;
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
@@ -46,15 +45,7 @@
           timeout: apiConfigSettings.timeout
         });
     }
-
-    function getPolicyByFragmentId() {
-      return $resource('/policy/fragment/:type/:id', {type: '@type', id: '@id'},
-        {
-          'get': {method: 'GET', isArray: true},
-          timeout: apiConfigSettings.timeout
-        });
-    }
-
+    
     function getAllPolicies() {
       return $resource('/policy/all', {},
         {

@@ -88,10 +88,7 @@
           'title': '_INPUT_WINDOW_MODIFY_TITLE_',
           'button': '_INPUT_WINDOW_MODIFY_BUTTON_',
           'button_icon': 'icon-circle-check',
-          'secondaryText2': '_INPUT_WINDOW_EDIT_MESSAGE2_',
-          'policyRunningMain': '_INPUT_CANNOT_BE_MODIFIED_',
-          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
+          'secondaryText': '_INPUT_WINDOW_EDIT_MESSAGE_'
         }
       };
 
@@ -107,11 +104,7 @@
         'texts': {
           'title': '_INPUT_WINDOW_DELETE_TITLE_',
           'mainText': '_ARE_YOU_SURE_',
-          'secondaryText1': '_INPUT_WINDOW_DELETE_MESSAGE_',
-          'secondaryText2': '_INPUT_WINDOW_DELETE_MESSAGE2_',
-          'policyRunningMain': '_INPUT_CANNOT_BE_DELETED_',
-          'policyRunningSecondary': '_INPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-          'policyRunningSecondary2': '_INPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
+          'secondaryText': '_INPUT_WINDOW_DELETE_MESSAGE_'
         }
       };
       return deleteInputConfirm(inputToDelete);
@@ -196,9 +189,6 @@
           },
           fragmentTemplates: function () {
             return TemplateFactory.getNewFragmentTemplate(editInputData.fragmentSelected.fragmentType);
-          },
-          policiesAffected: function () {
-            return PolicyFactory.getPolicyByFragmentId(editInputData.fragmentSelected.fragmentType, editInputData.fragmentSelected.id);
           }
         }
       });
@@ -225,9 +215,6 @@
         resolve: {
           item: function () {
             return input;
-          },
-          policiesAffected: function () {
-            return PolicyFactory.getPolicyByFragmentId(input.type, input.id);
           }
         }
       });
