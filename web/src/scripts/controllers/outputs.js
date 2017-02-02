@@ -114,10 +114,7 @@
                 'title': '_OUTPUT_WINDOW_MODIFY_TITLE_',
                 'button': '_OUTPUT_WINDOW_MODIFY_BUTTON_',
                 'button_icon': 'icon-circle-check',
-                'secondaryText2': '_OUTPUT_WINDOW_EDIT_MESSAGE2_',
-                'policyRunningMain': '_OUTPUT_CANNOT_BE_MODIFIED_',
-                'policyRunningSecondary': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-                'policyRunningSecondary2': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE2_'
+                'secondaryText': '_OUTPUT_WINDOW_EDIT_MESSAGE_'
             }
         };
 
@@ -132,13 +129,8 @@
             'elementType': elementType,
           'texts': {
             'title': '_OUTPUT_WINDOW_DELETE_TITLE_',
-            'mainText': '_OUTPUT_CANNOT_BE_DELETED_',
-            'mainTextOK': '_ARE_YOU_SURE_',
-            'secondaryText1': '_OUTPUT_WINDOW_DELETE_MESSAGE_',
-            'secondaryText2': '_OUTPUT_WINDOW_DELETE_MESSAGE2_',
-            'policyRunningMain': '_OUTPUT_CANNOT_BE_DELETED_',
-            'policyRunningSecondary': '_OUTPUT_WINDOW_POLICY_RUNNING_MESSAGE_',
-            'policyRunningSecondary2': '_OUTPUT_WINDOW_DELETE_POLICY_RUNNING_MESSAGE2_'
+            'mainText': '_ARE_YOU_SURE_',
+            'secondaryText': '_OUTPUT_WINDOW_DELETE_MESSAGE_'
           }
         };
         deleteOutputConfirm('lg', outputToDelete);
@@ -197,9 +189,6 @@
               },
               fragmentTemplates: function (TemplateFactory) {
                 return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
-              },
-              policiesAffected: function (PolicyFactory) {
-                return PolicyFactory.getPolicyByFragmentId(editOutputData.fragmentSelected.fragmentType, editOutputData.fragmentSelected.id);
               }
             }
       });
@@ -226,9 +215,6 @@
           resolve: {
               item: function () {
                   return output;
-              },
-              policiesAffected: function (PolicyFactory) {
-                return PolicyFactory.getPolicyByFragmentId(output.type, output.id);
               }
           }
         });

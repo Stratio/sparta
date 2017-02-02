@@ -27,9 +27,6 @@
       getPolicyById: function (policyId) {
         return ApiPolicyService.getPolicyById().get({'id': policyId}).$promise;
       },
-      getPolicyByFragmentId: function (fragmentType, fragmentId) {
-        return ApiPolicyService.getPolicyByFragmentId().get({'type': fragmentType, 'id': fragmentId}).$promise;
-      },
       getAllPolicies: function () {
         return ApiPolicyService.getAllPolicies().get().$promise;
       },

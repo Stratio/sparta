@@ -5,7 +5,7 @@ describe('policies.wizard.factory.policy-factory', function () {
   var factory, ApiPolicyService, scope, q, promiseMock, fakePolicyList, fakePolicy = null;
 
   beforeEach(module(function ($provide) {
-    ApiPolicyService = jasmine.createSpyObj('ApiPolicyService', ['getPolicyByFragmentId', 'getPolicyById',
+    ApiPolicyService = jasmine.createSpyObj('ApiPolicyService', ['getPolicyById',
       'getAllPolicies', 'createPolicy', 'deletePolicy', 'runPolicy', 'stopPolicy', 'savePolicy', 'getPoliciesStatus', 'getFakePolicy', 'downloadPolicy']);
 
     // inject mocks
@@ -37,19 +37,6 @@ describe('policies.wizard.factory.policy-factory', function () {
       factory.getPolicyById(fakePolicyId);
       expect(promiseMock).toHaveBeenCalledWith({'id': fakePolicyId});
 
-    });
-
-    it("get policy by fragment id and fragment type", function () {
-      var fakeFragmentId = "fake fragment id";
-      var fakeFragmentType = "output";
-      ApiPolicyService.getPolicyByFragmentId.and.returnValue(
-        {
-          "get": promiseMock
-        });
-
-      factory.getPolicyByFragmentId(fakeFragmentType, fakeFragmentId);
-
-      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType, 'id': fakeFragmentId});
     });
 
     it("get sll policies", function () {

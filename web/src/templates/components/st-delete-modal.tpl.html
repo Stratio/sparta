@@ -4,16 +4,11 @@
 		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
 	</header>
 
-	<div class="c-modal-inner" data-ng-if="vm.policiesRunning.length === 0">
+	<div class="c-modal-inner">
 		<p class="c-modal-inner__title" translate="{{vm.modalTexts.mainText}}"></p>
 
-		<div class="c-row" data-ng-if="vm.outputs.policies.length > 0" data-qa="fragment-delete-policies-affected">
-			<p translate="{{vm.modalTexts.secondaryText1}}"></p>
-			<p translate="{{vm.modalTexts.secondaryText2}}"></p>
-
-			<ul class="c-list c-list--dashed">
-				<li data-ng-repeat="item in vm.outputs.policies" data-qa="delete-modal-policy-{{item.policy.id}}">- {{item.policy.name}}</li>
-			</ul>
+		<div class="c-row">
+			<p translate="{{vm.modalTexts.secondaryText}}"></p>
 		</div>
 
 		<div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
@@ -28,7 +23,7 @@
 					<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
 				</button>
 
-				<button data-ng-if="vm.outputs.type === 'input' || vm.outputs.policies.length === 0" class="c-button c-button--danger" data-ng-click="vm.ok()" data-qa="modal-ok-button">
+				<button class="c-button c-button--danger" data-ng-click="vm.ok()" data-qa="modal-ok-button">
 					<span class="icon icon-circle-check"></span>
 					<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
 				</button>
@@ -36,24 +31,5 @@
 		</div>
 	</div>
 
-	<div class="c-modal-inner" data-ng-if="vm.policiesRunning.length > 0">
-		<div class="c-row c-row--separated" data-qa="fragment-details-policies-affected">
-			<p class="c-modal-inner__title" translate="{{vm.modalTexts.policyRunningMain}}"></p>
-			<p translate="{{vm.modalTexts.policyRunningSecondary}}"></p>
-			<p translate="{{vm.modalTexts.policyRunningSecondary2}}"></p>
 
-			<ul class="c-list c-list--dashed">
-				<li data-ng-repeat="item in vm.policiesRunning" data-qa="fragment-details-policies-running-{{item.name}}">- {{item.name}}</li>
-			</ul>
-		</div>
-
-		<div class="c-row c-row--separated">
-			<div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
-				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
-					<i class="c-icon icon-circle-cross"></i>
-					<span translate="_INPUT_BUTTON_CANCEL_"></span>
-				</button>
-			</div>
-		</div>
-	</div>
 </aside>
