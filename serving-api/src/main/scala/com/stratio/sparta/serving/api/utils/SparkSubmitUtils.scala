@@ -94,15 +94,12 @@ trait SparkSubmitUtils extends PolicyConfigUtils {
   def driverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String = {
     val driverStorageLocation = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
       .getOrElse(DefaultProvidedDriverURI)
-    driverLocation(driverStorageLocation) match {
-      case location if location == "hdfs" =>
-        val Hdfs = HdfsUtils()
-        val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
+    if(driverLocation(driverStorageLocation) == ConfigHdfs) {
+      val Hdfs = HdfsUtils()
+      val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
 
-        Uploader.uploadDriverFile(driverStorageLocation)
-      case _ =>
-        driverStorageLocation
-    }
+      Uploader.uploadDriverFile(driverStorageLocation)
+    } else driverStorageLocation
   }
 
   def sparkHome(clusterConfig: Config): String =

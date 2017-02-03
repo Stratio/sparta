@@ -564,6 +564,6 @@
    *) # Default mode: Sparta run as a docker application
      SERVICE_LOG_APPENDER="STDOUT"
      sed -i "s|<appender-ref ref.*|<appender-ref ref= \""${SERVICE_LOG_APPENDER}"\" />|" ${LOG_CONFIG_FILE}
-     /opt/sds/sparta/bin/server.sh
+     /opt/sds/sparta/bin/run
      ;;
  esac

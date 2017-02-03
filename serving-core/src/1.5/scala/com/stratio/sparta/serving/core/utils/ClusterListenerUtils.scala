@@ -38,8 +38,6 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   val statusActor: ActorRef
 
-
-
   /** Sparta Listener functions for PolicyStatus **/
 
   def addClusterListeners(policiesStatus: Try[Seq[PolicyStatusModel]]): Unit = {
@@ -80,9 +78,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                 } match {
                   case Success(submissionResponse) if submissionResponse.success =>
                     val information = s"Stopped correctly Sparta cluster job with Spark API"
+                    val newStatus = if(policyStatus.status == Failed) NotDefined else Stopped
                     log.info(information)
                     statusActor ! Update(PolicyStatusModel(
-                      id = policyId, status = Stopped, statusInfo = Some(information)))
+                      id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response : $submissionResponse")
                     val information = s"Error while stoping task : ${submissionResponse.message.getOrElse("N/A")}"

@@ -99,9 +99,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                   }
                 } finally {
                   val information = s"Stopped correctly Sparta cluster job with Spark API"
+                  val newStatus = if(policyStatus.status == Failed) NotDefined else Stopped
                   log.info(information)
                   statusActor ! Update(PolicyStatusModel(
-                    id = policyId, status = Stopped, statusInfo = Some(information)))
+                    id = policyId, status = newStatus, statusInfo = Some(information)))
                 }
               case None =>
                 log.info(s"The Sparta System don't have submission id associated to policy $policyName")

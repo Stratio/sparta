@@ -61,10 +61,12 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           else policyStatus.name,
           description = if (policyStatus.description.isEmpty) actualStatus.description
           else policyStatus.description,
-          lastError = if (policyStatus.lastError.isEmpty) actualStatus.lastError
-          else policyStatus.lastError,
-          submissionId = if (policyStatus.submissionId.isEmpty) actualStatus.submissionId
-          else policyStatus.submissionId,
+          lastError = if (policyStatus.lastError.isDefined) policyStatus.lastError
+          else if(policyStatus.status == PolicyStatusEnum.Starting || policyStatus.status == PolicyStatusEnum.Launched)
+            None else actualStatus.lastError,
+          submissionId = if (policyStatus.submissionId.isDefined) policyStatus.submissionId
+          else if(policyStatus.status == PolicyStatusEnum.Starting || policyStatus.status == PolicyStatusEnum.Launched)
+            None else actualStatus.submissionId,
           submissionStatus = if (policyStatus.submissionStatus.isEmpty) actualStatus.submissionStatus
           else policyStatus.submissionStatus,
           statusInfo = if (policyStatus.statusInfo.isEmpty) actualStatus.statusInfo

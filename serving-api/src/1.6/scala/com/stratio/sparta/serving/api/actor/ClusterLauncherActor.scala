@@ -60,7 +60,8 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
   //scalastyle:off
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
-      val clusterConfig = SpartaConfig.getClusterConfig(policy.executionMode).get
+      val execMode = executionMode(policy)
+      val clusterConfig = SpartaConfig.getClusterConfig(Option(execMode)).get
       val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val driverLocationKey = driverLocation(driverPath)
       val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
@@ -75,7 +76,8 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         zkConfigEncoded,
         detailConfigEncoded,
         pluginsEncoded(pluginsFiles),
-        driverLocationConfigEncoded(driverLocationKey, driverLocationConfig))
+        keyConfigEncoded(driverLocationKey, driverLocationConfig),
+        keyConfigEncoded(execMode, Option(clusterConfig)))
       val sparkArguments = submitArgsFromProps(clusterConfig) ++ submitArgsFromPolicy(policy.sparkSubmitArguments)
 
       log.info(s"Launching Sparta Job with options ... \n\t" +
@@ -182,9 +184,9 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
 
   def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
 
-  def driverLocationConfigEncoded(executionMode: String, clusterConfig: Option[Config]): String =
-    clusterConfig match {
-      case Some(config) => encode(render(config, executionMode))
+  def keyConfigEncoded(key: String, config: Option[Config]): String =
+    config match {
+      case Some(config) => encode(render(config, key))
       case None => encode(" ")
     }
 
@@ -194,16 +196,15 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
     } yield statusResponse match {
       case StatusActor.ResponseStatus(Success(policyStatus)) =>
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Stopping) {
-          val information = s"The policy-checker detects that the policy was not started/stopped correctly"
+          val information = s"The checker detects that the policy not start/stop correctly"
           log.error(information)
           statusActor ! Update(PolicyStatusModel(
             id = policy.id.get,
             status = Failed,
-            statusInfo = Some(information),
-            lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, "No exception provided"))
+            statusInfo = Some(information)
           ))
         } else {
-          val information = s"The policy-checker detects that the policy was started/stopped correctly"
+          val information = s"The checker detects that the policy run/stop correctly"
           log.info(information)
           statusActor ! Update(PolicyStatusModel(
             id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
