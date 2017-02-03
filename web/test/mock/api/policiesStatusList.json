@@ -1,5 +1,4 @@
-{
-  "policiesStatus": [
+[
     {
       "id": "b166855d-85ed-44ee-9a3b-bd607de4e9c1",
       "status": "Failed",
@@ -85,4 +84,3 @@
       }
     }
   ]
-}

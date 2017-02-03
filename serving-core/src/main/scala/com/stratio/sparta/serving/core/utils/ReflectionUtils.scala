@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.utils
+package com.stratio.sparta.serving.core.utils
 
 import java.io.Serializable
 import java.net.URLClassLoader
 
 import akka.event.slf4j.SLF4JLogging
-
-import scala.collection.JavaConversions._
-import org.reflections.Reflections
-import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import org.reflections.Reflections
+import com.stratio.sparta.serving.core.exception.ServingCoreException
 
-import scala.util.Try
+import scala.collection.JavaConversions._
 
 class ReflectionUtils extends SLF4JLogging {
 
@@ -42,11 +39,12 @@ class ReflectionUtils extends SLF4JLogging {
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
-        throw DriverException("Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
+        throw ServingCoreException.create(
+          "Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
       case ie: InstantiationException =>
-        throw DriverException("Class with name " + classAndPackage + " cannot be instantiated", ie)
+        throw ServingCoreException.create("Class with name " + classAndPackage + " cannot be instantiated", ie)
       case e: Exception =>
-        throw DriverException("Generic error trying to instantiate " + classAndPackage, e)
+        throw ServingCoreException.create("Generic error trying to instantiate " + classAndPackage, e)
     }
   }
 

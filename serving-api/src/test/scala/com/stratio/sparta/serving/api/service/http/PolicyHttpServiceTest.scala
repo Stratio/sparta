@@ -93,7 +93,7 @@ with HttpServiceBaseTest {
       startAutopilot(ResponsePolicies(Success(Seq(getPolicyModel()))))
       Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes ~> check {
         testProbe.expectMsgType[FindByFragment]
-        responseAs[Seq[PolicyWithStatus]] should equal(Seq(getPolicyWithStatus()))
+        responseAs[Seq[PolicyModel]] should equal(Seq(getPolicyModel()))
       }
     }
     "return a 500 if there was any error" in {
@@ -120,7 +120,7 @@ with HttpServiceBaseTest {
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyPath}/all") ~> routes ~> check {
         testProbe.expectMsgType[FindAll]
-        responseAs[Seq[PolicyWithStatus]] should equal(Seq(getPolicyWithStatus()))
+        responseAs[Seq[PolicyModel]] should equal(Seq(getPolicyModel()))
       }
     }
     "return a 500 if there was any error" in {

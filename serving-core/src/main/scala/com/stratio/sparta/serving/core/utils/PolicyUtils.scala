@@ -16,25 +16,21 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import java.io.File
 import java.util.UUID
 
 import akka.actor.ActorRef
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.FragmentActor
-import com.stratio.sparta.serving.core.constants.{ActorsConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
 import scala.util._
 
-trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
+trait PolicyUtils extends PolicyStatusUtils {
 
   val fragmentActor: Option[ActorRef] = None
 
@@ -42,16 +38,12 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
 
   def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  def savePolicyInZk(policy: PolicyModel, curatorFramework: CuratorFramework): Unit =
-    if (existsByNameId(policy.name, policy.id, curatorFramework).isDefined) {
-      log.info(s"Policy ${policy.name} already in zookeeper. Updating it...")
-      updatePolicy(policy, curatorFramework)
-    } else writePolicy(policy, curatorFramework)
-
-  def deletePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): Unit =
+  def deletePolicy(policy: PolicyModel): Unit = {
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
+    deleteStatus(policy.id.get)
+  }
 
-  def writePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
+  def writePolicy(policy: PolicyModel): PolicyModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.create().creatingParentsIfNeeded().forPath(
@@ -59,7 +51,7 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     policyParsed
   }
 
-  def updatePolicy(policy: PolicyModel, curatorFramework: CuratorFramework): PolicyModel = {
+  def updatePolicy(policy: PolicyModel): PolicyModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.setData().forPath(
@@ -67,13 +59,10 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     policyParsed
   }
 
-  def existsByNameId(name: String,
-                     id: Option[String] = None,
-                     curatorFramework: CuratorFramework
-                    ): Option[PolicyModel] =
+  def existsPolicyByNameId(name: String, id: Option[String] = None): Option[PolicyModel] =
     Try {
       if (existsPath) {
-        getPolicies(curatorFramework, withFragments = false).find(policy =>
+        getPolicies(withFragments = false).find(policy =>
           if (id.isDefined && policy.id.isDefined) policy.id.get == id.get else policy.name == name.toLowerCase
         )
       } else None
@@ -84,13 +73,13 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
         None
     }
 
-  def getPolicies(curatorFramework: CuratorFramework, withFragments: Boolean): List[PolicyModel] = {
+  def getPolicies(withFragments: Boolean): List[PolicyModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
-    JavaConversions.asScalaBuffer(children).toList.map(id => byId(id, curatorFramework))
+    JavaConversions.asScalaBuffer(children).toList.map(id => getPolicyById(id))
   }
 
-  def byId(id: String, curatorFramework: CuratorFramework): PolicyModel = {
+  def getPolicyById(id: String): PolicyModel = {
     read[PolicyModel](
       new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
   }
@@ -117,9 +106,6 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
     }
     }
 
-  def jarsFromPolicy(apConfig: PolicyModel): Seq[File] =
-    apConfig.userPluginsJars.filter(!_.jarPath.isEmpty).map(_.jarPath).distinct.map(filePath => new File(filePath))
-
   def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
     response match {
       case Success(fragment) =>
@@ -136,11 +122,4 @@ trait PolicyUtils extends SpartaSerializer with SLF4JLogging {
       case Failure(e) =>
         log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }
-
-  def getSparkConfigFromPolicy(policy: PolicyModel): Map[String, String] =
-    policy.sparkConf.flatMap { sparkProperty =>
-      if (sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
-        None
-      else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))
-    }.toMap
 }

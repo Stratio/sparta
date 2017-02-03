@@ -261,7 +261,7 @@
  sed -i "s|sparta.config.checkpointPath.*|sparta.config.checkpointPath = \""${SPARTA_CHECKPOINT_PATH}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AUTO_DELETE_CHECKPOINT ]]; then
-   SPARTA_AUTO_DELETE_CHECKPOINT=true
+   SPARTA_AUTO_DELETE_CHECKPOINT=false
  fi
  sed -i "s|sparta.config.autoDeleteCheckpoint.*|sparta.config.autoDeleteCheckpoint = ${SPARTA_AUTO_DELETE_CHECKPOINT}|" ${SPARTA_CONF_FILE}
 
@@ -564,6 +564,6 @@
    *) # Default mode: Sparta run as a docker application
      SERVICE_LOG_APPENDER="STDOUT"
      sed -i "s|<appender-ref ref.*|<appender-ref ref= \""${SERVICE_LOG_APPENDER}"\" />|" ${LOG_CONFIG_FILE}
-     /opt/sds/sparta/bin/server.sh
+     /opt/sds/sparta/bin/run
      ;;
  esac

@@ -16,12 +16,12 @@
 package com.stratio.sparta.driver.test.stage
 
 import com.stratio.sparta.driver.stage.{LogError, OutputStage}
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.types.StructType
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => mockEq}
