@@ -261,7 +261,7 @@
  sed -i "s|sparta.config.checkpointPath.*|sparta.config.checkpointPath = \""${SPARTA_CHECKPOINT_PATH}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AUTO_DELETE_CHECKPOINT ]]; then
-   SPARTA_AUTO_DELETE_CHECKPOINT=true
+   SPARTA_AUTO_DELETE_CHECKPOINT=false
  fi
  sed -i "s|sparta.config.autoDeleteCheckpoint.*|sparta.config.autoDeleteCheckpoint = ${SPARTA_AUTO_DELETE_CHECKPOINT}|" ${SPARTA_CONF_FILE}
 
