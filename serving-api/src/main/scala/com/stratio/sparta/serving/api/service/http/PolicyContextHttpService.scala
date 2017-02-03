@@ -42,7 +42,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
     httpMethod = "GET",
-    response = classOf[PoliciesStatusModel],
+    response = classOf[Try[Seq[PolicyStatusModel]]],
     responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -53,10 +53,10 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors.get(AkkaConstant.statusActor).get
           for {
-            policiesStatuses <- (statusActor ? FindAll).mapTo[ResponseStatuses]
+            policiesStatuses <- (statusActor ? FindAll).mapTo[Try[Seq[PolicyStatusModel]]]
           } yield policiesStatuses match {
-            case ResponseStatuses(Failure(exception)) => throw exception
-            case ResponseStatuses(Success(statuses)) => statuses
+            case Failure(exception) => throw exception
+            case Success(statuses) => statuses
           }
         }
       }

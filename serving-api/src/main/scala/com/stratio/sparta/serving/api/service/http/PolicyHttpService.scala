@@ -24,18 +24,16 @@ import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.StatusActor
-import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
+import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, PolicyWithStatus}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.{HttpResponse, StatusCodes}
-import spray.httpx.marshalling.ToResponseMarshallable
 import spray.routing._
 
 import scala.concurrent.Await
@@ -141,7 +139,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
           } yield response match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => withStatus(policies)
+            case ResponsePolicies(Success(policies)) => policies
           }
         }
       }
@@ -152,7 +150,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   @ApiOperation(value = "Finds all policies.",
     notes = "Finds all policies.",
     httpMethod = "GET",
-    response = classOf[PolicyWithStatus])
+    response = classOf[PolicyModel])
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
@@ -165,7 +163,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? FindAll()).mapTo[ResponsePolicies]
           } yield response match {
             case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => withStatus(policies)
+            case ResponsePolicies(Success(policies)) => policies
           }
         }
       }
@@ -402,25 +400,6 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         }
       }
     }
-  }
-
-  protected def withStatus(policies: Seq[PolicyModel]): ToResponseMarshallable = {
-    val statusActor = actors(AkkaConstant.statusActor)
-    policies.map(policy => {
-      val response = (statusActor ? StatusActor.FindById(policy.id.get)).mapTo[ResponseStatus]
-      Await.result(response, timeout.duration) match {
-        case ResponseStatus(Success(statusModel)) =>
-          PolicyWithStatus(status = statusModel.status,
-            policy = policy,
-            submissionId = statusModel.submissionId,
-            statusInfo = statusModel.statusInfo,
-            lastExecutionMode = statusModel.lastExecutionMode,
-            lastError = statusModel.lastError)
-        case ResponseStatus(Failure(e)) =>
-          log.error(s"Error extracting status in policy: ${policy.name}")
-          PolicyWithStatus(PolicyStatusEnum.NotStarted, policy)
-      }
-    })
   }
 
   case class Result(message: String, desc: Option[String] = None)
