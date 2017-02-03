@@ -69,7 +69,8 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
   //scalastyle:off
   def doInitSpartaContext(policy: PolicyModel): Unit = {
     Try {
-      val clusterConfig = SpartaConfig.getClusterConfig(Option(executionMode(policy))).get
+      val execMode = executionMode(policy)
+      val clusterConfig = SpartaConfig.getClusterConfig(Option(execMode)).get
       val driverPath = driverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val driverLocationKey = driverLocation(driverPath)
       val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
@@ -84,7 +85,8 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         zkConfigEncoded,
         detailConfigEncoded,
         pluginsEncoded(pluginsFiles),
-        driverLocationConfigEncoded(driverLocationKey, driverLocationConfig))
+        keyConfigEncoded(driverLocationKey, driverLocationConfig),
+        keyConfigEncoded(execMode, Option(clusterConfig)))
       val sparkArguments = submitArgsFromProps(clusterConfig) ++ submitArgsFromPolicy(policy.sparkSubmitArguments)
 
       log.info(s"Launching Sparta Job with options ... \n\t" +
@@ -167,6 +169,12 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
       AppConstant.DefaultAwaitPolicyChangeStatus
     )(checkPolicyStatus(policy))
 
+    val information = "Sparta cluster job launched correctly"
+    statusActor ! Update(PolicyStatusModel(
+      id = policy.id.get,
+      status = PolicyStatusEnum.Launched,
+      statusInfo = Option(information)))
+
     //Launch Job and manage future response
     val sparkProcessStatus: Future[(Boolean, Process)] = for {
       sparkProcess <- Future(sparkLauncher.asInstanceOf[SpartaLauncher].launch)
@@ -238,9 +246,9 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
 
   def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
 
-  def driverLocationConfigEncoded(executionMode: String, clusterConfig: Option[Config]): String =
-    clusterConfig match {
-      case Some(config) => encode(render(config, executionMode))
+  def keyConfigEncoded(key: String, config: Option[Config]): String =
+    config match {
+      case Some(config) => encode(render(config, key))
       case None => encode(" ")
     }
 
