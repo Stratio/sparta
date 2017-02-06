@@ -203,11 +203,21 @@ describe('policies.wizard.factory.model-factory', function() {
         expect(factory.isValidModel()).toBeFalsy();
       });
 
-      it("if empty outputFields, model is invalid", function() {
+      it("if empty outputFields, model is invalid if it is not a custom or filter transformation", function() {
         var invalidModel = angular.copy(fakeModel);
         invalidModel.outputFields = [];
         factory.setModel(invalidModel);
         expect(factory.isValidModel()).toBeFalsy();
+
+        var validModel = angular.copy(fakeModel);
+        validModel.outputFields = [];
+        validModel.type = modelConstants.FILTER;
+        factory.setModel(validModel);
+        expect(factory.isValidModel()).toBeTruthy();
+
+        validModel.type = modelConstants.CUSTOM;
+
+        expect(factory.isValidModel()).toBeTruthy();
       });
 
       it("model is valid if all its attributes are not empty", function() {
