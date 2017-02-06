@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (upcoming)
+## 1.0.0 (February 06, 2017)
 
 * Policy statuses with HA support
 * Upload and download plugins and driver jars with the Sparta API
