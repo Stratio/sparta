@@ -13,54 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
-    /*EDIT FRAGMENT MODAL CONTROLLER*/
-    angular
-        .module('webApp')
-        .controller('EditFragmentModalCtrl', EditFragmentModalCtrl);
+  /*NEW FRAGMENT MODAL CONTROLLER*/
+  angular
+    .module('webApp')
+    .controller('NewFragmentModalCtrl', NewFragmentModalCtrl);
 
-    EditFragmentModalCtrl.$inject = ['$uibModalInstance', 'item', 'FragmentFactory', '$filter', 'fragmentTemplates'];
+  NewFragmentModalCtrl.$inject = ['$uibModalInstance', 'creationFragmentData', 'fragmentTemplate', 'FragmentFactory', 'FragmentService', '$filter'];
 
-    function EditFragmentModalCtrl($uibModalInstance, item, FragmentFactory, $filter, fragmentTemplates) {
-        /*jshint validthis: true*/
-        var vm = this;
+  function NewFragmentModalCtrl($uibModalInstance, creationFragmentData, fragmentTemplate, FragmentFactory, FragmentService, $filter) {
+    /*jshint validthis: true*/
+    var vm = this;
 
-        vm.setProperties = setProperties;
-        vm.ok = ok;
-        vm.cancel = cancel;
-        vm.setFragmentData = setFragmentData;
-        vm.createTypeModels = createTypeModels;
-        vm.dataSource = {};
-        vm.dataSource.element = {};
-        vm.templateFragmentsData = [];
-        vm.properties = [];
-        vm.error = false;
-        vm.errorText = '';
-        vm.fragmentTemplateData = {};
+    vm.setProperties = setProperties;
+    vm.ok = ok;
+    vm.cancel = cancel;
+    vm.initFragmentObject = initFragmentObject;
+    vm.setFragmentData = setFragmentData;
+    vm.createTypeModels = createTypeModels;
+    vm.getFragmentIcon = FragmentService.getFragmentIcon;
+    vm.dataSource = {};
+    vm.dataSource.element = {};
+    vm.templateFragmentsData = [];
+    vm.properties = [];
+    vm.error = false;
+    vm.errorText = '';
+    vm.fragmentType = '';
+    vm.fragmentTemplateData = {};
+    vm.policiesRunning = [];
 
-        init();
+    init();
 
-        /////////////////////////////////
+    /////////////////////////////////
 
     function init() {
-      vm.originalName = item.originalName;
+      vm.fragmentType = creationFragmentData.fragmentType;
 
-      setTexts(item.texts);
-      vm.templateFragmentsData = fragmentTemplates;
-      vm.dataSource = angular.copy(item.fragmentSelected);
+      setTexts(creationFragmentData.texts);
 
+      vm.templateFragmentsData = fragmentTemplate;
+      vm.initFragmentObject(vm.templateFragmentsData);
       vm.createTypeModels(vm.templateFragmentsData);
-      vm.selectedIndex = vm.index;
+      vm.selectedIndex = 0;
     }
-      
+
     function setTexts(texts) {
       vm.modalTexts = {};
       vm.modalTexts.title = texts.title;
       vm.modalTexts.button = texts.button;
       vm.modalTexts.icon = texts.button_icon;
-      vm.modalTexts.secondaryText2 = texts.secondaryText2;
+    }
+
+    function initFragmentObject(fragmentData) {
+      /*Init fragment*/
+      vm.dataSource.fragmentType = vm.fragmentType;
+      vm.dataSource.name = '';
+
+      /*Init fragment.element*/
+      vm.dataSource.element.type = fragmentData[0].modelType;
+      vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
+
+      /*Init fragment.element.configuration*/
+      vm.dataSource.element.configuration = {};
+
+      vm.setFragmentData(0);
     }
 
     function createTypeModels(fragmentData) {
@@ -71,7 +89,8 @@
 
         /*Flag to check if there are any visible field*/
         vm.fragmentTemplateData[fragmentName] = $filter('filter')(fragmentData[i].properties, {'visible': []}, true);
-        vm.properties[fragmentName]._visible = (vm.fragmentTemplateData[fragmentName].length > 0) ? true : false;
+        vm.properties[fragmentName]._visible = vm.fragmentTemplateData[fragmentName].length > 0;
+
         for (var j = 0; j < fragmentData[i].properties.length; j++) {
           var fragmentProperty = fragmentData[i].properties[j];
 
@@ -101,21 +120,10 @@
         }
 
         /*Init properties*/
-        if (fragmentName === vm.dataSource.element.type) {
-          angular.forEach(vm.dataSource.element.configuration, function (value, key) {
-            vm.properties[fragmentName][key] = value;
-          });
-
+        if (i === 0) {
           vm.dataSource.element.configuration = vm.properties[fragmentName];
-          vm.index = i;
         }
       }
-    }
-
-    function setProperties(index, inputName) {
-      vm.selectedIndex = index;
-      vm.dataSource.element.configuration = (vm.properties[inputName].select) ? vm.properties[inputName][vm.properties[inputName].type] : vm.properties[inputName];
-      vm.setFragmentData(index);
     }
 
     function setFragmentData(index) {
@@ -125,10 +133,21 @@
       vm.dataSource.element.name = 'in-' + vm.dataSource.element.type;
     }
 
+    function setProperties(index, fragmentName) {
+      vm.selectedIndex = index;
+      vm.dataSource.element.configuration = vm.properties[fragmentName];
+      vm.setFragmentData(index);
+    }
+
     function ok() {
       if (vm.form.$valid) {
         deleteNotVisibleProperties();
-        checkFragmentName();
+        if (FragmentService.isValidFragmentName(vm.dataSource, creationFragmentData)){
+          createFragment();
+        }else {
+          vm.error = true;
+          vm.errorText = "_ERROR_._100_";
+        }
       }
     }
 
@@ -148,28 +167,12 @@
       }
       delete vm.dataSource.element.configuration['_visible'];
     }
+    
+    function createFragment() {
+      var newFragment = FragmentFactory.createFragment(vm.dataSource);
 
-    function checkFragmentName() {
-      var inputNamesExisting = [];
-      var newInputName = vm.dataSource.name.toLowerCase();
-      inputNamesExisting = $filter('filter')(item.fragmentNamesList, {'name': newInputName}, true);
-
-      if (inputNamesExisting.length > 0 && inputNamesExisting[0].name !== vm.originalName) {
-        vm.error = true;
-        vm.errorText = "_ERROR_._100_";
-      }
-      else {
-        editFragment();
-      }
-    }
-
-    function editFragment() {
-      var updateFragment = FragmentFactory.updateFragment(vm.dataSource);
-
-      updateFragment.then(function (result) {
-        var callBackData = {};
-        callBackData.originalFragment = item.fragmentSelected;
-        callBackData.editedFragment = result;
+      newFragment.then(function (result) {
+        var callBackData = result;
 
         $uibModalInstance.close(callBackData);
 

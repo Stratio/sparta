@@ -1,4 +1,5 @@
 {
+  "_MODEL_TYPE_": "Model type",
   "_HELP_": "Do you need help?",
   "_CANCEL_": "Cancel",
   "_PREVIOUS_": "Previous",
@@ -390,6 +391,9 @@
   "_DIRECTORY_" : "Directory",
   "_FILE_WITH_DATE_" : "Append date",
   "_PARTITION_UNTIL_" : "Partition path until",
+  "_OPTION_PROPERTIES_": "Option properties",
+  "_OPTION_KEY_": "Option key",
+  "_OPTION_VALUE_": "Option value",
   "_FRAGMENT_WARNING_AFFECTED_POLICIES_": "Keep it in mind that if you modify this {{fragmentType}} you will be able to see the changes after restarting affected policies",
   "_ERROR_": {
     "_CHANGES_WITHOUT_SAVING_": "You have to save all your changes or cancel them before going to the next step",

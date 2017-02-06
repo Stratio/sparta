@@ -31,6 +31,7 @@
     vm.removeModel = removeModel;
     vm.onChangeType = onChangeType;
     vm.cancelModelCreation = cancelModelCreation;
+    vm.getTransformationTemplateUrl = getTransformationTemplateUrl;
     vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
@@ -51,6 +52,10 @@
         vm.outputPattern = vm.template.outputPattern;
         vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
       }
+    }
+
+    function getTransformationTemplateUrl(){
+      return 'templates/policies/transformation/' + vm.model.type.toLowerCase() + '-panel.tpl.html';
     }
 
     function getOutputList() {

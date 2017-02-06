@@ -437,6 +437,10 @@
       {
         "iconName": "globe",
         "name": "Geo"
+      },
+      {
+        "iconName": "puzzle",
+        "name": "Custom"
       }
     ],
     "defaultOutputFieldTypes": [
@@ -630,10 +634,10 @@
       "defaultConfiguration": {
         "fields": [
           {
-            "name":"field1"
+            "name": "field1"
           },
           {
-            "name":"field2"
+            "name": "field2"
           }
         ]
       }
@@ -1044,6 +1048,7 @@
           "required": true,
           "qa": "policy-transformation-geo-latitude"
         },
+
         {
           "propertyId": "longitude",
           "propertyName": "_LONGITUDE_",
@@ -1093,6 +1098,55 @@
         {
           "label": "String",
           "value": "string"
+        }
+      ]
+    },
+    "Custom": {
+      "properties": [
+        {
+          "propertyId": "modelType",
+          "propertyName": "_MODEL_TYPE_",
+          "propertyType": "text",
+          "default": "Custom",
+          "width": 4,
+          "required": true,
+          "tooltip": "Transformation type is related to the user class extended by SDK",
+          "qa": "custom-transformation-modelType"
+        },
+        {
+          "propertyId": "transformationOptions",
+          "propertyName": "_OPTION_PROPERTIES_",
+          "propertyType": "list",
+          "default": "",
+          "required": false,
+          "tooltip": "",
+          "width": 12,
+          "qa": "custom-transformation-properties",
+          "fields": [
+            {
+              "propertyId": "transformationOptionsKey",
+              "propertyName": "_OPTION_KEY_",
+              "propertyType": "text",
+              "regexp": "",
+              "default": "",
+              "width": 6,
+              "hidden": false,
+              "required": false,
+              "qa": "custom-transformation-properties-key"
+            },
+            {
+              "propertyId": "transformationOptionsValue",
+              "propertyName": "_OPTION_VALUE_",
+              "propertyType": "text",
+              "regexp": "",
+              "default": "",
+              "width": 6,
+              "position": "right",
+              "hidden": false,
+              "required": false,
+              "qa": "custom-transformation-properties-value"
+            }
+          ]
         }
       ]
     }
