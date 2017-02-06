@@ -26,6 +26,7 @@
     JSON: "Json",
     XML: "Xml",
     CSV: "Csv",
-    INGESTION: "Ingestion"
+    INGESTION: "Ingestion",
+    CUSTOM: "Custom"
     });
 })();

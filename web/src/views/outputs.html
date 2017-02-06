@@ -64,7 +64,7 @@
 
         <div class="c-row o-media">
           <div class="o-media__img">
-            <i class="c-icon c-icon--xxxlarge icon-{{output.element.type | lowercase}} o-media__img__item" alt="{{output.element.type}}"></i>
+            <i class="c-icon c-icon--xxxlarge {{outputs.getFragmentIcon(output.element.type)}} o-media__img__item" alt="{{output.element.type}}"></i>
           </div>
 
           <span class="o-media__bd c-grid-item__desc">{{output.shortDescription}}</span>

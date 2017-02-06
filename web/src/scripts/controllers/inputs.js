@@ -20,9 +20,9 @@
     .module('webApp')
     .controller('InputsCtrl', InputsCtrl);
 
-  InputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService', 'TemplateFactory', 'PolicyFactory'];
+  InputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService', 'TemplateFactory', 'FragmentService'];
 
-  function InputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService, TemplateFactory, PolicyFactory) {
+  function InputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService, TemplateFactory, FragmentService) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -32,6 +32,7 @@
     vm.editInput = editInput;
     vm.duplicateInput = duplicateInput;
     vm.deleteErrorMessage = deleteErrorMessage;
+    vm.getFragmentIcon = FragmentService.getFragmentIcon;
     vm.inputsData = undefined;
     vm.inputTypes = [];
     vm.errorMessage =  {type: 'error',text: '', internalTrace: ''};

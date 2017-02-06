@@ -47,7 +47,7 @@
                   data-delete-class="true"
                   data-qa="{{item.qa}}">
       </form-field>
-      <section class="c-col c-col--12"><span class ="c-icon icon-alert c-icon--alert c-icon c-info-text__icon"></span> <span data-ng-if="vm.dataSource.id" class ="c-icon-text__text c-icon-text--a2">{{"_FRAGMENT_WARNING_AFFECTED_POLICIES_"  | translate: "{'fragmentType': '" + vm.dataSource.fragmentType + "'}"}}</span></section>
+      <section class="c-col c-col--12" data-ng-if="vm.dataSource.id" ><span class ="c-icon icon-alert c-icon--alert c-icon c-info-text__icon"></span> <span class ="c-icon-text__text c-icon-text--a2">{{"_FRAGMENT_WARNING_AFFECTED_POLICIES_"  | translate: "{'fragmentType': '" + vm.dataSource.fragmentType + "'}"}}</span></section>
       <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
         <i class="c-icon icon-circle-cross"></i>
         <span translate="{{vm.errorText}}"></span>

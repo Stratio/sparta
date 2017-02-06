@@ -20,9 +20,9 @@
       .module('webApp')
       .controller('OutputsCtrl', OutputsCtrl);
 
-    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService'];
+    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'FragmentService', 'UtilsService'];
 
-    function OutputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService) {
+    function OutputsCtrl(FragmentFactory, $filter, $uibModal, FragmentService, UtilsService) {
       /*jshint validthis: true*/
       var vm = this;
 
@@ -31,6 +31,7 @@
       vm.deleteOutput = deleteOutput;
       vm.duplicateOutput = duplicateOutput;
       vm.deleteErrorMessage = deleteErrorMessage;
+      vm.getFragmentIcon = FragmentService.getFragmentIcon;
       vm.outputsData = undefined;
       vm.outputTypes = [];
       vm.errorMessage =  {type: 'error',text: '', internalTrace: ''};
