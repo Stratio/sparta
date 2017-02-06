@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1.0 (upcoming)
+
+* Pending changelog
+
 ## 1.0.0 (upcoming)
 
 * Policy statuses with HA support
