@@ -42,7 +42,7 @@ changeModeInstall () {
     changeMode /var/log/sds/sparta 0755
     changeMode /etc/sds/sparta 0755
 
-    changeMode /etc/sds/sparta/application.conf 0640
+    changeMode /etc/sds/sparta/reference.conf 0640
     changeMode /etc/default/sparta-variables 0640
     changeMode /etc/default/sparta-functions 0640
     changeMode /etc/sds/sparta/logback.xml 0640
