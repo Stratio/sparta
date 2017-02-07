@@ -1,7 +1,5 @@
 #!/bin/bash
 
-env
-
 #Setup vault hosts (better in universe??)
 export VAULT_HOSTS=($VAULT_HOST)
 
@@ -23,18 +21,15 @@ function _log_sparta_sec() {
     echo -e "$(date +'%b %d %R:%S.%N') [SPARTA-SEC] $message" | tee -a "$PWD/sparta-sec.log"
 }
 
-_log_sparta_sec "REMOVE THIS!!Only for local testing add vault host"
-echo "10.200.1.236 gosec2.labs.stratio.com" >> /etc/hosts
-
 ####################################################
-## Get XD TLS Server Info and set XD_TLS_PASSWORD
+## Get TLS Server Info and set SPARTA_KEYSTORE_PASS
 ####################################################
 _log_sparta_sec "Configuring tls ..."
 source tls-config.sh
 _log_sparta_sec "Configuring tls Ok"
 
 #######################################################
-## Create XD Truststore and set XD_TRUSTSTORE_PASSWORD
+## Create XD Truststore and set DEFAULT_KEYSTORE_PASS
 #######################################################
 _log_sparta_sec "Configuring truststore ..."
 source truststore-config.sh

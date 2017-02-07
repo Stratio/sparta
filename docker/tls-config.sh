@@ -6,13 +6,8 @@ _log_sparta_sec "Getting app cert from vault"
 getCert "userland" "$TENANT_NAME" "sparta" "JKS" "/etc/sds/sparta/security"
 
 _log_sparta_sec "Exporting sparta tls variables"
-### Get keystore password
-JKS_PASSWORD=${TENANT_NORM}_KEYSTORE_PASS
-export XD_TLS_PASSWORD=${!JKS_PASSWORD}
-export XD_TLS_JKS_NAME="/etc/sds/sparta/security/$TENANT_NAME.jks"
-
 ##Export variables for the app to configure tls
 export SPRAY_CAN_SERVER_SSL_ENCRYPTION=on
-export SPARTA_API_CERTIFICATE_FILE=$XD_TLS_JKS_NAME
-export SPARTA_API_CERTIFICATE_PASSWORD=$XD_TLS_PASSWORD
+export SPARTA_API_CERTIFICATE_FILE="/etc/sds/sparta/security/$TENANT_NAME.jks"
+export SPARTA_API_CERTIFICATE_PASSWORD=$SPARTA_KEYSTORE_PASS
 
