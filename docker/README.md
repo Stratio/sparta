@@ -189,6 +189,32 @@ docker run -dit --name sp -p 9090:9090 -p 9091:9091 --env RUN_MODE=debug --env S
    --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 --env HDFS_MASTER=hm.demo.stratio.com 
    --env HDFS_PORT=8020 qa.stratio.com:8443/stratio/sparta:latest
    
+   
+Usage examples with VAULT 
+===============
+
+For vault to work you must have a vault with the secrets of sparta.
+
+The parameters involved are :
+
+| PARAM        | Description|
+| -------------|:-------------:|
+| VAULT_HOST   | The host of the vault installation.If not present the docker image will not attempt to download any secrets |
+| VAULT_TOKEN  | The vault token|
+| VAULT_PORT   | The vault port      |
+
+In the integration.env file there is an example for a vault configuration.
+In the example we are mapping an ip to a host (like adding an entry to /etc/hosts )
+
+```bash
+
+docker run -d 
+    --env-file integration.env 
+    -p 9090:9090 -p 9091:9091 -p 4040:4040 
+    --add-host gosec2.labs.stratio.com:10.1.1.1 
+    --name sparta qa.stratio.com:8443/stratio/sparta:latest
+
+```
 
 Weave commands
 ===============
@@ -229,4 +255,6 @@ docker run -dit --name hm --env NAMENODE_MODE=true qa.stratio.com/stratio/hadoop
         --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
         --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio \
         --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
+
+
 
