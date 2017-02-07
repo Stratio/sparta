@@ -1,9 +1,15 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
  NAME=sparta
  VARIABLES="/etc/default/$NAME-variables"
  SYSTEM_VARIABLES="/etc/profile"
- SPARTA_CONF_FILE=/etc/sds/sparta/application.conf
+ SPARTA_CONF_FILE=/etc/sds/sparta/reference.conf
+
+ ## Vault and secrets (configured if enabled)
+ ###################################################
+ if [ !  -z ${VAULT_HOST} ]; then
+     source security-config.sh $1
+ fi
 
  # SPARTA JAVA OPTIONS
  if [[ ! -v SPARTA_HEAP_SIZE ]]; then
@@ -563,7 +569,8 @@
      ;;
    *) # Default mode: Sparta run as a docker application
      SERVICE_LOG_APPENDER="STDOUT"
+     export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE"
      sed -i "s|<appender-ref ref.*|<appender-ref ref= \""${SERVICE_LOG_APPENDER}"\" />|" ${LOG_CONFIG_FILE}
-     /opt/sds/sparta/bin/server.sh
+     /opt/sds/sparta/bin/run
      ;;
  esac
