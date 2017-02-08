@@ -146,13 +146,14 @@
                             <contactEmail>sparta@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <preDepends>jq</preDepends>
-                                <preDepends>lockfile-progs</preDepends>
+                                <preDepends>jq,lockfile-progs,curl,uuid-runtime</preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
                                 <requires>bash</requires>
                                 <requires>jq</requires>
+                                <requires>curl</requires>
+                                <requires>uuid-runtime</requires>
                             </rpm>
                             <name>Sparta</name>
                             <excludeDirectoryAttributes>

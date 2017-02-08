@@ -18,6 +18,7 @@
 -->
 
 <configuration>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/var/log/sds/sparta/sparta.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">

@@ -18,7 +18,7 @@ export LOG_CONFIG_FILE=$SERVER_PROPERTIES/logback.xml
 export DATA_DIR=/var/sds/$NAME
 
 # Config file
-export CONFIG_FILE=$SERVER_PROPERTIES/application.conf
+export CONFIG_FILE=$SERVER_PROPERTIES/reference.conf
 
 # Work directory
 export WORK_DIR=/tmp/$NAME
