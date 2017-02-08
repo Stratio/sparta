@@ -29,7 +29,7 @@
       "qa": "policy-operator-configuration"
     },
     {
-      "propertyId": "typeOp",
+      "propertyId": "configuration.typeOp",
       "propertyName": "_OUTPUT_TYPE_",
       "propertyType": "select",
       "position": "left",

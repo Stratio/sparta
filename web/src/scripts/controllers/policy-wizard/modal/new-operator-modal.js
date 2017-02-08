@@ -45,7 +45,7 @@
       TemplateFactory.getOperatorTemplateByType(operatorType).then(function(template) {
         vm.template = template;
         if (operatorType != cubeConstants.COUNT) {
-          var inputField = UtilsService.filterByAttribute(vm.template.properties, 'propertyId', 'inputField')[0];
+          var inputField = UtilsService.filterByAttribute(vm.template.properties, 'propertyId', 'configuration.inputField')[0];
           inputField.values = UtilsService.generateOptionListFromStringArray(inputFieldList);
         }
       });
@@ -69,12 +69,13 @@
 
     function ok() {
       vm.nameError = "";
-      if (vm.operator.configuration && vm.operator.configuration.inputField == '') {
-        delete vm.operator.configuration.inputField
+      if (vm.operator.configuration && vm.operator['configuration.inputField'] == '') {
+        delete vm.operator['configuration.inputField']
       }
       if (vm.form.$valid) {
         if (!isRepeated()) {
-          $uibModalInstance.close(vm.operator);
+          var parsedOperator = UtilsService.convertDottedPropertiesToJson(vm.operator);
+          $uibModalInstance.close(parsedOperator);
         }
       }
     }

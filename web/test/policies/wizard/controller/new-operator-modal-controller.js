@@ -11,7 +11,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
     _cubeConstants = cubeConstants;
     scope = $rootScope.$new();
     modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
-    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray', 'filterByAttribute']);
+    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'generateOptionListFromStringArray', 'filterByAttribute', 'convertDottedPropertiesToJson']);
     TemplateFactoryMock = jasmine.createSpyObj('TemplateFactory', ['getOperatorTemplateByType']);
     fakeOptionList = [{name: "fake option 1", value: "fake option value"}, {
       name: "fake option 2",
@@ -75,7 +75,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
       });
 
       describe("name is validated", function() {
-        it("name is valid if there is not any operator with irs name", function() {
+        it("name is valid if there is not any operator with its name", function() {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(-1);
 
           ctrl.ok();
@@ -83,7 +83,7 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
           expect(ctrl.nameError).toBe("");
         });
 
-        it("name is invalid if there is another operator with irs name", function() {
+        it("name is invalid if there is another operator with its name", function() {
           UtilsServiceMock.findElementInJSONArray.and.returnValue(2);
 
           ctrl.ok();
@@ -94,16 +94,41 @@ describe('policies.wizard.controller.new-operator-modal-controller', function() 
       });
 
       it("input field is cleaned if it is empty", function() {
-        ctrl.operator.configuration.inputField = fakeInputFieldList[0].value;
+        ctrl.operator['configuration.inputField'] = fakeInputFieldList[0].value;
         ctrl.ok();
 
-        expect(ctrl.operator.configuration.inputField).toEqual(fakeInputFieldList[0].value);
+        expect(ctrl.operator['configuration.inputField']).toEqual(fakeInputFieldList[0].value);
 
-        ctrl.operator.configuration.inputField = "";
+        ctrl.operator['configuration.inputField'] = "";
         ctrl.ok();
 
-        expect(ctrl.operator.configuration.inputField).toBeUndefined();
-      })
+        expect(ctrl.operator['configuration.inputField']).toBeUndefined();
+      });
+
+      it ("dotted configuration properties are parsed when modal is closed", inject(function($controller, UtilsService) {
+        ctrl = $controller('NewOperatorModalCtrl', {
+          '$uibModalInstance': modalInstanceMock,
+          'operatorName': fakeOperatorName,
+          'operatorType': fakeOperatorType,
+          'operators': fakeOperators,
+          'template': fakeCubeTemplate,
+          'inputFieldList': fakeInputFieldList,
+          'TemplateFactory': TemplateFactoryMock,
+          'scope': scope
+        });
+        ctrl.form = {"$valid": true};
+        ctrl.operator['configuration.inputField'] = fakeInputFieldList[0].value;
+
+        spyOn(UtilsService, "findElementInJSONArray").and.returnValue(-1); // no repeated
+        spyOn(UtilsService, "convertDottedPropertiesToJson").and.callThrough();
+
+        ctrl.ok();
+
+        var returnedOperator = UtilsService.convertDottedPropertiesToJson.calls.mostRecent().args[0];
+
+        expect(UtilsService.convertDottedPropertiesToJson).toHaveBeenCalledWith(ctrl.operator);
+        expect(returnedOperator.configuration).toEqual({"inputField": fakeInputFieldList[0].value});
+      }));
     });
   });
 

@@ -19,7 +19,7 @@
       "qa": "policy-operator-type"
     },
     {
-      "propertyId": "inputField",
+      "propertyId": "configuration.inputField",
       "propertyName": "_INPUT_FIELD_",
       "propertyType": "select",
       "position": "left",
@@ -38,7 +38,7 @@
       "qa": "policy-operator-configuration"
     },
     {
-      "propertyId": "typeOp",
+      "propertyId": "configuration.typeOp",
       "propertyName": "_OUTPUT_TYPE_",
       "propertyType": "select",
       "position": "left",
