@@ -13,44 +13,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.stratio.sparta.plugin.transformation.csv
-
-import java.io.{Serializable => JSerializable}
+package com.stratio.sparta.plugin.transformation.json
 
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
+import java.io.{Serializable => JSerializable}
+
+import org.joda.time.DateTime
 
 import scala.util.Try
 
-class CsvParser(order: Integer,
-                 inputField: Option[String],
-                 outputFields: Seq[String],
-                 schema: StructType,
-                 properties: Map[String, JSerializable])
+
+class CustomDateParser(order: Integer,
+                       inputField: Option[String],
+                       outputFields: Seq[String],
+                       schema: StructType,
+                       properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
-  val fieldsModel = properties.getPropertiesFields("fields")
-  val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
+  val dateField = (properties ++ getCustomProperties).getString("dateField", "date")
+  val hourField = (properties ++ getCustomProperties).getString("hourField", "hourRounded")
+  val dayField = (properties ++ getCustomProperties).getString("dayField", "dayRounded")
+  val weekField = (properties ++ getCustomProperties).getString("weekField", "week")
 
   //scalastyle:off
   override def parse(row: Row): Seq[Row] = {
-    val inputValue = Option(row.get(inputFieldIndex))
+    val inputValue = Try(row.get(schema.fieldIndex(dateField))).toOption
     val newData = Try {
       inputValue match {
         case Some(value) =>
-          val valuesSplitted = {
+          val valueStr = {
             value match {
               case valueCast: Array[Byte] => new Predef.String(valueCast)
               case valueCast: String => valueCast
               case _ => value.toString
             }
-          }.split(fieldsSeparator)
+          }
+          val valuesParsed = Map(
+            hourField ->
+              getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length)),
+            dayField ->
+              getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length - 2)),
+            weekField -> getWeek(valueStr)
+          )
 
-          if(valuesSplitted.length == fieldsModel.fields.length){
-            val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplitted).toMap
             outputFields.map { outputField =>
               val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
               outputSchemaValid match {
@@ -67,7 +75,6 @@ class CsvParser(order: Integer,
                     s"Impossible to parse outputField: $outputField in the schema"))
               }
             }
-          } else returnWhenError(new IllegalStateException(s"The values splitted are greater or lower than the properties fields"))
         case None =>
           returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
@@ -76,5 +83,18 @@ class CsvParser(order: Integer,
     returnData(newData, removeInputField(row))
   }
 
+  def getDateWithBeginYear(inputDate: String) : String =
+    inputDate.substring(0, inputDate.length - 4).concat("20")
+
+  def getWeek(inputDate : String) : Int = {
+    val day = inputDate.substring(0, 2).toInt
+    val month = inputDate.substring(2, 4).toInt
+    val year = "20".concat(inputDate.substring(4, 6)).toInt
+    val date = new DateTime(year, month, day, 0, 0)
+
+    date.getWeekOfWeekyear
+  }
+
   //scalastyle:on
 }
+

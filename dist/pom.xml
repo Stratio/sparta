@@ -228,7 +228,7 @@
                                 </mkdirs>
                                 <!-- For the jars plugin -->
                                 <mkdirs>
-                                    <path>/opt/sds/plugins</path>
+                                    <path>/opt/sds/sparta/plugins</path>
                                 </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>

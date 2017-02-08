@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
 import com.typesafe.config.Config
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -84,15 +84,23 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                       id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response : $submissionResponse")
-                    val information = s"Error while stoping task : ${submissionResponse.message.getOrElse("N/A")}"
+                    val information = s"Error while stopping task"
                     log.info(information)
                     statusActor ! Update(PolicyStatusModel(
-                      id = policyId, status = Failed, statusInfo = Some(information)))
+                      id = policyId,
+                      status = Failed,
+                      statusInfo = Some(information),
+                      lastError = submissionResponse.message.map(error =>
+                        PolicyErrorModel(information, PhaseEnum.Execution, error))))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
                     log.error(error, e)
                     statusActor ! Update(PolicyStatusModel(
-                      id = policyId, status = Failed, statusInfo = Some(error)))
+                      id = policyId,
+                      status = Failed,
+                      statusInfo = Some(error),
+                      lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))
+                    ))
                 }
               case None =>
                 log.info(s"The Sparta System don't have submission id associated to policy $policyName")
