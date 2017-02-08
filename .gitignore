@@ -55,3 +55,12 @@ data
 javadoc
 apidocs
 nexus
+
+#local docker ignore all files except the generator scripts
+/docker/localDocker/*
+!/docker/localDocker/Dockerfile
+!/docker/localDocker/createDocker.sh
+!/docker/localDocker/dependencyfix.sh
+!/docker/localDocker/README.md
+
+
