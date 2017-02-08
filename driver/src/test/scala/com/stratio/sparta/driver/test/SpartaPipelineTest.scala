@@ -18,11 +18,11 @@ package com.stratio.sparta.driver.test
 import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
 import com.stratio.sparta.driver.SpartaPipeline
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext

@@ -223,6 +223,10 @@
       {
         "iconName": "globe",
         "name": "Geo"
+      },
+      {
+        "iconName": "puzzle",
+        "name": "Custom"
       }
     ],
     "defaultOutputFieldTypes": [

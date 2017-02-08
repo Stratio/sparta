@@ -6,10 +6,10 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
   beforeEach(module('api/policyList.json'));
 
   var ctrl, scope, filter, modalMock, utilsServiceMock, templateFactoryMock, fakeNewInputTemplate, fakeInput,
-    fakeInputList, fakePolicyList, fragmentFactoryMock, policyFactoryMock, resolvedInputListPromise, rejectedInputListPromise, resolvedNewInputTemplate, resolvedNewInput
-    ,resolvedEditInput, resolvedDeleteInput, resolverPolicyList= null;
+      fakeInputList, fakePolicyList, fragmentFactoryMock, policyFactoryMock, resolvedInputListPromise, rejectedInputListPromise, resolvedNewInputTemplate, resolvedNewInput
+      , resolvedEditInput, resolvedDeleteInput, resolverPolicyList = null;
 
-  beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend, $filter, _apiInputList_, _templateInput_, _apiInput_, _apiPolicyList_) {
+  beforeEach(inject(function($controller, $q, $rootScope, $httpBackend, $filter, _apiInputList_, _templateInput_, _apiInput_, _apiPolicyList_) {
     /*scope = $rootScope.$new();*/
     scope = $rootScope;
     fakeInputList = _apiInputList_;
@@ -17,37 +17,37 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     fakeInput = _apiInput_;
     fakePolicyList = _apiPolicyList_;
 
-    resolvedInputListPromise = function () {
+    resolvedInputListPromise = function() {
       var defer = $q.defer();
       defer.resolve(fakeInputList);
 
       return defer.promise;
     };
 
-    rejectedInputListPromise = function () {
+    rejectedInputListPromise = function() {
       var defer = $q.defer();
       defer.reject({"data": {"i18nCode": "111"}});
 
       return defer.promise;
     };
 
-    resolvedNewInputTemplate = function () {
+    resolvedNewInputTemplate = function() {
       var defer = $q.defer();
       defer.resolve(fakeNewInputTemplate);
 
       return defer.promise;
     };
 
-    resolvedNewInput = function () {
+    resolvedNewInput = function() {
       var defer = $q.defer();
       defer.resolve(fakeInput);
 
       return {"result": defer.promise};
     };
 
-    resolvedEditInput = function () {
+    resolvedEditInput = function() {
       var defer = $q.defer();
-      defer.resolve({"originalFragment":ctrl.inputsData[1], "editedFragment":fakeInput});
+      defer.resolve({"originalFragment": ctrl.inputsData[1], "editedFragment": fakeInput});
 
       return {"result": defer.promise};
     };
@@ -59,7 +59,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       return {"result": defer.promise};
     };
 
-    resolverPolicyList = function () {
+    resolverPolicyList = function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
 
@@ -91,14 +91,14 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     scope.$digest();
   }));
 
-  describe('Initialize controller', function () {
+  describe('Initialize controller', function() {
     var newFakeInputList = null;
 
-    beforeEach(function () {
+    beforeEach(function() {
       newFakeInputList = angular.copy(fakeInputList);
     });
 
-    it('Should call getInputs function and return a list of Inputs', inject(function ($controller) {
+    it('Should call getInputs function and return a list of Inputs', inject(function($controller) {
       fragmentFactoryMock.getFragments.and.callFake(resolvedInputListPromise);
       ctrl = $controller('InputsCtrl', {
         'FragmentFactory': fragmentFactoryMock,
@@ -114,7 +114,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       expect(ctrl.inputsData).toEqual(newFakeInputList);
     }));
 
-    it('Should call getInputs function and get an error', inject(function ($controller) {
+    it('Should call getInputs function and get an error', inject(function($controller) {
       fragmentFactoryMock.getFragments.and.callFake(rejectedInputListPromise);
       ctrl = $controller('InputsCtrl', {
         'FragmentFactory': fragmentFactoryMock,
@@ -130,7 +130,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       expect(ctrl.errorMessage.text).toBe("_ERROR_._111_");
     }));
 
-    it('Should call getInputTypes function and create an array of the amount of each input types', function () {
+    it('Should call getInputTypes function and create an array of the amount of each input types', function() {
       expect(ctrl.inputTypes).toEqual([{"type": "Socket", "count": 2}, {"type": "Flume", "count": 2}, {
         "type": "Kafka",
         "count": 2
@@ -139,16 +139,16 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
   });
 
 
-  describe('Create a new input', function () {
+  describe('Create a new input', function() {
     var fakeListOfNames = null;
 
-    beforeEach(function () {
+    beforeEach(function() {
       modalMock.open.and.callFake(resolvedNewInput);
       ctrl.inputsData = angular.copy(fakeInputList);
       fakeListOfNames = ['test_input_kafka', 'test_input_socket'];
     });
 
-    it('Should call createInput function and show new input modal', function () {
+    it('Should call createInput function and show new input modal', function() {
       utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
       var fakeCreateInputData = {
@@ -164,32 +164,32 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       ctrl.createInput();
 
       var params = modalMock.open.calls.mostRecent().args[0];
-      expect(params.resolve.item()).toEqual(fakeCreateInputData);
+      expect(params.resolve.creationFragmentData()).toEqual(fakeCreateInputData);
 
-      params.resolve.fragmentTemplates();
+      params.resolve.fragmentTemplate();
       expect(templateFactoryMock.getNewFragmentTemplate).toHaveBeenCalledWith(fakeCreateInputData.fragmentType);
     });
 
-    it('Should return OK when closing the create modal', function () {
+    it('Should return OK when closing the create modal', function() {
       ctrl.createInput().then(function() {
         expect(ctrl.inputsData[6]).toBe(fakeInput);
-        expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes ,fakeInput.element.type);
+        expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeInput.element.type);
       });
       scope.$digest();
     });
   });
 
-  describe('Edit an input', function () {
+  describe('Edit an input', function() {
     var fakeOriginalInput, fakeOriginalInputType = null;
 
-    beforeEach(function () {
+    beforeEach(function() {
       modalMock.open.and.callFake(resolvedEditInput);
       ctrl.inputsData = angular.copy(fakeInputList);
       fakeOriginalInput = ctrl.inputsData[1];
       fakeOriginalInputType = fakeOriginalInput.element.type;
     });
 
-    it('Should call editInput function and show an edit input modal', function () {
+    it('Should call editInput function and show an edit input modal', function() {
       var fakeListOfNames = ['test_input_kafka', 'test_input_socket'];
       utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
@@ -209,14 +209,14 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       ctrl.editInput(fakeOriginalInput);
 
       var params = modalMock.open.calls.mostRecent().args[0];
-      expect(params.resolve.item()).toEqual(fakeEditInputData);
+      expect(params.resolve.creationFragmentData()).toEqual(fakeEditInputData);
 
-      params.resolve.fragmentTemplates();
+      params.resolve.fragmentTemplate();
       expect(templateFactoryMock.getNewFragmentTemplate).toHaveBeenCalledWith(fakeEditInputData.fragmentSelected.fragmentType);
     });
 
-    it('Should return OK when closing the edit modal and upload the inputs type dropdown', function () {
-      ctrl.editInput(fakeOriginalInput).then(function(){
+    it('Should return OK when closing the edit modal and upload the inputs type dropdown', function() {
+      ctrl.editInput(fakeOriginalInput).then(function() {
         expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeOriginalInputType);
         expect(utilsServiceMock.addFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeInput.element.type);
       });
@@ -224,10 +224,8 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
     });
   });
 
-  describe('Delete an input', function () {
-    var fragmentType, fragmentId, fragmentId = null;
-
-    beforeEach(function () {
+  describe('Delete an input', function() {
+    beforeEach(function() {
       modalMock.open.and.callFake(resolvedDeleteInput);
       fakeFragmentType = 'input';
       fakeIndex = 2;
@@ -237,7 +235,7 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
 
     });
 
-    it('Should call deleteInput function and show a delete input modal', function () {
+    it('Should call deleteInput function and show a delete input modal', function() {
       var fakeInputToDelete = {
         'type': fakeFragmentType,
         'id': fakeFragmentId,
@@ -252,58 +250,68 @@ describe('com.stratio.sparkta.inputs.inputs.controller', function () {
       ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType);
 
       var params = modalMock.open.calls.mostRecent().args[0];
-      expect(params.resolve.item()).toEqual(fakeInputToDelete);
+      expect(params.resolve.fragmentTemplate()).toEqual(fakeInputToDelete);
     });
 
-    it('Should return OK when closing the delete modal', function () {
-      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType).then(function(){
+    it('Should return OK when closing the delete modal', function() {
+      ctrl.deleteInput(fakeFragmentType, fakeFragmentId, fakeElementType).then(function() {
         expect(ctrl.inputsData[fakeIndex]).toEqual(fakeInputList[fakeIndex + 1]);
         expect(utilsServiceMock.subtractFragmentCount).toHaveBeenCalledWith(ctrl.inputTypes, fakeElementType, ctrl.filters);
       });
       scope.$digest();
     });
   });
-  /*
-   describe('Duplicate an input', function() {
-   var fakeInputId, fakeNewName, fakeListOfNames, fakeInputSelected, fakeInputListIndex = null;
 
-   beforeEach(function() {
-   fakeInputListIndex = 2;
-   fakeInputId = fakeInputList[fakeInputListIndex].id;
-   fakeNewName = 'test_input_kafka(1)';
-   fakeListOfNames = ['test_input_kafka','test_input_socket'];
-   fakeInputSelected = fakeInputList[fakeInputListIndex];
-   });
+  describe('Duplicate an input', function() {
+    var fakeInputId, fakeNewName, fakeListOfNames, fakeInputSelected, fakeInputListIndex = null;
 
-   it('Should call duplicateInput function and show a duplicate input modal', function() {
-   utilsServiceMock.autoIncrementName.and.returnValue(fakeNewName);
-   utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
+    beforeEach(inject(function($q) {
+      modalMock.open.and.callFake(function() {
+        var defer = $q.defer();
+        defer.resolve(fakeInputSelected);
 
-   var fakeDuplicateInputData = {
-   'fragmentData': fakeInputSelected,
-   'fragmentNamesList': fakeListOfNames,
-   'texts': {
-   'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
-   }
-   };
+        return {"result": defer.promise};
+      });
+      fakeInputListIndex = 2;
+      fakeInputId = fakeInputList[fakeInputListIndex].id;
+      fakeNewName = 'test_input_kafka(1)';
+      fakeListOfNames = ['test_input_kafka', 'test_input_socket'];
+      fakeInputSelected = fakeInputList[fakeInputListIndex];
 
-   ctrl.duplicateInput(fakeInputId);
+    }));
 
-   var params = modalMock.open.calls.mostRecent().args[0];
-   expect(params.resolve.item()).toEqual(fakeDuplicateInputData);
+    it('Should call duplicateInput function and show a duplication input modal', function() {
+      utilsServiceMock.autoIncrementName.and.returnValue(fakeNewName);
+      utilsServiceMock.getNamesJSONArray.and.returnValue(fakeListOfNames);
 
-   scope.$digest();
+      var fakeDuplicateInputData = {
+        'fragmentData': fakeInputSelected,
+        'fragmentNamesList': fakeListOfNames,
+        'texts': {
+          'title': '_INPUT_WINDOW_DUPLICATE_TITLE_'
+        }
+      };
 
-   expect(ctrl.inputsData[6]).toBe(fakeInputSelected);
-   });
+      ctrl.duplicateInput(fakeInputId);
+      fakeInputSelected.name = fakeNewName;
+      var params = modalMock.open.calls.mostRecent().args[0];
 
-   it('Should return OK when closing the duplicate modal', function() {
-   ctrl.duplicateInput(fakeInputId);
-   scope.$digest();
+      expect(params.resolve.fragmentTemplate()).toEqual(fakeDuplicateInputData);
 
-   expect(ctrl.inputsData[6]).toBe(fakeInputSelected);
-   expect(ctrl.inputTypes).toEqual([{"type":"Socket","count": 1},{"type":"Flume","count": 3},{"type":"Kafka","count": 2},{"type":"RabbitMQ","count": 1}]);
-   });
-   });
-   */
+      scope.$digest();
+
+      expect(ctrl.inputsData[6]).toBe(fakeInputSelected);
+    });
+
+    it('Should return OK when closing the duplicate modal', function() {
+      var previousInputs = angular.copy(ctrl.inputsData);
+      
+      ctrl.duplicateInput(fakeInputId);
+      scope.$digest();
+
+      expect(ctrl.inputsData.length).toBe(previousInputs.length + 1 );
+      expect(ctrl.inputsData[ctrl.inputsData.length-1]).toBe(fakeInputSelected);
+    });
+  });
+
 });

@@ -58,8 +58,7 @@ trait BaseStage extends SLF4JLogging {
     }
   }
 
-  def logAndCreateEx(
-                      code: PhaseEnum.Value,
+  def logAndCreateEx(code: PhaseEnum.Value,
                       ex: Throwable,
                       policy: PolicyModel,
                       message: String

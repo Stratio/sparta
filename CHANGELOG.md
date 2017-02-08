@@ -1,10 +1,48 @@
 # Changelog
 
-## 0.12.0 (upcoming)
+## 0.1.1.0 (upcoming)
 
 * Pending changelog
 
-## 0.11.0 (upcoming)
+## 1.0.0 (February 06, 2017)
+
+* Policy statuses with HA support
+* Upload and download plugins and driver jars with the Sparta API
+* Split support by the transformations SDK
+* Spark submit options can be added at policy definition level
+* Spark context options can be added at policy definition level 
+* JSON, CSV and XML transformations added
+* Filter transformation
+* FileSystem Input added
+* Avro, FileSystem and HTTP Outputs added (HDFS, s3 ...)
+* HDFS-Kerberos integration
+* Generic properties added in outputs and inputs
+* Custom transformations, inputs and outputs to see and configure user plugins in the UI
+* Status information and errors is showed in the policies UI
+* Discard or send null values in transformations
+* Spark UDF integration for support auto-calculated fields
+* All the Spark save modes added: Append, ErrorIfExists, Overwrite and Ignore
+* All the Sparta API endpoints work asynchronously
+* Trigger and Cubes at the same level
+* Output types support in dimensions and operators
+* Filters support generic types
+* Granularities supported in datetime transformation
+* Scala 2.11 update
+* SDK refactor: more simple and more extensible
+* Kafka 0.10.0.0 update with Stratio-Kafka repository
+* RabbitMq 0.4.0 update with RabbitMq Distributed
+* Bugfix: Stop correctly in Mesos cluster gracefully
+* Bugfix: Stop correctly policies in local mode
+* Bugfix: Geo and DateTime transformation errors corrected
+* Bugfix: Removed metadata creation in outputs
+* Bugfix: Checkpoint path with dateTime
+* Bugfix: Tooltips corrected in UI
+* Bugfix: Spark 1.5 compatibility
+* Bugfix: Policy Statuses are assigned correctly
+* Bugfix: Remove inputField in transformations
+* Bugfix: Operators support generic types
+
+## 0.11.0 (September 2016)
 
 * Docker updated with Spark and DC/OS Mesos integration
 * Updated Receiver RabbitMQ for Distributed mode

@@ -18,10 +18,10 @@ package com.stratio.sparta.driver.stage
 import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationsModel}
+import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
@@ -61,10 +61,9 @@ trait ParserStage extends BaseStage {
 
 object ParserStage extends SLF4JLogging {
 
-  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] = {
+  def executeParsers(row: Row, parsers: Seq[Parser]): Seq[Row] =
     if (parsers.size == 1) parseEvent(row, parsers.head)
     else parseEvent(row, parsers.head).flatMap(eventParsed => executeParsers(eventParsed, parsers.drop(1)))
-  }
 
   def parseEvent(row: Row, parser: Parser): Seq[Row] =
     Try {
@@ -79,9 +78,7 @@ object ParserStage extends SLF4JLogging {
         Seq.empty[Row]
     }
 
-  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] = {
+  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] =
     if (parsers.isEmpty) input
     else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
-  }
-
 }

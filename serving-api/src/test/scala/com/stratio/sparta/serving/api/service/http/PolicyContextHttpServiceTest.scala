@@ -20,11 +20,11 @@ import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.policy.{PoliciesStatusModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -34,8 +34,8 @@ import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
 class PolicyContextHttpServiceTest extends WordSpec
-with PolicyContextHttpService
-with HttpServiceBaseTest {
+  with PolicyContextHttpService
+  with HttpServiceBaseTest {
 
   val sparkStreamingTestProbe = TestProbe()
   val fragmentActorTestProbe = TestProbe()
@@ -55,14 +55,14 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindAll =>
-              sender ! StatusActor.ResponseStatuses(Success(PoliciesStatusModel(Seq(getPolicyStatusModel()))))
+              sender ! Success(Seq(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
         statusActorTestProbe.expectMsg(FindAll)
-        responseAs[PoliciesStatusModel] should equal(PoliciesStatusModel(Seq(getPolicyStatusModel())))
+        responseAs[Seq[PolicyStatusModel]] should equal(Seq(getPolicyStatusModel()))
       }
     }
     "return a 500 if there was any error" in {
@@ -70,7 +70,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindAll =>
-              sender ! StatusActor.ResponseStatuses(Failure(new MockException))
+              sender ! Failure(new MockException)
               TestActor.NoAutoPilot
           }
       })

@@ -2,6 +2,7 @@
   @include c-component;
   @include is-clickable();
   @include is-coloured($c-icon---colors);
+
   & {
     font-family: "ico_stratio";
     vertical-align: middle;
@@ -59,6 +60,7 @@
     }
   }
 
+
   @include item-to-right();
 
   @include font-sizes();
@@ -66,4 +68,8 @@
 
 .c-icon {
   @include c-icon;
+}
+
+.icon-custom:before {
+  content: "\e60a"
 }

@@ -18,11 +18,11 @@ package com.stratio.sparta.driver.test.stage
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.driver.stage.{LogError, ParserStage}
-import com.stratio.sparta.driver.utils.ReflectionUtils
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, TransformationsModel}
+import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.junit.runner.RunWith

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.config
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.SpartaSystem
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.typesafe.config.{Config, ConfigFactory}
 
@@ -24,8 +24,6 @@ import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
- *
- * @author danielcsant
  */
 object SpartaConfig extends SLF4JLogging {
 
@@ -71,7 +69,6 @@ object SpartaConfig extends SLF4JLogging {
     swaggerConfig = initConfig(AppConstant.ConfigSwagger, mainConfig, configFactory)
     swaggerConfig
   }
-
 
   def initSprayConfig(configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {
     sprayConfig = configFactory.getConfig(AppConstant.ConfigSpray)
@@ -127,37 +124,32 @@ object SpartaConfig extends SLF4JLogging {
     ).getOrElse(None)
   }
 
-  def getOptionConfig(node: String, currentConfig: Config): Option[Config] = {
+  def getOptionConfig(node: String, currentConfig: Config): Option[Config] =
     Try(currentConfig.getConfig(node)) match {
       case Success(config) => Some(config)
       case _ => None
     }
-  }
 
-  def getOptionStringConfig(node: String, currentConfig: Config): Option[String] = {
+  def getOptionStringConfig(node: String, currentConfig: Config): Option[String] =
     Try(currentConfig.getString(node)) match {
       case Success(config) => Some(config)
       case _ => None
     }
-  }
 
-  def isHttpsEnabled(): Boolean = {
+  def isHttpsEnabled(): Boolean =
     SpartaConfig.sprayConfig match {
       case Some(config) =>
         Try(config.getValue("ssl-encryption")) match {
           case Success(value) =>
             if ("on".equals(value.unwrapped())) true else false
           case Failure(exception) => false
-
         }
       case None => false
     }
-  }
 
-  def daemonicAkkaConfig : Config = mainConfig match {
+  def daemonicAkkaConfig: Config = mainConfig match {
     case Some(mainSpartaConfig) =>
       mainSpartaConfig.withFallback(ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
     case None => ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on"))
   }
-
 }

@@ -47,11 +47,10 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-
-    ResourceManagerLinkHelper.getLink should be(Some(s"http://${localhostName}:4040"))
+    ResourceManagerLinkHelper.getLink("local") should be(Some(s"http://${localhostName}:4040"))
   }
 
-  /*it should "return Mesos UI link" in {
+  it should "return Mesos UI link" in {
     serverSocket = ServerSocketChannel.open()
     serverSocket.socket.bind(new InetSocketAddress("127.0.0.1",5050))
     val config = ConfigFactory.parseString(
@@ -67,9 +66,8 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-
-    ResourceManagerLink.getLink should be(Some("http://127.0.0.1:5050"))
-  }*/
+    ResourceManagerLinkHelper.getLink("mesos") should be(Some("http://127.0.0.1:5050"))
+  }
 
   it should "return YARN UI link" in {
     serverSocket = ServerSocketChannel.open()
@@ -96,8 +94,7 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-
-    ResourceManagerLinkHelper.getLink should be(Some("http://localhost:8088"))
+    ResourceManagerLinkHelper.getLink("yarn") should be(Some("http://localhost:8088"))
   }
 
   it should "return Spark Standalone UI link" in {
@@ -116,8 +113,7 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-
-    ResourceManagerLinkHelper.getLink should be(Some("http://localhost:8080"))
+    ResourceManagerLinkHelper.getLink("standalone") should be(Some("http://localhost:8080"))
   }
 
 }

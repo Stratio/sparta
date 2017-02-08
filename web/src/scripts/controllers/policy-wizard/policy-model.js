@@ -31,6 +31,7 @@
     vm.removeModel = removeModel;
     vm.onChangeType = onChangeType;
     vm.cancelModelCreation = cancelModelCreation;
+    vm.getTransformationTemplateUrl = getTransformationTemplateUrl;
     vm.modelInputs = ModelFactory.getModelInputs();
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
@@ -53,6 +54,10 @@
       }
     }
 
+    function getTransformationTemplateUrl(){
+      return 'templates/policies/transformation/' + vm.model.type.toLowerCase() + '-panel.tpl.html';
+    }
+
     function getOutputList() {
       if (vm.template.model[vm.model.type] && vm.template.model[vm.model.type].outputFieldTypes) {
         return vm.template.model[vm.model.type].outputFieldTypes;
@@ -71,7 +76,7 @@
           vm.model.configuration = vm.template.model[modelConstants.MORPHLINES].defaultConfiguration;
           break;
         case modelConstants.FILTER:
-        delete vm.model.inputField;
+          delete vm.model.inputField;
           vm.model.configuration = vm.template.model[modelConstants.FILTER].defaultConfiguration;
           break;
         case modelConstants.JSON:
@@ -127,16 +132,18 @@
 
     function areValidOutputFields() {
       vm.invalidOutputField = undefined;
-      if (vm.model.outputFields.length == 0 && vm.model.type != modelConstants.FILTER) {
+      if (vm.model.outputFields.length == 0 && vm.model.type != modelConstants.FILTER && vm.model.type != modelConstants.CUSTOM) {
         return false;
       }
-      var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,
-          ModelFactory.getContext().position);
-      for (var i = 0; i < vm.model.outputFields.length; ++i) {
-        var outputField = vm.model.outputFields[i];
-        if (UtilsService.findElementInJSONArray(policyCurrentFields, outputField, 'name') != -1) {
-          vm.invalidOutputField = outputField;
-          return false;
+      if (vm.model.outputFields.length > 0) {
+        var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,
+            ModelFactory.getContext().position);
+        for (var i = 0; i < vm.model.outputFields.length; ++i) {
+          var outputField = vm.model.outputFields[i];
+          if (UtilsService.findElementInJSONArray(policyCurrentFields, outputField, 'name') != -1) {
+            vm.invalidOutputField = outputField;
+            return false;
+          }
         }
       }
       return true;

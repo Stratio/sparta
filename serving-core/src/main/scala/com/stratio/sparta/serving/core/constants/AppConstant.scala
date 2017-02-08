@@ -57,7 +57,7 @@ object AppConstant {
 
   //Checkpooint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
-  val DefaultAutoDeleteCheckpoint = true
+  val DefaultAutoDeleteCheckpoint = false
   val ConfigCheckpointPath = "checkpointPath"
   val DefaultCheckpointPath = "sparta/checkpoint"
   val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
@@ -138,5 +138,5 @@ object AppConstant {
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
 
-  val CustomTypeKey = "customType"
+  val CustomTypeKey = "modelType"
 }

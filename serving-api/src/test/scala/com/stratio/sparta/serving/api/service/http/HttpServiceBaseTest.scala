@@ -77,9 +77,6 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getPolicyStatusModel(): PolicyStatusModel =
     new PolicyStatusModel("id", PolicyStatusEnum.Launched)
 
-  protected def getPolicyWithStatus(): PolicyWithStatus =
-    PolicyWithStatus(PolicyStatusEnum.Launched, getPolicyModel())
-
   protected def getPolicyModel(): PolicyModel = {
     val rawData = new RawDataModel
     val outputFieldModel1 = OutputFieldsModel("out1")

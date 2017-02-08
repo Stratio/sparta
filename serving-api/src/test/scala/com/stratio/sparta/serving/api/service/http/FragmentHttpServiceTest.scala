@@ -141,13 +141,6 @@ class FragmentHttpServiceTest extends WordSpec
         status should be(StatusCodes.OK)
       }
     }
-    "return a 500 if there was any error when a fragment is deleted" in {
-      startAutopilot(Response(Failure(new MockException())))
-      Delete(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes ~> check {
-        testProbe.expectMsgType[DeleteByTypeAndId]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
   }
 
   "FragmentHttpService.update" should {

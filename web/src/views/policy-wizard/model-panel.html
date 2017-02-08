@@ -21,42 +21,10 @@
         </span>
       </div>
     </div>
-    <div data-ng-switch="vm.model.type">
-      <!-- filter -->
-      <div data-ng-switch-when="Filter">
-        <ng-include src="'templates/policies/transformation/filter-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- json -->
-      <div data-ng-switch-when="Json">
-        <ng-include src="'templates/policies/transformation/json-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- xml -->
-      <div data-ng-switch-when="Xml">
-        <ng-include src="'templates/policies/transformation/xml-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- csv -->
-      <div data-ng-switch-when="Csv">
-        <ng-include src="'templates/policies/transformation/csv-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- morphlines -->
-      <div data-ng-switch-when="Morphlines">
-        <ng-include src="'templates/policies/transformation/morphlines-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- DateTime -->
-      <div data-ng-switch-when="DateTime">
-        <ng-include src="'templates/policies/transformation/datetime-panel.tpl.html'"></ng-include>
-      </div>
-      <!-- ingestion -->
-      <div data-ng-switch-when="Ingestion">
-        <ng-include src="'templates/policies/transformation/ingestion-panel.tpl.html'"></ng-include>
-      </div>
-      <div ng-switch-when="Geo">
-        <ng-include src="'templates/policies/transformation/geo-panel.tpl.html'"></ng-include>
-      </div>
-      <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.invalidOutputField" data-qa="error-msg">
-        <i class="c-icon icon-circle-cross"></i>
-        <span> {{'_POLICY_._TRANSFORMATION_OUTPUT_FIELD_ERROR_' | translate: '{"outputField":"'+ vm.invalidOutputField.name +'"}'}}</span>
-      </div>
+    <ng-include src="(vm.getTransformationTemplateUrl())"></ng-include>
+    <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.invalidOutputField" data-qa="error-msg">
+      <i class="c-icon icon-circle-cross"></i>
+      <span> {{'_POLICY_._TRANSFORMATION_OUTPUT_FIELD_ERROR_' | translate: '{"outputField":"'+ vm.invalidOutputField.name +'"}'}}</span>
     </div>
 
     <div class="c-form-group c-form-group--to-right">

@@ -20,9 +20,9 @@
       .module('webApp')
       .controller('OutputsCtrl', OutputsCtrl);
 
-    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'UtilsService'];
+    OutputsCtrl.$inject = ['FragmentFactory', '$filter', '$uibModal', 'FragmentService', 'UtilsService'];
 
-    function OutputsCtrl(FragmentFactory, $filter, $uibModal, UtilsService) {
+    function OutputsCtrl(FragmentFactory, $filter, $uibModal, FragmentService, UtilsService) {
       /*jshint validthis: true*/
       var vm = this;
 
@@ -31,6 +31,7 @@
       vm.deleteOutput = deleteOutput;
       vm.duplicateOutput = duplicateOutput;
       vm.deleteErrorMessage = deleteErrorMessage;
+      vm.getFragmentIcon = FragmentService.getFragmentIcon;
       vm.outputsData = undefined;
       vm.outputTypes = [];
       vm.errorMessage =  {type: 'error',text: '', internalTrace: ''};
@@ -162,10 +163,10 @@
           controller: 'NewFragmentModalCtrl as vm',
           size: 'lg',
           resolve: {
-            item: function () {
+            creationFragmentData: function () {
               return newOutputTemplateData;
             },
-            fragmentTemplates: function (TemplateFactory) {
+            fragmentTemplate: function (TemplateFactory) {
               return TemplateFactory.getNewFragmentTemplate(newOutputTemplateData.fragmentType);
             }
           }
@@ -184,10 +185,10 @@
             controller: 'EditFragmentModalCtrl as vm',
             size: 'lg',
             resolve: {
-              item: function () {
+              creationFragmentData: function () {
                 return editOutputData;
               },
-              fragmentTemplates: function (TemplateFactory) {
+              fragmentTemplate: function (TemplateFactory) {
                 return TemplateFactory.getNewFragmentTemplate(editOutputData.fragmentSelected.fragmentType);
               }
             }
@@ -213,7 +214,7 @@
           controller: 'DeleteFragmentModalCtrl as vm',
           size: size,
           resolve: {
-              item: function () {
+            fragmentTemplate: function () {
                   return output;
               }
           }
@@ -236,7 +237,7 @@
           controller: 'DuplicateFragmentModalCtrl as vm',
           size: 'lg',
           resolve: {
-              item: function () {
+            fragmentTemplate: function () {
                   return OutputData;
               }
           }
