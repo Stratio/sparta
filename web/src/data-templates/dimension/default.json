@@ -43,7 +43,7 @@
       "qa": "policy-dimension-type"
     },
     {
-      "propertyId": "typeOp",
+      "propertyId": "configuration.typeOp",
       "propertyName": "_OUTPUT_TYPE_",
       "propertyType": "select",
       "position": "left",

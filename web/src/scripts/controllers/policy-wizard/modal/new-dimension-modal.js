@@ -116,7 +116,7 @@
         if (validatePrecision() && !isRepeated()) {
           formatAttributes();
           var dimensionData = {};
-          dimensionData.dimension = vm.dimension;
+          dimensionData.dimension = UtilsService.convertDottedPropertiesToJson(vm.dimension);
           dimensionData.isTimeDimension = vm.isTimeDimension;
           $uibModalInstance.close(dimensionData);
         }
