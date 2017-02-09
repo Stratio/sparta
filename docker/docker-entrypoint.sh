@@ -321,12 +321,12 @@
  sed -i "s|sparta.mesos.deployMode.*|sparta.mesos.deployMode = ${SPARK_MESOS_DEPLOY}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARK_MESOS_MASTER ]]; then
-   SPARK_MESOS_MASTER="mesos://mesosDispatcherURI"
+   SPARK_MESOS_MASTER="mesos://mesosDispatcherURL"
  fi
  sed -i "s|sparta.mesos.master.*|sparta.mesos.master = \""${SPARK_MESOS_MASTER}"\"|" ${SPARTA_CONF_FILE}
 
   if [[ ! -v SPARK_MESOS_KILL_URL ]]; then
-   SPARK_MESOS_KILL_URL="/v1/submissions/kill"
+   SPARK_MESOS_KILL_URL="http://mesosDispatcherURL/v1/submissions/kill"
  fi
  sed -i "s|sparta.mesos.killUrl.*|sparta.mesos.killUrl = \""${SPARK_MESOS_KILL_URL}"\"|" ${SPARTA_CONF_FILE}
 

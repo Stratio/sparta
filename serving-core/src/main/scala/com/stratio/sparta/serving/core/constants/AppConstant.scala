@@ -100,7 +100,7 @@ object AppConstant {
   val ClientValue = "client"
   val LocalValue = "local"
   val KillUrl = "killUrl"
-  val DefaultkillUrl = "/v1/submissions/kill"
+  val DefaultkillUrl = "http://mesosDispatcherURL/v1/submissions/kill"
 
   //Mesos Options
   val MesosMasterDispatchers = "master"

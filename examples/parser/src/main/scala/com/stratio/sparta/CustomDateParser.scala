@@ -32,11 +32,12 @@ class CustomDateParser(order: Integer,
                        schema: StructType,
                        properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
-
-  val dateField = (properties ++ getCustomProperties).getString("dateField", "date")
-  val hourField = (properties ++ getCustomProperties).getString("hourField", "hourRounded")
-  val dayField = (properties ++ getCustomProperties).getString("dayField", "dayRounded")
-  val weekField = (properties ++ getCustomProperties).getString("weekField", "week")
+  
+  val dateField = propertiesWithCustom.getString("dateField", "date")
+  val hourField = propertiesWithCustom.getString("hourField", "hourRounded")
+  val dayField = propertiesWithCustom.getString("dayField", "dayRounded")
+  val weekField = propertiesWithCustom.getString("weekField", "week")
+  val yearPrefix = propertiesWithCustom.getString("yearPrefix", "20")
 
   //scalastyle:off
   override def parse(row: Row): Seq[Row] = {
@@ -52,10 +53,8 @@ class CustomDateParser(order: Integer,
             }
           }
           val valuesParsed = Map(
-            hourField ->
-              getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length)),
-            dayField ->
-              getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length - 2)),
+            hourField -> getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length)),
+            dayField -> getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length - 2)),
             weekField -> getWeek(valueStr)
           )
 
@@ -84,12 +83,12 @@ class CustomDateParser(order: Integer,
   }
 
   def getDateWithBeginYear(inputDate: String) : String =
-    inputDate.substring(0, inputDate.length - 4).concat("20")
+    inputDate.substring(0, inputDate.length - 4).concat(yearPrefix)
 
   def getWeek(inputDate : String) : Int = {
     val day = inputDate.substring(0, 2).toInt
     val month = inputDate.substring(2, 4).toInt
-    val year = "20".concat(inputDate.substring(4, 6)).toInt
+    val year = yearPrefix.concat(inputDate.substring(4, 6)).toInt
     val date = new DateTime(year, month, day, 0, 0)
 
     date.getWeekOfWeekyear

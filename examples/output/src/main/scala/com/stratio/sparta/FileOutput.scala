@@ -32,9 +32,9 @@ class FileOutput(name: String,
                  schemas: Seq[SpartaSchema])
                   extends Output(name, properties, schemas) with Logging {
 
-  val path = (properties ++ getCustomProperties).get("path").getOrElse(throw new IllegalArgumentException("Property " +
+  val path = propertiesWithCustom.get("path").getOrElse(throw new IllegalArgumentException("Property " +
     "path is mandatory"))
-  val createDifferentFiles = (properties ++ getCustomProperties).get("createDifferentFiles").getOrElse("true")
+  val createDifferentFiles = propertiesWithCustom.get("createDifferentFiles").getOrElse("true")
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val finalPath = if (createDifferentFiles.asInstanceOf[String].toBoolean){

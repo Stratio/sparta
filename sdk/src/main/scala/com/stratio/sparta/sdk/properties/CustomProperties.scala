@@ -28,5 +28,5 @@ trait CustomProperties {
   val properties: Map[String, JSerializable]
 
   def getCustomProperties: Map[String, String] =
-    properties.getOptionsList(customKey, customPropertyKey, customPropertyValue)
+    properties.getOptionsList(customKey, customPropertyKey, customPropertyValue).filter(_._1.nonEmpty)
 }

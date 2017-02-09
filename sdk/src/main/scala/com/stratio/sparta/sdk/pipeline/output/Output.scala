@@ -32,6 +32,7 @@ abstract class Output(val name: String,
   val customKey = "saveOptions"
   val customPropertyKey = "saveOptionsKey"
   val customPropertyValue = "saveOptionsValue"
+  val propertiesWithCustom = properties ++ getCustomProperties
 
   def setup(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 

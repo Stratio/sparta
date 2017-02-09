@@ -173,9 +173,5 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
   //scalastyle:on
 
   private def killUrl(clusterConfig: Config): String =
-    s"http://${
-      clusterConfig.getString(Master).trim
-        .replace("spark://", "")
-        .replace("mesos://", "")
-    }" + Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl)
+    Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl).trim
 }
