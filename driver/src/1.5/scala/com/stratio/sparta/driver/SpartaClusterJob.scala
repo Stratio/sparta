@@ -74,7 +74,10 @@ object SpartaClusterJob extends PluginsFilesUtils {
         log.info(startingInfo)
         statusActor ! Update(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(statusActor)
-        val ssc = streamingContextService.clusterStreamingContext(policy, Map("spark.app.name" -> s"${policy.name}"))
+        val ssc = streamingContextService.clusterStreamingContext(policy,
+          Map("spark.app.name" -> s"${policy.name}"),
+          pluginsFiles
+        )
         ssc.start
         val policyConfigUtils = new PolicyConfigUtils{}
         val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"

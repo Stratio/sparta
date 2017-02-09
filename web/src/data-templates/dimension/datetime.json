@@ -6,7 +6,7 @@
       "propertyType": "number",
       "position": "left",
       "width": 6,
-      "required": true,
+      "required": false,
       "qa": "policy-dimension-precision-number"
     },
     {

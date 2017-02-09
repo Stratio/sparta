@@ -78,9 +78,8 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |}]
         """.stripMargin
       val props = Map(customKey -> rabbitmqProperties)
-      val input = new RabbitMQInput(props)
       the[IllegalStateException] thrownBy {
-        input.propsWithStorageLevel("")
+        new RabbitMQInput(props)
       } should have message "The field inputOptionsValue is mandatory"
 
     }
@@ -93,9 +92,8 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |}]
         """.stripMargin
       val props = Map(customKey -> rabbitmqProperties)
-      val input = new RabbitMQInput(props)
       the[IllegalStateException] thrownBy {
-        input.propsWithStorageLevel("")
+        new RabbitMQInput(props)
       } should have message "The field inputOptionsKey is mandatory"
     }
 

@@ -60,7 +60,7 @@ class FileOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath, "createDifferentFiles" -> "false")
-    val output = new FileOutput("file-test", None, properties, Seq())
+    val output = new FileOutput("file-test", properties, Seq())
   }
 
   "FileOutputIT" should "save a dataframe" in new WithEventData {
