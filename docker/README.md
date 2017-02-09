@@ -2,7 +2,7 @@
 Entrypoint variables
 =====================
 
-# SPARTA JAVA OPTIONS
+## SPARTA JAVA OPTIONS
 | PARAM        | 
 | -------------:|
 | SPARTA_HEAP_SIZE |
@@ -10,14 +10,14 @@ Entrypoint variables
 | SPARTA_MAX_PERM_SIZE |
 
 
-# SPARTA GENERIC OPTIONS
+## SPARTA GENERIC OPTIONS
 
 | PARAM        | 
 | -------------:|
 | MAX_OPEN_FILES |
 
 
-# HDFS OPTIONS
+## HDFS OPTIONS
  
 | PARAM        |
 | -------------:|
@@ -31,7 +31,7 @@ Entrypoint variables
 | HDFS_KEYTAB_RELOAD |
 
 
-# SPARTA LOG LEVEL OPTIONS
+## SPARTA LOG LEVEL OPTIONS
 
 | PARAM        |
 | -------------:|
@@ -44,7 +44,7 @@ Entrypoint variables
 | JBOSS_LOG_LEVEL |
 
 
-# SPARTA API OPTIONS
+## SPARTA API OPTIONS
  
 | PARAM        |
 | -------------:|
@@ -54,7 +54,7 @@ Entrypoint variables
 | SPARTA_API_CERTIFICATE_PASSWORD |
 
 
-# SPARTA ZOOKEEPER OPTIONS
+## SPARTA ZOOKEEPER OPTIONS
 
 | PARAM        |
 | -------------:|
@@ -65,13 +65,13 @@ Entrypoint variables
 | SPARTA_ZOOKEEPER_RETRY_INTERVAL |
 
 
-# SPARTA AKKA OPTIONS
+## SPARTA AKKA OPTIONS
 | PARAM        |
 | -------------:|
 | SPARTA_AKKA_CONTROLLER_INSTANCES |
 
 
-# SPARTA CONFIGURATION OPTIONS
+## SPARTA CONFIGURATION OPTIONS
 | PARAM        |
 | -------------:|
 | SPARTA_EXECUTION_MODE |
@@ -85,7 +85,7 @@ Entrypoint variables
 | SPARTA_AUTO_DELETE_CHECKPOINT |
 
 
-# LOCAL EXECUTION OPTIONS
+## LOCAL EXECUTION OPTIONS
 | PARAM        |
 | -------------:|
 | SPARK_LOCAL_MASTER |
@@ -100,7 +100,7 @@ Entrypoint variables
 | SPARK_LOCAL_PARQUET_BINARY_AS_STRING |
 
 
-# MESOS EXECUTION OPTIONS
+## MESOS EXECUTION OPTIONS
 | PARAM        |
 | -------------:|
 | SPARK_MESOS_HOME |
@@ -141,7 +141,7 @@ Entrypoint variables
 | SPARK_MESOS_SPARK_JARS_IVY |
 
 
-# OAUTH2 OPTIONS
+## OAUTH2 OPTIONS
 | PARAM        |
 | -------------:|
 | OAUTH2_ENABLE |
@@ -155,19 +155,19 @@ Entrypoint variables
 | OAUTH2_CLIENT_ID |
 | OAUTH2_CLIENT_SECRET |
 
-# AKKA OPTIONS
+## AKKA OPTIONS
 | PARAM        |
 | -------------:|
 | AKKA_LOG_DEAD_LETTERS |
 
 
-# SPRAY OPTIONS
+## SPRAY OPTIONS
 | PARAM        |
 | -------------:| 
 | SPRAY_CAN_SERVER_SSL_ENCRYPTION |
 
 
-# EXECUTION OPTIONS
+## EXECUTION OPTIONS
 | PARAM        |
 | -------------:|
 |RUN_MODE |
@@ -248,9 +248,9 @@ docker run -dit --name hm --env NAMENODE_MODE=true qa.stratio.com/stratio/hadoop
 ### MESOS-SPARK 1.6.2 SCALA 2.11 ###
 
   - Dockerfile:
-  
-      Build from command -> docker build -f Dockerfile -t mesos-spark-1.6.2-scala-2.11 .
-      
+
+  Build from command -> docker build -f Dockerfile -t mesos-spark-1.6.2-scala-2.11 .
+
   - MASTER: 
     ```bash    
         docker run -dit --volumes-from hm --name mm11 --env MODE=master \
@@ -258,10 +258,12 @@ docker run -dit --name hm --env NAMENODE_MODE=true qa.stratio.com/stratio/hadoop
           --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio  \
           --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
     ```
+
   - SLAVE: 
-    ```bash  
+    ```bash    
         docker run -dit --volumes-from hm --name ms11 --env MODE=slave \
-        --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
-        --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio \
-        --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
+                --env MESOS_MASTER=zk://zk.demo.stratio.com:2181/mesos11 --env JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64 \
+                --env HADOOP_HOME=/opt/sds/hadoop --env HADOOP_USER_NAME=stratio \
+                --env HADOOP_CONF_DIR=/opt/sds/hadoop/conf mesos-spark-1.6.2-scala-2.11
+          
     ```
