@@ -38,6 +38,10 @@
           "value": "d"
         },
         {
+          "label": "Week(s)",
+          "value": "w"
+        },
+        {
           "label": "Millisecond",
           "value": "millisecond"
         },
@@ -129,6 +133,10 @@
         {
           "label": "Day(s)",
           "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
         }
       ],
       "visible": [

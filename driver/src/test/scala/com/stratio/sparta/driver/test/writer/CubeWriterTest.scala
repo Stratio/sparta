@@ -37,7 +37,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
   "CubeWriterTest" should "return a row with values and timeDimension" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema,
-        Option(ExpiringData("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger])
       val tableSchema = SpartaSchema(
         Seq("outputName"),
         "cubeTest",

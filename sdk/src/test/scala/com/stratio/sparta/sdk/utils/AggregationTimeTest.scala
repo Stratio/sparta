@@ -79,6 +79,7 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
     val dayStr = "day"
     val hourStr = "hour"
     val minuteStr = "minute"
+    val weekStr = "week"
     val defaultStr = "whatever"
 
     val yearPattern = "/'year='yyyy/'"
@@ -116,6 +117,13 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
     val result = truncateDate(dateTime,"15h")
 
     simpleDateFormat.format(new Date(result)) should be("2016-01-19 09:00:00.+0000")
+  }
+
+  it should "return the date in millis rounded to 2w" in new CommonValues {
+
+    val result = truncateDate(dateTime,"2w")
+
+    simpleDateFormat.format(new Date(result)) should be("2016-01-14 00:00:00.+0000")
   }
 
   it should "return the date in millis rounded to 15d" in new CommonValues {
@@ -165,6 +173,13 @@ class AggregationTimeTest extends FlatSpec with ShouldMatchers {
     val result = truncateDate(dateTime,"day")
 
     simpleDateFormat.format(new Date(result)) should be("2016-01-19 00:00:00.+0000")
+  }
+
+  it should "return the date in millis rounded to weeks" in new CommonValues {
+
+    val result = truncateDate(dateTime,"week")
+
+    simpleDateFormat.format(new Date(result)) should be("2016-01-18 00:00:00.+0000")
   }
 
   "AggregationTime with 34day" should "return the date in millis rounded to days" in new CommonValues {

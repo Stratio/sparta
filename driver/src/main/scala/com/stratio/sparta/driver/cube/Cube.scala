@@ -100,10 +100,8 @@ case class Cube(name: String,
       }
     }
 
-  def dateFromGranularity: Long = {
-    AggregationTime.truncateDate(DateTime.now(),
-        expiringDataConfig.get.granularity) - expiringDataConfig.get.timeAvailability
-  }
+  def dateFromGranularity: Long =
+    DateTime.now().getMillis - AggregationTime.parseValueToMilliSeconds(expiringDataConfig.get.timeAvailability)
 
   private def updateFuncNonAssociativeWithoutTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
@@ -154,7 +152,8 @@ case class Cube(name: String,
   private def updateFuncAssociativeWithTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
       iterator.filter {
-        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) => timeConfig.eventTime >= dateFromGranularity
+        case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) =>
+          timeConfig.eventTime >= dateFromGranularity
         case (DimensionValuesTime(_, _, None), _, _) =>
           throw new IllegalArgumentException("Time configuration expected")
       }
