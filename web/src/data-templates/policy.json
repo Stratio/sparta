@@ -183,6 +183,10 @@
         {
           "label": "Days",
           "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
         }
       ]
     },
@@ -224,6 +228,10 @@
         {
           "label": "Days",
           "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
         }
       ]
     },
@@ -483,10 +491,6 @@
       {
         "label": "Array String",
         "value": "arraystring"
-      },
-      {
-        "label": "Text",
-        "value": "text"
       }
     ],
     "defaultInput": {
@@ -966,6 +970,10 @@
               "value": "d"
             },
             {
+              "label": "Week(s)",
+              "value": "w"
+            },
+            {
               "label": "Millisecond",
               "value": "millisecond"
             },
@@ -1268,6 +1276,10 @@
             "value": "d"
           },
           {
+            "label": "Week(s)",
+            "value": "w"
+          },
+          {
             "label": "Millisecond",
             "value": "millisecond"
           },
@@ -1356,6 +1368,10 @@
           {
             "label": "Day(s)",
             "value": "d"
+          },
+          {
+            "label": "Week(s)",
+            "value": "w"
           }
         ],
         "visible": [
@@ -1518,6 +1534,10 @@
             {
               "label": "Day(s)",
               "value": "d"
+            },
+            {
+              "label": "Week(s)",
+              "value": "w"
             }
           ]
         },
@@ -1559,6 +1579,10 @@
             {
               "label": "Day(s)",
               "value": "d"
+            },
+            {
+              "label": "Week(s)",
+              "value": "w"
             }
           ]
         },

@@ -172,7 +172,7 @@ object SchemaHelper {
         Option(ExpiringData(
           dimensionModelValue.name,
           dimensionModelValue.precision,
-          AggregationTime.parseValueToMilliSeconds(dimensionModelValue.computeLast.get)))
+          dimensionModelValue.computeLast.get))
       case _ => None
     }
   }

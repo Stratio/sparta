@@ -87,7 +87,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
     val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-      Option(ExpiringData("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+      Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger])
 
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModel)
@@ -159,7 +159,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
   it should "return a list of schemas with timeDimension with DateFormat" in
     new CommonValues {
       val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringData("minute", checkpointGranularity, 100000)), Seq.empty[Trigger])
+        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger])
       val cubeModel = CubeModel(
         cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDate
       )

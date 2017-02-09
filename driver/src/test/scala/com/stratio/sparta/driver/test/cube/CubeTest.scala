@@ -39,15 +39,13 @@ class CubeTest extends TestSuiteBase {
 
     val PreserverOrder = true
     val defaultDimension = new DefaultField
-    val checkpointTimeAvailability = 60000
+    val checkpointTimeAvailability = "600000ms"
     val checkpointGranularity = "minute"
     val eventGranularity = AggregationTime.truncateDate(DateTime.now(), "minute")
     val name = "cubeName"
     val timeConfig = Option(TimeConfig(eventGranularity, checkpointGranularity))
 
-    val expiringDataConfig = ExpiringData(
-      checkpointGranularity, checkpointGranularity, checkpointTimeAvailability
-    )
+    val expiringDataConfig = ExpiringData(checkpointGranularity, checkpointGranularity, checkpointTimeAvailability)
     val initSchema = StructType(Seq(
       StructField("n", LongType, false)
     ))

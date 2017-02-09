@@ -89,10 +89,6 @@
         {
           "label": "Array String",
           "value": "arraystring"
-        },
-        {
-          "label": "Text",
-          "value": "text"
         }
       ],
       "qa": "policy-operator-output-type"
