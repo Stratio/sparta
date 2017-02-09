@@ -94,7 +94,11 @@
  fi
 
  if [ -v HDFS_KEYTAB_RELOAD ] && [ HDFS_KEYTAB_RELOAD != "" ]; then
-   sed -i "s|.*sparta.hdfs.reloadKeyTabTime.*|sparta.hdfs.reloadKeyTabTime = ${HDFS_KEYTAB_RELOAD}|" ${SPARTA_CONF_FILE}
+   sed -i "s|.*sparta.hdfs.reloadKeyTab.*|sparta.hdfs.reloadKeyTab = ${HDFS_KEYTAB_RELOAD}|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v HDFS_KEYTAB_RELOAD_TIME ] && [ HDFS_KEYTAB_RELOAD_TIME != "" ]; then
+   sed -i "s|.*sparta.hdfs.reloadKeyTabTime.*|sparta.hdfs.reloadKeyTabTime = ${HDFS_KEYTAB_RELOAD_TIME}|" ${SPARTA_CONF_FILE}
  fi
 
 

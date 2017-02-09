@@ -36,6 +36,7 @@ import scala.util.{Failure, Success, Try}
 
 object SpartaClusterJob extends PluginsFilesUtils {
 
+  val NumberOfArguments = 6
   val PolicyIdIndex = 0
   val ZookeeperConfigurationIndex = 1
   val DetailConfigurationIndex = 2
@@ -45,7 +46,8 @@ object SpartaClusterJob extends PluginsFilesUtils {
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
-    assert(args.length == 6, s"Invalid number of params: ${args.length}, args: $args")
+    assert(args.length == NumberOfArguments,
+      s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
       val policyId = args(PolicyIdIndex)
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
