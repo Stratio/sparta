@@ -15,8 +15,9 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{ActorContext, _}
+import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
@@ -25,6 +26,7 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.spray.oauth2.client.OauthClient
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
+
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -44,21 +46,26 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
       authorized { user =>
         serviceRoutes.fragmentRoute ~
           serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.AppStatusRoute ~
-          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
+          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
       }
   }
 
   def webRoutes: Route =
     get {
-      pathPrefix("") {
+      pathPrefix(HttpConstant.SwaggerPath) {
         pathEndOrSingleSlash {
-          noCache {
-            secured { user =>
-              getFromResource("classes/web/index.html")
+          getFromResource("swagger-ui/index.html")
+        }
+      } ~ getFromResourceDirectory("swagger-ui") ~
+        pathPrefix("") {
+          pathEndOrSingleSlash {
+            noCache {
+              secured { user =>
+                getFromResource("classes/web/index.html")
+              }
             }
           }
-        }
-      } ~ getFromResourceDirectory("classes/web") ~
+        } ~ getFromResourceDirectory("classes/web") ~
         pathPrefix("") {
           pathEndOrSingleSlash {
             noCache {
@@ -108,5 +115,9 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
     override val actorRefFactory: ActorRefFactory = context
+  }.routes
+
+  val swaggerRoute: Route = new SwaggerService {
+    override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
 }

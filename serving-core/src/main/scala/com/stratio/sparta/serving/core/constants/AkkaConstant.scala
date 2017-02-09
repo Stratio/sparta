@@ -28,7 +28,6 @@ object AkkaConstant {
   val LauncherActor = "sparkStreamingContextActor"
   val PluginActor = "pluginActor"
   val ControllerActor = "controllerActor"
-  val SwaggerActor = "swaggerActor"
   val statusActor = "supervisorContextActor"
   val ControllerActorInstances = "controllerActorInstances"
   val DefaultControllerActorInstances = 5
