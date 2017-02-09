@@ -7,7 +7,7 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   beforeEach(inject(function ($controller) {
 
     modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
-    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray']);
+    UtilsServiceMock = jasmine.createSpyObj('UtilsServiceMock', ['findElementInJSONArray', 'convertDottedPropertiesToJson']);
 
     fakeDimensionName = "fake dimension name";
     fakeFieldName = "fake field name";
@@ -109,12 +109,33 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
           });
         });
 
-        it("modal is closed passing dimension and if it is time dimension", function () {
+        it("modal is closed passing dimension with its dotted properties parsed and if it is time dimension", inject(function ($controller, UtilsService) {
+          ctrl = $controller('NewDimensionModalCtrl', {
+            '$uibModalInstance': modalInstanceMock,
+            'dimensionName': fakeDimensionName,
+            'fieldName': fakeFieldName,
+            'dimensions': fakeDimensions,
+            'template': fakeCubeTemplate,
+            'isTimeDimension': fakeIsNewDimension,
+            '$scope': scope
+          });
+          ctrl.form = {"$valid": true};
+          ctrl.dimension['configuration.typOp'] = "fakeOpt";
+
+          ctrl.dimension['configuration.fakeDottedProperty'] = "fake dotted property";
           ctrl.ok();
 
           expect(modalInstanceMock.close).toHaveBeenCalled();
-          expect(modalInstanceMock.close.calls.mostRecent().args[0]).toEqual({dimension: ctrl.dimension, isTimeDimension: fakeIsNewDimension});
-        });
+
+          expect(modalInstanceMock.close.calls.mostRecent().args[0]).toEqual({
+            dimension: {
+              name: 'fake dimension name',
+              field: 'fake field name',
+              type: 'Default',
+              configuration: {typOp: 'fakeOpt', fakeDottedProperty: "fake dotted property"}
+            }, isTimeDimension: fakeIsNewDimension
+          });
+        }));
       })
     });
   });
