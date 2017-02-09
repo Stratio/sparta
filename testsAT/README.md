@@ -13,7 +13,7 @@ mvn verify [-D\<ENV_VAR>=\<VALUE>] [-Dit.test=\<TEST_TO_EXECUTE>|-Dgroups=\<GROU
 
 Example:
 
-mvn verify -DSPARTA_HOST=localhost -DSPARTA_PORT=9090 -DSPARTA_API_PORT=9091 -Dit.test=com.stratio.sparta.testsAT.automated.gui.inputs.AddNewSocket
+mvn verify -DSPARTA_HOST=localhost -DSPARTA_PORT=9090 -DSPARTA_API_PORT=9090 -Dit.test=com.stratio.sparta.testsAT.automated.gui.inputs.AddNewSocket
 
 By default, in jenkins we will execute the group basic, which should contain a subset of tests, that are key to the functioning of the module and the ones generated for the new feature.
 

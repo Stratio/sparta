@@ -22,7 +22,6 @@ sparta:
   container_name: sparta
   ports:
     - "9090:9090"
-    - "9091:9091"
   links:
     - waitzk
   environment:

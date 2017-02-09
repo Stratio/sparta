@@ -42,10 +42,7 @@ object SpartaHelper extends SLF4JLogging {
    * @param appName with the name of the application.
    */
   def initSpartaAPI(appName: String): Unit = {
-    if (SpartaConfig.mainConfig.isDefined &&
-      SpartaConfig.apiConfig.isDefined &&
-      SpartaConfig.swaggerConfig.isDefined
-    ) {
+    if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
       log.info("Initializing Sparta Actors System ...")
       system = ActorSystem(appName, SpartaConfig.mainConfig)
@@ -71,39 +68,32 @@ object SpartaHelper extends SLF4JLogging {
         AkkaConstant.LauncherActor -> streamingContextActor,
         AkkaConstant.PluginActor -> pluginActor
       )
-      val swaggerActor = system.actorOf(
-        Props(new SwaggerActor(actors, curatorFramework)), AkkaConstant.SwaggerActor)
+
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
         .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
-      if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor, swaggerActor)
-      else loadSpartaWithHttp(controllerActor, swaggerActor)
+      if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor)
+      else loadSpartaWithHttp(controllerActor)
 
       statusActor ! AddClusterListeners
 
     } else log.info("Sparta Configuration is not defined")
   }
 
-  def loadSpartaWithHttps(controllerActor: ActorRef, swaggerActor: ActorRef): Unit = {
+  def loadSpartaWithHttps(controllerActor: ActorRef): Unit = {
     import com.stratio.sparkta.serving.api.ssl.SSLSupport._
     IO(Http) ! Http.Bind(controllerActor,
       interface = SpartaConfig.apiConfig.get.getString("host"),
       port = SpartaConfig.apiConfig.get.getInt("port")
     )
-    IO(Http) ! Http.Bind(swaggerActor, interface = SpartaConfig.swaggerConfig.get.getString("host"),
-      port = SpartaConfig.swaggerConfig.get.getInt("port"))
-
     log.info("Sparta Actors System initiated correctly")
   }
 
-  def loadSpartaWithHttp(controllerActor: ActorRef, swaggerActor: ActorRef): Unit = {
+  def loadSpartaWithHttp(controllerActor: ActorRef): Unit = {
     IO(Http) ! Http.Bind(controllerActor,
       interface = SpartaConfig.apiConfig.get.getString("host"),
       port = SpartaConfig.apiConfig.get.getInt("port")
     )
-    IO(Http) ! Http.Bind(swaggerActor, interface = SpartaConfig.swaggerConfig.get.getString("host"),
-      port = SpartaConfig.swaggerConfig.get.getInt("port"))
-
     log.info("Sparta Actors System initiated correctly")
   }
 }

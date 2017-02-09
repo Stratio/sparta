@@ -1,7 +1,7 @@
 {
   "storageLevel": "MEMORY_ONLY_SER",
   "name": "file-example",
-  "description": "Take data from meeting.com and persists the aggregation in files. You must load this policy from POST endpoint -policy- at port 9091",
+  "description": "Take data from meeting.com and persists the aggregation in files. You must load this policy from POST endpoint -policy- at port 9090",
   "sparkStreamingWindow": "6s",
   "rawData": {
     "enabled": "false",

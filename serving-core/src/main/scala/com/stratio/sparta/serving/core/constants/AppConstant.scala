@@ -31,7 +31,6 @@ object AppConstant {
   val ConfigDetail = "config"
   val ConfigAkka = "akka"
   val ConfigSpray = "spray.can.server"
-  val ConfigSwagger = "swagger"
   val ConfigZookeeper = "zookeeper"
 
   //Config Options

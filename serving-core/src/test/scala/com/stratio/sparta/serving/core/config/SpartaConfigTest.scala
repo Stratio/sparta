@@ -54,25 +54,10 @@ class SpartaConfigTest extends WordSpec with Matchers {
       res should be ("""Config(SimpleConfigObject({"host":"localhost","port":9090}))""")
 
     }
-    "initSwaggerConfig should return X" in {
-      SpartaConfig.mainConfig = None
 
-      val configSwagger = ConfigFactory.parseString(
-        """
-          | swagger {
-          |       "host" : "localhost"
-          |       "port" : 9090
-          |      }
-        """.stripMargin)
-
-      val res = SpartaConfig.initSwaggerConfig(new MockConfigFactory(configSwagger)).get.toString
-      res should be ("""Config(SimpleConfigObject({"host":"localhost","port":9090}))""")
-
-    }
 
     "getClusterConfig(Case: Success) should return cluster config" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val configCluster = ConfigFactory.parseString(
@@ -100,7 +85,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
     }
     "getClusterConfig(Case: Success and executionMode = local) should return None" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val configCluster = ConfigFactory.parseString(
@@ -125,7 +109,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
     "getClusterConfig(Case: _) should return None" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val clusterConf = SpartaConfig.getClusterConfig()
@@ -137,7 +120,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
     "getHdfsConfig(Case: Some(config) should return hdfs config" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val configHdfs = ConfigFactory.parseString(
@@ -160,7 +142,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
     }
     "getHdfsConfig(Case: None) should return hdfs config" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val hdfsConf = SpartaConfig.getHdfsConfig
@@ -171,7 +152,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
     "getDetailConfig (Case: Some(Config) should return the config" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val configDetail = ConfigFactory.parseString(
@@ -201,7 +181,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
     }
     "getDetailConfig (Case: None should return the config" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val detailConf = SpartaConfig.getDetailConfig
@@ -210,7 +189,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
     }
     "getZookeeperConfig (Case: Some(config) should return zookeeper conf" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val configZk = ConfigFactory.parseString(
@@ -244,7 +222,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
     }
     "getZookeeperConfig (Case: None) should return zookeeper conf" in {
       SpartaConfig.mainConfig = None
-      SpartaConfig.swaggerConfig = None
       SpartaConfig.apiConfig = None
 
       val zkConf = SpartaConfig.getZookeeperConfig
