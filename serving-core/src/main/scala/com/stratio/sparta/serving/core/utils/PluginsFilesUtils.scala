@@ -29,6 +29,7 @@ trait PluginsFilesUtils extends SLF4JLogging {
   def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
     log.info(pluginsFiles.mkString(","))
     pluginsFiles.foreach(filePath => {
+      log.info(s"Adding to classpath plugin file: $filePath")
       if (filePath.startsWith("/") || filePath.startsWith("file://")) addFromLocal(filePath)
       if (filePath.startsWith("hdfs")) addFromHdfs(filePath)
       if (filePath.startsWith("http")) addFromHttp(filePath)
@@ -36,6 +37,7 @@ trait PluginsFilesUtils extends SLF4JLogging {
   }
 
   private def addFromLocal(filePath: String): Unit = {
+    log.info(s"Getting file from local: $filePath")
     val file = new File(filePath.replace("file://", ""))
     JarsHelper.addToClasspath(file)
   }
@@ -52,6 +54,7 @@ trait PluginsFilesUtils extends SLF4JLogging {
   }
 
   private def addFromHttp(fileURI: String): Unit = {
+    log.info(s"Getting file from HTTP: $fileURI")
     val tempFile = File.createTempFile(s"sparta-plugin-${Calendar.getInstance().getTimeInMillis}", ".jar")
     val url = new URL(fileURI)
     FileUtils.copyURLToFile(url, tempFile)

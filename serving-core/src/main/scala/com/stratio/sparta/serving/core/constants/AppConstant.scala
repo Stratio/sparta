@@ -72,6 +72,8 @@ object AppConstant {
   val PrincipalNamePrefix = "principalNamePrefix"
   val PrincipalNameSuffix = "principalNameSuffix"
   val ReloadKeyTabTime = "reloadKeyTabTime"
+  val ReloadKeyTab = "reloadKeyTab"
+  val DefaultReloadKeyTab = false
   val DefaultReloadKeyTabTime = "23h"
   val SystemHadoopConfDir = "HADOOP_CONF_DIR"
   val SystemHadoopUserName = "HADOOP_USER_NAME"

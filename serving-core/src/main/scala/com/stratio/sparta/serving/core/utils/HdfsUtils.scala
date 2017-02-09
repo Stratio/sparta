@@ -83,7 +83,6 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 
   def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
     val file = new File(path)
-
     val out = ugiOption match {
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
@@ -108,18 +107,22 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 object HdfsUtils extends SLF4JLogging {
 
   def runReloaderKeyTab(hdfsUtils: HdfsUtils): Unit = {
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val hdfsConfig = SpartaConfig.getHdfsConfig
-    val reloadKeyTabTime = Try(hdfsConfig.get.getString(AppConstant.ReloadKeyTabTime)).toOption
-      .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
+    val reloadKeyTab = Try(hdfsConfig.get.getBoolean(AppConstant.ReloadKeyTab))
+      .getOrElse(AppConstant.DefaultReloadKeyTab)
+    if(reloadKeyTab) {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      val reloadKeyTabTime = Try(hdfsConfig.get.getString(AppConstant.ReloadKeyTabTime)).toOption
+        .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
 
-    AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
-      AggregationTime.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
+      log.info(s"Initializing reload keyTab task with time: $reloadKeyTabTime")
+
+      AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
+        AggregationTime.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
+    }
   }
 
   def hdfsConfiguration(userName: String): Configuration = {
-
     log.info("Creating HDFS configuration...")
 
     val DefaultFSProperty = "fs.defaultFS"
