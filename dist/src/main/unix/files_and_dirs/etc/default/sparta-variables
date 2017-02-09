@@ -28,13 +28,8 @@ export SPARTA_HEAP_SIZE=-Xmx2048m
 export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
 export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
 
-# Jmx properties
-export SPARTA_JMX_PORT=-Dcom.sun.management.jmxremote.port=7183
-export SPARTA_JMX_AUTHENTICATE=-Dcom.sun.management.jmxremote.authenticate=false
-export SPARTA_JMX_SSL=-Dcom.sun.management.jmxremote.ssl=false
-
 # Additional Java OPTS
-export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM_SIZE $SPARTA_JMX_PORT $SPARTA_JMX_AUTHENTICATE $SPARTA_JMX_SSL"
+export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM_SIZE"
 
 # Maximum number of open files
 export MAX_OPEN_FILES=65535

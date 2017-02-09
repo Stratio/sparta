@@ -30,6 +30,7 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
   val customKey = "inputOptions"
   val customPropertyKey = "inputOptionsKey"
   val customPropertyValue = "inputOptionsValue"
+  val propertiesWithCustom = properties ++ getCustomProperties
 
   def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row]
 

@@ -36,17 +36,18 @@ abstract class Parser(order: Integer,
   val customKey = "transformationOptions"
   val customPropertyKey = "transformationOptionsKey"
   val customPropertyValue = "transformationOptionsValue"
+  val propertiesWithCustom = properties ++ getCustomProperties
 
   val outputFieldsSchema = schema.fields.filter(field => outputFields.contains(field.name))
 
-  val inputFieldRemoved = Try(properties.getBoolean("removeInputField")).getOrElse(false)
+  val inputFieldRemoved = Try(propertiesWithCustom.getBoolean("removeInputField")).getOrElse(false)
 
   val inputFieldIndex = inputField match {
     case Some(field) => Try(schema.fieldIndex(field)).getOrElse(0)
     case None => 0
   }
 
-  val whenErrorDo = Try(WhenError.withName(properties.getString("whenError")))
+  val whenErrorDo = Try(WhenError.withName(propertiesWithCustom.getString("whenError")))
     .getOrElse(WhenError.Error)
 
   def parse(data: Row): Seq[Row]
