@@ -11,7 +11,7 @@ hose {
     PKGMODULESNAMES = ['stratio-sparta']
     DEBARCH = 'all'
     RPMARCH = 'noarch'
-    EXPOSED_PORTS = [9090,9091]
+    EXPOSED_PORTS = [9090]
     BASEIMG = 'stratio/mesosphere-spark-scala211:1.6.2'
 
 

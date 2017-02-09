@@ -160,20 +160,6 @@
    SPARTA_API_CERTIFICATE_PASSWORD=stratio
  fi
  sed -i "s|sparta.api.certificate-password.*|sparta.api.certificate-password = \""${SPARTA_API_CERTIFICATE_PASSWORD}"\"|" ${SPARTA_CONF_FILE}
-
-
- # SPARTA SWAGGER OPTIONS
- if [[ ! -v SPARTA_SWAGGER_HOST ]]; then
-   SPARTA_SWAGGER_HOST=0.0.0.0
- fi
- sed -i "s|sparta.swagger.host.*|sparta.swagger.host = \"${SPARTA_SWAGGER_HOST}\"|" ${SPARTA_CONF_FILE}
-
- if [[ ! -v SPARTA_SWAGGER_PORT ]]; then
-   SPARTA_SWAGGER_PORT=9091
- fi
- sed -i "s|sparta.swagger.port.*|sparta.swagger.port = ${SPARTA_SWAGGER_PORT}|" ${SPARTA_CONF_FILE}
-
-
  # SPARTA ZOOKEEPER OPTIONS
  if [[ ! -v SPARTA_ZOOKEEPER_CONNECTION_STRING ]]; then
    SPARTA_ZOOKEEPER_CONNECTION_STRING="localhost:2181"

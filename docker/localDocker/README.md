@@ -20,5 +20,5 @@ Now change to this dir (docker/localDocker) and  run :
 Now hopefully you have the docker image in your system. For running try :
 
 ```bash
-docker run -d  -p 9090:9090 -p 9091:9091 -p 4040:4040 --name sparta sparta 
+docker run -d  -p 9090:9090  -p 4040:4040 --name sparta sparta 
 ```

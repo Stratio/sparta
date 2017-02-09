@@ -29,7 +29,6 @@ object SpartaConfig extends SLF4JLogging {
 
   var mainConfig: Option[Config] = None
   var apiConfig: Option[Config] = None
-  var swaggerConfig: Option[Config] = None
   var sprayConfig: Option[Config] = None
 
   /**
@@ -63,11 +62,6 @@ object SpartaConfig extends SLF4JLogging {
   def initApiConfig(configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {
     apiConfig = initConfig(AppConstant.ConfigApi, mainConfig, configFactory)
     apiConfig
-  }
-
-  def initSwaggerConfig(configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {
-    swaggerConfig = initConfig(AppConstant.ConfigSwagger, mainConfig, configFactory)
-    swaggerConfig
   }
 
   def initSprayConfig(configFactory: ConfigFactory = new SpartaConfigFactory): Option[Config] = {

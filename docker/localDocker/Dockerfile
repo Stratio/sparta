@@ -4,7 +4,7 @@
 
 FROM qa.stratio.com/stratio/mesosphere-spark-scala211:1.6.2
 
-EXPOSE 9090 9091
+EXPOSE 9090
 ENTRYPOINT ["/docker-entrypoint.sh"]
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
