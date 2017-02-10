@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.0 (upcoming)
+## 1.1.0 (February 10, 2017)
 
 * Download secrets from Vault
 * Weekly added to DateTime aggregation and expiring data
