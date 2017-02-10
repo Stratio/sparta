@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1 (upcoming)
+
+* Bugfix: Rpm dependency
+
 ## 1.1.0 (February 10, 2017)
 
 * Download secrets from Vault
