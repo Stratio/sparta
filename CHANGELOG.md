@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.1.1 (upcoming)
+## 1.1.1 (February 10, 2017)
 
 * Bugfix: Rpm dependency
 
