@@ -1,14 +1,14 @@
 # Changelog
 
-## 1.0.1 (upcoming)
+## 1.1.0 (upcoming)
 
 * Download secrets from Vault
 * Weekly added to DateTime aggregation and expiring data
-* Docker entrypoint validation
+* Docker entry-point with fields validation
 * Custom transformation example
 * Swagger in the same port than API
 * Optional KeyTab renovation
-* Bugfix: Operator and Dimension typeOp inside configuration
+* Bugfix: Operator and Dimension typeOp inside configuration in GUI
 
 ## 1.0.0 (February 06, 2017)
 
