@@ -44,8 +44,6 @@ case class PolicyModel(
                         initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
                         autoDeleteCheckpoint: Option[Boolean] = None,
                         executionMode: Option[String] = None,
-                        driverLocation: Option[String] = None,
-                        pluginsLocation: Option[String] = None,
                         driverUri: Option[String] = None,
                         stopGracefully: Option[Boolean] = None
                       )
