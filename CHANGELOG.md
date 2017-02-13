@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 (upcoming)
+
+* Bugfix: Remove policy
+
 ## 1.1.1 (February 10, 2017)
 
 * Bugfix: Rpm dependency
