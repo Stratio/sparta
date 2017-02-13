@@ -279,14 +279,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? Delete(id)).mapTo[Response]
           } yield response match {
             case Response(Failure(ex)) => throw ex
-            case Response(Success(_)) =>
-              val statusActor = actors(AkkaConstant.statusActor)
-              for {
-                deleteContextResponse <- (statusActor ? StatusActor.Delete(id)).mapTo[StatusActor.ResponseDelete]
-              } yield deleteContextResponse match {
-                case StatusActor.ResponseDelete(Success(_)) => StatusCodes.OK
-                case StatusActor.ResponseDelete(Failure(exception)) => throw exception
-              }
+            case Response(Success(_)) => StatusCodes.OK
           }
         }
       }
