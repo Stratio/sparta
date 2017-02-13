@@ -36,7 +36,9 @@
       policy.cubes = [];
       policy.streamTriggers = [];
       policy.sparkConf = {};
-      policy.sparkSubmitArguments = {};
+      policy.sparkSubmitArguments = [];
+      policy.initSqlSentences = [];
+      policy.userPluginsJars = [];
       delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
       delete policy.sparkStreamingWindowNumber;
@@ -51,11 +53,15 @@
       delete policy.initSqlSentences;
       delete policy.userPluginsJars;
       delete policy.executionMode;
+      delete policy.driverUri;
+      delete policy.stopGracefully;
     }
 
     function setPolicy(inputPolicyJSON) {
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
+      policy.driverUri = inputPolicyJSON.driverUri;
+      policy.stopGracefully = inputPolicyJSON.stopGracefully;
       policy.description = inputPolicyJSON.description;
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
       policy.remember = inputPolicyJSON.remember;
