@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.api.actor
 
-
 import java.io.InputStream
 
 import akka.actor.{Actor, ActorRef}

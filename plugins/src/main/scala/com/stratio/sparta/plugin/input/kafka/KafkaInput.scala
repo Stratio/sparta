@@ -20,12 +20,12 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import kafka.serializer.{DefaultDecoder, StringDecoder}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka.KafkaUtils
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 class KafkaInput(properties: Map[String, JSerializable])
   extends Input(properties)
