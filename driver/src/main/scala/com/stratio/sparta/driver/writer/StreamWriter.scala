@@ -31,7 +31,8 @@ import org.apache.spark.streaming.dstream.DStream
 /*
   Common options to grouped triggers by streaming windows
  */
-case class StreamWriterOptions(overLast: Option[String],
+case class StreamWriterOptions(streamTemporalTable: Option[String],
+                               overLast: Option[String],
                                computeEvery: Option[String],
                                sparkStreamingWindow: Long,
                                initSchema: StructType
@@ -45,7 +46,8 @@ case class StreamWriter(triggers: Seq[Trigger],
   def write(streamData: DStream[Row]): Unit = {
     val dStream = streamData.window(
       Milliseconds(options.overLast.fold(options.sparkStreamingWindow) { over =>
-        AggregationTime.parseValueToMilliSeconds(over)}),
+        AggregationTime.parseValueToMilliSeconds(over)
+      }),
       Milliseconds(options.computeEvery.fold(options.sparkStreamingWindow) { computeEvery =>
         AggregationTime.parseValueToMilliSeconds(computeEvery)
       })
@@ -54,7 +56,13 @@ case class StreamWriter(triggers: Seq[Trigger],
     dStream.foreachRDD(rdd => {
       val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, options.initSchema)
 
-      writeTriggers(parsedDataFrame, triggers, StreamTableName, tableSchemas, outputs)
+      writeTriggers(parsedDataFrame,
+        triggers,
+        options.streamTemporalTable.flatMap(tableName => if (tableName.nonEmpty) Some(tableName) else None)
+          .getOrElse(StreamTableName),
+        tableSchemas,
+        outputs
+      )
     })
   }
 }

@@ -45,7 +45,8 @@ case class PolicyModel(
                         autoDeleteCheckpoint: Option[Boolean] = None,
                         executionMode: Option[String] = None,
                         driverUri: Option[String] = None,
-                        stopGracefully: Option[Boolean] = None
+                        stopGracefully: Option[Boolean] = None,
+                        streamTemporalTable: Option[String] = None
                       )
 
 case object PolicyModel {
