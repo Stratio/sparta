@@ -55,12 +55,14 @@
       delete policy.executionMode;
       delete policy.driverUri;
       delete policy.stopGracefully;
+      delete policy.streamTemporalTable;
     }
 
     function setPolicy(inputPolicyJSON) {
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.driverUri = inputPolicyJSON.driverUri;
+      policy.streamTemporalTable = inputPolicyJSON.streamTemporalTable;
       policy.stopGracefully = inputPolicyJSON.stopGracefully;
       policy.description = inputPolicyJSON.description;
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;

@@ -75,6 +75,7 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
         getStreamWriter(
           triggers,
           streamTriggersSchemas,
+          policy.streamTemporalTable,
           overLast,
           computeEvery,
           sparkStreamingWindow,
@@ -105,12 +106,13 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
 
   def getStreamWriter(triggers: Seq[Trigger],
                       tableSchemas: Seq[SpartaSchema],
+                      streamTemporalTable: Option[String],
                       overLast: Option[String],
                       computeEvery: Option[String],
                       sparkStreamingWindow: Long,
                       initSchema: StructType,
                       outputs: Seq[Output]): StreamWriter = {
-    val writerOp = StreamWriterOptions(overLast, computeEvery, sparkStreamingWindow, initSchema)
+    val writerOp = StreamWriterOptions(streamTemporalTable, overLast, computeEvery, sparkStreamingWindow, initSchema)
     StreamWriter(triggers, tableSchemas, writerOp, outputs)
   }
 }
