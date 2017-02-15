@@ -73,7 +73,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
     sender ! ResponsePolicies(Try {
       val policiesModels = getPolicies(withFragments = false)
       policiesModels.foreach(policyModel => {
-        deleteCheckpointPath(policyModel)
+        if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
         deletePolicy(policyModel)
       })
       policiesModels
@@ -181,7 +181,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
   def delete(id: String): Unit =
     sender ! Response(Try {
       val policyModel = getPolicyById(id)
-      deleteCheckpointPath(policyModel)
+      if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
       deletePolicy(policyModel)
     }.recover {
       case e: NoNodeException =>
