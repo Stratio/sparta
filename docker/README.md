@@ -22,6 +22,15 @@ Entrypoint variables
 | PARAM        |
 | -------------:|
 | HDFS_USER_NAME |
+| CORE_SITE_FROM_URI |
+| CORE_SITE_FROM_DFS |
+| DEFAULT_FS |
+| ENABLE_HA |
+| NAMENODE1_ADDRESS |
+| NAMENODE2_ADDRESS |
+| NAMENODE1_HTTP_ADDRESS |
+| NAMENODE2_HTTP_ADDRESS |
+| NAMENODE_PRINCIPAL |
 | HDFS_MASTER |
 | HDFS_PORT |
 | HDFS_PRINCIPAL_NAME |
@@ -131,6 +140,9 @@ Entrypoint variables
 | SPARK_MESOS_PARQUET_BINARY_AS_STRING |
 | SPARK_MESOS_PROPERTIES_FILE |
 | SPARK_MESOS_EXECUTOR_DOCKER_IMAGE |
+| SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES |
+| SPARK_MESOS_EXECUTOR_DOCKER_ENTRYPOINT |
+| SPARK_MESOS_EXECUTOR_DOCKER_ENV |
 | SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE |
 | SPARK_MESOS_EXECUTOR_HOME |
 | SPARK_MESOS_EXECUTOR_URI |
@@ -183,20 +195,20 @@ Usage examples
 docker run -dit --name sp -p 9090:9090 --env RUN_MODE=debug --env SERVICE_LOG_LEVEL=INFO 
    --env SPARTA_LOG_LEVEL=INFO --env SPARK_LOG_LEVEL=INFO 
    --env SPARTA_DRIVER_URI=http://sp.demo.stratio.com:9090/drivers/driver-plugin.jar 
-   --env SPARTA_DRIVER_LOCATION=provided --env SPARTA_ZOOKEEPER_CONNECTION_STRING=zk.demo.stratio.com 
+   --env SPARTA_ZOOKEEPER_CONNECTION_STRING=zk.demo.stratio.com 
    --env SPARTA_EXECUTION_MODE=mesos --env SPARTA_CHECKPOINT_PATH=/user/stratio/checkpoint 
-   --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 qa.stratio.com:8443/stratio/sparta:latest
+   --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 qa.stratio.com/stratio/sparta:latest
 ```
 
 - Driver JAR uploaded to HDFS: 
 
 ```bash
 docker run -dit --name sp -p 9090:9090 --env RUN_MODE=debug --env SERVICE_LOG_LEVEL=INFO 
-   --env SPARTA_LOG_LEVEL=INFO --env SPARK_LOG_LEVEL=INFO --env SPARTA_DRIVER_LOCATION=hdfs 
+   --env SPARTA_LOG_LEVEL=INFO --env SPARK_LOG_LEVEL=INFO 
    --env SPARTA_ZOOKEEPER_CONNECTION_STRING=zk.demo.stratio.com --env SPARTA_EXECUTION_MODE=mesos 
    --env SPARTA_CHECKPOINT_PATH=/user/stratio/checkpoint 
    --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 --env HDFS_MASTER=hm.demo.stratio.com 
-   --env HDFS_PORT=8020 qa.stratio.com:8443/stratio/sparta:latest
+   --env HDFS_PORT=8020 qa.stratio.com/stratio/sparta:latest
 ```
    
 Usage examples with VAULT 
@@ -221,7 +233,7 @@ docker run -d
     --env-file integration.env 
     -p 9090:9090 -p 4040:4040 
     --add-host gosec2.labs.stratio.com:10.1.1.1 
-    --name sparta qa.stratio.com:8443/stratio/sparta:latest
+    --name sparta qa.stratio.com/stratio/sparta:latest
 
 ```
 

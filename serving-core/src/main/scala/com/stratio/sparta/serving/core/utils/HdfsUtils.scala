@@ -29,7 +29,7 @@ import org.apache.hadoop.fs.{FSDataInputStream, FSDataOutputStream, FileStatus, 
 import org.apache.hadoop.security.UserGroupInformation
 
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None)
   extends SLF4JLogging {
@@ -152,9 +152,11 @@ object HdfsUtils extends SLF4JLogging {
   def getUserName: String = Option(System.getenv(AppConstant.SystemHadoopUserName))
     .getOrElse {
       val hdfsConfig = SpartaConfig.getHdfsConfig
-
-      Try(hdfsConfig.get.getString(AppConstant.HadoopUserName)).toOption
+      val userName = Try(hdfsConfig.get.getString(AppConstant.HadoopUserName)).toOption
         .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultHdfsUser)
+
+      log.info(s"Connecting to HDFS with user name: $userName")
+      userName
     }
 
   def getPrincipalName: Option[String] =
@@ -165,19 +167,24 @@ object HdfsUtils extends SLF4JLogging {
       val principalNamePrefix = Try(hdfsConfig.get.getString(AppConstant.PrincipalNamePrefix)).toOption
         .flatMap(x => if (x == "") None else Some(x))
       val hostName = Option(System.getenv(AppConstant.SystemHostName))
-      (principalNamePrefix, principalNameSuffix, hostName) match {
+      val principalName = (principalNamePrefix, principalNameSuffix, hostName) match {
         case (Some(prefix), Some(suffix), Some(host)) => Some(s"$prefix$host$suffix")
         case _ =>
           Try(hdfsConfig.get.getString(AppConstant.PrincipalName)).toOption
             .flatMap(x => if (x == "") None else Some(x))
       }
+      log.info(s"Connecting to HDFS with principal name: $principalName")
+      principalName
     }
 
   def getKeyTabPath: Option[String] =
     Option(System.getenv(AppConstant.SystemKeyTabPath)).orElse {
       val hdfsConfig = SpartaConfig.getHdfsConfig
+      val keyTabPath = Try(hdfsConfig.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x =>
+        if (x == "") None else Some(x))
 
-      Try(hdfsConfig.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x => if (x == "") None else Some(x))
+      log.info(s"Connecting to HDFS with keyTabPath: $keyTabPath")
+      keyTabPath
     }
 
   private def getUGI(principalName: String, keyTabPath: String, conf: Configuration): UserGroupInformation = {
@@ -199,18 +206,31 @@ object HdfsUtils extends SLF4JLogging {
 
     Option(System.getenv(AppConstant.SystemHadoopConfDir)).foreach(
       hadoopConfDir => {
-        val hdfsCoreSitePath = new Path(s"$hadoopConfDir/core-site.xml")
-        val hdfsHDFSSitePath = new Path(s"$hadoopConfDir/hdfs-site.xml")
-        //val yarnSitePath = new Path(s"$hadoopConfDir/yarn-site.xml")
+        Try {
+          val hdfsCoreSitePath = s"$hadoopConfDir/${AppConstant.CoreSite}"
+          log.info(s"Adding resource ${AppConstant.CoreSite} from path: $hdfsCoreSitePath")
+          val hdfsCoreSite = new Path(hdfsCoreSitePath)
+          conf.addResource(hdfsCoreSite)
+        } match {
+          case Success(_) => log.info(s"Resource ${AppConstant.CoreSite} added correctly")
+          case Failure(e) => log.error(s"Resource ${AppConstant.CoreSite} not added. Error: ${e.getLocalizedMessage}")
+        }
 
-        conf.addResource(hdfsCoreSitePath)
-        conf.addResource(hdfsHDFSSitePath)
-        //conf.addResource(yarnSitePath)
+        Try {
+          val hdfsHDFSSitePath = s"$hadoopConfDir/${AppConstant.HDFSSite}"
+          log.info(s"Adding resource ${AppConstant.HDFSSite} from path: $hdfsHDFSSitePath")
+          val hdfsHDFSSite = new Path(hdfsHDFSSitePath)
+          conf.addResource(hdfsHDFSSite)
+        } match {
+          case Success(_) => log.info(s"Resource ${AppConstant.HDFSSite} added correctly")
+          case Failure(e) => log.error(s"Resource ${AppConstant.HDFSSite} not added. Error: ${e.getLocalizedMessage}")
+        }
       }
     )
 
     val ugi = (principalNameOption, keytabPathOption) match {
       case (Some(principalName), Some(keyTabPath)) =>
+        log.info("Obtaining UGI from principal, keyTab and configuration files")
         Option(getUGI(principalName, keyTabPath, conf))
       case _ => None
     }
