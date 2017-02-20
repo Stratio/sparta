@@ -35,6 +35,10 @@
     <logger name="org.apache.spark" level="ERROR"/>
     <logger name="com.stratio.sparta" level="DEBUG"/>
 
+    <logger name="org.apache.zookeeper.ClientCnxn">
+        <level value="OFF" />
+    </logger>
+
     <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
