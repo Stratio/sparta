@@ -189,6 +189,7 @@
   "_SPARK_STREAMING_WINDOW_": "Spark streaming window",
   "_CHECKPOINT_AVAILABILITY_": "Checkpoint availability",
   "_CHECKPOINT_PATH_": "Checkpoint path",
+  "_TEMPORAL_TABLE_TRANSFORMATIONS_": "Transformations temporal table",
   "_AUTO_DELETE_CHECKPOINT_": "Auto-delete checkpoint",
   "_PERSIST_RAW_DATA_": "Persist raw data",
   "_STOP_GRACEFULLY_": "Stop Gracefully",

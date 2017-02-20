@@ -80,19 +80,19 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           else if(policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
         )
         log.info(s"Updating context ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
-          s"\n\t Status: ${actualStatus.status} to ${newStatus.status}" +
-          s"\n\t Status Information: ${actualStatus.statusInfo.getOrElse("undefined")}" +
-          s" to ${newStatus.statusInfo.getOrElse("undefined")} " +
-          s"\n\t Submission Id: ${actualStatus.submissionId.getOrElse("undefined")}" +
-          s" to ${newStatus.submissionId.getOrElse("undefined")}" +
-          s"\n\t Submission Status: ${actualStatus.submissionStatus.getOrElse("undefined")}" +
-          s" to ${newStatus.submissionStatus.getOrElse("undefined")}" +
-          s"\n\t Last Error: ${actualStatus.lastError.getOrElse("undefined")}" +
-          s" to ${newStatus.lastError.getOrElse("undefined")}" +
-          s"\n\t Last Execution Mode: ${actualStatus.lastExecutionMode.getOrElse("undefined")}" +
-          s" to ${newStatus.lastExecutionMode.getOrElse("undefined")}" +
-          s"\n\t Resource Manager URL: ${actualStatus.resourceManagerUrl.getOrElse("undefined")}" +
-          s" to ${newStatus.resourceManagerUrl.getOrElse("undefined")}")
+          s"\n\tStatus:\t${actualStatus.status}\t--->\t${newStatus.status}" +
+          s"\n\tStatus Information:\t${actualStatus.statusInfo.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.statusInfo.getOrElse("undefined")} " +
+          s"\n\tSubmission Id:\t${actualStatus.submissionId.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.submissionId.getOrElse("undefined")}" +
+          s"\n\tSubmission Status:\t${actualStatus.submissionStatus.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.submissionStatus.getOrElse("undefined")}" +
+          s"\n\tLast Error:\t${actualStatus.lastError.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.lastError.getOrElse("undefined")}" +
+          s"\n\tLast Execution Mode:\t${actualStatus.lastExecutionMode.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.lastExecutionMode.getOrElse("undefined")}" +
+          s"\n\tResource Manager URL:\t${actualStatus.resourceManagerUrl.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.resourceManagerUrl.getOrElse("undefined")}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         newStatus
       } else createStatus(policyStatus)

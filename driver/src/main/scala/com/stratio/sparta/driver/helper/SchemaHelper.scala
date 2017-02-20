@@ -114,7 +114,7 @@ object SchemaHelper {
 
         val inputFields = schemas.values.flatMap(structType => structType.fields)
         val fieldsFiltered = {
-          if (Try(transformationModel.configuration.getBoolean("removeInputField")).getOrElse(false) == true &&
+          if (Try(transformationModel.configuration.getBoolean("removeInputField")).getOrElse(false) &&
             transformationModel.inputField.isDefined)
             inputFields.filter(stField => stField.name != transformationModel.inputField.get)
           else inputFields

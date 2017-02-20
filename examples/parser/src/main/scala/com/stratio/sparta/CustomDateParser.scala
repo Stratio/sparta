@@ -25,18 +25,18 @@ import org.joda.time.DateTime
 
 import scala.util.Try
 
-
 class CustomDateParser(order: Integer,
                        inputField: Option[String],
                        outputFields: Seq[String],
                        schema: StructType,
                        properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
-  
+
   val dateField = propertiesWithCustom.getString("dateField", "date")
   val hourField = propertiesWithCustom.getString("hourField", "hourRounded")
   val dayField = propertiesWithCustom.getString("dayField", "dayRounded")
   val weekField = propertiesWithCustom.getString("weekField", "week")
+  val hourDateField = propertiesWithCustom.getString("hourDateField", "hourDate")
   val yearPrefix = propertiesWithCustom.getString("yearPrefix", "20")
 
   //scalastyle:off
@@ -52,28 +52,30 @@ class CustomDateParser(order: Integer,
               case _ => value.toString
             }
           }
+
           val valuesParsed = Map(
             hourField -> getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length)),
+            hourDateField -> getHourDate(valueStr),
             dayField -> getDateWithBeginYear(valueStr).concat(valueStr.substring(4, valueStr.length - 2)),
             weekField -> getWeek(valueStr)
           )
 
-            outputFields.map { outputField =>
-              val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
-              outputSchemaValid match {
-                case Some(outSchema) =>
-                  valuesParsed.get(outSchema.name) match {
-                    case Some(valueParsed) =>
-                      parseToOutputType(outSchema, valueParsed)
-                    case None =>
-                      returnWhenError(new IllegalStateException(
-                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
-                  }
-                case None =>
-                  returnWhenError(new IllegalStateException(
-                    s"Impossible to parse outputField: $outputField in the schema"))
-              }
+          outputFields.map { outputField =>
+            val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
+            outputSchemaValid match {
+              case Some(outSchema) =>
+                valuesParsed.get(outSchema.name) match {
+                  case Some(valueParsed) =>
+                    parseToOutputType(outSchema, valueParsed)
+                  case None =>
+                    returnWhenError(new IllegalStateException(
+                      s"The values parsed don't contain the schema field: ${outSchema.name}"))
+                }
+              case None =>
+                returnWhenError(new IllegalStateException(
+                  s"Impossible to parse outputField: $outputField in the schema"))
             }
+          }
         case None =>
           returnWhenError(new IllegalStateException(s"The input value is null or empty"))
       }
@@ -82,10 +84,20 @@ class CustomDateParser(order: Integer,
     returnData(newData, removeInputField(row))
   }
 
-  def getDateWithBeginYear(inputDate: String) : String =
+  def getDateWithBeginYear(inputDate: String): String =
     inputDate.substring(0, inputDate.length - 4).concat(yearPrefix)
 
-  def getWeek(inputDate : String) : Int = {
+  def getHourDate(inputDate: String): Long = {
+    val day = inputDate.substring(0, 2).toInt
+    val month = inputDate.substring(2, 4).toInt
+    val year = yearPrefix.concat(inputDate.substring(4, 6)).toInt
+    val hour = inputDate.substring(6, inputDate.length).toInt
+    val date = new DateTime(year, month, day, hour, 0)
+
+    date.getMillis
+  }
+
+  def getWeek(inputDate: String): Int = {
     val day = inputDate.substring(0, 2).toInt
     val month = inputDate.substring(2, 4).toInt
     val year = yearPrefix.concat(inputDate.substring(4, 6)).toInt

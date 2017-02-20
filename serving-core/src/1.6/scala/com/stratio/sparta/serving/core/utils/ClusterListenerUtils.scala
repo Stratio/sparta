@@ -61,7 +61,8 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
         statuses.foreach(policyStatus =>
           policyStatus.lastExecutionMode.foreach(execMode => {
             val pStatus = policyStatus.status
-            if ((pStatus == Started || pStatus == Starting || pStatus == Launched) && execMode.contains(ClusterValue))
+            if ((pStatus == Started || pStatus == Starting || pStatus == Launched || pStatus == Stopping)
+              && execMode.contains(ClusterValue))
               SpartaConfig.getClusterConfig(Option(execMode.substring(0, execMode.lastIndexOf("-")))) match {
                 case Some(clusterConfig) =>
                   addClusterContextListener(policyStatus.id, policyStatus.name.getOrElse("undefined"), clusterConfig)

@@ -31,13 +31,15 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
                     triggers: Seq[Trigger],
                     inputTableName: String,
                     tableSchemas: Seq[SpartaSchema],
-                    outputs: Seq[Output]) : Unit = {
+                    outputs: Seq[Output]): Unit = {
     val sqlContext = dataFrame.sqlContext
-
-    if(triggers.nonEmpty && isCorrectTableName(inputTableName)) {
-      dataFrame.registerTempTable(inputTableName)
-
+    if (triggers.nonEmpty && isCorrectTableName(inputTableName)) {
+      if (!sqlContext.tableNames().contains(inputTableName)) {
+        dataFrame.registerTempTable(inputTableName)
+        log.debug(s"Registering temporal table in Spark with name: $inputTableName")
+      }
       val tempTables = triggers.flatMap(trigger => {
+        log.debug(s"Executing query in Spark: ${trigger.sql}")
         val queryDataFrame = Try(sqlContext.sql(trigger.sql)) match {
           case Success(sqlResult) => sqlResult
           case Failure(exception: org.apache.spark.sql.AnalysisException) =>
@@ -60,9 +62,10 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
             case None =>
               queryDataFrame
           }
-
-          if(isCorrectTableName(trigger.name))
+          if (isCorrectTableName(trigger.name) && !sqlContext.tableNames().contains(trigger.name)) {
             queryDataFrameWithAutoCalculatedFields.registerTempTable(trigger.name)
+            log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")
+          }
           else log.warn(s"The trigger ${trigger.name} have incorrect name, is impossible to register as temporal table")
           trigger.outputs.foreach(outputName =>
             outputs.find(output => output.name == outputName) match {
@@ -82,16 +85,25 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
           Option(trigger.name)
         } else None
       })
-      tempTables.foreach(tableName => if (isCorrectTableName(tableName)) sqlContext.dropTempTable(tableName))
-      if (isCorrectTableName(inputTableName)) sqlContext.dropTempTable(inputTableName)
+      tempTables.foreach(tableName =>
+        if (isCorrectTableName(tableName) && sqlContext.tableNames().contains(tableName)) {
+          sqlContext.dropTempTable(tableName)
+          log.debug(s"Dropping temporal table in Spark with name: $tableName")
+        } else log.debug(s"Impossible to drop table in Spark with name: $tableName"))
+
+      if (isCorrectTableName(inputTableName) && sqlContext.tableNames().contains(inputTableName)) {
+        sqlContext.dropTempTable(inputTableName)
+        log.debug(s"Dropping temporal table in Spark with name: $inputTableName")
+      } else log.debug(s"Impossible to drop table in Spark: $inputTableName")
     } else {
-      if(triggers.nonEmpty && !isCorrectTableName(inputTableName))
-        log.warn(s"Incorrect table name ${inputTableName} and the triggers could have errors and not have been " +
+      if (triggers.nonEmpty && !isCorrectTableName(inputTableName))
+        log.warn(s"Incorrect table name $inputTableName and the triggers could have errors and not have been " +
           s"executed")
     }
   }
-//scalastyle:on
-  private def isCorrectTableName(tableName : String) : Boolean =
+
+  //scalastyle:on
+  private def isCorrectTableName(tableName: String): Boolean =
     tableName.nonEmpty && tableName != "" &&
       tableName.toLowerCase != "select" &&
       tableName.toLowerCase != "project" &&

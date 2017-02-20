@@ -76,6 +76,8 @@ object AppConstant {
   val DefaultReloadKeyTab = false
   val DefaultReloadKeyTabTime = "23h"
   val SystemHadoopConfDir = "HADOOP_CONF_DIR"
+  val CoreSite = "core-site.xml"
+  val HDFSSite = "hdfs-site.xml"
   val SystemHadoopUserName = "HADOOP_USER_NAME"
   val SystemPrincipalName = "HADOOP_PRINCIPAL_NAME"
   val SystemKeyTabPath = "HADOOP_KEYTAB_PATH"

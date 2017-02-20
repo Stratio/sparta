@@ -45,59 +45,58 @@
  echo "export SPARK_HOME=${SPARK_HOME}" >> ${SYSTEM_VARIABLES}
 
 
- # HDFS OPTIONS
- if [[ -v HDFS_USER_NAME ]]; then
-   echo "" >> ${VARIABLES}
-   echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${VARIABLES}
-   echo "" >> ${SYSTEM_VARIABLES}
-   echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
-   sed -i "s|.*sparta.hdfs.hadoopUserName.*|sparta.hdfs.hadoopUserName = \""${HDFS_USER_NAME}"\"|" ${SPARTA_CONF_FILE}
- fi
+  # HDFS OPTIONS
+  if [[ -v HDFS_USER_NAME ]]; then
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
+  fi
 
- if [ -v HDFS_MASTER ]&& [ HDFS_MASTER != "" ]; then
-   sed -i "s|sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
-   HADOOP_CONF_DIR=/opt/sds/hadoop/conf
-   mkdir -p "${HADOOP_CONF_DIR}"
-   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
-   HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
-   wget "http://${HDFS_MASTER}:50070/conf"
-   cp conf "${CORE_SITE}"
-   cp conf "${HDFS_SITE}"
-   rm -f conf
-   sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${CORE_SITE}
-   sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${HDFS_SITE}
-   echo "" >> ${VARIABLES}
-   echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
-   echo "" >> ${SYSTEM_VARIABLES}
-   echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
- fi
+  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v HDFS_MASTER ] && [ ${#HDFS_MASTER} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
+      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+    fi
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
+    source hdfs_utils.sh
+    generate_core-site-from-uri
+  fi
+
+  if [ $CORE_SITE_FROM_DFS == "true" ] && [ -v DEFAULT_FS ] && [ ${#DEFAULT_FS} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
+      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+    fi
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${DEFAULT_FS}"\"|" ${SPARTA_CONF_FILE}
+    source hdfs_utils.sh
+    generate_core-site-from-fs
+  fi
+
+  source "${SYSTEM_VARIABLES}"
 
  if [[ ! -v HDFS_PORT ]]; then
    HDFS_PORT=9000
  fi
  sed -i "s|sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
 
- if [ -v HDFS_PRINCIPAL_NAME ] && [ HDFS_PRINCIPAL_NAME != "" ]; then
-   sed -i "s|.*sparta.hdfs.principalName.*|sparta.hdfs.principalName = \""${HDFS_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v HADOOP_PRINCIPAL_NAME ] && [ ${#HADOOP_PRINCIPAL_NAME} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.principalName .*|sparta.hdfs.principalName = \""${HADOOP_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_PRINCIPAL_NAME_SUFFIX ] && [ HDFS_PRINCIPAL_NAME_SUFFIX != "" ]; then
-   sed -i "s|.*sparta.hdfs.principalNameSuffix.*|sparta.hdfs.principalNameSuffix = \""${HDFS_PRINCIPAL_NAME_SUFFIX}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v HADOOP_PRINCIPAL_NAME_SUFFIX ] && [ ${#HADOOP_PRINCIPAL_NAME_SUFFIX} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.principalNameSuffix.*|sparta.hdfs.principalNameSuffix = \""${HADOOP_PRINCIPAL_NAME_SUFFIX}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_PRINCIPAL_NAME_PREFIX ] && [ HDFS_PRINCIPAL_NAME_PREFIX != "" ]; then
-   sed -i "s|.*sparta.hdfs.principalNamePrefix.*|sparta.hdfs.principalNamePrefix = \""${HDFS_PRINCIPAL_NAME_PREFIX}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v HADOOP_PRINCIPAL_NAME_PREFIX ] && [ ${#HADOOP_PRINCIPAL_NAME_PREFIX} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.principalNamePrefix.*|sparta.hdfs.principalNamePrefix = \""${HADOOP_PRINCIPAL_NAME_PREFIX}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_KEYTAB ] && [ HDFS_KEYTAB != "" ]; then
-   sed -i "s|.*sparta.hdfs.keytabPath.*|sparta.hdfs.keytabPath = \""${HDFS_KEYTAB}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v HADOOP_KEYTAB_PATH ] && [ ${#HADOOP_KEYTAB_PATH} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.keytabPath.*|sparta.hdfs.keytabPath = \""${HADOOP_KEYTAB_PATH}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_KEYTAB_RELOAD ] && [ HDFS_KEYTAB_RELOAD != "" ]; then
+ if [ -v HDFS_KEYTAB_RELOAD ] && [ ${#HDFS_KEYTAB_RELOAD} != 0 ]; then
    sed -i "s|.*sparta.hdfs.reloadKeyTab.*|sparta.hdfs.reloadKeyTab = ${HDFS_KEYTAB_RELOAD}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_KEYTAB_RELOAD_TIME ] && [ HDFS_KEYTAB_RELOAD_TIME != "" ]; then
+ if [ -v HDFS_KEYTAB_RELOAD_TIME ] && [ ${#HDFS_KEYTAB_RELOAD_TIME} != 0 ]; then
    sed -i "s|.*sparta.hdfs.reloadKeyTabTime.*|sparta.hdfs.reloadKeyTabTime = ${HDFS_KEYTAB_RELOAD_TIME}|" ${SPARTA_CONF_FILE}
  fi
 
@@ -271,20 +270,20 @@
  fi
  sed -i "s|sparta.local.spark.executor.memory.*|sparta.local.spark.executor.memory = ${SPARK_LOCAL_EXECUTOR_MEMORY}|" ${SPARTA_CONF_FILE}
 
- if [ -v SPARK_LOCAL_CONCURRENT_JOBS ] && [ SPARK_LOCAL_CONCURRENT_JOBS != "" ]; then
+ if [ -v SPARK_LOCAL_CONCURRENT_JOBS ] && [ ${#SPARK_LOCAL_CONCURRENT_JOBS} != 0 ]; then
    sed -i "s|.*sparta.local.spark.streaming.concurrentJobs.*|sparta.local.spark.streaming.concurrentJobs = ${SPARK_LOCAL_CONCURRENT_JOBS}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_LOCAL_GRACEFUL_STOP ] && [ SPARK_LOCAL_GRACEFUL_STOP != "" ]; then
+ if [ -v SPARK_LOCAL_GRACEFUL_STOP ] && [ ${#SPARK_LOCAL_GRACEFUL_STOP} != 0 ]; then
    sed -i "s|.*sparta.local.spark.streaming.gracefulStopTimeout.*|sparta.local.spark.streaming.gracefulStopTimeout = ${SPARK_LOCAL_GRACEFUL_STOP}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_LOCAL_METRICS_CONF ] && [ SPARK_LOCAL_METRICS_CONF != "" ]; then
+ if [ -v SPARK_LOCAL_METRICS_CONF ] && [ ${#SPARK_LOCAL_METRICS_CONF} != 0 ]; then
    touch ${SPARK_LOCAL_METRICS_CONF}
    sed -i "s|.*sparta.local.spark.metrics.conf.*|sparta.local.spark.metrics.conf = \""${SPARK_LOCAL_METRICS_CONF}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_LOCAL_SERIALIZER ] && [ SPARK_LOCAL_SERIALIZER != "" ]; then
+ if [ -v SPARK_LOCAL_SERIALIZER ] && [ ${#SPARK_LOCAL_SERIALIZER} != 0 ]; then
    sed -i "s|.*sparta.local.spark.serializer.*|sparta.local.spark.serializer = ${SPARK_LOCAL_SERIALIZER}|" ${SPARTA_CONF_FILE}
  fi
 
@@ -320,35 +319,35 @@
  fi
  sed -i "s|sparta.mesos.killUrl.*|sparta.mesos.killUrl = \""${SPARK_MESOS_KILL_URL}"\"|" ${SPARTA_CONF_FILE}
 
- if [ -v SPARK_MESOS_JARS ] && [ SPARK_MESOS_JARS != "" ]; then
+ if [ -v SPARK_MESOS_JARS ] && [ ${#SPARK_MESOS_JARS} != 0 ]; then
    sed -i "s|.*sparta.mesos.jars.*|sparta.mesos.jars = \""${SPARK_MESOS_JARS}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_PACKAGES ] && [ SPARK_MESOS_PACKAGES != "" ]; then
+ if [ -v SPARK_MESOS_PACKAGES ] && [ ${#SPARK_MESOS_PACKAGES} != 0 ]; then
    sed -i "s|.*sparta.mesos.packages.*|sparta.mesos.packages = \""${SPARK_MESOS_PACKAGES}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_EXCLUDE_PACKAGES ] && [ SPARK_MESOS_EXCLUDE_PACKAGES != "" ]; then
+ if [ -v SPARK_MESOS_EXCLUDE_PACKAGES ] && [ ${#SPARK_MESOS_EXCLUDE_PACKAGES} != 0 ]; then
    sed -i "s|.*sparta.mesos.exclude-packages.*|sparta.mesos.exclude-packages = \""${SPARK_MESOS_EXCLUDE_PACKAGES}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_REPOSITORIES ] && [ SPARK_MESOS_REPOSITORIES != "" ]; then
+ if [ -v SPARK_MESOS_REPOSITORIES ] && [ ${#SPARK_MESOS_REPOSITORIES} != 0 ]; then
    sed -i "s|.*sparta.mesos.repositories.*|sparta.mesos.repositories = \""${SPARK_MESOS_REPOSITORIES}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_PROXY_USER ] && [ SPARK_MESOS_PROXY_USER != "" ]; then
+ if [ -v SPARK_MESOS_PROXY_USER ] && [ ${#SPARK_MESOS_PROXY_USER} != 0 ]; then
    sed -i "s|.*sparta.mesos.proxy-user.*|sparta.mesos.proxy-user = \""${SPARK_MESOS_PROXY_USER}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_DRIVER_JAVA_OPTIONS ] && [ SPARK_MESOS_DRIVER_JAVA_OPTIONS != "" ]; then
+ if [ -v SPARK_MESOS_DRIVER_JAVA_OPTIONS ] && [ ${#SPARK_MESOS_DRIVER_JAVA_OPTIONS} != 0 ]; then
    sed -i "s|.*sparta.mesos.driver-java-options.*|sparta.mesos.driver-java-options = \""${SPARK_MESOS_DRIVER_JAVA_OPTIONS}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_DRIVER_LIBRARY_PATH ] && [ SPARK_MESOS_DRIVER_LIBRARY_PATH != "" ]; then
+ if [ -v SPARK_MESOS_DRIVER_LIBRARY_PATH ] && [ ${#SPARK_MESOS_DRIVER_LIBRARY_PATH} != 0 ]; then
    sed -i "s|.*sparta.mesos.driver-library-path.*|sparta.mesos.driver-library-path = \""${SPARK_MESOS_DRIVER_LIBRARY_PATH}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_DRIVER_CLASSPATH ] && [ SPARK_MESOS_DRIVER_CLASSPATH != "" ]; then
+ if [ -v SPARK_MESOS_DRIVER_CLASSPATH ] && [ ${#SPARK_MESOS_DRIVER_CLASSPATH} != 0 ]; then
    sed -i "s|.*sparta.mesos.driver-class-path.*|sparta.mesos.driver-class-path = \""${SPARK_MESOS_DRIVER_CLASSPATH}"\"|" ${SPARTA_CONF_FILE}
  fi
 
@@ -368,7 +367,7 @@
  sed -i "s|.*sparta.mesos.spark.executor.cores.*|sparta.mesos.spark.executor.cores = ${SPARK_MESOS_EXECUTOR_CORES}|" ${SPARTA_CONF_FILE}
 
 
- if [ -v SPARK_MESOS_EXTRA_CORES ] && [ SPARK_MESOS_EXTRA_CORES != "" ]; then
+ if [ -v SPARK_MESOS_EXTRA_CORES ] && [ ${#SPARK_MESOS_EXTRA_CORES} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.mesos.extra.cores.*|sparta.mesos.spark.mesos.extra.cores = ${SPARK_MESOS_EXTRA_CORES}|" ${SPARTA_CONF_FILE}
  fi
 
@@ -387,15 +386,15 @@
  fi
  sed -i "s|sparta.mesos.supervise.*|sparta.mesos.supervise = ${SPARK_MESOS_SUPERVISE}|" ${SPARTA_CONF_FILE}
 
- if [ -v SPARK_MESOS_CONCURRENT_JOBS ] && [ SPARK_MESOS_CONCURRENT_JOBS != "" ]; then
+ if [ -v SPARK_MESOS_CONCURRENT_JOBS ] && [ ${#SPARK_MESOS_CONCURRENT_JOBS} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.streaming.concurrentJobs.*|sparta.mesos.spark.streaming.concurrentJobs = ${SPARK_MESOS_CONCURRENT_JOBS}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_GRACEFUL_STOP ] && [ SPARK_MESOS_GRACEFUL_STOP != "" ]; then
+ if [ -v SPARK_MESOS_GRACEFUL_STOP ] && [ ${#SPARK_MESOS_GRACEFUL_STOP} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.streaming.gracefulStopTimeout.*|sparta.mesos.spark.streaming.gracefulStopTimeout = ${SPARK_MESOS_GRACEFUL_STOP}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_SERIALIZER ] && [ SPARK_MESOS_SERIALIZER != "" ]; then
+ if [ -v SPARK_MESOS_SERIALIZER ] && [ ${#SPARK_MESOS_SERIALIZER} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.serializer.*|sparta.mesos.spark.serializer = ${SPARK_MESOS_SERIALIZER}|" ${SPARTA_CONF_FILE}
  fi
 
@@ -404,31 +403,43 @@
  fi
  sed -i "s|sparta.mesos.spark.sql.parquet.binaryAsString.*|sparta.mesos.spark.sql.parquet.binaryAsString = ${SPARK_MESOS_PARQUET_BINARY_AS_STRING}|" ${SPARTA_CONF_FILE}
 
- if [ -v SPARK_MESOS_PROPERTIES_FILE ] && [ SPARK_MESOS_PROPERTIES_FILE != "" ]; then
+ if [ -v SPARK_MESOS_PROPERTIES_FILE ] && [ ${#SPARK_MESOS_PROPERTIES_FILE} != 0 ]; then
    sed -i "s|.*sparta.mesos.propertiesFile.*|sparta.mesos.propertiesFile = \""${SPARK_MESOS_PROPERTIES_FILE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_EXECUTOR_DOCKER_IMAGE ] && [ SPARK_MESOS_EXECUTOR_DOCKER_IMAGE != "" ]; then
+ if [ -v SPARK_MESOS_EXECUTOR_DOCKER_IMAGE ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_IMAGE} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.image.*|sparta.mesos.spark.mesos.executor.docker.image = \""${SPARK_MESOS_EXECUTOR_DOCKER_IMAGE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE ] && [ SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE != "" ]; then
+ if [ -v SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.volumes.*|sparta.mesos.spark.mesos.executor.docker.volumes = \""${SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_EXECUTOR_DOCKER_ENTRYPOINT ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_ENTRYPOINT} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.entrypointUri.*|sparta.mesos.spark.mesos.executor.docker.entrypointUri = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENTRYPOINT}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_EXECUTOR_DOCKER_ENV ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_ENV} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.enviromentParameters.*|sparta.mesos.spark.mesos.executor.docker.enviromentParameters = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENV}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE ] && [ ${#SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE} != 0 ]; then
    sed -i "s|.*spark.mesos.executor.docker.forcePullImage.*|spark.mesos.executor.docker.forcePullImage = ${SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_EXECUTOR_HOME ] && [ SPARK_MESOS_EXECUTOR_HOME != "" ]; then
+ if [ -v SPARK_MESOS_EXECUTOR_HOME ] && [ ${#SPARK_MESOS_EXECUTOR_HOME} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.executor.home.*|sparta.mesos.spark.executor.home = \""${SPARK_MESOS_EXECUTOR_HOME}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_EXECUTOR_URI ] && [ SPARK_MESOS_EXECUTOR_URI != "" ]; then
+ if [ -v SPARK_MESOS_EXECUTOR_URI ] && [ ${#SPARK_MESOS_EXECUTOR_URI} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.executor.uri.*|sparta.mesos.spark.executor.uri = \""${SPARK_MESOS_EXECUTOR_URI}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_SPARK_FILES ] && [ SPARK_MESOS_SPARK_FILES != "" ]; then
+ if [ -v SPARK_MESOS_SPARK_FILES ] && [ ${#SPARK_MESOS_SPARK_FILES} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.files.*|sparta.mesos.spark.files = \""${SPARK_MESOS_SPARK_FILES}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARK_MESOS_SPARK_JARS_IVY ] && [ SPARK_MESOS_SPARK_JARS_IVY != "" ]; then
+ if [ -v SPARK_MESOS_SPARK_JARS_IVY ] && [ ${#SPARK_MESOS_SPARK_JARS_IVY} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.jars.ivy.*|sparta.mesos.spark.jars.ivy = \""${SPARK_MESOS_SPARK_JARS_IVY}"\"|" ${SPARTA_CONF_FILE}
  fi
 
@@ -507,7 +518,7 @@
  sed -i "s|spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION}|" ${SPARTA_CONF_FILE}
 
 
- if [[ "${SSH}" == "true" ]]; then
+ if [[ ${SSH} == "true" ]]; then
    /usr/sbin/sshd -e
  fi
 
