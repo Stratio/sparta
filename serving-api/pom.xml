@@ -178,7 +178,7 @@
         <dependency>
             <groupId>com.stratio.spray.auth</groupId>
             <artifactId>spray-oauth2-client_${scala.binary.version}</artifactId>
-            <version>0.2.0</version>
+            <version>0.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
