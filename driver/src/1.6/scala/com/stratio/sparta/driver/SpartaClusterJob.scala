@@ -59,19 +59,18 @@ object SpartaClusterJob extends PluginsFilesUtils {
 
       initSpartaConfig(detailConf, zookeeperConf, driverLocationConf, clusterConf)
 
-      addPluginsToClassPath(pluginsFiles)
-
       val curatorInstance = CuratorFactoryHolder.getInstance()
-      val policyUtils = new PolicyUtils {
-        override val curatorFramework: CuratorFramework = curatorInstance
-      }
       implicit val system = ActorSystem(policyId, SpartaConfig.daemonicAkkaConfig)
-      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorInstance)), AkkaConstant.FragmentActor)
-      val policy = FragmentsHelper.getPolicyWithFragments(policyUtils.getPolicyById(policyId), fragmentActor)
-      val statusActor = system.actorOf(Props(new StatusActor(curatorInstance)),
-        AkkaConstant.statusActor)
+      val statusActor = system.actorOf(Props(new StatusActor(curatorInstance)), AkkaConstant.statusActor)
 
       Try {
+        addPluginsToClassPath(pluginsFiles)
+
+        val policyUtils = new PolicyUtils {
+          override val curatorFramework: CuratorFramework = curatorInstance
+        }
+        val fragmentActor = system.actorOf(Props(new FragmentActor(curatorInstance)), AkkaConstant.FragmentActor)
+        val policy = FragmentsHelper.getPolicyWithFragments(policyUtils.getPolicyById(policyId), fragmentActor)
         val startingInfo = s"Starting policy in cluster"
         log.info(startingInfo)
         statusActor ! Update(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
