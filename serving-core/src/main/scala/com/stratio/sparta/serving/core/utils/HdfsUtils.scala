@@ -34,7 +34,7 @@ import scala.util.{Failure, Success, Try}
 case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGroupInformation] = None)
   extends SLF4JLogging {
 
-  def reLogin(): Unit = ugiOption.foreach(ugi => ugi.reloginFromKeytab())
+  def reLogin(): Unit = ugiOption.foreach(ugi => ugi.checkTGTAndReloginFromKeytab())
 
   def getFiles(path: String): Array[FileStatus] = {
     ugiOption match {
