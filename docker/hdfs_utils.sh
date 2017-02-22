@@ -132,10 +132,10 @@ fi
 function generate_core-site-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
-  wget "http://${HDFS_MASTER}:50070/conf"
+  wget "http://${DEFAULT_FS}:50070/conf"
   cp conf "${CORE_SITE}"
   rm -f conf
-  sed -i "s|0.0.0.0|${HDFS_MASTER}|" ${CORE_SITE}
+  sed -i "s|0.0.0.0|${DEFAULT_FS}|" ${CORE_SITE}
 
   if [[ $? == 0 ]]; then
     echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
