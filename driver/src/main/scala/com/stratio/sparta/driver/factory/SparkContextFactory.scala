@@ -73,29 +73,25 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def sparkStandAloneContextInstance(generalConfig: Option[Config],
-                                     specificConfig: Map[String, String],
-                                     jars: Seq[File]): SparkContext =
+  def sparkStandAloneContextInstance(specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
     synchronized {
-      sc.getOrElse(instantiateStandAloneContext(generalConfig, specificConfig, jars))
+      sc.getOrElse(instantiateSparkContext(specificConfig, jars))
     }
 
   def sparkClusterContextInstance(specificConfig: Map[String, String], files: Seq[String]): SparkContext =
     sc.getOrElse(instantiateClusterContext(specificConfig, files))
 
-  private def instantiateStandAloneContext(generalConfig: Option[Config],
-                                           specificConfig: Map[String, String],
-                                           jars: Seq[File]): SparkContext = {
-    sc = Some(SparkContext.getOrCreate(configToSparkConf(generalConfig, specificConfig)))
+  private def instantiateSparkContext(specificConfig: Map[String, String], jars: Seq[File]): SparkContext = {
+    sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
     jars.foreach(f => {
-      log.info(s"Adding jar ${f.getAbsolutePath} to local Spark context")
+      log.info(s"Adding jar ${f.getAbsolutePath} to Spark context")
       sc.get.addJar(f.getAbsolutePath)
     })
     sc.get
   }
 
   private def instantiateClusterContext(specificConfig: Map[String, String], jars: Seq[String]): SparkContext = {
-    sc = Some(SparkContext.getOrCreate(configToSparkConf(None, specificConfig)))
+    sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
     jars.foreach(f => {
       log.info(s"Adding jar $f to cluster Spark context")
       sc.get.addJar(f)
@@ -103,17 +99,9 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def configToSparkConf(generalConfig: Option[Config], specificConfig: Map[String, String]): SparkConf = {
+  private def configToSparkConf(specificConfig: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
-    if (generalConfig.isDefined) {
-      val properties = generalConfig.get.entrySet()
-      properties.foreach(e => {
-        if (e.getKey.startsWith("spark."))
-          conf.set(e.getKey, generalConfig.get.getString(e.getKey))
-      })
-    }
     specificConfig.foreach { case (key, value) => conf.set(key, value) }
-
     conf
   }
 

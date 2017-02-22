@@ -73,9 +73,10 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
   private def getLocalSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
     val outputsSparkConfig = PolicyHelper.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(apConfig)
-    val standAloneConfig = Try(generalConfig.get.getConfig(ConfigLocal)).toOption
+    val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
+      .getOrElse(Map.empty[String, String])
 
-    sparkStandAloneContextInstance(standAloneConfig, policySparkConfig ++ outputsSparkConfig, jars)
+    sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, jars)
   }
 
   private def getClusterSparkContext(policy: PolicyModel, detailConfig: Map[String, String], files: Seq[String])
@@ -83,6 +84,6 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(policy)
 
-    sparkClusterContextInstance(policySparkConfig ++ outputsSparkConfig ++ detailConfig, files)
+    sparkClusterContextInstance(detailConfig ++ policySparkConfig ++ outputsSparkConfig, files)
   }
 }
