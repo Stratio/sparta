@@ -99,7 +99,7 @@ class ResourceManagerLinkIT extends FlatSpec with
 
   it should "return Spark Standalone UI link" in {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress("localhost",8080))
+    serverSocket.socket.bind(new InetSocketAddress("localhost",8081))
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -108,12 +108,12 @@ class ResourceManagerLinkIT extends FlatSpec with
         |  }
         |
         |  standalone {
-        |    master = "spark://localhost:4040"
+        |    master = "spark://localhost:8081"
         |  }
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("standalone") should be(Some("http://localhost:8080"))
+    ResourceManagerLinkHelper.getLink("standalone") should be(Some("http://localhost:8081"))
   }
 
 }
