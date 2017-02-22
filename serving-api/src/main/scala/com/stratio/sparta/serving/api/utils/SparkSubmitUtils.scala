@@ -63,11 +63,6 @@ trait SparkSubmitUtils extends PolicyConfigUtils {
     SubmitNumExecutors, SubmitDriverCores, SubmitDriverMemory, SubmitExecutorCores, SubmitExecutorMemory,
     SubmitPrincipal, SubmitKeyTab, SubmitSupervise)
 
-  def sparkConf(clusterConfig: Config): Seq[(String, String)] =
-    clusterConfig.entrySet()
-      .filter(_.getKey.startsWith("spark.")).toSeq
-      .map(e => (e.getKey, e.getValue.unwrapped.toString))
-
   def toMap(key: String, newKey: String, config: Config): Map[String, String] =
     Try(config.getString(key)) match {
       case Success(value) =>

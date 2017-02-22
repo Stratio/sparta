@@ -72,7 +72,7 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
   private def standaloneLink = {
     val sparkUrl = SpartaConfig.getClusterConfig().get.getString("master")
     val host = sparkUrl.replace("spark://", "").replaceAll(":\\d+", "")
-    val port = 8080
+    val port = sparkUrl.split(":").lastOption.getOrElse("8080").toInt
     (host, port)
   }
 

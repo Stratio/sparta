@@ -31,6 +31,7 @@ import com.stratio.sparta.serving.core.actor.StatusActor.{FindById, ResponseStat
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
@@ -88,6 +89,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         keyConfigEncoded(driverLocationKey, driverLocationConfig),
         keyConfigEncoded(execMode, Option(clusterConfig)))
       val sparkArguments = submitArgsFromProps(clusterConfig) ++ submitArgsFromPolicy(policy.sparkSubmitArguments)
+      val sparkConfs = PolicyHelper.getSparkConfFromProps(clusterConfig) ++ PolicyHelper.getSparkConfigFromPolicy(policy)
 
       log.info(s"Launching Sparta Job with options ... \n\t" +
         s"Policy name: ${policy.name}\n\t" +
@@ -95,10 +97,11 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
         s"Driver path: $driverPath\n\t" +
         s"Master: $master\n\t" +
         s"Spark arguments: ${sparkArguments.mkString(",")}\n\t" +
+        s"Spark configurations: ${sparkConfs.mkString(",")}\n\t" +
         s"Driver params: $driverParams\n\t" +
         s"Plugins files: ${pluginsFiles.mkString(",")}")
 
-      (launch(policy, SpartaDriverClass, driverPath, master, sparkArguments, driverParams, pluginsFiles,
+      (launch(policy, SpartaDriverClass, driverPath, master, sparkArguments, sparkConfs, driverParams, pluginsFiles,
         clusterConfig), clusterConfig)
     } match {
       case Failure(exception) =>
@@ -117,6 +120,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
              driverFile: String,
              master: String,
              sparkArguments: Map[String, String],
+             sparkConfigurations: Map[String, String],
              driverArguments: Seq[String],
              pluginsFiles: Seq[String],
              clusterConfig: Config): Unit = {
@@ -150,7 +154,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
 
     // Spark properties
     log.info("Adding Spark options to Sparta Job ... ")
-    sparkConf(clusterConfig).foreach { case (key: String, value: String) =>
+    sparkConfigurations.foreach { case (key: String, value: String) =>
       val valueParsed = if (key == "spark.app.name") s"$value-${policy.name}" else value
       log.info(s"\t$key = $valueParsed")
       sparkLauncher.setConf(key.trim, valueParsed.trim)

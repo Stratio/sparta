@@ -23,6 +23,8 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
+import com.typesafe.config.Config
+import scala.collection.JavaConversions._
 
 object PolicyHelper extends SLF4JLogging {
 
@@ -54,5 +56,10 @@ object PolicyHelper extends SLF4JLogging {
       }
     }).toMap
   }
+
+  def getSparkConfFromProps(clusterConfig: Config): Map[String, String] =
+    clusterConfig.entrySet()
+      .filter(_.getKey.startsWith("spark.")).toSeq
+      .map(e => (e.getKey, e.getValue.unwrapped.toString)).toMap
 
 }

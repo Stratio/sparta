@@ -51,15 +51,22 @@
     echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
   fi
 
-  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v HDFS_MASTER ] && [ ${#HDFS_MASTER} != 0 ]; then
+
+  if [[ ! -v CORE_SITE_FROM_URI ]]; then
+   CORE_SITE_FROM_URI="false"
+  fi
+  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v DEFAULT_FS ] && [ ${#DEFAULT_FS} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${HDFS_MASTER}"\"|" ${SPARTA_CONF_FILE}
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${DEFAULT_FS}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_core-site-from-uri
   fi
 
+  if [[ ! -v CORE_SITE_FROM_DFS ]]; then
+   CORE_SITE_FROM_DFS="false"
+  fi
   if [ $CORE_SITE_FROM_DFS == "true" ] && [ -v DEFAULT_FS ] && [ ${#DEFAULT_FS} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
@@ -421,6 +428,10 @@
 
  if [ -v SPARK_MESOS_EXECUTOR_DOCKER_ENV ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_ENV} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.enviromentParameters.*|sparta.mesos.spark.mesos.executor.docker.enviromentParameters = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENV}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+  if [ -v SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY.*|sparta.mesos.spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [ -v SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE ] && [ ${#SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE} != 0 ]; then
