@@ -17,6 +17,7 @@ package com.stratio.sparta.driver.test.factory
 
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.Duration
 import org.junit.runner.RunWith
@@ -37,22 +38,24 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
     val wrongConfig = ConfigFactory.empty
     val seconds = 6
     val batchDuraction = Duration(seconds)
-    val specificConfig = Map("spark.driver.allowMultipleContexts" -> "true")
+    val specificConfig = Map("spark.driver.allowMultipleContexts" -> "true") ++
+      PolicyHelper.getSparkConfFromProps(config.get)
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {
-    an[Exception] should be thrownBy SparkContextFactory.sparkStandAloneContextInstance(None, specificConfig, Seq())
+    an[Exception] should be thrownBy SparkContextFactory.sparkStandAloneContextInstance(
+      Map.empty[String, String], Seq())
   }
 
   it should "create and reuse same context" in new WithConfig {
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
-    val otherSc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
+    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
+    val otherSc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
     sc should be equals (otherSc)
     SparkContextFactory.destroySparkContext()
   }
 
   it should "create and reuse same SQLContext" in new WithConfig {
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
+    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
     val sqc = SparkContextFactory.sparkSqlContextInstance
     sqc shouldNot be equals (null)
     val otherSqc = SparkContextFactory.sparkSqlContextInstance
@@ -62,7 +65,7 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
 
   it should "create and reuse same SparkStreamingContext" in new WithConfig {
     val checkpointDir = "checkpoint/SparkContextFactorySpec"
-    val sc = SparkContextFactory.sparkStandAloneContextInstance(config, specificConfig, Seq())
+    val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
     val ssc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)
     ssc shouldNot be equals (None)
     val otherSsc = SparkContextFactory.sparkStreamingInstance(batchDuraction, checkpointDir, None)

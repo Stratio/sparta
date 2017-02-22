@@ -430,6 +430,10 @@
    sed -i "s|.*sparta.mesos.spark.mesos.executor.docker.enviromentParameters.*|sparta.mesos.spark.mesos.executor.docker.enviromentParameters = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENV}"\"|" ${SPARTA_CONF_FILE}
  fi
 
+  if [ -v SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS ] && [ ${#SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY.*|sparta.mesos.spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY = \""${SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
  if [ -v SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE ] && [ ${#SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE} != 0 ]; then
    sed -i "s|.*spark.mesos.executor.docker.forcePullImage.*|spark.mesos.executor.docker.forcePullImage = ${SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE}|" ${SPARTA_CONF_FILE}
  fi
