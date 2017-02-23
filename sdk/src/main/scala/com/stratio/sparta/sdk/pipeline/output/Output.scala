@@ -22,7 +22,7 @@ import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.Logging
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, SaveMode}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
 abstract class Output(val name: String, properties: Map[String, JSerializable])
   extends Parameterizable(properties) with Logging with CustomProperties {
@@ -75,6 +75,11 @@ object Output extends Logging {
       log.error("Table name not defined")
       throw new NoSuchElementException("tableName not found in options")
     })
+
+  def applyPartitionBytoDataFrame(partitionBy: Option[String], dataFrame: DataFrameWriter): Unit =
+    partitionBy.foreach(partitions =>
+      partitions.split(",").foldLeft(dataFrame)((newDataFrame, partitionField) => dataFrame.partitionBy(partitionField))
+    )
 
   def defaultTimeStampField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
     StructField(fieldName, TimestampType, nullable, metadata)

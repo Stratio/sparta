@@ -28,30 +28,24 @@ import org.apache.spark.sql._
   */
 class AvroOutput(name: String, properties: Map[String, Serializable]) extends Output(name, properties) {
 
+  val path = properties.getString("path", None).notBlank
+  require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
+  val partitionBy = properties.getString("partitionBy", None).notBlank
+
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-
     val tableName = getTableNameFromOptions(options)
-    val timeDimension = getTimeFromOptions(options).notBlank
-    val path = properties.getString("path", None).notBlank
-    require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-    val partitionBy = properties.getString("partitionBy", None)
 
     validateSaveMode(saveMode)
 
-    val dataFrameWriter = dataFrame
-      .write
+    val dataFrameWriter = dataFrame.write
       .format("com.databricks.spark.avro")
       .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
-    partitionBy match {
-      case Some(partition) => dataFrameWriter.partitionBy(partition)
-      case None => if (timeDimension.isDefined)
-        dataFrameWriter.partitionBy(timeDimension.get)
-    }
+    applyPartitionBytoDataFrame(partitionBy, dataFrameWriter)
 
     dataFrameWriter.save(s"${path.get}/$tableName")
   }
