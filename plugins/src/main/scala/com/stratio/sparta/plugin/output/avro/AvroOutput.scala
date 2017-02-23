@@ -30,7 +30,6 @@ class AvroOutput(name: String, properties: Map[String, Serializable]) extends Ou
 
   val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
-  val partitionBy = properties.getString("partitionBy", None).notBlank
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
@@ -45,8 +44,6 @@ class AvroOutput(name: String, properties: Map[String, Serializable]) extends Ou
       .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
-    applyPartitionBytoDataFrame(partitionBy, dataFrameWriter)
-
-    dataFrameWriter.save(s"${path.get}/$tableName")
+    applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).save(s"${path.get}/$tableName")
   }
 }

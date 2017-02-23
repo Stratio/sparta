@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.output.fileSystem
 import java.io.File
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.{OutputFormatEnum, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SQLContext, _}
@@ -32,10 +32,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   val directory = getClass().getResource("/origin.txt")
   val parentFile = new File(directory.getPath).getParent
-  val properties = Map(("path", parentFile + "/testRow"),
-    ("fileWithDate", "false"),
-    ("outputFormat", "row"),
-    ("partitionUntil", "DD"))
+  val properties = Map(("path", parentFile + "/testRow"), ("outputFormat", "row"))
   val fields = StructType(StructField("name", StringType, false) ::
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
@@ -58,7 +55,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   def fileExists(path: String): Boolean = new File(path).exists()
 
   "Given a DataFrame, a directory" should "be created with the data written inside" in {
-    fsm.save(dfGen(), SaveModeEnum.Append, Map.empty[String, String])
+    fsm.save(dfGen(), SaveModeEnum.Append, Map(Output.TableNameKey -> "test"))
     fileExists(fsm.path.get) should equal(true)
   }
 
@@ -73,13 +70,13 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   "Given another DataFrame, a directory" should "be created with the data inside in JSON format" in {
     fsm2.outputFormat should be(OutputFormatEnum.JSON)
-    fsm2.save(dfGen(), SaveModeEnum.Append, Map.empty[String, String])
-    fileExists(fsm.path.get) should equal(true)
+    fsm2.save(dfGen(), SaveModeEnum.Append, Map(Output.TableNameKey -> "test"))
+    fileExists(fsm2.path.get) should equal(true)
   }
 
   it should "exist with the given path and be deleted" in {
-    if (fileExists(fsm2.path.get))
-      FileUtils.deleteDirectory(new File(fsm2.path.get))
-    fileExists(fsm2.path.get) should equal(false)
+    if (fileExists(s"${fsm2.path.get}/test"))
+      FileUtils.deleteDirectory(new File(s"${fsm2.path.get}/test"))
+    fileExists(s"${fsm2.path.get}/test") should equal(false)
   }
 }

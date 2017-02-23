@@ -22,34 +22,40 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
 
 /**
-  * This output sends all AggregateOperations or DataFrames data  to a directory stored in
-  * HDFS, Amazon S3, Azure, etc.
-  *
-  * @param name
-  * @param properties
-  */
+ * This output sends all AggregateOperations or DataFrames data  to a directory stored in
+ * HDFS, Amazon S3, Azure, etc.
+ *
+ * @param name
+ * @param properties
+ */
 class FileSystemOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
-  val partitionBy = properties.getString("partitionBy", None).notBlank
+  val FieldName = "extractedData"
   val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
   val outputFormat = OutputFormatEnum.withName(properties.getString("outputFormat", "json").toUpperCase)
+  val delimiter = properties.getString("delimiter", ",")
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val dataFrameWriter = dataFrame.write.mode(getSparkSaveMode(saveMode))
 
     validateSaveMode(saveMode)
-    applyPartitionBytoDataFrame(partitionBy, dataFrameWriter)
 
-    if (outputFormat == OutputFormatEnum.JSON)
-      dataFrameWriter.json(s"${path.get}/$tableName")
-    else dataFrameWriter.text(s"${path.get}/$tableName")
+    if (outputFormat == OutputFormatEnum.JSON) {
+      val dataFrameWriter = dataFrame.write.mode(getSparkSaveMode(saveMode))
+      applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).json(s"${path.get}/$tableName")
+    }
+    else {
+      val colSeq = dataFrame.schema.fields.flatMap(field => Some(col(field.name))).toSeq
+      val df = dataFrame.withColumn(FieldName, concat_ws(delimiter, colSeq: _*)).select(FieldName)
+      df.write.text(s"${path.get}/$tableName")
+    }
   }
 }
 

@@ -54,29 +54,18 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
     val output = new AvroOutput("avro-test", properties)
   }
 
-  trait NonePath extends CommonValues {
-    val output = new AvroOutput("avro-test", Map.empty)
-  }
 
-  trait EmptyPath extends CommonValues {
-    val properties = Map("path" -> "    ")
-    val output = new AvroOutput("avro-test", Map.empty)
-  }
-
-
-  "AvroOutput" should  "throw an exception when path is not present" in new NonePath {
-      an[Exception] should be thrownBy output
-        .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+  "AvroOutput" should  "throw an exception when path is not present" in {
+      an[Exception] should be thrownBy new AvroOutput("avro-test", Map.empty)
     }
 
-  it should "throw an exception when empty path " in new EmptyPath {
-      an[Exception] should be thrownBy output
-        .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+  it should "throw an exception when empty path " in {
+      an[Exception] should be thrownBy new AvroOutput("avro-test", Map("path" -> "    "))
     }
 
-  it should "save a dataframe with timedimension" in new WithEventData {
-      output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
-      val read = sqlContext.read.avro(tmpPath).toDF
+  it should "save a dataframe " in new WithEventData {
+      output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
+      val read = sqlContext.read.avro(s"$tmpPath/person").toDF
       read.count should be(3)
       read should be eq data
       File(tmpPath).deleteRecursively

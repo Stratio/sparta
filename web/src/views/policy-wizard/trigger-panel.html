@@ -20,6 +20,7 @@
         data-st-name="trigger{{properties.propertyName}}Form"
         data-qa="{{properties.qa}}">
       </form-field>
+
       <div class="c-form-group" data-ng-if="vm.sqlSourceItems">
         <div class="c-col c-col--12 c-info-text__link" data-ng-click="vm.changeSqlHelpVisibility()">
           <i class="c-info-text__link__align  c-icon icon-help1"></i>
@@ -42,6 +43,24 @@
           </span>
         </div>
       </div>
+
+      <form-field-input class="c-col c-col--6" id="tableName" data-model="vm.trigger.writer.tableName"
+                        data-label="{{'_TRIGGER_TABLE_NAME_' | translate}}" data-form="vm.form" data-st-name="tableName"
+                        data-required="false"
+                        data-help='{{"_TRIGGER_TABLE_NAME_HELP_" | translate}}'
+                        data-qa="trigger-table-name"
+                        data-help-qa="trigger-table-name-help">
+      </form-field-input>
+
+
+      <form-field-input class="c-col c-col--6" id="partitionBy" data-model="vm.trigger.writer.partitionBy"
+                        data-label="{{'_PARTITION_BY_' | translate}}" data-form="vm.form" data-st-name="partitionBy"
+                        data-required="false"
+                        data-help='{{"_TRIGGER_PARTITION_BY_HELP_" | translate}}'
+                        data-qa="trigger-partition-by"
+                        data-help-qa="trigger-partition-by-help">
+      </form-field-input>
+
       <c-add-element
         data-icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
         data-model="vm.trigger.primaryKey"
@@ -61,14 +80,6 @@
                   show-label="false"
                   data-required="true" data-form="vm.form">
       </c-tag-list>
-      <div class="c-col c-col--12 c-step-content__subtitle">
-        <i class="c-icon icon-output"></i>
-        <label class="c-step-content__subtitle--text">{{"_ADD_OUTPUTS_" | translate}}</label>
-          <a data-ng-href="{{vm.outputsHelpLinks}}" class="c-info-text__link c-info-text__link__align c-info-text__link--padding-left" target="_blank" icon-class="'icon-help1'" text="'_HELP_' | translate" data-qa="policy-transformations-outputs-help">
-            <i class="c-icon icon-help1"></i>
-            <span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
-          </a>
-      </div>
       <form-field-select data-form="vm.form" data-st-name="trigger-outputs" data-model="vm.selectedPolicyOutput" data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}" data-help="" data-required="vm.trigger.writer.outputs.length == 0" data-qa="trigger-output-select" data-ng-click="vm.addOutput()">
       </form-field-select>
       <c-tag-list name="trigger-outputs" form-control-class="" data-tags="vm.trigger.writer.outputs"

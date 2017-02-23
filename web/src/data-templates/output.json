@@ -370,15 +370,6 @@
         "qa": "fragment-details-parquet-path"
       },
       {
-        "propertyId": "partitionBy",
-        "propertyName": "_PARTITION_BY_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "Partitions the output by the specified columns on the file system",
-        "qa": "fragment-details-parquet-partitionBy"
-      },
-      {
         "propertyId": "saveOptions",
         "propertyName": "_PARQUET_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -806,13 +797,16 @@
         "qa": "fragment-details-filesystem-format"
       },
       {
-        "propertyId": "partitionBy",
-        "propertyName": "_PARTITION_BY_",
+        "propertyId": "delimiter",
+        "propertyName": "_DELIMITER_",
         "propertyType": "text",
-        "regexp": "",
+        "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
+        "maxLength": "1",
+        "default": ",",
+        "trim": false,
         "required": false,
-        "tooltip": "Partitions the output by the specified columns on the file system",
-        "qa": "fragment-details-file-partitionBy"
+        "qa": "fragment-details-filesystem-delimiter"
       }
     ]
   },
@@ -834,15 +828,6 @@
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-avro-path"
-      },
-      {
-        "propertyId": "partitionBy",
-        "propertyName": "_PARTITION_BY_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "Partitions the output by the specified columns on the file system",
-        "qa": "fragment-details-avro-partitionBy"
       },
       {
         "propertyId": "saveOptions",

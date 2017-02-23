@@ -73,7 +73,8 @@ trait CubeStage extends BaseStage {
           dateType,
           cubeModel.writer.saveMode,
           cubeModel.writer.tableName,
-          getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields)
+          getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields),
+          cubeModel.writer.partitionBy
         )
       )
     }
@@ -102,7 +103,9 @@ trait CubeStage extends BaseStage {
           trigger.writer.tableName,
           trigger.primaryKey,
           trigger.writer.saveMode,
-          getAutoCalculatedFields(trigger.writer.autoCalculatedFields)),
+          getAutoCalculatedFields(trigger.writer.autoCalculatedFields),
+          trigger.writer.partitionBy
+        ),
         trigger.configuration)
     }
   }

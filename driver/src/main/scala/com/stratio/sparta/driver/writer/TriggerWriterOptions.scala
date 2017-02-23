@@ -25,4 +25,5 @@ case class TriggerWriterOptions(outputs: Seq[String] = Seq.empty[String],
                                 tableName: Option[String] = None,
                                 primaryKey: Seq[String] = Seq.empty[String],
                                 saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                                autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField])
+                                autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField],
+                                partitionBy: Option[String] = None)

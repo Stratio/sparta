@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
+import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SQLContext, _}
@@ -34,10 +34,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   val directory = getClass().getResource("/origin.txt")
   val parentFile = new File(directory.getPath).getParent
-  val properties = Map(("path", parentFile + "/testRow"),
-    ("fileWithDate", "false"),
-    ("outputFormat", "row"),
-    ("partitionUntil", "DD"))
+  val properties = Map(("path", parentFile + "/testRow"), ("outputFormat", "row"))
   val fields = StructType(StructField("name", StringType, false) ::
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
@@ -46,8 +43,6 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   "An object of type FileSystemOutput " should "have the same values as the properties Map" in {
     fsm.outputFormat should be(OutputFormatEnum.ROW)
-    fsm.fileWithDate should be(false)
-    fsm.dateFormat should be(fsm.DateFormat)
   }
 
   /* DataFrame generator */
@@ -62,14 +57,14 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   def fileExists(path: String): Boolean = new File(path).exists()
 
   "Given a DataFrame, a directory" should "be created with the data written inside" in {
-    fsm.writeOutput(dfGen())
-    fileExists(fsm.path) should equal(true)
+    fsm.save(dfGen(), SaveModeEnum.Append, Map(Output.TableNameKey -> "test"))
+    fileExists(s"${fsm.path.get}/test") should equal(true)
   }
 
   it should "exist with the given path and be deleted" in {
-    if (fileExists(fsm.path))
-      FileUtils.deleteDirectory(new File(fsm.path))
-    fileExists(fsm.path) should equal(false)
+    if (fileExists(s"${fsm.path.get}/test"))
+      FileUtils.deleteDirectory(new File(s"${fsm.path.get}/test"))
+    fileExists(s"${fsm.path.get}/test") should equal(false)
   }
 
   val fsm2 = new FileSystemOutput("key", properties.updated("outputFormat", "json")
@@ -77,33 +72,13 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   "Given another DataFrame, a directory" should "be created with the data inside in JSON format" in {
     fsm2.outputFormat should be(OutputFormatEnum.JSON)
-    fsm2.writeOutput(dfGen())
-    fileExists(fsm2.path) should equal(true)
+    fsm2.save(dfGen(), SaveModeEnum.Append, Map(Output.TableNameKey -> "test"))
+    fileExists(s"${fsm2.path.get}/test") should equal(true)
   }
 
   it should "exist with the given path and be deleted" in {
-    if (fileExists(fsm2.path))
-      FileUtils.deleteDirectory(new File(fsm2.path))
-    fileExists(fsm2.path) should equal(false)
-  }
-
-  "The path" should "be formatted with the given date until days" in {
-    val fsm3 = new FileSystemOutput("key", properties.updated("fileWithDate", "true"))
-    val testDate = new Date()
-    val partitionFormat = new SimpleDateFormat("YYYY").format(testDate) + "/" +
-      new SimpleDateFormat("MM").format(testDate) + "/" + new SimpleDateFormat("DD").format(testDate) + "/" +
-      new SimpleDateFormat("HHmmss").format(testDate)
-
-    fsm3.formatPath(testDate) should equal(fsm3.path + "/" + partitionFormat)
-
-  }
-
-  "When 'No partition' option is chosen the date" should "not be parsed with slashes and just be concatenated to " +
-    "the path" in {
-    val fsm4 = new FileSystemOutput("key", properties.updated("fileWithDate", "true").
-      updated("partitionUntil", "NONE"))
-    val testDate = new Date()
-
-    fsm4.formatPath(testDate) should equal(fsm4.path + "/" + new SimpleDateFormat(fsm4.dateFormat).format(testDate))
+    if (fileExists(s"${fsm2.path.get}/test"))
+      FileUtils.deleteDirectory(new File(s"${fsm2.path.get}/test"))
+    fileExists(s"${fsm2.path.get}/test") should equal(false)
   }
 }
