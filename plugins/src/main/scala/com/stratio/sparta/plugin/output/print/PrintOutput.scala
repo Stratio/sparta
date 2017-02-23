@@ -19,17 +19,13 @@ package com.stratio.sparta.plugin.output.print
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import org.apache.spark.Logging
-import org.apache.spark.sql._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.sql._
 
 import scala.util.Try
 
-class PrintOutput(name: String,
-                  properties: Map[String, JSerializable],
-                  schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) with Logging {
+class PrintOutput(name: String, properties: Map[String, JSerializable])
+  extends Output(name, properties) {
 
   val printData = Try(properties.getBoolean("printData")).getOrElse(false)
   val printSchema = Try(properties.getBoolean("printSchema")).getOrElse(false)

@@ -19,55 +19,20 @@ package com.stratio.sparta.driver.writer
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.driver.writer.StreamWriter._
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
-import org.apache.spark.streaming.Milliseconds
 import org.apache.spark.streaming.dstream.DStream
 
-/*
-  Common options to grouped triggers by streaming windows
- */
-case class StreamWriterOptions(streamTemporalTable: Option[String],
-                               overLast: Option[String],
-                               computeEvery: Option[String],
-                               sparkStreamingWindow: Long,
-                               initSchema: StructType
-                              )
-
 case class StreamWriter(triggers: Seq[Trigger],
-                        tableSchemas: Seq[SpartaSchema],
-                        options: StreamWriterOptions,
+                        inputTableName: String,
                         outputs: Seq[Output]) extends TriggerWriter with SLF4JLogging {
 
-  def write(streamData: DStream[Row]): Unit = {
-    val dStream = streamData.window(
-      Milliseconds(options.overLast.fold(options.sparkStreamingWindow) { over =>
-        AggregationTime.parseValueToMilliSeconds(over)
-      }),
-      Milliseconds(options.computeEvery.fold(options.sparkStreamingWindow) { computeEvery =>
-        AggregationTime.parseValueToMilliSeconds(computeEvery)
-      })
-    )
+  def write(streamData: DStream[Row], schema: StructType): Unit = {
+    streamData.foreachRDD(rdd => {
+      val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, schema)
 
-    dStream.foreachRDD(rdd => {
-      val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, options.initSchema)
-
-      writeTriggers(parsedDataFrame,
-        triggers,
-        options.streamTemporalTable.flatMap(tableName => if (tableName.nonEmpty) Some(tableName) else None)
-          .getOrElse(StreamTableName),
-        tableSchemas,
-        outputs
-      )
+      writeTriggers(parsedDataFrame, triggers, inputTableName, outputs)
     })
   }
-}
-
-object StreamWriter {
-
-  val StreamTableName = "stream"
 }

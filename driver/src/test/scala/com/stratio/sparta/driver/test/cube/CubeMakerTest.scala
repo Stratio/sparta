@@ -20,6 +20,7 @@ import java.sql.Timestamp
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.driver.cube.{Cube, CubeOperations}
 import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.writer.CubeWriterOptions
 import com.stratio.sparta.plugin.default.DefaultField
 import com.stratio.sparta.plugin.cube.field.datetime.DateTimeField
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
@@ -67,8 +68,10 @@ class CubeMakerTest extends TestSuiteBase {
       Seq(dimension, timeDimension),
       Seq(operator),
       initSchema,
+      initSchema,
       expiringDataConfig = None,
-      Seq.empty[Trigger]
+      Seq.empty[Trigger],
+      CubeWriterOptions()
     )
     val dataCube = new CubeOperations(cube)
 

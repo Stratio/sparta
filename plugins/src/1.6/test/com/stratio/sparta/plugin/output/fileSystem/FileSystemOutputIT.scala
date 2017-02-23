@@ -21,7 +21,6 @@ import java.util.Date
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{SQLContext, _}
@@ -42,8 +41,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   val fields = StructType(StructField("name", StringType, false) ::
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
-  val tableSchema = Seq(SpartaSchema(Seq("outputName"), "testTable", fields, Option("minute")))
-  val fsm = new FileSystemOutput("key", properties, tableSchema)
+  val fsm = new FileSystemOutput("key", properties)
 
 
   "An object of type FileSystemOutput " should "have the same values as the properties Map" in {
@@ -75,7 +73,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   }
 
   val fsm2 = new FileSystemOutput("key", properties.updated("outputFormat", "json")
-    .updated("path", parentFile + "/testJson"), tableSchema)
+    .updated("path", parentFile + "/testJson"))
 
   "Given another DataFrame, a directory" should "be created with the data inside in JSON format" in {
     fsm2.outputFormat should be(OutputFormatEnum.JSON)
@@ -90,7 +88,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   }
 
   "The path" should "be formatted with the given date until days" in {
-    val fsm3 = new FileSystemOutput("key", properties.updated("fileWithDate", "true"), tableSchema)
+    val fsm3 = new FileSystemOutput("key", properties.updated("fileWithDate", "true"))
     val testDate = new Date()
     val partitionFormat = new SimpleDateFormat("YYYY").format(testDate) + "/" +
       new SimpleDateFormat("MM").format(testDate) + "/" + new SimpleDateFormat("DD").format(testDate) + "/" +
@@ -103,7 +101,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   "When 'No partition' option is chosen the date" should "not be parsed with slashes and just be concatenated to " +
     "the path" in {
     val fsm4 = new FileSystemOutput("key", properties.updated("fileWithDate", "true").
-      updated ("partitionUntil", "NONE"), tableSchema)
+      updated ("partitionUntil", "NONE"))
     val testDate = new Date()
 
     fsm4.formatPath(testDate) should equal (fsm4.path + "/" +  new SimpleDateFormat(fsm4.dateFormat).format(testDate))

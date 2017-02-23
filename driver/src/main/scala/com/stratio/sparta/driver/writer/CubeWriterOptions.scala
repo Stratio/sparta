@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.policy.writer
+package com.stratio.sparta.driver.writer
 
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 
-case class WriterModel(outputs: Seq[String] = Seq.empty[String],
-                       dateType: Option[String] = None,
-                       autoCalculatedFields: Seq[AutoCalculatedFieldModel] = Seq.empty[AutoCalculatedFieldModel],
-                       saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                       tableName: Option[String] = None)
+case class CubeWriterOptions(outputs: Seq[String] = Seq.empty[String],
+                             dateType: TypeOp.Value = TypeOp.Timestamp,
+                             saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                             tableName: Option[String] = None,
+                             autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField])

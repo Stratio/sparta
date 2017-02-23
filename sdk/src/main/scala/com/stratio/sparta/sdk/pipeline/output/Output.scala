@@ -19,14 +19,12 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
 import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.Logging
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-abstract class Output(val name: String,
-                      properties: Map[String, JSerializable],
-                      schemas: Seq[SpartaSchema])
+abstract class Output(val name: String, properties: Map[String, JSerializable])
   extends Parameterizable(properties) with Logging with CustomProperties {
 
   val customKey = "saveOptions"
@@ -77,18 +75,6 @@ object Output extends Logging {
       log.error("Table name not defined")
       throw new NoSuchElementException("tableName not found in options")
     })
-
-  def getTimeFieldType(dateTimeType: TypeOp,
-                       fieldName: String,
-                       nullable: Boolean,
-                       metadata: Option[Metadata] = None): StructField =
-    dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime => defaultDateField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.Timestamp => defaultTimeStampField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.Long => defaultLongField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.String => defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case _ => defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-    }
 
   def defaultTimeStampField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
     StructField(fieldName, TimestampType, nullable, metadata)

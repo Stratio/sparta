@@ -20,14 +20,10 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
 
-class CassandraOutput(name: String,
-                      properties: Map[String, JSerializable],
-                      schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) {
+class CassandraOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   val MaxTableNameLength = 48
 

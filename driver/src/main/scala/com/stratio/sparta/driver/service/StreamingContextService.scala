@@ -44,8 +44,9 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     createLocalCheckpointPath(policy)
+    createLocalSparkContext(policy, files)
 
-    val ssc = SpartaPipeline(policy, statusActor).run(getLocalSparkContext(policy, files))
+    val ssc = SpartaPipeline(policy, statusActor).run()
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
@@ -60,7 +61,8 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      SpartaPipeline(policy, statusActor).run(getClusterSparkContext(policy, detailConfig, files))
+      createClusterSparkContext(policy, detailConfig, files)
+      SpartaPipeline(policy, statusActor).run()
     })
 
     setSparkContext(ssc.sparkContext)
@@ -70,7 +72,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     ssc
   }
 
-  private def getLocalSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
+  private def createLocalSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
     val outputsSparkConfig = PolicyHelper.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(apConfig)
     val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
@@ -79,7 +81,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, jars)
   }
 
-  private def getClusterSparkContext(policy: PolicyModel, detailConfig: Map[String, String], files: Seq[String])
+  private def createClusterSparkContext(policy: PolicyModel, detailConfig: Map[String, String], files: Seq[String])
   : SparkContext = {
     val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
     val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(policy)

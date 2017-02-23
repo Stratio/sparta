@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.sdk.pipeline.schema
-
-import java.io.Serializable
+package com.stratio.sparta.driver.writer
 
 import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
-import org.apache.spark.sql.types.StructType
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
 
-case class SpartaSchema(outputs: Seq[String],
-                        tableName: String,
-                        schema: StructType,
-                        timeDimension: Option[String] = None,
-                        dateType: TypeOp.Value = TypeOp.Timestamp,
-                        autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField]
-                      ) extends Serializable
+case class TriggerWriterOptions(outputs: Seq[String] = Seq.empty[String],
+                                overLast: Option[String] = None,
+                                computeEvery: Option[String] = None,
+                                tableName: Option[String] = None,
+                                primaryKey: Seq[String] = Seq.empty[String],
+                                saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                                autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField])

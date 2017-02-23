@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.test.helper
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.driver.cube.Cube
-import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.helper.SchemaHelper
-import com.stratio.sparta.sdk._
-import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, ExpiringData, Precision}
+import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, Precision}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
-import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -86,101 +83,51 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
   }
 
   "SchemaHelperTest" should "return a list of schemas" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-      Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger])
-
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModel)
-    val cubes = Seq(cube)
-    val cubesModel = Seq(cubeModel)
-    val tableSchema = SpartaSchema(
-      Seq("outputName"),
-      "cubeTest",
-      StructType(Array(
-        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
-        StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-        StructField(checkpointGranularity, TimestampType, false, SchemaHelper.PkTimeMetadata),
-        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      Option("minute"),
-      TypeOp.Timestamp,
-      Seq.empty[AutoCalculatedField]
-    )
+    val operators = Seq(op1)
+    val dimensions = Seq(dim1, dim2, dimensionTime)
+    val cubeSchema = StructType(Array(
+      StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+      StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
+      StructField(checkpointGranularity, TimestampType, false, SchemaHelper.PkTimeMetadata),
+      StructField("op1", LongType, false, SchemaHelper.MeasureMetadata)))
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
+    val res = SchemaHelper.getCubeSchema(cubeModel, operators, dimensions)
 
-    res should be(Seq(tableSchema))
+    res should be(cubeSchema)
   }
 
   it should "return a list of schemas without time" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, None, Seq.empty[Trigger])
-    val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
-    val cubes = Seq(cube)
-    val cubesModel = Seq(cubeModel)
-    val tableSchema = SpartaSchema(
-      Seq("outputName"),
-      "cubeTest",
-      StructType(Array(
-        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
-        StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      None,
-      TypeOp.Timestamp,
-      Seq.empty[AutoCalculatedField]
-    )
-
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
-
-    res should be(Seq(tableSchema))
-  }
-
-  it should "return a list of schemas with field id but not in writer" in new CommonValues {
-    val cube = Cube(cubeName, Seq(dim1, dimId), Seq(op1), initSchema, None, Seq.empty[Trigger])
     val cubeModel =
       CubeModel(cubeName, Seq(dimension1Model, dimension2Model), Seq(operator1Model), writerModel)
-    val cubes = Seq(cube)
-    val cubesModel = Seq(cubeModel)
-    val tableSchema = SpartaSchema(
-      Seq("outputName"),
-      "cubeTest",
-      StructType(Array(
-        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
-        StructField("id", StringType, false, SchemaHelper.PkMetadata),
-        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-      None,
-      TypeOp.Timestamp,
-      Seq.empty[AutoCalculatedField]
-    )
+    val operators = Seq(op1)
+    val dimensions = Seq(dim1, dim2)
+    val cubeSchema = StructType(Array(
+      StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+      StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
+      StructField("op1", LongType, false, SchemaHelper.MeasureMetadata)))
 
-    val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
+    val res = SchemaHelper.getCubeSchema(cubeModel, operators, dimensions)
 
-    res should be(Seq(tableSchema))
+    res should be(cubeSchema)
   }
 
   it should "return a list of schemas with timeDimension with DateFormat" in
     new CommonValues {
-      val cube = Cube(cubeName, Seq(dim1, dim2, dimensionTime), Seq(op1), initSchema,
-        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger])
-      val cubeModel = CubeModel(
-        cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel), Seq(operator1Model), writerModelTimeDate
-      )
-      val cubes = Seq(cube)
-      val cubesModel = Seq(cubeModel)
-      val tableSchema = SpartaSchema(
-        Seq("outputName"),
-        "cubeTest",
-        StructType(Array(
-          StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
-          StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
-          StructField(checkpointGranularity, DateType, false, SchemaHelper.PkTimeMetadata),
-          StructField("op1", LongType, false, SchemaHelper.MeasureMetadata))),
-        Option("minute"),
-        TypeOp.Date,
-        Seq.empty[AutoCalculatedField]
-      )
+      val cubeModel = CubeModel(cubeName, Seq(dimension1Model, dimension2Model, dimensionTimeModel),
+        Seq(operator1Model), writerModelTimeDate)
+      val operators = Seq(op1)
+      val dimensions = Seq(dim1, dim2, dimensionTime)
+      val cubeSchema = StructType(Array(
+        StructField("dim1", StringType, false, SchemaHelper.PkMetadata),
+        StructField("dim2", StringType, false, SchemaHelper.PkMetadata),
+        StructField(checkpointGranularity, DateType, false, SchemaHelper.PkTimeMetadata),
+        StructField("op1", LongType, false, SchemaHelper.MeasureMetadata)))
 
-      val res = SchemaHelper.getSchemasFromCubes(cubes, cubesModel)
+      val res = SchemaHelper.getCubeSchema(cubeModel, operators, dimensions)
 
-      res should be(Seq(tableSchema))
+      res should be(cubeSchema)
     }
 
   it should "return a map with the name of the transformation and the schema" in
@@ -225,7 +172,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
         TransformationsModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2),
           Map("removeInputField" -> JsoneyString.apply("true")))
       val transformationNoRaw2 = TransformationsModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
-        outputFieldModel4),Map("removeInputField" -> JsoneyString.apply("true")))
+        outputFieldModel4), Map("removeInputField" -> JsoneyString.apply("true")))
 
       val transformationsModel = Seq(transformationNoRaw1, transformationNoRaw2)
 
@@ -234,13 +181,36 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       val expected = Map(
         Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
         "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
-        "1" -> StructType(Seq(StructField("field2", IntegerType),StructField("field3", StringType),
+        "1" -> StructType(Seq(StructField("field2", IntegerType), StructField("field3", StringType),
           StructField("field4", StringType)))
-        )
-
+      )
 
       schemaWithoutRaw should be(expected)
     }
+
+  it should "return the spark date field " in new CommonValues {
+    val expected = Output.defaultDateField("field", false)
+    val result = SchemaHelper.getTimeFieldType(TypeOp.Date, "field", false)
+    result should be(expected)
+  }
+
+  it should "return the spark timestamp field " in new CommonValues {
+    val expected = Output.defaultTimeStampField("field", false)
+    val result = SchemaHelper.getTimeFieldType(TypeOp.Timestamp, "field", false)
+    result should be(expected)
+  }
+
+  it should "return the spark string field " in new CommonValues {
+    val expected = Output.defaultStringField("field", false)
+    val result = SchemaHelper.getTimeFieldType(TypeOp.String, "field", false)
+    result should be(expected)
+  }
+
+  it should "return the spark other field " in new CommonValues {
+    val expected = Output.defaultStringField("field", false)
+    val result = SchemaHelper.getTimeFieldType(TypeOp.ArrayDouble, "field", false)
+    result should be(expected)
+  }
 
   class OperatorTest(name: String,
                      val schema: StructType,

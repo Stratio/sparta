@@ -19,7 +19,6 @@ import java.io.{Serializable => JSerializable}
 
 import com.datastax.spark.connector.cql.CassandraConnector
 import com.stratio.sparta.sdk._
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith

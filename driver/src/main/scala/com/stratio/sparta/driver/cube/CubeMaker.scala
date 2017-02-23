@@ -37,7 +37,7 @@ case class CubeMaker(cubes: Seq[Cube]) {
    */
   def setUp(inputStream: DStream[Row]): Seq[(String, DStream[(DimensionValuesTime, MeasuresValues)])] = {
     cubes.map(cube => {
-      val currentCube = new CubeOperations(cube)
+      val currentCube = CubeOperations(cube)
       val extractedDimensionsStream = currentCube.extractDimensionsAggregations(inputStream)
       (cube.name, cube.aggregate(extractedDimensionsStream))
     })

@@ -19,19 +19,14 @@ import java.io.Serializable
 
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.Logging
 import org.apache.spark.sql._
 
 
 /**
   * This output save as avro file the information.
   */
-class AvroOutput(name: String,
-                 properties: Map[String, Serializable],
-                 schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) with Logging {
+class AvroOutput(name: String, properties: Map[String, Serializable]) extends Output(name, properties) {
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)

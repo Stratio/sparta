@@ -18,13 +18,10 @@ package com.stratio.sparta.sdk.pipeline.transformation
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import org.apache.spark.sql.DataFrame
 
-class OutputMock(name: String,
-                 properties: Map[String, JSerializable],
-                 schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) {
+class OutputMock(name: String, properties: Map[String, JSerializable])
+  extends Output(name, properties) {
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
 }

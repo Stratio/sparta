@@ -17,11 +17,9 @@ package com.stratio.sparta.plugin.output.parquet
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import org.apache.spark.Logging
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
 
 /**
@@ -29,12 +27,8 @@ import org.apache.spark.sql._
  *
  * @param name
  * @param properties
- * @param schemas
  */
-class ParquetOutput(name: String,
-                    properties: Map[String, JSerializable],
-                    schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) with Logging {
+class ParquetOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   override def supportedSaveModes : Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)

@@ -16,7 +16,6 @@
 package com.stratio.sparta.sdk.pipeline.output
 
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionTypeMock, DimensionValue, DimensionValuesTime}
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
 import com.stratio.sparta.sdk.pipeline.transformation.OutputMock
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -27,41 +26,21 @@ import org.scalatest.{Matchers, WordSpec}
 class OutputTest extends WordSpec with Matchers {
 
   trait CommonValues {
-
     val timeDimension = "minute"
     val tableName = "table"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
-    val dimensionValuesT = DimensionValuesTime("testCube", Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
-
-    val dimensionValuesTFixed = DimensionValuesTime("testCube", Seq(DimensionValue(
-      Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
-      DimensionValue(
-        Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
-
-    val tableSchema = SpartaSchema(Seq("outputName"), "myCube", StructType(Array(
-      StructField("dim1", StringType, false),
-      StructField("dim2", StringType, false),
-      StructField("minute", DateType, false),
-      StructField("op1", LongType, true))), Option("minute"))
+    val dimensionValuesT = DimensionValuesTime("testCube", Seq(
+      DimensionValue(Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+      DimensionValue(Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
+      DimensionValue(Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
+    val dimensionValuesTFixed = DimensionValuesTime("testCube", Seq(
+      DimensionValue(Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
+      DimensionValue(Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
     val outputName = "outputName"
-
-    val output = new OutputMock(outputName,
-      Map(),
-      Seq(tableSchema))
-
-    val outputOperation = new OutputMock(outputName,
-      Map(),
-      Seq(tableSchema))
-
-    val outputProps = new OutputMock(outputName,
-      Map(),
-      Seq(tableSchema))
+    val output = new OutputMock(outputName, Map())
+    val outputOperation = new OutputMock(outputName, Map())
+    val outputProps = new OutputMock(outputName, Map())
   }
 
   "Output" should {
@@ -69,30 +48,6 @@ class OutputTest extends WordSpec with Matchers {
     "Name must be " in new CommonValues {
       val expected = outputName
       val result = output.name
-      result should be(expected)
-    }
-
-    "the spark date field returned must be " in new CommonValues {
-      val expected = Output.defaultDateField("field", false)
-      val result = Output.getTimeFieldType(TypeOp.Date, "field", false)
-      result should be(expected)
-    }
-
-    "the spark timestamp field returned must be " in new CommonValues {
-      val expected = Output.defaultTimeStampField("field", false)
-      val result = Output.getTimeFieldType(TypeOp.Timestamp, "field", false)
-      result should be(expected)
-    }
-
-    "the spark string field returned must be " in new CommonValues {
-      val expected = Output.defaultStringField("field", false)
-      val result = Output.getTimeFieldType(TypeOp.String, "field", false)
-      result should be(expected)
-    }
-
-    "the spark other field returned must be " in new CommonValues {
-      val expected = Output.defaultStringField("field", false)
-      val result = Output.getTimeFieldType(TypeOp.ArrayDouble, "field", false)
       result should be(expected)
     }
 

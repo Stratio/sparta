@@ -134,6 +134,11 @@
  fi
  sed -i "s|org.apache.hadoop.*|org.apache.hadoop\" level= \""${HADOOP_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
 
+ if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
+   ZOOKEEPER_LOG_LEVEL="OFF"
+ fi
+ sed -i "s|org.apache.zookeeper.ClientCnxn.*|org.apache.zookeeper.ClientCnxn\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+
  if [[ ! -v AVRO_NETTY_LOG_LEVEL ]]; then
    AVRO_NETTY_LOG_LEVEL="ERROR"
  fi
