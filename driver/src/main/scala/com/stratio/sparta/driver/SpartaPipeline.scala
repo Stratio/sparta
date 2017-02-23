@@ -22,20 +22,16 @@ import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.service.RawDataStorageService
 import com.stratio.sparta.driver.stage._
-import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.driver.writer.{StreamWriter, StreamWriterOptions}
+import com.stratio.sparta.driver.writer.StreamWriter
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.{Duration, StreamingContext}
+import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
 class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends CheckpointUtils
   with InputStage
@@ -46,7 +42,7 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
 
   private val ReflectionUtils = PolicyHelper.ReflectionUtils
 
-  def run(sc: SparkContext): StreamingContext = {
+  def run(): StreamingContext = {
     clearError()
     val checkpointPolicyPath = checkpointPath(policy)
     val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
@@ -54,13 +50,9 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = parserStage(ReflectionUtils, parserSchemas).sorted
     val cubes = cubeStage(ReflectionUtils, parserSchemas.values.last)
-    val cubesSchemas = SchemaHelper.getSchemasFromCubes(cubes, policy.cubes)
-    val cubesOutputs = outputStage(cubesSchemas, ReflectionUtils)
-    val cubesTriggersSchemas = SchemaHelper.getSchemasFromCubeTrigger(policy.cubes, policy.outputs)
-    val cubesTriggersOutputs = outputStage(cubesTriggersSchemas, ReflectionUtils)
-    val streamTriggersSchemas = SchemaHelper.getSchemasFromTriggers(policy.streamTriggers, policy.outputs)
-    val streamTriggersOutputs = outputStage(streamTriggersSchemas, ReflectionUtils)
-    cubesOutputs.foreach(output => output.setup())
+    val outputs = outputStage(ReflectionUtils)
+
+    outputs.foreach(output => output.setup())
 
     val input = inputStage(ssc.get, ReflectionUtils)
     val inputDStream = inputStreamStage(ssc.get, input)
@@ -70,30 +62,21 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
     val parsedData = ParserStage.applyParsers(inputDStream, parsers)
 
     triggerStage(policy.streamTriggers)
-      .groupBy(trigger => (trigger.overLast, trigger.computeEvery))
+      .groupBy(trigger => (trigger.triggerWriterOptions.overLast, trigger.triggerWriterOptions.computeEvery))
       .foreach { case ((overLast, computeEvery), triggers) =>
-        getStreamWriter(
-          triggers,
-          streamTriggersSchemas,
-          policy.streamTemporalTable,
-          overLast,
-          computeEvery,
-          sparkStreamingWindow,
-          parserSchemas.values.last,
-          streamTriggersOutputs
-        ).write(parsedData)
+        val groupedData = parsedData.window(
+          Milliseconds(overLast.fold(sparkStreamingWindow) { over => AggregationTime.parseValueToMilliSeconds(over) }),
+          Milliseconds(computeEvery.fold(sparkStreamingWindow) { computeEvery =>
+            AggregationTime.parseValueToMilliSeconds(computeEvery)
+          }))
+
+        StreamWriter(triggers, streamTemporalTable(policy.streamTemporalTable), outputs)
+          .write(groupedData, parserSchemas.values.last)
       }
 
     val dataCube = CubeMaker(cubes).setUp(parsedData)
     dataCube.foreach { case (cubeName, aggregatedData) =>
-      getCubeWriter(cubeName,
-        cubes,
-        cubesSchemas,
-        cubesTriggersSchemas,
-        policy.cubes,
-        cubesOutputs,
-        cubesTriggersOutputs
-      ).write(aggregatedData)
+      getCubeWriter(cubeName, cubes, outputs).write(aggregatedData)
     }
     ssc.get
   }
@@ -104,17 +87,9 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
       RawDataStorageService.save(input, rawModel.path)
     }
 
-  def getStreamWriter(triggers: Seq[Trigger],
-                      tableSchemas: Seq[SpartaSchema],
-                      streamTemporalTable: Option[String],
-                      overLast: Option[String],
-                      computeEvery: Option[String],
-                      sparkStreamingWindow: Long,
-                      initSchema: StructType,
-                      outputs: Seq[Output]): StreamWriter = {
-    val writerOp = StreamWriterOptions(streamTemporalTable, overLast, computeEvery, sparkStreamingWindow, initSchema)
-    StreamWriter(triggers, tableSchemas, writerOp, outputs)
-  }
+  def streamTemporalTable(policyTableName: Option[String]): String =
+    policyTableName.flatMap(tableName => if (tableName.nonEmpty) Some(tableName) else None)
+      .getOrElse("stream")
 }
 
 object SpartaPipeline {

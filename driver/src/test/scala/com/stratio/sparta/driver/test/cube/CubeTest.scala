@@ -20,6 +20,7 @@ package com.stratio.sparta.driver.test.cube
 
 import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.writer.CubeWriterOptions
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
 import com.stratio.sparta.plugin.cube.operator.sum.SumOperator
 import com.stratio.sparta.plugin.default.DefaultField
@@ -59,8 +60,10 @@ class CubeTest extends TestSuiteBase {
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(operatorCount, operatorSum),
       initSchema,
+      initSchema,
       Option(expiringDataConfig),
-      Seq.empty[Trigger]
+      Seq.empty[Trigger],
+      CubeWriterOptions()
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
@@ -132,9 +135,11 @@ class CubeTest extends TestSuiteBase {
       name,
       Seq(Dimension("dim1", "foo", "identity", defaultDimension)),
       Seq(operatorCount, operatorSum),
-    initSchema,
+      initSchema,
+      initSchema,
       expiringDataConfig = None,
-      Seq.empty[Trigger]
+      Seq.empty[Trigger],
+      CubeWriterOptions()
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)

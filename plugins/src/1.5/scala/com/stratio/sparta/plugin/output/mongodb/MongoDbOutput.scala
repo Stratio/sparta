@@ -22,15 +22,11 @@ import com.mongodb.casbah.commons.conversions.scala._
 import com.stratio.datasource.mongodb.MongodbConfig
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StructType
 
-class MongoDbOutput(name: String,
-                    properties: Map[String, JSerializable],
-                    schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) {
+class MongoDbOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   val DefaultHost = "localhost"
   val DefaultPort = "27017"

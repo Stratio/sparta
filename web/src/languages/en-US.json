@@ -341,6 +341,7 @@
   "_NOT_SAVED_": "not saved",
   "_SQL_": "SQL",
   "_TRIGGERS_": "Triggers",
+  "_TRIGGER_TABLE_NAME_": "Save to",
   "_HELP_FOR_SQL_QUERIES_": "Help for your SQL queries",
   "_OVER_LAST_": "Over last",
   "_COMPUTE_EVERY_": "Compute every",

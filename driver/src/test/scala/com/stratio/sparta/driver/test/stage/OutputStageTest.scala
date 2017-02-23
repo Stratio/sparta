@@ -18,7 +18,6 @@ package com.stratio.sparta.driver.test.stage
 import com.stratio.sparta.driver.stage.{LogError, OutputStage}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
@@ -47,7 +46,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val reflection = mock[ReflectionUtils]
     when(policy.outputs).thenReturn(Seq.empty)
 
-    val result = TestStage(policy).outputStage(Seq.empty, reflection)
+    val result = TestStage(policy).outputStage(reflection)
 
     result should be(List.empty)
   }
@@ -60,7 +59,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
 
-    val result = TestStage(policy).outputStage(Seq.empty, reflection)
+    val result = TestStage(policy).outputStage(reflection)
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     result should be(List(outputClass))
   }
@@ -73,7 +72,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(reflection.tryToInstantiate(any(), any())).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestStage(policy).outputStage(Seq.empty, reflection)
+      TestStage(policy).outputStage(reflection)
     } should have message "Something gone wrong creating the output: output. Please re-check the policy."
   }
 
@@ -87,7 +86,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(reflection.tryToInstantiate(any(), any())).thenReturn(myInputClass)
 
     the[IllegalArgumentException] thrownBy {
-      TestStage(policy).outputStage(Seq.empty, reflection)
+      TestStage(policy).outputStage(reflection)
     } should have message "Something gone wrong creating the output: output. Please re-check the policy."
   }
 
@@ -103,7 +102,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
     when(reflection.tryToInstantiate(mockEq("OtherOutputOutput"), any())).thenReturn(outputClass)
 
-    val result = TestStage(policy).outputStage(Seq.empty, reflection)
+    val result = TestStage(policy).outputStage(reflection)
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     verify(reflection).tryToInstantiate(mockEq("OtherOutputOutput"), any())
     result should be(List(outputClass, outputClass))
@@ -116,18 +115,17 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val secondOutput = PolicyElementModel("outputOne", "OtherOutput", Map.empty)
     val outputs = Seq(firstOutput, secondOutput)
     val outputClass = mock[Output]
-    val schema = SpartaSchema(Seq("output"), "Output", StructType(Seq.empty))
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
     when(reflection.tryToInstantiate(mockEq("OtherOutputOutput"), any())).thenReturn(outputClass)
 
     val spyResult = spy(TestStage(policy))
-    val result = spyResult.outputStage(Seq(schema), reflection)
+    val result = spyResult.outputStage(reflection)
 
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     verify(reflection).tryToInstantiate(mockEq("OtherOutputOutput"), any())
-    verify(spyResult).createOutput(firstOutput, List(schema), reflection)
-    verify(spyResult).createOutput(secondOutput, List.empty, reflection)
+    verify(spyResult).createOutput(firstOutput, reflection)
+    verify(spyResult).createOutput(secondOutput, reflection)
     result should be(List(outputClass, outputClass))
   }
 

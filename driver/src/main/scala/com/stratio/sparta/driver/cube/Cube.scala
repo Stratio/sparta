@@ -17,6 +17,7 @@ package com.stratio.sparta.driver.cube
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.writer.CubeWriterOptions
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.{Associative, Operator}
@@ -42,8 +43,10 @@ case class Cube(name: String,
                 dimensions: Seq[Dimension],
                 operators: Seq[Operator],
                 initSchema: StructType,
+                schema: StructType,
                 expiringDataConfig: Option[ExpiringData] = None,
-                triggers: Seq[Trigger]) extends SLF4JLogging {
+                triggers: Seq[Trigger],
+                cubeWriterOptions: CubeWriterOptions) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap

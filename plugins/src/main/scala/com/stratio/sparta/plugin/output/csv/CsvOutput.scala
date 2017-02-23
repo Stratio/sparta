@@ -18,13 +18,11 @@ package com.stratio.sparta.plugin.output.csv
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.Logging
-import org.apache.spark.sql._
-import Output._
 import com.stratio.sparta.sdk.utils.AggregationTime
+import org.apache.spark.sql._
 
 import scala.util.Try
 
@@ -33,12 +31,8 @@ import scala.util.Try
  *
  * @param name
  * @param properties
- * @param schemas
  */
-class CsvOutput(name: String,
-                properties: Map[String, JSerializable],
-                schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) with Logging {
+class CsvOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   val path = properties.getString("path", None)
   val header = Try(properties.getString("header").toBoolean).getOrElse(false)

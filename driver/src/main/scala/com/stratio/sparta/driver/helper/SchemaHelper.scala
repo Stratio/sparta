@@ -16,23 +16,18 @@
 
 package com.stratio.sparta.driver.helper
 
-import com.stratio.sparta.driver.cube.Cube
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
+import com.stratio.sparta.driver.writer.TriggerWriterOptions
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, ExpiringData}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
-import com.stratio.sparta.sdk.pipeline.autoCalculations._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.models.policy.TransformationsModel
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
-import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, TransformationsModel}
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{StructType, _}
 
 import scala.util.Try
-
 
 
 object SchemaHelper {
@@ -44,10 +39,10 @@ object SchemaHelper {
   val DefaultTimeStampTypeString = "timestamp"
   val DefaultTimeStampType = TypeOp.Timestamp
   private val MetadataBuilder = new MetadataBuilder
-  val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, true).build()
-  val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true).build()
-  val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, true)
-    .putBoolean(Output.TimeDimensionKey, true).build()
+  val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, value = true).build()
+  val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true).build()
+  val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true)
+    .putBoolean(Output.TimeDimensionKey, value = true).build()
 
   val mapTypes = Map(
     TypeOp.Long -> LongType,
@@ -62,7 +57,7 @@ object SchemaHelper {
     TypeOp.ArrayString -> ArrayType(StringType),
     TypeOp.String -> StringType,
     TypeOp.MapStringLong -> MapType(StringType, LongType),
-    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, false)
+    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, valueContainsNull = false)
   )
 
   val mapSparkTypes: Map[DataType, TypeOp] = Map(
@@ -77,7 +72,7 @@ object SchemaHelper {
     ArrayType(StringType) -> TypeOp.ArrayString,
     StringType -> TypeOp.String,
     MapType(StringType, LongType) -> TypeOp.MapStringLong,
-    MapType(StringType, DoubleType, false) -> TypeOp.MapStringDouble
+    MapType(StringType, DoubleType, valueContainsNull = false) -> TypeOp.MapStringDouble
   )
 
   val mapStringSparkTypes = Map(
@@ -97,12 +92,51 @@ object SchemaHelper {
   )
 
   def getSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
-                            initSchema: Map[String, StructType]): Map[String, StructType] = {
+                            initSchema: Map[String, StructType]): Map[String, StructType] =
     initSchema ++ searchSchemasFromParsers(transformationsModel.sortBy(_.order), initSchema)
+
+  def getCubeSchema(cubeModel: CubeModel,
+                    operators: Seq[Operator],
+                    dimensions: Seq[Dimension]): StructType = {
+    val measuresMerged = measuresFields(operators, cubeModel.avoidNullValues).sortWith(_.name < _.name)
+    val timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
+    val dimensionsFilterTime = filterDimensionsByTime(dimensions.sorted, timeDimension)
+    val dimensionsF = dimensionsFields(dimensionsFilterTime, cubeModel.avoidNullValues)
+    val dateType = getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
+    val structFields = dimensionsF ++
+      timeDimensionFieldType(timeDimension, dateType, cubeModel.avoidNullValues) ++ measuresMerged
+
+    StructType(structFields)
   }
 
+  def getExpiringData(cubeModel: CubeModel): Option[ExpiringData] = {
+    val timeDimension = cubeModel.dimensions
+      .find(dimensionModel => dimensionModel.computeLast.isDefined)
+
+    timeDimension match {
+      case Some(dimensionModelValue) =>
+        Option(ExpiringData(
+          dimensionModelValue.name,
+          dimensionModelValue.precision,
+          dimensionModelValue.computeLast.get))
+      case _ => None
+    }
+  }
+
+  def getStreamWriterFieldsMetadata(triggerWriterOptions: TriggerWriterOptions): Seq[StructField] =
+    triggerWriterOptions.primaryKey.map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
+
+  def getTimeTypeFromString(timeType: String): TypeOp =
+    timeType.toLowerCase match {
+      case "timestamp" => TypeOp.Timestamp
+      case "date" => TypeOp.Date
+      case "datetime" => TypeOp.DateTime
+      case "long" => TypeOp.Long
+      case _ => TypeOp.String
+    }
+
   private def searchSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
-                                       schemas: Map[String, StructType]): Map[String, StructType] = {
+                                       schemas: Map[String, StructType]): Map[String, StructType] =
     transformationsModel.headOption match {
       case Some(transformationModel) =>
         val schema = transformationModel.outputFieldsTransformed.map(outputField =>
@@ -129,92 +163,6 @@ object SchemaHelper {
       case None =>
         schemas
     }
-  }
-
-
-  //scalastyle:off
-  def getSchemasFromCubes(cubes: Seq[Cube],
-                          cubeModels: Seq[CubeModel]): Seq[SpartaSchema] = {
-    for {
-      (cube, cubeModel) <- cubes.zip(cubeModels)
-      measuresMerged = measuresFields(cube.operators, cubeModel.avoidNullValues).sortWith(_.name < _.name)
-      timeDimension = getExpiringData(cubeModel).map(config => config.timeDimension)
-      dimensions = filterDimensionsByTime(cube.dimensions.sorted, timeDimension)
-      dimensionsF = dimensionsFields(dimensions, cubeModel.avoidNullValues)
-      dateType = getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-      structFields = dimensionsF ++ timeDimensionFieldType(timeDimension, dateType, cubeModel.avoidNullValues) ++ measuresMerged
-      schema = StructType(structFields)
-      outputs = cubeModel.writer.outputs
-      autoCalculatedFields = cubeModel.writer.autoCalculatedFields.map(model =>
-        AutoCalculatedField(
-          model.fromNotNullFields.map(fromNotNullFieldsModel =>
-            FromNotNullFields(Field(fromNotNullFieldsModel.field.name, fromNotNullFieldsModel.field.outputType))),
-          model.fromPkFields.map(fromPkFieldsModel =>
-            FromPkFields(Field(fromPkFieldsModel.field.name, fromPkFieldsModel.field.outputType))),
-          model.fromFields.map(fromFieldModel =>
-            FromFields(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
-          model.fromFixedValue.map(fromFixedValueModel =>
-            FromFixedValue(Field(fromFixedValueModel.field.name, fromFixedValueModel.field.outputType),
-              fromFixedValueModel.value))
-        )
-      )
-    } yield SpartaSchema(outputs, cube.name, schema, timeDimension, dateType, autoCalculatedFields)
-  }
-
-  //scalastyle:on
-
-  def getExpiringData(cubeModel: CubeModel): Option[ExpiringData] = {
-    val timeDimension = cubeModel.dimensions
-      .find(dimensionModel => dimensionModel.computeLast.isDefined)
-
-    timeDimension match {
-      case Some(dimensionModelValue) =>
-        Option(ExpiringData(
-          dimensionModelValue.name,
-          dimensionModelValue.precision,
-          dimensionModelValue.computeLast.get))
-      case _ => None
-    }
-  }
-
-  def getSchemasFromTriggers(triggers: Seq[TriggerModel], outputModels: Seq[PolicyElementModel]): Seq[SpartaSchema] = {
-    for {
-      trigger <- triggers
-      structFields = trigger.primaryKey.map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
-      schema = StructType(structFields)
-      autoCalculatedFields = trigger.writer.autoCalculatedFields.map(model =>
-        AutoCalculatedField(
-          model.fromNotNullFields.map(fromNotNullFieldsModel =>
-            FromNotNullFields(Field(fromNotNullFieldsModel.field.name, fromNotNullFieldsModel.field.outputType))),
-          model.fromPkFields.map(fromPkFieldsModel =>
-            FromPkFields(Field(fromPkFieldsModel.field.name, fromPkFieldsModel.field.outputType))),
-          model.fromFields.map(fromFieldModel =>
-            FromFields(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
-          model.fromFixedValue.map(fromFixedValueModel =>
-            FromFixedValue(Field(fromFixedValueModel.field.name, fromFixedValueModel.field.outputType),
-              fromFixedValueModel.value))
-        )
-      )
-    } yield SpartaSchema(
-      outputs = trigger.writer.outputs,
-      tableName = trigger.name,
-      schema = schema,
-      timeDimension = None,
-      dateType = TypeOp.Timestamp,
-      autoCalculatedFields
-    )
-  }
-
-  def getSchemasFromCubeTrigger(cubeModels: Seq[CubeModel],
-                                outputModels: Seq[PolicyElementModel]): Seq[SpartaSchema] = {
-    val tableSchemas = for {
-      cube <- cubeModels
-      tableSchemas = getSchemasFromTriggers(cube.triggers, outputModels)
-    } yield tableSchemas
-    tableSchemas.flatten
-  }
-
-  // XXX Private methods.
 
   private def filterDimensionsByTime(dimensions: Seq[Dimension], timeDimension: Option[String]): Seq[Dimension] =
     timeDimension match {
@@ -229,17 +177,25 @@ object SchemaHelper {
       case None =>
         Seq.empty[StructField]
       case Some(timeDimensionName) =>
-        Seq(Output.getTimeFieldType(dateType, timeDimensionName, !avoidNullValues, Some(PkTimeMetadata)))
+        Seq(getTimeFieldType(dateType, timeDimensionName, !avoidNullValues, Some(PkTimeMetadata)))
     }
   }
 
-  def getTimeTypeFromString(timeType: String): TypeOp =
-    timeType.toLowerCase match {
-      case "timestamp" => TypeOp.Timestamp
-      case "date" => TypeOp.Date
-      case "datetime" => TypeOp.DateTime
-      case "long" => TypeOp.Long
-      case _ => TypeOp.String
+  def getTimeFieldType(dateTimeType: TypeOp,
+                       fieldName: String,
+                       nullable: Boolean,
+                       metadata: Option[Metadata] = None): StructField =
+    dateTimeType match {
+      case TypeOp.Date | TypeOp.DateTime =>
+        Output.defaultDateField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Timestamp =>
+        Output.defaultTimeStampField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Long =>
+        Output.defaultLongField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.String =>
+        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case _ =>
+        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
     }
 
   private def measuresFields(operators: Seq[Operator], avoidNullValues: Boolean): Seq[StructField] =

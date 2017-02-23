@@ -18,7 +18,6 @@ package com.stratio.sparta.driver.stage
 import java.io.Serializable
 
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
@@ -26,13 +25,10 @@ import com.stratio.sparta.serving.core.utils.ReflectionUtils
 trait OutputStage extends BaseStage {
   this: ErrorPersistor =>
 
-  def outputStage(schemas: Seq[SpartaSchema], refUtils: ReflectionUtils): Seq[Output] =
-    policy.outputs.map(o => {
-    val schemasAssociated = schemas.filter(tableSchema => tableSchema.outputs.contains(o.name))
-    createOutput(o, schemasAssociated, refUtils)
-  })
+  def outputStage(refUtils: ReflectionUtils): Seq[Output] =
+    policy.outputs.map(o => createOutput(o, refUtils))
 
-  def createOutput(model: PolicyElementModel, schemasAssociated: Seq[SpartaSchema], refUtils: ReflectionUtils)
+  def createOutput(model: PolicyElementModel, refUtils: ReflectionUtils)
   : Output = {
     val errorMessage = s"Something gone wrong creating the output: ${model.name}. Please re-check the policy."
     val okMessage = s"Output: ${model.name} created correctly."
@@ -41,9 +37,8 @@ trait OutputStage extends BaseStage {
       refUtils.tryToInstantiate[Output](classType + Output.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
-          classOf[Map[String, Serializable]],
-          classOf[Seq[SpartaSchema]])
-          .newInstance(model.name, model.configuration, schemasAssociated)
+          classOf[Map[String, Serializable]])
+          .newInstance(model.name, model.configuration)
           .asInstanceOf[Output])
     }
   }

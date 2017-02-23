@@ -22,28 +22,16 @@ import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValue, DimensionValuesTime, MeasuresValues}
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.sql._
 import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-case class CubeWriterOptions(outputs: Seq[String],
-                             dateType: TypeOp.Value = TypeOp.Timestamp,
-                             saveMode: SaveModeEnum.Value = SaveModeEnum.Append)
-
-case class CubeWriter(cube: Cube,
-                      tableSchema: SpartaSchema,
-                      options: CubeWriterOptions,
-                      outputs: Seq[Output],
-                      triggerOutputs: Seq[Output],
-                      triggerSchemas: Seq[SpartaSchema])
+case class CubeWriter(cube: Cube, outputs: Seq[Output])
   extends TriggerWriter with SLF4JLogging {
-
-  val saveOptions = tableSchema.timeDimension.fold(Map.empty[String, String]) { timeName =>
-    Map(Output.TimeDimensionKey -> timeName)
-  } ++ Map(Output.TableNameKey -> tableSchema.tableName)
 
   def write(stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
     stream.map { case (dimensionValuesTime, measuresValues) =>
@@ -51,33 +39,31 @@ case class CubeWriter(cube: Cube,
     }.foreachRDD(rdd => {
       if (rdd.take(1).length > 0) {
         val sqlContext = SparkContextFactory.sparkSqlContextInstance
-        val cubeDataFrame = sqlContext.createDataFrame(rdd, tableSchema.schema)
-        val cubeDataFrameWithAutoCalculatedFields =
-          applyAutoCalculateFields(cubeDataFrame, tableSchema.autoCalculateFields, tableSchema.schema)
+        val cubeDf = sqlContext.createDataFrame(rdd, cube.schema)
+        val cubeAutoCalculatedFieldsDf =
+          applyAutoCalculateFields(cubeDf, cube.cubeWriterOptions.autoCalculateFields, cube.schema)
+        val outputTableName = cube.cubeWriterOptions.tableName.getOrElse(cube.name)
+        val saveOptions = cube.expiringDataConfig.fold(Map.empty[String, String]) { expiringData =>
+          Map(Output.TimeDimensionKey -> expiringData.timeDimension)
+        } ++ Map(Output.TableNameKey -> outputTableName)
 
-        options.outputs.foreach(outputName =>
+        cube.cubeWriterOptions.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {
             case Some(outputWriter) => Try {
-              outputWriter.save(cubeDataFrameWithAutoCalculatedFields, options.saveMode, saveOptions)
+              outputWriter.save(cubeAutoCalculatedFieldsDf, cube.cubeWriterOptions.saveMode, saveOptions)
             } match {
               case Success(_) =>
-                log.debug(s"Data stored in ${tableSchema.tableName}")
+                log.debug(s"Data stored in $outputTableName")
               case Failure(e) =>
-                log.error(s"Something goes wrong. Table: ${tableSchema.tableName}")
-                log.error(s"Schema. ${cubeDataFrameWithAutoCalculatedFields.schema}")
-                log.error(s"Head element. ${cubeDataFrameWithAutoCalculatedFields.head}")
+                log.error(s"Something goes wrong. Table: $outputTableName")
+                log.error(s"Schema. ${cubeAutoCalculatedFieldsDf.schema}")
+                log.error(s"Head element. ${cubeAutoCalculatedFieldsDf.head}")
                 log.error(s"Error message : ", e)
             }
             case None => log.error(s"The output in the cube : $outputName not match in the outputs")
           })
 
-        writeTriggers(
-          cubeDataFrameWithAutoCalculatedFields,
-          cube.triggers,
-          tableSchema.tableName,
-          triggerSchemas,
-          triggerOutputs
-        )
+        writeTriggers(cubeAutoCalculatedFieldsDf, cube.triggers, cube.name, outputs)
       } else log.debug("Empty event received")
     })
   }
@@ -90,7 +76,7 @@ case class CubeWriter(cube: Cube,
 
         dimensionValues ++ measuresSorted
       case Some(timeConfig) =>
-        val timeValue = Seq(timeFromDateType(timeConfig.eventTime, options.dateType))
+        val timeValue = Seq(timeFromDateType(timeConfig.eventTime, cube.cubeWriterOptions.dateType))
         val dimFilteredByTime = filterDimensionsByTime(dimensionValuesT.dimensionValues, timeConfig.timeDimension)
         val dimensionValues = dimensionsValuesSorted(dimFilteredByTime) ++ timeValue
         val measuresValuesWithTime = measuresSorted

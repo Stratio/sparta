@@ -18,9 +18,7 @@ package com.stratio.sparta.plugin.output.http
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.Logging
 import org.apache.spark.sql._
 
 import scala.util.Try
@@ -32,12 +30,8 @@ import scalaj.http._
   *
   * @param name
   * @param properties
-  * @param schemas
   */
-class HttpOutput(name: String,
-                 properties: Map[String, JSerializable],
-                 schemas: Seq[SpartaSchema])
-  extends Output(name, properties, schemas) with Logging {
+class HttpOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   val MaxReadTimeout = 5000
   val MaxConnTimeout = 1000

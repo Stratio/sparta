@@ -19,8 +19,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.trigger.Trigger
 import org.apache.spark.sql.DataFrame
 import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
+import org.apache.spark.sql.types.StructType
 
 import scala.util.{Failure, Success, Try}
 
@@ -30,7 +31,6 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
   def writeTriggers(dataFrame: DataFrame,
                     triggers: Seq[Trigger],
                     inputTableName: String,
-                    tableSchemas: Seq[SpartaSchema],
                     outputs: Seq[Output]): Unit = {
     val sqlContext = dataFrame.sqlContext
     if (triggers.nonEmpty && isCorrectTableName(inputTableName)) {
@@ -40,7 +40,7 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
       }
       val tempTables = triggers.flatMap(trigger => {
         log.debug(s"Executing query in Spark: ${trigger.sql}")
-        val queryDataFrame = Try(sqlContext.sql(trigger.sql)) match {
+        val queryDf = Try(sqlContext.sql(trigger.sql)) match {
           case Success(sqlResult) => sqlResult
           case Failure(exception: org.apache.spark.sql.AnalysisException) =>
             log.warn("Warning running analysis in Catalyst in the query ${trigger.sql} in trigger ${trigger.name}",
@@ -50,34 +50,31 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
             log.warn(s"Warning running sql in the query ${trigger.sql} in trigger ${trigger.name}", exception.getMessage)
             throw DriverException(exception.getMessage, exception)
         }
-        val tableSchema = tableSchemas.find(_.tableName == trigger.name)
-        val saveOptions = tableSchema.fold(Map.empty[String, String]) { schema =>
-          Map(Output.TableNameKey -> schema.tableName)
-        }
 
-        if (queryDataFrame.take(1).length > 0) {
-          val queryDataFrameWithAutoCalculatedFields = tableSchema match {
-            case Some(tbSchema) =>
-              applyAutoCalculateFields(queryDataFrame, tbSchema.autoCalculateFields, tbSchema.schema)
-            case None =>
-              queryDataFrame
-          }
+        val outputTableName = trigger.triggerWriterOptions.tableName.getOrElse(trigger.name)
+        val saveOptions = Map(Output.TableNameKey -> outputTableName)
+
+        if (queryDf.take(1).length > 0) {
+          val autoCalculatedFieldsDf =
+              applyAutoCalculateFields(queryDf,
+                trigger.triggerWriterOptions.autoCalculateFields,
+                StructType(queryDf.schema.fields ++ SchemaHelper.getStreamWriterFieldsMetadata(trigger.triggerWriterOptions)))
           if (isCorrectTableName(trigger.name) && !sqlContext.tableNames().contains(trigger.name)) {
-            queryDataFrameWithAutoCalculatedFields.registerTempTable(trigger.name)
+            autoCalculatedFieldsDf.registerTempTable(trigger.name)
             log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")
           }
           else log.warn(s"The trigger ${trigger.name} have incorrect name, is impossible to register as temporal table")
-          trigger.outputs.foreach(outputName =>
+          trigger.triggerWriterOptions.outputs.foreach(outputName =>
             outputs.find(output => output.name == outputName) match {
               case Some(outputWriter) => Try {
-                outputWriter.save(queryDataFrameWithAutoCalculatedFields, trigger.saveMode, saveOptions)
+                outputWriter.save(autoCalculatedFieldsDf, trigger.triggerWriterOptions.saveMode, saveOptions)
               } match {
                 case Success(_) =>
-                  log.debug(s"Trigger data stored in ${trigger.name}")
+                  log.debug(s"Trigger data stored in $outputTableName")
                 case Failure(e) =>
-                  log.error(s"Something goes wrong. Table: ${trigger.name}")
-                  log.error(s"Schema. ${queryDataFrameWithAutoCalculatedFields.schema}")
-                  log.error(s"Head element. ${queryDataFrameWithAutoCalculatedFields.head}")
+                  log.error(s"Something goes wrong. Table: $outputTableName")
+                  log.error(s"Schema. ${autoCalculatedFieldsDf.schema}")
+                  log.error(s"Head element. ${autoCalculatedFieldsDf.head}")
                   log.error(s"Error message : ${e.getMessage}")
               }
               case None => log.error(s"The output in the trigger : $outputName not match in the outputs")

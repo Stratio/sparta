@@ -21,15 +21,16 @@ import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.helper.SchemaHelper
 import com.stratio.sparta.driver.helper.SchemaHelper.DefaultTimeStampTypeString
 import com.stratio.sparta.driver.trigger.Trigger
-import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
+import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions, TriggerWriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
+import com.stratio.sparta.sdk.pipeline.autoCalculations.{FromFixedValue, _}
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
 import com.stratio.sparta.serving.core.models.policy.PhaseEnum
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
+import com.stratio.sparta.serving.core.models.policy.writer.AutoCalculatedFieldModel
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.types.StructType
 
@@ -49,8 +50,7 @@ trait CubeStage extends BaseStage {
       val dimensions = cubeModel.dimensions.map(dimensionDto => {
         val fieldType = initSchema.find(stField => stField.name == dimensionDto.field).map(_.dataType)
         val defaultType = fieldType.flatMap(field => SchemaHelper.mapSparkTypes.get(field))
-
-        new Dimension(dimensionDto.name,
+        Dimension(dimensionDto.name,
           dimensionDto.field,
           dimensionDto.precision,
           instantiateDimensionType(dimensionDto.`type`, dimensionDto.configuration, refUtils, defaultType))
@@ -58,7 +58,24 @@ trait CubeStage extends BaseStage {
       val operators = getOperators(cubeModel.operators, refUtils, initSchema)
       val expiringDataConfig = SchemaHelper.getExpiringData(cubeModel)
       val triggers = triggerStage(cubeModel.triggers)
-      Cube(name, dimensions, operators, initSchema, expiringDataConfig, triggers)
+      val schema = SchemaHelper.getCubeSchema(cubeModel, operators, dimensions)
+      val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
+      Cube(
+        name,
+        dimensions,
+        operators,
+        initSchema,
+        schema,
+        expiringDataConfig,
+        triggers,
+        CubeWriterOptions(
+          cubeModel.writer.outputs,
+          dateType,
+          cubeModel.writer.saveMode,
+          cubeModel.writer.tableName,
+          getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields)
+        )
+      )
     }
   }
 
@@ -78,14 +95,32 @@ trait CubeStage extends BaseStage {
       Trigger(
         trigger.name,
         trigger.sql,
-        trigger.writer.outputs,
-        trigger.overLast,
-        trigger.computeEvery,
-        trigger.primaryKey,
-        trigger.writer.saveMode,
+        TriggerWriterOptions(
+          trigger.writer.outputs,
+          trigger.overLast,
+          trigger.computeEvery,
+          trigger.writer.tableName,
+          trigger.primaryKey,
+          trigger.writer.saveMode,
+          getAutoCalculatedFields(trigger.writer.autoCalculatedFields)),
         trigger.configuration)
     }
   }
+
+  private def getAutoCalculatedFields(autoCalculatedFields: Seq[AutoCalculatedFieldModel]): Seq[AutoCalculatedField] =
+    autoCalculatedFields.map(model =>
+      AutoCalculatedField(
+        model.fromNotNullFields.map(fromNotNullFieldsModel =>
+          FromNotNullFields(Field(fromNotNullFieldsModel.field.name, fromNotNullFieldsModel.field.outputType))),
+        model.fromPkFields.map(fromPkFieldsModel =>
+          FromPkFields(Field(fromPkFieldsModel.field.name, fromPkFieldsModel.field.outputType))),
+        model.fromFields.map(fromFieldModel =>
+          FromFields(Field(fromFieldModel.field.name, fromFieldModel.field.outputType), fromFieldModel.fromFields)),
+        model.fromFixedValue.map(fromFixedValueModel =>
+          FromFixedValue(Field(fromFixedValueModel.field.name, fromFixedValueModel.field.outputType),
+            fromFixedValueModel.value))
+      )
+    )
 
   private def createOperator(model: OperatorModel,
                              refUtils: ReflectionUtils,
@@ -121,27 +156,10 @@ trait CubeStage extends BaseStage {
     })
 
 
-  def getCubeWriter(cubeName: String,
-                    cubes: Seq[Cube],
-                    schemas: Seq[SpartaSchema],
-                    triggerSchemas: Seq[SpartaSchema],
-                    cubeModels: Seq[CubeModel],
-                    outputs: Seq[Output],
-                    triggersOutputs: Seq[Output]): CubeWriter = {
+  def getCubeWriter(cubeName: String, cubes: Seq[Cube], outputs: Seq[Output]): CubeWriter = {
     val cubeWriter = cubes.find(cube => cube.name == cubeName)
       .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
-    val schemaWriter = schemas.find(schema => schema.tableName == cubeName)
-      .getOrElse(throw new Exception("Is mandatory one schema in the cube writer"))
-    val cubeModel = cubeModels.find(cube => cube.name == cubeName)
-      .getOrElse(throw new Exception("Is mandatory one cubeModel in the cube writer"))
-    val writerOp = getCubeWriterOptions(cubeName, outputs, cubeModel)
 
-    CubeWriter(cubeWriter, schemaWriter, writerOp, outputs, triggersOutputs, triggerSchemas)
-  }
-
-  def getCubeWriterOptions(cubeName: String, outputsWriter: Seq[Output], cubeModel: CubeModel): CubeWriterOptions = {
-    val dateType = SchemaHelper.getTimeTypeFromString(cubeModel.writer.dateType.getOrElse(DefaultTimeStampTypeString))
-
-    CubeWriterOptions(cubeModel.writer.outputs, dateType, cubeModel.writer.saveMode)
+    CubeWriter(cubeWriter, outputs)
   }
 }

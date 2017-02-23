@@ -51,16 +51,16 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new AvroOutput("avro-test", properties, Seq())
+    val output = new AvroOutput("avro-test", properties)
   }
 
   trait NonePath extends CommonValues {
-    val output = new AvroOutput("avro-test", Map.empty, Seq())
+    val output = new AvroOutput("avro-test", Map.empty)
   }
 
   trait EmptyPath extends CommonValues {
     val properties = Map("path" -> "    ")
-    val output = new AvroOutput("avro-test", Map.empty, Seq())
+    val output = new AvroOutput("avro-test", Map.empty)
   }
 
 

@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.plugin.output.elasticsearch
 
-import com.stratio.sparta.sdk.pipeline.schema.{SpartaSchema, TypeOp}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -35,13 +35,13 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
         new JsoneyString(
           s"""[{"node":"host-a","tcpPort":"$remotePort","httpPort":"$localPort"},{"node":"host-b",
               |"tcpPort":"9301","httpPort":"9201"}]""".stripMargin),
-        "dateType" -> "long"), Seq())
+        "dateType" -> "long"))
 
     def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort: Int = remotePort)
     : ElasticSearchOutput =
       new ElasticSearchOutput("ES-out",
         Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
-          "clusterName" -> "elasticsearch"), Seq())
+          "clusterName" -> "elasticsearch"))
   }
 
   trait NodeValues extends BaseValues {
@@ -57,16 +57,12 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
     val tableName = "spartaTable"
     val baseFields = Seq(StructField("string", StringType), StructField("int", IntegerType))
     val schema = StructType(baseFields)
-    val tableSchema = SpartaSchema(Seq("ES-out"), tableName, schema, Option("timestamp"))
     val extraFields = Seq(StructField("id", StringType, false), StructField("timestamp", LongType, false))
-    val expectedSchema = StructType(baseFields)
-    val expectedTableSchema =
-      tableSchema.copy(tableName = tableName, schema = expectedSchema)
     val properties = Map("nodes" -> new JsoneyString(
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
       "clusterName" -> "elasticsearch")
-    override val output = new ElasticSearchOutput("ES-out", properties, schemas = Seq(tableSchema))
+    override val output = new ElasticSearchOutput("ES-out", properties)
     val dateField = StructField("timestamp", TimestampType, false)
     val expectedDateField = StructField("timestamp", LongType, false)
     val stringField = StructField("string", StringType)
@@ -88,13 +84,11 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       StructField("string", StringType),
       StructField("binary", BinaryType))
     val completeSchema = StructType(fields)
-    val completeTableSchema = SpartaSchema(Seq("elasticsearch"), "table", completeSchema, Option("timestamp"))
   }
 
   "ElasticSearchOutput" should "format properties" in new NodeValues with SchemaValues {
     output.httpNodes should be(Seq(("localhost", 9200)))
     outputMultipleNodes.httpNodes should be(Seq(("host-a", 9200), ("host-b", 9201)))
-    completeTableSchema.dateType should be(TypeOp.Timestamp)
     output.clusterName should be("elasticsearch")
   }
 
