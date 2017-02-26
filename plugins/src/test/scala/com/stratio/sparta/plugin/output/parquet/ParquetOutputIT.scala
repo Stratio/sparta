@@ -64,11 +64,6 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     val output = new ParquetOutput("parquet-test", properties)
   }
 
-  trait WithWrongOutput extends CommonValues {
-
-    val output = new ParquetOutput("parquet-test", Map())
-  }
-
   trait WithoutGranularity extends CommonValues {
 
     val datePattern = "yyyy/MM/dd"
@@ -78,16 +73,15 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
-    val read = sqlContext.read.parquet(tmpPath).toDF
+    output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
+    val read = sqlContext.read.parquet(s"$tmpPath/person").toDF
     read.count should be(3)
     read should be eq (data)
     File(tmpPath).deleteRecursively
   }
 
-  it should "throw an exception when path is not present" in new WithWrongOutput {
-    an[Exception] should be thrownBy output
-      .save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+  it should "throw an exception when path is not present" in {
+    an[Exception] should be thrownBy new ParquetOutput("parquet-test", Map())
   }
 }
 

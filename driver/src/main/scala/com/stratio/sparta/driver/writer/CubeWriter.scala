@@ -45,7 +45,9 @@ case class CubeWriter(cube: Cube, outputs: Seq[Output])
         val outputTableName = cube.cubeWriterOptions.tableName.getOrElse(cube.name)
         val saveOptions = cube.expiringDataConfig.fold(Map.empty[String, String]) { expiringData =>
           Map(Output.TimeDimensionKey -> expiringData.timeDimension)
-        } ++ Map(Output.TableNameKey -> outputTableName)
+        } ++ Map(Output.TableNameKey -> outputTableName) ++
+          cube.cubeWriterOptions.partitionBy.fold(Map.empty[String, String]) {partition =>
+            Map(Output.PartitionByKey -> partition)}
 
         cube.cubeWriterOptions.outputs.foreach(outputName =>
           outputs.find(output => output.name == outputName) match {

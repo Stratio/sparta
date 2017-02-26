@@ -1447,7 +1447,18 @@
           }
         ],
         "width": 6,
-        "position": "left"
+        "position": "right"
+      },
+      {
+        "propertyId": "writer.partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "position": "left",
+        "width": 6,
+        "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+        "qa": "cube-partitionBy"
       },
       {
         "propertyId": "writer.dateType",
@@ -1480,7 +1491,7 @@
           }
         ],
         "width": 6,
-        "position": "left"
+        "position": "right"
       }
     ],
     "functionNames": [
@@ -1518,17 +1529,7 @@
           "qa": "trigger-name",
           "tooltip": "If is not assigned the result data is saved in one table, topic or queue with this name. Additionally this data is available in other triggers in one temporal table with this name",
           "position": "left",
-          "width": 6
-        },
-        {
-          "propertyId": "writer.tableName",
-          "propertyName": "_TRIGGER_TABLE_NAME_",
-          "propertyType": "text",
-          "required": false,
-          "qa": "trigger-tableName",
-          "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name, if is not assigned then the output name is the trigger name",
-          "position": "right",
-          "width": 6
+          "width": 12
         },
         {
           "propertyId": "overLastNumber",
@@ -1621,39 +1622,6 @@
           ]
         },
         {
-          "propertyId": "writer.saveMode",
-          "propertyName": "_SAVE_MODE_",
-          "propertyType": "select",
-          "required": true,
-          "default": "Append",
-          "qa": "trigger-save-mode",
-          "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-          "values": [
-            {
-              "label": "_APPEND_",
-              "value": "Append"
-            },
-            {
-              "label": "_ERROR_IF_EXISTS_",
-              "value": "ErrorIfExists"
-            },
-            {
-              "label": "_IGNORE_",
-              "value": "Ignore"
-            },
-            {
-              "label": "_OVERWRITE_",
-              "value": "Overwrite"
-            },
-            {
-              "label": "_UPSERT_",
-              "value": "Upsert"
-            }
-          ],
-          "width": 6,
-          "position": "left"
-        },
-        {
           "propertyId": "sql",
           "propertyName": "_SQL_",
           "propertyType": "textarea",
@@ -1674,51 +1642,7 @@
           "required": true,
           "qa": "trigger-name",
           "tooltip": "If is not assigned the result data is saved in one table, topic or queue with this name. Additionally this data is available in other triggers in one temporal table with this name",
-          "width": 6,
-          "position": "left"
-
-        },
-        {
-          "propertyId": "writer.tableName",
-          "propertyName": "_TRIGGER_TABLE_NAME_",
-          "propertyType": "text",
-          "required": false,
-          "qa": "trigger-tableName",
-          "position": "right",
-          "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name, if is not assigned then the output name is the trigger name",
-          "width": 6
-        },
-        {
-          "propertyId": "writer.saveMode",
-          "propertyName": "_SAVE_MODE_",
-          "propertyType": "select",
-          "required": true,
-          "default": "Append",
-          "qa": "cube-trigger-save-mode",
-          "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-          "values": [
-            {
-              "label": "_APPEND_",
-              "value": "Append"
-            },
-            {
-              "label": "_ERROR_IF_EXISTS_",
-              "value": "ErrorIfExists"
-            },
-            {
-              "label": "_IGNORE_",
-              "value": "Ignore"
-            },
-            {
-              "label": "_OVERWRITE_",
-              "value": "Overwrite"
-            },
-            {
-              "label": "_UPSERT_",
-              "value": "Upsert"
-            }
-          ],
-          "width": 6,
+          "width": 12,
           "position": "left"
         },
         {

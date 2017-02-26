@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.output
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import org.apache.spark.Logging
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, SaveMode}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
 abstract class Output(val name: String, properties: Map[String, JSerializable])
   extends Parameterizable(properties) with Logging with CustomProperties {
@@ -36,12 +36,12 @@ abstract class Output(val name: String, properties: Map[String, JSerializable])
 
   def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
 
-  def supportedSaveModes : Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
+  def supportedSaveModes: Seq[SaveModeEnum.Value] = SaveModeEnum.allSaveModes
 
   def validateSaveMode(saveMode: SaveModeEnum.Value): Unit = {
-    if(!supportedSaveModes.contains(saveMode))
+    if (!supportedSaveModes.contains(saveMode))
       log.info(s"Save mode $saveMode selected not supported by the output $name." +
-          s" Using the default mode ${SaveModeEnum.Append}"
+        s" Using the default mode ${SaveModeEnum.Append}"
       )
   }
 }
@@ -52,11 +52,12 @@ object Output extends Logging {
   final val Separator = "_"
   final val FieldsSeparator = ","
   final val TableNameKey = "tableName"
+  final val PartitionByKey = "partitionBy"
   final val TimeDimensionKey = "timeDimension"
   final val MeasureMetadataKey = "measure"
   final val PrimaryKeyMetadataKey = "pk"
 
-  def getSparkSaveMode(saveModeEnum: SaveModeEnum.Value) : SaveMode =
+  def getSparkSaveMode(saveModeEnum: SaveModeEnum.Value): SaveMode =
     saveModeEnum match {
       case SaveModeEnum.Append => SaveMode.Append
       case SaveModeEnum.ErrorIfExists => SaveMode.ErrorIfExists
@@ -64,17 +65,34 @@ object Output extends Logging {
       case SaveModeEnum.Ignore => SaveMode.Ignore
       case SaveModeEnum.Upsert => SaveMode.Append
       case _ =>
-        log.info(s"Save Mode $saveModeEnum not supported, using default save mode ${SaveModeEnum.Append}")
+        log.warn(s"Save Mode $saveModeEnum not supported, using default save mode ${SaveModeEnum.Append}")
         SaveMode.Append
     }
 
-  def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey)
+  def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey).notBlank
 
   def getTableNameFromOptions(options: Map[String, String]): String =
     options.getOrElse(TableNameKey, {
       log.error("Table name not defined")
       throw new NoSuchElementException("tableName not found in options")
     })
+
+  def applyPartitionBy(options: Map[String, String],
+                       dataFrame: DataFrameWriter,
+                       schemaFields: Array[StructField]): DataFrameWriter = {
+
+    options.get(PartitionByKey).notBlank.fold(dataFrame)(partitions => {
+      val fieldsInDataFrame = schemaFields.map(field => field.name)
+      val partitionFields = partitions.split(",")
+      if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
+        dataFrame.partitionBy(partitionFields: _*)
+      else {
+        log.warn(s"Impossible to execute partition by fields: $partitionFields because the dataFrame not contain all" +
+          s" fields. The dataFrame only contains: ${fieldsInDataFrame.mkString(",")}")
+        dataFrame
+      }
+    })
+  }
 
   def defaultTimeStampField(fieldName: String, nullable: Boolean, metadata: Metadata = Metadata.empty): StructField =
     StructField(fieldName, TimestampType, nullable, metadata)

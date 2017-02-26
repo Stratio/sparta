@@ -24,4 +24,5 @@ case class CubeWriterOptions(outputs: Seq[String] = Seq.empty[String],
                              dateType: TypeOp.Value = TypeOp.Timestamp,
                              saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
                              tableName: Option[String] = None,
-                             autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField])
+                             autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField],
+                             partitionBy: Option[String] = None)

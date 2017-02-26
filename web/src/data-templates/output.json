@@ -370,15 +370,6 @@
         "qa": "fragment-details-parquet-path"
       },
       {
-        "propertyId": "partitionBy",
-        "propertyName": "_PARTITION_BY_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "Partitions the output by the specified column on the file system",
-        "qa": "fragment-details-parquet-partitionBy"
-      },
-      {
         "propertyId": "saveOptions",
         "propertyName": "_PARQUET_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -816,117 +807,6 @@
         "trim": false,
         "required": false,
         "qa": "fragment-details-filesystem-delimiter"
-      },
-      {
-        "propertyId": "fileWithDate",
-        "propertyName": "_FILE_WITH_DATE_",
-        "propertyType": "select",
-        "values": [
-          {
-            "label": "Yes",
-            "value": "true"
-          },
-          {
-            "label": "No",
-            "value": "false"
-          }
-        ],
-        "default": "true",
-        "required": true,
-        "tooltip": "Add the current date to the file name.",
-        "qa": "fragment-details-filesystem-file-with-date"
-      },
-      {
-        "propertyId": "dateFormat",
-        "propertyName": "_DATE_FORMAT_",
-        "propertyType": "select",
-        "regexp": "",
-        "values": [
-          {
-            "label": "yyyy-mm-dd'-'HH.mm",
-            "value": "YYYY-MM-DD'-'HH.mm"
-          },
-          {
-            "label": "yyyy-mm-dd'-'HH.mm.ss",
-            "value": "YYYY-MM-DD'-'HH.mm.ss"
-          },
-          {
-            "label": "yyyy-mm-dd'-'HH.mmZ",
-            "value": "YYYY-MM-DD'-'HH.mmZ"
-          },
-          {
-            "label": "yyyy-mm-dd'-'HH.mm.ssZ",
-            "value": "YYYY-MM-DD'-'HH.mm.ssZ"
-          },
-          {
-            "label": "yyyy-mm-dd'T'HH.mm",
-            "value": "YYYY-MM-DD'T'HH.mm"
-          },
-          {
-            "label": "yyyy-mm-dd'T'HH.mmZ",
-            "value": "YYYY-MM-DD'T'HH.mmZ"
-          },
-          {
-            "label": "yyyy-mm-dd'T'HH.mm.ss",
-            "value": "YYYY-MM-DD'T'HH.mm.ss"
-          },
-          {
-            "label": "yyyy-mm-dd'T'HH.mm.ssZ",
-            "value": "YYYY-MM-DD'T'HH.mm.ssZ"
-          },
-          {
-            "label": "yyyy-mm-dd",
-            "value": "YYYY-MM-DD"
-          },
-          {
-            "label": "yyyy-mm-ddZ",
-            "value": "YYYY-MM-DDZ"
-          }
-        ],
-        "default": "YYYY-MM-DD'-'HH.mm.ss",
-        "required": false,
-        "tooltip": "The date format to be appended to the file name. Only used if Append date is set to yes.",
-        "qa": "fragment-details-filesystem-date-format"
-      },
-      {
-        "propertyId": "partitionUntil",
-        "propertyName": "_PARTITION_UNTIL_",
-        "propertyType": "select",
-        "regexp": "",
-        "values": [
-          {
-            "label": "Year",
-            "value": "YYYY"
-          },
-          {
-            "label": "Month",
-            "value": "MM"
-          },
-          {
-            "label": "Day",
-            "value": "DD"
-          },
-          {
-            "label": "Hour",
-            "value": "HH"
-          },
-          {
-            "label": "Minutes",
-            "value": "mm"
-          },
-          {
-            "label": "Seconds",
-            "value": "ss"
-          },
-          {
-            "label": "No partition",
-            "value": "NONE"
-          }
-        ],
-        "default": "NONE",
-        "required": false,
-        "tooltip": "Sets the limit the date will be partitioned, creating sub-folders inside the specified the given path",
-        "qa": "fragment-details-filesystem--partition-until"
       }
     ]
   },
@@ -948,15 +828,6 @@
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-avro-path"
-      },
-      {
-        "propertyId": "partitionBy",
-        "propertyName": "_PARTITION_BY_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-avro-partitionBy"
       },
       {
         "propertyId": "saveOptions",

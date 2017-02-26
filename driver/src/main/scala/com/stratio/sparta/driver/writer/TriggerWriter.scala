@@ -52,7 +52,9 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
         }
 
         val outputTableName = trigger.triggerWriterOptions.tableName.getOrElse(trigger.name)
-        val saveOptions = Map(Output.TableNameKey -> outputTableName)
+        val saveOptions = Map(Output.TableNameKey -> outputTableName) ++
+          trigger.triggerWriterOptions.partitionBy.fold(Map.empty[String, String]) {partition =>
+            Map(Output.PartitionByKey -> partition)}
 
         if (queryDf.take(1).length > 0) {
           val autoCalculatedFieldsDf =

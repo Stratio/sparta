@@ -33,7 +33,7 @@
       trigger.name = "";
       trigger.sql = "";
       trigger.primaryKey = [];
-      trigger.writer = {autoCalculatedFields: [], outputs: [], tableName: ""};
+      trigger.writer = {autoCalculatedFields: [], outputs: []};
       error.text = "";
       if (type == triggerConstants.TRANSFORMATION) {
         var currentPolicy = PolicyModelFactory.getCurrentPolicy();
