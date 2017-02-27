@@ -67,8 +67,7 @@ trait PolicyConfigUtils extends SLF4JLogging {
   }
 
   def gracefulStop(policy: PolicyModel): Boolean =
-    Try(policy.stopGracefully.getOrElse(DetailConfig.getBoolean(ConfigStopGracefully)))
-      .getOrElse(DefaultStopGracefully)
+    Try(DetailConfig.getBoolean(ConfigStopGracefully)).getOrElse(DefaultStopGracefully)
 
   def executionMode(policy: PolicyModel): String = policy.executionMode match {
     case Some(mode) if mode.nonEmpty => mode

@@ -266,15 +266,6 @@
       "qa": "auto-delete-checkpoint"
     },
     {
-      "propertyId": "stopGracefully",
-      "propertyName": "_STOP_GRACEFULLY_",
-      "propertyType": "boolean",
-      "width": 6,
-      "position": "right",
-      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
-      "qa": "policy-stop-gracefully"
-    },
-    {
       "propertyId": "rawDataEnabled",
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",

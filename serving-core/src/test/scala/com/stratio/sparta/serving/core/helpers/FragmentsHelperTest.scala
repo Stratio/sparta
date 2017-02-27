@@ -36,12 +36,12 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
 
       val ap = PolicyModel(
         id = None,
-        storageLevel,
-        "policy-test",
-        "policy description",
+        storageLevel = storageLevel,
+        name = "policy-test",
+        description = "policy description",
         sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
-        checkpointDir,
-        new RawDataModel(),
+        checkpointPath = checkpointDir,
+        rawData = new RawDataModel(),
         transformations = Seq(),
         streamTriggers = Seq(),
         cubes = Seq(),
@@ -87,14 +87,14 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
     Given("a policy with an input, an output and a fragment with an input")
     val checkpointDir = Option("checkpoint")
 
-    val ap = new PolicyModel(
+    val ap = PolicyModel(
       id = None,
-      storageLevel,
-      "policy-test",
-      "policy description",
+      storageLevel = storageLevel,
+      name = "policy-test",
+      description = "policy description",
       sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
-      checkpointDir,
-      new RawDataModel(),
+      checkpointPath = checkpointDir,
+      rawData = new RawDataModel(),
       transformations = Seq(),
       streamTriggers = Seq(),
       cubes = Seq(),
@@ -118,7 +118,10 @@ class FragmentsHelperTest extends FeatureSpec with GivenWhenThen with Matchers {
       remember = None,
       sparkConf = Seq(),
       initSqlSentences = Seq(),
-      autoDeleteCheckpoint = None
+      autoDeleteCheckpoint = None,
+      executionMode = None,
+      driverUri = None,
+      streamTemporalTable = None
     )
 
     When("the helper tries to parse the policy it throws an exception")

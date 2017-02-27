@@ -46,7 +46,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
       authorized { user =>
         serviceRoutes.fragmentRoute ~
           serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.AppStatusRoute ~
-          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
+          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute
       }
   }
 
@@ -115,9 +115,5 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
     override val actorRefFactory: ActorRefFactory = context
-  }.routes
-
-  val swaggerRoute: Route = new SwaggerService {
-    override implicit def actorRefFactory: ActorRefFactory = context
   }.routes
 }

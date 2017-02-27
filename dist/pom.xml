@@ -87,9 +87,6 @@
                                             <fileset dir="../web" includes="**/*.jar" excludes="**/*-javadoc*"/>
                                             <mapper type="flatten" />
                                         </copy>
-                                        <copy todir="target/appassembler/repo/benchmark">
-                                            <fileset dir="../benchmark" includes="**/*.*" excludes="**/*-javadoc*"/>
-                                        </copy>
                                         <copy todir="target/appassembler/repo/examples">
                                             <fileset dir="../examples">
                                                 <include name="**/*.*"/>
@@ -244,10 +241,6 @@
                                 <copyDirectory>
                                     <from>target/appassembler/driver</from>
                                     <to>/opt/sds/sparta/driver</to>
-                                </copyDirectory>
-                                <copyDirectory>
-                                    <from>target/appassembler/repo/benchmark</from>
-                                    <to>/opt/sds/sparta/benchmark</to>
                                 </copyDirectory>
                                 <copyDirectory>
                                     <from>target/appassembler/repo/examples</from>

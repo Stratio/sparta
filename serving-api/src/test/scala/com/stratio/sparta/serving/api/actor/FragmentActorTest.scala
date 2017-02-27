@@ -90,7 +90,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
     val existsBuilder = mock[ExistsBuilder]
     val createBuilder = mock[CreateBuilder]
     val deleteBuilder = mock[DeleteBuilder]
-    val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
+    val protectedACL = mock[ProtectACLCreateModePathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
     val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)))
     implicit val timeout: Timeout = Timeout(15.seconds)
