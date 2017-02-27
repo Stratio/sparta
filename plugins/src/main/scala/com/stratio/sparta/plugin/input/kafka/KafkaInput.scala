@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.kafka
+package com.stratio.sparta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
 import java.lang.{Double, Long}
 import java.nio.ByteBuffer
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.input.kafka.KafkaBase
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.kafka.clients.consumer.{RangeAssignor, RoundRobinAssignor}
