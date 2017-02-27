@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.fileSystem
+package com.stratio.sparta.plugin.output.filesystem
 
 import java.io.File
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.plugin.output.fileSystem.FileSystemOutput
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.types._
