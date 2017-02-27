@@ -1,1274 +1,533 @@
 [
   {
-    "status": "NotStarted",
-    "policy": {
-      "id": "ada862f2-2f9c-4801-8d92-f54bd45cf21b",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "aaaa",
-      "description": "dfdf",
-      "sparkStreamingWindow": "6s",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "s",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
+    "id": "8c062142-7e52-4f5c-ae7d-39bd619a019e",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "df",
+    "description": "dfdf",
+    "sparkStreamingWindow": "6s",
+    "rawData": {
+      "enabled": "false",
+      "path": "default"
+    },
+    "transformations": [
+      {
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [
+          {
+            "name": "df",
+            "type": "string"
+          }
+        ],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
         }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "s",
-              "field": "s",
-              "precision": "identity",
-              "type": "Default"
+      }
+    ],
+    "streamTriggers": [],
+    "cubes": [
+      {
+        "name": "cube1",
+        "dimensions": [
+          {
+            "name": "df",
+            "field": "df",
+            "precision": "identity",
+            "type": "Default"
+          }
+        ],
+        "operators": [
+          {
+            "type": "Accumulator",
+            "name": "accumulator",
+            "configuration": {
+              "dfdf": "dfdfdf"
             }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
           },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
+          {
+            "type": "EntityCount",
+            "name": "entitycount",
             "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
+              "b": "bbvvb"
             }
           }
+        ],
+        "writer": {
+          "outputs": [
+            "fdfdf"
+          ],
+          "dateType": "timestamp",
+          "autoCalculatedFields": [],
+          "saveMode": "Append"
         },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
+        "triggers": [],
+        "avoidNullValues": true
+      }
+    ],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [
+          {
+            "inputOptionsKey": "df",
+            "inputOptionsValue": "df"
+          }
+        ]
+      }
+    },
+    "outputs": [
+      {
+        "name": "fdfdf",
+        "type": "Custom",
+        "configuration": {
+          "modelType": "Custom",
+          "saveOptions": [
+            {
+              "saveOptionsKey": "fdf",
+              "saveOptionsValue": "dfdfd"
             }
+          ]
+        }
+      }
+    ],
+    "fragments": [
+      {
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [
+              {
+                "inputOptionsKey": "df",
+                "inputOptionsValue": "df"
+              }
+            ]
           }
         }
-      ],
-      "userPluginsJars": []
-    }
+      },
+      {
+        "id": "76022f60-e95f-49ca-afda-3db76232b7a0",
+        "fragmentType": "output",
+        "name": "fdfdf",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom output defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "saveOptions": [
+              {
+                "saveOptionsKey": "fdf",
+                "saveOptionsValue": "dfdfd"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "userPluginsJars": [
+      {
+        "jarPath": ""
+      }
+    ],
+    "sparkConf": [
+      {
+        "sparkConfKey": "",
+        "sparkConfValue": ""
+      }
+    ],
+    "sparkSubmitArguments": [
+      {
+        "submitArgument": "",
+        "submitValue": ""
+      }
+    ],
+    "initSqlSentences": [
+      {
+        "sentence": ""
+      }
+    ]
   },
   {
-    "status": "NotStarted",
-    "policy": {
-      "id": "9b8d10d1-0c1b-4962-8127-256f401e3cab",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "prueba back",
-      "description": "a",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "a",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
+    "id": "1db9edd0-ae4e-4e4d-b313-55bf4e4f122e",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "dfdf",
+    "description": "Dfdf",
+    "sparkStreamingWindow": "6s",
+    "rawData": {
+      "enabled": "false",
+      "path": "default"
+    },
+    "transformations": [
+      {
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [
+          {
+            "name": "dfdf",
+            "type": "string"
+          }
+        ],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
         }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "a",
-              "field": "a",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Count",
-              "name": "count1",
-              "configuration": {}
-            }
-          ],
-          "writer": {
-            "outputs": []
+      }
+    ],
+    "streamTriggers": [],
+    "cubes": [
+      {
+        "name": "cube1",
+        "dimensions": [
+          {
+            "name": "dfdf",
+            "field": "dfdf",
+            "precision": "identity",
+            "type": "Default"
+          }
+        ],
+        "operators": [
+          {
+            "type": "MeanAssociative",
+            "name": "meanassociative",
+            "configuration": {}
           },
-          "triggers": []
+          {
+            "type": "EntityCount",
+            "name": "entitycount",
+            "configuration": {}
+          }
+        ],
+        "writer": {
+          "outputs": [
+            "adsdsd"
+          ],
+          "dateType": "timestamp",
+          "autoCalculatedFields": [],
+          "saveMode": "Append"
         },
-        {
-          "name": "cube2",
-          "dimensions": [
+        "triggers": [],
+        "avoidNullValues": true
+      }
+    ],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [
+          {
+            "inputOptionsKey": "df",
+            "inputOptionsValue": "df"
+          }
+        ]
+      }
+    },
+    "outputs": [
+      {
+        "name": "adsdsd",
+        "type": "Cassandra",
+        "configuration": {
+          "connectionHost": "localhost",
+          "cluster": "sparta",
+          "keyspace": "sparta",
+          "connectionPort": "9042",
+          "saveOptions": [
             {
-              "name": "a",
-              "field": "a",
-              "precision": "identity",
-              "type": "Default"
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
             }
           ],
-          "operators": [
+          "sparkProperties": [
             {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }
+          ]
+        }
+      }
+    ],
+    "fragments": [
+      {
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [
+              {
+                "inputOptionsKey": "df",
+                "inputOptionsValue": "df"
               }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
+            ]
+          }
+        }
+      },
+      {
+        "id": "39fa1280-3807-44ad-8208-d29c0983b514",
+        "fragmentType": "output",
+        "name": "adsdsd",
+        "description": "Datastax Spark Connector:  goo.gl/PO4k4F",
+        "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
+        "element": {
+          "name": "in-Cassandra",
+          "type": "Cassandra",
+          "configuration": {
+            "connectionHost": "localhost",
+            "cluster": "sparta",
+            "keyspace": "sparta",
+            "connectionPort": "9042",
+            "saveOptions": [
+              {
+                "saveOptionsKey": "",
+                "saveOptionsValue": ""
+              }
             ],
-            "fixedMeasure": "string yes",
-            "dateType": "string",
-            "isAutoCalculatedId": true
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
+            "sparkProperties": [
+              {
+                "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+                "sparkPropertyValue": "180000"
+              }
+            ]
           }
         }
-      ],
-      "userPluginsJars": []
-    }
+      }
+    ],
+    "userPluginsJars": [
+      {
+        "jarPath": ""
+      }
+    ],
+    "sparkConf": [
+      {
+        "sparkConfKey": "",
+        "sparkConfValue": ""
+      }
+    ],
+    "sparkSubmitArguments": [
+      {
+        "submitArgument": "",
+        "submitValue": ""
+      }
+    ],
+    "initSqlSentences": [
+      {
+        "sentence": ""
+      }
+    ]
   },
   {
-    "status": "NotStarted",
-    "policy": {
-      "id": "3e9e5d23-8648-40b5-972d-d81aca695560",
-      "version": 4,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "última",
-      "description": "sdf",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "sdf",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
+    "id": "b10dbf78-167a-444d-a879-a4bce3ae2ce7",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "sds",
+    "description": "dfd",
+    "sparkStreamingWindow": "6s",
+    "rawData": {
+      "enabled": "false",
+      "path": "default"
+    },
+    "transformations": [
+      {
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [
+          {
+            "name": "df",
+            "type": "string"
+          }
+        ],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
         }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
+      }
+    ],
+    "streamTriggers": [],
+    "cubes": [
+      {
+        "name": "cube1",
+        "dimensions": [
+          {
+            "name": "df",
+            "field": "df",
+            "precision": "identity",
+            "type": "Default"
+          },
+          {
+            "name": "dfgffgfg",
+            "field": "df",
+            "precision": "3232h",
+            "type": "DateTime",
+            "computeLast": "34ms",
+            "configuration": {
+              "typeOp": "double"
+            }
+          },
+          {
+            "name": "dfcvcvfdf",
+            "field": "df",
+            "precision": "precision6",
+            "type": "GeoHash",
+            "configuration": {
+              "typeOp": "integer"
+            }
+          },
+          {
+            "name": "dfdfdf",
+            "field": "df",
+            "precision": "identity",
+            "type": "Default",
+            "configuration": {
+              "typeOp": "arraydouble"
+            }
+          }
+        ],
+        "operators": [
+          {
+            "type": "Sum",
+            "name": "sum",
+            "configuration": {}
+          }
+        ],
+        "writer": {
+          "outputs": [
+            "adsdsd"
+          ],
+          "dateType": "timestamp",
+          "autoCalculatedFields": [],
+          "saveMode": "Append"
+        },
+        "triggers": [],
+        "avoidNullValues": true
+      }
+    ],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [
+          {
+            "inputOptionsKey": "df",
+            "inputOptionsValue": "df"
+          }
+        ]
+      }
+    },
+    "outputs": [
+      {
+        "name": "adsdsd",
+        "type": "Cassandra",
+        "configuration": {
+          "connectionHost": "localhost",
+          "cluster": "sparta",
+          "keyspace": "sparta",
+          "connectionPort": "9042",
+          "saveOptions": [
             {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
             }
           ],
-          "operators": [
+          "sparkProperties": [
             {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }
+          ]
+        }
+      }
+    ],
+    "fragments": [
+      {
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [
+              {
+                "inputOptionsKey": "df",
+                "inputOptionsValue": "df"
               }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
+            ]
+          }
+        }
+      },
+      {
+        "id": "39fa1280-3807-44ad-8208-d29c0983b514",
+        "fragmentType": "output",
+        "name": "adsdsd",
+        "description": "Datastax Spark Connector:  goo.gl/PO4k4F",
+        "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
+        "element": {
+          "name": "in-Cassandra",
+          "type": "Cassandra",
+          "configuration": {
+            "connectionHost": "localhost",
+            "cluster": "sparta",
+            "keyspace": "sparta",
+            "connectionPort": "9042",
+            "saveOptions": [
+              {
+                "saveOptionsKey": "",
+                "saveOptionsValue": ""
+              }
             ],
-            "fixedMeasure": "string no",
-            "dateType": "string",
-            "isAutoCalculatedId": false
-          },
-          "triggers": []
-        },
-        {
-          "name": "cube2",
-          "dimensions": [
-            {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Mean",
-              "name": "avg1",
-              "configuration": {
-                "inputField": "field1"
+            "sparkProperties": [
+              {
+                "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+                "sparkPropertyValue": "180000"
               }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
-            ],
-            "fixedMeasure": "long si",
-            "dateType": "long",
-            "isAutoCalculatedId": true
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
+            ]
           }
         }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "99bbf4d2-c936-4bbc-afb9-66aac902aef0",
-      "version": 3,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "dfsdf",
-      "description": "dsfds",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "sdf",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Mean",
-              "name": "avg1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        },
-        {
-          "name": "cube2",
-          "dimensions": [
-            {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Mean",
-              "name": "avg1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
-            ],
-            "fixedMeasure": "date yes",
-            "dateType": "date",
-            "isAutoCalculatedId": true
-          },
-          "triggers": []
-        },
-        {
-          "name": "cube3",
-          "dimensions": [
-            {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "TotalEntityCount",
-              "name": "totalentitycount1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "341298ab-fb57-4f0d-aee7-3f41751cff13",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "prueba 2",
-      "description": "2",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "aa.",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "aa.",
-              "field": "aa.",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "c8395b42-613a-49ee-80aa-2d645d832998",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "xcc",
-      "description": "dfsdf",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "sdf",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "sdf",
-              "field": "sdf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "703a266c-c6b1-49f0-bcd8-08cbf67f9d5f",
-      "version": 1,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "dfff",
-      "description": "fsd",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "df",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "df",
-              "field": "df",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
-            ],
-            "fixedMeasure": "date yes",
-            "dateType": "date",
-            "isAutoCalculatedId": true
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "eeebfd89-2480-4242-93f4-26d9c597829a",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "sd",
-      "description": "df",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "dsf",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "dsf",
-              "field": "dsf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "b4e20d79-e480-43cb-88ba-f72a08272798",
-          "fragmentType": "input",
-          "name": "inputexample",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "d67589f4-8412-41c4-8890-1b288dad114a",
-      "version": 3,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "aayy",
-      "description": "sss",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "yy",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "yy",
-              "field": "yy",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
-            ],
-            "fixedMeasure": "timestamp false",
-            "dateType": "timestamp",
-            "isAutoCalculatedId": false
-          },
-          "triggers": []
-        },
-        {
-          "name": "cube2",
-          "dimensions": [
-            {
-              "name": "yy",
-              "field": "yy",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": [
-              "outputexample"
-            ],
-            "fixedMeasure": "date true",
-            "dateType": "date",
-            "isAutoCalculatedId": true
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "b4e20d79-e480-43cb-88ba-f72a08272798",
-          "fragmentType": "input",
-          "name": "inputexample",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
-  },
-  {
-    "status": "NotStarted",
-    "policy": {
-      "id": "d8bc1e4c-31e6-47af-8be6-3d1c15777f84",
-      "version": 2,
-      "storageLevel": "MEMORY_AND_DISK_SER",
-      "name": "dfsd",
-      "description": "sfd",
-      "sparkStreamingWindow": "6s",
-      "checkpointPath": "/tmp/checkpoint",
-      "rawData": {
-        "enabled": "false",
-        "path": "default"
-      },
-      "transformations": [
-        {
-          "type": "Ingestion",
-          "order": 0,
-          "inputField": "_attachment_body",
-          "outputFields": [
-            {
-              "name": "dsf",
-              "type": "string"
-            }
-          ],
-          "configuration": {}
-        }
-      ],
-      "streamTriggers": [],
-      "cubes": [
-        {
-          "name": "cube1",
-          "dimensions": [
-            {
-              "name": "dsf",
-              "field": "dsf",
-              "precision": "identity",
-              "type": "Default"
-            }
-          ],
-          "operators": [
-            {
-              "type": "Accumulator",
-              "name": "accumulator1",
-              "configuration": {
-                "inputField": "field1"
-              }
-            }
-          ],
-          "writer": {
-            "outputs": []
-          },
-          "triggers": []
-        }
-      ],
-      "outputs": [],
-      "fragments": [
-        {
-          "id": "fb1bcd1e-8996-4fdf-a80e-67e63d4eb8ac",
-          "fragmentType": "input",
-          "name": "zx",
-          "description": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data. It has a simple and flexible architecture based on streaming data flows.",
-          "shortDescription": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
-          "element": {
-            "name": "in-Flume",
-            "type": "Flume",
-            "configuration": {
-              "type": "pull",
-              "addresses": [
-                {
-                  "host": "localhost",
-                  "port": "11999"
-                }
-              ],
-              "maxBatchSize": "1000",
-              "parallelism": "5"
-            }
-          }
-        },
-        {
-          "id": "0d59ccf5-8afe-46ff-9780-0b02d31ba506",
-          "fragmentType": "output",
-          "name": "outputexample",
-          "description": "The Apache Cassandra database is the right choice when you need scalability and high availability without compromising performance. Linear scalability and proven fault-tolerance on commodity hardware or cloud infrastructure make it the perfect platform for mission-critical data.",
-          "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
-          "element": {
-            "name": "in-Cassandra",
-            "type": "Cassandra",
-            "configuration": {
-              "analyzer": "english",
-              "refreshSeconds": "1",
-              "connectionHost": "localhost",
-              "cluster": "sparta",
-              "replication_factor": "1",
-              "keyspaceClass": "simpleStrategy",
-              "dateFormat": "yyyy-mm-dd HH:mm",
-              "keyspace": "sparta",
-              "compactStorage": false,
-              "connectionPort": "9042",
-              "sparkProperties": [
-                {
-                  "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                  "sparkPropertyValue": "180000"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "userPluginsJars": []
-    }
+      }
+    ],
+    "userPluginsJars": [
+      {
+        "jarPath": ""
+      }
+    ],
+    "sparkConf": [
+      {
+        "sparkConfKey": "",
+        "sparkConfValue": ""
+      }
+    ],
+    "sparkSubmitArguments": [
+      {
+        "submitArgument": "",
+        "submitValue": ""
+      }
+    ],
+    "initSqlSentences": [
+      {
+        "sentence": ""
+      }
+    ]
   }
 ]

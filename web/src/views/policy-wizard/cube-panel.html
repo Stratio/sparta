@@ -115,26 +115,10 @@
               data-qa="{{properties.qa}}">
             </form-field>
 
-            <c-auto-calculated-fields class="c-col c-col--12" data-model="vm.cube['writer.autoCalculatedFields']" form = "vm.form">
-            </c-auto-calculated-fields>
-
-            <form-field-select  class="c-col c-col--6 c-form-group--inline" data-form="vm.form" data-st-name="cubeOutputs" data-model="vm.selectedPolicyOutput"
-             data-options="vm.policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
-             data-qa="cube-output-select" data-submitted-form="vm.form.$submitted" data-ng-click="vm.addOutput()">
-            </form-field-select>
-            <div data-ng-show="vm.cube['writer.outputs'].length == 0 && vm.form.$submitted && vm.cube.triggers.length == 0" class="c-col c-col--6 angular-forms__error">
-              <i class="icon icon-circle-cross"></i>
-              <span data-qa="cube-error-outputs-length">{{"_POLICY_CUBES_OUTPUT_ERROR_" | translate}}</span>
-            </div>
-            <c-tag-list name="cube-outputs" data-tags="vm.cube['writer.outputs']"
-              data-form-control-class="'c-form-group--margin'"
-              label-control-class="'c-label c-col'"
-              readonly="'true'"
-              data-enable-delete="true" data-qa="policy-cube-output-list"
-              show-label = "false"
-              data-help="Note: Make sure output fields match with the ones in the configuration"
-              data-min-length="1" data-form="vm.form">
-            </c-tag-list>
+            <!--Writer model -->
+            <c-writer-model data-model="vm.cube" data-form="vm.form" data-template = "vm.template.writer"
+                            data-policy-output-list="vm.policyOutputList" data-selected-policy-output="vm.selectedPolicyOutput">
+            </c-writer-model>
           </div>
         </div>
       <div class="c-row">

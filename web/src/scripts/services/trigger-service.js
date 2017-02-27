@@ -37,7 +37,7 @@
     vm.isNewTrigger = isNewTrigger;
     vm.setTriggerContainer = setTriggerContainer;
     vm.getTriggerContainer = getTriggerContainer;
-    vm.getTriggerTemplate = getTriggerTemplate;
+    vm.getTriggerContainerType = getTriggerContainerType;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
@@ -64,14 +64,14 @@
       return triggerContainer;
     }
 
+    function getTriggerContainerType() {
+      return triggerContainerType;
+    }
+
     function getTriggerCreationStatus() {
       return triggerCreationStatus;
     }
-
-    function getTriggerTemplate() {
-      return PolicyModelFactory.getTemplate().trigger[triggerContainerType];
-    }
-
+    
     function activateTriggerCreationPanel() {
       triggerCreationStatus.enabled = true;
       TriggerModelFactory.resetTrigger(triggerContainer.length, triggerContainerType);

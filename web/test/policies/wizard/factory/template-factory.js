@@ -10,7 +10,7 @@ describe('policies.wizard.factory.template-factory', function() {
   beforeEach(module(function($provide, _templateDimensionDefault_,
                              _templateDimensionDatetime_, _templateDimensionGeohash_) {
     ApiTemplateService = jasmine.createSpyObj(['getFragmentTemplateByType', 'getPolicyTemplate',
-      'getOperatorTemplateByType', 'getDimensionTemplateByType']);
+      'getOperatorTemplateByType', 'getDimensionTemplateByType', 'getTriggerTemplateByType']);
     fakeGeoHashTemplate = _templateDimensionGeohash_;
     fakeDefaultDimensionTemplate = _templateDimensionDefault_;
     fakeDateTimeTemplate = _templateDimensionDatetime_;
@@ -127,6 +127,40 @@ describe('policies.wizard.factory.template-factory', function() {
       });
 
     });
+    describe("Should return trigger template by type", function() {
+      it('if trigger type is transformation, it returns its specific template', function() {
+        ApiTemplateService.getOperatorTemplateByType.and.returnValue(
+            {
+              "get": promiseMock
+            });
+        factory.getOperatorTemplateByType('count');
+
+        expect(promiseMock).toHaveBeenCalledWith({type: 'count.json'});
+      });
+
+      it('if trigger type is cube, it returns its specific template', function() {
+        ApiTemplateService.getTriggerTemplateByType.and.returnValue(
+            {
+              "get": promiseMock
+            });
+
+        factory.getTriggerTemplateByType('cube');
+
+        expect(promiseMock).toHaveBeenCalledWith({type: 'cube.json'});
+      });
+
+      it('if trigger type is not defined, it returns the transformation template', function() {
+        ApiTemplateService.getTriggerTemplateByType.and.returnValue(
+            {
+              "get": promiseMock
+            });
+        factory.getTriggerTemplateByType();
+
+        expect(promiseMock).toHaveBeenCalledWith({type: 'transformation.json'});
+      });
+
+    });
+
   });
 
 

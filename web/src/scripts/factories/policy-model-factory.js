@@ -118,7 +118,7 @@
     function setCubes(cubes) {
       var formattedCubes = [];
       for (var i = 0; i < cubes.length; ++i) {
-        formattedCubes.push(CubeModelFactory.getParsedCube(cubes[i]));
+        formattedCubes.push(cubes[i]);
       }
       return formattedCubes;
     }

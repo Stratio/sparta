@@ -35,13 +35,7 @@
       cube.operators = [];
       cube.triggers = [];
       cube.writer = {};
-
-      delete cube['writer.dateType'];
-      delete cube['writer.saveMode'];
-      delete cube['writer.tableName'];
-      delete cube['writer.partitionBy'];
-      delete cube['writer.autoCalculatedFields'];
-      cube['writer.outputs'] = [];
+      cube.writer.outputs = [];
     }
 
     function resetCube(template, nameIndex, position) {
@@ -60,26 +54,12 @@
       cube.dimensions = c.dimensions;
       cube.operators = c.operators;
       cube.triggers = c.triggers;
-      cube['writer.dateType'] = c['writer.dateType'];
-      cube['writer.saveMode'] = c['writer.saveMode'];
-      cube['writer.tableName'] = c['writer.tableName'];
-      cube['writer.partitionBy'] = c['writer.partitionBy'];
-      cube['writer.outputs'] = c['writer.outputs'];
-      cube['writer.autoCalculatedFields'] = c['writer.autoCalculatedFields'] ||c.writer.autoCalculatedFields;
+      cube.writer = c.writer;
+      
       setPosition(position);
       error.text = "";
     }
-
-    function getParsedCube(cube) {
-      cube['writer.dateType'] = cube.writer.dateType;
-      cube['writer.saveMode'] = cube.writer.saveMode;
-      cube['writer.tableName'] = cube.writer.tableName;
-      cube['writer.partitionBy'] = cube.writer.partitionBy;
-      cube['writer.outputs'] = cube.writer.outputs;
-      cube['writer.autoCalculatedFields'] = cube.writer.autoCalculatedFields;
-      return cube;
-    }
-
+    
     function areValidOperatorsAndDimensions(cube, modelOutputs) {
       var validOperatorsAndDimensionsLength = cube.operators.length > 0 && cube.dimensions.length > 0;
       for (var i = 0; i < cube.dimensions.length; ++i) {
@@ -92,7 +72,7 @@
 
     function isValidCube(cube, cubes, position, modelOutputs) {
       var validName = cube.name !== undefined && cube.name !== "";
-      var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube['writer.outputs'].length > 0);
+      var validRequiredAttributes = cube.operators.length > 0 && cube.dimensions.length > 0 && (cube.triggers.length > 0 || cube.writer.outputs.length > 0);
       var isValid = validName && validRequiredAttributes && areValidOperatorsAndDimensions(cube, modelOutputs) && !nameExists(cube, cubes, position);
       return isValid;
     }
@@ -137,7 +117,6 @@
       getContext: getContext,
       setPosition: setPosition,
       isValidCube: isValidCube,
-      getParsedCube: getParsedCube,
       setError: setError,
       getError: getError
     }

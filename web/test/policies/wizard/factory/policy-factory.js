@@ -19,7 +19,7 @@ describe('policies.wizard.factory.policy-factory', function () {
     q = $q;
     scope = $rootScope.$new();
     fakePolicyList = _apiPolicyList_;
-    fakePolicy = fakePolicyList[0].policy;
+    fakePolicy = fakePolicyList[0];
     promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       return {"$promise": q.defer()};
     });

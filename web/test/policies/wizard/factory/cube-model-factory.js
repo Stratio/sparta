@@ -31,9 +31,9 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.dimensions).toBe(fakeCube.dimensions);
     expect(cube.operators).toBe(fakeCube.operators);
     expect(cube.triggers).toEqual(fakeCube.triggers);
-    expect(cube['writer.dateType']).toEqual(fakeCube['writer.dateType']);
-    expect(cube['writer.outputs']).toEqual(fakeCube['writer.outputs']);
-    expect(cube['writer.autoCalculatedFields']).toEqual(fakeCube['writer.autoCalculatedFields']);
+    expect(cube.writer.dateType).toEqual(fakeCube.writer.dateType);
+    expect(cube.writer.outputs).toEqual(fakeCube.writer.outputs);
+    expect(cube.writer.autoCalculatedFields).toEqual(fakeCube.writer.autoCalculatedFields);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
@@ -47,9 +47,9 @@ describe('policies.wizard.factory.cube-model-factory', function () {
     expect(cube.dimensions).toBe(fakeCube.dimensions);
     expect(cube.operators).toBe(fakeCube.operators);
     expect(cube.triggers).toEqual(fakeCube.triggers);
-    expect(cube['writer.autoCalculatedFields']).toEqual(fakeCube['writer.autoCalculatedFields']);
-    expect(cube['writer.dateType']).toEqual(fakeCube['writer.dateType']);
-    expect(cube['writer.outputs']).toEqual(fakeCube['writer.outputs']);
+    expect(cube.writer.autoCalculatedFields).toEqual(fakeCube.writer.autoCalculatedFields);
+    expect(cube.writer.dateType).toEqual(fakeCube.writer.dateType);
+    expect(cube.writer.outputs).toEqual(fakeCube.writer.outputs);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });

@@ -21,9 +21,10 @@
     "cube output 1",
     "cube output 2"
   ],
-  "writer.dateType": "timestamp",
-
-  "writer.autoCalculatedFields": [{
+  "writer": {
+    "outputs": ["output1"],
+    "dateType": "long",
+    "autoCalculatedFields": [{
       "fromNotNullFields": {
         "name": "a",
         "outputType": "map"
@@ -44,10 +45,11 @@
     }, {
       "fromFixedValue": {
         "field": {
-          "name": "s",
+          "name": "d",
           "outputType": "string"
         },
         "value": "fake value"
       }
     }]
+  }
 }
