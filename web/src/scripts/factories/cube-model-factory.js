@@ -34,8 +34,7 @@
       cube.dimensions = [];
       cube.operators = [];
       cube.triggers = [];
-      cube.writer = {};
-      cube.writer.outputs = [];
+      cube.writer = {autoCalculatedFields: [], outputs: []};
     }
 
     function resetCube(template, nameIndex, position) {
@@ -55,11 +54,11 @@
       cube.operators = c.operators;
       cube.triggers = c.triggers;
       cube.writer = c.writer;
-      
+
       setPosition(position);
       error.text = "";
     }
-    
+
     function areValidOperatorsAndDimensions(cube, modelOutputs) {
       var validOperatorsAndDimensionsLength = cube.operators.length > 0 && cube.dimensions.length > 0;
       for (var i = 0; i < cube.dimensions.length; ++i) {
