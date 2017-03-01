@@ -246,10 +246,20 @@
       "qa": "policy-temporal-table-name"
     },
     {
+      "propertyId": "monitoringLink",
+      "propertyName": "_MONITORING_LINK_",
+      "width": 6,
+      "position": "right",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "User defined URI to monitoring policies when is launched in the polices view ",
+      "qa": "monitoring-link"
+    },
+    {
       "propertyId": "checkpointPath",
       "propertyName": "_CHECKPOINT_PATH_",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "propertyType": "text",
       "required": false,
       "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
@@ -259,7 +269,7 @@
       "propertyId": "autoDeleteCheckpoint",
       "propertyName": "_AUTO_DELETE_CHECKPOINT_",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "propertyType": "boolean",
       "required": false,
       "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file.",
@@ -270,7 +280,7 @@
       "propertyName": "_STOP_GRACEFULLY_",
       "propertyType": "boolean",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
       "qa": "policy-stop-gracefully"
     },
@@ -279,7 +289,7 @@
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "tooltip": "Save the raw data in HDFS with parquet format.",
       "default": false,
       "qa": "policy-raw-data"
@@ -1492,6 +1502,16 @@
         ],
         "width": 6,
         "position": "right"
+      },
+      {
+        "propertyId": "writer.primaryKey",
+        "propertyName": "_TRIGGER_PRIMARY_KEY_",
+        "propertyType": "text",
+        "required": false,
+        "qa": "primaryKey-cube",
+        "tooltip": "Field or fields separated by tag ',' that indicate the primary key fields in the temporal table. This is useful when select upsert mode and save the data in MongoDb or Elasticsearch",
+        "width": 6,
+        "position": "left"
       }
     ],
     "functionNames": [

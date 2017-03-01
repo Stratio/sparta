@@ -53,9 +53,9 @@ class PluginActor extends Actor
       sender ! PluginResponse(Failure(new IllegalArgumentException(s"A file is expected")))
     case UploadFile(_, files) if files.size != 1 =>
       sender ! PluginResponse(Failure(new IllegalArgumentException(s"More than one file is not supported")))
-    case UploadFile(name, files) if jarFileName.test(name) => uploadFile(name, files)
-    case UploadFile(name, _) =>
-      sender ! PluginResponse(Failure(new IllegalArgumentException(s"$name is Not a valid file name")))
+    case UploadFile(name, files) =>
+      if (jarFileName.test(name)) uploadFile(name, files)
+      else sender ! PluginResponse(Failure(new IllegalArgumentException(s"$name is Not a valid file name")))
     case _ => log.info("Unrecognized message in Plugin Actor")
   }
 

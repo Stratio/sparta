@@ -19,8 +19,9 @@ package com.stratio.sparta.serving.api.utils
 import akka.actor._
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor.LauncherActor.Start
-import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalLauncherActor}
+import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalLauncherActor, MarathonLauncherActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 
@@ -52,26 +53,19 @@ trait LauncherActorUtils extends PolicyStatusUtils {
         actor
       case None =>
         log.info(s"Launched -> $actorName")
-        if (isLocal(policy)) {
+        if (isExecutionType(policy, AppConstant.ConfigLocal)) {
           log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
-          getLocalLauncher(policy, statusActor, streamingContextService, context, actorName)
+          context.actorOf(Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
         } else {
-          log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
-          getClusterLauncher(policy, statusActor, context, actorName)
+          if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
+            log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")
+            context.actorOf(Props(new MarathonLauncherActor(statusActor)), actorName)
+          }
+          else {
+            log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
+            context.actorOf(Props(new ClusterLauncherActor(statusActor)), actorName)
+          }
         }
     }
   }
-
-  private def getLocalLauncher(policy: PolicyModel,
-                               statusActor: ActorRef,
-                               streamingContextService: StreamingContextService,
-                               context: ActorContext,
-                               actorName: String): ActorRef =
-    context.actorOf(Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
-
-  def getClusterLauncher(policy: PolicyModel,
-                         statusActor: ActorRef,
-                         context: ActorContext,
-                         actorName: String): ActorRef =
-    context.actorOf(Props(new ClusterLauncherActor(statusActor)), actorName)
 }

@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.typesafe.config.Config
@@ -32,10 +33,10 @@ trait PolicyConfigUtils extends SLF4JLogging {
     throw new RuntimeException(message)
   }
 
-  def isLocal(policy: PolicyModel): Boolean =
+  def isExecutionType(policy: PolicyModel, executionType: String): Boolean =
     policy.executionMode match {
-      case Some(executionMode) if executionMode.nonEmpty => executionMode.equalsIgnoreCase(ConfigLocal)
-      case _ => DetailConfig.getString(ExecutionMode).equalsIgnoreCase(ConfigLocal)
+      case Some(executionMode) if executionMode.nonEmpty => executionMode.equalsIgnoreCase(executionType)
+      case _ => DetailConfig.getString(ExecutionMode).equalsIgnoreCase(executionType)
     }
 
   def isCluster(policy: PolicyModel, clusterConfig: Config): Boolean =
@@ -49,7 +50,7 @@ trait PolicyConfigUtils extends SLF4JLogging {
     }
 
   def getDetailExecutionMode(policy: PolicyModel, clusterConfig: Config): String =
-    if (isLocal(policy)) LocalValue
+    if (isExecutionType(policy, AppConstant.ConfigLocal)) LocalValue
     else {
       val execMode = executionMode(policy)
       if (isCluster(policy, clusterConfig)) s"$execMode-$ClusterValue"
@@ -58,13 +59,6 @@ trait PolicyConfigUtils extends SLF4JLogging {
 
   def pluginsJars(policy: PolicyModel): Seq[String] =
     policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
-
-  def isSupervised(policy: PolicyModel, clusterConfig: Config): Boolean = {
-    val mode = executionMode(policy)
-    if (mode == ConfigStandAlone || mode == ConfigMesos) {
-      Try(clusterConfig.getBoolean(Supervise)).getOrElse(false)
-    } else false
-  }
 
   def gracefulStop(policy: PolicyModel): Boolean =
     Try(policy.stopGracefully.getOrElse(DetailConfig.getBoolean(ConfigStopGracefully)))

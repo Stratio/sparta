@@ -46,7 +46,8 @@ case class PolicyModel(
                         executionMode: Option[String] = None,
                         driverUri: Option[String] = None,
                         stopGracefully: Option[Boolean] = None,
-                        streamTemporalTable: Option[String] = None
+                        streamTemporalTable: Option[String] = None,
+                        monitoringLink: Option[String] = None
                       )
 
 case object PolicyModel {

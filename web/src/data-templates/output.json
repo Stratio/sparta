@@ -246,16 +246,6 @@
         "qa": "fragment-details-elasticSearch-clusterName"
       },
       {
-        "propertyId": "idField",
-        "propertyName": "_ID_FIELD_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "tooltip": "Sets the key used to look for more coincidences and save by upserting.",
-        "required": false,
-        "qa": "fragment-details-elasticSearch-idField"
-      },
-      {
         "propertyId": "indexMapping",
         "propertyName": "_INDEX_MAPPING_",
         "propertyType": "text",

@@ -22,7 +22,6 @@ case class TriggerModel(name: String,
                         sql: String,
                         writer: WriterModel,
                         overLast: Option[String] = None,
-                        primaryKey: Seq[String] = Seq.empty[String],
                         configuration: Map[String, JsoneyString] = Map(),
                         computeEvery: Option[String] = None
                        )

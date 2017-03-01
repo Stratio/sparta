@@ -31,7 +31,6 @@ describe('policies.wizard.factory.trigger-model-factory', function() {
     expect(trigger.name).toBe(fakeApiTrigger.name);
     expect(trigger.sql).toBe(fakeApiTrigger.sql);
     expect(trigger.writer.outputs).toBe(fakeApiTrigger.writer.outputs);
-    expect(trigger.primaryKey).toBe(fakeApiTrigger.primaryKey);
     expect(factory.getError()).toEqual({"text": ""});
     expect(factory.getContext().position).toBe(position);
   });
@@ -102,7 +101,6 @@ describe('policies.wizard.factory.trigger-model-factory', function() {
       expect(trigger.name).toEqual(fakeApiTrigger.name);
       expect(trigger.sql).toEqual(fakeApiTrigger.sql);
       expect(trigger.writer.outputs).toEqual(fakeApiTrigger.writer.outputs);
-      expect(trigger.primaryKey).toBe(fakeApiTrigger.primaryKey);
 
       factory.setTrigger(fakeApiTrigger, desiredPosition, 'transformation');
 
@@ -113,7 +111,6 @@ describe('policies.wizard.factory.trigger-model-factory', function() {
       expect(trigger.sql).toEqual(fakeApiTrigger.sql);
       expect(trigger.writer.outputs).toEqual(fakeApiTrigger.writer.outputs);
       expect(trigger.writer.autoCalculatedFields).toEqual(fakeApiTrigger.writer.autoCalculatedFields);
-      expect(trigger.primaryKey).toEqual(fakeApiTrigger.primaryKey);
       expect(trigger.overLastNumber).toEqual(Number(overLast[1]));
       expect(trigger.overLastTime).toEqual(overLast[2]);
       expect(trigger.computeEveryNumber).toEqual(Number(computeEvery[1]));

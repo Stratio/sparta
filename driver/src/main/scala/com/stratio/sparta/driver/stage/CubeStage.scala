@@ -74,7 +74,8 @@ trait CubeStage extends BaseStage {
           cubeModel.writer.saveMode,
           cubeModel.writer.tableName,
           getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields),
-          cubeModel.writer.partitionBy
+          cubeModel.writer.partitionBy,
+          cubeModel.writer.primaryKey
         )
       )
     }
@@ -101,7 +102,7 @@ trait CubeStage extends BaseStage {
           trigger.overLast,
           trigger.computeEvery,
           trigger.writer.tableName,
-          trigger.primaryKey,
+          trigger.writer.primaryKey,
           trigger.writer.saveMode,
           getAutoCalculatedFields(trigger.writer.autoCalculatedFields),
           trigger.writer.partitionBy

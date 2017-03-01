@@ -207,7 +207,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
     }
 
   def isAvailableToRun(policyModel: PolicyModel): Boolean =
-    (isLocal(policyModel), isAnyPolicyStarted) match {
+    (isExecutionType(policyModel, AppConstant.ConfigLocal), isAnyPolicyStarted) match {
       case (false, _) =>
         true
       case (true, false) =>

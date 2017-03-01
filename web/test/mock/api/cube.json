@@ -22,9 +22,6 @@
       "outputs": [
         "output"
       ],
-      "primaryKey": [
-        "PRIMARY_kEY"
-      ],
       "overLast": "6s",
       "computeEvery": "6s"
     }

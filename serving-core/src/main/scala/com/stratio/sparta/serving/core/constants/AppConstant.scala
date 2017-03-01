@@ -39,11 +39,11 @@ object AppConstant {
   val ConfigStandAlone = "standalone"
   val ConfigMesos = "mesos"
   val ConfigYarn = "yarn"
+  val ConfigMarathon = "marathon"
   val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
   val ConfigStopGracefully = "stopGracefully"
   val DefaultStopGracefully = true
-  val SparkGracefullyStopProperty = "spark.streaming.stopGracefullyOnShutdown"
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
   val DefaultAwaitPolicyChangeStatus = "120s"
   val DriverPackageLocation = "driverPackageLocation"

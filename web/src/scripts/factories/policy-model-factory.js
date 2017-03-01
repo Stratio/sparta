@@ -45,6 +45,7 @@
       delete policy.sparkStreamingWindowTime;
       delete policy.storageLevel;
       delete policy.rawDataEnabled;
+      delete policy.monitoringLink;
       delete policy.rawDataPath;
       delete policy.checkpointPath;
       delete policy.autoDeleteCheckpoint;
@@ -73,6 +74,7 @@
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.autoDeleteCheckpoint = inputPolicyJSON.autoDeleteCheckpoint;
       policy.executionMode = inputPolicyJSON.executionMode;
+      policy.monitoringLink = inputPolicyJSON.monitoringLink;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = setCubes(inputPolicyJSON.cubes);
       policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
