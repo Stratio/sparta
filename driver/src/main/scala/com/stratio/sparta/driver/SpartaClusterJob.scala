@@ -75,11 +75,8 @@ object SpartaClusterJob extends PluginsFilesUtils {
         log.info(startingInfo)
         statusActor ! Update(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(statusActor)
-        val ssc = streamingContextService.clusterStreamingContext(
-          policy,
-          Map("spark.app.name" -> s"${policy.name}"),
-          pluginsFiles
-        )
+
+        val ssc = streamingContextService.clusterStreamingContext(policy)
         statusActor ! Update(PolicyStatusModel(
           id = policyId,
           status = NotDefined,
@@ -93,7 +90,8 @@ object SpartaClusterJob extends PluginsFilesUtils {
           status = Started,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
           statusInfo = Some(startedInfo),
-          resourceManagerUrl = ResourceManagerLinkHelper.getLink(policyConfigUtils.executionMode(policy))
+          resourceManagerUrl = ResourceManagerLinkHelper.getLink(
+            policyConfigUtils.executionMode(policy), policy.monitoringLink)
         ))
         ssc.awaitTermination()
       } match {

@@ -45,6 +45,16 @@
         "width": 6
       },
       {
+        "propertyId": "primaryKey",
+        "propertyName": "_TRIGGER_PRIMARY_KEY_",
+        "propertyType": "text",
+        "required": false,
+        "qa": "primaryKey-cube-trigger",
+        "tooltip": "Field or fields separated by tag ',' that indicate the primary key fields in the temporal table. This is useful when select upsert mode and save the data in MongoDb or Elasticsearch",
+        "width": 6,
+        "position": "left"
+      },
+      {
         "propertyId": "saveMode",
         "propertyName": "_SAVE_MODE_",
         "propertyType": "select",
@@ -75,7 +85,7 @@
           }
         ],
         "width": 6,
-        "position": "left"
+        "position": "right"
       }
     ]
   }

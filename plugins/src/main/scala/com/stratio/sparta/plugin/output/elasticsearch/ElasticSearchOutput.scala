@@ -43,7 +43,6 @@ class ElasticSearchOutput(name: String, properties: Map[String, JSerializable]) 
   val DefaultCluster = "elasticsearch"
   val ElasticSearchClass = "org.elasticsearch.spark.sql"
 
-  val idField = properties.getString("idField", None)
   val mappingType = properties.getString("indexMapping", DefaultIndexType)
   val clusterName = properties.getString("clusterName", DefaultCluster)
   val httpNodes = getHostPortConfs(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
@@ -53,10 +52,9 @@ class ElasticSearchOutput(name: String, properties: Map[String, JSerializable]) 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
     val dataFrameSchema = dataFrame.schema
-    val timeDimension = dataFrameSchema.fields.filter(stField => stField.metadata.contains(Output.TimeDimensionKey))
-      .map(_.name).headOption
-    getTimeFromOptions(options)
-    val sparkConfig = getSparkConfig(timeDimension, saveMode)
+    val timeDimension = getTimeFromOptions(options)
+    val primaryKeyOption = getPrimaryKeyOptions(options)
+    val sparkConfig = getSparkConfig(timeDimension, saveMode, primaryKeyOption)
 
 
     //This dataFrame transformation is necessary because ES doesn't support java.sql.TimeStamp in the row values: use
@@ -99,9 +97,10 @@ class ElasticSearchOutput(name: String, properties: Map[String, JSerializable]) 
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
 
-  def getSparkConfig(timeName: Option[String], saveMode: SaveModeEnum.Value): Map[String, String] = {
+  def getSparkConfig(timeName: Option[String], saveMode: SaveModeEnum.Value, primaryKey: Option[String])
+  : Map[String, String] = {
     saveMode match {
-      case SaveModeEnum.Upsert => idField.fold(Map.empty[String, String]) { field => Map("es.mapping.id" -> field) }
+      case SaveModeEnum.Upsert => primaryKey.fold(Map.empty[String, String]) { field => Map("es.mapping.id" -> field) }
       case _ => Map.empty[String, String]
     }
   } ++ {

@@ -20,6 +20,7 @@ import java.io.File
 import java.util.Calendar
 
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import org.apache.commons.io.FileUtils
@@ -50,7 +51,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
 
   def deleteCheckpointPath(policy: PolicyModel): Unit =
     Try {
-      if (isLocal(policy)) deleteFromLocal(policy)
+      if (isExecutionType(policy, AppConstant.ConfigLocal)) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy, withTime = false)}")
@@ -58,7 +59,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
     }
 
   def createLocalCheckpointPath(policy: PolicyModel): Unit = {
-    if (isLocal(policy))
+    if (isExecutionType(policy, AppConstant.ConfigLocal))
       Try {
         createFromLocal(policy)
       } match {

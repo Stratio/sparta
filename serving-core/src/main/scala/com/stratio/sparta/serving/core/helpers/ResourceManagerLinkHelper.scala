@@ -26,33 +26,35 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 
 object ResourceManagerLinkHelper extends SLF4JLogging {
 
-  def getLink(executionMode : String): Option[String] = {
-    val (host: String, port: Int) = executionMode match {
-      case AppConstant.ConfigMesos => mesosLink
-      case AppConstant.ConfigYarn => yarnLink
-      case AppConstant.ConfigStandAlone => standaloneLink
-      case AppConstant.ConfigLocal => localLink
+  def getLink(executionMode : String, monitoringLink: Option[String] = None): Option[String] = {
+    val (host: String, port: Int) = (monitoringLink, executionMode) match {
+      case (None, AppConstant.ConfigMesos) => mesosLink
+      case (None, AppConstant.ConfigYarn) => yarnLink
+      case (None, AppConstant.ConfigStandAlone) => standaloneLink
+      case (None, AppConstant.ConfigLocal) => localLink
+      case (Some(uri), _) => userLink(uri)
       case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")
     }
 
     checkConnectivity(host, port)
   }
 
-  def checkConnectivity(host: String, port: Int): Option[String] = {
+  def checkConnectivity(host: String, port: Int, monitoringLink: Option[String] = None): Option[String] = {
     Try {
       new Socket(host, port)
     } match {
       case Success(socket) =>
         if (socket.isConnected) {
           socket.close()
-          Option(s"http://$host:$port")
+          monitoringLink.orElse(Option(s"http://$host:$port"))
         } else {
+          log.debug(s"Cannot connect to http://$host:$port")
           socket.close()
-          None
+          monitoringLink
         }
       case Failure(_) =>
-        log.debug(s"Cannot connect to http://$host:$port. Log link won't be shown in UI.")
-        None
+        log.debug(s"Cannot connect to http://$host:$port")
+        monitoringLink
     }
   }
 
@@ -81,4 +83,9 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
     (localhostName, 4040)
   }
 
+  private def userLink(uri: String) = {
+    val host = uri.replace("http://", "").replace("https://", "").replaceAll(":\\d+", "")
+    val port = uri.split(":").lastOption.getOrElse("4040").toInt
+    (host, port)
+  }
 }

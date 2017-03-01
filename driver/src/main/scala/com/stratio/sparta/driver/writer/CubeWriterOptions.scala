@@ -25,4 +25,5 @@ case class CubeWriterOptions(outputs: Seq[String] = Seq.empty[String],
                              saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
                              tableName: Option[String] = None,
                              autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField],
-                             partitionBy: Option[String] = None)
+                             partitionBy: Option[String] = None,
+                             primaryKey: Option[String] = None)
