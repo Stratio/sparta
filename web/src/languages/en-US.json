@@ -423,7 +423,8 @@
     "_POLICY_INPUTS_": "At least one input must be selected!",
     "_POLICY_OUTPUTS_": "At least one output must be selected!",
     "_GENERIC_FORM_": "There are some errors in the data introduced. Please, check them and try again",
-    "_WINDOW_ATTRIBUTE_NOT_MULTIPLE_ERROR_": "The introduced window attributes are not multiple of the policy SparkStreaming Window"
+    "_WINDOW_ATTRIBUTE_NOT_MULTIPLE_ERROR_": "The introduced window attributes are not multiple of the policy SparkStreaming Window",
+    "_TRIGGER_ALREADY_EXITS_": "There was an error. The name of the trigger already exists!"
   },
   "_MESSAGE_": {
     "_TRANSFORMATION_STEP_": "You have to create, at least, one TRANSFORMATION",

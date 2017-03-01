@@ -44,7 +44,6 @@
     vm.removeOutputFromDimensions = removeOutputFromDimensions;
     vm.addFunctionToOperators = addFunctionToOperators;
     vm.removeFunctionFromOperators = removeFunctionFromOperators;
-    vm.addOutput = addOutput;
     vm.showTriggerError = showTriggerError;
     vm.cancelCubeCreation = cancelCubeCreation;
 
@@ -217,12 +216,6 @@
       var valid = validateCubeForm();
       if (valid) {
         CubeService.saveCube(vm.form);
-      }
-    }
-
-    function addOutput() {
-      if (vm.selectedPolicyOutput && vm.cube['writer.outputs'].indexOf(vm.selectedPolicyOutput) == -1) {
-        vm.cube['writer.outputs'].push(vm.selectedPolicyOutput);
       }
     }
 

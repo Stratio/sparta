@@ -29,7 +29,8 @@
     vm.getPolicyTemplate = getPolicyTemplate;
     vm.getDimensionTemplateByType = getDimensionTemplateByType;
     vm.getOperatorTemplateByType = getOperatorTemplateByType;
-    
+    vm.getTriggerTemplateByType = getTriggerTemplateByType;
+
     /////////////////////////////////
 
     function getFragmentTemplateByType() {
@@ -64,6 +65,16 @@
     
     function getOperatorTemplateByType() {
       return $resource('/data-templates/operator/:type', {type: '@type'},
+          {
+            'get': {
+              method: 'GET',
+              timeout: apiConfigSettings.timeout
+            }
+          });
+    }
+
+    function getTriggerTemplateByType() {
+      return $resource('/data-templates/trigger/:type', {type: '@type'},
           {
             'get': {
               method: 'GET',

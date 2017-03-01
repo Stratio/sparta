@@ -59,9 +59,9 @@
         var found = false;
         var policiesList = this.getAllPolicies();
         policiesList.then(function (policiesDataList) {
-          var filteredPolicies = $filter('filter')(policiesDataList, {'policy': {'name': policyName.toLowerCase()}}, true);
+          var filteredPolicies = $filter('filter')(policiesDataList, {'name': policyName.toLowerCase()}, true);
           if (filteredPolicies.length > 0) {
-            var foundPolicy = filteredPolicies[0].policy;
+            var foundPolicy = filteredPolicies[0];
             if (policyId != foundPolicy.id || policyId === undefined) {
               found = true;
             }

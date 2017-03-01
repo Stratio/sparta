@@ -101,7 +101,7 @@
       delete trigger.overLast;
     }
 
-    function isValidWindowAttributes() {
+    function areValidWindowAttributes() {
       var sparkStreamingWindow = PolicyModelFactory.getCurrentPolicy().sparkStreamingWindowNumber;
       return (!sparkStreamingWindow ||
       ((!trigger.overLastNumber || trigger.overLastNumber % sparkStreamingWindow == 0) &&
@@ -109,12 +109,17 @@
     }
 
     function isValidTrigger(triggers, position) {
-      var isValid = trigger.name != "" && trigger.sql != "" && !nameExists(trigger, triggers, position);
-      var validWindowAttributes = isValidWindowAttributes();
+      var uniqueName = !nameExists(trigger, triggers, position);
+      var isValid = trigger.name != "" && trigger.sql != "" && uniqueName;
+      var validWindowAttributes = areValidWindowAttributes();
       if (!validWindowAttributes) {
         error.text = "_ERROR_._WINDOW_ATTRIBUTE_NOT_MULTIPLE_ERROR_";
         error.type = 'error';
         error.attribute = 'streamTrigger'
+      }
+      if (!uniqueName){
+        error.text = "_ERROR_._TRIGGER_ALREADY_EXITS_";
+        error.type = 'error';
       }
       if (isValid && validWindowAttributes) {
         error.text = "";

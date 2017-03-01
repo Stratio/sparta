@@ -48,7 +48,13 @@
         operatorType = operatorType ? operatorType.toLowerCase(): '';
         operatorType = operatorType != 'count' ? 'default': operatorType;
         return ApiTemplateService.getOperatorTemplateByType().get({'type': operatorType + '.json'}).$promise;
+      },
+      getTriggerTemplateByType: function (type) {
+        if (!type){
+          type = 'transformation';
+        }
+        return ApiTemplateService.getTriggerTemplateByType().get({'type': type + '.json'}).$promise;
       }
     };
-  };
+  }
 })();
