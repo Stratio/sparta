@@ -51,6 +51,7 @@ object Output extends Logging {
   final val ClassSuffix = "Output"
   final val Separator = "_"
   final val FieldsSeparator = ","
+  final val PrimaryKey = "primaryKey"
   final val TableNameKey = "tableName"
   final val PartitionByKey = "partitionBy"
   final val TimeDimensionKey = "timeDimension"
@@ -70,6 +71,8 @@ object Output extends Logging {
     }
 
   def getTimeFromOptions(options: Map[String, String]): Option[String] = options.get(TimeDimensionKey).notBlank
+
+  def getPrimaryKeyOptions(options: Map[String, String]): Option[String] = options.get(PrimaryKey).notBlank
 
   def getTableNameFromOptions(options: Map[String, String]): String =
     options.getOrElse(TableNameKey, {

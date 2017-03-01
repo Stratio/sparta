@@ -60,7 +60,6 @@
               "test_output_redis"
             ]
           },
-          "primaryKey": [],
           "configuration": {}
         }
       ]
@@ -80,7 +79,6 @@
       "overLastTime": "s",
       "computeEveryNumber": 6,
       "computeEveryTime": "s",
-      "primaryKey": [],
       "configuration": {}
     }
   ]

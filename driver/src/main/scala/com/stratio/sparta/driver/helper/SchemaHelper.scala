@@ -123,8 +123,10 @@ object SchemaHelper {
     }
   }
 
-  def getStreamWriterFieldsMetadata(triggerWriterOptions: TriggerWriterOptions): Seq[StructField] =
-    triggerWriterOptions.primaryKey.map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
+  def getStreamWriterPkFieldsMetadata(primaryKey: Option[String]): Seq[StructField] =
+    primaryKey.fold(Seq.empty[StructField]) { case fields =>
+      fields.split(",").map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
+    }
 
   def getTimeTypeFromString(timeType: String): TypeOp =
     timeType.toLowerCase match {

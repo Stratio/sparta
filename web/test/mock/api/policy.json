@@ -40,7 +40,6 @@
     "outputs": ["outputexample"],
     "overLast": "6s",
     "computeEvery": "6s",
-    "primaryKey": [],
     "configuration": {}
   }],
   "cubes": [{
@@ -66,7 +65,6 @@
       "name": "CUBE TRIGGER",
       "sql": "SELECT * FROM STREAM",
       "outputs": ["outputexample"],
-      "primaryKey": [],
       "configuration": {}
     }]
   }],

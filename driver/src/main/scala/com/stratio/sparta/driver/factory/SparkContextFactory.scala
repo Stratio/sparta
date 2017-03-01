@@ -35,18 +35,14 @@ object SparkContextFactory extends SLF4JLogging {
   private var ssc: Option[StreamingContext] = None
   private var sqlInitialSentences: Seq[String] = Seq.empty[String]
 
-  def sparkSqlContextInstance: SQLContext = {
+  def sparkSqlContextInstance: SQLContext =
     synchronized {
-      sqlContext match {
-        case Some(context) =>
-          context
-        case None =>
-          if (sc.isDefined) sqlContext = Option(SQLContext.getOrCreate(sc.get))
+      sqlContext.getOrElse{
+          if (sc.isDefined) sqlContext = Option(new SQLContext(sc.get))
           sqlInitialSentences.foreach(sentence => if (sentence.nonEmpty) sqlContext.get.sql(sentence))
           sqlContext.get
       }
     }
-  }
 
   def setInitialSentences(sentences: Seq[String]): Unit = sqlInitialSentences = sentences
 
@@ -78,8 +74,8 @@ object SparkContextFactory extends SLF4JLogging {
       sc.getOrElse(instantiateSparkContext(specificConfig, jars))
     }
 
-  def sparkClusterContextInstance(specificConfig: Map[String, String], files: Seq[String]): SparkContext =
-    sc.getOrElse(instantiateClusterContext(specificConfig, files))
+  def sparkClusterContextInstance(specificConfig: Map[String, String]): SparkContext =
+    sc.getOrElse(instantiateClusterContext(specificConfig))
 
   private def instantiateSparkContext(specificConfig: Map[String, String], jars: Seq[File]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
@@ -90,12 +86,8 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def instantiateClusterContext(specificConfig: Map[String, String], jars: Seq[String]): SparkContext = {
+  private def instantiateClusterContext(specificConfig: Map[String, String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
-    jars.foreach(f => {
-      log.info(s"Adding jar $f to cluster Spark context")
-      sc.get.addJar(f)
-    })
     sc.get
   }
 

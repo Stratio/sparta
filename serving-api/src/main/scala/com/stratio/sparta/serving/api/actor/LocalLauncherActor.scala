@@ -63,7 +63,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
         id = policy.id.get,
         status = PolicyStatusEnum.Started,
         statusInfo = Some(startedInformation),
-        resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy))
+        resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy), policy.monitoringLink)
       ))
 
       ssc.get.awaitTermination()

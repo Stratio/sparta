@@ -20,17 +20,12 @@ import java.util.Date
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
-import com.stratio.sparta.sdk.pipeline.schema.SpartaSchema
-import org.apache.spark.Logging
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.DataFrame
 
 
-class FileOutput(name: String,
-                 properties: Map[String, JSerializable],
-                 schemas: Seq[SpartaSchema])
-                  extends Output(name, properties, schemas) with Logging {
+class FileOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
   val path = propertiesWithCustom.get("path").getOrElse(throw new IllegalArgumentException("Property " +
     "path is mandatory"))

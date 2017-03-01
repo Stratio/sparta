@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.output.elasticsearch
 
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith

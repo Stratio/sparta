@@ -54,13 +54,16 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
         val outputTableName = trigger.triggerWriterOptions.tableName.getOrElse(trigger.name)
         val saveOptions = Map(Output.TableNameKey -> outputTableName) ++
           trigger.triggerWriterOptions.partitionBy.fold(Map.empty[String, String]) {partition =>
-            Map(Output.PartitionByKey -> partition)}
+            Map(Output.PartitionByKey -> partition)} ++
+          trigger.triggerWriterOptions.primaryKey.fold(Map.empty[String, String]) {key =>
+            Map(Output.PrimaryKey -> key)}
 
         if (queryDf.take(1).length > 0) {
           val autoCalculatedFieldsDf =
               applyAutoCalculateFields(queryDf,
                 trigger.triggerWriterOptions.autoCalculateFields,
-                StructType(queryDf.schema.fields ++ SchemaHelper.getStreamWriterFieldsMetadata(trigger.triggerWriterOptions)))
+                StructType(queryDf.schema.fields ++
+                  SchemaHelper.getStreamWriterPkFieldsMetadata(trigger.triggerWriterOptions.primaryKey)))
           if (isCorrectTableName(trigger.name) && !sqlContext.tableNames().contains(trigger.name)) {
             autoCalculatedFieldsDf.registerTempTable(trigger.name)
             log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")

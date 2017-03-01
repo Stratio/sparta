@@ -35,8 +35,8 @@ class MongoDbOutput(name: String, properties: Map[String, JSerializable]) extend
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val timeDimension = getTimeFromOptions(options)
-    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, timeDimension, saveMode)
+    val primaryKeyOption = getPrimaryKeyOptions(options)
+    val dataFrameOptions = getDataFrameOptions(tableName, dataFrame.schema, saveMode, primaryKeyOption)
 
     validateSaveMode(saveMode)
 
@@ -49,23 +49,26 @@ class MongoDbOutput(name: String, properties: Map[String, JSerializable]) extend
 
   private def getDataFrameOptions(tableName: String,
                                   schema: StructType,
-                                  timeDimension: Option[String],
-                                  saveMode: SaveModeEnum.Value): Map[String, String] =
+                                  saveMode: SaveModeEnum.Value,
+                                  primaryKey: Option[String]
+                                 ): Map[String, String] =
     Map(
       MongodbConfig.Host -> hosts,
       MongodbConfig.Database -> dbName,
       MongodbConfig.Collection -> tableName
     ) ++ {
       saveMode match {
-        case SaveModeEnum.Upsert => getPrimaryKeyOptions(schema, timeDimension)
+        case SaveModeEnum.Upsert => getUpdateFieldsOptions(schema, primaryKey)
         case _ => Map.empty[String, String]
       }
     }
 
-  private def getPrimaryKeyOptions(schema: StructType,
-                                   timeDimension: Option[String]): Map[String, String] = {
-    val updateFields =
-      schema.fields.filter(stField => stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).mkString(",")
+  private def getUpdateFieldsOptions(schema: StructType, primaryKey: Option[String]): Map[String, String] = {
+
+    val updateFields = primaryKey.getOrElse(
+      schema.fields.filter(stField =>
+        stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).mkString(",")
+    )
 
     Map(MongodbConfig.UpdateFields -> updateFields)
   }

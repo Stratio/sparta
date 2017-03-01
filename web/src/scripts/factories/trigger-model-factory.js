@@ -32,7 +32,6 @@
       setPosition(position);
       trigger.name = "";
       trigger.sql = "";
-      trigger.primaryKey = [];
       trigger.writer = {autoCalculatedFields: [], outputs: []};
       error.text = "";
       if (type == triggerConstants.TRANSFORMATION) {
@@ -65,7 +64,6 @@
     function setTrigger(_trigger, position, type) {
       trigger.name = _trigger.name;
       trigger.sql = _trigger.sql;
-      trigger.primaryKey = _trigger.primaryKey;
       trigger.writer = _trigger.writer;
       if (type == triggerConstants.TRANSFORMATION) {
         trigger.overLast = _trigger.overLast;

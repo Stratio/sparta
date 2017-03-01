@@ -6,7 +6,6 @@
   "fixedMeasure":"fixed measure",
   "name": "fake cube",
   "sql": "SELECT x FROM y",
-  "primaryKey":["id", "name"],
   "writer": {
     "outputs": ["output1"],
     "dateType": "long",
