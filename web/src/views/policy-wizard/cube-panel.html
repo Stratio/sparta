@@ -104,17 +104,6 @@
             <span class="c-step-content__title-text">{{"_SAVE_OPTIONS_" | translate}}</span>
           </h1>
           <div class="c-col c-col--12 c-form-group--compressed__container">
-            <form-field
-              data-ng-repeat="properties in vm.template.outputProperties"
-              data-ng-class="{'c-col c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
-              data-ng-form-id="{{properties.propertyId}}"
-              data-field="properties"
-              data-model="vm.cube"
-              data-form="vm.form"
-              data-st-name="dataSource{{properties.propertyName}}Form"
-              data-qa="{{properties.qa}}">
-            </form-field>
-
             <!--Writer model -->
             <c-writer-model data-model="vm.cube" data-form="vm.form" data-template = "vm.template.writer"
                             data-policy-output-list="vm.policyOutputList" data-selected-policy-output="vm.selectedPolicyOutput">

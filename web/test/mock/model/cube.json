@@ -17,12 +17,9 @@
     "granularity": "fake granularity"
   },
   "triggers": [],
-  "writer.outputs": [
-    "cube output 1",
-    "cube output 2"
-  ],
   "writer": {
-    "outputs": ["output1"],
+    "outputs": ["cube output 1",
+      "cube output 2"],
     "dateType": "long",
     "autoCalculatedFields": [{
       "fromNotNullFields": {
