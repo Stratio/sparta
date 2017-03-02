@@ -222,7 +222,7 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
     if(responseTry.isFailure){
       responseTry match {
         case Failure(e) =>
-          log.error(s"Error parsing response:\n######${str.mkString("\n")}\n######\n", e)
+          log.error(s"Error parsing response: $str", e)
 
           Failure[SubmissionResponse](e)
         case _ =>
