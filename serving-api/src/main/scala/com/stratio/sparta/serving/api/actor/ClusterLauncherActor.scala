@@ -197,18 +197,39 @@ class ClusterLauncherActor(val statusActor: ActorRef) extends Actor
   }
 
   //scalastyle:on
-  val initLogResponseLine = 6
-  val SubmissionResponseSize = 6
+  val GET_RESPONSE_REGEX = ".*Server responded with CreateSubmissionResponse: (.*)".r
 
   private def getResponse(input: InputStream): Option[SubmissionResponse] = {
-    Try {
+    var str = ""
+    val responseTry = Try {
       val buffer = Source.fromInputStream(input)
-      val json = buffer.getLines().slice(initLogResponseLine, initLogResponseLine + SubmissionResponseSize).mkString
+
+      str = buffer.getLines().mkString(" ")
+
+      val json = str match {
+        case GET_RESPONSE_REGEX(msg) => msg
+
+        case _ => ""
+      }
+
       buffer.close()
+
       val response = read[SubmissionResponse](json)
-      log.info(s"Planned correctly Sparta cluster job. The response from the server was:$response")
+      log.info(s"Planned correctly Sparta cluster job. The response from the server was: $response")
       response
-    }.toOption
+    }
+
+    if(responseTry.isFailure){
+      responseTry match {
+        case Failure(e) =>
+          log.error(s"Error parsing response:\n######${str.mkString("\n")}\n######\n", e)
+
+          Failure[SubmissionResponse](e)
+        case _ =>
+      }
+    }
+
+    responseTry.toOption
   }
 
   def getSubmissionId(exitCode: Boolean, sparkProcess: Process): Option[String] = {
