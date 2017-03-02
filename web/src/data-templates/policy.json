@@ -1076,7 +1076,6 @@
           "required": true,
           "qa": "policy-transformation-geo-latitude"
         },
-
         {
           "propertyId": "longitude",
           "propertyName": "_LONGITUDE_",
@@ -1415,105 +1414,107 @@
         "position": "left"
       }
     ],
-    "outputProperties": [
-      {
-        "propertyId": "writer.tableName",
-        "propertyName": "_TRIGGER_TABLE_NAME_",
-        "propertyType": "text",
-        "required": false,
-        "qa": "cube-tableName",
-        "tooltip": "If is assigned the output data are saved in one table, topic or queue with this name, if is not assigned then the output name is the cube name",
-        "position": "left",
-        "width": 6
-      },
-      {
-        "propertyId": "writer.saveMode",
-        "propertyName": "_SAVE_MODE_",
-        "propertyType": "select",
-        "required": true,
-        "default": "Append",
-        "qa": "cube-save-mode",
-        "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-        "values": [
-          {
-            "label": "_APPEND_",
-            "value": "Append"
-          },
-          {
-            "label": "_ERROR_IF_EXISTS_",
-            "value": "ErrorIfExists"
-          },
-          {
-            "label": "_IGNORE_",
-            "value": "Ignore"
-          },
-          {
-            "label": "_OVERWRITE_",
-            "value": "Overwrite"
-          },
-          {
-            "label": "_UPSERT_",
-            "value": "Upsert"
-          }
-        ],
-        "width": 6,
-        "position": "right"
-      },
-      {
-        "propertyId": "writer.partitionBy",
-        "propertyName": "_PARTITION_BY_",
-        "propertyType": "text",
-        "regexp": "",
-        "required": false,
-        "position": "left",
-        "width": 6,
-        "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
-        "qa": "cube-partitionBy"
-      },
-      {
-        "propertyId": "writer.dateType",
-        "propertyName": "_DATE_TYPE_",
-        "propertyType": "select",
-        "required": true,
-        "default": "timestamp",
-        "tooltip": "Before save the data, transform time fields to other type in order to prevent errors in some outputs",
-        "qa": "cube-date-type",
-        "values": [
-          {
-            "label": "_TIMESTAMP_",
-            "value": "timestamp"
-          },
-          {
-            "label": "_DATE_",
-            "value": "date"
-          },
-          {
-            "label": "_DATE_TIME_",
-            "value": "datetime"
-          },
-          {
-            "label": "_LONG_",
-            "value": "long"
-          },
-          {
-            "label": "_STRING_",
-            "value": "string"
-          }
-        ],
-        "width": 6,
-        "position": "right"
-      },
-      {
-        "propertyId": "writer.primaryKey",
-        "propertyName": "_TRIGGER_PRIMARY_KEY_",
-        "propertyType": "text",
-        "required": false,
-        "qa": "primaryKey-cube",
-        "tooltip": "Field or fields separated by tag ',' that indicate the primary key fields in the temporal table. This is useful when select upsert mode and save the data in MongoDb or Elasticsearch",
-        "width": 6,
-        "position": "left"
-      }
-    ],
+    "writer": {
+      "properties": [
+        {
+          "propertyId": "tableName",
+          "propertyName": "_TABLE_NAME_",
+          "propertyType": "text",
+          "required": false,
+          "qa": "cube-tableName",
+          "tooltip": "If is assigned the output data are saved in one table, topic or queue with this name, if is not assigned then the output name is the cube name",
+          "position": "left",
+          "width": 6
+        },
+        {
+          "propertyId": "saveMode",
+          "propertyName": "_SAVE_MODE_",
+          "propertyType": "select",
+          "required": true,
+          "default": "Append",
+          "qa": "cube-save-mode",
+          "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+          "values": [
+            {
+              "label": "_APPEND_",
+              "value": "Append"
+            },
+            {
+              "label": "_ERROR_IF_EXISTS_",
+              "value": "ErrorIfExists"
+            },
+            {
+              "label": "_IGNORE_",
+              "value": "Ignore"
+            },
+            {
+              "label": "_OVERWRITE_",
+              "value": "Overwrite"
+            },
+            {
+              "label": "_UPSERT_",
+              "value": "Upsert"
+            }
+          ],
+          "width": 6,
+          "position": "right"
+        },
+        {
+          "propertyId": "partitionBy",
+          "propertyName": "_PARTITION_BY_",
+          "propertyType": "text",
+          "regexp": "",
+          "required": false,
+          "position": "left",
+          "width": 6,
+          "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+          "qa": "cube-partitionBy"
+        },
+        {
+          "propertyId": "dateType",
+          "propertyName": "_DATE_TYPE_",
+          "propertyType": "select",
+          "required": true,
+          "default": "timestamp",
+          "tooltip": "Before save the data, transform time fields to other type in order to prevent errors in some outputs",
+          "qa": "cube-date-type",
+          "values": [
+            {
+              "label": "_TIMESTAMP_",
+              "value": "timestamp"
+            },
+            {
+              "label": "_DATE_",
+              "value": "date"
+            },
+            {
+              "label": "_DATE_TIME_",
+              "value": "datetime"
+            },
+            {
+              "label": "_LONG_",
+              "value": "long"
+            },
+            {
+              "label": "_STRING_",
+              "value": "string"
+            }
+          ],
+          "width": 6,
+          "position": "right"
+        },
+        {
+          "propertyId": "primaryKey",
+          "propertyName": "_TRIGGER_PRIMARY_KEY_",
+          "propertyType": "text",
+          "required": false,
+          "qa": "primaryKey-cube",
+          "tooltip": "Field or fields separated by tag ',' that indicate the primary key fields in the temporal table. This is useful when select upsert mode and save the data in MongoDb or Elasticsearch",
+          "width": 6,
+          "position": "left"
+        }
+      ]
+    },
     "functionNames": [
       "Accumulator",
       "Count",

@@ -36,7 +36,7 @@
       },
       {
         "propertyId": "tableName",
-        "propertyName": "_TRIGGER_TABLE_NAME_",
+        "propertyName": "_TABLE_NAME_",
         "propertyType": "text",
         "required": false,
         "qa": "trigger-tableName",
