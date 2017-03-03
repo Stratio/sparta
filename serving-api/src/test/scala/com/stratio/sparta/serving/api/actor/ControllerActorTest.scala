@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{ExecutionActor, FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import org.apache.curator.framework.CuratorFramework
@@ -40,11 +40,12 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   val curatorFramework = mock[CuratorFramework]
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
+  val executionActor = _system.actorOf(Props(new ExecutionActor(curatorFramework)))
   val streamingContextService = new StreamingContextService(statusActor)
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)))
+    Props(new LauncherActor(streamingContextService, policyActor, statusActor, executionActor, curatorFramework)))
   val pluginActor = _system.actorOf(Props(new PluginActor()))
 
   def this() =
@@ -55,7 +56,8 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
     AkkaConstant.FragmentActor -> fragmentActor,
     AkkaConstant.PolicyActor -> policyActor,
     AkkaConstant.LauncherActor -> sparkStreamingContextActor,
-    AkkaConstant.PluginActor -> pluginActor
+    AkkaConstant.PluginActor -> pluginActor,
+    AkkaConstant.ExecutionActor -> executionActor
   )
 
   override def afterAll {

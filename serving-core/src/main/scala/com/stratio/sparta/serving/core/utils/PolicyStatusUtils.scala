@@ -216,4 +216,5 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
         log.warn(s"One policy is already launched")
         false
     }
+
 }

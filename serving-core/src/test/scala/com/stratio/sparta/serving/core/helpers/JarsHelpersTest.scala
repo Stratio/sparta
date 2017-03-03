@@ -35,13 +35,13 @@ class JarsHelpersTest extends FlatSpec with Matchers with MockitoSugar {
   when(file.listFiles()).thenReturn(Array(
     new File("first.jar"),
     new File("second.jar"),
-    new File("driver-plugin.jar")))
+    new File("sparta-driver.jar")))
 
   it should "find the driver jar" in {
 
     val seqofJars = JarsHelper.findDriverByPath(
       file)
 
-    seqofJars should be (mutable.ArraySeq(new File("driver-plugin.jar")))
+    seqofJars should be (mutable.ArraySeq(new File("sparta-driver.jar")))
   }
 }

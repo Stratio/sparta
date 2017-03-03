@@ -21,18 +21,21 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{Delete, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy._
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.util.{Failure, Success, Try}
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
@@ -204,7 +207,7 @@ trait PolicyContextHttpService extends BaseHttpService {
               case ResponsePolicy(Success(policyParsed)) =>
                 PolicyValidator.validateDto(policyParsed)
                 for {
-                  policyResponseTry <- (supervisor ? LauncherActor.Create(policyParsed)).mapTo[Try[PolicyModel]]
+                  policyResponseTry <- (supervisor ? Launch(policyParsed)).mapTo[Try[PolicyModel]]
                 } yield {
                   policyResponseTry match {
                     case Success(policy) =>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.utils
+package com.stratio.sparta.serving.core.utils
 
 import com.google.common.io.BaseEncoding
 import com.typesafe.config.{Config, ConfigRenderOptions}

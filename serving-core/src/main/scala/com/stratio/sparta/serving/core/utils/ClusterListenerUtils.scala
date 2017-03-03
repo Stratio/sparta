@@ -65,7 +65,9 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
               && execMode.contains(ClusterValue))
               SpartaConfig.getClusterConfig(Option(execMode.substring(0, execMode.lastIndexOf("-")))) match {
                 case Some(clusterConfig) =>
-                  addClusterContextListener(policyStatus.id, policyStatus.name.getOrElse("undefined"), clusterConfig)
+                  addClusterContextListener(policyStatus.id,
+                    policyStatus.name.getOrElse("undefined"),
+                    killUrl(clusterConfig))
                 case None =>
                   log.warn("Impossible to extract cluster configuration when initializing cluster listeners")
               }
@@ -76,7 +78,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
   }
 
   //scalastyle:off
-  def addClusterContextListener(policyId: String, policyName: String, clusterConfig: Config): Unit = {
+  def addClusterContextListener(policyId: String, policyName: String, killUrl: String): Unit = {
     log.info(s"Listener added to $policyName with id: $policyId")
     statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
@@ -86,9 +88,8 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
             policyStatus.submissionId match {
               case Some(submissionId) =>
                 Try {
-                  val url = killUrl(clusterConfig)
-                  log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $url")
-                  val post = new HttpPost(s"$url/$submissionId")
+                  log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $killUrl")
+                  val post = new HttpPost(s"$killUrl/$submissionId")
                   val postResponse = HttpClientBuilder.create().build().execute(post)
 
                   read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
@@ -135,7 +136,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
     })
   }
 
-  def addClientContextListener(policyId: String, policyName: String, clusterConfig: Config, handler: SparkAppHandle): Unit = {
+  def addClientContextListener(policyId: String, policyName: String, handler: SparkAppHandle): Unit = {
     log.info(s"Listener added to $policyName with id: $policyId")
     statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
@@ -173,6 +174,6 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   //scalastyle:on
 
-  private def killUrl(clusterConfig: Config): String =
+  def killUrl(clusterConfig: Config): String =
     Try(clusterConfig.getString(KillUrl)).getOrElse(DefaultkillUrl).trim
 }

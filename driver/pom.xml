@@ -132,7 +132,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                    <finalName>${project.name}-plugin</finalName>
+                    <finalName>sparta-${project.name}</finalName>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <filters>
                         <filter>

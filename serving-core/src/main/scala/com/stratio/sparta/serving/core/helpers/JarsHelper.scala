@@ -34,7 +34,7 @@ object JarsHelper extends SLF4JLogging {
       val these = path.listFiles()
       val good =
         these.filter(f => f.getName.toLowerCase.contains("driver") &&
-          f.getName.toLowerCase.contains("plugin") &&
+          f.getName.toLowerCase.contains("sparta") &&
           f.getName.endsWith(".jar"))
 
       good ++ these.filter(_.isDirectory).flatMap(path => findDriverByPath(path))

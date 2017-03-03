@@ -16,12 +16,13 @@
 package com.stratio.sparta.serving.api.constants
 
 object HttpConstant  {
-  final val DriverPath = "drivers"
+  final val DriverPath = "driver"
   final val PluginsPath = "plugins"
   final val FragmentPath = "fragment"
   final val TemplatePath = "template"
   final val PolicyPath = "policy"
   final val PolicyContextPath = "policyContext"
+  final val ExecutionsPath = "executions"
   final val SwaggerPath = "swagger"
   final val ContextsPath = "contexts"
   final val AppStatus= "status"

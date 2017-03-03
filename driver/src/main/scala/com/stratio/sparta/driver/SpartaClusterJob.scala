@@ -118,7 +118,7 @@ object SpartaClusterJob extends PluginsFilesUtils {
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
-      case Failure(exception: Exception) =>
+      case Failure(exception) =>
         log.error(s"Error initiating Sparta environment: ${exception.getLocalizedMessage}", exception)
         throw exception
     }

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.utils
+package com.stratio.sparta.serving.core.utils
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
-import scala.concurrent.duration._
-import akka.pattern.ask
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-trait ClusterCheckerUtils extends SLF4JLogging{
+trait ClusterCheckerUtils extends SLF4JLogging {
 
   implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
@@ -59,13 +59,4 @@ trait ClusterCheckerUtils extends SLF4JLogging{
         log.error(s"Error when extract policy status in scheduler task.", exception)
     }
   }
-
-  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
-    response match {
-      case Success(statusModel) =>
-        log.info(s"Policy status model created or updated correctly: " +
-          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
-      case Failure(e) =>
-        log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
-    }
 }

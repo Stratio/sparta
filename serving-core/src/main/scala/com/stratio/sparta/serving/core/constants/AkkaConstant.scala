@@ -26,6 +26,8 @@ object AkkaConstant {
   val StatusActor = "statusActor"
   val FragmentActor = "fragmentActor"
   val PolicyActor = "policyActor"
+  val ExecutionActor = "executionActor"
+  val ClusterLauncherActor = "clusterLauncherActor"
   val LauncherActor = "sparkStreamingContextActor"
   val PluginActor = "pluginActor"
   val DriverActor = "driverActor"

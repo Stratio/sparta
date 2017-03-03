@@ -140,8 +140,6 @@ Entrypoint variables
 | SPARK_MESOS_PROPERTIES_FILE |
 | SPARK_MESOS_EXECUTOR_DOCKER_IMAGE |
 | SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES |
-| SPARK_MESOS_EXECUTOR_DOCKER_ENTRYPOINT |
-| SPARK_MESOS_EXECUTOR_DOCKER_ENV |
 | SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS |
 | SPARK_MESOS_EXECUTOR_FORCE_PULL_IMAGE |
 | SPARK_MESOS_EXECUTOR_HOME |
@@ -168,11 +166,6 @@ Entrypoint variables
 | OAUTH2_CLIENT_ID |
 | OAUTH2_CLIENT_SECRET |
 
-## AKKA OPTIONS
-| PARAM        |
-| -------------:|
-| AKKA_LOG_DEAD_LETTERS |
-
 
 ## SPRAY OPTIONS
 | PARAM        |
@@ -194,7 +187,7 @@ Usage examples
 ```bash
 docker run -dit --name sp -p 9090:9090 --env RUN_MODE=debug --env SERVICE_LOG_LEVEL=INFO 
    --env SPARTA_LOG_LEVEL=INFO --env SPARK_LOG_LEVEL=INFO 
-   --env SPARTA_DRIVER_URI=http://sp.demo.stratio.com:9090/drivers/driver-plugin.jar 
+   --env SPARTA_DRIVER_URI=http://sp.demo.stratio.com:9090/driver/sparta-driver.jar 
    --env SPARTA_ZOOKEEPER_CONNECTION_STRING=zk.demo.stratio.com 
    --env SPARTA_EXECUTION_MODE=mesos --env SPARTA_CHECKPOINT_PATH=/user/stratio/checkpoint 
    --env SPARK_MESOS_MASTER=mesos://mm11.demo.stratio.com:7077 qa.stratio.com/stratio/sparta:latest
@@ -230,7 +223,7 @@ In the example we are mapping an ip to a host (like adding an entry to /etc/host
 ```bash
 
 docker run -d 
-    --env-file integration.env 
+    --env-file example/integration.env 
     -p 9090:9090 -p 4040:4040 
     --add-host gosec2.labs.stratio.com:10.1.1.1 
     --name sparta qa.stratio.com/stratio/sparta:latest

@@ -19,17 +19,18 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.LauncherActor._
 import com.stratio.sparta.serving.api.utils.LauncherActorUtils
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class LauncherActor(streamingContextService: StreamingContextService,
+class LauncherActor(val streamingContextService: StreamingContextService,
                     policyActor: ActorRef,
-                    statusActor: ActorRef,
+                    val statusActor: ActorRef,
+                    val executionActor: ActorRef,
                     val curatorFramework: CuratorFramework) extends Actor with LauncherActorUtils {
 
   override val supervisorStrategy =
@@ -40,21 +41,13 @@ class LauncherActor(streamingContextService: StreamingContextService,
     }
 
   override def receive: Receive = {
-    case Create(policy) => sender ! create(policy)
+    case Launch(policy) => sender ! create(policy)
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
   def create(policy: PolicyModel): Try[PolicyModel] =
     Try {
       if (policy.id.isEmpty) policyActor ! PolicyActor.Create(policy)
-      launch(policy, statusActor, streamingContextService, context)
+      launch(policy, context)
     }
-}
-
-object LauncherActor {
-
-  case class Create(policy: PolicyModel)
-
-  case class Start(policy: PolicyModel)
-
 }

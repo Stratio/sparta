@@ -17,77 +17,61 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
-import com.stratio.sparta.serving.api.actor.LauncherActor._
-import com.stratio.sparta.serving.api.utils.{ArgumentsUtils, ClusterCheckerUtils, SparkSubmitUtils}
+import com.stratio.sparta.serving.api.marathon.MarathonApp
+import com.stratio.sparta.serving.core.actor.ExecutionActor.Create
+import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseStatus, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.utils.{ArgumentsUtils, ClusterCheckerUtils, ClusterListenerUtils, LauncherUtils, SchedulerUtils, SparkSubmitUtils}
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonLauncherActor(val statusActor: ActorRef) extends Actor
+class MarathonLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) extends Actor with LauncherUtils
   with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils with ArgumentsUtils with ClusterCheckerUtils {
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(policy: PolicyModel) => doInitSpartaContext(policy)
+    case Start(policy: PolicyModel) => initializeSubmitRequest(policy)
     case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
-  def doInitSpartaContext(policy: PolicyModel): Unit = {
+  def initializeSubmitRequest(policy: PolicyModel): Unit = {
     Try {
       log.info(s"Initializing options for submit Marathon application associated to policy: ${policy.name}")
-      val zookeeperConfig = SpartaConfig.getZookeeperConfig.getOrElse {
-        val message = "Impossible to extract Zookeeper Configuration"
-        log.error(message)
-        throw new RuntimeException(message)
-      }
-      val clusterConfig = SpartaConfig.getClusterConfig(Option(ConfigMarathon)).get
+      val zookeeperConfig = getZookeeperConfig
+      val clusterConfig = SpartaConfig.getClusterConfig(Option(ConfigMesos)).get
       val master = clusterConfig.getString(Master).trim
       val driverFile = extractDriverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val pluginsFiles = pluginsJars(policy)
       val driverArguments =
-        extractDriverArguments(policy, driverFile, clusterConfig, zookeeperConfig, ConfigMarathon, pluginsFiles)
+        extractDriverArguments(policy, driverFile, clusterConfig, zookeeperConfig, ConfigMesos, pluginsFiles)
       val (sparkSubmitArguments, sparkConfigurations) =
         extractSubmitArgumentsAndSparkConf(policy, clusterConfig, pluginsFiles)
+      val submitRequest = SubmitRequest(policy.id.get, SpartaDriverClass, driverFile, master, sparkSubmitArguments,
+        sparkConfigurations, driverArguments, ConfigMesos, killUrl(clusterConfig))
+      val detailExecMode = getDetailExecutionMode(policy, clusterConfig)
 
-      log.info(s"Launching Sparta Job with options ... \n\tPolicy name: ${policy.name}\n\t" +
-        s"Main: $SpartaDriverClass\n\tDriver file: $driverFile\n\tMaster: $master\n\t" +
-        s"Spark submit arguments: ${sparkSubmitArguments.mkString(",")}\n\t" +
-        s"Spark configurations: ${sparkConfigurations.mkString(",")}\n\tDriver arguments: $driverArguments\n\t" +
-        s"Plugins files: ${pluginsFiles.mkString(",")}")
+      executionActor ! Create(submitRequest)
 
-      launch(policy, driverFile, sparkSubmitArguments, sparkConfigurations, driverArguments.mkString(" "), pluginsFiles)
+      (new MarathonApp(context, policy, submitRequest), detailExecMode)
     } match {
       case Failure(exception) =>
-        val information = s"Error when initializing configuration properties"
+        val information = s"Error when initializing Sparta Marathon App options"
         log.error(information, exception)
         statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
-      case Success(_) =>
-        val information = "Sparta cluster job launched correctly"
+      case Success((marathonApp, detailExecMode)) =>
+        val information = "Sparta Marathon App configurations initialized correctly"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = NotDefined,
-          statusInfo = Option(information), lastExecutionMode = Option(ConfigMarathon)
-        ))
+        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = NotStarted,
+          statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
 
-        //TODO: Add listener
-
-        scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
+        marathonApp.launch(statusActor, detailExecMode)
     }
-  }
-
-  def launch(policy: PolicyModel,
-             driverFile: String,
-             sparkArguments: Map[String, String],
-             sparkConfigurations: Map[String, String],
-             driverArguments: String,
-             pluginsFiles: Seq[String]): Unit = {
-
-    //TODO submit marathon App
   }
 }

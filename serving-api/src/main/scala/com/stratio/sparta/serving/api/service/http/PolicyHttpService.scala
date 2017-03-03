@@ -20,11 +20,12 @@ import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
+import com.stratio.sparta.serving.core.actor.{LauncherActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
@@ -356,7 +357,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             case ResponsePolicy(Success(policy)) =>
               val launcherActor = actors(AkkaConstant.LauncherActor)
               for {
-                response <- (launcherActor ? LauncherActor.Create(policy)).mapTo[Try[PolicyModel]]
+                response <- (launcherActor ? Launch(policy)).mapTo[Try[PolicyModel]]
               } yield response match {
                 case Failure(ex) => throw ex
                 case Success(policyModel) => Result("Launched policy with name " + policyModel.name)

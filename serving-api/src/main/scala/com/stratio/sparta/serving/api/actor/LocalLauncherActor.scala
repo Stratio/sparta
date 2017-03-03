@@ -17,27 +17,28 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.LauncherActor._
-import com.stratio.sparta.serving.core.actor.StatusActor.Update
+import com.stratio.sparta.serving.core.actor.LauncherActor.Start
+import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, PolicyHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyConfigUtils
+import com.stratio.sparta.serving.core.utils.{LauncherUtils, PolicyConfigUtils}
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(streamingContextService: StreamingContextService, statusActor: ActorRef)
-  extends Actor with PolicyConfigUtils with SLF4JLogging {
+  extends Actor with PolicyConfigUtils with LauncherUtils {
 
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
+    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
+    case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 
   private def doInitSpartaContext(policy: PolicyModel): Unit = {

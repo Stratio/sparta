@@ -44,9 +44,9 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   def getRoutes: Route = cors {
     secRoute ~ webRoutes ~
       authorized { user =>
-        serviceRoutes.fragmentRoute ~
-          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.AppStatusRoute ~
-          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
+        serviceRoutes.fragmentRoute ~ serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+          serviceRoutes.executionRoute ~ serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute ~
+          serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
       }
   }
 
@@ -95,6 +95,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.LauncherActor)
+    override val actorRefFactory: ActorRefFactory = context
+  }.routes
+
+  val executionRoute: Route = new ExecutionHttpService {
+    implicit val actors = actorsMap
+    override val supervisor = actorsMap(AkkaConstant.ExecutionActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 

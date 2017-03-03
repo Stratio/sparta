@@ -20,8 +20,9 @@ import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, LauncherActor}
 import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment}
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.policy.{PolicyStatusModel, ResponsePolicy}
@@ -166,7 +167,7 @@ class PolicyContextHttpServiceTest extends WordSpec
       startAutopilot(Success(getPolicyModel()))
 
       Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[LauncherActor.Create]
+        testProbe.expectMsgType[Launch]
         status should be(StatusCodes.OK)
       }
 
@@ -175,7 +176,7 @@ class PolicyContextHttpServiceTest extends WordSpec
     "return a 500 if there was any error" in {
       startAutopilot(Failure(new MockException))
       Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[LauncherActor.Create]
+        testProbe.expectMsgType[Launch]
         status should be(StatusCodes.InternalServerError)
       }
     }

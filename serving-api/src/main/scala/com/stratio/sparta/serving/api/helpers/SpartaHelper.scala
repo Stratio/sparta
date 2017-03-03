@@ -23,7 +23,7 @@ import akka.routing.RoundRobinPool
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{ExecutionActor, FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.config.SpartaConfig._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -57,9 +57,10 @@ object SpartaHelper extends SLF4JLogging {
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
       val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)),
         AkkaConstant.PolicyActor)
+      val executionActor = system.actorOf(Props(new ExecutionActor(curatorFramework)), AkkaConstant.ExecutionActor)
       val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
       val streamingContextActor = system.actorOf(Props(
-        new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)),
+        new LauncherActor(streamingContextService, policyActor, statusActor, executionActor, curatorFramework)),
         AkkaConstant.LauncherActor
       )
       val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
@@ -71,7 +72,8 @@ object SpartaHelper extends SLF4JLogging {
         AkkaConstant.PolicyActor -> policyActor,
         AkkaConstant.LauncherActor -> streamingContextActor,
         AkkaConstant.PluginActor -> pluginActor,
-        AkkaConstant.DriverActor -> driverActor
+        AkkaConstant.DriverActor -> driverActor,
+        AkkaConstant.ExecutionActor -> executionActor
       )
 
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)

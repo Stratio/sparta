@@ -22,7 +22,8 @@ import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
+import com.stratio.sparta.serving.core.actor.{FragmentActor, LauncherActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.policy._
 import org.junit.runner.RunWith
@@ -190,7 +191,7 @@ with HttpServiceBaseTest {
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case LauncherActor.Create(policy) =>
+            case Launch(policy) =>
               sender ! Success(getPolicyModel())
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot
@@ -207,7 +208,7 @@ with HttpServiceBaseTest {
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case LauncherActor.Create(policy) =>
+            case Launch(policy) =>
               sender ! Success(getPolicyModel())
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot

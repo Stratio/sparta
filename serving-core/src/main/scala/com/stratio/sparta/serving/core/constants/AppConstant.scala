@@ -49,7 +49,7 @@ object AppConstant {
   val DriverPackageLocation = "driverPackageLocation"
   val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
   val DriverURI = "driverURI"
-  val DefaultProvidedDriverURI = "http://sparta:9090/driverJar/driver-plugin.jar"
+  val DefaultProvidedDriverURI = "http://127.0.0.1:9090/driver/sparta-driver.jar"
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
@@ -105,7 +105,7 @@ object AppConstant {
   val ClientValue = "client"
   val LocalValue = "local"
   val KillUrl = "killUrl"
-  val DefaultkillUrl = "http://mesosDispatcherURL/v1/submissions/kill"
+  val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
 
   //Mesos Options
   val MesosMasterDispatchers = "master"
@@ -123,7 +123,7 @@ object AppConstant {
 
   //Zookeeper
   val ZookeeperConnection = "connectionString"
-  val DefaultZookeeperConnection = "localhost:2181"
+  val DefaultZookeeperConnection = "127.0.0.1:2181"
   val ZookeeperConnectionTimeout = "connectionTimeout"
   val DefaultZookeeperConnectionTimeout = 15000
   val ZookeeperSessionTimeout = "sessionTimeout"
@@ -137,6 +137,7 @@ object AppConstant {
   val BaseZKPath = "stratio/sparta"
   val PoliciesBasePath = s"/$BaseZKPath/policies"
   val ContextPath = s"/$BaseZKPath/contexts"
+  val ExecutionsPath = s"/$BaseZKPath/executions"
   val FragmentsPath = s"/$BaseZKPath/fragments"
   val ErrorsZkPath = s"$BaseZKPath/error"
 

@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.utils
+package com.stratio.sparta.serving.core.utils
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.driver.SpartaClusterJob
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
-import com.stratio.sparta.serving.core.utils.{HdfsUtils, PolicyConfigUtils}
 import com.typesafe.config.Config
 
 import scala.collection.JavaConversions._
@@ -30,9 +28,8 @@ import scala.util.{Failure, Properties, Success, Try}
 
 trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
 
-  val SpartaDriverClass = SpartaClusterJob.getClass.getCanonicalName.replace("$", "")
-
   // Properties mapped to Spark Configuration
+  val SpartaDriverClass = "com.stratio.sparta.driver.SpartaClusterJob"
   val SubmitDeployMode = "--deploy-mode"
   val SubmitName = "--name"
   val SubmitNameConf = "spark.app.name"
@@ -64,22 +61,16 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
 
   // Properties only available in spark-submit
   val SubmitPropertiesFile = "--properties-file"
-  val PropertiesFileEnv = "SUBMIT_PROPERTIES_FILE"
   val SubmitRepositories = "--repositories"
-  val RepositoriesEnv = "SUBMIT_REPOSITORIES"
   val SubmitProxyUser = "--proxy-user"
-  val ProxyUserEnv = "SUBMIT_PROXY_USER"
   val SubmitYarnQueue = "--queue"
   val SubmitFiles = "--files"
   val SubmitArchives = "--archives"
   val SubmitAddJars = "--addJars"
   val SubmitNumExecutors = "--num-executors"
   val SubmitPrincipal = "--principal"
-  val PrincipalEnv = "SUBMIT_PRINCIPAL"
   val SubmitKeyTab = "--keytab"
-  val KeyTabEnv = "SUBMIT_KEYTAB"
   val SubmitSupervise = "--supervise"
-  val SuperviseEnv = "SUBMIT_SUPERVISE"
 
   // Spark submit arguments supported
   val SubmitArguments = Seq(SubmitDeployMode, SubmitName, SubmitPropertiesFile, SubmitTotalExecutorCores,
@@ -104,15 +95,6 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     SubmitExecutorMemory -> SubmitExecutorMemoryConf
   )
 
-  val submitArgumentsToMarathonEnv = Map(
-    SubmitPropertiesFile -> PropertiesFileEnv,
-    SubmitRepositories -> RepositoriesEnv,
-    SubmitProxyUser -> ProxyUserEnv,
-    SubmitPrincipal -> PrincipalEnv,
-    SubmitKeyTab -> KeyTabEnv,
-    SubmitSupervise -> SuperviseEnv
-  )
-
   def extractDriverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String = {
     val driverStorageLocation = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
       .getOrElse(DefaultProvidedDriverURI)
@@ -130,25 +112,29 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   /**
    * Checks if we have a valid Spark home.
    */
-  def validateSparkHome(clusterConfig: Config): Unit = require(Try(extractSparkHome(clusterConfig)).isSuccess,
-    "You must set the $SPARK_HOME path in configuration or environment")
+  def validateSparkHome(clusterConfig: Config): String ={
+    val sparkHome = Try(extractSparkHome(clusterConfig))
+    require(sparkHome.isSuccess,
+      "You must set the $SPARK_HOME path in configuration or environment")
+    sparkHome.get
+  }
 
   def extractDriverArguments(policy: PolicyModel,
                              driverFile: String,
                              clusterConfig: Config,
                              zookeeperConfig: Config,
                              executionMode: String,
-                             pluginsFiles: Seq[String]): Seq[String] = {
+                             pluginsFiles: Seq[String]): Map[String, String] = {
     val driverLocationKey = driverLocation(driverFile)
     val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
 
-    Seq(
-      policy.id.get.trim,
-      keyConfigEncoded("zookeeper", zookeeperConfig),
-      keyConfigEncoded("config", DetailConfig),
-      pluginsEncoded(pluginsFiles),
-      keyOptionConfigEncoded(driverLocationKey, driverLocationConfig),
-      keyOptionConfigEncoded(executionMode, Option(clusterConfig))
+    Map(
+      "policyId" -> policy.id.get.trim,
+      "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig),
+      "detailConfig" -> keyConfigEncoded("config", DetailConfig),
+      "plugins" -> pluginsEncoded(pluginsFiles),
+      "storageConfig" -> keyOptionConfigEncoded(driverLocationKey, driverLocationConfig),
+      "clusterConfig" -> keyOptionConfigEncoded(executionMode, Option(clusterConfig))
     )
   }
 
