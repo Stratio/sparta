@@ -18,7 +18,8 @@ package com.stratio.sparta.plugin.transformation.json
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.sdk.pipeline.transformation.WhenError.WhenError
+import com.stratio.sparta.sdk.pipeline.transformation.{Parser, WhenError}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import org.apache.spark.sql.Row
@@ -42,9 +43,9 @@ class JsonParser(order: Integer,
       inputValue match {
         case Some(value) =>
           val valuesParsed = value match {
-          case valueCast: Array[Byte] => JsonParser.jsonParse(new Predef.String(valueCast), queriesModel)
-          case valueCast: String => JsonParser.jsonParse(valueCast, queriesModel)
-          case _ => JsonParser.jsonParse(value.toString, queriesModel)
+          case valueCast: Array[Byte] => JsonParser.jsonParse(new Predef.String(valueCast), queriesModel, whenErrorDo)
+          case valueCast: String => JsonParser.jsonParse(valueCast, queriesModel, whenErrorDo)
+          case _ => JsonParser.jsonParse(value.toString, queriesModel, whenErrorDo)
         }
 
           outputFields.map { outputField =>
@@ -76,8 +77,10 @@ class JsonParser(order: Integer,
 
 object JsonParser {
 
-  def jsonParse(jsonData: String, queriesModel: PropertiesQueriesModel): Map[String, Any] = {
-    val jsonPathExtractor = new JsonPathExtractor(jsonData)
+  def jsonParse(jsonData: String,
+                queriesModel: PropertiesQueriesModel,
+                whenError: WhenError = WhenError.Null): Map[String, Any] = {
+    val jsonPathExtractor = new JsonPathExtractor(jsonData, whenError == WhenError.Null)
 
     queriesModel.queries.map(queryModel => (queryModel.field, jsonPathExtractor.query(queryModel.query))).toMap
   }
