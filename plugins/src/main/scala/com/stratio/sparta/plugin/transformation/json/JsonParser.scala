@@ -52,9 +52,9 @@ class JsonParser(order: Integer,
             outputSchemaValid match {
               case Some(outSchema) =>
                 valuesParsed.get(outSchema.name) match {
-                  case Some(valueParsed) =>
+                  case Some(valueParsed) if valueParsed != null =>
                     parseToOutputType(outSchema, valueParsed)
-                  case None =>
+                  case _ =>
                     returnWhenError(new IllegalStateException(
                       s"The values parsed don't contain the schema field: ${outSchema.name}"))
                 }
