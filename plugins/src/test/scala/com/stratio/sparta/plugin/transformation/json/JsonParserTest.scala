@@ -23,6 +23,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.pipeline.transformation.WhenError
 import com.stratio.sparta.sdk.properties.JsoneyString
 
 @RunWith(classOf[JUnitRunner])
@@ -168,6 +169,40 @@ class JsonParserTest extends WordSpecLike with Matchers {
         schema,
         Map("queries" -> queries.asInstanceOf[JSerializable])
       ).parse(input)
+    }
+
+    "parse when input is null" in {
+      val JSON = """{ "store": {
+                   |    "bicycle": {
+                   |      "color": "red",
+                   |      "price": null
+                   |    }
+                   |  }
+                   |}""".stripMargin
+
+      val input = Row(JSON)
+      val outputsFields = Seq("color", "price")
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
+      val result = new JsonParser(
+        1,
+        inputField,
+        outputsFields,
+        schema,
+        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null)
+      ).parse(input)
+      val expected = Seq(Row(JSON, "red", null))
+
+      assertResult(result)(expected)
     }
   }
 }
