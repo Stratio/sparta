@@ -16,11 +16,14 @@
 
 package com.stratio.sparta.plugin.transformation.json
 
-import com.jayway.jsonpath.{JsonPath, ReadContext}
+import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 
 class JsonPathExtractor(jsonDoc: String) {
 
-  private val ctx: ReadContext = JsonPath.parse(jsonDoc)
+  val conf = Configuration.defaultConfiguration()
+                          .addOptions(com.jayway.jsonpath.Option.DEFAULT_PATH_LEAF_TO_NULL)
+
+  private val ctx: ReadContext = JsonPath.using(conf).parse(jsonDoc)
 
   def query(query: String): Any = ctx.read(query)
 
