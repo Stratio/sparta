@@ -21,11 +21,36 @@
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
         <tr>
-          <th class="c-table__td c-col--2">{{"_NAME_" | translate}}</th>
-          <th class="c-table__td c-col--2">{{"_DESCRIPTION_" | translate}}</th>
-          <th class="c-table__td  c-col--1 c-table--centered-content">{{"_STATUS_" | translate}}</th>
-          <th class="c-table__td c-col--2 c-table--centered-content">{{"_DEPLOY_MODE_" | translate}}</th>
-          <th class="c-table__td c-col--5">{{"_STATUS_INFORMATION_" | translate}}</th>
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('name')">
+            <span class="ico c-table--sort-icon" 
+                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
+                  data-ng-if="policies.sortField == 'name'"></span>
+            {{"_NAME_" | translate}}
+          </th>
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')">
+            <span class="ico c-table--sort-icon" 
+                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
+                  data-ng-if="policies.sortField == 'description'"></span>
+            {{"_DESCRIPTION_" | translate}}
+          </th>
+          <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('status')">
+            <span class="ico c-table--sort-icon" 
+                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
+                  data-ng-if="policies.sortField == 'status'"></span>
+            {{"_STATUS_" | translate}}
+          </th>
+          <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('lastExecutionMode')">
+            <span class="ico c-table--sort-icon" 
+                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
+                  data-ng-if="policies.sortField == 'lastExecutionMode'"></span>
+            {{"_DEPLOY_MODE_" | translate}}
+          </th>
+          <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('statusInfo')">
+            <span class="ico c-table--sort-icon" 
+                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
+                  data-ng-if="policies.sortField == 'statusInfo'"></span>
+            {{"_STATUS_INFORMATION_" | translate}}
+          </th>
           <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>
@@ -33,7 +58,7 @@
         </thead>
         <tbody>
 
-        <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData">
+        <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData | orderBy:policies.sortField:policies.tableReverse">
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.name}}</td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.description}}</td>
           <td class="c-table__td c-col--1 c-table--centered-content">{{policyData.status}}</td>
