@@ -426,11 +426,11 @@
     }
   ],
   "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Cubes",
-    "https://stratio.atlassian.net/wiki/display/SPARTA0x9/Outputs"
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Outputs"
   ],
   "model": {
     "types": [
