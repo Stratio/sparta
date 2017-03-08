@@ -23,10 +23,10 @@
         <tr>
           <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('name')">
             {{"_NAME_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'name' && !policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'name' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
                   data-ng-class="{'sort-active': policies.sortField == 'name'}" 
-                  data-ng-if="policies.sortField != 'name' || policies.tableReverse"></span>
+                  data-ng-if="policies.sortField != 'name' || !policies.tableReverse"></span>
           </th>
           <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')"> 
             {{"_DESCRIPTION_" | translate}}
