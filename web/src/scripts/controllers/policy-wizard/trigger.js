@@ -35,6 +35,7 @@
     vm.error = TriggerModelFactory.getError();
     vm.isNewTrigger = TriggerService.isNewTrigger;
     vm.saveTrigger = TriggerService.saveTrigger;
+    vm.regexName = '^[a-zA-Z0-9]*$';
 
     vm.init();
 
