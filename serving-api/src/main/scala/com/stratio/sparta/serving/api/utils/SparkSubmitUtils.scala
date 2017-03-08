@@ -48,6 +48,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   val SubmitDriverLibraryPathConf = "spark.driver.extraLibraryPath"
   val SubmitDriverClassPath = "--driver-class-path"
   val SubmitDriverClassPathConf = "spark.driver.extraClassPath"
+  val SubmitExecutorClassPathConf = "spark.executor.extraClassPath"
   val SubmitExcludePackages = "--exclude-packages"
   val SubmitExcludePackagesConf = "spark.jars.excludes"
   val SubmitDriverCores = "--driver-cores"
@@ -249,14 +250,22 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   protected def addPluginsFilesToConf(sparkConfs: Map[String, String], pluginsFiles: Seq[String])
   : Map[String, String] = {
     if (pluginsFiles.exists(_.trim.nonEmpty)) {
-      if (sparkConfs.contains(SubmitJarsConf))
-        sparkConfs.map { case (confKey, value) =>
-          if (confKey == SubmitJarsConf) confKey -> s"$value,${pluginsFiles.mkString(",")}"
-          else confKey -> value
-        }
-      else sparkConfs ++ Map(SubmitJarsConf -> pluginsFiles.mkString(","))
+      val pluginsFilesStr = pluginsFiles.mkString(",")
+      val confWithJars = addPropValueToConf(pluginsFilesStr, SubmitJarsConf, sparkConfs)
+      val confWithDriverClassPath = addPropValueToConf(pluginsFilesStr, SubmitDriverClassPathConf, confWithJars)
+
+      addPropValueToConf(pluginsFilesStr, SubmitExecutorClassPathConf, confWithDriverClassPath)
     } else sparkConfs
   }
+
+  protected def addPropValueToConf(pluginsFiles : String, sparkConfKey: String, sparkConfs: Map[String, String])
+  : Map[String, String] =
+    if (sparkConfs.contains(sparkConfKey))
+      sparkConfs.map { case (confKey, value) =>
+        if (confKey == sparkConfKey) confKey -> s"$value,$pluginsFiles"
+        else confKey -> value
+      }
+    else sparkConfs ++ Map(sparkConfKey -> pluginsFiles)
 
   def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Boolean): Map[String, String] =
     if (gracefullyStop) sparkConfs ++ Map(SubmitGracefullyStopConf -> gracefullyStop.toString)
