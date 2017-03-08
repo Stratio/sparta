@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.plugin.transformation.json
 
+import com.jayway.jsonpath.PathNotFoundException
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
 
@@ -57,7 +58,7 @@ class JsonPathExtractorTest extends FlatSpec with ShouldMatchers with MockitoSug
   it should "return bicycle color with dot-notation query" in {
     val query = "$.store.bicycle.color"
 
-    val result = new JsonPathExtractor(JSON).query(query)
+    val result = new JsonPathExtractor(JSON, false).query(query)
 
     result.asInstanceOf[String] should be("red")
   }
@@ -65,7 +66,7 @@ class JsonPathExtractorTest extends FlatSpec with ShouldMatchers with MockitoSug
   it should "return bicycle color with bracket-notation query" in {
     val query = "$['store']['bicycle']['color']"
 
-    val result = new JsonPathExtractor(JSON).query(query)
+    val result = new JsonPathExtractor(JSON, false).query(query)
 
     result.asInstanceOf[String] should be("red")
   }
@@ -73,8 +74,23 @@ class JsonPathExtractorTest extends FlatSpec with ShouldMatchers with MockitoSug
   it should "return bicycle price" in {
     val query = "$.store.bicycle.price"
 
-    val result = new JsonPathExtractor(JSON).query(query)
+    val result = new JsonPathExtractor(JSON, false).query(query)
 
     result.asInstanceOf[Double] should be(19.95)
+  }
+
+  it should "return null with leaf" in {
+    val query = "$.store.bicycle.bad"
+
+    val result = new JsonPathExtractor(JSON, true).query(query)
+
+    result.asInstanceOf[String] should be(null)
+  }
+
+  it should "return exception without leaf" in {
+    val query = "$.store.bicycle.bad"
+
+    an[PathNotFoundException] should be thrownBy new JsonPathExtractor(JSON, false).query(query)
+
   }
 }
