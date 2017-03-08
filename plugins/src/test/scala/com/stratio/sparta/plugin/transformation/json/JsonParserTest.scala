@@ -23,6 +23,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import java.io.{Serializable => JSerializable}
 
+import com.jayway.jsonpath.PathNotFoundException
 import com.stratio.sparta.sdk.pipeline.transformation.WhenError
 import com.stratio.sparta.sdk.properties.JsoneyString
 
@@ -203,6 +204,69 @@ class JsonParserTest extends WordSpecLike with Matchers {
       val expected = Seq(Row(JSON, "red", null))
 
       assertResult(result)(expected)
+    }
+
+    "parse when input is not found " in {
+      val JSON = """{ "store": {
+                   |    "bicycle": {
+                   |      "color": "red"
+                   |    }
+                   |  }
+                   |}""".stripMargin
+
+      val input = Row(JSON)
+      val outputsFields = Seq("color", "price")
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
+      val result = new JsonParser(
+        1,
+        inputField,
+        outputsFields,
+        schema,
+        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null)
+      ).parse(input)
+      val expected = Seq(Row(JSON, "red", null))
+
+      assertResult(result)(expected)
+    }
+
+    "parse when input is not found and return is error or discard" in {
+      val JSON = """{ "store": {
+                   |    "bicycle": {
+                   |      "color": "red"
+                   |    }
+                   |  }
+                   |}""".stripMargin
+
+      val input = Row(JSON)
+      val outputsFields = Seq("color", "price")
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price"
+          |}]
+          |""".stripMargin
+      an[PathNotFoundException] should be thrownBy new JsonParser(
+        1,
+        inputField,
+        outputsFields,
+        schema,
+        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Error)
+      ).parse(input)
     }
   }
 }

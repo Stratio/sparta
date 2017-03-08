@@ -28,7 +28,6 @@ import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.typesafe.config.Config
-import org.apache.spark.SparkContext
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.Try
@@ -44,7 +43,13 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     createLocalCheckpointPath(policy)
-    createLocalSparkContext(policy, files)
+
+    val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+    val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(policy)
+    val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
+      .getOrElse(Map.empty[String, String])
+
+    sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, files)
 
     val ssc = SpartaPipeline(policy, statusActor).run()
 
@@ -61,7 +66,8 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      createClusterSparkContext(policy)
+      val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+      sparkClusterContextInstance(outputsSparkConfig)
       SpartaPipeline(policy, statusActor).run()
     })
 
@@ -70,20 +76,5 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     ssc
-  }
-
-  private def createLocalSparkContext(apConfig: PolicyModel, jars: Seq[File]): SparkContext = {
-    val outputsSparkConfig = PolicyHelper.getSparkConfigs(apConfig, OutputsSparkConfiguration, Output.ClassSuffix)
-    val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(apConfig)
-    val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
-      .getOrElse(Map.empty[String, String])
-
-    sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, jars)
-  }
-
-  private def createClusterSparkContext(policy: PolicyModel)
-  : SparkContext = {
-    val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
-    sparkClusterContextInstance(outputsSparkConfig)
   }
 }
