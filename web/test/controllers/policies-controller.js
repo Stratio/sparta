@@ -162,4 +162,8 @@ describe('policies.wizard.controller.policies-controller', function() {
     }
   });
 
+  it("should be able to sort the current policy list", function(){
+    console.log(ctrl.policiesData.length);
+  });
+
 });

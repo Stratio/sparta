@@ -227,6 +227,7 @@
       if(fieldName == vm.sortField){
         vm.tableReverse = !vm.tableReverse;
       } else {
+        vm.tableReverse = false;
         vm.sortField = fieldName;
       }
     }

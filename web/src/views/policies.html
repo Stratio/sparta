@@ -22,34 +22,39 @@
         <thead class="c-table__thead">
         <tr>
           <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('name')">
-            <span class="ico c-table--sort-icon" 
-                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
-                  data-ng-if="policies.sortField == 'name'"></span>
             {{"_NAME_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'name' && !policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_down" 
+                  data-ng-class="{'sort-active': policies.sortField == 'name'}" 
+                  data-ng-if="policies.sortField != 'name' || policies.tableReverse"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')">
-            <span class="ico c-table--sort-icon" 
-                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
-                  data-ng-if="policies.sortField == 'description'"></span>
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')"> 
             {{"_DESCRIPTION_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'description' && policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_down"
+                  data-ng-class="{'sort-active': policies.sortField == 'description'}"  
+                  data-ng-if="policies.sortField != 'description' || !policies.tableReverse"></span>
           </th>
           <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('status')">
-            <span class="ico c-table--sort-icon" 
-                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
-                  data-ng-if="policies.sortField == 'status'"></span>
             {{"_STATUS_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'status' && policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_down" 
+                  data-ng-if="policies.sortField != 'status' || !policies.tableReverse" 
+                  ng-class="{'sort-active': policies.sortField == 'status'}"></span>
           </th>
           <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('lastExecutionMode')">
-            <span class="ico c-table--sort-icon" 
-                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
-                  data-ng-if="policies.sortField == 'lastExecutionMode'"></span>
             {{"_DEPLOY_MODE_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'lastExecutionMode' && policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_down" 
+                  data-ng-if="policies.sortField != 'lastExecutionMode' || !policies.tableReverse"
+                  ng-class="{'sort-active': policies.sortField == 'lastExecutionMode'}"></span>
           </th>
           <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('statusInfo')">
-            <span class="ico c-table--sort-icon" 
-                  data-ng-class="policies.tableReverse ? 'icon-arrow2_up':'icon-arrow2_down'"
-                  data-ng-if="policies.sortField == 'statusInfo'"></span>
             {{"_STATUS_INFORMATION_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'statusInfo' && policies.tableReverse"></span>
+            <span class="ico c-table--sort-icon icon-arrow2_down " 
+                  data-ng-if="policies.sortField != 'statusInfo' || !policies.tableReverse" 
+                  ng-class="{'sort-active': policies.sortField == 'statusInfo'}"></span>
           </th>
           <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>

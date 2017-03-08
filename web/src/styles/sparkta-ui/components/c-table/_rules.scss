@@ -16,10 +16,11 @@
 	}
 
 	&--sort-icon{
-		font-size:1.2rem;
-		padding-right:8px;
+		font-size:0.85rem;
+		padding-left:5px;
 		top: 1px;
     	position: relative;
+		color:get-color(n4);
 	}
 
 	&--sorted{
@@ -43,17 +44,26 @@
 		background: $c-table__thead---background;
 		color: $c-table__thead---color;
 		font-size: $c-table__thead---font-size;
+		box-shadow: $c-table__thead---box-shadow;
 		font-weight: $c-table__thead---font-weight;
 		text-align: $c-table__thead---text-align;
+		cursor:pointer;
 
 		.c-table__td {
 			padding-bottom: $c-table__thead---padding-bottom;
 		}
+
+		.ico.sort-active{
+			color:get-color(n8);
+		}
 	}
 
 	@at-root &__tr {
-		&:nth-child(even) {
-			background: $c-table__tr--ntd-child--even---background;
+		color:$c-table---color;
+		border-bottom:$c-table__tr---border-bottom;
+
+		&:hover{
+			background: $c-table__tr--hover---background;
 		}
 	}
 
