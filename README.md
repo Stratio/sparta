@@ -161,7 +161,7 @@ In a centOS distribution:
 Documentation
 ========
 
-- [Stratio Sparta](https://stratio.atlassian.net/wiki)
+- [Stratio Sparta](https://stratio.atlassian.net/wiki/spaces/SPARTA1x1x2)
 
 License
 ========
