@@ -99,7 +99,7 @@
             <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
             <customnodeDownloadRoot>${nodeURL}/node/</customnodeDownloadRoot>
             <customnpmDownloadRoot>${nodeURL}/npm/${npmVer}/</customnpmDownloadRoot>
-            <customnpmRegistryURL>http://sodio.stratio.com/nexus/content/repositories/npmjs/</customnpmRegistryURL>
+            <customnpmRegistryURL>http://sodio.stratio.com/repository/npmjs/</customnpmRegistryURL>
           </properties>
         </profile>
         <profile>
