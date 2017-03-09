@@ -38,12 +38,14 @@
     vm.deleteErrorMessage = deleteErrorMessage;
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
+    vm.sortPolicies = sortPolicies;
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
     vm.errorMessage = {type: 'error', text: '', internalTrace: ''};
     vm.successMessage = {type: 'success', text: '', internalTrace: ''};
     vm.loading = true;
+    vm.tableReverse = false;
     vm.showInfoModal = showInfoModal;
 
     init();
@@ -194,6 +196,7 @@
     function getPolicies() {
       var policiesStatus = PolicyFactory.getPoliciesStatus();
       policiesStatus.then(function (result) {
+        vm.sortField = 'name';
         vm.policiesData = result;
         vm.loading = false;
         checkPoliciesStatus = $interval(function() {
@@ -218,6 +221,15 @@
         a.click();
         a.remove();
       })
+    }
+
+    function sortPolicies(fieldName){
+      if(fieldName == vm.sortField){
+        vm.tableReverse = !vm.tableReverse;
+      } else {
+        vm.tableReverse = false;
+        vm.sortField = fieldName;
+      }
     }
 
     function showInfoModal(policyIndex) {

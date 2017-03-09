@@ -162,4 +162,25 @@ describe('policies.wizard.controller.policies-controller', function() {
     }
   });
 
+  describe("should be able to sort the current policy list", function(){
+
+    beforeEach(function() {
+      ctrl.tableReverse = false;
+      ctrl.sortField = "name";
+    });
+
+    it("new sort field is different from the current one, it is sorted by that field", function() {
+      var oldSortField = ctrl.sortField;
+      ctrl.sortPolicies("description");
+      expect(ctrl.sortField).not.toEqual(oldSortField);
+      expect(ctrl.tableReverse).toBe(false);
+    });
+
+    it("new sort field is the same from the current one, change current reverse order", function() {
+      var oldSortField = ctrl.sortField;
+      ctrl.sortPolicies("name");
+      expect(ctrl.sortField).toEqual(oldSortField);
+      expect(ctrl.tableReverse).toBe(true);
+    });
+  });
 });
