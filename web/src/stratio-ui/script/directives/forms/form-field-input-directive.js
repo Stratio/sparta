@@ -52,7 +52,9 @@
         listCompressed: "=",
         submittedForm: '=',
         inputDefault: '=',
-        outputField: '='
+        outputField: '=',
+        invalidValues: '=',
+        validateValue: '='
       }
     };
     return directive;
