@@ -118,8 +118,8 @@ object PostgresOutput extends SLF4JLogging {
   private var connection: Option[Connection] = None
 
   def getConnection(url: String, properties: Properties): Connection = {
-    if (connection.isEmpty)
-      synchronized {
+    synchronized {
+      if (connection.isEmpty)
         connection = Try(JdbcUtils.createConnectionFactory(url, properties)()) match {
           case Success(conn) =>
             Option(conn)
@@ -127,7 +127,7 @@ object PostgresOutput extends SLF4JLogging {
             log.error(s"Error creating postgres connection ${e.getLocalizedMessage}")
             None
         }
-      }
+    }
     connection.getOrElse(throw new IllegalStateException("The connection is empty"))
   }
 
