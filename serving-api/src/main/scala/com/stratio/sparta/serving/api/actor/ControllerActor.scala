@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, ActorRef, _}
@@ -26,7 +27,6 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.spray.oauth2.client.OauthClient
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
-
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -113,7 +113,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   val driversRoute: Route = new DriverHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.DriverActor)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 

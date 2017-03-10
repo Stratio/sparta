@@ -20,7 +20,7 @@ import java.nio.file.{Files, Path}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
-import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
+import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
@@ -78,32 +78,24 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
     "Not save files with wrong extension" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadFile("not a jar", fileList)
+      pluginActor ! UploadPlugins(fileList)
       expectMsgPF() {
-        case PluginResponse(Failure(f)) => f.getMessage shouldBe "not a jar is Not a valid file name"
+        case PluginResponse(Success(f: Seq[String])) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadFile("test.jar", Seq.empty)
+      pluginActor ! UploadPlugins(Seq.empty)
       expectMsgPF() {
-        case PluginResponse(Failure(f)) => f.getMessage shouldBe "A file is expected"
-      }
-    }
-    "Not upload more than one file" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadFile("test.jar", Seq(BodyPart("reference.conf", "file"), BodyPart("reference.conf", "file")))
-      expectMsgPF() {
-        case PluginResponse(Failure(f)) => f.getMessage shouldBe "More than one file is not supported"
+        case PluginResponse(Failure(f)) => f.getMessage shouldBe "Almost one file is expected"
       }
     }
     "Save a file" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadFile("test.jar", fileList)
+      pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")))
       expectMsgPF() {
-        case PluginResponse(Success(msg)) => msg shouldBe s"local:7777/${HttpConstant.PluginsPath}/test.jar"
+        case PluginResponse(Success(msg: Seq[String])) => msg.head.endsWith("file.jar") shouldBe true
       }
-
     }
   }
 
