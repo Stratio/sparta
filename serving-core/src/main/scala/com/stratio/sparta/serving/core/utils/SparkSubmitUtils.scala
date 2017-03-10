@@ -112,7 +112,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   /**
    * Checks if we have a valid Spark home.
    */
-  def validateSparkHome(clusterConfig: Config): String ={
+  def validateSparkHome(clusterConfig: Config): String = {
     val sparkHome = Try(extractSparkHome(clusterConfig))
     require(sparkHome.isSuccess,
       "You must set the $SPARK_HOME path in configuration or environment")
@@ -236,15 +236,19 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   protected def addPluginsFilesToConf(sparkConfs: Map[String, String], pluginsFiles: Seq[String])
   : Map[String, String] = {
     if (pluginsFiles.exists(_.trim.nonEmpty)) {
-      val pluginsFilesStr = pluginsFiles.mkString(",")
-      val confWithJars = addPropValueToConf(pluginsFilesStr, SubmitJarsConf, sparkConfs)
-      val confWithDriverClassPath = addPropValueToConf(pluginsFilesStr, SubmitDriverClassPathConf, confWithJars)
+      val confWithJars = addPropValueToConf(pluginsFiles.mkString(","), SubmitJarsConf, sparkConfs)
+      val pluginsFiltered = pluginsFiles.filter(file => !file.startsWith("hdfs") && !file.startsWith("http"))
 
-      addPropValueToConf(pluginsFilesStr, SubmitExecutorClassPathConf, confWithDriverClassPath)
+      if (pluginsFiltered.nonEmpty) {
+        val plugins = pluginsFiltered.mkString(",")
+        val confWithDriverClassPath = addPropValueToConf(plugins, SubmitDriverClassPathConf, confWithJars)
+
+        addPropValueToConf(plugins, SubmitExecutorClassPathConf, confWithDriverClassPath)
+      } else confWithJars
     } else sparkConfs
   }
 
-  protected def addPropValueToConf(pluginsFiles : String, sparkConfKey: String, sparkConfs: Map[String, String])
+  protected def addPropValueToConf(pluginsFiles: String, sparkConfKey: String, sparkConfs: Map[String, String])
   : Map[String, String] =
     if (sparkConfs.contains(sparkConfKey))
       sparkConfs.map { case (confKey, value) =>
