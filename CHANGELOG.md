@@ -2,6 +2,7 @@
 
 ## 1.2.0 (upcoming)
 
+* Postgres Output
 * Allow null values in Json parser
 * Partition by with multiple fields
 * Output table name defined by user
