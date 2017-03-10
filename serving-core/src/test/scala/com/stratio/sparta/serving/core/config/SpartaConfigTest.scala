@@ -35,7 +35,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
           |}
         """.stripMargin)
 
-      val res = SpartaConfig.initMainConfig(Some(config), new MockConfigFactory(config)).get.toString
+      val res = SpartaConfig.initMainConfig(Some(config), SpartaConfigFactory(config)).get.toString
       res should be ("""Config(SimpleConfigObject({"testKey":"test"}))""")
 
     }
@@ -50,7 +50,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
           |      }
         """.stripMargin)
 
-      val res = SpartaConfig.initApiConfig(new MockConfigFactory(configApi)).get.toString
+      val res = SpartaConfig.initApiConfig(SpartaConfigFactory(configApi)).get.toString
       res should be ("""Config(SimpleConfigObject({"host":"localhost","port":9090}))""")
 
     }
@@ -76,7 +76,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
         """.stripMargin
       )
 
-      SpartaConfig.initMainConfig(Some(configCluster), new MockConfigFactory(configCluster))
+      SpartaConfig.initMainConfig(Some(configCluster), SpartaConfigFactory(configCluster))
 
       val clusterConf = SpartaConfig.getClusterConfig().get.toString
 
@@ -99,7 +99,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
         """.stripMargin
       )
 
-      SpartaConfig.initMainConfig(Some(configCluster), new MockConfigFactory(configCluster))
+      SpartaConfig.initMainConfig(Some(configCluster), SpartaConfigFactory(configCluster))
 
       val clusterConf = SpartaConfig.getClusterConfig()
 
@@ -133,7 +133,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
         """.stripMargin
       )
 
-      SpartaConfig.initMainConfig(Some(configHdfs), new MockConfigFactory(configHdfs))
+      SpartaConfig.initMainConfig(Some(configHdfs), SpartaConfigFactory(configHdfs))
 
       val hdfsConf = SpartaConfig.getHdfsConfig.get.toString
 
@@ -166,7 +166,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
         """.stripMargin
       )
 
-      SpartaConfig.initMainConfig(Some(configDetail), new MockConfigFactory(configDetail))
+      SpartaConfig.initMainConfig(Some(configDetail), SpartaConfigFactory(configDetail))
 
       val detailConf = SpartaConfig.getDetailConfig.get.toString
 
@@ -205,7 +205,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
         """.stripMargin
       )
 
-      SpartaConfig.initMainConfig(Some(configZk), new MockConfigFactory(configZk))
+      SpartaConfig.initMainConfig(Some(configZk), SpartaConfigFactory(configZk))
 
       val zkConf = SpartaConfig.getZookeeperConfig.get.toString
 
@@ -240,7 +240,7 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
       val spartaConfig = SpartaConfig.initOptionalConfig(
         node = "sparta",
-        configFactory = new MockConfigFactory(config))
+        configFactory = SpartaConfigFactory(config))
       spartaConfig.get.getString("testKey") should be ("testValue")
     }
 

@@ -22,7 +22,7 @@ import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.config.{SpartaConfigFactory, SpartaConfig}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
@@ -64,7 +64,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   val fileList = Seq(BodyPart("reference.conf", "file"))
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), MockConfigFactory(localConfig))
+    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
     SpartaConfig.initApiConfig()
   }
 
