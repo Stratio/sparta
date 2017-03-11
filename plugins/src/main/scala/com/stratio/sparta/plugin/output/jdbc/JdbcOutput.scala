@@ -20,11 +20,15 @@ import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
 import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 
 import scala.collection.JavaConversions._
+import scala.util.{Failure, Success, Try}
 
 class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
@@ -39,17 +43,41 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
     props
   }
 
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+  override def supportedSaveModes : Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
-  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    val tableName = getTableNameFromOptions(options)
-
+  //scalastyle:off
+  override def save(dataFrame: DataFrame, saveMode: SpartaSaveMode, options: Map[String, String]): Unit = {
     validateSaveMode(saveMode)
+    val tableName = getTableNameFromOptions(options)
+    val sparkSaveMode = getSparkSaveMode(saveMode)
 
-    dataFrame.write
-      .mode(getSparkSaveMode(saveMode))
-      .options(getCustomProperties)
-      .jdbc(url, tableName, connectionProperties)
+    Try {
+      if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
+
+      SpartaJdbcUtils.tableExists(url, connectionProperties, tableName, dataFrame.schema)
+    } match {
+      case Success(tableExists) =>
+        if (tableExists) {
+          if (saveMode == SaveModeEnum.Upsert) {
+            val updateFields = getPrimaryKeyOptions(options) match {
+              case Some(pk) => pk.split(",").toSeq
+              case None => dataFrame.schema.fields.filter(stField =>
+                stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).toSeq
+            }
+            SpartaJdbcUtils.upsertTable(dataFrame, url, tableName, connectionProperties, updateFields)
+          }
+
+          if (saveMode == SaveModeEnum.Ignore) return
+
+          if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists.")
+
+          if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
+            SpartaJdbcUtils.saveTable(dataFrame, url, tableName, connectionProperties)
+        } else log.warn(s"Table not created in Postgres: $tableName")
+      case Failure(e) =>
+        closeConnection()
+        log.error(s"Error creating/dropping table $tableName")
+    }
   }
 }
