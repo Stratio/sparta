@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
+import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -36,18 +37,13 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
 
-  override def routes: Route = upload ~ download
+  override def routes: Route = upload ~ download ~ getAll ~ deleteAllFiles ~ deleteFile
 
-  @Path("/{fileName}")
+  @Path("")
   @ApiOperation(value = "Upload a file to plugin directory.",
     notes = "Creates a file in the server filesystem with the uploaded jar.",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "fileName",
-      value = "Name of the jar",
-      dataType = "String",
-      required = true,
-      paramType = "path"),
     new ApiImplicitParam(name = "file",
       value = "The jar",
       dataType = "file",
@@ -55,14 +51,14 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       paramType = "formData")
   ))
   def upload: Route = {
-    path(HttpConstant.PluginsPath / Segment) { fileName =>
+    path(HttpConstant.PluginsPath) {
       put {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- supervisor ? UploadFile(fileName, form.fields)
+              response <- (supervisor ? UploadPlugins(form.fields)).mapTo[PluginResponse]
             } yield response match {
-              case PluginResponse(Success(a: String)) => FileCreated(a)
+              case PluginResponse(Success(newFilesUris: Seq[String])) => FilesUris(newFilesUris)
               case PluginResponse(Failure(exception)) => throw exception
             }
           }
@@ -82,13 +78,88 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       paramType = "path")
   ))
   def download: Route =
-    get {
-      pathPrefix(HttpConstant.PluginsPath) {
+    path(HttpConstant.PluginsPath) {
+      get {
         getFromDirectory(
           Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
             .getOrElse(AppConstant.DefaultPluginsPackageLocation))
       }
     }
 
-  case class FileCreated(path: String)
+  @Path("")
+  @ApiOperation(value = "Browse all plugins uploaded",
+    notes = "Finds all plugins.",
+    httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def getAll: Route =
+    path(HttpConstant.PluginsPath) {
+      get {
+        complete {
+          for {
+            response <- (supervisor ? ListPlugins).mapTo[PluginResponse]
+          } yield response match {
+            case PluginResponse(Success(filesUris: Seq[String])) => FilesUris(filesUris)
+            case PluginResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+
+  @Path("")
+  @ApiOperation(value = "Delete all plugins uploaded",
+    notes = "Delete all plugins.",
+    httpMethod = "DELETE")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteAllFiles: Route =
+    path(HttpConstant.PluginsPath) {
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeletePlugins).mapTo[PluginResponse]
+          } yield response match {
+            case PluginResponse(Success(_)) => StatusCodes.OK
+            case PluginResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+
+  @Path("/{fileName}")
+  @ApiOperation(value = "Delete one plugin uploaded",
+    notes = "Delete one plugin.",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the jar",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteFile: Route = {
+    path(HttpConstant.PluginsPath / Segment) { file =>
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeletePlugin(file)).mapTo[PluginResponse]
+          } yield response match {
+            case PluginResponse(Success(_)) => StatusCodes.OK
+            case PluginResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+  }
+
+  case class FilesUris(uris: Seq[String])
+
 }
