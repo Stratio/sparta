@@ -69,7 +69,9 @@ abstract class Parser(order: Integer,
   //scalastyle:on
 
   def parseToOutputType(outSchema: StructField, inputValue: Any): Any =
-    TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
+    Try(TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any]))
+      .getOrElse(returnWhenError(new IllegalStateException(
+        s"Error parsing to output type the value: ${inputValue.toString}")))
 
   def returnData(newData: Try[Seq[_]], prevData: Seq[_]): Seq[Row] =
     newData match {

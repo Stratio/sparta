@@ -12,13 +12,14 @@
         <input ng-attr-id="{{name}}" name="{{name}}" class="c-col c-col--12 c-input" data-ng-class="{'c-input__outputField': outputField}" type="{{type}}" data-ng-model="model"
                data-ng-required="required" data-ng-disabled="disabled" data-ng-pattern="pattern" data-ng-minlength="minlength" maxlength="{{maxlength}}" min="{{min}}" max="{{max}}" step="{{step}}"
                data-ng-blur="isFocused=false" data-st-match="match" ng-trim="{{type !== 'password' && stTrim}}" placeholder="{{placeholder}}" data-qa="{{qa}}"
-               uib-popover='{{help}}' popover-class="popover--bottom" popover-trigger="focus" popover-placement="bottom"/>
+               uib-popover='{{help}}' popover-class="popover--bottom" popover-trigger="focus" popover-placement="bottom" c-value-validate="validateValue" invalid-values="invalidValues"/>
         <span class="c-arrow-label c-arrow-label__form" data-ng-if="outputField">
             {{'_FIELD_' | translate}}
         </span>
         <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error">
             <i class="icon icon-circle-cross"></i>
             <span data-ng-if="this[name][name].$error.required" data-qa="{{qa}}-error-required">This field is required. </span>
+            <span data-ng-if="this[name][name].$error.invalidValue" data-qa="{{qa}}-error-required">Invalid value. </span>
             <span data-ng-if="this[name][name].$error.pattern" data-qa="{{qa}}-error-pattern">Invalid format. </span>
             <span data-ng-if="this[name][name].$error.email" data-qa="{{qa}}-error-email">Invalid email. </span>
             <span data-ng-if="this[name][name].$error.number" data-qa="{{qa}}-error-number">Invalid number. </span>

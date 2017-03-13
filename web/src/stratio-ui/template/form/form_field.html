@@ -6,7 +6,7 @@
                     data-label="{{modify.propertyName || field.propertyName | translate}}"
                     data-type="{{field.propertyType}}" data-help="{{modify.tooltip || field.tooltip}}"
                     data-input-default="field.default" data-pattern="field.regexp" data-required="isRequired()"
-                    data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim"
+                    data-qa="{{qa}}" data-maxlength="field.maxlength" data-st-trim="field.trim" data-invalid-values="field.invalidValues" data-validate-value="field.validateValue"
                     data-disabled="disabled" data-list-compressed="listCompressed" data-output-field="field.outputField"></form-field-input>
   <!-- textarea -->
   <form-field-textarea ng-attr-id="{{ngFormId}}" data-ng-if="(field.propertyType == 'textarea' || field.propertyType == 'json') && isVisible()"

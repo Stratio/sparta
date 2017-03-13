@@ -1411,7 +1411,10 @@
         "required": true,
         "qa": "cube-name",
         "width": 12,
-        "position": "left"
+        "position": "left",
+        "regexp": "^[a-zA-Z0-9 ]*$",
+        "validateValue": "true",
+        "invalidValues": ["select", "project", "group", "default", "by", "as", "filter", "where", "insert", "delete", "update", "where" ]
       }
     ],
     "writer": {

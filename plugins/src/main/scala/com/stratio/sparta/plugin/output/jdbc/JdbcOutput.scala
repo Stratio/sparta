@@ -35,6 +35,7 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
   val connectionProperties = {
     val props = new Properties()
     props.putAll(properties.mapValues(_.toString))
+    getCustomProperties.foreach(customProp => props.put(customProp._1, customProp._2))
     props
   }
 

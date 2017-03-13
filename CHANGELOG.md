@@ -1,8 +1,22 @@
 # Changelog
 
-## 1.2.0 (upcoming)
+## 1.3.0 (upcoming)
 
 * Pending changelog
+
+## 1.2.0 (upcoming)
+
+* Allow null values in Json parser
+* Partition by with multiple fields
+* Output table name defined by user
+* Added more save options in cubes and triggers
+* Sparta executors docker image
+* Run with docker containers in cluster and client mode
+* Removed Spark 1.5 profile
+* Unified spark options sent in spark submit arguments
+* Bugfix: Hdfs token renewal
+* Bugfix: Policy options correctly saved
+* Bugfix: Cube and trigger options correctly saved
 
 ## 1.1.0 (February 10, 2017)
 

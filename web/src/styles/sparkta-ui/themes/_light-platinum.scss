@@ -395,21 +395,23 @@ $c-msg__c-icon---margin: $c-icon-default-margin;
 
 
 // c-table
-$c-table---border-bottom: 3px solid get-color(n4);
+$c-table---border-bottom: 0px solid get-color(n4);
 $c-table---cell-spacing: 10px;
 $c-table---line-height: get-line-height(normal-alpha);
 $c-table---padding-bottom: 12px;
 $c-table---padding-left: 30px;
 $c-table---padding-right: 30px;
 $c-table---padding-top: 12px;
-
-$c-table__thead---background: get-color(n4);
-$c-table__thead---color: get-color(n0);
-$c-table__thead---font-size: get-font-size(medium-alpha);
-$c-table__thead---font-weight: get-font-weight(medium);
+$c-table---color: get-color(n8);
+$c-table__thead---background: get-color(n0);
+$c-table__thead---color: get-color(n8);
+$c-table__thead---font-weight: get-font-weight(bold);
 $c-table__thead---text-align: left;
+$c-table__thead---box-shadow:0px 1px 0 0 #cbcbcb;
 
+$c-table__tr---border-bottom: 1px solid get-color(n2);
 $c-table__tr--ntd-child--even---background: get-color(n2);
+$c-table__tr--hover---background:#EBF6FD;
 
 
 
