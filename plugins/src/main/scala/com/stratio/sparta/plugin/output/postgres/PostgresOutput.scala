@@ -17,20 +17,20 @@
 package com.stratio.sparta.plugin.output.postgres
 
 import java.io.{InputStream, Serializable => JSerializable}
-import java.sql.Connection
 import java.util.Properties
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.output.Output._
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils
+import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
+import org.postgresql.copy.CopyManager
+import org.postgresql.core.BaseConnection
 
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
-import org.postgresql.copy.CopyManager
-import org.postgresql.core.BaseConnection
 
 class PostgresOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
 
@@ -51,52 +51,43 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
     props
   }
 
-  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
-    Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite)
+  override def supportedSaveModes: Seq[SpartaSaveMode] =
+    Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
 
-  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-
+  override def save(dataFrame: DataFrame, saveMode: SpartaSaveMode, options: Map[String, String]): Unit = {
     validateSaveMode(saveMode)
-
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
 
     Try {
-      val conn = PostgresOutput.getConnection(url, connectionProperties)
-      var tableExists = JdbcUtils.tableExists(conn, url, tableName)
+      if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
 
-      if (sparkSaveMode == SaveMode.Overwrite && tableExists) {
-        JdbcUtils.dropTable(conn, tableName)
-        tableExists = false
-      }
-
-      if (!tableExists) {
-        val schema = JdbcUtils.schemaString(dataFrame, url)
-        val sql = s"CREATE TABLE $tableName ($schema)"
-        val statement = conn.createStatement
-        try {
-          statement.executeUpdate(sql)
-        } finally {
-          statement.close()
-        }
-      }
-      tableExists
+      SpartaJdbcUtils.tableExists(url, connectionProperties, tableName, dataFrame.schema)
     } match {
       case Success(tableExists) =>
-        if (!tableExists) log.info(s"Created correctly table in Postgres: $tableName")
+        if (tableExists)
+          if (saveMode == SaveModeEnum.Upsert) {
+            val updateFields = getPrimaryKeyOptions(options) match {
+              case Some(pk) => pk.split(",").toSeq
+              case None => dataFrame.schema.fields.filter(stField =>
+                stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).toSeq
+            }
+            SpartaJdbcUtils.upsertTable(dataFrame, url, tableName, connectionProperties, updateFields)
+          } else {
+            dataFrame.foreachPartition { rows =>
+              val conn = getConnection(url, connectionProperties)
+              val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+
+              cm.copyIn(
+                s"""COPY $tableName FROM STDIN WITH (NULL 'null', FORMAT CSV, DELIMITER E'$delimiter')""",
+                rowsToInputStream(rows)
+              )
+            }
+          }
+        else log.warn(s"Table not created in Postgres: $tableName")
       case Failure(e) =>
-        PostgresOutput.closeConnection()
+        closeConnection()
         log.error(s"Error creating/dropping table $tableName")
-    }
-
-    dataFrame.foreachPartition { rows =>
-      val conn = PostgresOutput.getConnection(url, connectionProperties)
-      val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
-
-      cm.copyIn(
-        s"""COPY $tableName FROM STDIN WITH (NULL 'null', FORMAT CSV, DELIMITER E'$delimiter')""",
-        rowsToInputStream(rows)
-      )
     }
   }
 
@@ -109,35 +100,6 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
       override def read(): Int =
         if (bytes.hasNext) bytes.next & 0xff
         else -1
-    }
-  }
-}
-
-object PostgresOutput extends SLF4JLogging {
-
-  private var connection: Option[Connection] = None
-
-  def getConnection(url: String, properties: Properties): Connection = {
-    synchronized {
-      if (connection.isEmpty)
-        connection = Try(JdbcUtils.createConnectionFactory(url, properties)()) match {
-          case Success(conn) =>
-            Option(conn)
-          case Failure(e) =>
-            log.error(s"Error creating postgres connection ${e.getLocalizedMessage}")
-            None
-        }
-    }
-    connection.getOrElse(throw new IllegalStateException("The connection is empty"))
-  }
-
-  def closeConnection(): Unit = {
-    synchronized {
-      Try(connection.foreach(_.close())) match {
-        case Success(_) => log.info("Connection correctly closed")
-        case Failure(e) => log.error(s"Error closing connection, ${e.getLocalizedMessage}")
-      }
-      connection = None
     }
   }
 }

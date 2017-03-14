@@ -215,6 +215,7 @@
   "_STORAGELEVEL_": "Storage level",
   "_URL_": "Url",
   "_JDBC_URL_": "url",
+  "_JDBC_BATCH_SIZE_": "Batch size",
   "_OUTPUT_CANNOT_BE_DELETED_": "Output cannot be deleted",
   "_OUTPUT_CANNOT_BE_MODIFIED_": "Output cannot be modified",
   "_INPUT_CANNOT_BE_DELETED_": "Input cannot be deleted",
