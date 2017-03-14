@@ -519,6 +519,18 @@
         "qa": "fragment-details-jdbc-url"
       },
       {
+        "propertyId": "batchsize",
+        "propertyName": "_JDBC_BATCH_SIZE_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "1000",
+        "required": false,
+        "tooltip": "Number of insert or upsert statements that are sent to Database on each partition",
+        "qa": "fragment-details-jdbc-batch-size"
+      },
+      {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -572,17 +584,6 @@
         "qa": "fragment-details-postgres-url"
       },
       {
-        "propertyId": "bufferSize",
-        "propertyName": "_POSTGRES_BUFFER_SIZE_",
-        "propertyType": "text",
-        "width": 6,
-        "align": "left",
-        "default": "65536",
-        "required": false,
-        "tooltip": "Number of characters to buffer and push over network to server at once",
-        "qa": "fragment-details-postgres-buffer-size"
-      },
-      {
         "propertyId": "delimiter",
         "propertyName": "_POSTGRES_DELIMITER_",
         "propertyType": "text",
@@ -603,6 +604,29 @@
         "required": false,
         "tooltip": "Character used to substitute the new line character in the events",
         "qa": "fragment-details-postgres-new-line-substitution"
+      },
+      {
+        "propertyId": "bufferSize",
+        "propertyName": "_POSTGRES_BUFFER_SIZE_",
+        "propertyType": "text",
+        "width": 6,
+        "align": "right",
+        "default": "65536",
+        "required": false,
+        "tooltip": "Number of characters to buffer and push over network to server at once on insert mode",
+        "qa": "fragment-details-postgres-buffer-size"
+      },
+      {
+        "propertyId": "batchsize",
+        "propertyName": "_JDBC_BATCH_SIZE_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "1000",
+        "required": false,
+        "tooltip": "Number of upsert statements that are sent to Database on each partition",
+        "qa": "fragment-details-jdbc-batch-size"
       },
       {
         "propertyId": "saveOptions",
