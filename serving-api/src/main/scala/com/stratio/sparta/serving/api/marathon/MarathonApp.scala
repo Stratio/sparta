@@ -87,6 +87,7 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
   val SparkLogLevelEnv = "SPARK_LOG_LEVEL"
   val ZookeeperLogLevelEnv = "ZOOKEEPER_LOG_LEVEL"
   val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
+  val DcosServiceName = "DCOS_SERVICE_NAME"
 
   /* Lazy variables */
 
@@ -113,7 +114,8 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
     ServiceLogLevelEnv -> envServiceLogLevel,
     SpartaLogLevelEnv -> envSpartaLogLevel,
     SparkLogLevelEnv -> envSparkLogLevel,
-    HadoopLogLevelEnv -> envHadoopLogLevel
+    HadoopLogLevelEnv -> envHadoopLogLevel,
+    DcosServiceName -> Option(s"sparta-driver-${policyModel.name}")
   ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 
   /* PUBLIC METHODS */
@@ -209,7 +211,7 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
     )))
 
     app.copy(
-      id = s"${policyModel.id.get}-${DateTime.now().getMillis}",
+      id = s"sparta-${policyModel.name}-${DateTime.now().getMillis}",
       cpus = envMarathonDriverCpus.map(_.toDouble).getOrElse(DefaultCpus),
       mem = envMarathonDriverMem.map(_.toInt).getOrElse(DefaultMem),
       env = newEnv,

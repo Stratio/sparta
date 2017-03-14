@@ -5,7 +5,7 @@
     "user": "sparta",
     "container": {
       "docker": {
-        "image": "qa.stratio.com/stratio/sparta:1.3.0-SNAPSHOTPR1781",
+        "image": "qa.stratio.com:8443/stratio/sparta:1.3.0-SNAPSHOTPR1781",
         "network": "BRIDGE",
         "portMappings": [
           {
@@ -52,7 +52,8 @@
     ],
     "labels": {
       "SPARTA_POLICY_NAME": "???",
-      "SPARTA_POLICY_ID": "???"
+      "SPARTA_POLICY_ID": "???",
+      "DCOS_SERVICE_NAME": "???"
     }
 }
 

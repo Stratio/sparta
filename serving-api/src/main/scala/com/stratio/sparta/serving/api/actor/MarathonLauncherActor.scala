@@ -72,6 +72,7 @@ class MarathonLauncherActor(val statusActor: ActorRef, executionActor: ActorRef)
           statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
 
         marathonApp.launch(statusActor, detailExecMode)
+        scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
     }
   }
 }
