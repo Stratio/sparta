@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.constants
 
 /**
@@ -27,6 +28,7 @@ object AkkaConstant {
   val PolicyActor = "policyActor"
   val LauncherActor = "sparkStreamingContextActor"
   val PluginActor = "pluginActor"
+  val DriverActor = "driverActor"
   val ControllerActor = "controllerActor"
   val statusActor = "supervisorContextActor"
   val ControllerActorInstances = "controllerActorInstances"
@@ -34,6 +36,5 @@ object AkkaConstant {
 
   val DefaultTimeout = 15
 
-  def cleanActorName(initialName: String) : String = initialName.replace(" ", "_")
-
+  def cleanActorName(initialName: String): String = initialName.replace(" ", "_")
 }

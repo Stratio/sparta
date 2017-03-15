@@ -60,13 +60,15 @@ object SpartaHelper extends SLF4JLogging {
         AkkaConstant.LauncherActor
       )
       val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
+      val driverActor = system.actorOf(Props(new DriverActor()), AkkaConstant.DriverActor)
 
       implicit val actors = Map(
         AkkaConstant.statusActor -> statusActor,
         AkkaConstant.FragmentActor -> fragmentActor,
         AkkaConstant.PolicyActor -> policyActor,
         AkkaConstant.LauncherActor -> streamingContextActor,
-        AkkaConstant.PluginActor -> pluginActor
+        AkkaConstant.PluginActor -> pluginActor,
+        AkkaConstant.DriverActor -> driverActor
       )
 
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
@@ -76,7 +78,6 @@ object SpartaHelper extends SLF4JLogging {
       else loadSpartaWithHttp(controllerActor)
 
       statusActor ! AddClusterListeners
-
     } else log.info("Sparta Configuration is not defined")
   }
 
