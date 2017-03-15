@@ -29,28 +29,28 @@
                   data-ng-if="policies.sortField != 'name' || !policies.tableReverse"></span>
           </th>
           <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')"> 
-            {{"_DESCRIPTION_" | translate}}
+            {{"_INPUT_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'description' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down"
                   data-ng-class="{'sort-active': policies.sortField == 'description'}"  
                   data-ng-if="policies.sortField != 'description' || !policies.tableReverse"></span>
           </th>
           <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('status')">
-            {{"_STATUS_" | translate}}
+            {{"_TRANSFORM_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'status' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
                   data-ng-if="policies.sortField != 'status' || !policies.tableReverse" 
                   ng-class="{'sort-active': policies.sortField == 'status'}"></span>
           </th>
           <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('lastExecutionMode')">
-            {{"_DEPLOY_MODE_" | translate}}
+            {{"_CUBES_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'lastExecutionMode' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
                   data-ng-if="policies.sortField != 'lastExecutionMode' || !policies.tableReverse"
                   ng-class="{'sort-active': policies.sortField == 'lastExecutionMode'}"></span>
           </th>
           <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('statusInfo')">
-            {{"_STATUS_INFORMATION_" | translate}}
+            {{"_TRIGGERS_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'statusInfo' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down " 
                   data-ng-if="policies.sortField != 'statusInfo' || !policies.tableReverse" 
@@ -65,10 +65,10 @@
 
         <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData | orderBy:policies.sortField:policies.tableReverse">
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.name}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.description}}</td>
-          <td class="c-table__td c-col--1 c-table--centered-content">{{policyData.status}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">{{policyData.lastExecutionMode}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.statusInfo}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.input.name}}</td>
+          <td class="c-table__td c-col--1 c-table--centered-content">{{policyData.transformations}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">{{policyData.cubes}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.streamTriggers}}</td>
 
           <td class="c-table__td c-table__td--to-right c-col--1 c-col--to-right c-row--to-right">
             <c-icon-link icon-class="'c-table__icon c-icon c-icon--is-clickable c-icon--circle-button c-icon--call-to-action icon-globe'"
