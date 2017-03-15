@@ -87,7 +87,6 @@
         if(cube.writer && cube.writer.outputs){
           cubeOutputs = cubeOutputs.concat(cube.writer.outputs);
         }
-        
 
         for (var t = 0; t < cube.triggers.length; ++t) {
           cubeOutputs = cubeOutputs.concat(cube.triggers[t].writer.outputs);
