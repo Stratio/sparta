@@ -1,0 +1,18 @@
+<section data-ng-controller="PolicyInputCtrl as vm">
+  <form name="vm.form" class="c-form c-panel c-panel--framed" novalidate>
+    <div class="c-col c-col--4" data-ng-repeat="input in vm.inputList">
+      <div class="c-check-block" data-ng-click="vm.setInput($index)" data-qa="policy-input-item-{{input.id}}">
+        <div class="c-form-control c-form-control--full-width">
+          <div class="c-row">
+            <label class="c-label c-check-block__title">{{input.name}}</label>
+          </div>
+          <div class="c-row">
+            <input class="c-checkbox" type="checkbox" data-ng-checked="vm.isSelectedInput(input.name)"><label class="c-label" data-qa="policy-input-checkbox-{{input.id}}"></label>
+          </div>
+        </div>
+
+        <i class="c-icon icon-{{input.element.type | lowercase}}"></i>
+      </div>
+    </div>
+  </form>
+</section>
