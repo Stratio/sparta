@@ -93,6 +93,12 @@ angular
         controllerAs: 'policies',
         templateUrl: 'views/policies.html'
       })
+      .state('dashboard.executions', {
+        url: '/executions',
+        controller: 'ExecutionsListCtrl',
+        controllerAs: 'executions',
+        templateUrl: 'views/executions.html'
+      })
       /******* POLICY WIZARD *******/
       .state('wizard', {
         url: '/wizard',

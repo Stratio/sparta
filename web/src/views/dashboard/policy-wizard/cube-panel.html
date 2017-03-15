@@ -19,7 +19,6 @@
           <div class="c-cube c-col c-col--6 c-col--vertical-top">
             <label class="c-cube__title c-col c-col--12 c-col--vertical-centered">{{"_POLICY_._FIELDS_" |
               translate}}</label>
-
             <div class="c-cube__section c-col c-col--12 c-col--vertical-centered">
               <!--OUTPUTS-->
               <div class="c-cube__field-wrapper c-col c-col--12 c-col--vertical-centered"
@@ -105,11 +104,9 @@
           </h1>
           <div class="c-col c-col--12 c-form-group--compressed__container">
             <!--Writer model -->
-            <ng-form name="optionsForm">
             <c-writer-model data-model="vm.cube" data-form="vm.form" data-template = "vm.template.writer"
                             data-policy-output-list="vm.policyOutputList" data-selected-policy-output="vm.selectedPolicyOutput">
             </c-writer-model>
-            </ng-form>
           </div>
         </div>
       <div class="c-row">

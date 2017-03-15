@@ -18,12 +18,12 @@
 
   angular
       .module('webApp')
-      .controller('PolicyListCtrl', PolicyListCtrl);
+      .controller('ExecutionsListCtrl', ExecutionsListCtrl);
 
-  PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
+  ExecutionsListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
     '$translate', '$interval', '$scope', '$q', '$filter'];
 
-  function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
+  function ExecutionsListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
                           $translate, $interval, $scope, $q, $filter) {
     /*jshint validthis: true*/
     var vm = this;
@@ -168,7 +168,7 @@
 
     function updatePoliciesStatus() {
       var defer = $q.defer();
-      var policiesStatus = PolicyFactory.getAllPolicies();
+      var policiesStatus = PolicyFactory.getPoliciesStatus();
       policiesStatus.then(function(result) {
         var policiesWithStatus = result;
         if (policiesWithStatus) {
@@ -194,7 +194,7 @@
     }
 
     function getPolicies() {
-      var policiesStatus = PolicyFactory.getAllPolicies();
+      var policiesStatus = PolicyFactory.getPoliciesStatus();
       policiesStatus.then(function (result) {
         vm.sortField = 'name';
         vm.policiesData = result;
