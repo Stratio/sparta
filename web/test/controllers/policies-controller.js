@@ -145,7 +145,7 @@ describe('policies.wizard.controller.policies-controller', function() {
   it("should be able to open a modal with the information of the selected policy by its position", function() {
     ctrl.policiesData = [fakePolicyStatusList[0], fakePolicyStatusList[1]];
     for (var i = 0; i < ctrl.policiesData.length; ++i) {
-      ctrl.showInfoModal(i);
+      ctrl.showInfoModal(ctrl.policiesData[i]);
 
       expect(modalServiceMock.openModal).toHaveBeenCalled();
       var args = modalServiceMock.openModal.calls.mostRecent().args;
