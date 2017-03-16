@@ -36,6 +36,7 @@
     vm.isNewCube = CubeService.isNewCube;
     vm.saveCube = saveCube;
     vm.isActiveTriggerCreationPanel = TriggerService.isActiveTriggerCreationPanel;
+    vm.isActiveTriggerUpdatePanel = TriggerService.isActiveTriggerUpdatePanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.changeOpenedTrigger = TriggerService.changeOpenedTrigger;
     vm.isTimeDimension = null;
@@ -185,6 +186,7 @@
       vm.triggerError = null;
       CubeModelFactory.setError();
       vm.form.$setSubmitted(true);
+      vm.form.optionsForm.$setSubmitted(true);
       if (vm.form['vm.form']) {
         vm.form['vm.form'].$setSubmitted(true);
         vm.triggerAccordionStatus[vm.triggerAccordionStatus.length - 1] = true;
@@ -194,10 +196,19 @@
           vm.form['vm.form'].$setSubmitted(false);
         }
       }
-      if (!vm.form.$valid) {
-        isValid = false;
-        CubeModelFactory.setError();
+
+     // if(!vm.isActiveTriggerUpdatePanel()){
+        if (!vm.form.optionsForm.$valid) {
+          isValid = false;
+          CubeModelFactory.setError();
+        }
+    /*  }else {
+        if (!vm.form.$valid) {
+          isValid = false;
+          CubeModelFactory.setError();
+        }
       }
+*/
       var errorElements = $('[class*="error"]');
       if (errorElements) {
         $window.scrollTo(0, errorElements[0]);
