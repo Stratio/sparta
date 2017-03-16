@@ -20,8 +20,7 @@ import akka.actor.ActorRef
 import akka.testkit.TestProbe
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -41,7 +40,7 @@ class PluginsHttpServiceTest extends WordSpec
   override implicit val actors: Map[String, ActorRef] = Map.empty
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), MockConfigFactory(localConfig))
+    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
   }
 
   "PluginsHttpService.upload" should {

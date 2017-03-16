@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.config.{SpartaConfigFactory, SpartaConfig}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -26,7 +26,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
   "SparkStreamingContextActor.isAnyPolicyStarted" should {
 
     "return false if there is no policy Starting/Started mode" in {
-      SpartaConfig.initMainConfig(Option(yarnConfig), new MockConfigFactory(yarnConfig))
+      SpartaConfig.initMainConfig(Option(yarnConfig), SpartaConfigFactory(yarnConfig))
 
       val response = isAnyPolicyStarted
       response should be(false)
@@ -40,7 +40,7 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
     }
 
     "return false when execution mode is mesos" in {
-      SpartaConfig.initMainConfig(Option(mesosConfig), new MockConfigFactory(mesosConfig))
+      SpartaConfig.initMainConfig(Option(mesosConfig), SpartaConfigFactory(mesosConfig))
 
       val response = isAnyPolicyStarted
       response should be(false)
@@ -48,14 +48,14 @@ class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
 
 
     "return true when execution mode is local and there is no running policy" in {
-      SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
+      SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
 
       val response = isAvailableToRun(getPolicyModel())
       response should be(true)
     }
 
     "return true when execution mode is standalone and there is no running policy" in {
-      SpartaConfig.initMainConfig(Option(standaloneConfig), new MockConfigFactory(standaloneConfig))
+      SpartaConfig.initMainConfig(Option(standaloneConfig), SpartaConfigFactory(standaloneConfig))
 
       val response = isAvailableToRun(getPolicyModel())
       response should be(true)

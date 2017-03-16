@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.serving.core.config
 
-import com.stratio.sparta.serving.core
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -35,8 +34,8 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = new MockConfigFactory(config))
-      spartaConfig.get.getString("testKey") should be ("testValue")
+      val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = SpartaConfigFactory(config))
+      spartaConfig.get.getString("testKey") should be("testValue")
     }
     " getConfig returns a Config(SimpleConfigObject({ Key, Value }) " in {
 
@@ -47,10 +46,10 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      val res = new core.config.ConfigFactory {
-        val res = getConfig("sparta", Some(config)).get.toString
-        res should be ("""Config(SimpleConfigObject({"testKey":"test"}))""")
-      }
+      val configFactory = SpartaConfigFactory()
+
+      val res = configFactory.getConfig("sparta", Some(config)).get.toString
+      res should be("""Config(SimpleConfigObject({"testKey":"test"}))""")
     }
 
     "getConfig returns None due to an exception " in {
@@ -62,10 +61,10 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      new core.config.ConfigFactory {
-        val conf = getConfig(None.orNull, Some(config))
-        conf should be (None)
-      }
+      val configFactory = SpartaConfigFactory()
+
+      val conf = configFactory.getConfig(None.orNull, Some(config))
+      conf should be(None)
     }
 
     "getConfig returns this: Config(SimpleConfigObject({ Key, Value }) when both " +
@@ -78,10 +77,10 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |}
         """.stripMargin)
 
-      new core.config.ConfigFactory {
-        val conf = getConfig(None.orNull, None)
-        conf should be (None)
-      }
+      val configFactory = SpartaConfigFactory()
+
+      val conf = configFactory.getConfig(None.orNull, None)
+      conf should be(None)
     }
 
     "init a config from a given config and a Null Node" in {
@@ -93,9 +92,12 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
           |  }
           |}
         """.stripMargin)
-      val testNodeConfig = new MockConfigFactory(config).getConfig(None.orNull, Some(config))
 
-      testNodeConfig should be (None)
+      val configFactory = SpartaConfigFactory(config)
+
+      val testNodeConfig = configFactory.getConfig(None.orNull, Some(config))
+
+      testNodeConfig should be(None)
 
     }
   }
@@ -109,9 +111,12 @@ class ConfigFactoryTest extends WordSpec with Matchers with Serializable {
         |  }
         |}
       """.stripMargin)
-    val testNodeConfig = new MockConfigFactory(config).getConfig("sparta", None).get.toString
 
-    testNodeConfig should be ("""Config(SimpleConfigObject({"testNode":{"testKey":"testValue"}}))""")
+    val configFactory = SpartaConfigFactory(config)
+
+    val testNodeConfig = configFactory.getConfig("sparta", None).get.toString
+
+    testNodeConfig should be("""Config(SimpleConfigObject({"testNode":{"testKey":"testValue"}}))""")
 
   }
 }
