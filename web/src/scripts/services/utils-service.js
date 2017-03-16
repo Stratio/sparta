@@ -35,10 +35,11 @@
     vm.getInCamelCase = getInCamelCase;
     vm.convertDottedPropertiesToJson = convertDottedPropertiesToJson;
     vm.getFilteredJSONByArray = getFilteredJSONByArray;
+    vm.getFilteredArray = getFilteredArray;
     vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
     vm.generateOptionListFromStringArray = generateOptionListFromStringArray;
     vm.camelToDash = camelToDash;
-    
+
     function findElementInJSONArray(array, element, attr) {
       var found = false;
       var position = -1;
@@ -102,7 +103,7 @@
         for (var i = 0; i < itemList.length; i++) {
           if (itemList[i].name) {
             var lowerCaseName = itemList[i].name.toLowerCase();
-            var fragment = {'name': lowerCaseName};
+            var fragment = { 'name': lowerCaseName };
             itemNames.push(fragment);
           }
         }
@@ -124,9 +125,9 @@
     }
 
     function addFragmentCount(inputTypeList, inputType) {
-      var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
+      var newInputCount = $filter('filter')(inputTypeList, { 'type': inputType }, true)[0];
       if (!newInputCount) {
-        var newInpuntCount = {'type': inputType, 'count': 1};
+        var newInpuntCount = { 'type': inputType, 'count': 1 };
         inputTypeList.push(newInpuntCount);
       }
       else {
@@ -135,7 +136,7 @@
     }
 
     function subtractFragmentCount(inputTypeList, inputType) {
-      var newInputCount = $filter('filter')(inputTypeList, {'type': inputType}, true)[0];
+      var newInputCount = $filter('filter')(inputTypeList, { 'type': inputType }, true)[0];
       newInputCount.count--;
       if (newInputCount.count === 0) {
         for (var i = 0; i < inputTypeList.length; i++) {
@@ -185,7 +186,7 @@
       }
       return object;
     }
-
+    //allOutputs, cubeOutputs
     function getFilteredJSONByArray(JsonArray, array, attribute) {
       var filteredElements = [];
       if (array) {
@@ -199,6 +200,21 @@
         }
       }
       return filteredElements;
+    }
+
+    function getFilteredArray(arr1, array, attribute) {
+      var arr3 = [];
+      var arr2 = array.filter(function(item, pos) {
+          return array.indexOf(item) == pos;
+      })
+
+      for (var i = 0; i < arr1.length; ++i) {
+        var aux = arr1[i][attribute];
+        if(array.indexOf(aux)!=-1){
+          arr3.push(arr1[i]);
+        }
+      }
+      return arr3;
     }
 
     function removeDuplicatedJSONs(array, attribute) {
@@ -220,18 +236,18 @@
       var optionList = [];
       if (array) {
         for (var i = 0; i < array.length; ++i) {
-          optionList.push({"label": array[i], "value": array[i]});
+          optionList.push({ "label": array[i], "value": array[i] });
         }
       }
       return optionList;
     }
 
-    function camelToDash(word, dash){
-      if (!dash){
+    function camelToDash(word, dash) {
+      if (!dash) {
         dash = '-';
       }
-      return word.replace(/([A-Z])/g, function($1){return dash+$1.toLowerCase();});
+      return word.replace(/([A-Z])/g, function ($1) { return dash + $1.toLowerCase(); });
     }
   }
 })
-();
+  ();

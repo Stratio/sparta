@@ -84,7 +84,9 @@
       var cubeOutputs = [];
       for (var c = 0; c < cubes.length; ++c) {
         var cube = cubes[c];
-        cubeOutputs = cubeOutputs.concat(cube['writer.outputs']);
+        if(cube.writer && cube.writer.outputs){
+          cubeOutputs = cubeOutputs.concat(cube.writer.outputs);
+        }
 
         for (var t = 0; t < cube.triggers.length; ++t) {
           cubeOutputs = cubeOutputs.concat(cube.triggers[t].writer.outputs);
@@ -92,7 +94,7 @@
       }
 
       if (allOutputs && cubeOutputs) {
-        outputs = UtilsService.getFilteredJSONByArray(allOutputs, cubeOutputs, 'name');
+        outputs = UtilsService.getFilteredArray(allOutputs, cubeOutputs, 'name');
       }
       return outputs;
     }

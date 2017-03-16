@@ -97,7 +97,7 @@ describe('service.policy-service', function () {
       spyOn(UtilsService, 'removeDuplicatedJSONs').and.callThrough();
       service.generateFinalJSON().then(function (finalJson) {
         //fragment length has to be input + outputs list
-        expect(finalJson.fragments.length).toBe(expectedOutputLength + 1);
+        expect(finalJson.fragments.length).toBe(expectedOutputLength);
 
         //should remove duplicated outputs
         expect(UtilsService.removeDuplicatedJSONs).toHaveBeenCalled();
