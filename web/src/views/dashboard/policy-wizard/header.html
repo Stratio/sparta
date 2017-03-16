@@ -1,0 +1,32 @@
+<div class="c-toolbar c-toolbar--no-padding">
+	<div class="c-toolbar-container">
+		<!-- TODO: SET EXIT EDITOR BEHAVIOUR -->
+		<div class="c-toolbar-container--button"  data-qa="header-toolbar-exit" data-ng-click="header.leaveEditor()">
+			<button class="c-button c-button--rounded c-button--rounded--call-to-action-1"
+					data-qa="header-toolbar-back-button">
+				<span class="icon-reply"></span>
+			</button>
+		</div>
+		<div class="c-toolbar-container--header">
+			<i class="icon icon-lego icon--header"></i>
+			<span>{{header.policy.name}}</span>
+
+		</div>
+	</div><!--
+	--><div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding c-toolbar-container--border-left">
+
+
+	    <button class="c-button c-button--rounded c-button--rounded--call-to-action-2 c-button--left-margin" data-ng-click="header.showPolicyData()" data-qa="header-toolbar-settings">
+	    	<i class="icon-cog"></i>
+		</button>
+
+</div>
+  <div class="c-toolbar-container c-toolbar-container--to-right c-toolbar-container--padding" ng-if = "header.wizardStatus.currentStep < 3">
+    <a data-ng-href="{{header.helpLink}}" class="c-icon-link c-icon-link__toolbar" target="_blank"
+       data-qa="header-toolbar-help">
+      <i class="c-icon c-icon-link__icon c-icon--is-clickable c-icon--call-to-action icon-help1"></i>
+      <span class="c-icon-link__text c-icon-link__text--is-link">{{'_INPUT_WINDOW_NEW_HELP_' | translate}}</span>
+    </a>
+  </div>
+
+</div>
