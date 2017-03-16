@@ -45,7 +45,7 @@ class MarathonLauncherActor(val statusActor: ActorRef, executionActor: ActorRef)
       val zookeeperConfig = getZookeeperConfig
       val clusterConfig = SpartaConfig.getClusterConfig(Option(ConfigMesos)).get
       val master = clusterConfig.getString(Master).trim
-      val driverFile = extractDriverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
+      val driverFile = extractMarathonDriverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val pluginsFiles = pluginsJars(policy)
       val driverArguments =
         extractDriverArguments(policy, driverFile, clusterConfig, zookeeperConfig, ConfigMesos, pluginsFiles)

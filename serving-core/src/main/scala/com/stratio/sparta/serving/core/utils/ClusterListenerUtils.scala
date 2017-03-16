@@ -155,7 +155,10 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                     id = policyId, status = Stopped, statusInfo = Some(information)))
                 }
               case None =>
-                log.info(s"The Sparta System don't have submission id associated to policy $policyName")
+                val information = s"The Sparta System don't have submission id associated to policy $policyName"
+                log.info(information)
+                statusActor ! Update(PolicyStatusModel(
+                  id = policyId, status = Failed, statusInfo = Some(information)))
             }
           } finally {
             log.info("Killing submission policy with handler")

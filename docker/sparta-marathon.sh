@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+ # Load Sparta and system variables
+ loadVariables
+
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
  cp SPARTA_MARATHON_CONF_FILE SPARTA_CONF_FILE
 
@@ -14,12 +17,10 @@
  # HDFS OPTIONS
  initHdfs
 
- # Load Sparta and system variables
- loadVariables
-
   # Marathon App LOG OPTIONS
  logLevelOptions
  logLevelToStdout
 
  # Run Sparta Marathon jar
- run-marathon-app.sh >> /dev/null 2>$LOG_FILE & echo $! >$PIDFILE
+ #run-marathon-app.sh >> /dev/null 2>$LOG_FILE & echo $! >$PIDFILE
+ source run-marathon-app.sh

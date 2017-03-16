@@ -1,46 +1,48 @@
 {
-    "id": "???",
-    "cpus": 1,
-    "mem": 1024,
-    "user": "sparta",
-    "container": {
-      "docker": {
-        "image": "qa.stratio.com:8443/stratio/sparta:1.3.0-SNAPSHOTPR1781",
-        "network": "BRIDGE",
-        "portMappings": [
-          {
-            "hostPort": 0,
-            "containerPort": 4040,
-            "protocol": "tcp"
-          }
-        ],
-        "forcePullImage": false,
-        "parameters": []
-      }
-    },
-    "env": {
-      "SPARTA_MARATHON_JAR": "???",
-      "SPARTA_ZOOKEEPER_CONFIG": "???",
-      "SPARTA_POLICY_ID": "???",
-      "VAULT_HOST": "???",
-      "VAULT_PORT": "???",
-      "VAULT_TOKEN": "???",
-      "MARATHON_APP_HEAP_SIZE": "???",
-      "MARATHON_APP_HEAP_MINIMUM_SIZE": "???",
-      "SPARK_HOME": "???",
-      "HADOOP_USER_NAME": "???",
-      "CORE_SITE_FROM_URI": "???",
-      "CORE_SITE_FROM_DFS": "???",
-      "DEFAULT_FS": "???",
-      "HADOOP_CONF_DIR": "???",
-      "SERVICE_LOG_LEVEL": "???",
-      "SPARTA_LOG_LEVEL": "???",
-      "SPARK_LOG_LEVEL": "???",
-      "HADOOP_LOG_LEVEL": "???",
-      "ZOOKEEPER_LOG_LEVEL": "???"
-    },
-    "healthChecks": [
-      {
+  "id": "???",
+  "cpus": 1,
+  "mem": 1024,
+  "container": {
+    "docker": {
+      "image": "qa.stratio.com:8443/stratio/sparta:1.3.0-SNAPSHOTPR1781",
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "containerPort": 4040,
+          "protocol": "tcp"
+        }
+      ],
+      "forcePullImage": false,
+      "parameters": []
+    }
+  },
+  "env": {
+    "SPARTA_APP_TYPE": "marathon",
+    "SPARTA_MARATHON_JAR": "???",
+    "SPARTA_MARATHON_MAIN_CLASS": "???",
+    "SPARTA_ZOOKEEPER_CONFIG": "???",
+    "SPARTA_DETAIL_CONFIG": "???",
+    "SPARTA_POLICY_ID": "???",
+    "VAULT_HOST": "???",
+    "VAULT_PORT": "???",
+    "VAULT_TOKEN": "???",
+    "MARATHON_APP_HEAP_SIZE": "???",
+    "MARATHON_APP_HEAP_MINIMUM_SIZE": "???",
+    "SPARK_HOME": "???",
+    "HADOOP_USER_NAME": "???",
+    "CORE_SITE_FROM_URI": "???",
+    "CORE_SITE_FROM_DFS": "???",
+    "DEFAULT_FS": "???",
+    "HADOOP_CONF_DIR": "???",
+    "SERVICE_LOG_LEVEL": "???",
+    "SPARTA_LOG_LEVEL": "???",
+    "SPARK_LOG_LEVEL": "???",
+    "HADOOP_LOG_LEVEL": "???",
+    "ZOOKEEPER_LOG_LEVEL": "???"
+  },
+  "healthChecks": [
+    {
       "protocol": "TCP",
       "portIndex": 0,
       "gracePeriodSeconds": 300,
@@ -48,12 +50,12 @@
       "timeoutSeconds": 15,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false
-      }
-    ],
-    "labels": {
-      "SPARTA_POLICY_NAME": "???",
-      "SPARTA_POLICY_ID": "???",
-      "DCOS_SERVICE_NAME": "???"
     }
+  ],
+  "labels": {
+    "SPARTA_POLICY_NAME": "???",
+    "SPARTA_POLICY_ID": "???",
+    "DCOS_SERVICE_NAME": "???"
+  }
 }
 

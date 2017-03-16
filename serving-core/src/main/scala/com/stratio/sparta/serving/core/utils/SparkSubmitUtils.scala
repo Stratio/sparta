@@ -95,16 +95,11 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     SubmitExecutorMemory -> SubmitExecutorMemoryConf
   )
 
-  def extractDriverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String = {
-    val driverStorageLocation = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
-      .getOrElse(DefaultProvidedDriverURI)
-    if (driverLocation(driverStorageLocation) == ConfigHdfs) {
-      val Hdfs = HdfsUtils()
-      val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
+  def extractMarathonDriverSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
+    driverJarSubmit(policy, detailConfig, hdfsConfig, DefaultMarathonDriverURI)
 
-      Uploader.uploadDriverFile(driverStorageLocation)
-    } else driverStorageLocation
-  }
+  def extractDriverClusterSubmit(policy: PolicyModel, detailConfig: Config, hdfsConfig: Option[Config]): String =
+    driverJarSubmit(policy, detailConfig, hdfsConfig, DefaultProvidedDriverURI)
 
   def extractSparkHome(clusterConfig: Config): String =
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
@@ -129,12 +124,12 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
 
     Map(
-      "policyId" -> policy.id.get.trim,
-      "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig),
+      "clusterConfig" -> keyOptionConfigEncoded(executionMode, Option(clusterConfig)),
       "detailConfig" -> keyConfigEncoded("config", DetailConfig),
       "plugins" -> pluginsEncoded(pluginsFiles),
+      "policyId" -> policy.id.get.trim,
       "storageConfig" -> keyOptionConfigEncoded(driverLocationKey, driverLocationConfig),
-      "clusterConfig" -> keyOptionConfigEncoded(executionMode, Option(clusterConfig))
+      "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig)
     )
   }
 
@@ -158,6 +153,21 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   }
 
   /** Protected Methods **/
+
+  protected def driverJarSubmit(policy: PolicyModel,
+                                detailConfig: Config,
+                                hdfsConfig: Option[Config],
+                                defaultValue: String
+                               ): String = {
+    val driverStorageLocation = Try(optionFromPolicyAndProperties(policy.driverUri, detailConfig, DriverURI))
+      .getOrElse(defaultValue)
+    if (driverLocation(driverStorageLocation) == ConfigHdfs) {
+      val Hdfs = HdfsUtils()
+      val Uploader = ClusterSparkFilesUtils(policy, Hdfs)
+
+      Uploader.uploadDriverFile(driverStorageLocation)
+    } else driverStorageLocation
+  }
 
   protected def addAppNameConf(sparkConfs: Map[String, String], policy: PolicyModel): Map[String, String] = {
     if (!sparkConfs.contains(SubmitAppNameConf)) {

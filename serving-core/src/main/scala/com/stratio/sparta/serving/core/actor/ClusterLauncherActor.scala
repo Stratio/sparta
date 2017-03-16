@@ -48,7 +48,7 @@ class ClusterLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) 
       val clusterConfig = SpartaConfig.getClusterConfig(Option(execMode)).get
       val detailExecMode = getDetailExecutionMode(policy, clusterConfig)
       val sparkHome = validateSparkHome(clusterConfig)
-      val driverFile = extractDriverSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
+      val driverFile = extractDriverClusterSubmit(policy, DetailConfig, SpartaConfig.getHdfsConfig)
       val master = clusterConfig.getString(Master).trim
       val pluginsFiles = pluginsJars(policy)
       val driverArguments =
@@ -100,7 +100,8 @@ class ClusterLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) 
       submitRequest.sparkConfigurations.filter(_._2.nonEmpty)
         .foreach { case (key: String, value: String) => sparkLauncher.setConf(key.trim, value.trim) }
       // Driver (Sparta) params
-      submitRequest.driverArguments.values.foreach(sparkLauncher.addAppArgs(_))
+      submitRequest.driverArguments.toSeq.sortWith{case (a, b) => a._1 < b._1}
+        .foreach{ case (_, argValue) => sparkLauncher.addAppArgs(argValue)}
       // Launch SparkApp
       sparkLauncher.startApplication(addSparkListener(policy))
     } match {

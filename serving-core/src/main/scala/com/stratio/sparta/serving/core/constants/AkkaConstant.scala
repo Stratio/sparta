@@ -33,6 +33,7 @@ object AkkaConstant {
   val DriverActor = "driverActor"
   val ControllerActor = "controllerActor"
   val statusActor = "supervisorContextActor"
+  val marathonAppActor = "marathonAppActor"
   val ControllerActorInstances = "controllerActorInstances"
   val DefaultControllerActorInstances = 5
 

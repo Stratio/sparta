@@ -22,7 +22,7 @@ import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
@@ -52,7 +52,6 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
   /* Constant variables */
 
   val AppMainClass = "com.stratio.sparta.driver.SpartaMarathonApp"
-  val DefaultAppJar = "/opt/sds/sparta/driver/sparta-driver.jar"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
   val MesosNativeLibPath = "/opt/mesosphere/lib"
@@ -74,6 +73,7 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
   val MemEnv = "MARATHON_MEM"
   val PolicyIdEnv = "SPARTA_POLICY_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
+  val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
@@ -99,6 +99,7 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
     MesosNativeJavaLibraryEnv -> Option(MesosNativeLib),
     AppJarEnv -> marathonJar,
     ZookeeperConfigEnv -> sparkSubmitRequest.driverArguments.get("zookeeperConfig"),
+    DetailConfigEnv -> sparkSubmitRequest.driverArguments.get("detailConfig"),
     PolicyIdEnv -> policyModel.id,
     VaultHostEnv -> envVaultHost,
     VaultPortEnv -> envVaulPort,
@@ -148,7 +149,7 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
   /* PRIVATE METHODS */
 
   private def marathonJar: Option[String] =
-    Try(marathonConfig.getString("jar")).toOption.orElse(Option(DefaultAppJar))
+    Try(marathonConfig.getString("jar")).toOption.orElse(Option(AppConstant.DefaultMarathonDriverURI))
 
   private def mesosphereLibPath: String =
     Try(marathonConfig.getString("mesosphere.lib")).toOption.getOrElse(MesosNativeLibPath)

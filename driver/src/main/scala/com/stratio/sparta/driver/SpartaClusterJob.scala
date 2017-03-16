@@ -37,12 +37,12 @@ import scala.util.{Failure, Success, Try}
 object SpartaClusterJob extends PluginsFilesUtils {
 
   val NumberOfArguments = 6
-  val PolicyIdIndex = 0
-  val ZookeeperConfigurationIndex = 1
-  val DetailConfigurationIndex = 2
-  val PluginsFilesIndex = 3
+  val ClusterConfigIndex = 0
+  val DetailConfigurationIndex = 1
+  val PluginsFilesIndex = 2
+  val PolicyIdIndex = 3
   val DriverLocationConfigIndex = 4
-  val ClusterConfigIndex = 5
+  val ZookeeperConfigurationIndex = 5
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
