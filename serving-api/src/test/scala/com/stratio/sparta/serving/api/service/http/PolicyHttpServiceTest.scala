@@ -132,23 +132,6 @@ with HttpServiceBaseTest {
     }
   }
 
-  "PolicyHttpService.create" should {
-    "return the policy that was created" in {
-      startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[Create]
-        responseAs[PolicyModel] should equal(getPolicyModel())
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Response(Failure(new MockException())))
-      Post(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
-        testProbe.expectMsgType[Create]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
   "PolicyHttpService.update" should {
     "return an OK because the policy was updated" in {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))

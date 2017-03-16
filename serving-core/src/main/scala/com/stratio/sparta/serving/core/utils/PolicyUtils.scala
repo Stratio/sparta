@@ -18,8 +18,6 @@ package com.stratio.sparta.serving.core.utils
 
 import java.util.UUID
 
-import akka.actor.ActorRef
-import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
@@ -30,9 +28,7 @@ import org.json4s.jackson.Serialization._
 import scala.collection.JavaConversions
 import scala.util._
 
-trait PolicyUtils extends PolicyStatusUtils {
-
-  val fragmentActor: Option[ActorRef] = None
+trait PolicyUtils extends PolicyStatusUtils with FragmentUtils {
 
   /** METHODS TO MANAGE POLICIES IN ZOOKEEPER **/
 
@@ -96,15 +92,14 @@ trait PolicyUtils extends PolicyStatusUtils {
   def populatePolicyWithRandomUUID(policy: PolicyModel): PolicyModel =
     policy.copy(id = Some(UUID.randomUUID.toString))
 
-  def policyWithFragments(policy: PolicyModel, withFragmentCreation: Boolean = true): PolicyModel =
-    fragmentActor.fold(policy) { actorRef => {
-      if (withFragmentCreation)
-        (populateFragmentFromPolicy(policy, FragmentType.input) ++
-          populateFragmentFromPolicy(policy, FragmentType.output)
-          ).foreach(fragment => actorRef ! FragmentActor.Create(fragment))
-      getPolicyWithFragments(policy, actorRef)
-    }
-    }
+  def policyWithFragments(policy: PolicyModel, withFragmentCreation: Boolean = true): PolicyModel = {
+    if (withFragmentCreation)
+      (populateFragmentFromPolicy(policy, FragmentType.input) ++
+        populateFragmentFromPolicy(policy, FragmentType.output)
+        ).foreach(fragment => createFragment(fragment))
+
+    getPolicyWithFragments(policy)
+  }
 
   def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
     response match {
