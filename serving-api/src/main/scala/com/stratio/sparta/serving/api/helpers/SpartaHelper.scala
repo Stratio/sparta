@@ -25,9 +25,12 @@ import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import spray.can.Http
+
+import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
@@ -74,7 +77,7 @@ object SpartaHelper extends SLF4JLogging {
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
         .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
-      if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor)
+      if (isHttpsEnabled) loadSpartaWithHttps(controllerActor)
       else loadSpartaWithHttp(controllerActor)
 
       statusActor ! AddClusterListeners
@@ -97,4 +100,19 @@ object SpartaHelper extends SLF4JLogging {
     )
     log.info("Sparta Actors System initiated correctly")
   }
+
+  def isHttpsEnabled: Boolean =
+    SpartaConfig.getSprayConfig match {
+      case Some(config) =>
+        Try(config.getValue("ssl-encryption")) match {
+          case Success(value) =>
+            "on".equals(value.unwrapped())
+          case Failure(e) =>
+            log.error("Incorrect value in ssl-encryption option, setting https disabled", e)
+            false
+        }
+      case None =>
+        log.warn("Impossible to get spray config, setting https disabled")
+        false
+    }
 }

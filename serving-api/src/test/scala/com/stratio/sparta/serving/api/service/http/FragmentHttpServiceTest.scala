@@ -20,11 +20,11 @@ import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindAll, FindByFragment, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import org.junit.runner.RunWith
@@ -49,7 +49,7 @@ class FragmentHttpServiceTest extends WordSpec
   override val supervisor: ActorRef = testProbe.ref
 
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), new MockConfigFactory(localConfig))
+    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
   }
 
   "FragmentHttpService.findByTypeAndId" should {
