@@ -490,3 +490,11 @@ function marathonOptions() {
    sed -i "s|.*sparta.marathon.tikitakka.marathon.api.version.*|sparta.marathon.tikitakka.marathon.api.version = \""${MARATHON_TIKI_TAKKA_MARATHON_API_VERSION}"\"|" ${SPARTA_CONF_FILE}
  fi
 }
+
+function goSecOptions(){
+
+if [ -v SPARTA_SECURITY_MANAGER_ENABLED ] && [ $SPARTA_SECURITY_MANAGER_ENABLED=="true" ]; then
+   sed -i "s|.*sparta.security.manager.enabled.*|sparta.security.manager.enabled = \""${SPARTA_SECURITY_MANAGER_ENABLED}"\"|" ${SPARTA_CONF_FILE}
+   sed -i "s|.*sparta.security.manager.class.*|sparta.security.manager.class = \""${SPARTA_SECURITY_MANAGER_CLASS}"\"|" ${SPARTA_CONF_FILE}
+fi
+}

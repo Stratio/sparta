@@ -20,6 +20,7 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.RequestActor._
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
@@ -36,7 +37,7 @@ trait ExecutionHttpService extends BaseHttpService {
     update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
 
   @ApiOperation(value = "Finds all executions",
-    notes = "Returns executions list",
+    notes = "Returns an executions list",
     httpMethod = "GET",
     response = classOf[Seq[SubmitRequest]],
     responseContainer = "List")
@@ -48,18 +49,21 @@ trait ExecutionHttpService extends BaseHttpService {
       get {
         complete {
           for {
-            response <- (supervisor ? FindAll).mapTo[Try[Seq[SubmitRequest]]]
+            response <- (supervisor ? FindAll(user))
+              .mapTo[Either[Try[Seq[SubmitRequest]], UnauthorizedResponse]]
           } yield response match {
-            case Failure(exception) => throw exception
-            case Success(executions) => executions
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(executions)) => executions
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in executions")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find a execution from its id.",
-    notes = "Find a execution from its id.",
+  @ApiOperation(value = "Finds an execution by its id",
+    notes = "Find a execution by its id",
     httpMethod = "GET",
     response = classOf[SubmitRequest])
   @ApiImplicitParams(Array(
@@ -78,18 +82,21 @@ trait ExecutionHttpService extends BaseHttpService {
       get {
         complete {
           for {
-            response <- (supervisor ? new FindById(id)).mapTo[Try[SubmitRequest]]
+            response <- (supervisor ? FindById(id, user))
+              .mapTo[Either[Try[Seq[SubmitRequest]], UnauthorizedResponse]]
           } yield response match {
-            case Failure(exception) => throw exception
-            case Success(request) => request
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(request)) => request
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in executions")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete all executions",
-    notes = "Delete all executions",
+  @ApiOperation(value = "Deletes all executions",
+    notes = "Deletes all executions",
     httpMethod = "DELETE")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -99,18 +106,21 @@ trait ExecutionHttpService extends BaseHttpService {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteAll).mapTo[Try[_]]
+            response <- (supervisor ? DeleteAll(user))
+              .mapTo[Either[Try[_],UnauthorizedResponse]]
           } yield response match {
-            case Failure(exception) => throw exception
-            case Success(_) => StatusCodes.OK
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(_)) => StatusCodes.OK
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in executions")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete a executions by its id",
-    notes = "Delete a executions by its id",
+  @ApiOperation(value = "Deletes an execution by its id",
+    notes = "Deletes an executions by its id",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
@@ -127,18 +137,21 @@ trait ExecutionHttpService extends BaseHttpService {
       delete {
         complete {
           for {
-            response <- (supervisor ? Delete(id)).mapTo[Try[_]]
+            response <- (supervisor ? DeleteExecution(id, user))
+              .mapTo[Either[Try[_],UnauthorizedResponse]]
           } yield response match {
-            case Failure(exception) => throw exception
-            case Success(_) => StatusCodes.OK
+            case Left(Failure(exception))=> throw exception
+            case Left(Success(_)) => StatusCodes.OK
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in executions")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Updates a execution.",
-    notes = "Updates a execution.",
+  @ApiOperation(value = "Updates an execution.",
+    notes = "Updates an execution.",
     httpMethod = "PUT",
     response = classOf[SubmitRequest]
   )
@@ -158,15 +171,18 @@ trait ExecutionHttpService extends BaseHttpService {
         entity(as[SubmitRequest]) { request =>
           complete {
             for {
-              response <- (supervisor ? Update(request)).mapTo[Try[SubmitRequest]]
+              response <- (supervisor ? Update(request, user))
+                .mapTo[Either[Try[SubmitRequest],UnauthorizedResponse]]
             } yield response match {
-              case Success(status) => HttpResponse(StatusCodes.Created)
-              case Failure(ex) =>
-                val message = "Can't update execution"
+              case Left(Success(status)) => HttpResponse(StatusCodes.Created)
+              case Left(Failure(ex)) =>
+                val message = "Unable to update execution"
                 log.error(message, ex)
                 throw new ServingCoreException(ErrorModel.toString(
                   ErrorModel(ErrorModel.CodeErrorUpdatingExecution, message)
                 ))
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in executions")
             }
           }
         }
@@ -193,16 +209,19 @@ trait ExecutionHttpService extends BaseHttpService {
         entity(as[SubmitRequest]) { request =>
           complete {
             for {
-              response <- (supervisor ? Create(request)).mapTo[Try[SubmitRequest]]
+              response <- (supervisor ? CreateExecution(request, user))
+                .mapTo[Either[Try[SubmitRequest],UnauthorizedResponse]]
             } yield {
               response match {
-                case Success(requestCreated) => requestCreated
-                case Failure(ex: Throwable) =>
-                  val message = "Can't create execution"
+                case Left(Success(requestCreated)) => requestCreated
+                case Left(Failure(ex: Throwable)) =>
+                  val message = "Unable to create execution"
                   log.error(message, ex)
                   throw new ServingCoreException(ErrorModel.toString(
                     ErrorModel(ErrorModel.CodeErrorCreatingPolicy, message)
                   ))
+                case Right(UnauthorizedResponse(exception)) => throw exception
+                case _ => throw new RuntimeException("Unexpected behaviour in executions")
               }
             }
           }
