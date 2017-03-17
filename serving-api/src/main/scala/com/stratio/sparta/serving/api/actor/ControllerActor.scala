@@ -48,6 +48,18 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   val oauthConfig: Option[Config] = SpartaConfig.initConfig("oauth2")
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse("user")
+  val stringJson =
+    """
+        {"id":"sparta",
+        "attributes":[
+          {"cn":"sparta"},
+          {"mail":"sparta@demo.stratio.com"},
+          {"gidNumber":"66"},
+          {"groups":[]},
+          {"roles":["admin"]}
+        ]}"""
+
+  val dummyUserSparta: Option[LoggedUser] = stringJson
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
@@ -82,7 +94,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
           case None => complete(Unauthorized)
         }
       }
-    } else allServiceRoutes(None)
+    } else allServiceRoutes(dummyUserSparta)
   }
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {

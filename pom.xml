@@ -84,7 +84,7 @@
         <akka.version>2.4.8</akka.version>
         <json4s.version>3.2.11</json4s.version>
         <jackson.version>2.6.5</jackson.version>
-        <swagger.version>0.5.0</swagger.version>
+        <swagger.version>0.5.1</swagger.version>
         <mockito.version>1.10.19</mockito.version>
         <exec.maven.plugin.version>1.4.0</exec.maven.plugin.version>
         <reflections.version>0.9.10</reflections.version>
@@ -101,6 +101,7 @@
         <spark.version>2.1.0</spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <netty.version>3.8.0.Final</netty.version>
+        <gosec.version>0.8.0</gosec.version>
     </properties>
 
     <dependencyManagement>

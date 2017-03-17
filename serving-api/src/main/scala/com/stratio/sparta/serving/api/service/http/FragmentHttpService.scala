@@ -20,7 +20,7 @@ import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{DeletePolicy, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
@@ -70,7 +70,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragment <- (supervisor ? new FindByTypeAndId(fragmentType, id)).mapTo[ResponseFragment]
+            responseFragment <- (supervisor ? FindByTypeAndId(fragmentType, id, user)).mapTo[ResponseFragment]
           } yield responseFragment match {
             case ResponseFragment(Failure(exception)) => throw exception
             case ResponseFragment(Success(fragment)) => fragment
@@ -106,7 +106,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragment <- (supervisor ? new FindByTypeAndName(fragmentType, name)).mapTo[ResponseFragment]
+            responseFragment <- (supervisor ? FindByTypeAndName(fragmentType, name, user)).mapTo[ResponseFragment]
           } yield responseFragment match {
             case ResponseFragment(Failure(exception)) => throw exception
             case ResponseFragment(Success(fragment)) => fragment
@@ -138,7 +138,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragments <- (supervisor ? new FindByType(fragmentType)).mapTo[ResponseFragments]
+            responseFragments <- (supervisor ? FindByType(fragmentType, user)).mapTo[ResponseFragments]
           } yield responseFragments match {
             case ResponseFragments(Failure(exception)) => throw exception
             case ResponseFragments(Success(fragments)) => fragments
@@ -162,7 +162,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragments <- (supervisor ? new FindAllFragments()).mapTo[ResponseFragments]
+            responseFragments <- (supervisor ? FindAllFragments(user)).mapTo[ResponseFragments]
           } yield responseFragments match {
             case ResponseFragments(Failure(exception)) => throw exception
             case ResponseFragments(Success(fragments)) => fragments
@@ -188,7 +188,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
             for {
-              responseFragment <- (supervisor ? new Create(fragment)).mapTo[ResponseFragment]
+              responseFragment <- (supervisor ? CreateFragment(fragment, user)).mapTo[ResponseFragment]
             } yield responseFragment match {
               case ResponseFragment(Failure(exception)) => throw exception
               case ResponseFragment(Success(fragment: FragmentElementModel)) => fragment
@@ -216,8 +216,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
             val policyActor = actors.get(AkkaConstant.PolicyActorName).get
             val fragmentStatusActor = actors.get(AkkaConstant.FragmentActorName).get
             for {
-              allPolicies <- policyActor ? PolicyActor.FindAll()
-              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
+              allPolicies <- policyActor ? PolicyActor.FindAll(user)
+              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment, user)
             } yield (updateResponse, allPolicies) match {
               case (FragmentActor.Response(Success(_)), PolicyActor.ResponsePolicies(Success(policies))) =>
                 val policiesInFragments = policies.flatMap(policy => {
@@ -227,7 +227,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
                     Some(policy)
                   else None
                 })
-                updatePoliciesWithUpdatedFragments(policiesInFragments)
+                updatePoliciesWithUpdatedFragments(policiesInFragments, user)
                 HttpResponse(StatusCodes.OK)
               case (Response(Failure(exception)), _) =>
                 throw exception
@@ -262,13 +262,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByTypeAndId(fragmentType, id)
+          supervisor ! DeleteByTypeAndId(fragmentType, id, user)
           for {
-            responsePolicies <- (policyActor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
+            responsePolicies <- (policyActor ? FindByFragment(fragmentType, id, user)).mapTo[ResponsePolicies]
           } responsePolicies match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
-              policies.foreach(policy => policyActor ! Delete(policy.id.get))
+              policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
           }
           HttpResponse(StatusCodes.OK)
         }
@@ -300,14 +300,14 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByTypeAndName(fragmentType, name)
+          supervisor ! DeleteByTypeAndName(fragmentType, name, user)
           for {
-            responsePolicies <- (policyActor ? FindByFragmentName(fragmentType, name)).mapTo[ResponsePolicies]
+            responsePolicies <- (policyActor ? FindByFragmentName(fragmentType, name, user)).mapTo[ResponsePolicies]
           } yield responsePolicies match {
 
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) =>
-              policies.foreach(policy => policyActor ! Delete(policy.id.get))
+              policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
           }
           HttpResponse(StatusCodes.OK)
         }
@@ -333,13 +333,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByType(fragmentType)
+          supervisor ! DeleteByType(fragmentType, user)
           for {
-            responsePolicies <- (policyActor ? FindByFragmentType(fragmentType)).mapTo[ResponsePolicies]
+            responsePolicies <- (policyActor ? FindByFragmentType(fragmentType, user)).mapTo[ResponsePolicies]
           } yield responsePolicies match {
                 case ResponsePolicies(Failure(exception)) => throw exception
                 case ResponsePolicies(Success(policies)) =>
-                  policies.foreach(policy => policyActor ! Delete(policy.id.get))
+                  policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
               }
               HttpResponse(StatusCodes.OK)
           }
@@ -358,7 +358,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            fragmentsResponse <- (supervisor ? new DeleteAllFragments()).mapTo[ResponseFragments]
+            fragmentsResponse <- (supervisor ? DeleteAllFragments(user)).mapTo[ResponseFragments]
           } yield fragmentsResponse match {
             case ResponseFragments(Failure(exception)) =>
               throw exception
@@ -368,12 +368,12 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
 
               fragmentsTypes.foreach(fragmentType =>
                 for {
-                  responsePolicies <- (policyActor ? FindByFragmentType(fragmentType)).mapTo[ResponsePolicies]
+                  responsePolicies <- (policyActor ? FindByFragmentType(fragmentType, user)).mapTo[ResponsePolicies]
                 } yield responsePolicies match {
                   case ResponsePolicies(Failure(exception)) =>
                     throw exception
                   case ResponsePolicies(Success(policies)) =>
-                    policies.foreach(policy => policyActor ! Delete(policy.id.get))
+                    policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
                 })
               HttpResponse(StatusCodes.OK)
           }
@@ -382,10 +382,10 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     }
   }
 
-  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel]): Unit =
+  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel], user: Option[LoggedUser]): Unit =
     policies.foreach(policy => {
       val policyActor = actors.get(AkkaConstant.PolicyActorName).get
 
-      policyActor ! PolicyActor.Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]))
+      policyActor ! PolicyActor.Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]), user)
     })
 }

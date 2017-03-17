@@ -59,7 +59,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadDrivers(form.fields)).mapTo[JarFilesResponse]
+              response <- (supervisor ? UploadDrivers(form.fields, user)).mapTo[JarFilesResponse]
             } yield response match {
               case JarFilesResponse(Success(newFilesUris)) => newFilesUris
               case JarFilesResponse(Failure(exception)) => throw exception
@@ -102,7 +102,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListDrivers).mapTo[JarFilesResponse]
+            response <- (supervisor ? ListDrivers(user)).mapTo[JarFilesResponse]
           } yield response match {
             case JarFilesResponse(Success(filesUris)) => filesUris
             case JarFilesResponse(Failure(exception)) => throw exception
@@ -124,7 +124,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteDrivers).mapTo[DriverResponse]
+            response <- (supervisor ? DeleteDrivers(user)).mapTo[DriverResponse]
           } yield response match {
             case DriverResponse(Success(_)) => StatusCodes.OK
             case DriverResponse(Failure(exception)) => throw exception
@@ -153,7 +153,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteDriver(file)).mapTo[DriverResponse]
+            response <- (supervisor ? DeleteDriver(file, user)).mapTo[DriverResponse]
           } yield response match {
             case DriverResponse(Success(_)) => StatusCodes.OK
             case DriverResponse(Failure(exception)) => throw exception

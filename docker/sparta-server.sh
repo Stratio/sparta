@@ -43,6 +43,9 @@
  # MARATHON OPTIONS
  marathonOptions
 
+ # GOSEC OPTIONS
+ goSecOptions
+
  if [[ ! -v RUN_MODE ]]; then
    RUN_MODE="production"
  fi

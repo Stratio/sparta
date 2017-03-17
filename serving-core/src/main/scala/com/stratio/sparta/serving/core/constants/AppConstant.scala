@@ -47,6 +47,7 @@ object AppConstant {
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+  val ConfigSecurity = "security"
 
   //killing options
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
