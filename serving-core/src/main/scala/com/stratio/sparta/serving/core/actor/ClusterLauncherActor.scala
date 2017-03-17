@@ -16,27 +16,26 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.{Actor, ActorRef}
-import com.stratio.sparta.serving.core.actor.ExecutionActor.Create
-import com.stratio.sparta.serving.core.actor.LauncherActor.{StartWithRequest, Start}
-import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseStatus, Update}
+import akka.actor.Actor
+import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.utils.{ClusterCheckerUtils, ClusterListenerUtils, LauncherUtils, SchedulerUtils, SparkSubmitUtils}
+import com.stratio.sparta.serving.core.utils.{ClusterCheckerUtils, ClusterListenerUtils, ExecutionUtils, LauncherUtils, PolicyStatusUtils, SchedulerUtils, SparkSubmitUtils}
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.launcher.SparkLauncher
 
 import scala.util.{Failure, Success, Try}
 
-class ClusterLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) extends Actor
-  with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils with ClusterCheckerUtils with LauncherUtils {
+class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
+  with SchedulerUtils with SparkSubmitUtils with PolicyStatusUtils
+  with ClusterListenerUtils with ClusterCheckerUtils with LauncherUtils with ExecutionUtils {
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => initializeSubmitRequest(policy)
     case StartWithRequest(policy: PolicyModel, submitRequest: SubmitRequest) => launch(policy, submitRequest)
-    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
@@ -58,22 +57,26 @@ class ClusterLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) 
       val submitRequest = SubmitRequest(policy.id.get, SpartaDriverClass, driverFile, master, sparkSubmitArguments,
         sparkConfigurations, driverArguments, detailExecMode, killUrl(clusterConfig), Option(sparkHome))
 
-      executionActor ! Create(submitRequest)
-      submitRequest
+      createRequest(submitRequest)
     } match {
       case Failure(exception) =>
         val information = s"Error when initializing the Sparta submit options"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
+          lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))))
+      case Success(Failure(exception)) =>
+        val information = s"Error when creating submit request in the persistence "
+        log.error(information, exception)
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
-      case Success(submitRequest) =>
+      case Success(Success(submitRequestCreated)) =>
         val information = "Sparta submit options initialized correctly"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = NotStarted,
-          statusInfo = Option(information), lastExecutionMode = Option(submitRequest.executionMode)))
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = NotStarted,
+          statusInfo = Option(information), lastExecutionMode = Option(submitRequestCreated.executionMode)))
 
-        launch(policy, submitRequest)
+        launch(policy, submitRequestCreated)
     }
   }
 
@@ -100,24 +103,23 @@ class ClusterLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) 
       submitRequest.sparkConfigurations.filter(_._2.nonEmpty)
         .foreach { case (key: String, value: String) => sparkLauncher.setConf(key.trim, value.trim) }
       // Driver (Sparta) params
-      submitRequest.driverArguments.toSeq.sortWith{case (a, b) => a._1 < b._1}
-        .foreach{ case (_, argValue) => sparkLauncher.addAppArgs(argValue)}
+      submitRequest.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
+        .foreach { case (_, argValue) => sparkLauncher.addAppArgs(argValue) }
       // Launch SparkApp
       sparkLauncher.startApplication(addSparkListener(policy))
     } match {
       case Failure(exception) =>
         val information = s"Error when launching the Sparta cluster job"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
       case Success(sparkHandler) =>
         val information = "Sparta cluster job launched correctly"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Launched,
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = Launched,
           submissionId = Option(sparkHandler.getAppId), submissionStatus = Option(sparkHandler.getState.name()),
-          statusInfo = Option(information)
-        ))
+          statusInfo = Option(information)))
         if (submitRequest.executionMode.contains(ClusterValue))
           addClusterContextListener(policy.id.get, policy.name, submitRequest.killUrl)
         else addClientContextListener(policy.id.get, policy.name, sparkHandler)

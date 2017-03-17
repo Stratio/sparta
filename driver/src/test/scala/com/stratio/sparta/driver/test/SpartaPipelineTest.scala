@@ -24,6 +24,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import com.typesafe.config.ConfigFactory
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -52,6 +53,7 @@ class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val myInputClass = mock[Input]
+    val curator = mock[CuratorFramework]
     val actor = TestProbe()
     when(model.storageLevel).thenReturn(Some("StorageLevel"))
     when(model.input).thenReturn(myInput)
@@ -63,7 +65,7 @@ class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
 
     SpartaConfig.initMainConfig(Option(SpartaPipelineTest.config))
 
-    val result = new SpartaPipeline(model, actor.ref).inputStage(ssc, reflection)
+    val result = new SpartaPipeline(model, curator).inputStage(ssc, reflection)
     result should be(myInputClass)
 
     actor.expectNoMsg()

@@ -30,8 +30,6 @@ trait LauncherActorUtils extends PolicyStatusUtils {
 
   val contextLauncherActorPrefix = "contextLauncherActor"
 
-  val statusActor: ActorRef
-  val executionActor: ActorRef
   val streamingContextService: StreamingContextService
 
   def launch(policy: PolicyModel, context: ActorContext): PolicyModel = {
@@ -47,16 +45,17 @@ trait LauncherActorUtils extends PolicyStatusUtils {
           log.info(s"Launched -> $actorName")
           if (isExecutionType(policy, AppConstant.ConfigLocal)) {
             log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
-            context.actorOf(Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
+            context.actorOf(Props(
+              new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
 
           } else {
             if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
               log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")
-              context.actorOf(Props(new MarathonLauncherActor(statusActor, executionActor)), actorName)
+              context.actorOf(Props(new MarathonLauncherActor(streamingContextService.curatorFramework)), actorName)
             }
             else {
               log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
-              context.actorOf(Props(new ClusterLauncherActor(statusActor, executionActor)), actorName)
+              context.actorOf(Props(new ClusterLauncherActor(streamingContextService.curatorFramework)), actorName)
             }
           }
       }

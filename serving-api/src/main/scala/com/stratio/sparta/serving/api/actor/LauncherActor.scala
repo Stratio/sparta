@@ -23,17 +23,15 @@ import com.stratio.sparta.serving.api.utils.LauncherActorUtils
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.utils.PolicyUtils
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class LauncherActor(val streamingContextService: StreamingContextService,
-                    policyActor: ActorRef,
-                    val statusActor: ActorRef,
-                    val executionActor: ActorRef,
-                    val curatorFramework: CuratorFramework) extends Actor with LauncherActorUtils {
+class LauncherActor(val streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
+  extends Actor with LauncherActorUtils with PolicyUtils {
 
-  override val supervisorStrategy =
+  override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy() {
       case _: ServingCoreException => Escalate
       case t =>
@@ -47,7 +45,7 @@ class LauncherActor(val streamingContextService: StreamingContextService,
 
   def create(policy: PolicyModel): Try[PolicyModel] =
     Try {
-      if (policy.id.isEmpty) policyActor ! PolicyActor.Create(policy)
+      if (policy.id.isEmpty) createPolicy(policy)
       launch(policy, context)
     }
 }

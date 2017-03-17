@@ -15,11 +15,11 @@
  */
 package com.stratio.sparta.driver.stage
 
-import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.StatusActor.{ClearLastError, Update}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
+import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
@@ -28,16 +28,17 @@ trait ErrorPersistor {
   def persistError(error: PolicyErrorModel): Unit
 }
 
-trait ZooKeeperError extends ErrorPersistor with SLF4JLogging {
-  def statusActor: ActorRef
+trait ZooKeeperError extends ErrorPersistor with PolicyStatusUtils {
+
+  val curatorFramework: CuratorFramework
 
   def policy: PolicyModel
 
   def persistError(error: PolicyErrorModel): Unit =
-    statusActor ! Update(PolicyStatusModel(policy.id.get, NotDefined, None, None, lastError = Some(error)))
+    updateStatus(PolicyStatusModel(policy.id.get, NotDefined, None, None, lastError = Some(error)))
 
   def clearError(): Unit =
-    statusActor ! ClearLastError(policy.id.get)
+    clearLastError(policy.id.get)
 }
 
 trait LogError extends ErrorPersistor with SLF4JLogging {

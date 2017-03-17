@@ -187,7 +187,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       post {
         entity(as[PolicyModel]) { policy =>
           complete {
-            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActorName, throw new ServingCoreException
             (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
               parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(policy)).mapTo[ResponsePolicy]
@@ -248,7 +248,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       delete {
         complete {
-          val statusActor = actors(AkkaConstant.statusActor)
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
           } yield policies match {
@@ -355,7 +355,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           for (result <- supervisor ? Find(id)) yield result match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
-              val launcherActor = actors(AkkaConstant.LauncherActor)
+              val launcherActor = actors(AkkaConstant.LauncherActorName)
               for {
                 response <- (launcherActor ? Launch(policy)).mapTo[Try[PolicyModel]]
               } yield response match {

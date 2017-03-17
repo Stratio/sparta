@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.marathon
 
-import akka.actor.{ActorContext, ActorRef}
+import akka.actor.{ActorContext, ActorRef, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
@@ -27,10 +27,13 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message.{UpAndDownMessage, UpServiceFails, UpServiceRequest, UpServiceResponse}
 import com.stratio.tikitakka.common.model.{ContainerInfo, CreateApp, Volume}
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
+import com.typesafe.config.Config
+import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import play.api.libs.json._
 
@@ -40,8 +43,10 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
 
-class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRequest: SubmitRequest)
-  extends OauthTokenUtils {
+class MarathonApp(context: ActorContext,
+                  policyModel: PolicyModel,
+                  sparkSubmitRequest: SubmitRequest,
+                  val curatorFramework: CuratorFramework) extends OauthTokenUtils with PolicyStatusUtils {
 
   /* Implicit variables */
 
@@ -91,10 +96,12 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
 
   /* Lazy variables */
 
-  lazy val marathonConfig = SpartaConfig.getClusterConfig(Option(ConfigMarathon)).get
+  lazy val marathonConfig: Config = SpartaConfig.getClusterConfig(Option(ConfigMarathon)).get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
-  lazy val upAndDownActor = actorSystem.actorOf(UpAndDownActor.props(upAndDownComponent))
-  lazy val substitutionProperties = Map(
+  lazy val upAndDownActor: ActorRef = actorSystem.actorOf(
+    Props(new UpAndDownActor(upAndDownComponent)), AkkaConstant.UpDownMarathonActor)
+  lazy val substitutionProperties: Map[String, String] = Map(
+    AppMainEnv -> Option(AppMainClass),
     AppTypeEnv -> Option(MarathonApp),
     MesosNativeJavaLibraryEnv -> Option(MesosNativeLib),
     AppJarEnv -> marathonJar,
@@ -121,29 +128,27 @@ class MarathonApp(context: ActorContext, policyModel: PolicyModel, sparkSubmitRe
 
   /* PUBLIC METHODS */
 
-  def launch(statusActor: ActorRef, detailExecMode: String): Unit =
+  def launch(detailExecMode: String): Unit =
     for {
-     // response <- (upAndDownActor ? UpServiceRequest(addRequirements(getMarathonAppFromFile), Option(getToken)))
       response <- (upAndDownActor ? UpServiceRequest(addRequirements(getMarathonAppFromFile), Try(getToken).toOption))
         .mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
         val information = s"Error when launching Sparta Marathon App to Marathon API with id: ${response.appInfo.id}"
         log.error(information)
-        statusActor ! Update(PolicyStatusModel(
+        updateStatus(PolicyStatusModel(
           id = policyModel.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, response.msg))))
         log.error(s"Service ${response.appInfo.id} can't be deployed: ${response.msg}")
       case response: UpServiceResponse =>
         val information = s"Sparta Marathon App launched correctly to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(id = policyModel.id.get, status = NotStarted,
+        updateStatus(PolicyStatusModel(id = policyModel.id.get, status = NotStarted,
           statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
       case _ =>
         val information = "Unrecognized message received from Marathon API"
         log.warn(information)
-        statusActor ! Update(PolicyStatusModel(id = policyModel.id.get,
-          status = NotDefined, statusInfo = Option(information)))
+        updateStatus(PolicyStatusModel(id = policyModel.id.get, status = NotDefined, statusInfo = Option(information)))
     }
 
   /* PRIVATE METHODS */

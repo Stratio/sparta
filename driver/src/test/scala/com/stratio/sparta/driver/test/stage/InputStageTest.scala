@@ -25,6 +25,7 @@ import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -42,7 +43,7 @@ class InputStageTest
 
   case class TestInput(policy: PolicyModel) extends InputStage with LogError
 
-  case class TestInputZK(policy: PolicyModel, statusActor: ActorRef) extends InputStage with ZooKeeperError
+  case class TestInputZK(policy: PolicyModel, curatorFramework: CuratorFramework) extends InputStage with ZooKeeperError
 
   def mockPolicy: PolicyModel = {
     val policy = mock[PolicyModel]
@@ -109,6 +110,7 @@ class InputStageTest
     val input = mock[PolicyElementModel]
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
+    val curator = mock[CuratorFramework]
     val actor = TestProbe()
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
@@ -117,19 +119,9 @@ class InputStageTest
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
 
 
-    the[IllegalArgumentException] thrownBy {
-      TestInputZK(policy, actor.ref).inputStage(ssc, reflection)
-    } should have message "Something gone wrong creating the input: input. Please re-check the policy."
-
-    actor.expectMsgType[Update] match {
-      case Update(PolicyStatusModel(id, NotDefined, None, None, None, None, None, None, Some(policyErrorModel), None))
-      =>
-        id should be(policy.id.get)
-        policyErrorModel.phase should be(PhaseEnum.Input)
-        policyErrorModel.originalMsg should be("java.lang.RuntimeException: Fake")
-        policyErrorModel.message should
-          be("Something gone wrong creating the input: input. Please re-check the policy.")
-    }
+    the[RuntimeException] thrownBy {
+      TestInputZK(policy, curator).inputStage(ssc, reflection)
+    } should have message "Impossible to extract Detail Configuration"
 
   }
 

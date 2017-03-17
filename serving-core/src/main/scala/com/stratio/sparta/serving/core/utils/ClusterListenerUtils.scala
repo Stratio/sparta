@@ -16,12 +16,8 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import akka.actor.ActorRef
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.StatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
@@ -35,9 +31,7 @@ import org.json4s.jackson.Serialization._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
-
-  val statusActor: ActorRef
+trait ClusterListenerUtils extends PolicyStatusUtils {
 
   /** Spark Launcher functions **/
 
@@ -45,7 +39,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
     new SparkAppHandle.Listener() {
       override def stateChanged(handle: SparkAppHandle): Unit = {
         log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        statusActor ! Update(PolicyStatusModel(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
+        updateStatus(PolicyStatusModel(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
       }
 
       override def infoChanged(handle: SparkAppHandle): Unit = {
@@ -80,7 +74,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
   //scalastyle:off
   def addClusterContextListener(policyId: String, policyName: String, killUrl: String): Unit = {
     log.info(s"Listener added to $policyName with id: $policyId")
-    statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
           log.info("Stopping message received from Zookeeper")
@@ -98,13 +92,12 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                     val information = s"Stopped correctly Sparta cluster job with Spark API"
                     val newStatus = if (policyStatus.status == Failed) NotDefined else Stopped
                     log.info(information)
-                    statusActor ! Update(PolicyStatusModel(
-                      id = policyId, status = newStatus, statusInfo = Some(information)))
+                    updateStatus(PolicyStatusModel(id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response : $submissionResponse")
                     val information = s"Error while stopping task"
                     log.info(information)
-                    statusActor ! Update(PolicyStatusModel(
+                    updateStatus(PolicyStatusModel(
                       id = policyId,
                       status = Failed,
                       statusInfo = Some(information),
@@ -113,7 +106,7 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
                     log.error(error, e)
-                    statusActor ! Update(PolicyStatusModel(
+                    updateStatus(PolicyStatusModel(
                       id = policyId,
                       status = Failed,
                       statusInfo = Some(error),
@@ -138,26 +131,26 @@ trait ClusterListenerUtils extends SLF4JLogging with SpartaSerializer {
 
   def addClientContextListener(policyId: String, policyName: String, handler: SparkAppHandle): Unit = {
     log.info(s"Listener added to $policyName with id: $policyId")
-    statusActor ! AddListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
           log.info("Stopping message received from Zookeeper")
           try {
             policyStatus.submissionId match {
-              case Some(submissionId) =>
+              case Some(_) =>
                 try {
                   log.info("Stopping submission policy with handler")
                   handler.stop()
                 } finally {
                   val information = s"Stopped correctly Sparta cluster job with Spark Handler"
                   log.info(information)
-                  statusActor ! Update(PolicyStatusModel(
+                  updateStatus(PolicyStatusModel(
                     id = policyId, status = Stopped, statusInfo = Some(information)))
                 }
               case None =>
                 val information = s"The Sparta System don't have submission id associated to policy $policyName"
                 log.info(information)
-                statusActor ! Update(PolicyStatusModel(
+                updateStatus(PolicyStatusModel(
                   id = policyId, status = Failed, statusInfo = Some(information)))
             }
           } finally {

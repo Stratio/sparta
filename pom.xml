@@ -331,7 +331,8 @@
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-http-experimental_${scala.binary.version}</artifactId>
                 <version>${akka.version}</version>
-            </dependency><dependency>
+            </dependency>
+            <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-http-core_${scala.binary.version}</artifactId>
                 <version>${akka.version}</version>

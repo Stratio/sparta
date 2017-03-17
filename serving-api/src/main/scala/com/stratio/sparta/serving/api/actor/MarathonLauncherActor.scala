@@ -16,22 +16,23 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, ActorRef}
+import akka.actor.Actor
 import com.stratio.sparta.serving.api.marathon.MarathonApp
-import com.stratio.sparta.serving.core.actor.ExecutionActor.Create
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
-import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseStatus, Update}
+import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.utils.{ArgumentsUtils, ClusterCheckerUtils, ClusterListenerUtils, LauncherUtils, SchedulerUtils, SparkSubmitUtils}
+import com.stratio.sparta.serving.core.utils._
+import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonLauncherActor(val statusActor: ActorRef, executionActor: ActorRef) extends Actor with LauncherUtils
-  with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils with ArgumentsUtils with ClusterCheckerUtils {
+class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
+  with LauncherUtils with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils with ArgumentsUtils
+  with ClusterCheckerUtils with PolicyStatusUtils with ExecutionUtils {
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => initializeSubmitRequest(policy)
@@ -55,23 +56,23 @@ class MarathonLauncherActor(val statusActor: ActorRef, executionActor: ActorRef)
         sparkConfigurations, driverArguments, ConfigMesos, killUrl(clusterConfig))
       val detailExecMode = getDetailExecutionMode(policy, clusterConfig)
 
-      executionActor ! Create(submitRequest)
+      createRequest(submitRequest).getOrElse(throw new Exception("Impossible to create submit request in persistence"))
 
-      (new MarathonApp(context, policy, submitRequest), detailExecMode)
+      (new MarathonApp(context, policy, submitRequest, curatorFramework), detailExecMode)
     } match {
       case Failure(exception) =>
         val information = s"Error when initializing Sparta Marathon App options"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
       case Success((marathonApp, detailExecMode)) =>
         val information = "Sparta Marathon App configurations initialized correctly"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(id = policy.id.get, status = NotStarted,
+        updateStatus(PolicyStatusModel(id = policy.id.get, status = NotStarted,
           statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
 
-        marathonApp.launch(statusActor, detailExecMode)
+        marathonApp.launch(detailExecMode)
         scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
     }
   }

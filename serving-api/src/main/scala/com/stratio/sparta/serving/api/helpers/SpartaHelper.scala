@@ -52,32 +52,30 @@ object SpartaHelper extends SLF4JLogging {
       val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
       val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
       else AkkaConstant.DefaultControllerActorInstances
-      val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
-        AkkaConstant.statusActor)
-      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)),
-        AkkaConstant.PolicyActor)
-      val executionActor = system.actorOf(Props(new ExecutionActor(curatorFramework)), AkkaConstant.ExecutionActor)
-      val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
+      val statusActor = system.actorOf(Props(
+        new StatusActor(curatorFramework)), AkkaConstant.StatusActorName)
+      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActorName)
+      val policyActor = system.actorOf(Props(
+        new PolicyActor(curatorFramework, statusActor)), AkkaConstant.PolicyActorName)
+      val executionActor = system.actorOf(Props(new ExecutionActor(curatorFramework)), AkkaConstant.ExecutionActorName)
+      val streamingContextService = StreamingContextService(curatorFramework, SpartaConfig.mainConfig)
       val streamingContextActor = system.actorOf(Props(
-        new LauncherActor(streamingContextService, policyActor, statusActor, executionActor, curatorFramework)),
-        AkkaConstant.LauncherActor
-      )
-      val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
-      val driverActor = system.actorOf(Props(new DriverActor()), AkkaConstant.DriverActor)
+        new LauncherActor(streamingContextService, curatorFramework)), AkkaConstant.LauncherActorName)
+      val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActorName)
+      val driverActor = system.actorOf(Props(new DriverActor()), AkkaConstant.DriverActorName)
 
       implicit val actors = Map(
-        AkkaConstant.statusActor -> statusActor,
-        AkkaConstant.FragmentActor -> fragmentActor,
-        AkkaConstant.PolicyActor -> policyActor,
-        AkkaConstant.LauncherActor -> streamingContextActor,
-        AkkaConstant.PluginActor -> pluginActor,
-        AkkaConstant.DriverActor -> driverActor,
-        AkkaConstant.ExecutionActor -> executionActor
+        AkkaConstant.StatusActorName -> statusActor,
+        AkkaConstant.FragmentActorName -> fragmentActor,
+        AkkaConstant.PolicyActorName -> policyActor,
+        AkkaConstant.LauncherActorName -> streamingContextActor,
+        AkkaConstant.PluginActorName -> pluginActor,
+        AkkaConstant.DriverActorName -> driverActor,
+        AkkaConstant.ExecutionActorName -> executionActor
       )
 
-      val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
-        .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
+      val controllerActor = system.actorOf(RoundRobinPool(controllerInstances).props(Props(
+        new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActorName)
 
       if (isHttpsEnabled) loadSpartaWithHttps(controllerActor)
       else loadSpartaWithHttp(controllerActor)

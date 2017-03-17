@@ -25,11 +25,13 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, ResponsePolicy}
+import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /**
   * Implementation of supported CRUD operations over ZK needed to manage policies.
@@ -61,60 +63,37 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
 
   def findAll(): Unit =
     sender ! ResponsePolicies(Try {
-      getPolicies(withFragments = true)
+      findAllPolicies(withFragments = true)
     }.recover {
       case e: NoNodeException => Seq.empty[PolicyModel]
     })
 
   def deleteAll(): Unit =
-    sender ! ResponsePolicies(Try {
-      val policiesModels = getPolicies(withFragments = false)
-      policiesModels.foreach(policyModel => {
-        if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
-        deletePolicy(policyModel)
-      })
-      policiesModels
-    }.recover {
+    sender ! ResponsePolicies(Try(deleteAllPolicies()).recover {
       case e: NoNodeException => throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingPolicy, s"Error deleting policies"))
-      )
+        ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingPolicy, s"Error deleting policies")))
     })
 
   def findByFragmentType(fragmentType: String): Unit =
     sender ! ResponsePolicies(
-      Try {
-        getPolicies(withFragments = true)
-          .filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
-      }.recover {
+      Try(findPoliciesByFragmentType(fragmentType)).recover {
         case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def findByFragmentId(fragmentType: String, id: String): Unit =
     sender ! ResponsePolicies(
-      Try {
-        getPolicies(withFragments = true)
-          .filter(apm => apm.fragments.exists(f =>
-            if (f.id.isDefined)
-              f.id.get == id && f.fragmentType == fragmentType
-            else false
-          ))
-      }.recover {
+      Try(findPoliciesByFragmentId(fragmentType, id)).recover {
         case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def findByFragmentName(fragmentType: String, name: String): Unit =
     sender ! ResponsePolicies(
-      Try {
-        getPolicies(withFragments = true)
-          .filter(apm => apm.fragments.exists(f => f.name == name && f.fragmentType == fragmentType))
-      }.recover {
+      Try(findPoliciesByFragmentName(fragmentType, name)).recover {
         case e: NoNodeException => Seq.empty[PolicyModel]
       })
 
   def find(id: String): Unit =
-    sender ! ResponsePolicy(Try {
-      policyWithFragments(getPolicyById(id), withFragmentCreation = false)
-    }.recover {
+    sender ! ResponsePolicy(Try(findPolicy(id)).recover {
       case e: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
@@ -122,64 +101,23 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
     })
 
   def findByName(name: String): Unit =
-    sender ! ResponsePolicy(Try {
-      existsPolicyByNameId(name, None).map(policy =>
-        policyWithFragments(policy, withFragmentCreation = false))
-        .getOrElse(throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
-    })
+    sender ! ResponsePolicy(Try(findPolicyByName(name)))
 
   def create(policy: PolicyModel): Unit =
-    sender ! ResponsePolicy(Try {
-      val searchPolicy = existsPolicyByNameId(policy.name, policy.id)
-      if (searchPolicy.isDefined) {
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
-            s"Policy with name ${policy.name} exists. The actual policy name is: ${searchPolicy.get.name}")
-        ))
-      }
-      val policySaved = writePolicy(policyWithId(policy))
-      statusActor ! StatusActor.Create(PolicyStatusModel(
-        id = policySaved.id.get,
-        status = PolicyStatusEnum.NotStarted,
-        name = Option(policy.name),
-        description = Option(policy.description)
-      ))
-      policySaved
-    })
+    sender ! ResponsePolicy(Try(createPolicy(policy)))
 
   def update(policy: PolicyModel): Unit = {
-    val response = ResponsePolicy(Try {
-      val searchPolicy = existsPolicyByNameId(policy.name, policy.id)
-      if (searchPolicy.isEmpty) {
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
-            s"Policy with name ${policy.name} not exists.")
-        ))
-      } else {
-        val policySaved = updatePolicy(policyWithId(policy))
-        statusActor ! StatusActor.Update(PolicyStatusModel(
-          id = policySaved.id.get,
-          status = PolicyStatusEnum.NotDefined,
-          name = Option(policy.name),
-          description = Option(policy.description)
-        ))
-        policySaved
-      }
-    }.recover {
+    sender ! ResponsePolicy(Try(updatePolicy(policy)).recover {
       case e: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with name ${policy.name}.")
         ))
     })
-    sender ! response
   }
 
   def delete(id: String): Unit =
     sender ! Response(Try {
-      val policyModel = getPolicyById(id)
-      if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
-      deletePolicy(policyModel)
+
     }.recover {
       case e: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
@@ -190,6 +128,24 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
 
   def deleteCheckpoint(policy: PolicyModel): Unit =
     sender ! Response(Try(deleteCheckpointPath(policy)))
+
+
+  def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
+    response match {
+      case Success(fragment) =>
+        log.info(s"Fragment created correctly: \n\tId: ${fragment.id}\n\tName: ${fragment.name}")
+      case Failure(e) =>
+        log.error(s"Fragment creation failure. Error: ${e.getLocalizedMessage}", e)
+    }
+
+  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
+    response match {
+      case Success(statusModel) =>
+        log.info(s"Policy status model created or updated correctly: " +
+          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
+      case Failure(e) =>
+        log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
+    }
 
 }
 

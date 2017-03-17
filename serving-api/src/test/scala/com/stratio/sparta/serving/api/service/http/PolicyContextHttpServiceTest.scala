@@ -43,9 +43,9 @@ class PolicyContextHttpServiceTest extends WordSpec
   val statusActorTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.LauncherActor -> sparkStreamingTestProbe.ref,
-    AkkaConstant.FragmentActor -> fragmentActorTestProbe.ref,
-    AkkaConstant.statusActor -> statusActorTestProbe.ref
+    AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
+    AkkaConstant.FragmentActorName -> fragmentActorTestProbe.ref,
+    AkkaConstant.StatusActorName -> statusActorTestProbe.ref
   )
 
   override val supervisor: ActorRef = testProbe.ref

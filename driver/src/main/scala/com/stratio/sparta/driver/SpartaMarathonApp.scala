@@ -50,7 +50,8 @@ object SpartaMarathonApp extends PluginsFilesUtils {
       initSpartaConfig(zookeeperConf, detailConf)
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val system = ActorSystem(policyId)
-      val marathonAppActor = system.actorOf(Props(new MarathonAppActor(curatorInstance)), AkkaConstant.marathonAppActor)
+      val marathonAppActor =
+        system.actorOf(Props(new MarathonAppActor(curatorInstance)), AkkaConstant.MarathonAppActorName)
 
       marathonAppActor ! StartApp(policyId)
     } match {

@@ -28,8 +28,6 @@ import scala.util.Try
 class StatusActor(val curatorFramework: CuratorFramework) extends Actor
   with PolicyStatusUtils with ClusterListenerUtils {
 
-  override val statusActor = self
-
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
     case Create(policyStatus) => sender ! ResponseStatus(createStatus(policyStatus))
