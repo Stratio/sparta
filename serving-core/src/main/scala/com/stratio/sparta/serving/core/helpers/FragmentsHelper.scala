@@ -16,66 +16,13 @@
 
 package com.stratio.sparta.serving.core.helpers
 
-import akka.actor.ActorRef
-import akka.pattern.ask
-import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, FindByTypeAndName, ResponseFragment}
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType.`type`
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
 
-/**
- * Helper with operations over policies and policy fragments.
- */
 object FragmentsHelper {
 
-  /**
-   * Extract the policy with the updated fragments and added as inputs and outputs
-   *
-   * @param policy        the input policy model
-   * @param fragmentActor actor necessary to find fragments from the repository
-   * @return the policy with the correct fragments
-   */
-  def getPolicyWithFragments(policy: PolicyModel, fragmentActor: ActorRef): PolicyModel = {
-    val policyWithFragments = parseFragments(fillFragments(policy, fragmentActor))
-    if (policyWithFragments.fragments.isEmpty) {
-      // This happens when the policy has been uploaded through policy POST endpoint
-      val input = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-      val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-      policyWithFragments.copy(fragments = input ++ outputs)
-    } else {
-      policyWithFragments
-    }
-  }
-
-  /**
-   * If the policy has fragments, it tries to parse them and depending of its type it composes input/outputs/etc.
-   *
-   * @param apConfig with the policy.
-   * @return a parsed policy with fragments included in input/outputs.
-   */
-  def parseFragments(apConfig: PolicyModel): PolicyModel = {
-
-    val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
-    val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
-
-    apConfig.copy(
-      input = Some(getCurrentInput(fragmentInputs, apConfig.input)),
-      outputs = getCurrentOutputs(fragmentOutputs, apConfig.outputs))
-  }
-
-  /**
-   * This method tries to parse an input/output from a policy to a FragmentModelElement
-   *
-   * @param policy       AggregationPolicy to parse from
-   * @param fragmentType type of fragment to parse to
-   * @return a valid fragment element (input/output)
-   */
   def populateFragmentFromPolicy(policy: PolicyModel, fragmentType: `type`): Seq[FragmentElementModel] =
     fragmentType match {
       case FragmentType.input =>
@@ -86,77 +33,4 @@ object FragmentsHelper {
       case FragmentType.output =>
         policy.outputs.map(output => output.parseToFragment(fragmentType))
     }
-
-  //////////////////////////////////////////// PRIVATE METHODS /////////////////////////////////////////////////////////
-
-  /**
-   * The policy only has fragments with its name and type. When this method is called it finds the full fragment in
-   * ZK and fills the rest of the fragment.
-   *
-   * @param apConfig with the policy.
-   * @return a fragment with all fields filled.
-   */
-  private def fillFragments(apConfig: PolicyModel, fragmentActor: ActorRef): PolicyModel = {
-    implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
-    val currentFragments: Seq[FragmentElementModel] = apConfig.fragments.map(fragment => {
-      val future = fragmentActor ? {
-        fragment.id match {
-          case Some(id) => new FindByTypeAndId(fragment.fragmentType, id)
-          case None => new FindByTypeAndName(fragment.fragmentType, fragment.name)
-        }
-      }
-      Await.result(future, timeout.duration) match {
-        case ResponseFragment(Failure(exception)) => throw exception
-        case ResponseFragment(Success(fragment)) => fragment
-      }
-    })
-    apConfig.copy(fragments = currentFragments)
-  }
-
-  private def getFragmentFromType(fragments: Seq[FragmentElementModel], fragmentType: `type`)
-  : Seq[FragmentElementModel] = {
-    fragments.flatMap(fragment =>
-      if (FragmentType.withName(fragment.fragmentType) == fragmentType) Some(fragment) else None)
-  }
-
-  /**
-   * Depending of where is the input it tries to get a input. If not an exceptions is thrown.
-   *
-   * @param fragmentsInputs with inputs extracted from the fragments.
-   * @param inputs          with the current configuration.
-   * @return A policyElementModel with the input.
-   */
-  private def getCurrentInput(fragmentsInputs: Seq[FragmentElementModel],
-                              inputs: Option[PolicyElementModel]): PolicyElementModel = {
-
-    if (fragmentsInputs.isEmpty && inputs.isEmpty) {
-      throw new IllegalStateException("It is mandatory to define one input in the policy.")
-    }
-
-    if ((fragmentsInputs.size > 1) ||
-      (fragmentsInputs.size == 1 && inputs.isDefined &&
-        ((fragmentsInputs.head.name != inputs.get.name) ||
-          (fragmentsInputs.head.element.configuration.getOrElse(
-            AppConstant.CustomTypeKey, fragmentsInputs.head.element.`type`) !=
-            inputs.get.configuration.getOrElse(AppConstant.CustomTypeKey, inputs.get.`type`))))) {
-      throw new IllegalStateException("Only one input is allowed in the policy.")
-    }
-
-    if (fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head.element.copy(name = fragmentsInputs.head.name)
-  }
-
-  private def getCurrentOutputs(fragmentsOutputs: Seq[FragmentElementModel],
-                                outputs: Seq[PolicyElementModel]): Seq[PolicyElementModel] = {
-
-    val outputsTypesNames = fragmentsOutputs.map(fragment =>
-      (fragment.element.configuration.getOrElse(AppConstant.CustomTypeKey, fragment.element.`type`), fragment.name))
-
-    val outputsNotIncluded = for {
-      output <- outputs
-      outputType = output.configuration.getOrElse(AppConstant.CustomTypeKey, output.`type`)
-      outputTypeName = (outputType, output.name)
-    } yield if (outputsTypesNames.contains(outputTypeName)) None else Some(output)
-
-    fragmentsOutputs.map(fragment => fragment.element.copy(name = fragment.name)) ++ outputsNotIncluded.flatten
-  }
 }

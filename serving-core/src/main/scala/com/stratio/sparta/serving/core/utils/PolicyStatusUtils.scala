@@ -110,7 +110,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
       updateStatus(policyStatus)
     } else {
       Try {
-        log.info(s"Creating policy context |${policyStatus.id}| to <${policyStatus.status}>")
+        log.info(s"Creating policy context ${policyStatus.id} to <${policyStatus.status}>")
         curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(policyStatus).getBytes)
         policyStatus
       }
