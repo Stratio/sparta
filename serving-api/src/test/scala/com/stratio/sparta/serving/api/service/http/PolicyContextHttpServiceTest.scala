@@ -21,10 +21,10 @@ import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
-import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
+import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment}
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyStatusModel, ResponsePolicy}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -154,8 +154,8 @@ class PolicyContextHttpServiceTest extends WordSpec
       val fragmentAutopilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot = {
           msg match {
-            case FragmentActor.FindByTypeAndId(fragmentType, id) =>
-              sender ! ResponseFragment(Success(getFragmentModel()))
+            case FragmentActor.PolicyWithFragments(fragment) =>
+              sender ! ResponsePolicy(Try(getPolicyModel()))
             case FragmentActor.Create(fragment) => sender ! None
           }
           TestActor.KeepRunning

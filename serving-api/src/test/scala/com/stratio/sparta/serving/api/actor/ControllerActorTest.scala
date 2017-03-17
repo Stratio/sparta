@@ -42,7 +42,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
   val streamingContextService = new StreamingContextService(statusActor)
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
-  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)))
+  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)))
   val sparkStreamingContextActor = _system.actorOf(
     Props(new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)))
   val pluginActor = _system.actorOf(Props(new PluginActor()))

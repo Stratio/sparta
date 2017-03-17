@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.actor
+package com.stratio.sparta.serving.api.actor
 
 import java.util
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
@@ -100,24 +101,6 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
 
   "FragmentActor" must {
 
-    // XXX findByType
-    "findByType: returns all fragments by type" in new TestData {
-      when(curatorFramework.getChildren)
-        .thenReturn(getChildrenBuilder)
-      when(curatorFramework.getChildren
-        .forPath("/stratio/sparta/fragments/input"))
-        .thenReturn(util.Arrays.asList("element"))
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/fragments/input/element"))
-        .thenReturn(fragment.getBytes)
-
-      fragmentActor ! FragmentActor.FindByType("input")
-
-      expectMsg(new ResponseFragments(Success(Seq(fragmentElementModel))))
-    }
-
     "findByType: returns an empty Seq because the node of type not exists yet" in new TestData {
       when(curatorFramework.getChildren)
         .thenReturn(getChildrenBuilder)
@@ -130,24 +113,6 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       expectMsg(new ResponseFragments(Success(Seq())))
     }
 
-    // XXX findByTypeAndId
-    "findByTypeAndId: returns a fragments by type and id" in new TestData {
-      when(curatorFramework.getChildren)
-        .thenReturn(getChildrenBuilder)
-      when(curatorFramework.getChildren
-        .forPath("/stratio/sparta/fragments/id"))
-        .thenReturn(util.Arrays.asList("element"))
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/fragments/input/id"))
-        .thenReturn(fragment.getBytes)
-
-      fragmentActor ! FragmentActor.FindByTypeAndId("input", "id")
-
-      expectMsg(new ResponseFragment(Success(read[FragmentElementModel](fragment))))
-    }
-
     "findByTypeAndId: returns a failure holded by a ResponseFragment when the node does not exist" in new TestData {
       when(curatorFramework.getChildren)
         .thenReturn(getChildrenBuilder)
@@ -158,24 +123,6 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       fragmentActor ! FragmentActor.FindByTypeAndId("input", "id")
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
-    }
-
-    // XXX findByTypeAndName
-    "findByTypeAndName: returns a fragments by type and name" in new TestData {
-      when(curatorFramework.getChildren)
-        .thenReturn(getChildrenBuilder)
-      when(curatorFramework.getChildren
-        .forPath("/stratio/sparta/fragments/input"))
-        .thenReturn(util.Arrays.asList("element"))
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath("/stratio/sparta/fragments/input/element"))
-        .thenReturn(fragment.getBytes)
-
-      fragmentActor ! FragmentActor.FindByTypeAndName("input", "inputname")
-
-      expectMsg(new ResponseFragment(Success(read[FragmentElementModel](fragment))))
     }
 
     "findByTypeAndName: returns a failure holded by a ResponseFragment when the node does not exist" in new TestData {
@@ -270,7 +217,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
 
     fragmentActor ! FragmentActor.Update(fragmentElementModel)
 
-    expectMsg(new Response(Success(null)))
+    expectMsg(new Response(Success(fragmentElementModel)))
     // scalastyle:on null
   }
 
@@ -335,7 +282,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
 
     fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id")
 
-    expectMsg(new Response(Success(null)))
+    expectMsg(new Response(Success()))
     // scalastyle:on null
   }
 

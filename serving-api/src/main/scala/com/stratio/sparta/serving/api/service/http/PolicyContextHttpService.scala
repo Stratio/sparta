@@ -26,8 +26,8 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -192,27 +192,33 @@ trait PolicyContextHttpService extends BaseHttpService {
   def create: Route = {
     path(HttpConstant.PolicyContextPath) {
       post {
-        entity(as[PolicyModel]) { p =>
-          val parsedP = FragmentsHelper.getPolicyWithFragments(p, actors.get(AkkaConstant.FragmentActor).get)
-          PolicyValidator.validateDto(parsedP)
-          val fragmentActor: ActorRef = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
-          (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
+        entity(as[PolicyModel]) { inputPolicy =>
           complete {
+            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+            (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
-              policyResponseTry <- (supervisor ? LauncherActor.Create(parsedP)).mapTo[Try[PolicyModel]]
-            } yield {
-              policyResponseTry match {
-                case Success(policy) =>
-                  val inputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-                  val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-                  createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                  PolicyResult(policy.id.getOrElse(""), p.name)
-                case Failure(ex: Throwable) =>
-                  log.error("Can't create policy", ex)
-                  throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
-                  ))
-              }
+              parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(inputPolicy)).mapTo[ResponsePolicy]
+            } yield parsedP match {
+              case ResponsePolicy(Failure(exception)) =>
+                throw exception
+              case ResponsePolicy(Success(policyParsed)) =>
+                PolicyValidator.validateDto(policyParsed)
+                for {
+                  policyResponseTry <- (supervisor ? LauncherActor.Create(policyParsed)).mapTo[Try[PolicyModel]]
+                } yield {
+                  policyResponseTry match {
+                    case Success(policy) =>
+                      val inputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
+                      val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
+                      createFragments(fragmentActor, outputs.toList ::: inputs.toList)
+                      PolicyResult(policy.id.getOrElse(""), policy.name)
+                    case Failure(ex: Throwable) =>
+                      log.error("Can't create policy", ex)
+                      throw new ServingCoreException(ErrorModel.toString(
+                        ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
+                      ))
+                  }
+                }
             }
           }
         }

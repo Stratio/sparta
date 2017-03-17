@@ -55,7 +55,7 @@ object SpartaHelper extends SLF4JLogging {
       val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
         AkkaConstant.statusActor)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)),
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)),
         AkkaConstant.PolicyActor)
       val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
       val streamingContextActor = system.actorOf(Props(
