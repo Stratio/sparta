@@ -20,13 +20,13 @@ import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{DeletePolicy, FindByFragment, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
+import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -43,6 +43,8 @@ class FragmentHttpServiceTest extends WordSpec
   val policyTestProbe = TestProbe()
   val fragmentTestProbe = TestProbe()
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.PolicyActorName -> policyTestProbe.ref,
@@ -109,14 +111,14 @@ class FragmentHttpServiceTest extends WordSpec
     "return the fragment that was created" in {
       startAutopilot(ResponseFragment(Success(getFragmentModel())))
       Post(s"/${HttpConstant.FragmentPath}", getFragmentModel) ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Create]
+        testProbe.expectMsgType[CreateFragment]
         responseAs[FragmentElementModel] should equal(getFragmentModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
       Post(s"/${HttpConstant.FragmentPath}", getFragmentModel) ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Create]
+        testProbe.expectMsgType[CreateFragment]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -127,7 +129,7 @@ class FragmentHttpServiceTest extends WordSpec
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case FindByFragment(input, id) =>
+            case FindByFragment(input, id, rootUser) =>
               sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
               TestActor.NoAutoPilot
             case Delete =>
@@ -139,7 +141,7 @@ class FragmentHttpServiceTest extends WordSpec
       Delete(s"/${HttpConstant.FragmentPath}/input/id/fragmentId") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteByTypeAndId]
         policyTestProbe.expectMsgType[FindByFragment]
-        policyTestProbe.expectMsgType[Delete]
+        policyTestProbe.expectMsgType[DeletePolicy]
         status should be(StatusCodes.OK)
       }
     }
@@ -180,7 +182,7 @@ class FragmentHttpServiceTest extends WordSpec
       val fragmentAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case FragmentActor.Update(input) =>
+            case FragmentActor.Update(input, rootUser) =>
               sender ! Response(Failure(new MockException()))
               TestActor.NoAutoPilot
           }
@@ -188,10 +190,10 @@ class FragmentHttpServiceTest extends WordSpec
       val policyAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case PolicyActor.FindAll() =>
+            case PolicyActor.FindAll(rootUser) =>
               sender ! ResponsePolicies(Success(Seq(getPolicyModel())))
               TestActor.NoAutoPilot
-            case PolicyActor.Update(policy) =>
+            case PolicyActor.Update(policy, rootUser) =>
               TestActor.NoAutoPilot
           }
       })

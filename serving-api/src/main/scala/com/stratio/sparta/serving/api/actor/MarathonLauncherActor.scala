@@ -48,7 +48,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
 
   def initializeSubmitRequest(policy: PolicyModel): Unit = {
     Try {
-      log.info(s"Initializing options for submit Marathon application associated to policy: ${policy.name}")
+      log.info(s"Initializing options to submit the Marathon application associated to policy: ${policy.name}")
       val zookeeperConfig = getZookeeperConfig
       val clusterConfig = SpartaConfig.getClusterConfig(Option(ConfigMesos)).get
       val master = clusterConfig.getString(Master).trim
@@ -62,19 +62,19 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         sparkConfigurations, driverArguments, ConfigMesos, killUrl(clusterConfig))
       val detailExecMode = getDetailExecutionMode(policy, clusterConfig)
 
-      createRequest(submitRequest).getOrElse(throw new Exception("Impossible to create submit request in persistence"))
+      createRequest(submitRequest).getOrElse(throw new Exception("Unable to create a submit request in persistence"))
 
       (new MarathonService(context, curatorFramework, policy, submitRequest), detailExecMode)
     } match {
       case Failure(exception) =>
-        val information = s"Error when initializing Sparta Marathon App options"
+        val information = s"Error 0 initializing Sparta Marathon App options"
         log.error(information, exception)
         updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success((marathonApp, detailExecMode)) =>
-        val information = "Sparta Marathon App configurations initialized correctly"
+        val information = "Sparta Marathon App configuration initialized correctly"
         log.info(information)
         updateStatus(PolicyStatusModel(id = policy.id.get, status = NotStarted,
           statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))

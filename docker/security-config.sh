@@ -24,6 +24,11 @@ export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"
 
 
+export SPARTA_TLS_JKS_NAME="/etc/sds/sparta/security/$TENANT_NAME.jks"
+export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
+export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
+export GOSEC_PLUGIN_JKS_NAME="$SPARTA_TLS_JKS_NAME"
+
 
 ####################################################
 ## Get TLS Server Info and set SPARTA_KEYSTORE_PASS
@@ -45,6 +50,11 @@ _log_sparta_sec "Configuring truststore OK"
 _log_sparta_sec "Configuring kerberos ..."
 source /kerberos-server-config.sh
 _log_sparta_sec "Configuring kerberos Ok"
+
+#######################################################
+## Gosec-plugin config
+#######################################################
+source gosec-config.sh
 
 #######################################################
 ## Oauth config set OAUTH2_ENABLE OAUTH2_CLIENT_ID OAUTH2_CLIENT_SECRET

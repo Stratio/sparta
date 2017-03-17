@@ -40,6 +40,11 @@
             <groupId>com.stratio.sparta</groupId>
             <artifactId>serving-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+            <artifactId>dyplon-sparta</artifactId>
+            <version>0.8.0-M3</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

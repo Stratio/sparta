@@ -68,7 +68,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     findFragmentByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)
       .getOrElse(createNewFragment(fragment))
 
-  def updateFragment(fragment: FragmentElementModel): FragmentElementModel = {
+  def  updateFragment(fragment: FragmentElementModel): FragmentElementModel = {
     val newFragment = fragment.copy(name = fragment.name.toLowerCase)
     curatorFramework.setData().forPath(
       s"${fragmentPathType(newFragment.fragmentType)}/${fragment.id.get}", write(newFragment).getBytes)

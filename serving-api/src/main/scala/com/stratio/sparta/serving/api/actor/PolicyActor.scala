@@ -18,39 +18,45 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, ResponsePolicy}
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 
 import scala.util.{Failure, Success, Try}
 
 /**
- * Implementation of supported CRUD operations over ZK needed to manage policies.
- */
-class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
-  extends Actor with PolicyUtils with CheckpointUtils {
+  * Implementation of supported CRUD operations over ZK needed to manage policies.
+  */
+class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
+                  val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with PolicyUtils with CheckpointUtils with ActionUserAuthorize{
 
   import PolicyActor._
 
+  val ResourcePol = "policy"
+  val ResourceCP = "checkpoint"
+
   //scalastyle:off
   override def receive: Receive = {
-    case Create(policy) => create(policy)
-    case Update(policy) => update(policy)
-    case Delete(id) => delete(id)
-    case Find(id) => find(id)
-    case FindByName(name) => findByName(name.toLowerCase)
-    case FindAll() => findAll()
-    case DeleteAll() => deleteAll()
-    case FindByFragmentType(fragmentType) => findByFragmentType(fragmentType)
-    case FindByFragment(fragmentType, id) => findByFragmentId(fragmentType, id)
-    case FindByFragmentName(fragmentType, name) => findByFragmentName(fragmentType, name)
-    case DeleteCheckpoint(policy) => deleteCheckpoint(policy)
+    case CreatePolicy(policy, user) => create(policy, user)
+    case Update(policy, user) => update(policy, user)
+    case DeletePolicy(id, user) => delete(id, user)
+    case Find(id, user) => find(id, user)
+    case FindByName(name, user) => findByName(name.toLowerCase, user)
+    case FindAll(user) => findAll(user)
+    case DeleteAll(user) => deleteAll(user)
+    case FindByFragmentType(fragmentType, user) => findByFragmentType(fragmentType, user)
+    case FindByFragment(fragmentType, id, user) => findByFragmentId(fragmentType, id, user)
+    case FindByFragmentName(fragmentType, name, user) => findByFragmentName(fragmentType, name, user)
+    case DeleteCheckpoint(policy, user) => deleteCheckpoint(policy, user)
     case ResponseFragment(fragment) => loggingResponseFragment(fragment)
     case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case _ => log.info("Unrecognized message in Policy Actor")
@@ -58,62 +64,87 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
 
   //scalastyle:on
 
-  def findAll(): Unit =
-    sender ! ResponsePolicies(Try {
+  def findAll(user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicies(Try {
       findAllPolicies(withFragments = true)
     }.recover {
       case _: NoNodeException => Seq.empty[PolicyModel]
     })
 
-  def deleteAll(): Unit =
-    sender ! ResponsePolicies(Try(deleteAllPolicies()).recover {
+    securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
+
+  def deleteAll(user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicies(Try(deleteAllPolicies()).recover {
       case _: NoNodeException => throw new ServingCoreException(
         ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingPolicy, s"Error deleting policies")))
     })
 
-  def findByFragmentType(fragmentType: String): Unit =
-    sender ! ResponsePolicies(
+    securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> Delete), callback)
+  }
+
+  def findByFragmentType(fragmentType: String, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentType(fragmentType)).recover {
         case _: NoNodeException => Seq.empty[PolicyModel]
       })
 
-  def findByFragmentId(fragmentType: String, id: String): Unit =
-    sender ! ResponsePolicies(
+    securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
+
+  def findByFragmentId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentId(fragmentType, id)).recover {
         case _: NoNodeException => Seq.empty[PolicyModel]
       })
 
-  def findByFragmentName(fragmentType: String, name: String): Unit =
-    sender ! ResponsePolicies(
+    securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
+
+  def findByFragmentName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentName(fragmentType, name)).recover {
         case _: NoNodeException => Seq.empty[PolicyModel]
       })
 
-  def find(id: String): Unit =
-    sender ! ResponsePolicy(Try(findPolicy(id)).recover {
+    securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
+
+  def find(id: String, user: Option[LoggedUser]): Unit = {
+    def callback() =  ResponsePolicy(Try(findPolicy(id)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
         ))
     })
 
-  def findByName(name: String): Unit =
-    sender ! ResponsePolicy(Try(findPolicyByName(name)))
+    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
 
-  def create(policy: PolicyModel): Unit =
-    sender ! ResponsePolicy(Try(createPolicy(policy)))
+  def findByName(name: String, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicy(Try(findPolicyByName(name)))
 
-  def update(policy: PolicyModel): Unit = {
-    sender ! ResponsePolicy(Try(updatePolicy(policy)).recover {
+    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  }
+
+
+  def create(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicy(Try(createPolicy(policy)))
+    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> Create), callback)
+  }
+
+  def update(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponsePolicy(Try(updatePolicy(policy)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with name ${policy.name}.")
         ))
     })
+    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> Edit), callback)
   }
 
-  def delete(id: String): Unit =
-    sender ! Response(Try {
+  def delete(id: String, user: Option[LoggedUser]): Unit = {
+    def callback() = Response(Try {
       deletePolicy(id)
     }.recover {
       case _: NoNodeException =>
@@ -123,8 +154,18 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
         ))
     })
 
-  def deleteCheckpoint(policy: PolicyModel): Unit =
-    sender ! Response(Try(deleteCheckpointPath(policy)))
+    securityActionAuthorizer[Response](secManagerOpt, user, Map(ResourcePol -> Delete), callback)
+  }
+
+  def deleteCheckpoint(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
+    def callback() = Response(Try(deleteCheckpointPath(policy)))
+
+    securityActionAuthorizer[Response](secManagerOpt, user,
+      Map(ResourceCP -> Delete, ResourcePol -> View),
+      callback
+      )
+  }
+
 
   def loggingResponseFragment(response: Try[FragmentElementModel]): Unit =
     response match {
@@ -146,27 +187,27 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
 
 object PolicyActor extends SLF4JLogging {
 
-  case class Create(policy: PolicyModel)
+  case class CreatePolicy(policy: PolicyModel, user: Option[LoggedUser])
 
-  case class Update(policy: PolicyModel)
+  case class Update(policy: PolicyModel, user: Option[LoggedUser])
 
-  case class Delete(name: String)
+  case class DeletePolicy(name: String, user: Option[LoggedUser])
 
-  case class DeleteAll()
+  case class DeleteAll(user: Option[LoggedUser])
 
-  case class FindAll()
+  case class FindAll(user: Option[LoggedUser])
 
-  case class Find(id: String)
+  case class Find(id: String, user: Option[LoggedUser])
 
-  case class FindByName(name: String)
+  case class FindByName(name: String, user: Option[LoggedUser])
 
-  case class FindByFragmentType(fragmentType: String)
+  case class FindByFragmentType(fragmentType: String, user: Option[LoggedUser])
 
-  case class FindByFragment(fragmentType: String, id: String)
+  case class FindByFragment(fragmentType: String, id: String, user: Option[LoggedUser])
 
-  case class FindByFragmentName(fragmentType: String, name: String)
+  case class FindByFragmentName(fragmentType: String, name: String, user: Option[LoggedUser])
 
-  case class DeleteCheckpoint(policy: PolicyModel)
+  case class DeleteCheckpoint(policy: PolicyModel, user: Option[LoggedUser])
 
   case class Response(status: Try[_])
 

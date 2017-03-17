@@ -43,6 +43,4 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
 
   def routes(user: Option[LoggedUser] = None): Route
 
-  val securityManager: Option[SpartaSecurityManager]
-
 }

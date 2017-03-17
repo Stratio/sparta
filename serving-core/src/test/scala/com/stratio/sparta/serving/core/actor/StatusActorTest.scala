@@ -18,9 +18,12 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit._
 import akka.util.Timeout
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
 import org.apache.curator.framework.CuratorFramework
@@ -42,6 +45,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   with ImplicitSender
   with MockitoSugar {
 
+  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
   val getChildrenBuilder = mock[GetChildrenBuilder]
   val getDataBuilder = mock[GetDataBuilder]
@@ -51,10 +55,11 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
   SpartaConfig.initMainConfig()
 
-  val actor = system.actorOf(Props(new StatusActor(curatorFramework)))
+  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val actor = system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
-  val status = new PolicyStatusModel("existingID", PolicyStatusEnum.Launched)
+  val status = PolicyStatusModel("existingID", PolicyStatusEnum.Launched)
   val statusRaw =
     """
       |{
@@ -74,13 +79,13 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .thenReturn(new Stat)
       // scalastyle:off null
 
-      when(curatorFramework.getData())
+      when(curatorFramework.getData)
         .thenReturn(getDataBuilder)
-      when(curatorFramework.getData()
+      when(curatorFramework.getData
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(statusRaw.getBytes)
 
-      actor ! StatusActor.FindById(id)
+      actor ! StatusActor.FindById(id, rootUser)
 
       expectMsg(ResponseStatus(Success(status)))
       // scalastyle:on null
@@ -102,7 +107,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(null)
 
-      actor ! StatusActor.Delete(id)
+      actor ! StatusActor.DeleteStatus(id, rootUser)
 
       expectMsg(ResponseDelete(Success(null)))
       // scalastyle:on null
@@ -118,7 +123,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenReturn(null)
 
-     actor ! StatusActor.Delete(id)
+     actor ! StatusActor.DeleteStatus(id, rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseDelete])
       // scalastyle:on null
@@ -139,7 +144,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
       when(curatorFramework.delete()
         .forPath(s"${AppConstant.ContextPath}/$id"))
         .thenThrow(new RuntimeException())
-      actor ! StatusActor.Delete(id)
+      actor ! StatusActor.DeleteStatus(id, rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseDelete])
       // scalastyle:on null

@@ -20,14 +20,15 @@ import javax.ws.rs.Path
 
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.PolicyActor
-import com.stratio.sparta.serving.api.actor.PolicyActor.{Delete, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
+import com.stratio.sparta.serving.api.actor.PolicyActor.{DeletePolicy, FindByFragment, FindByFragmentName, FindByFragmentType, ResponsePolicies}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel, ResponsePolicy}
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
@@ -45,8 +46,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user)
 
   @Path("/{fragmentType}/id/{fragmentId}")
-  @ApiOperation(value = "Find a fragment depending of its type and id.",
-    notes = "Find a fragment depending of its type and id.",
+  @ApiOperation(value = "Finds a fragment depending on its type and id.",
+    notes = "Finds a fragment depending on its type and id.",
     httpMethod = "GET",
     response = classOf[FragmentElementModel])
   @ApiImplicitParams(Array(
@@ -70,10 +71,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragment <- (supervisor ? new FindByTypeAndId(fragmentType, id)).mapTo[ResponseFragment]
+            responseFragment <- (supervisor ? FindByTypeAndId(fragmentType, id, user))
+              .mapTo[Either[ResponseFragment,UnauthorizedResponse]]
           } yield responseFragment match {
-            case ResponseFragment(Failure(exception)) => throw exception
-            case ResponseFragment(Success(fragment)) => fragment
+            case Left(ResponseFragment(Failure(exception))) => throw exception
+            case Left(ResponseFragment(Success(fragment))) => fragment
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
@@ -81,8 +85,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   }
 
   @Path("/{fragmentType}/name/{fragmentName}")
-  @ApiOperation(value = "Find a fragment depending of its type and name.",
-    notes = "Find a fragment depending of its type and name.",
+  @ApiOperation(value = "Finds a fragment depending on its type and name.",
+    notes = "Finds a fragment depending on its type and name.",
     httpMethod = "GET",
     response = classOf[FragmentElementModel])
   @ApiImplicitParams(Array(
@@ -106,10 +110,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragment <- (supervisor ? new FindByTypeAndName(fragmentType, name)).mapTo[ResponseFragment]
+            responseFragment <- (supervisor ? FindByTypeAndName(fragmentType, name, user))
+              .mapTo[Either[ResponseFragment,UnauthorizedResponse]]
           } yield responseFragment match {
-            case ResponseFragment(Failure(exception)) => throw exception
-            case ResponseFragment(Success(fragment)) => fragment
+            case Left(ResponseFragment(Failure(exception))) => throw exception
+            case Left(ResponseFragment(Success(fragment))) => fragment
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
@@ -117,8 +124,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   }
 
   @Path("/{fragmentType}")
-  @ApiOperation(value = "Find a list of fragments depending of its type.",
-    notes = "Find a list of fragments depending of its type.",
+  @ApiOperation(value = "Finds a list of fragments depending on its type.",
+    notes = "Finds a list of fragments depending on its type.",
     httpMethod = "GET",
     response = classOf[FragmentElementModel],
     responseContainer = "List")
@@ -138,10 +145,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragments <- (supervisor ? new FindByType(fragmentType)).mapTo[ResponseFragments]
+            responseFragments <- (supervisor ? FindByType(fragmentType, user))
+              .mapTo[Either[ResponseFragments,UnauthorizedResponse]]
           } yield responseFragments match {
-            case ResponseFragments(Failure(exception)) => throw exception
-            case ResponseFragments(Success(fragments)) => fragments
+            case Left(ResponseFragments(Failure(exception))) => throw exception
+            case Left(ResponseFragments(Success(fragments))) => fragments
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
@@ -149,7 +159,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   }
 
   @ApiOperation(value = "Find all fragments",
-    notes = "Find all fragments",
+    notes = "Finds all fragments",
     httpMethod = "GET",
     response = classOf[FragmentElementModel],
     responseContainer = "List")
@@ -162,10 +172,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            responseFragments <- (supervisor ? new FindAllFragments()).mapTo[ResponseFragments]
+            responseFragments <- (supervisor ? FindAllFragments(user))
+              .mapTo[Either[ResponseFragments,UnauthorizedResponse]]
           } yield responseFragments match {
-            case ResponseFragments(Failure(exception)) => throw exception
-            case ResponseFragments(Success(fragments)) => fragments
+            case Left(ResponseFragments(Failure(exception))) => throw exception
+            case Left(ResponseFragments(Success(fragments))) => fragments
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
@@ -173,7 +186,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   }
 
   @ApiOperation(value = "Creates a fragment depending of its type.",
-    notes = "Creates a fragment depending of its type.",
+    notes = "Creates a fragment depending on its type.",
     httpMethod = "POST")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fragment",
@@ -188,10 +201,13 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
             for {
-              responseFragment <- (supervisor ? new Create(fragment)).mapTo[ResponseFragment]
+              responseFragment <- (supervisor ? CreateFragment(fragment, user))
+               .mapTo[Either[ResponseFragment,UnauthorizedResponse]]
             } yield responseFragment match {
-              case ResponseFragment(Failure(exception)) => throw exception
-              case ResponseFragment(Success(fragment: FragmentElementModel)) => fragment
+              case Left(ResponseFragment(Failure(exception))) => throw exception
+              case Left(ResponseFragment(Success(fragment: FragmentElementModel))) => fragment
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in fragments")
             }
           }
         }
@@ -199,6 +215,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     }
   }
 
+  // scalastyle:off cyclomatic.complexity
   @ApiOperation(value = "Updates a fragment.",
     notes = "Updates a fragment.",
     httpMethod = "PUT")
@@ -213,25 +230,40 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       put {
         entity(as[FragmentElementModel]) { fragment =>
           complete {
-            val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-            val fragmentStatusActor = actors.get(AkkaConstant.FragmentActorName).get
+            val policyActor = actors(AkkaConstant.PolicyActorName)
             for {
-              allPolicies <- policyActor ? PolicyActor.FindAll()
-              updateResponse <- fragmentStatusActor ? FragmentActor.Update(fragment)
-            } yield (updateResponse, allPolicies) match {
-              case (FragmentActor.Response(Success(_)), PolicyActor.ResponsePolicies(Success(policies))) =>
-                val policiesInFragments = policies.flatMap(policy => {
-                  if (policy.fragments.exists(policyFragment =>
-                    policyFragment.fragmentType == fragment.fragmentType &&
-                      policyFragment.id == fragment.id))
-                    Some(policy)
-                  else None
-                })
-                updatePoliciesWithUpdatedFragments(policiesInFragments)
-                HttpResponse(StatusCodes.OK)
-              case (Response(Failure(exception)), _) =>
+              responseFragments <- (supervisor ? Update(fragment, user))
+                .mapTo[Either[Response,UnauthorizedResponse]]
+            } yield responseFragments match {
+              case Left(Response(Success(_))) =>
+                for {
+                  responsePolicies <- (policyActor ? PolicyActor.FindAll(user))
+                    .mapTo[Either[ResponsePolicies,UnauthorizedResponse]]
+                } yield responsePolicies match {
+                  case Left(ResponsePolicies(Success(policies))) =>
+                    val policiesInFragments = policies.flatMap(policy => {
+                      if (policy.fragments.exists(policyFragment =>
+                        policyFragment.fragmentType == fragment.fragmentType &&
+                          policyFragment.id == fragment.id))
+                        Some(policy)
+                      else None
+                    })
+                    updatePoliciesWithUpdatedFragments(policiesInFragments, user)
+                  case Left(ResponsePolicies(Failure(exception))) =>
+                    throw exception
+                  case Right(UnauthorizedResponse(exception)) =>
+                    throw exception
+                  case _ =>
+                    throw new RuntimeException("Unexpected behaviour in policies")
+                }
+              case Left(Response(Failure(exception))) =>
                 throw exception
+              case Right(UnauthorizedResponse(exception)) =>
+                throw exception
+              case _ =>
+                throw new RuntimeException("Unexpected behaviour in fragments")
             }
+            HttpResponse(StatusCodes.OK)
           }
         }
       }
@@ -240,7 +272,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
 
   @Path("/{fragmentType}/id/{fragmentId}")
   @ApiOperation(value = "Deletes a fragment depending of its type and id and their policies related",
-    notes = "Deletes a fragment depending of its type and id.",
+    notes = "Deletes a fragment depending on its type and id.",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fragmentType",
@@ -261,14 +293,31 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment / "id" / Segment) { (fragmentType, id) =>
       delete {
         complete {
-          val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByTypeAndId(fragmentType, id)
+          val policyActor = actors(AkkaConstant.PolicyActorName)
           for {
-            responsePolicies <- (policyActor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
-          } responsePolicies match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) =>
-              policies.foreach(policy => policyActor ! Delete(policy.id.get))
+            responseFragments <- (supervisor ? DeleteByTypeAndId(fragmentType, id, user))
+              .mapTo[Either[Response,UnauthorizedResponse]]
+          } yield responseFragments match {
+            case Left(Response(Success(_))) =>
+              for {
+                responsePolicies <- (policyActor ? FindByFragment(fragmentType, id, user))
+                  .mapTo[Either[ResponsePolicies,UnauthorizedResponse]]
+              } yield responsePolicies match {
+                case Left(ResponsePolicies(Success(policies))) =>
+                  policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
+                case Left(ResponsePolicies(Failure(exception))) =>
+                  throw exception
+                case Right(UnauthorizedResponse(exception)) =>
+                  throw exception
+                case _ =>
+                  throw new RuntimeException("Unexpected behaviour in policies")
+              }
+            case Left(Response(Failure(exception))) =>
+              throw exception
+            case Right(UnauthorizedResponse(exception)) =>
+              throw exception
+            case _ =>
+              throw new RuntimeException("Unexpected behaviour in fragments")
           }
           HttpResponse(StatusCodes.OK)
         }
@@ -277,8 +326,8 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   }
 
   @Path("/{fragmentType}/name/{fragmentName}")
-  @ApiOperation(value = "Deletes a fragment depending of its type and name and their policies related",
-    notes = "Deletes a fragment depending of its type and name.",
+  @ApiOperation(value = "Deletes a fragment depending on its type and name and its related policies",
+    notes = "Deletes a fragment depending on its type and name.",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fragmentType",
@@ -299,15 +348,31 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
       delete {
         complete {
-          val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByTypeAndName(fragmentType, name)
+          val policyActor = actors(AkkaConstant.PolicyActorName)
           for {
-            responsePolicies <- (policyActor ? FindByFragmentName(fragmentType, name)).mapTo[ResponsePolicies]
-          } yield responsePolicies match {
-
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) =>
-              policies.foreach(policy => policyActor ! Delete(policy.id.get))
+            responseFragments <- (supervisor ? DeleteByTypeAndName(fragmentType, name, user))
+              .mapTo[Either[Response,UnauthorizedResponse]]
+          } yield responseFragments match {
+            case Left(Response(Success(_))) =>
+              for {
+                responsePolicies <- (policyActor ? FindByFragmentName(fragmentType, name, user))
+                  .mapTo[Either[ResponsePolicies,UnauthorizedResponse]]
+              } yield responsePolicies match {
+                case Left(ResponsePolicies(Success(policies))) =>
+                  policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
+                case Left(ResponsePolicies(Failure(exception))) =>
+                  throw exception
+                case Right(UnauthorizedResponse(exception)) =>
+                  throw exception
+                case _ =>
+                  throw new RuntimeException("Unexpected behaviour in policies")
+              }
+            case Left(Response(Failure(exception))) =>
+              throw exception
+            case Right(UnauthorizedResponse(exception)) =>
+              throw exception
+            case _ =>
+              throw new RuntimeException("Unexpected behaviour in fragments")
           }
           HttpResponse(StatusCodes.OK)
         }
@@ -315,7 +380,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     }
   }
 
-  @ApiOperation(value = "Deletes a fragment depending of its type and their policies related",
+  @ApiOperation(value = "Deletes a fragment depending on its type and its policies related",
     notes = "Deletes a fragment depending of its type.",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
@@ -332,20 +397,37 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       delete {
         complete {
-          val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-          supervisor ! new DeleteByType(fragmentType)
+          val policyActor = actors(AkkaConstant.PolicyActorName)
           for {
-            responsePolicies <- (policyActor ? FindByFragmentType(fragmentType)).mapTo[ResponsePolicies]
-          } yield responsePolicies match {
-                case ResponsePolicies(Failure(exception)) => throw exception
-                case ResponsePolicies(Success(policies)) =>
-                  policies.foreach(policy => policyActor ! Delete(policy.id.get))
+            responseFragments <- (supervisor ? DeleteByType(fragmentType, user))
+              .mapTo[Either[Response,UnauthorizedResponse]]
+          } yield responseFragments match {
+            case Left(Response(Success(_))) =>
+              for {
+                responsePolicies <- (policyActor ? FindByFragmentType(fragmentType, user))
+                  .mapTo[Either[ResponsePolicies,UnauthorizedResponse]]
+              } yield responsePolicies match {
+                case Left(ResponsePolicies(Success(policies))) =>
+                  policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
+                case Left(ResponsePolicies(Failure(exception))) =>
+                  throw exception
+                case Right(UnauthorizedResponse(exception)) =>
+                  throw exception
+                case _ =>
+                  throw new RuntimeException("Unexpected behaviour in policies")
               }
-              HttpResponse(StatusCodes.OK)
+            case Left(Response(Failure(exception))) =>
+              throw exception
+            case Right(UnauthorizedResponse(exception)) =>
+              throw exception
+            case _ =>
+              throw new RuntimeException("Unexpected behaviour in fragments")
           }
+          HttpResponse(StatusCodes.OK)
         }
       }
     }
+  }
 
   @ApiOperation(value = "Deletes all fragments and their policies related",
     notes = "Deletes all fragments.",
@@ -358,34 +440,53 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            fragmentsResponse <- (supervisor ? new DeleteAllFragments()).mapTo[ResponseFragments]
+            fragmentsResponse <- (supervisor ? DeleteAllFragments(user))
+              .mapTo[Either[ResponseFragments,UnauthorizedResponse]]
           } yield fragmentsResponse match {
-            case ResponseFragments(Failure(exception)) =>
+            case Left(ResponseFragments(Failure(exception))) =>
               throw exception
-            case ResponseFragments(Success(fragments: List[FragmentElementModel])) =>
+            case Left(ResponseFragments(Success(fragments: List[FragmentElementModel]))) =>
               val fragmentsTypes = fragments.map(fragment => fragment.fragmentType).distinct
-              val policyActor = actors.get(AkkaConstant.PolicyActorName).get
+              val policyActor = actors(AkkaConstant.PolicyActorName)
 
               fragmentsTypes.foreach(fragmentType =>
                 for {
-                  responsePolicies <- (policyActor ? FindByFragmentType(fragmentType)).mapTo[ResponsePolicies]
+                  responsePolicies <- (policyActor ? FindByFragmentType(fragmentType, user))
+                    .mapTo[Either[ResponsePolicies,UnauthorizedResponse]]
                 } yield responsePolicies match {
-                  case ResponsePolicies(Failure(exception)) =>
+                  case Left(ResponsePolicies(Failure(exception))) =>
                     throw exception
-                  case ResponsePolicies(Success(policies)) =>
-                    policies.foreach(policy => policyActor ! Delete(policy.id.get))
+                  case Left(ResponsePolicies(Success(policies))) =>
+                    policies.foreach(policy => policyActor ! DeletePolicy(policy.id.get, user))
+                  case Right(UnauthorizedResponse(exception)) =>
+                    throw exception
+                  case _ =>
+                    throw new RuntimeException("Unexpected behaviour in policies")
                 })
-              HttpResponse(StatusCodes.OK)
+            case Right(UnauthorizedResponse(exception)) =>
+              throw exception
+            case _ =>
+              throw new RuntimeException("Unexpected behaviour in fragments")
           }
+          HttpResponse(StatusCodes.OK)
         }
       }
     }
   }
 
-  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel]): Unit =
+  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel], user: Option[LoggedUser]): Unit =
     policies.foreach(policy => {
-      val policyActor = actors.get(AkkaConstant.PolicyActorName).get
-
-      policyActor ! PolicyActor.Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]))
-    })
+      val policyActor = actors(AkkaConstant.PolicyActorName)
+      for {
+      responsePolicies <- (policyActor ? PolicyActor
+        .Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]), user))
+          .mapTo[Either[ResponsePolicy,UnauthorizedResponse]]
+      } yield responsePolicies match {
+        case Left(ResponsePolicy(Failure(exception))) => throw exception
+        case Left(ResponsePolicy(Success(policies))) => policies
+        case Right(UnauthorizedResponse(exception)) => throw exception
+        case _ => throw new RuntimeException("Unexpected behaviour in policies")
+      }
+    }
+      )
 }
