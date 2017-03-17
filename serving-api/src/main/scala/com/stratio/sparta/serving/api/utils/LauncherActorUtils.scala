@@ -47,7 +47,6 @@ trait LauncherActorUtils extends PolicyStatusUtils {
             log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
             context.actorOf(Props(
               new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
-
           } else {
             if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
               log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")

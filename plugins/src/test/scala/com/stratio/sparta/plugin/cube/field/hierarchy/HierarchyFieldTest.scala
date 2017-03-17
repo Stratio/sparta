@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.cube.field.hierarchy
 
-import com.stratio.sparta.plugin.cube.field.hierarchy.HierarchyField
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.TableDrivenPropertyChecks

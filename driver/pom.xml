@@ -156,7 +156,7 @@
                     <transformers>
                         <transformer
                             implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.stratio.sparta.driver.SpartaClusterJob</mainClass>
+                            <mainClass>com.stratio.sparta.driver.SparkDriver</mainClass>
                         </transformer>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>

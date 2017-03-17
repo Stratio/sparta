@@ -9,10 +9,23 @@ function initSpark() {
   if [[ ! -v SPARK_HOME ]]; then
     SPARK_HOME="/opt/sds/spark"
   fi
+  if [[ ! -v SPARK_ENV_FILE ]]; then
+    SPARK_ENV_FILE="${SPARK_HOME}/conf/spark-env.sh"
+  fi
+    if [[ ! -v SPARK_CONF_DEFAULTS_FILE ]]; then
+    SPARK_CONF_DEFAULTS_FILE="${SPARK_HOME}/conf/spark-defaults.conf"
+  fi
   echo "" >> ${VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${SYSTEM_VARIABLES}
+  echo "" >> ${VARIABLES}
+  echo "export SPARK_ENV_FILE=${SPARK_ENV_FILE}" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export SPARK_ENV_FILE=${SPARK_ENV_FILE}" >> ${SYSTEM_VARIABLES}
+  echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${SYSTEM_VARIABLES}
 }
 
 function initHdfs() {

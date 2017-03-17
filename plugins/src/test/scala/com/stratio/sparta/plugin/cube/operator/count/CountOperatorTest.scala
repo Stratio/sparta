@@ -15,8 +15,6 @@
  */
 package com.stratio.sparta.plugin.cube.operator.count
 
-import com.stratio.sparta.plugin.cube.operator.count.CountOperator
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}

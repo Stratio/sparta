@@ -17,7 +17,6 @@
 package com.stratio.sparta.driver
 
 import akka.actor.{ActorSystem, Props}
-import akka.util.Timeout
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
@@ -28,17 +27,14 @@ import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.utils.PluginsFilesUtils
 import com.typesafe.config.ConfigFactory
 
-import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-object SpartaMarathonApp extends PluginsFilesUtils {
+object MarathonDriver extends PluginsFilesUtils {
 
   val NumberOfArguments = 3
   val PolicyIdIndex = 0
   val ZookeeperConfigurationIndex = 1
   val DetailConfigurationIndex = 2
-
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
 
   def main(args: Array[String]): Unit = {
     assert(args.length == NumberOfArguments,

@@ -28,7 +28,7 @@ import org.json4s.jackson.Serialization._
 import scala.collection.JavaConversions
 import scala.util.Try
 
-trait ExecutionUtils extends SpartaSerializer with SLF4JLogging {
+trait RequestUtils extends SpartaSerializer with SLF4JLogging {
 
   val curatorFramework: CuratorFramework
 

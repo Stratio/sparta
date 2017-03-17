@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigValueFactory}
 
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Properties, Success, Try}
@@ -29,7 +29,7 @@ import scala.util.{Failure, Properties, Success, Try}
 trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
 
   // Properties mapped to Spark Configuration
-  val SpartaDriverClass = "com.stratio.sparta.driver.SpartaClusterJob"
+  val SpartaDriverClass = "com.stratio.sparta.driver.SparkDriver"
   val SubmitDeployMode = "--deploy-mode"
   val SubmitName = "--name"
   val SubmitNameConf = "spark.app.name"
@@ -122,10 +122,11 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
                              pluginsFiles: Seq[String]): Map[String, String] = {
     val driverLocationKey = driverLocation(driverFile)
     val driverLocationConfig = SpartaConfig.initOptionalConfig(driverLocationKey, SpartaConfig.mainConfig)
+    val detailConfig = DetailConfig.withValue("executionMode", ConfigValueFactory.fromAnyRef(executionMode))
 
     Map(
       "clusterConfig" -> keyOptionConfigEncoded(executionMode, Option(clusterConfig)),
-      "detailConfig" -> keyConfigEncoded("config", DetailConfig),
+      "detailConfig" -> keyConfigEncoded("config", detailConfig),
       "plugins" -> pluginsEncoded(pluginsFiles),
       "policyId" -> policy.id.get.trim,
       "storageConfig" -> keyOptionConfigEncoded(driverLocationKey, driverLocationConfig),

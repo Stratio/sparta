@@ -37,7 +37,7 @@ class StatusActor(val curatorFramework: CuratorFramework) extends Actor
     case FindById(id) => sender ! ResponseStatus(findStatusById(id))
     case DeleteAll => sender ! ResponseDelete(deleteAllStatuses())
     case AddListener(name, callback) => addListener(name, callback)
-    case AddClusterListeners => addClusterListeners(findAllStatuses())
+    case AddClusterListeners => addClusterListeners(findAllStatuses(), context)
     case Delete(id) => sender ! ResponseDelete(deleteStatus(id))
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }

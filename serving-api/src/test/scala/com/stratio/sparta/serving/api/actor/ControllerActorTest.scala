@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{ExecutionActor, FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{RequestActor, FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import org.apache.curator.framework.CuratorFramework
@@ -40,7 +40,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   val curatorFramework = mock[CuratorFramework]
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
-  val executionActor = _system.actorOf(Props(new ExecutionActor(curatorFramework)))
+  val executionActor = _system.actorOf(Props(new RequestActor(curatorFramework)))
   val streamingContextService = new StreamingContextService(curatorFramework)
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)))

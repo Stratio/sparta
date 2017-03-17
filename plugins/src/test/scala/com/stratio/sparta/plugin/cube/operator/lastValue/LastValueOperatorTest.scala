@@ -17,7 +17,6 @@ package com.stratio.sparta.plugin.cube.operator.lastValue
 
 import java.util.Date
 
-import com.stratio.sparta.plugin.cube.operator.lastValue.LastValueOperator
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}

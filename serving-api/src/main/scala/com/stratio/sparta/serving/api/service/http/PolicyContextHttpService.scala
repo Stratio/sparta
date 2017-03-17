@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
@@ -27,15 +26,13 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.util.{Failure, Success, Try}
-import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
@@ -54,7 +51,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       get {
         complete {
-          val statusActor = actors.get(AkkaConstant.StatusActorName).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policiesStatuses <- (statusActor ? FindAll).mapTo[Try[Seq[PolicyStatusModel]]]
           } yield policiesStatuses match {
@@ -85,7 +82,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       get {
         complete {
-          val statusActor = actors.get(AkkaConstant.StatusActorName).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policyStatus <- (statusActor ? new FindById(id)).mapTo[ResponseStatus]
           } yield policyStatus match {
@@ -107,7 +104,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       delete {
         complete {
-          val statusActor = actors.get(AkkaConstant.StatusActorName).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             responseCode <- (statusActor ? DeleteAll).mapTo[ResponseDelete]
           } yield responseCode match {
@@ -136,7 +133,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       delete {
         complete {
-          val statusActor = actors.get(AkkaConstant.StatusActorName).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             responseDelete <- (statusActor ? Delete(id)).mapTo[ResponseDelete]
           } yield responseDelete match {

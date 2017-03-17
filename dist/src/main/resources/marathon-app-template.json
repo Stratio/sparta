@@ -5,18 +5,18 @@
   "container": {
     "docker": {
       "image": "qa.stratio.com:8443/stratio/sparta:1.3.0-SNAPSHOTPR1781",
-      "network": "BRIDGE",
-      "portMappings": [
-        {
-          "hostPort": 0,
-          "containerPort": 4040,
-          "protocol": "tcp"
-        }
-      ],
+      "network": "HOST",
       "forcePullImage": false,
-      "parameters": []
+      "privileged" : false
     }
   },
+  "portDefinitions": [
+    {
+      "port": 0,
+      "name": "sparkui",
+      "labels": {}
+    }
+  ],
   "env": {
     "SPARTA_APP_TYPE": "marathon",
     "SPARTA_MARATHON_JAR": "???",
@@ -30,6 +30,8 @@
     "MARATHON_APP_HEAP_SIZE": "???",
     "MARATHON_APP_HEAP_MINIMUM_SIZE": "???",
     "SPARK_HOME": "???",
+    "MESOS_NATIVE_JAVA_LIBRARY": "???",
+    "LD_LIBRARY_PATH": "???",
     "HADOOP_USER_NAME": "???",
     "CORE_SITE_FROM_URI": "???",
     "CORE_SITE_FROM_DFS": "???",
@@ -45,17 +47,18 @@
     {
       "protocol": "TCP",
       "portIndex": 0,
-      "gracePeriodSeconds": 300,
+      "gracePeriodSeconds": 120,
       "intervalSeconds": 60,
       "timeoutSeconds": 15,
-      "maxConsecutiveFailures": 3,
-      "ignoreHttp1xx": false
+      "maxConsecutiveFailures": 3
     }
   ],
   "labels": {
     "SPARTA_POLICY_NAME": "???",
     "SPARTA_POLICY_ID": "???",
-    "DCOS_SERVICE_NAME": "???"
+    "DCOS_SERVICE_NAME": "???",
+    "DCOS_SERVICE_PORT_INDEX": "0",
+    "DCOS_SERVICE_SCHEME": "http"
   }
 }
 

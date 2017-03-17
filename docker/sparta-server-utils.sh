@@ -219,6 +219,11 @@ function configOptions() {
    SPARTA_AUTO_DELETE_CHECKPOINT=false
  fi
  sed -i "s|sparta.config.autoDeleteCheckpoint.*|sparta.config.autoDeleteCheckpoint = ${SPARTA_AUTO_DELETE_CHECKPOINT}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_ADD_TIME_TO_CHECKPOINT ]]; then
+   SPARTA_ADD_TIME_TO_CHECKPOINT=false
+ fi
+ sed -i "s|sparta.config.addTimeToCheckpointPath.*|sparta.config.addTimeToCheckpointPath = ${SPARTA_ADD_TIME_TO_CHECKPOINT}|" ${SPARTA_CONF_FILE}
 }
 
 function localSparkOptions() {

@@ -82,7 +82,7 @@
     }
 
     function editPolicy(route, policyId) {
-      //get the policy status before edit  
+      //get the policy status before edit
         WizardStatusService.reset();
         $state.go(route, { "id": policyId });
     }

@@ -18,81 +18,89 @@ package com.stratio.sparta.driver.actor
 
 import akka.actor.{Actor, Props}
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
+import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
-import com.stratio.sparta.serving.core.actor.{ClusterLauncherActor, FragmentActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{ExecutionUtils, PolicyStatusUtils, PolicyUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.{FragmentUtils, PolicyStatusUtils, PolicyUtils, RequestUtils}
 import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
-  with SchedulerUtils with PolicyStatusUtils {
+  with PolicyStatusUtils with FragmentUtils with RequestUtils with PolicyUtils {
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(policyId) => doStartApp(policyId)
-    case StopApp => doStopApp()
-    case _ => log.info("Unrecognized message in Cluster Launcher Actor")
+    case StopApp => preStopActions()
+    case _ => log.info("Unrecognized message in Marathon App Actor")
   }
 
-  def doStopApp(exitCode: Int = 0): Unit = {
-    log.info("Shutting down Sparta Marathon App system")
+  def preStopActions(): Unit = {
+    log.info("Shutting down Sparta Marathon Actor system")
     //Await.ready(context.system.terminate(), 1 minute)
     context.system.shutdown()
-    System.exit(exitCode)
   }
 
+  //scalastyle:off
   def doStartApp(policyId: String): Unit = {
     Try {
-      val policyUtils = new PolicyUtils {
-        override val curatorFramework: CuratorFramework = curatorFramework
+      findStatusById(policyId) match {
+        case Success(status) =>
+          if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
+            status.status != Finished) {
+            val policy = getPolicyWithFragments(getPolicyById(policyId))
+            closeChecker(policy.id.get, policy.name)
+            findRequestById(policyId) match {
+              case Success(submitRequest) =>
+                val clusterLauncherActor =
+                  context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
+                clusterLauncherActor ! StartWithRequest(policy, submitRequest)
+              case Failure(exception) => throw exception
+            }
+          } else {
+            log.info(s"Marathon App launched by marathon with incorrect state, the job is not executed, finish them")
+            preStopActions()
+          }
+        case Failure(e) => throw e
       }
-      val executionUtils = new ExecutionUtils {
-        override val curatorFramework: CuratorFramework = curatorFramework
-      }
-      val fragmentActor = context.actorOf(Props(new FragmentActor(curatorFramework)), FragmentActorName)
-      val policy = FragmentsHelper.getPolicyWithFragments(policyUtils.getPolicyById(policyId), fragmentActor)
-      val clusterLauncherActor =
-        context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
-
-      executionUtils.findRequestById(policyId) match {
-        case Success(submitRequest) =>
-          clusterLauncherActor ! StartWithRequest(policy, submitRequest)
-        case Failure(exception) => throw exception
-      }
-      scheduleTask(KillMarathonDelay,
-        DefaultKillMarathonDelay,
-        KillMarathonInterval,
-        DefaultKillMarathonInterval
-      )(applicationKiller(policy))
     } match {
       case Success(_) =>
-        log.info(s"Submitted job correctly in Marathon App")
+        log.info(s"StartApp in Marathon App finished without errors")
       case Failure(exception) =>
-        val information = s"Error submitting job in Marathon App"
+        val information = s"Error submitting job with Marathon App"
         log.error(information)
         updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))))
-        doStopApp(-1)
+        preStopActions()
     }
   }
 
-  def applicationKiller(policy: PolicyModel): Unit = {
-    findStatusById(policy.id.get) match {
-      case Success(policyStatus) =>
+  //scalastyle:on
+
+  def closeChecker(policyId: String, policyName: String): Unit = {
+    log.info(s"Listener added to $policyName with id: $policyId")
+    addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+      synchronized {
         if (policyStatus.status == Stopped || policyStatus.status == Failed) {
-          val information = s"Killing Sparta Marathon App"
-          log.error(information)
-          updateStatus(PolicyStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
-          doStopApp()
+          try {
+            val information = s"Executing pre-close actions in Marathon App ..."
+            log.info(information)
+            updateStatus(PolicyStatusModel(id = policyId, status = NotDefined, statusInfo = Some(information)))
+            preStopActions()
+          } finally {
+            Try(nodeCache.close()) match {
+              case Success(_) =>
+                log.info("Node cache to Marathon App Listener closed correctly")
+              case Failure(e) =>
+                log.error(s"Node Cache to Marathon App is not closed correctly", e)
+            }
+          }
         }
-      case Failure(exception) =>
-        log.error(s"Error when extract policy status in scheduler task.", exception)
-    }
+      }
+    })
   }
 }
 

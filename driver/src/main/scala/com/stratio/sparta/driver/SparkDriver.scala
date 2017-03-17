@@ -16,27 +16,21 @@
 
 package com.stratio.sparta.driver
 
-import akka.actor.{ActorSystem, Props}
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.FragmentActor
-import com.stratio.sparta.serving.core.actor.StatusActor
-import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{PluginsFilesUtils, PolicyConfigUtils, PolicyStatusUtils, PolicyUtils}
-import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, PolicyConfigUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, PolicyConfigUtils, PolicyStatusUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-object SpartaClusterJob extends PluginsFilesUtils {
+object SparkDriver extends PluginsFilesUtils {
 
   val NumberOfArguments = 6
   val ClusterConfigIndex = 0
@@ -73,7 +67,6 @@ object SpartaClusterJob extends PluginsFilesUtils {
         val fragmentUtils = new FragmentUtils {
           override val curatorFramework: CuratorFramework = curatorInstance
         }
-        val system = ActorSystem(policyId, SpartaConfig.daemonicAkkaConfig)
         val policy = fragmentUtils.getPolicyWithFragments(policyUtils.getPolicyById(policyId))
         val startingInfo = s"Starting policy in cluster"
         log.info(startingInfo)

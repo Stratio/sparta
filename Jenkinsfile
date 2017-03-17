@@ -38,8 +38,6 @@ hose {
 
         parallel(DOC: {
             doDoc(config)
-        }, QC: {
-            doStaticAnalysis(config)
         }, DEPLOY: {
             doDeploy(config)
         }, DOCKER : {    

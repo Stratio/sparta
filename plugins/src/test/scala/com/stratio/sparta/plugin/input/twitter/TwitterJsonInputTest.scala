@@ -17,7 +17,6 @@ package com.stratio.sparta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.input.twitter.TwitterJsonInput
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner

@@ -48,15 +48,13 @@ object CuratorFactoryHolder extends SLF4JLogging {
         var retryAttempts = AppConstant.DefaultZookeeperRetryAttemps
         var retryInterval = AppConstant.DefaultZookeeperRetryInterval
 
-        Try(config match {
-          case Some(zkConfig) => {
-            defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZookeeperConnection)
-            connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperConnectionTimeout)
-            sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperSessionTimeout)
-            retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryAttemps)
-            retryInterval = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryInterval)
-          }
-        })
+        Try(config.foreach(zkConfig => {
+          defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZookeeperConnection)
+          connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperConnectionTimeout)
+          sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperSessionTimeout)
+          retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryAttemps)
+          retryInterval = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryInterval)
+        }))
 
         Try {
 

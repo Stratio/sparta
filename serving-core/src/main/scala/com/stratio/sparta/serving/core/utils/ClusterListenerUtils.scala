@@ -16,8 +16,10 @@
 
 package com.stratio.sparta.serving.core.utils
 
+import akka.actor.{ActorContext, ActorRef}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.marathon.MarathonApp
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
@@ -49,34 +51,88 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
 
   /** Sparta Listener functions for PolicyStatus **/
 
-  def addClusterListeners(policiesStatus: Try[Seq[PolicyStatusModel]]): Unit = {
+  //scalastyle:off
+  def addClusterListeners(policiesStatus: Try[Seq[PolicyStatusModel]], context: ActorContext): Unit = {
     policiesStatus match {
       case Success(statuses) =>
         statuses.foreach(policyStatus =>
           policyStatus.lastExecutionMode.foreach(execMode => {
             val pStatus = policyStatus.status
-            if ((pStatus == Started || pStatus == Starting || pStatus == Launched || pStatus == Stopping)
-              && execMode.contains(ClusterValue))
-              SpartaConfig.getClusterConfig(Option(execMode.substring(0, execMode.lastIndexOf("-")))) match {
-                case Some(clusterConfig) =>
-                  addClusterContextListener(policyStatus.id,
-                    policyStatus.name.getOrElse("undefined"),
-                    killUrl(clusterConfig))
-                case None =>
-                  log.warn("Impossible to extract cluster configuration when initializing cluster listeners")
-              }
+            if (pStatus == Started || pStatus == Starting || pStatus == Launched ||
+              pStatus == Stopping || pStatus == Uploaded){
+              if(execMode.contains(ClusterValue))
+                SpartaConfig.getClusterConfig(Option(execMode.substring(0, execMode.lastIndexOf("-")))) match {
+                  case Some(clusterConfig) =>
+                    addClusterContextListener(policyStatus.id,
+                      policyStatus.name.getOrElse("undefined"),
+                      killUrl(clusterConfig))
+                  case None =>
+                    log.warn("Impossible to extract cluster configuration when initializing cluster listeners")
+                }
+              if(execMode.contains(MarathonValue))
+                addMarathonContextListener(policyStatus.id, policyStatus.name.getOrElse("undefined"), context)
+            }
           }))
       case Failure(e) =>
         log.error("Error when find all policy statuses. Impossible to add cluster listeners", e)
     }
   }
 
-  //scalastyle:off
-  def addClusterContextListener(policyId: String, policyName: String, killUrl: String): Unit = {
-    log.info(s"Listener added to $policyName with id: $policyId")
+  def addMarathonContextListener(policyId: String,
+                                 policyName: String,
+                                 akkaContext: ActorContext,
+                                 launcherActor: Option[ActorRef] = None): Unit = {
+    log.info(s"Marathon context listener added to $policyName with id: $policyId")
     addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
+        if (policyStatus.status == Stopped || policyStatus.status == Failed) {
+          log.info("Stopping message received from Zookeeper")
+          try {
+            val info = s"Finishing Sparta cluster job with Marathon API"
+            log.info(info)
+            policyStatus.marathonId match {
+              case Some(marathonId) =>
+                Try {
+                  new MarathonApp(akkaContext, curatorFramework).kill(marathonId)
+                } match {
+                  case Success(_) =>
+                    val information = s"Finished correctly Sparta cluster job with Marathon API"
+                    val newStatus = if (policyStatus.status == Failed) NotDefined else Finished
+                    log.info(information)
+                    updateStatus(PolicyStatusModel(id = policyId, status = newStatus, statusInfo = Some(information)))
+                  case Failure(e) =>
+                    val error = "Error when sending stop to Marathon API"
+                    log.error(error, e)
+                    updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Some(error),
+                      lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))
+                    ))
+                }
+              case None =>
+                log.warn(s"The Sparta System don't have Marathon id associated to policy $policyName")
+            }
+          } finally {
+            Try(nodeCache.close()) match {
+              case Success(_) =>
+                log.info("Node cache to marathon context listener closed correctly")
+              case Failure(e) =>
+                log.error(s"Node Cache to marathon context listener is not closed correctly", e)
+            }
+            launcherActor.foreach(actor => akkaContext.stop(actor))
+          }
+        }
+      }
+    })
+  }
+
+  def addClusterContextListener(policyId: String,
+                                policyName: String,
+                                killUrl: String,
+                                launcherActor: Option[ActorRef] = None,
+                                akkaContext: Option[ActorContext] = None): Unit = {
+    log.info(s"Cluster context listener added to $policyName with id: $policyId")
+    addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+      synchronized {
+        if (policyStatus.status == Stopping || policyStatus.status == Failed) {
           log.info("Stopping message received from Zookeeper")
           try {
             policyStatus.submissionId match {
@@ -89,27 +145,20 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                   read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
                 } match {
                   case Success(submissionResponse) if submissionResponse.success =>
-                    val information = s"Stopped correctly Sparta cluster job with Spark API"
-                    val newStatus = if (policyStatus.status == Failed) NotDefined else Stopped
+                    val information = s"Killed correctly Sparta cluster job with Spark API"
+                    val newStatus = if (policyStatus.status == Failed) NotDefined else Killed
                     log.info(information)
                     updateStatus(PolicyStatusModel(id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response : $submissionResponse")
                     val information = s"Error while stopping task"
                     log.info(information)
-                    updateStatus(PolicyStatusModel(
-                      id = policyId,
-                      status = Failed,
-                      statusInfo = Some(information),
-                      lastError = submissionResponse.message.map(error =>
-                        PolicyErrorModel(information, PhaseEnum.Execution, error))))
+                    updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Some(information),
+                      lastError = submissionResponse.message.map(error => PolicyErrorModel(information, PhaseEnum.Execution, error))))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
                     log.error(error, e)
-                    updateStatus(PolicyStatusModel(
-                      id = policyId,
-                      status = Failed,
-                      statusInfo = Some(error),
+                    updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Some(error),
                       lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))
                     ))
                 }
@@ -119,49 +168,69 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
           } finally {
             Try(nodeCache.close()) match {
               case Success(_) =>
-                log.info("Node cache to contextListener closed correctly")
+                log.info("Node cache to cluster context listener closed correctly")
               case Failure(e) =>
-                log.error(s"The node Cache to contextListener in Zookeeper is not closed correctly", e)
+                log.error(s"Node Cache to cluster context listener is not closed correctly", e)
             }
+            akkaContext.foreach(context => launcherActor.foreach(actor => context.stop(actor)))
           }
         }
       }
     })
   }
 
-  def addClientContextListener(policyId: String, policyName: String, handler: SparkAppHandle): Unit = {
-    log.info(s"Listener added to $policyName with id: $policyId")
+  def addClientContextListener(policyId: String,
+                               policyName: String,
+                               handler: SparkAppHandle,
+                               launcherActor: ActorRef,
+                               akkaContext: ActorContext): Unit = {
+    log.info(s"Client context Listener added to $policyName with id: $policyId")
     addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status != Launched && policyStatus.status != Starting && policyStatus.status != Started) {
+        if (policyStatus.status == Stopping || policyStatus.status == Failed) {
           log.info("Stopping message received from Zookeeper")
           try {
             policyStatus.submissionId match {
               case Some(_) =>
-                try {
+                Try {
                   log.info("Stopping submission policy with handler")
                   handler.stop()
-                } finally {
-                  val information = s"Stopped correctly Sparta cluster job with Spark Handler"
-                  log.info(information)
-                  updateStatus(PolicyStatusModel(
-                    id = policyId, status = Stopped, statusInfo = Some(information)))
+                } match {
+                  case Success(_) =>
+                    val information = s"Stopped correctly Sparta cluster job with Spark Handler"
+                    log.info(information)
+                    updateStatus(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+                  case Failure(e: Exception) =>
+                    val error = s"Error stopping Sparta cluster job with Spark Handler, killing it ..."
+                    log.warn(error, e)
+                    Try(handler.kill()) match {
+                      case Success(_) =>
+                        val information = s"Killed Sparta cluster job with Spark Handler"
+                        log.info(information)
+                        updateStatus(PolicyStatusModel(
+                          id = policyId, status = Stopped, statusInfo = Some(information),
+                          lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))))
+                      case Failure(e: Exception) =>
+                        val error = s"Error killing Sparta cluster job with Spark Handler"
+                        log.info(error)
+                        updateStatus(PolicyStatusModel(
+                          id = policyId, status = Failed, statusInfo = Some(error),
+                          lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))))
+                    }
                 }
               case None =>
                 val information = s"The Sparta System don't have submission id associated to policy $policyName"
                 log.info(information)
-                updateStatus(PolicyStatusModel(
-                  id = policyId, status = Failed, statusInfo = Some(information)))
+                updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Some(information)))
             }
           } finally {
-            log.info("Killing submission policy with handler")
-            handler.kill()
             Try(nodeCache.close()) match {
               case Success(_) =>
-                log.info("Node cache to contextListener closed correctly")
+                log.info("Node cache to client context listener closed correctly")
               case Failure(e) =>
-                log.error(s"The node Cache to contextListener in Zookeeper is not closed correctly", e)
+                log.error(s"Node Cache to client context listener is not closed correctly", e)
             }
+            akkaContext.stop(launcherActor)
           }
         }
       }

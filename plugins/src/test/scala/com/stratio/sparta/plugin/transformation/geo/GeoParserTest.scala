@@ -17,7 +17,6 @@ package com.stratio.sparta.plugin.transformation.geo
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.transformation.geo.GeoParser
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith

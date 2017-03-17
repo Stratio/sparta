@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.marathon
+package com.stratio.sparta.serving.core.marathon
 
-import akka.actor.{ActorContext, ActorRef, Props}
+import java.util.{Calendar, Date}
+
+import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
-import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
-import com.stratio.tikitakka.common.message.{UpAndDownMessage, UpServiceFails, UpServiceRequest, UpServiceResponse}
-import com.stratio.tikitakka.common.model.{ContainerInfo, CreateApp, Volume}
+import com.stratio.tikitakka.common.message._
+import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Volume}
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
-import org.joda.time.DateTime
 import play.api.libs.json._
 
 import scala.collection.JavaConversions._
@@ -44,31 +44,42 @@ import scala.io.Source
 import scala.util.{Properties, Try}
 
 class MarathonApp(context: ActorContext,
-                  policyModel: PolicyModel,
-                  sparkSubmitRequest: SubmitRequest,
-                  val curatorFramework: CuratorFramework) extends OauthTokenUtils with PolicyStatusUtils {
+                  val curatorFramework: CuratorFramework,
+                  policyModel: Option[PolicyModel],
+                  sparkSubmitRequest: Option[SubmitRequest]) extends OauthTokenUtils with PolicyStatusUtils {
+
+  def this(context: ActorContext,
+           curatorFramework: CuratorFramework,
+           policyModel: PolicyModel,
+           sparkSubmitRequest: SubmitRequest) =
+    this(context, curatorFramework, Option(policyModel), Option(sparkSubmitRequest))
+
+  def this(context: ActorContext, curatorFramework: CuratorFramework) = this(context, curatorFramework, None, None)
 
   /* Implicit variables */
 
-  implicit val actorSystem = context.system
-  implicit val timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
-  implicit val materializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
+  implicit val actorSystem: ActorSystem = context.system
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
+  implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
 
   /* Constant variables */
 
-  val AppMainClass = "com.stratio.sparta.driver.SpartaMarathonApp"
+  val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
   val MesosNativeLibPath = "/opt/mesosphere/lib"
   val MesosNativePackagesPath = "/opt/mesosphere/packages"
+  val MesosLib = s"$MesosNativeLibPath"
   val MesosNativeLib = s"$MesosNativeLibPath/libmesos.so"
   val DefaultCpus = 1d
   val DefaultMem = 1024
+  val ServiceName = policyModel.fold("") { policy => s"sparta/${policy.name}" }
 
   /* Environment variables to Marathon Application */
 
   val AppTypeEnv = "SPARTA_APP_TYPE"
   val MesosNativeJavaLibraryEnv = "MESOS_NATIVE_JAVA_LIBRARY"
+  val MesosLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
   val VaultHostEnv = "VAULT_HOST"
@@ -98,58 +109,41 @@ class MarathonApp(context: ActorContext,
 
   lazy val marathonConfig: Config = SpartaConfig.getClusterConfig(Option(ConfigMarathon)).get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
-  lazy val upAndDownActor: ActorRef = actorSystem.actorOf(
-    Props(new UpAndDownActor(upAndDownComponent)), AkkaConstant.UpDownMarathonActor)
-  lazy val substitutionProperties: Map[String, String] = Map(
-    AppMainEnv -> Option(AppMainClass),
-    AppTypeEnv -> Option(MarathonApp),
-    MesosNativeJavaLibraryEnv -> Option(MesosNativeLib),
-    AppJarEnv -> marathonJar,
-    ZookeeperConfigEnv -> sparkSubmitRequest.driverArguments.get("zookeeperConfig"),
-    DetailConfigEnv -> sparkSubmitRequest.driverArguments.get("detailConfig"),
-    PolicyIdEnv -> policyModel.id,
-    VaultHostEnv -> envVaultHost,
-    VaultPortEnv -> envVaulPort,
-    VaultTokenEnv -> envVaultToken,
-    AppHeapSizeEnv -> envMarathonDriverMem.map(memory => s"-Xmx${memory}m"),
-    AppHeapMinimunSizeEnv -> envMarathonDriverMem.map(memory => s"-Xms${memory.toInt / 2}m"),
-    SparkHomeEnv -> envSparkHome,
-    HadoopUserNameEnv -> envHadoopUserName,
-    CoreSiteFromUriEnv -> envCoreSiteFromUri,
-    CoreSiteFromDfsEnv -> envCoreSiteFromDfs,
-    DefaultFsEnv -> envDefaultFs,
-    HadoopConfDirEnv -> envHadoopConfDir,
-    ServiceLogLevelEnv -> envServiceLogLevel,
-    SpartaLogLevelEnv -> envSpartaLogLevel,
-    SparkLogLevelEnv -> envSparkLogLevel,
-    HadoopLogLevelEnv -> envHadoopLogLevel,
-    DcosServiceName -> Option(s"sparta-driver-${policyModel.name}")
-  ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
+  lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
+    s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}")
 
   /* PUBLIC METHODS */
 
-  def launch(detailExecMode: String): Unit =
+  def launch(detailExecMode: String): Unit = {
+    assert(policyModel.isDefined && sparkSubmitRequest.isDefined, "Is mandatory specify one policy and the request")
+    val createApp = addRequirements(getMarathonAppFromFile, policyModel.get, sparkSubmitRequest.get)
     for {
-      response <- (upAndDownActor ? UpServiceRequest(addRequirements(getMarathonAppFromFile), Try(getToken).toOption))
-        .mapTo[UpAndDownMessage]
+      response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
         val information = s"Error when launching Sparta Marathon App to Marathon API with id: ${response.appInfo.id}"
         log.error(information)
         updateStatus(PolicyStatusModel(
-          id = policyModel.id.get, status = Failed, statusInfo = Option(information),
+          id = policyModel.get.id.get,
+          status = Failed,
+          statusInfo = Option(information),
+          marathonId = Option(createApp.id),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, response.msg))))
         log.error(s"Service ${response.appInfo.id} can't be deployed: ${response.msg}")
       case response: UpServiceResponse =>
         val information = s"Sparta Marathon App launched correctly to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
-        updateStatus(PolicyStatusModel(id = policyModel.id.get, status = NotStarted,
-          statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
+        updateStatus(PolicyStatusModel(id = policyModel.get.id.get, status = Uploaded,
+          marathonId = Option(createApp.id), statusInfo = Option(information)))
       case _ =>
         val information = "Unrecognized message received from Marathon API"
         log.warn(information)
-        updateStatus(PolicyStatusModel(id = policyModel.id.get, status = NotDefined, statusInfo = Option(information)))
+        updateStatus(PolicyStatusModel(id = policyModel.get.id.get, status = NotDefined,
+          statusInfo = Option(information)))
     }
+  }
+
+  def kill(containerId: String): Unit = upAndDownActor ! DownServiceRequest(ContainerId(containerId))
 
   /* PRIVATE METHODS */
 
@@ -198,31 +192,60 @@ class MarathonApp(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def addRequirements(app: CreateApp): CreateApp = {
+  private def addRequirements(app: CreateApp, policyModel: PolicyModel, submitRequest: SubmitRequest): CreateApp = {
+    val subProperties = substitutionProperties(policyModel, submitRequest)
     val newEnv = app.env.map { properties =>
       properties.flatMap { case (k, v) =>
         if (v == "???")
-          substitutionProperties.get(k).map(vParsed => (k, vParsed))
+          subProperties.get(k).map(vParsed => (k, vParsed))
         else Some((k, v))
       }
     }
     val newLabels = app.labels.flatMap { case (k, v) =>
       if (v == "???")
-        substitutionProperties.get(k).map(vParsed => (k, vParsed))
+        subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val newDockerContainerInfo = app.container.docker.copy(volumes = Some(Seq(
-      Volume(mesosphereLibPath, MesosNativeLibPath, "ro"),
-      Volume(mesospherePackagesPath, MesosNativePackagesPath, "ro")
-    )))
+    val newDockerContainerInfo = ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
+      Volume(mesosphereLibPath, MesosNativeLibPath, "RO"),
+      Volume(mesospherePackagesPath, MesosNativePackagesPath, "RO")
+    ))))
 
     app.copy(
-      id = s"sparta-${policyModel.name}-${DateTime.now().getMillis}",
+      id = ServiceName,
       cpus = envMarathonDriverCpus.map(_.toDouble).getOrElse(DefaultCpus),
       mem = envMarathonDriverMem.map(_.toInt).getOrElse(DefaultMem),
       env = newEnv,
       labels = newLabels,
-      container = ContainerInfo(newDockerContainerInfo)
+      container = newDockerContainerInfo
     )
   }
+
+  private def substitutionProperties(policyModel: PolicyModel, submitRequest: SubmitRequest): Map[String, String] =
+    Map(
+      AppMainEnv -> Option(AppMainClass),
+      AppTypeEnv -> Option(MarathonApp),
+      MesosNativeJavaLibraryEnv -> Option(MesosNativeLib),
+      MesosLibraryEnv -> Option(MesosLib),
+      AppJarEnv -> marathonJar,
+      ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
+      DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
+      PolicyIdEnv -> policyModel.id,
+      VaultHostEnv -> envVaultHost,
+      VaultPortEnv -> envVaulPort,
+      VaultTokenEnv -> envVaultToken,
+      AppHeapSizeEnv -> envMarathonDriverMem.map(memory => s"-Xmx${memory}m"),
+      AppHeapMinimunSizeEnv -> envMarathonDriverMem.map(memory => s"-Xms${memory.toInt / 2}m"),
+      SparkHomeEnv -> envSparkHome,
+      HadoopUserNameEnv -> envHadoopUserName,
+      CoreSiteFromUriEnv -> envCoreSiteFromUri,
+      CoreSiteFromDfsEnv -> envCoreSiteFromDfs,
+      DefaultFsEnv -> envDefaultFs,
+      HadoopConfDirEnv -> envHadoopConfDir,
+      ServiceLogLevelEnv -> envServiceLogLevel,
+      SpartaLogLevelEnv -> envSpartaLogLevel,
+      SparkLogLevelEnv -> envSparkLogLevel,
+      HadoopLogLevelEnv -> envHadoopLogLevel,
+      DcosServiceName -> Option(ServiceName)
+    ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }

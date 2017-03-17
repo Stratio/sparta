@@ -4,7 +4,7 @@
  loadVariables
 
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
- cp SPARTA_MARATHON_CONF_FILE SPARTA_CONF_FILE
+ cp ${SPARTA_MARATHON_CONF_FILE} ${SPARTA_CONF_FILE}
 
  source sparta-marathon-utils.sh
 
@@ -13,6 +13,8 @@
 
  # SPARK OPTIONS
  initSpark
+ initSparkEnvOptions
+ initSparkDefaultsOptions
 
  # HDFS OPTIONS
  initHdfs

@@ -16,8 +16,8 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.Actor
-import com.stratio.sparta.serving.api.marathon.MarathonApp
+import akka.actor.{Actor, Cancellable, PoisonPill}
+import com.stratio.sparta.serving.core.marathon.MarathonApp
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -25,6 +25,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.services.ClusterCheckerService
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
 
@@ -32,13 +33,18 @@ import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
   with LauncherUtils with SchedulerUtils with SparkSubmitUtils with ClusterListenerUtils with ArgumentsUtils
-  with ClusterCheckerUtils with PolicyStatusUtils with ExecutionUtils {
+  with PolicyStatusUtils with RequestUtils {
+
+  private val clusterCheckerService = new ClusterCheckerService(curatorFramework)
+  private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => initializeSubmitRequest(policy)
     case ResponseStatus(status) => loggingResponsePolicyStatus(status)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
+
+  override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
 
   def initializeSubmitRequest(policy: PolicyModel): Unit = {
     Try {
@@ -58,7 +64,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
 
       createRequest(submitRequest).getOrElse(throw new Exception("Impossible to create submit request in persistence"))
 
-      (new MarathonApp(context, policy, submitRequest, curatorFramework), detailExecMode)
+      (new MarathonApp(context, curatorFramework, policy, submitRequest), detailExecMode)
     } match {
       case Failure(exception) =>
         val information = s"Error when initializing Sparta Marathon App options"
@@ -66,14 +72,16 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
+        self ! PoisonPill
       case Success((marathonApp, detailExecMode)) =>
         val information = "Sparta Marathon App configurations initialized correctly"
         log.info(information)
         updateStatus(PolicyStatusModel(id = policy.id.get, status = NotStarted,
           statusInfo = Option(information), lastExecutionMode = Option(detailExecMode)))
-
         marathonApp.launch(detailExecMode)
-        scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
+        addMarathonContextListener(policy.id.get, policy.name, context, Option(self))
+        checkersPolicyStatus += scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(
+          clusterCheckerService.checkPolicyStatus(policy, self, context))
     }
   }
 }

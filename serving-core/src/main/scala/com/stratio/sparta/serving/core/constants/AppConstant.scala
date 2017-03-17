@@ -44,12 +44,6 @@ object AppConstant {
   val DefaultRememberPartitioner = true
   val ConfigStopGracefully = "stopGracefully"
   val DefaultStopGracefully = true
-  val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
-  val DefaultAwaitPolicyChangeStatus = "120s"
-  val KillMarathonDelay = "killMarathonDelay"
-  val DefaultKillMarathonDelay = "120s"
-  val KillMarathonInterval = "killMarathonInterval"
-  val DefaultKillMarathonInterval = "30s"
   val DriverPackageLocation = "driverPackageLocation"
   val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
   val DriverURI = "driverURI"
@@ -58,6 +52,15 @@ object AppConstant {
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+
+  //killing options
+  val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
+  val DefaultAwaitPolicyChangeStatus = "60s"
+  val PreStopMarathonDelay = "preStopMarathonDelay"
+  val DefaultPreStopMarathonDelay = "10s"
+  val PreStopMarathonInterval = "preStopMarathonInterval"
+  val DefaultPreStopMarathonInterval = "5s"
+
 
   //Checkpooint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
@@ -108,6 +111,7 @@ object AppConstant {
   val DriverClassPath = "driver-class-path"
   val ClusterValue = "cluster"
   val ClientValue = "client"
+  val MarathonValue = "marathon"
   val LocalValue = "local"
   val KillUrl = "killUrl"
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"

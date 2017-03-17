@@ -69,7 +69,8 @@
     }
 
     function stopPolicy(policyId, policyStatus, policyName) {
-      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
+      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' &&
+       policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished') {
 
         var stopPolicy =
         {

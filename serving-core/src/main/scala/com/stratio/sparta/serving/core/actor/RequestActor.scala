@@ -17,12 +17,12 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
-import com.stratio.sparta.serving.core.actor.ExecutionActor._
+import com.stratio.sparta.serving.core.actor.RequestActor._
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.utils.ExecutionUtils
+import com.stratio.sparta.serving.core.utils.RequestUtils
 import org.apache.curator.framework.CuratorFramework
 
-class ExecutionActor(val curatorFramework: CuratorFramework) extends Actor with ExecutionUtils {
+class RequestActor(val curatorFramework: CuratorFramework) extends Actor with RequestUtils {
 
   override def receive: Receive = {
     case Create(request) => sender ! createRequest(request)
@@ -36,7 +36,7 @@ class ExecutionActor(val curatorFramework: CuratorFramework) extends Actor with 
 
 }
 
-object ExecutionActor {
+object RequestActor {
 
   case class Update(request: SubmitRequest)
 

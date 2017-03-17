@@ -104,27 +104,6 @@ class InputStageTest
 
   }
 
-
-  "inputStage" should "Fail gracefully with bad input and no ZK" in {
-    val policy = mockPolicy
-    val input = mock[PolicyElementModel]
-    val ssc = mock[StreamingContext]
-    val reflection = mock[ReflectionUtils]
-    val curator = mock[CuratorFramework]
-    val actor = TestProbe()
-    when(policy.input).thenReturn(Some(input))
-    when(input.name).thenReturn("input")
-    when(input.`type`).thenReturn("Input")
-    when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
-    when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
-
-
-    the[RuntimeException] thrownBy {
-      TestInputZK(policy, curator).inputStage(ssc, reflection)
-    } should have message "Impossible to extract Detail Configuration"
-
-  }
-
   "inputStreamStage" should "Generate a inputStream" in {
     val policy = mockPolicy
     val input = mock[PolicyElementModel]

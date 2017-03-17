@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, PoisonPill}
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
@@ -51,14 +51,12 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       log.info(startingInfo)
       updateStatus(PolicyStatusModel(
         id = policy.id.get,
-        status = PolicyStatusEnum.Starting,
+        status = PolicyStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.LocalValue)
       ))
-
       ssc = Option(streamingContextService.localStreamingContext(policy, jars))
       ssc.get.start()
-
       val startedInformation = s"The Sparta local job was started correctly"
       log.info(startedInformation)
       updateStatus(PolicyStatusModel(
@@ -67,7 +65,6 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         statusInfo = Some(startedInformation),
         resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy), policy.monitoringLink)
       ))
-
       ssc.get.awaitTermination()
     } match {
       case Success(_) =>
@@ -75,6 +72,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         log.info(information)
         updateStatus(PolicyStatusModel(
           id = policy.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
+        self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating Sparta local job"
         log.error(information, exception)
@@ -84,8 +82,8 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
           statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
-
         SparkContextFactory.destroySparkContext()
+        self ! PoisonPill
     }
   }
 }

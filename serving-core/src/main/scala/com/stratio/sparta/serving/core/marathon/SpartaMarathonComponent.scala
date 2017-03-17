@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.api.marathon
+package com.stratio.sparta.serving.core.marathon
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.HttpMethods._

@@ -16,14 +16,15 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, Cancellable, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.utils.{ClusterCheckerUtils, ClusterListenerUtils, ExecutionUtils, LauncherUtils, PolicyStatusUtils, SchedulerUtils, SparkSubmitUtils}
+import com.stratio.sparta.serving.core.services.ClusterCheckerService
+import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, LauncherUtils, PolicyStatusUtils, RequestUtils, SchedulerUtils, SparkSubmitUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.launcher.SparkLauncher
 
@@ -31,13 +32,18 @@ import scala.util.{Failure, Success, Try}
 
 class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
   with SchedulerUtils with SparkSubmitUtils with PolicyStatusUtils
-  with ClusterListenerUtils with ClusterCheckerUtils with LauncherUtils with ExecutionUtils {
+  with ClusterListenerUtils with LauncherUtils with RequestUtils {
+
+  private val clusterCheckerService = new ClusterCheckerService(curatorFramework)
+  private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => initializeSubmitRequest(policy)
     case StartWithRequest(policy: PolicyModel, submitRequest: SubmitRequest) => launch(policy, submitRequest)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
+
+  override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
 
   def initializeSubmitRequest(policy: PolicyModel): Unit = {
     Try {
@@ -64,12 +70,14 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         log.error(information, exception)
         updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))))
+        self ! PoisonPill
       case Success(Failure(exception)) =>
         val information = s"Error when creating submit request in the persistence "
         log.error(information, exception)
         updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
+        self ! PoisonPill
       case Success(Success(submitRequestCreated)) =>
         val information = "Sparta submit options initialized correctly"
         log.info(information)
@@ -114,6 +122,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
+        self ! PoisonPill
       case Success(sparkHandler) =>
         val information = "Sparta cluster job launched correctly"
         log.info(information)
@@ -121,9 +130,10 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
           submissionId = Option(sparkHandler.getAppId), submissionStatus = Option(sparkHandler.getState.name()),
           statusInfo = Option(information)))
         if (submitRequest.executionMode.contains(ClusterValue))
-          addClusterContextListener(policy.id.get, policy.name, submitRequest.killUrl)
-        else addClientContextListener(policy.id.get, policy.name, sparkHandler)
-        scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(checkPolicyStatus(policy))
+          addClusterContextListener(policy.id.get, policy.name, submitRequest.killUrl, Option(self), Option(context))
+        else addClientContextListener(policy.id.get, policy.name, sparkHandler, self, context)
+        checkersPolicyStatus += scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(
+          clusterCheckerService.checkPolicyStatus(policy, self, context))
     }
   }
 }

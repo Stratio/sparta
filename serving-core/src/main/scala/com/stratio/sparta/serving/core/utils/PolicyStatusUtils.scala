@@ -62,14 +62,11 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           description = if (policyStatus.description.isEmpty) actualStatus.description
           else policyStatus.description,
           lastError = if (policyStatus.lastError.isDefined) policyStatus.lastError
-          else if(policyStatus.status == PolicyStatusEnum.Starting || policyStatus.status == PolicyStatusEnum.Launched)
-            None else actualStatus.lastError,
+          else if (policyStatus.status == PolicyStatusEnum.NotStarted) None else actualStatus.lastError,
           submissionId = if (policyStatus.submissionId.isDefined) policyStatus.submissionId
-          else if(
-            (policyStatus.lastExecutionMode == Option(AppConstant.LocalValue)
-              && policyStatus.status == PolicyStatusEnum.Starting)
-              || policyStatus.status == PolicyStatusEnum.Launched) None
-          else actualStatus.submissionId,
+          else if (policyStatus.status == PolicyStatusEnum.NotStarted) None else actualStatus.submissionId,
+          marathonId = if (policyStatus.marathonId.isDefined) policyStatus.marathonId
+          else if (policyStatus.status == PolicyStatusEnum.NotStarted) None else actualStatus.marathonId,
           submissionStatus = if (policyStatus.submissionStatus.isEmpty) actualStatus.submissionStatus
           else policyStatus.submissionStatus,
           statusInfo = if (policyStatus.statusInfo.isEmpty) actualStatus.statusInfo
@@ -77,7 +74,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           lastExecutionMode = if (policyStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
           else policyStatus.lastExecutionMode,
           resourceManagerUrl = if (policyStatus.status == PolicyStatusEnum.Started) policyStatus.resourceManagerUrl
-          else if(policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
+          else if (policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
         )
         log.info(s"Updating context ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
           s"\n\tStatus:\t${actualStatus.status}\t--->\t${newStatus.status}" +
@@ -87,6 +84,8 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           s"\t--->\t${newStatus.submissionId.getOrElse("undefined")}" +
           s"\n\tSubmission Status:\t${actualStatus.submissionStatus.getOrElse("undefined")}" +
           s"\t--->\t${newStatus.submissionStatus.getOrElse("undefined")}" +
+          s"\n\tMarathon Id:\t${actualStatus.marathonId.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.marathonId.getOrElse("undefined")}" +
           s"\n\tLast Error:\t${actualStatus.lastError.getOrElse("undefined")}" +
           s"\t--->\t${newStatus.lastError.getOrElse("undefined")}" +
           s"\n\tLast Execution Mode:\t${actualStatus.lastExecutionMode.getOrElse("undefined")}" +
@@ -216,5 +215,4 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
         log.warn(s"One policy is already launched")
         false
     }
-
 }

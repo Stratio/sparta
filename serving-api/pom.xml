@@ -215,10 +215,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <scope>test</scope>
@@ -227,11 +223,6 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.tikitakka</groupId>
-            <artifactId>core</artifactId>
-            <version>0.1.2</version>
         </dependency>
     </dependencies>
 </project>
