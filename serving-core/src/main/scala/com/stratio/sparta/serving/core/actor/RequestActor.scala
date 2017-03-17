@@ -17,36 +17,72 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
+import com.stratio.sparta.security.{Create, Edit,View,Delete, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.RequestActor._
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.utils.RequestUtils
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, RequestUtils}
 import org.apache.curator.framework.CuratorFramework
 
-class RequestActor(val curatorFramework: CuratorFramework) extends Actor with RequestUtils {
+class RequestActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with RequestUtils with ActionUserAuthorize{
+
+  val ResourceType = "context"
 
   override def receive: Receive = {
-    case Create(request) => sender ! createRequest(request)
-    case Update(request) => sender ! updateRequest(request)
-    case FindAll => sender ! findAllRequests()
-    case FindById(id) => sender ! findRequestById(id)
-    case DeleteAll => sender ! deleteAllRequests()
-    case Delete(id) => sender ! deleteRequest(id)
+    case CreateExecution(request, user) => createExecution(request, user)
+    case Update(request, user) => updateExecution(request, user)
+    case FindAll(user) => findAllExecutions(user)
+    case FindById(id, user) => findExecutionById(id, user)
+    case DeleteAll(user) => deleteAllExecutions(user)
+    case DeleteExecution(id, user) => deleteExecution(id, user)
     case _ => log.info("Unrecognized message in Policy Request Actor")
+  }
+
+  def createExecution(request: SubmitRequest, user: Option[LoggedUser]): Unit = {
+    def callback() = createRequest(request)
+
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
+  }
+
+  def updateExecution(request: SubmitRequest, user: Option[LoggedUser]): Unit = {
+    def callback() = updateRequest(request)
+
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
+  }
+
+  def findAllExecutions(user: Option[LoggedUser]): Unit = {
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), findAllRequests)
+  }
+
+  def findExecutionById(id: String, user: Option[LoggedUser]): Unit = {
+    def callback() = findRequestById(id)
+
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+  }
+
+  def deleteAllExecutions(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), deleteAllRequests)
+
+
+  def deleteExecution(id:String, user: Option[LoggedUser]): Unit = {
+    def callback() = deleteRequest(id)
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }
 
 }
 
 object RequestActor {
 
-  case class Update(request: SubmitRequest)
+  case class Update(request: SubmitRequest, user: Option[LoggedUser])
 
-  case class Create(request: SubmitRequest)
+  case class CreateExecution(request: SubmitRequest, user: Option[LoggedUser])
 
-  case class Delete(id: String)
+  case class DeleteExecution(id: String, user: Option[LoggedUser])
 
-  case object DeleteAll
+  case class DeleteAll(user: Option[LoggedUser])
 
-  case object FindAll
+  case class FindAll(user: Option[LoggedUser])
 
-  case class FindById(id: String)
+  case class FindById(id: String, user: Option[LoggedUser])
 }

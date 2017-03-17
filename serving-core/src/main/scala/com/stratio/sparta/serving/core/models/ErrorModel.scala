@@ -51,6 +51,8 @@ object ErrorModel extends SpartaSerializer {
   val CodePolicyIsWrong = "305"
   val ValidationError = "400"
   val ErrorForPolicyNotFound = "401"
+  val UnauthorizedAction = "403"
+  val UserNotFound = "501"
   val CodeUnknown = "666"
 
   val ValidationError_There_is_at_least_one_cube_without_name = "4000"

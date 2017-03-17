@@ -49,6 +49,25 @@ class LoggedUserTest extends WordSpec with Matchers {
     }
   }
 
+
+  "An input String" when {
+    "has missing fields" should {
+      "be correctly parsed " in {
+        val stringSparta =
+          """{"id":"sparta","attributes":[
+            |{"cn":"sparta"},
+            |{"mail":"sparta@demo.stratio.com"},
+            |{"groups":["Developers"]},
+            |{"roles":[]}]}""".stripMargin
+        val parsedUser = LoggedUser.jsonToDto(stringSparta)
+        val objectUser = LoggedUser("sparta", "sparta",
+          "sparta@demo.stratio.com", "", Seq("Developers"), Seq.empty[String])
+        parsedUser shouldBe defined
+        parsedUser.get should equal (objectUser)
+      }
+    }
+  }
+
   "An input String" when {
     "is empty" should {
       "be transformed into None" in {

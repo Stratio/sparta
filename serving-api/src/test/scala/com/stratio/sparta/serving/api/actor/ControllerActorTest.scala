@@ -18,9 +18,11 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{RequestActor, FragmentActor, StatusActor}
+import com.stratio.sparta.security.SpartaSecurityManager
+import com.stratio.sparta.serving.core.actor.{FragmentActor, RequestActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.helpers.DummySecurityClass
 import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
 import org.scalamock.scalatest.MockFactory
@@ -38,15 +40,16 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   SpartaConfig.initMainConfig()
   SpartaConfig.initApiConfig()
 
+  val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
-  val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
-  val executionActor = _system.actorOf(Props(new RequestActor(curatorFramework)))
-  val streamingContextService = new StreamingContextService(curatorFramework)
-  val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
-  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)))
+  val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
+  val executionActor = _system.actorOf(Props(new RequestActor(curatorFramework, secManager)))
+  val streamingContextService = StreamingContextService(curatorFramework)
+  val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework, secManager)))
+  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, secManager)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new LauncherActor(streamingContextService, curatorFramework)))
-  val pluginActor = _system.actorOf(Props(new PluginActor()))
+    Props(new LauncherActor(streamingContextService, curatorFramework, secManager)))
+  val pluginActor = _system.actorOf(Props(new PluginActor(secManager)))
   val configActor = _system.actorOf(Props(new ConfigActor()))
 
   def this() =
@@ -67,7 +70,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   }
 
   "ControllerActor" should {
-    "set up the controller actor that contains all sparta's routes without any error" in {
+    "set up the controller actor that contains all Sparta's routes without any error" in {
       _system.actorOf(Props(new ControllerActor(actors, curatorFramework)))
     }
   }

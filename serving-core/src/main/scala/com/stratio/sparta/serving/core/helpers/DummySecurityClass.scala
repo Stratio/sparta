@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.serving.core.helpers
 
-package com.stratio.sparta.serving.core.actor
+import com.stratio.sparta.security._
 
-import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+class DummySecurityClass extends SpartaSecurityManager {
+  override def start(): Unit = {}
 
+  override def stop(): Unit = {}
 
-object LauncherActor {
+  override def authorize(userId: String, resource: Resource, action: Action): Boolean = true
 
-  case class Launch(policy: PolicyModel, user: Option[LoggedUser])
+  override def audit(auditEvent: AuditEvent): Unit = {}
 
-  case class Start(policy: PolicyModel)
-
-  case class StartWithRequest(policy: PolicyModel, request: SubmitRequest)
 }

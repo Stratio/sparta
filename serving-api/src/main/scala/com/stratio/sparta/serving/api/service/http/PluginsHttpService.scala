@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
@@ -43,7 +44,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
     download(user) ~ getAll(user) ~ deleteAllFiles(user) ~ deleteFile(user)
 
   @Path("")
-  @ApiOperation(value = "Upload a file to plugin directory.",
+  @ApiOperation(value = "Uploads a file to the plugin directory.",
     notes = "Creates a file in the server filesystem with the uploaded jar.",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(
@@ -59,10 +60,13 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadPlugins(form.fields)).mapTo[JarFilesResponse]
+              response <- (supervisor ? UploadPlugins(form.fields, user))
+                .mapTo[Either[JarFilesResponse, UnauthorizedResponse]]
             } yield response match {
-              case JarFilesResponse(Success(newFilesUris)) => newFilesUris
-              case JarFilesResponse(Failure(exception)) => throw exception
+              case Left(JarFilesResponse(Success(newFilesUris))) => newFilesUris
+              case Left(JarFilesResponse(Failure(exception))) => throw exception
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in plugins")
             }
           }
         }
@@ -71,7 +75,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   }
 
   @Path("/{fileName}")
-  @ApiOperation(value = "Download a file from the plugin directory.",
+  @ApiOperation(value = "Downloads a file from the plugin directory.",
     httpMethod = "GET")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fileName",
@@ -90,7 +94,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
     }
 
   @Path("")
-  @ApiOperation(value = "Browse all plugins uploaded",
+  @ApiOperation(value = "Browses all plugins uploaded",
     notes = "Finds all plugins.",
     httpMethod = "GET")
   @ApiResponses(Array(
@@ -102,18 +106,21 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListPlugins).mapTo[JarFilesResponse]
+            response <- (supervisor ? ListPlugins(user))
+              .mapTo[Either[JarFilesResponse, UnauthorizedResponse]]
           } yield response match {
-            case JarFilesResponse(Success(filesUris)) => filesUris
-            case JarFilesResponse(Failure(exception)) => throw exception
+            case Left(JarFilesResponse(Success(filesUris))) => filesUris
+            case Left(JarFilesResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
     }
 
   @Path("")
-  @ApiOperation(value = "Delete all plugins uploaded",
-    notes = "Delete all plugins.",
+  @ApiOperation(value = "Deletes all plugins uploaded",
+    notes = "Deletes all plugins.",
     httpMethod = "DELETE")
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
@@ -124,18 +131,21 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeletePlugins).mapTo[PluginResponse]
+            response <- (supervisor ? DeletePlugins)
+              .mapTo[Either[PluginResponse,UnauthorizedResponse]]
           } yield response match {
-            case PluginResponse(Success(_)) => StatusCodes.OK
-            case PluginResponse(Failure(exception)) => throw exception
+            case Left(PluginResponse(Success(_))) => StatusCodes.OK
+            case Left(PluginResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }
     }
 
   @Path("/{fileName}")
-  @ApiOperation(value = "Delete one plugin uploaded",
-    notes = "Delete one plugin.",
+  @ApiOperation(value = "Deletes one uploaded plugin",
+    notes = "Delete one plugin",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fileName",
@@ -153,10 +163,13 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeletePlugin(file)).mapTo[PluginResponse]
+            response <- (supervisor ? DeletePlugin(file, user))
+              .mapTo[Either[PluginResponse,UnauthorizedResponse]]
           } yield response match {
-            case PluginResponse(Success(_)) => StatusCodes.OK
-            case PluginResponse(Failure(exception)) => throw exception
+            case Left(PluginResponse(Success(_))) => StatusCodes.OK
+            case Left(PluginResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
         }
       }

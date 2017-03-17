@@ -22,7 +22,7 @@ import com.stratio.sparta.serving.core.models.policy.PolicyElementModel
 /**
  * A fragmentElementDto represents a piece of policy that will be composed with other fragments before.
  *
- * @param fragmentType that could be inputs/outputs/parsers
+ * @param fragmentType that could be inputs/outputs
  * @param name that will be used as an identifier of the fragment.
  * @param element with all config parameters of the fragment.
  * @author anistal
