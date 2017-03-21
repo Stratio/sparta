@@ -48,6 +48,9 @@
       getPoliciesStatus: function () {
         return ApiPolicyService.getPoliciesStatus().get().$promise;
       },
+      getPolicieStatus: function (policyId) {
+        return ApiPolicyService.getPolicieStatus().get({'id': policyId}).$promise;
+      },
       downloadPolicy: function (policyId) {
         return ApiPolicyService.downloadPolicy().get({'id': policyId}).$promise;
       },
