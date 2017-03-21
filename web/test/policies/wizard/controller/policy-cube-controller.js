@@ -249,29 +249,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       });
       scope.$digest();
     });
-
   });
-/*
-  describe("should be able to add a cube to the policy", function () {
-    it("cube is not added if view validations have not been passed and error is updated", function () {
-      ctrl.form = {$valid: false, cubeOutputs:[], $setSubmitted:jasmine.createSpy()}; //view validations have not been passed
-
-      ctrl.addCube();
-
-      expect(cubeServiceMock.addCube).not.toHaveBeenCalled();
-      expect(cubeModelFactoryMock.setError).toHaveBeenCalled();
-    });
-
-    it("cube is added if view validations have been passed and there is a dimension, and an operator at least", function () {
-      ctrl.form = {$valid: true, $setSubmitted:jasmine.createSpy()}; //view validations have been passed
-      ctrl.cube.dimensions = [fakeDimension];
-      ctrl.cube.operators = [fakeOperator];
-
-      ctrl.addCube();
-
-      expect(cubeServiceMock.addCube).toHaveBeenCalled();
-    });
-  });*/
 
   it("should be able to remove the factory cube from the policy calling to the cube service", function () {
     ctrl.removeCube();

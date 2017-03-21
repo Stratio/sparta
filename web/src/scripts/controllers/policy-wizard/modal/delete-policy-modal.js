@@ -36,12 +36,12 @@
     ///////////////////////////////////////
 
     function init() {
-      vm.policyData = item;
+      vm.policyId = item;
     }
 
     function ok() {
-      return PolicyFactory.deletePolicy(vm.policyData.id).then(function () {
-        $uibModalInstance.close(vm.policyData);
+      return PolicyFactory.deletePolicy(vm.policyId).then(function () {
+        $uibModalInstance.close(vm.policyId);
 
       }, function (error) {
         vm.error = true;

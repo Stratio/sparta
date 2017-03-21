@@ -35,6 +35,7 @@
     vm.stopPolicy = stopPolicy;
     vm.getPoliciesStatus = getPoliciesStatus;
     vm.downloadPolicy = downloadPolicy;
+    vm.getPolicieStatus = getPolicieStatus;
 
     /////////////////////////////////
 
@@ -126,6 +127,18 @@
           }
         });
     }
+
+    
+    function getPolicieStatus() {
+      return $resource('/policyContext/:id', {id: '@id'},
+        {
+          'get': {
+            method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    }
+
 
 
     function downloadPolicy() {
