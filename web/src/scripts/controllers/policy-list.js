@@ -232,8 +232,7 @@
       }
     }
 
-    function showInfoModal(policyIndex) {
-      var policy = vm.policiesData[policyIndex];
+    function showInfoModal(policy) {
       var controller = 'PolicyInfoModalCtrl';
       var templateUrl = "templates/modal/policy-info-modal.tpl.html";
       var resolve = {

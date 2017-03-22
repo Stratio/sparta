@@ -1,5 +1,5 @@
 <section data-ng-controller="TriggerCtrl as vm" data-ng-model="vm.trigger">
-  <ng-form name="vm.form" data-ng-submit="vm.addTrigger()" novalidate>
+  <ng-form name="vm.form" data-ng-submit="vm.addTrigger()" novalidate disabled="disabled">
     <c-animated-msg type="error" data-msg="vm.error" data-on-click-close-msg="wizard.closeErrorMessage()"
                     data-timeout=10000></c-animated-msg>
     <div class="c-row c-msg c-msg--small c-msg--error c-form c-form-group"

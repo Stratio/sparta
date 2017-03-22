@@ -18,7 +18,7 @@ package com.stratio.sparta.sdk.pipeline.output
 
 object SaveModeEnum extends Enumeration {
 
-  type status = Value
+  type SpartaSaveMode = Value
 
   val Append = Value("Append")
   val ErrorIfExists = Value("ErrorIfExists")

@@ -1,0 +1,24 @@
+<section data-ng-controller="PolicyModelAccordionCtrl as vm">
+  <form class="c-form c-panel c-panel--framed" novalidate>
+    <c-accordion items="vm.policy.transformations"
+                 item-template="'views/policy-wizard/model-panel.html'"
+                 on-change-opened-element="vm.changeOpenedModel(selectedItemPosition)"
+                 item-qa-tag="policy-model"
+                 show-new-item-panel="vm.isActiveModelCreationPanel()"
+                 accordion-status="vm.modelAccordionStatus"
+                 item-attribute-in-header="type"
+                 new-item-header="_POLICY_._NEW_MODEL_DEFINITION_"
+                 data-additional-modifier-class="--indented">
+    </c-accordion>
+
+    <div class="c-row">
+      <div class="c-col c-col--12 c-col--to-right">
+        <button class="c-button c-button--call-to-action-7 c-button--to-right" ng-if="!vm.isActiveModelCreationPanel()"
+                data-ng-click="vm.activateModelCreationPanel()" data-qa="policy-model-add-new-transformation-button">
+          <i class="icon icon-circle-plus"></i>
+          <span>{{"_POLICY_._ADD_TRANSFORMATION_" | translate}}</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

@@ -25,9 +25,12 @@ import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.config.SpartaConfig._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import spray.can.Http
+
+import scala.util.{Failure, Success, Try}
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
@@ -52,7 +55,7 @@ object SpartaHelper extends SLF4JLogging {
       val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)),
         AkkaConstant.statusActor)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActor)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, fragmentActor)),
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)),
         AkkaConstant.PolicyActor)
       val streamingContextService = StreamingContextService(statusActor, SpartaConfig.mainConfig)
       val streamingContextActor = system.actorOf(Props(
@@ -60,23 +63,24 @@ object SpartaHelper extends SLF4JLogging {
         AkkaConstant.LauncherActor
       )
       val pluginActor = system.actorOf(Props(new PluginActor()), AkkaConstant.PluginActor)
+      val driverActor = system.actorOf(Props(new DriverActor()), AkkaConstant.DriverActor)
 
       implicit val actors = Map(
         AkkaConstant.statusActor -> statusActor,
         AkkaConstant.FragmentActor -> fragmentActor,
         AkkaConstant.PolicyActor -> policyActor,
         AkkaConstant.LauncherActor -> streamingContextActor,
-        AkkaConstant.PluginActor -> pluginActor
+        AkkaConstant.PluginActor -> pluginActor,
+        AkkaConstant.DriverActor -> driverActor
       )
 
       val controllerActor = system.actorOf(RoundRobinPool(controllerInstances)
         .props(Props(new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActor)
 
-      if (SpartaConfig.isHttpsEnabled()) loadSpartaWithHttps(controllerActor)
+      if (isHttpsEnabled) loadSpartaWithHttps(controllerActor)
       else loadSpartaWithHttp(controllerActor)
 
       statusActor ! AddClusterListeners
-
     } else log.info("Sparta Configuration is not defined")
   }
 
@@ -96,4 +100,19 @@ object SpartaHelper extends SLF4JLogging {
     )
     log.info("Sparta Actors System initiated correctly")
   }
+
+  def isHttpsEnabled: Boolean =
+    SpartaConfig.getSprayConfig match {
+      case Some(config) =>
+        Try(config.getValue("ssl-encryption")) match {
+          case Success(value) =>
+            "on".equals(value.unwrapped())
+          case Failure(e) =>
+            log.error("Incorrect value in ssl-encryption option, setting https disabled", e)
+            false
+        }
+      case None =>
+        log.warn("Impossible to get spray config, setting https disabled")
+        false
+    }
 }

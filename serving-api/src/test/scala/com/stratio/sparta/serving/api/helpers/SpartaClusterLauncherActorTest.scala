@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.helpers
 
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.config.{SpartaConfigFactory, SpartaConfig}
 import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalamock.scalatest._
@@ -39,7 +39,7 @@ class SpartaClusterLauncherActorTest extends FlatSpec with MockFactory with Shou
         |}
       """.stripMargin)
 
-    val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = new MockConfigFactory(config))
+    val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = SpartaConfigFactory(config))
     spartaConfig.get.getString("testKey") should be("testValue")
   }
 
@@ -53,8 +53,8 @@ class SpartaClusterLauncherActorTest extends FlatSpec with MockFactory with Shou
         |}
       """.stripMargin)
 
-    val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = new MockConfigFactory(config))
-    val testNodeConfig = SpartaConfig.initConfig("testNode", spartaConfig, new MockConfigFactory(config))
+    val spartaConfig = SpartaConfig.initConfig(node = "sparta", configFactory = SpartaConfigFactory(config))
+    val testNodeConfig = SpartaConfig.initConfig("testNode", spartaConfig, SpartaConfigFactory(config))
     testNodeConfig.get.getString("testKey") should be("testValue")
   }
 }

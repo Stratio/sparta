@@ -25,7 +25,7 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, ResponsePolicy}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -35,12 +35,10 @@ import scala.util.Try
 /**
   * Implementation of supported CRUD operations over ZK needed to manage policies.
   */
-class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef, fragmentActorRef: ActorRef)
+class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef)
   extends Actor with PolicyUtils with CheckpointUtils {
 
   import PolicyActor._
-
-  override val fragmentActor: Option[ActorRef] = Some(fragmentActorRef)
 
   //scalastyle:off
   override def receive: Receive = {
@@ -223,7 +221,5 @@ object PolicyActor extends SLF4JLogging {
   case class Response(status: Try[_])
 
   case class ResponsePolicies(policies: Try[Seq[PolicyModel]])
-
-  case class ResponsePolicy(policy: Try[PolicyModel])
 
 }

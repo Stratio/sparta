@@ -25,6 +25,7 @@
   function TriggerService(PolicyModelFactory, ModalService, TriggerModelFactory, triggerConstants, $q) {
     var vm = this;
     var triggerCreationStatus = {};
+    var triggerUpdateStatus = {};
     var triggerContainer = null;
     var triggerContainerType = "";
     var showHelpForSql = false;
@@ -39,6 +40,7 @@
     vm.getTriggerContainer = getTriggerContainer;
     vm.getTriggerContainerType = getTriggerContainerType;
     vm.isActiveTriggerCreationPanel = isActiveTriggerCreationPanel;
+    vm.isActiveTriggerUpdatePanel = isActiveTriggerUpdatePanel;
     vm.activateTriggerCreationPanel = activateTriggerCreationPanel;
     vm.disableTriggerCreationPanel = disableTriggerCreationPanel;
     vm.getTriggerCreationStatus = getTriggerCreationStatus;
@@ -70,6 +72,10 @@
 
     function getTriggerCreationStatus() {
       return triggerCreationStatus;
+    }
+
+    function getTriggerUpdateStatus(){
+      return triggerUpdateStatus;
     }
     
     function activateTriggerCreationPanel() {
@@ -143,6 +149,10 @@
       return triggerCreationStatus.enabled;
     }
 
+    function isActiveTriggerUpdatePanel(){
+      return triggerUpdateStatus.enabled;
+    }
+
     function getSqlHelpSourceItems() {
       var sqlSourceItems = [];
       var sourceContainer = [];
@@ -173,9 +183,11 @@
         if (selectedTriggerPosition >= 0 && selectedTriggerPosition < triggerContainer.length) {
           var selectedTrigger = triggerContainer[selectedTriggerPosition];
           TriggerModelFactory.setTrigger(selectedTrigger, selectedTriggerPosition, triggerContainerType);
+          triggerUpdateStatus.enabled =  true;
         } else {
           if (selectedTriggerPosition> -1)
           TriggerModelFactory.resetTrigger(triggerContainer.length, triggerContainerType);
+          triggerUpdateStatus.enabled = false;
         }
       }
     }

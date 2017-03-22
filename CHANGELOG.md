@@ -2,6 +2,8 @@
 
 ## 1.2.0 (upcoming)
 
+* Optimized save modes (upsert, append and override) in Postgres and JDBC output
+* Upsert in Postgres and JDBC output
 * Postgres Output
 * Allow null values in Json parser
 * Partition by with multiple fields

@@ -18,10 +18,9 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
-import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadFile}
+import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.{MockConfigFactory, SpartaConfig}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -29,39 +28,37 @@ import spray.http._
 
 import scala.util.{Failure, Success}
 
-
 @RunWith(classOf[JUnitRunner])
 class PluginsHttpServiceTest extends WordSpec
   with PluginsHttpService
   with HttpServiceBaseTest {
+
   override val supervisor: ActorRef = testProbe.ref
 
   val pluginTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map.empty
 
-
   override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), MockConfigFactory(localConfig))
+    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
   }
 
   "PluginsHttpService.upload" should {
     "Upload a file" in {
-      val response = PluginResponse(Success("ok"))
+      val response = PluginResponse(Success(Seq("ok")))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}/fileName") ~> routes ~> check {
-        testProbe.expectMsgType[UploadFile]
+      Put(s"/${HttpConstant.PluginsPath}") ~> routes ~> check {
+        testProbe.expectMsgType[UploadPlugins]
         status should be(StatusCodes.OK)
       }
     }
     "Fail when service is not available" in {
       val response = PluginResponse(Failure(new IllegalArgumentException("Error")))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}/fileName") ~> routes ~> check {
-        testProbe.expectMsgType[UploadFile]
+      Put(s"/${HttpConstant.PluginsPath}") ~> routes ~> check {
+        testProbe.expectMsgType[UploadPlugins]
         status should be(StatusCodes.InternalServerError)
       }
     }
   }
-
 }

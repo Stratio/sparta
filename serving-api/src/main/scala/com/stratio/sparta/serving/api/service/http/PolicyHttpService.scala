@@ -23,13 +23,13 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
-import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator}
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, ResponsePolicy}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -185,13 +185,22 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[PolicyModel]) { policy =>
-          PolicyValidator.validateDto(getPolicyWithFragments(policy, actors(AkkaConstant.FragmentActor)))
           complete {
+            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+            (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
-              response <- (supervisor ? Create(policy)).mapTo[ResponsePolicy]
-            } yield response match {
-              case ResponsePolicy(Failure(exception)) => throw exception
-              case ResponsePolicy(Success(policy)) => policy
+              parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(policy)).mapTo[ResponsePolicy]
+            } yield parsedP match {
+              case ResponsePolicy(Failure(exception)) =>
+                throw exception
+              case ResponsePolicy(Success(policyParsed)) =>
+                PolicyValidator.validateDto(policyParsed)
+                for {
+                  response <- (supervisor ? Create(policy)).mapTo[ResponsePolicy]
+                } yield response match {
+                  case ResponsePolicy(Failure(exception)) => throw exception
+                  case ResponsePolicy(Success(policy)) => policy
+                }
             }
           }
         }
@@ -213,8 +222,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[PolicyModel]) { policy =>
-          PolicyValidator.validateDto(getPolicyWithFragments(policy, actors(AkkaConstant.FragmentActor)))
           complete {
+            PolicyValidator.validateDto(policy)
             for {
               response <- (supervisor ? Update(policy)).mapTo[ResponsePolicy]
             } yield response match {

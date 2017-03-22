@@ -13,27 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
 
+import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.DriverActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
+import spray.http._
+import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.DriverPath, description = "Operations over driver")
+@Api(value = HttpConstant.DriverPath, description = "Operations over plugins: now only to upload/download jars.")
 trait DriverHttpService extends BaseHttpService with OauthClient {
 
-  override def routes: Route = download
+  implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
+    FormDataUnmarshallers.MultipartFormDataUnmarshaller
+
+  override def routes: Route = upload ~ download ~ getAll ~ deleteAllFiles ~ deleteFile
+
+  @Path("")
+  @ApiOperation(value = "Upload a file to driver directory.",
+    notes = "Creates a file in the server filesystem with the uploaded jar.",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "file",
+      value = "The jar",
+      dataType = "file",
+      required = true,
+      paramType = "formData")
+  ))
+  def upload: Route = {
+    path(HttpConstant.DriverPath) {
+      put {
+        entity(as[MultipartFormData]) { form =>
+          complete {
+            for {
+              response <- (supervisor ? UploadDrivers(form.fields)).mapTo[DriverResponse]
+            } yield response match {
+              case DriverResponse(Success(newFilesUris: Seq[String])) => FilesUris(newFilesUris)
+              case DriverResponse(Failure(exception)) => throw exception
+            }
+          }
+        }
+      }
+    }
+  }
 
   @Path("/{fileName}")
-  @ApiOperation(value = "Download the driver.",
-    notes = "....",
+  @ApiOperation(value = "Download a file from the driver directory.",
     httpMethod = "GET")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fileName",
@@ -43,12 +78,88 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       paramType = "path")
   ))
   def download: Route =
-    get {
-      pathPrefix(HttpConstant.DriverPath) {
+    path(HttpConstant.DriverPath) {
+      get {
         getFromDirectory(
           Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
             .getOrElse(AppConstant.DefaultDriverPackageLocation))
       }
     }
+
+  @Path("")
+  @ApiOperation(value = "Browse all drivers uploaded",
+    notes = "Finds all drivers.",
+    httpMethod = "GET")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def getAll: Route =
+    path(HttpConstant.DriverPath) {
+      get {
+        complete {
+          for {
+            response <- (supervisor ? ListDrivers).mapTo[DriverResponse]
+          } yield response match {
+            case DriverResponse(Success(filesUris: Seq[String])) => FilesUris(filesUris)
+            case DriverResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+
+  @Path("")
+  @ApiOperation(value = "Delete all drivers uploaded",
+    notes = "Delete all drivers.",
+    httpMethod = "DELETE")
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteAllFiles: Route =
+    path(HttpConstant.DriverPath) {
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeleteDrivers).mapTo[DriverResponse]
+          } yield response match {
+            case DriverResponse(Success(_)) => StatusCodes.OK
+            case DriverResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+
+  @Path("/{fileName}")
+  @ApiOperation(value = "Delete one driver uploaded",
+    notes = "Delete one driver.",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the jar",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def deleteFile: Route = {
+    path(HttpConstant.DriverPath / Segment) { file =>
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeleteDriver(file)).mapTo[DriverResponse]
+          } yield response match {
+            case DriverResponse(Success(_)) => StatusCodes.OK
+            case DriverResponse(Failure(exception)) => throw exception
+          }
+        }
+      }
+    }
+  }
+
+  case class FilesUris(uris: Seq[String])
 
 }
