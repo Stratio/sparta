@@ -22,7 +22,6 @@ import java.util.function.Predicate
 import java.util.regex.Pattern
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import spray.http.BodyPart
 
@@ -32,13 +31,10 @@ trait FileActorUtils extends SLF4JLogging {
 
   //The dir where the jars will be saved
   val targetDir: String
-  //Configuration of the app
-  val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.apiConfig.get.getString("host"))
-  val port = SpartaConfig.apiConfig.get.getInt("port")
-  //Url of the download endpoint
-  val url = s"$host:$port/${HttpConstant.PluginsPath}"
+  val apiPath: String
+
   //Regexp for jar name validation
-  val jarFileName: Predicate[String] = Pattern.compile(""".*\.jar""").asPredicate()
+  lazy val jarFileName: Predicate[String] = Pattern.compile(""".*\.jar""").asPredicate()
 
   def deleteFiles(): Try[_] =
     Try {
@@ -91,10 +87,17 @@ trait FileActorUtils extends SLF4JLogging {
       }
     }
 
-  def saveFile(array: Array[Byte], fileName: String): Unit = {
+  private def saveFile(array: Array[Byte], fileName: String): Unit = {
     log.info(s"Saving file to: $fileName")
     val bos = new BufferedOutputStream(new FileOutputStream(fileName))
     bos.write(array)
     bos.close()
+  }
+
+  private def url: String = {
+    val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.apiConfig.get.getString("host"))
+    val port = SpartaConfig.apiConfig.get.getInt("port")
+
+    s"$host:$port/$apiPath"
   }
 }

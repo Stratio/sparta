@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.Actor
 import com.stratio.sparta.serving.api.actor.PluginActor._
+import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -32,6 +33,7 @@ class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   //The dir where the jars will be saved
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
     .getOrElse(AppConstant.DefaultPluginsPackageLocation)
+  val apiPath = HttpConstant.PluginsPath
 
   override def receive: Receive = {
     case UploadPlugins(files) =>
