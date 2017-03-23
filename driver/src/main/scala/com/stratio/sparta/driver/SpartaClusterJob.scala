@@ -78,7 +78,7 @@ object SpartaClusterJob extends PluginsFilesUtils {
         statusActor ! Update(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(statusActor)
 
-        val ssc = streamingContextService.clusterStreamingContext(policy)
+        val ssc = streamingContextService.clusterStreamingContext(policy, pluginsFiles)
         statusActor ! Update(PolicyStatusModel(
           id = policyId,
           status = NotDefined,
