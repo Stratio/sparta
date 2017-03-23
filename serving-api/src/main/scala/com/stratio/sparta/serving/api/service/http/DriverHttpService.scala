@@ -78,8 +78,8 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       paramType = "path")
   ))
   def download: Route =
-    path(HttpConstant.DriverPath) {
-      get {
+    get {
+      pathPrefix(HttpConstant.DriverPath) {
         getFromDirectory(
           Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
             .getOrElse(AppConstant.DefaultDriverPackageLocation))
