@@ -78,8 +78,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       paramType = "path")
   ))
   def download: Route =
-    path(HttpConstant.PluginsPath) {
       get {
+        pathPrefix(HttpConstant.PluginsPath) {
         getFromDirectory(
           Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
             .getOrElse(AppConstant.DefaultPluginsPackageLocation))
