@@ -74,8 +74,8 @@ object SparkContextFactory extends SLF4JLogging {
       sc.getOrElse(instantiateSparkContext(specificConfig, jars))
     }
 
-  def sparkClusterContextInstance(specificConfig: Map[String, String]): SparkContext =
-    sc.getOrElse(instantiateClusterContext(specificConfig))
+  def sparkClusterContextInstance(specificConfig: Map[String, String], files: Seq[String]): SparkContext =
+    sc.getOrElse(instantiateClusterContext(specificConfig, files))
 
   private def instantiateSparkContext(specificConfig: Map[String, String], jars: Seq[File]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
@@ -86,8 +86,12 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def instantiateClusterContext(specificConfig: Map[String, String]): SparkContext = {
+  private def instantiateClusterContext(specificConfig: Map[String, String], files: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
+    files.foreach(f => {
+      log.info(s"Adding jar $f to cluster Spark context")
+      sc.get.addJar(f)
+    })
     sc.get
   }
 
