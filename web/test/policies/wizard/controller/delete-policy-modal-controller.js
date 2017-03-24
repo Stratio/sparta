@@ -1,7 +1,7 @@
 describe('policies.wizard.controller.delete-policy-modal-controller', function () {
   beforeEach(module('webApp'));
 
-  var ctrl, policyFactoryMock, modalInstanceMock, fakePolicy, resolvedPromise, rejectedPromise, scope, fakeError = null;
+  var ctrl, policyFactoryMock, modalInstanceMock, fakePolicyId, resolvedPromise, rejectedPromise, scope, fakeError = null;
 
   beforeEach(inject(function ($controller, $q, $rootScope, $httpBackend) {
     scope = $rootScope.$new();
@@ -24,11 +24,11 @@ describe('policies.wizard.controller.delete-policy-modal-controller', function (
     policyFactoryMock.deletePolicy.and.callFake(resolvedPromise);
 
     modalInstanceMock = jasmine.createSpyObj('$uibModalInstance', ['close', 'dismiss']);
-    fakePolicy = {"id": "fake policy id"};
+    fakePolicyId = "fake policy id";
 
     ctrl = $controller('DeletePolicyModalCtrl', {
       '$uibModalInstance': modalInstanceMock,
-      'item': fakePolicy,
+      'item': fakePolicyId,
       'PolicyFactory': policyFactoryMock
     });
 
@@ -36,21 +36,20 @@ describe('policies.wizard.controller.delete-policy-modal-controller', function (
   }));
 
   it("when it is initialized, it saves the introduced item as a policyData variable", function () {
-    expect(ctrl.policyData).toBe(fakePolicy);
+    expect(ctrl.policyId).toBe(fakePolicyId);
   });
 
   describe("should be able to confirm the modal", function () {
 
     it("should remove the policy introduced when modal is confirmed by user", function () {
       ctrl.ok();
-
-      expect(policyFactoryMock.deletePolicy).toHaveBeenCalledWith(fakePolicy.id);
+      expect(policyFactoryMock.deletePolicy).toHaveBeenCalledWith(fakePolicyId);
     });
 
     it("should close modal when policy has been removed successfully", function () {
       policyFactoryMock.deletePolicy.and.callFake(resolvedPromise);
       ctrl.ok().then(function () {
-        expect(modalInstanceMock.close).toHaveBeenCalledWith(fakePolicy);
+        expect(modalInstanceMock.close).toHaveBeenCalledWith(fakePolicyId);
       });
       scope.$digest();
     });
