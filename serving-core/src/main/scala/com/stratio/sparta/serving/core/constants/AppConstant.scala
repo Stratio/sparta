@@ -57,6 +57,8 @@ object AppConstant {
   //Checkpooint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   val DefaultAutoDeleteCheckpoint = false
+  val ConfigAddTimeToCheckpointPath = "addTimeToCheckpointPath"
+  val DefaultAddTimeToCheckpointPath = false
   val ConfigCheckpointPath = "checkpointPath"
   val DefaultCheckpointPath = "sparta/checkpoint"
   val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"

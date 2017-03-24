@@ -192,6 +192,7 @@
   "_CHECKPOINT_PATH_": "Checkpoint path",
   "_TEMPORAL_TABLE_TRANSFORMATIONS_": "Transformations temporal table",
   "_AUTO_DELETE_CHECKPOINT_": "Auto-delete checkpoint",
+  "_ADD_TIME_TO_CHECKPOINT_": "Add time to checkpoint path",
   "_PERSIST_RAW_DATA_": "Persist raw data",
   "_MONITORING_LINK_": "Monitoring link",
   "_STOP_GRACEFULLY_": "Stop Gracefully",
