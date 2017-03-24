@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 1.2.0 (upcoming)
+## 1.2.0 (March 24, 2017)
 
 * Allow null values in Json parser
 * Partition by with multiple fields
