@@ -42,6 +42,9 @@
       stopPolicy: function (policy) {
         return ApiPolicyService.stopPolicy().update(policy).$promise;
       },
+      deletePolicyCheckpoint: function (policyName) {
+        return ApiPolicyService.deletePolicyCheckpoint().delete({'name': policyName}).$promise;
+      },
       savePolicy: function (policyData) {
         return ApiPolicyService.savePolicy().put(policyData).$promise;
       },

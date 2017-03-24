@@ -112,6 +112,11 @@
                                  data-qa="policy-context-menu-{{policyData.id}}-stop">
                   {{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
                 </st-menu-element>
+                <st-menu-element class-icon="ico icon-cross"
+                                 data-ng-click="policies.deleteCheckpoint(policyData.name)"
+                                 data-qa="policy-context-menu-{{policyData.id}}-stop">
+                  {{"_OUTPUT_ACTIONS_MENU_CHECKPOINT_" | translate}}
+                </st-menu-element>
 
               </st-floating-menu>
             </i>
