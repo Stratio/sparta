@@ -10,7 +10,7 @@
 
     <groupId>com.stratio.sparta</groupId>
     <artifactId>sparta-test</artifactId>
-    <version>1.2.0-RC6-SNAPSHOT</version>
+    <version>1.2.0-RC7-SNAPSHOT</version>
     <name>sparta-test-cucumber</name>
 
     <build>
