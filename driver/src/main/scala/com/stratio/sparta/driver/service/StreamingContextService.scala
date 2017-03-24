@@ -60,14 +60,14 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
     ssc
   }
 
-  def clusterStreamingContext(policy: PolicyModel)
+  def clusterStreamingContext(policy: PolicyModel, files: Seq[String])
   : StreamingContext = {
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
       val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
-      sparkClusterContextInstance(outputsSparkConfig)
+      sparkClusterContextInstance(outputsSparkConfig, files)
       SpartaPipeline(policy, statusActor).run()
     })
 
