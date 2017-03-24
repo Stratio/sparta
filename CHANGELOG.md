@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0 (upcoming)
+## 1.2.0 (March 24, 2017)
 
 * Optimized save modes (upsert, append and override) in Postgres and JDBC output
 * Upsert in Postgres and JDBC output
