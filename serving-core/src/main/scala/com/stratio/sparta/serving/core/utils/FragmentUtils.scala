@@ -68,9 +68,8 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     findFragmentsByType(fragmentType).find(fragment => fragment.name == name)
 
   def createFragment(fragment: FragmentElementModel): FragmentElementModel =
-    if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase))
-      getExistingFragment(fragment).getOrElse(createNewFragment(fragment))
-    else createNewFragment(fragment)
+    findFragmentByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)
+      .getOrElse(createNewFragment(fragment))
 
   def updateFragment(fragment: FragmentElementModel): FragmentElementModel = {
     val newFragment = fragment.copy(name = fragment.name.toLowerCase)
@@ -145,18 +144,6 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
       case "output" => s"$FragmentsPath/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
-  }
-
-  private def getExistingFragment(fragment: FragmentElementModel): Option[FragmentElementModel] =
-    findFragmentsByType(fragment.fragmentType)
-      .dropWhile(currentFragment => !fragment.equals(currentFragment)).headOption
-
-  private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
-    findFragmentsByType(fragmentType).exists(fragment =>
-      if (id.isDefined && fragment.id.isDefined)
-        fragment.name == name && fragment.id.get != id.get
-      else fragment.name == name
-    )
   }
 
   /* POLICY METHODS */
