@@ -22,8 +22,9 @@ import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.{SpartaConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.policy.files.{JarFile, JarFilesResponse}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -80,21 +81,21 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(fileList)
       expectMsgPF() {
-        case PluginResponse(Success(f: Seq[String])) => f.isEmpty shouldBe true
+        case JarFilesResponse(Success(f: Seq[JarFile])) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq.empty)
       expectMsgPF() {
-        case PluginResponse(Failure(f)) => f.getMessage shouldBe "Almost one file is expected"
+        case JarFilesResponse(Failure(f)) => f.getMessage shouldBe "Almost one file is expected"
       }
     }
     "Save a file" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")))
       expectMsgPF() {
-        case PluginResponse(Success(msg: Seq[String])) => msg.head.endsWith("file.jar") shouldBe true
+        case JarFilesResponse(Success(f: Seq[JarFile])) => f.head.fileName.endsWith("file.jar") shouldBe true
       }
     }
   }
