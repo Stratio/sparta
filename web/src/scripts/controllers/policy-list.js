@@ -33,6 +33,7 @@
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
     vm.editPolicy = editPolicy;
+    vm.deleteCheckpoint = deleteCheckpoint;
     vm.deleteErrorMessage = deleteErrorMessage;
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
@@ -98,7 +99,15 @@
       });
     }
 
-    function deletePolicyConfirm(size, policyId) {
+
+    function deleteCheckpoint(policyName){
+      var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
+      deletePolicyCheckpoint.then(function(response){
+        vm.successMessage.text = $translate.instant('_DELETE_CHECKPOINT_POLICY_OK_', {policyName: policyName});
+      });
+    }
+
+    function deletePolicyConfirm(size, policy) {
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
       var resolve = {
