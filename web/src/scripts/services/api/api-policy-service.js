@@ -30,6 +30,7 @@
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
     vm.runPolicy = runPolicy;
+    vm.deletePolicyCheckpoint = deletePolicyCheckpoint;
     vm.getFakePolicy = getFakePolicy;
     vm.savePolicy = savePolicy;
     vm.stopPolicy = stopPolicy;
@@ -81,6 +82,16 @@
         {
           'get': {
             method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    }
+
+    function deletePolicyCheckpoint(){
+      return $resource('/policy/checkpoint/:name', {name: '@name'},
+        {
+          'delete': {
+            method: 'DELETE',
             timeout: apiConfigSettings.timeout
           }
         });
