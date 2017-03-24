@@ -32,13 +32,13 @@ trait CheckpointUtils extends PolicyConfigUtils {
   /* PUBLIC METHODS */
 
   def deleteFromLocal(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy, withTime = false)
+    val checkpointDirectory = checkpointPath(policy, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     FileUtils.deleteDirectory(new File(checkpointDirectory))
   }
 
   def deleteFromHDFS(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy, withTime = false)
+    val checkpointDirectory = checkpointPath(policy, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     HdfsUtils().delete(checkpointDirectory)
   }
@@ -54,7 +54,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
       if (isExecutionType(policy, AppConstant.ConfigLocal)) deleteFromLocal(policy)
       else deleteFromHDFS(policy)
     } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy, withTime = false)}")
+      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy, checkTime = false)}")
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
 
@@ -63,21 +63,22 @@ trait CheckpointUtils extends PolicyConfigUtils {
       Try {
         createFromLocal(policy)
       } match {
-        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(policy, withTime = false)}")
+        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(policy, checkTime = false)}")
         case Failure(ex) => log.error("Cannot create checkpoint folder", ex)
       }
   }
 
-  def checkpointPath(policy: PolicyModel, withTime: Boolean = true): String = {
+  def checkpointPath(policy: PolicyModel, checkTime: Boolean = true): String = {
     val path = policy.checkpointPath.map(path => cleanCheckpointPath(path))
       .getOrElse(checkpointPathFromProperties(policy))
 
-    if(withTime) s"$path/${policy.name}/${Calendar.getInstance().getTime().getTime}"
+    if(checkTime && addTimeToCheckpointPathFromProperties())
+      s"$path/${policy.name}/${Calendar.getInstance().getTime.getTime}"
     else s"$path/${policy.name}"
   }
 
   def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
-    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties)
+    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties())
 
   /* PRIVATE METHODS */
 
@@ -95,9 +96,13 @@ trait CheckpointUtils extends PolicyConfigUtils {
       checkpointPath <- Try(cleanCheckpointPath(config.getString(ConfigCheckpointPath))).toOption
     } yield checkpointPath).getOrElse(generateDefaultCheckpointPath(policy))
 
-  private def autoDeleteCheckpointPathFromProperties: Boolean =
+  private def autoDeleteCheckpointPathFromProperties(): Boolean =
     Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAutoDeleteCheckpoint))
       .getOrElse(DefaultAutoDeleteCheckpoint)
+
+  private def addTimeToCheckpointPathFromProperties(): Boolean =
+    Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAddTimeToCheckpointPath))
+      .getOrElse(DefaultAddTimeToCheckpointPath)
 
   private def generateDefaultCheckpointPath(policy: PolicyModel): String =
     executionMode(policy) match {
