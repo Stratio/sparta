@@ -18,24 +18,21 @@ package com.stratio.sparta.serving.core.utils
 
 import java.util.UUID
 
-import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.FragmentActor.{FindByTypeAndId, FindByTypeAndName, ResponseFragment}
-import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType._
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
-import scala.util.{Failure, Success, Try}
-
+import scala.util.Try
 
 trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
 
@@ -68,9 +65,8 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     findFragmentsByType(fragmentType).find(fragment => fragment.name == name)
 
   def createFragment(fragment: FragmentElementModel): FragmentElementModel =
-    if (existsByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase))
-      getExistingFragment(fragment).getOrElse(createNewFragment(fragment))
-    else createNewFragment(fragment)
+    findFragmentByTypeAndName(fragment.fragmentType, fragment.name.toLowerCase)
+      .getOrElse(createNewFragment(fragment))
 
   def updateFragment(fragment: FragmentElementModel): FragmentElementModel = {
     val newFragment = fragment.copy(name = fragment.name.toLowerCase)
@@ -125,7 +121,6 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     }
   }
 
-
   /* PRIVATE METHODS */
 
   private def createNewFragment(fragment: FragmentElementModel): FragmentElementModel = {
@@ -145,18 +140,6 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
       case "output" => s"$FragmentsPath/output"
       case _ => throw new IllegalArgumentException("The fragment type must be input|output")
     }
-  }
-
-  private def getExistingFragment(fragment: FragmentElementModel): Option[FragmentElementModel] =
-    findFragmentsByType(fragment.fragmentType)
-      .dropWhile(currentFragment => !fragment.equals(currentFragment)).headOption
-
-  private def existsByTypeAndName(fragmentType: String, name: String, id: Option[String] = None): Boolean = {
-    findFragmentsByType(fragmentType).exists(fragment =>
-      if (id.isDefined && fragment.id.isDefined)
-        fragment.name == name && fragment.id.get != id.get
-      else fragment.name == name
-    )
   }
 
   /* POLICY METHODS */
@@ -181,12 +164,12 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
 
   private def fillFragments(apConfig: PolicyModel): PolicyModel = {
     val currentFragments = apConfig.fragments.flatMap(fragment => {
-        fragment.id match {
-          case Some(id) =>
-            Try(findFragmentByTypeAndId(fragment.fragmentType, id)).toOption
-          case None => findFragmentByTypeAndName(fragment.fragmentType, fragment.name)
-        }
-      })
+      fragment.id match {
+        case Some(id) =>
+          Try(findFragmentByTypeAndId(fragment.fragmentType, id)).toOption
+        case None => findFragmentByTypeAndName(fragment.fragmentType, fragment.name)
+      }
+    })
     apConfig.copy(fragments = currentFragments)
   }
 
@@ -229,5 +212,4 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
 
     fragmentsOutputs.map(fragment => fragment.element.copy(name = fragment.name)) ++ outputsNotIncluded.flatten
   }
-
 }
