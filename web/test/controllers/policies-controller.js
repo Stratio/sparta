@@ -32,7 +32,7 @@ describe('policies.wizard.controller.policies-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy', 'deletePolicyCheckpoint']);
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -141,6 +141,83 @@ describe('policies.wizard.controller.policies-controller', function() {
 
     })
   });
+
+
+  it("should be able to delete policy checkpoint passing its name", function() {
+    var fakePolicyName = "fakePolicyName";
+    policyFactoryMock.deletePolicyCheckpoint.and.callFake(resolvedPromise);
+    ctrl.deleteCheckpoint(fakePolicyName);
+
+    expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
+  });
+
+  it("should be able to stop a policy if is started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "started";
+    var fakePolicyName = "fakePolicyName";
+    
+    var stopPolicy = {
+      "id": fakePolicyId,
+      "status": "Stopping"
+    };
+
+    policyFactoryMock.stopPolicy.and.callFake(resolvedPromise);
+    ctrl.stopPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.stopPolicy).toHaveBeenCalledWith(stopPolicy);
+  });
+
+
+  it("should not be able to stop a policy if is not started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "notstarted";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.stopPolicy.and.callFake(resolvedPromise);
+    ctrl.stopPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.stopPolicy).not.toHaveBeenCalled();
+  });
+
+
+  it("should be able to run a policy if is not started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "notstarted";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.runPolicy.and.callFake(resolvedPromise);
+    ctrl.runPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.runPolicy).toHaveBeenCalledWith(fakePolicyId);
+  });
+
+
+  it("should not be able to run a policy if is started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "started";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.runPolicy.and.callFake(resolvedPromise);
+    ctrl.runPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.runPolicy).not.toHaveBeenCalled();
+  });
+
+  /*it("should show a confirmation modal when delete a policy", function() {
+    var fakePolicy = fakePolicyList[0];
+    var fakePolicyId = fakePolicy.id;
+    var fakePolicyStatus = "notstarted";
+
+    ctrl.deletePolicy('lg', fakePolicy);
+    expect(modalServiceMock.openModal).toHaveBeenCalled();
+
+    var args = modalServiceMock.openModal.calls.mostRecent().args;
+    expect(args[0]).toBe('DeletePolicyModalCtrl');
+    expect(args[1]).toBe('templates/policies/st-delete-policy-modal.tpl.html');
+    var resolveParam = args[2];
+    expect(resolveParam.item().toBe(fakePolicy));
+  });*/
+
 
   it("should be able to open a modal with the information of the selected policy by its position", function() {
     ctrl.policiesData = [fakePolicyStatusList[0], fakePolicyStatusList[1]];
