@@ -32,7 +32,11 @@ describe('executions.wizard.controller.executions-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
+<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
     policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'deletePolicyCheckpoint']);
+=======
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy']);
+>>>>>>> merge changes
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -149,6 +153,7 @@ describe('executions.wizard.controller.executions-controller', function() {
     }
   });
 
+<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
   it("should be able to stop a policy if is started", function() {
     var fakePolicyId = "fake policy id";
     var fakePolicyStatus = "started";
@@ -210,6 +215,8 @@ describe('executions.wizard.controller.executions-controller', function() {
     expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
   });
 
+=======
+>>>>>>> merge changes
   describe("should be able to sort the current policy list", function(){
 
     beforeEach(function() {

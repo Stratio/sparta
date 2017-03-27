@@ -99,7 +99,6 @@
       });
     }
 
-
     function deleteCheckpoint(policyName){
       var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
       deletePolicyCheckpoint.then(function(response){
@@ -107,7 +106,7 @@
       });
     }
 
-    function deletePolicyConfirm(size, policy) {
+    function deletePolicyConfirm(size, policyId) {
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
       var resolve = {

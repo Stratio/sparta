@@ -33,7 +33,10 @@
     vm.runPolicy = runPolicy;
     vm.stopPolicy = stopPolicy;
     vm.sortPolicies = sortPolicies;
+<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
     vm.deleteCheckpoint = deleteCheckpoint;
+=======
+>>>>>>> merge changes
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
@@ -69,8 +72,12 @@
     }
 
     function stopPolicy(policyId, policyStatus, policyName) {
+<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
       if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' &&
        policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished') {
+=======
+      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
+>>>>>>> merge changes
 
         var stopPolicy =
         {
@@ -92,6 +99,7 @@
       }
     }
 
+<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
 
     function deleteCheckpoint(policyName){
       var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
@@ -100,6 +108,8 @@
       });
     }
 
+=======
+>>>>>>> merge changes
     function deletePolicyConfirm(size, policy) {
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
