@@ -94,6 +94,7 @@ describe('policies.wizard.controller.policies-controller', function() {
     })
   });
 
+<<<<<<< 17d37b3b1276ca105f4951853bbc82c678a370db
 
 
   it("should be able to delete policy checkpoint passing its name", function() {
@@ -123,6 +124,11 @@ describe('policies.wizard.controller.policies-controller', function() {
 
   it("should not be able to stop a policy if is not started", function() {
     var fakePolicyId = "fake policy id";
+=======
+  it("should show a confirmation modal when delete a policy", function() {
+    var fakePolicy = fakePolicyList[0];
+    var fakePolicyId = fakePolicy.id;
+>>>>>>> added success and error messages in executions view
     var fakePolicyStatus = "notstarted";
     var fakePolicyName = "fakePolicyName";
 

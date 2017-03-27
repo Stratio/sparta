@@ -98,6 +98,7 @@
       });
     }
 
+<<<<<<< 17d37b3b1276ca105f4951853bbc82c678a370db
 <<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
     function deleteCheckpoint(policyName){
       var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
@@ -106,6 +107,8 @@
       });
     }
 
+=======
+>>>>>>> added success and error messages in executions view
 =======
 >>>>>>> added success and error messages in executions view
     function deletePolicyConfirm(size, policyId) {
