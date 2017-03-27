@@ -33,6 +33,7 @@
     vm.runPolicy = runPolicy;
     vm.stopPolicy = stopPolicy;
     vm.sortPolicies = sortPolicies;
+    vm.deleteCheckpoint = deleteCheckpoint;
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
@@ -88,6 +89,14 @@
       else {
         vm.errorMessage.text = $translate.instant('_STOP_POLICY_KO_', {policyName: policyName});
       }
+    }
+
+
+    function deleteCheckpoint(policyName){
+      var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
+      deletePolicyCheckpoint.then(function(response){
+        vm.successMessage.text = $translate.instant('_DELETE_CHECKPOINT_POLICY_OK_', {policyName: policyName});
+      });
     }
 
     function deletePolicyConfirm(size, policy) {

@@ -1,5 +1,14 @@
 <section>
   <div class="c-panel" data-ng-if="executions.policiesData.length > 0">
+    <aside class="c-toolbar--filter c-toolbar--fixed">
+      <div class="c-col c-col--12">
+        <!-- Error message -->
+        <c-animated-msg data-msg="executions.errorMessage" data-on-click-close-msg="executions.deleteErrorMessage()"
+                       data-timeout=10000></c-animated-msg>
+        <c-animated-msg data-msg="executions.successMessage"  data-on-click-close-msg="executions.deleteSuccessMessage()"
+                        data-timeout=6000></c-animated-msg>
+      </div>
+    </aside>
     <div class="br-ba-container br-ba-container--full-height">
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
@@ -79,6 +88,11 @@
                                  data-ng-click="executions.stopPolicy(policyData.id, policyData.status, policyData.name)"
                                  data-qa="policy-context-menu-{{policyData.id}}-stop">
                   {{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
+                </st-menu-element>
+                <st-menu-element class-icon="ico icon-cross"
+                  data-ng-click="executions.deleteCheckpoint(policyData.name)"
+                  data-qa="policy-context-menu-{{policyData.id}}-stop">
+                  {{"_OUTPUT_ACTIONS_MENU_CHECKPOINT_" | translate}}
                 </st-menu-element>
 
               </st-floating-menu>

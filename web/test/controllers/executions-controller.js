@@ -32,7 +32,7 @@ describe('executions.wizard.controller.executions-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'deletePolicyCheckpoint']);
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -199,6 +199,15 @@ describe('executions.wizard.controller.executions-controller', function() {
     ctrl.runPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
 
     expect(policyFactoryMock.runPolicy).not.toHaveBeenCalled();
+  });
+
+
+  it("should be able to delete policy checkpoint passing its name", function() {
+    var fakePolicyName = "fakePolicyName";
+    policyFactoryMock.deletePolicyCheckpoint.and.callFake(resolvedPromise);
+    ctrl.deleteCheckpoint(fakePolicyName);
+
+    expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
   });
 
   describe("should be able to sort the current policy list", function(){

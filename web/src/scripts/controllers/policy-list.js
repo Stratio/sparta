@@ -33,7 +33,6 @@
     vm.createPolicy = createPolicy;
     vm.deletePolicy = deletePolicy;
     vm.editPolicy = editPolicy;
-    vm.deleteCheckpoint = deleteCheckpoint;
     vm.deleteErrorMessage = deleteErrorMessage;
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
@@ -91,14 +90,6 @@
     function deletePolicy(policyId) {
         deletePolicyConfirm('lg', policyId);
     }
-
-    function deleteCheckpoint(policyName){
-      var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
-      deletePolicyCheckpoint.then(function(response){
-        vm.successMessage.text = $translate.instant('_DELETE_CHECKPOINT_POLICY_OK_', {policyName: policyName});
-      });
-    }
-
 
     function deleteCheckpoint(policyName){
       var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);

@@ -94,15 +94,6 @@ describe('policies.wizard.controller.policies-controller', function() {
     })
   });
 
-
-  it("should be able to delete policy checkpoint passing its name", function() {
-    var fakePolicyName = "fakePolicyName";
-    policyFactoryMock.deletePolicyCheckpoint.and.callFake(resolvedPromise);
-    ctrl.deleteCheckpoint(fakePolicyName);
-
-    expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
-  });
-
   it("should show a confirmation modal when delete a policy", function() {
     var fakePolicy = fakePolicyList[0];
     var fakePolicyId = fakePolicy.id;
