@@ -102,16 +102,6 @@
                                  data-qa="policy-context-menu-{{policyData.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>
-                <st-menu-element class-icon="icon-play"
-                                 data-ng-click="policies.runPolicy(policyData.id, policyData.status, policyData.name)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-run">
-                  {{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
-                </st-menu-element>
-                <st-menu-element class-icon="icon-stop"
-                                 data-ng-click="policies.stopPolicy(policyData.id, policyData.status, policyData.name)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-stop">
-                  {{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
-                </st-menu-element>
                 <st-menu-element class-icon="ico icon-cross"
                                  data-ng-click="policies.deleteCheckpoint(policyData.name)"
                                  data-qa="policy-context-menu-{{policyData.id}}-stop">

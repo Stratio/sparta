@@ -32,7 +32,7 @@ describe('executions.wizard.controller.executions-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy']);
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -147,6 +147,58 @@ describe('executions.wizard.controller.executions-controller', function() {
       expect(resolveParam.deployMode()).toBe(ctrl.policiesData[i].lastExecutionMode);
       expect(resolveParam.error()).toEqual(ctrl.policiesData[i].lastError);
     }
+  });
+
+  it("should be able to stop a policy if is started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "started";
+    var fakePolicyName = "fakePolicyName";
+    
+    var stopPolicy = {
+      "id": fakePolicyId,
+      "status": "Stopping"
+    };
+
+    policyFactoryMock.stopPolicy.and.callFake(resolvedPromise);
+    ctrl.stopPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.stopPolicy).toHaveBeenCalledWith(stopPolicy);
+  });
+
+
+  it("should not be able to stop a policy if is not started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "notstarted";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.stopPolicy.and.callFake(resolvedPromise);
+    ctrl.stopPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.stopPolicy).not.toHaveBeenCalled();
+  });
+
+
+  it("should be able to run a policy if is not started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "notstarted";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.runPolicy.and.callFake(resolvedPromise);
+    ctrl.runPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.runPolicy).toHaveBeenCalledWith(fakePolicyId);
+  });
+
+
+  it("should not be able to run a policy if is started", function() {
+    var fakePolicyId = "fake policy id";
+    var fakePolicyStatus = "started";
+    var fakePolicyName = "fakePolicyName";
+
+    policyFactoryMock.runPolicy.and.callFake(resolvedPromise);
+    ctrl.runPolicy(fakePolicyId, fakePolicyStatus, fakePolicyName);
+
+    expect(policyFactoryMock.runPolicy).not.toHaveBeenCalled();
   });
 
   describe("should be able to sort the current policy list", function(){
