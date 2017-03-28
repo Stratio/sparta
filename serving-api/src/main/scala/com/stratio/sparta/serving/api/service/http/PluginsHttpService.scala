@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http._
@@ -56,10 +57,10 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadPlugins(form.fields)).mapTo[PluginResponse]
+              response <- (supervisor ? UploadPlugins(form.fields)).mapTo[JarFilesResponse]
             } yield response match {
-              case PluginResponse(Success(newFilesUris: Seq[String])) => FilesUris(newFilesUris)
-              case PluginResponse(Failure(exception)) => throw exception
+              case JarFilesResponse(Success(newFilesUris)) => newFilesUris
+              case JarFilesResponse(Failure(exception)) => throw exception
             }
           }
         }
@@ -99,10 +100,10 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListPlugins).mapTo[PluginResponse]
+            response <- (supervisor ? ListPlugins).mapTo[JarFilesResponse]
           } yield response match {
-            case PluginResponse(Success(filesUris: Seq[String])) => FilesUris(filesUris)
-            case PluginResponse(Failure(exception)) => throw exception
+            case JarFilesResponse(Success(filesUris)) => filesUris
+            case JarFilesResponse(Failure(exception)) => throw exception
           }
         }
       }
@@ -159,7 +160,4 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       }
     }
   }
-
-  case class FilesUris(uris: Seq[String])
-
 }
