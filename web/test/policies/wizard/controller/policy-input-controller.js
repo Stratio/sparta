@@ -19,7 +19,7 @@ describe('policies.wizard.controller.policy-input-controller', function () {
     $httpBackend.when('GET', 'languages/en-US.json')
       .respond({});
 
-    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'previousStep', 'nextStep']);
+    wizardStatusServiceMock =  jasmine.createSpyObj('WizardStatusService', ['enableNextStep', 'previousStep', 'nextStep', 'disableNextStep']);
 
     fragmentFactoryMock = jasmine.createSpyObj('FragmentFactory', ['getFragments']);
     fragmentFactoryMock.getFragments.and.callFake(function () {

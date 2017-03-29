@@ -98,7 +98,7 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
 
       scope.$digest();
 
-      expect(ctrl.helpLink).toBe(fakeTemplate.helpLinks[fakeWizardStatus.currentStep + 1]);
+      expect(ctrl.helpLink).toBe(fakeTemplate.helpLinks[fakeWizardStatus.currentStep]);
     });
 
     it("if current step is -1, it must not do anything", function(){

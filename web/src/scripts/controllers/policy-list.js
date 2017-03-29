@@ -37,6 +37,7 @@
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
     vm.sortPolicies = sortPolicies;
+    vm.createPolicyFromJSON = createPolicyFromJSON;
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
@@ -67,18 +68,10 @@
     function createPolicy() {
       PolicyModelFactory.resetPolicy();
       WizardStatusService.reset();
-      var controller = 'PolicyCreationModalCtrl';
-      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
-      var resolve = {
-        title: function () {
-          return "_POLICY_._MODAL_CREATION_TITLE_";
-        }
-      };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, null, 'lg');
-      return modalInstance.result.then(function () {
-        WizardStatusService.nextStep();
-        $state.go('wizard.newPolicy');
-      });
+      //WizardStatusService.enableNextStep();
+      WizardStatusService.nextStep();
+      $state.go('wizard.newPolicy', 'create');
+    
     }
 
     function editPolicy(route, policyId) {
@@ -89,6 +82,19 @@
 
     function deletePolicy(policyId) {
         deletePolicyConfirm('lg', policyId);
+    }
+
+    function createPolicyFromJSON(){
+      var controller = 'CreatePolicyJSONModalCtrl';
+      var templateUrl = "templates/policies/st-create-policy-json-modal.tpl.html";
+      var resolve = {};
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+
+      modalInstance.result.then(function (policyId) {
+        var index = getPolicyPosition(policyId);
+        vm.policiesData.splice(index, 1);
+        vm.successMessage.text = '_POLICY_DELETE_OK_';
+      });
     }
 
     function deleteCheckpoint(policyName){

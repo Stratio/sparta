@@ -68,7 +68,7 @@
         if (Object.keys(policyTemplate).length > 0) {
           if (newStatus && newStatus.currentStep >= 0 && newStatus.currentStep < policyTemplate.helpLinks.length - 1) {
 
-            header.helpLink = policyTemplate.helpLinks[newStatus.currentStep + 1];
+            header.helpLink = policyTemplate.helpLinks[newStatus.currentStep];
           } else {
             header.helpLink = null;
           }

@@ -1,0 +1,57 @@
+<div data-ng-controller="PolicySettingsCtrl as vm">
+
+    <!-- POLICY NAME ALREADY EXISTS ERROR -->
+    <div class="c-row c-row--separated-bottom angular-forms__error" data-ng-if="vm.error" data-qa="error-msg">
+      <i class="c-icon icon-circle-cross"></i>
+      <span translate="{{vm.errorText}}"></span>
+    </div>
+
+    <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class={'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}>
+      <form-field
+        data-ng-repeat="properties in vm.template.basicSettings"
+        class="c-form-gutter c-col c-col--vertical-top"
+        data-ng-class="{'c-col--{{properties.col}}': properties.col}"
+        data-ng-form-id="{{properties.propertyId}}"
+        data-field="properties"
+        data-model="vm.policy"
+        data-form="vm.form"
+        data-st-name="dataSource{{properties.propertyId}}Form"
+        data-list-compressed = "true"
+        data-qa="{{properties.qa}}">
+      </form-field>
+      <div class="c-form-group c-form-gutter" data-qa="fragment-details-mongoDb-hosts">
+        <div class="c-form-control c-form-control--full-width">
+          <div class="c-label c-label__subtitle c-label--margin-list c-col c-col--12">
+                <span>
+                  {{"_ADVANCED_SETTINGS_" | translate}}
+                </span>
+          </div>
+          <div class="c-form-group c-form-group--list-compressed">
+            <form-field
+              data-ng-repeat="properties in vm.template.advancedSettings"
+              data-ng-class="{'c-col c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
+              data-ng-form-id="{{properties.propertyId}}"
+              data-field="properties"
+              data-model="vm.policy"
+              data-form="vm.form"
+              data-st-name="dataSource{{properties.propertyId}}Form"
+              data-list-compressed = "true"
+              data-modal="true"
+              data-qa="{{properties.qa}}">
+            </form-field>
+          </div>
+        </div>
+      </div>
+      <footer class="c-row c-row--separated-bottom c-row--footer">
+        <div class="c-col c-col--12 c-col--vertical-centered">
+          <button
+            class="c-button c-button--to-right c-button--call-to-action-1"
+            data-ng-click="vm.validateForm(wizard.onClickNextStep)"
+            data-qa="policy-next-step-button">
+            <i class="icon icon-arrow-right"></i>
+            <span>{{"_GO_TO_" | translate}} {{wizard.steps[wizard.status.currentStep+1].name |translate}}</span>
+          </button>
+        </div>
+      </footer>
+    </form>
+</div>

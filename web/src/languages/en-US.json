@@ -9,6 +9,7 @@
   "_VIEW_MORE_": "View more",
   "_NAME_": "Name",
   "_DATA_": "Data",
+  "_JSON_": "JSON",
   "_INPUT_": "Input",
   "_TRANSFORM_": "Transform",
   "_CUBES_": "Cubes",
@@ -101,6 +102,7 @@
   "_INPUT_BUTTON_NEW_": "add new",
   "_INPUT_BUTTON_DELETE_": "delete",
   "_INPUT_BUTTON_CANCEL_": "cancel",
+  "_INPUT_BUTTON_CREATE_": "create",
   "_INPUT_BUTTON_DUPLICATE_": "duplicate",
   "_INPUT_ERROR_TEMPLATES_": "There was an error while loading the templates! Please try again.",
   "_OUTPUT_HEADER_TITLE_MAIN": "outputs",
@@ -118,6 +120,7 @@
   "_ORIGINAL_MSG_": "Original Msg.",
   "_POLICY_": {
     "_STEPS_": {
+      "_SETTINGS_": "Settings",
       "_INPUT_": "Input",
       "_TRANSFORMATION_": "Transformations",
       "_CUBES_": "Cubes",
@@ -164,6 +167,10 @@
       },
       "_EXIT_": {
         "_TITLE_": "Exit policy"
+      },
+      "_JSON_CREATE_": {
+        "_TITLE_": "Create policy from json",
+        "_INFO_": "You must enter the new name and description before you can save the policy, it will overwrite the fields of the json"
       }
     },
     "_CUBE_": {
@@ -442,10 +449,12 @@
     "_TRIGGER_ALREADY_EXITS_": "There was an error. The name of the trigger already exists!"
   },
   "_MESSAGE_": {
+    "_SETTINGS_STEP_": "You have to set the policy settings to continue",
     "_TRANSFORMATION_STEP_": "You have to create, at least, one TRANSFORMATION",
      "_TRIGGER_STEP_": "You can add TRIGGERS, go to CUBES or save the policy",
     "_CUBE_STEP_": "You can add a CUBES configuring, at least, one dimension and one operator or save the policy",
     "_INPUT_STEP_": "You have to select an input from your list to continue configuring the policy. You only can add one input to policy",
+    "_INPUT_STEP_AVAILABLE_": "Go to INPUT",
     "_CUBE_STEP_AVAILABLE_": "You can add TRIGGERS or go to CUBES",
     "_FINISH_STEP_AVAILABLE_": "You can save the policy",
     "_TRANSFORMATION_STEP_AVAILABLE_": "Go to TRANSFORMATIONS",
