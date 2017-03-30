@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.cube.operator.stddev
 
-import com.stratio.sparta.plugin.cube.operator.stddev.StddevOperator
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.junit.runner.RunWith

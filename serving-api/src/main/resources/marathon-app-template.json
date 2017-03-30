@@ -1,0 +1,64 @@
+{
+  "id": "???",
+  "cpus": 1,
+  "mem": 1024,
+  "container": {
+    "docker": {
+      "image": "qa.stratio.com:8443/stratio/sparta:1.3.0-SNAPSHOTPR1781",
+      "network": "HOST",
+      "forcePullImage": false,
+      "privileged" : false
+    }
+  },
+  "portDefinitions": [
+    {
+      "port": 0,
+      "name": "sparkui",
+      "labels": {}
+    }
+  ],
+  "env": {
+    "SPARTA_APP_TYPE": "marathon",
+    "SPARTA_MARATHON_JAR": "???",
+    "SPARTA_MARATHON_MAIN_CLASS": "???",
+    "SPARTA_ZOOKEEPER_CONFIG": "???",
+    "SPARTA_DETAIL_CONFIG": "???",
+    "SPARTA_POLICY_ID": "???",
+    "VAULT_HOST": "???",
+    "VAULT_PORT": "???",
+    "VAULT_TOKEN": "???",
+    "MARATHON_APP_HEAP_SIZE": "???",
+    "MARATHON_APP_HEAP_MINIMUM_SIZE": "???",
+    "SPARK_HOME": "???",
+    "MESOS_NATIVE_JAVA_LIBRARY": "???",
+    "LD_LIBRARY_PATH": "???",
+    "HADOOP_USER_NAME": "???",
+    "CORE_SITE_FROM_URI": "???",
+    "CORE_SITE_FROM_DFS": "???",
+    "DEFAULT_FS": "???",
+    "HADOOP_CONF_DIR": "???",
+    "SERVICE_LOG_LEVEL": "???",
+    "SPARTA_LOG_LEVEL": "???",
+    "SPARK_LOG_LEVEL": "???",
+    "HADOOP_LOG_LEVEL": "???",
+    "ZOOKEEPER_LOG_LEVEL": "???"
+  },
+  "healthChecks": [
+    {
+      "protocol": "TCP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 120,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 15,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "labels": {
+    "SPARTA_POLICY_NAME": "???",
+    "SPARTA_POLICY_ID": "???",
+    "DCOS_SERVICE_NAME": "???",
+    "DCOS_SERVICE_PORT_INDEX": "0",
+    "DCOS_SERVICE_SCHEME": "http"
+  }
+}
+

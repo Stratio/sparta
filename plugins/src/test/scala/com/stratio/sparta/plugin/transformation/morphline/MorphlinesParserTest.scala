@@ -17,7 +17,6 @@ package com.stratio.sparta.plugin.transformation.morphline
 
 import java.io.Serializable
 
-import com.stratio.sparta.plugin.transformation.morphline.MorphlinesParser
 import com.stratio.sparta.sdk.pipeline.input.Input
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

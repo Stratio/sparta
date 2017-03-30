@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.driver
 
-import akka.actor.ActorRef
 import com.stratio.sparta.driver.cube.CubeMaker
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.helper.SchemaHelper
@@ -28,12 +27,12 @@ import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
-import org.apache.spark.SparkContext
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
-class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends CheckpointUtils
+class SpartaPipeline(val policy: PolicyModel, val curatorFramework: CuratorFramework) extends CheckpointUtils
   with InputStage
   with OutputStage
   with ParserStage
@@ -94,5 +93,6 @@ class SpartaPipeline(val policy: PolicyModel, val statusActor: ActorRef) extends
 
 object SpartaPipeline {
 
-  def apply(policy: PolicyModel, statusActor: ActorRef): SpartaPipeline = new SpartaPipeline(policy, statusActor)
+  def apply(policy: PolicyModel, curatorFramework: CuratorFramework): SpartaPipeline =
+    new SpartaPipeline(policy, curatorFramework)
 }

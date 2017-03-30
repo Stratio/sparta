@@ -16,28 +16,30 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, ActorRef}
-import akka.event.slf4j.SLF4JLogging
+import akka.actor.{Actor, PoisonPill}
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.LauncherActor._
-import com.stratio.sparta.serving.core.actor.StatusActor.Update
+import com.stratio.sparta.serving.core.actor.LauncherActor.Start
+import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, PolicyHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyConfigUtils
+import com.stratio.sparta.serving.core.utils.{LauncherUtils, PolicyConfigUtils, PolicyStatusUtils}
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.{Failure, Success, Try}
 
-class LocalLauncherActor(streamingContextService: StreamingContextService, statusActor: ActorRef)
-  extends Actor with PolicyConfigUtils with SLF4JLogging {
+class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
+  extends Actor with PolicyConfigUtils with LauncherUtils with PolicyStatusUtils{
 
   private var ssc: Option[StreamingContext] = None
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
+    case ResponseStatus(status) => loggingResponsePolicyStatus(status)
+    case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 
   private def doInitSpartaContext(policy: PolicyModel): Unit = {
@@ -47,43 +49,41 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, statu
     Try {
       val startingInfo = s"Starting Sparta local job for policy"
       log.info(startingInfo)
-      statusActor ! Update(PolicyStatusModel(
+      updateStatus(PolicyStatusModel(
         id = policy.id.get,
-        status = PolicyStatusEnum.Starting,
+        status = PolicyStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.LocalValue)
       ))
-
       ssc = Option(streamingContextService.localStreamingContext(policy, jars))
       ssc.get.start()
-
       val startedInformation = s"The Sparta local job was started correctly"
       log.info(startedInformation)
-      statusActor ! Update(PolicyStatusModel(
+      updateStatus(PolicyStatusModel(
         id = policy.id.get,
         status = PolicyStatusEnum.Started,
         statusInfo = Some(startedInformation),
         resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy), policy.monitoringLink)
       ))
-
       ssc.get.awaitTermination()
     } match {
       case Success(_) =>
         val information = s"Stopped correctly Sparta local job"
         log.info(information)
-        statusActor ! Update(PolicyStatusModel(
+        updateStatus(PolicyStatusModel(
           id = policy.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
+        self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating Sparta local job"
         log.error(information, exception)
-        statusActor ! Update(PolicyStatusModel(
+        updateStatus(PolicyStatusModel(
           id = policy.id.get,
           status = PolicyStatusEnum.Failed,
           statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
-
-        SparkContextFactory.destroySparkContext(destroyStreamingContext = true)
+        SparkContextFactory.destroySparkContext()
+        self ! PoisonPill
     }
   }
 }

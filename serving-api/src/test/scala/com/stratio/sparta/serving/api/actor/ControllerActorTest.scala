@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{RequestActor, FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import org.apache.curator.framework.CuratorFramework
@@ -40,22 +40,24 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   val curatorFramework = mock[CuratorFramework]
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework)))
-  val streamingContextService = new StreamingContextService(statusActor)
+  val executionActor = _system.actorOf(Props(new RequestActor(curatorFramework)))
+  val streamingContextService = new StreamingContextService(curatorFramework)
   val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework)))
   val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)))
   val sparkStreamingContextActor = _system.actorOf(
-    Props(new LauncherActor(streamingContextService, policyActor, statusActor, curatorFramework)))
+    Props(new LauncherActor(streamingContextService, curatorFramework)))
   val pluginActor = _system.actorOf(Props(new PluginActor()))
 
   def this() =
     this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
 
   implicit val actors = Map(
-    AkkaConstant.statusActor -> statusActor,
-    AkkaConstant.FragmentActor -> fragmentActor,
-    AkkaConstant.PolicyActor -> policyActor,
-    AkkaConstant.LauncherActor -> sparkStreamingContextActor,
-    AkkaConstant.PluginActor -> pluginActor
+    AkkaConstant.StatusActorName -> statusActor,
+    AkkaConstant.FragmentActorName -> fragmentActor,
+    AkkaConstant.PolicyActorName -> policyActor,
+    AkkaConstant.LauncherActorName -> sparkStreamingContextActor,
+    AkkaConstant.PluginActorName -> pluginActor,
+    AkkaConstant.ExecutionActorName -> executionActor
   )
 
   override def afterAll {

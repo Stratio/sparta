@@ -80,6 +80,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
   def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
     policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties())
 
+
   /* PRIVATE METHODS */
 
   private def cleanCheckpointPath(path: String): String = {

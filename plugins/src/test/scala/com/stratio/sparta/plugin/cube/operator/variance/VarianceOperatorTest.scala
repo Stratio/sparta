@@ -15,7 +15,6 @@
  */
 package com.stratio.sparta.plugin.cube.operator.variance
 
-import com.stratio.sparta.plugin.cube.operator.variance.VarianceOperator
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith

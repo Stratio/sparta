@@ -15,16 +15,13 @@
  */
 package com.stratio.sparta.plugin.cube.field.geohash
 
-import com.stratio.sparta.plugin.cube.field.geohash.GeoHashField
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{Matchers, WordSpecLike}
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.Precision
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
-
-import scala.util.{Failure, Success, Try}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
 class GeoHashFieldTest extends WordSpecLike with Matchers {

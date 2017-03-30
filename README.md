@@ -1,4 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/Stratio/Sparta/badge.svg?branch=master)](https://coveralls.io/github/Stratio/Sparta?branch=master)
 
 About [Stratio Sparta](http://www.stratio.com/sparta)
 ============

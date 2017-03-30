@@ -44,9 +44,9 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   def getRoutes: Route = cors {
     secRoute ~ webRoutes ~
       authorized { user =>
-        serviceRoutes.fragmentRoute ~
-          serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~ serviceRoutes.AppStatusRoute ~
-          serviceRoutes.pluginsRoute ~ serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
+        serviceRoutes.fragmentRoute ~ serviceRoutes.policyContextRoute ~ serviceRoutes.policyRoute ~
+          serviceRoutes.executionRoute ~ serviceRoutes.AppStatusRoute ~ serviceRoutes.pluginsRoute ~
+          serviceRoutes.driversRoute ~ serviceRoutes.swaggerRoute
       }
   }
 
@@ -82,19 +82,25 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   val fragmentRoute: Route = new FragmentHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.FragmentActor)
+    override val supervisor = actorsMap(AkkaConstant.FragmentActorName)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyRoute: Route = new PolicyHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.PolicyActor)
+    override val supervisor = actorsMap(AkkaConstant.PolicyActorName)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val policyContextRoute: Route = new PolicyContextHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.LauncherActor)
+    override val supervisor = actorsMap(AkkaConstant.LauncherActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }.routes
+
+  val executionRoute: Route = new ExecutionHttpService {
+    implicit val actors = actorsMap
+    override val supervisor = actorsMap(AkkaConstant.ExecutionActorName)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
@@ -107,13 +113,13 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   val pluginsRoute: Route = new PluginsHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActor)
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.PluginActorName)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 
   val driversRoute: Route = new DriverHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.DriverActor)
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.DriverActorName)
     override val actorRefFactory: ActorRefFactory = context
   }.routes
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.utils
+package com.stratio.sparta.serving.core.utils
 
 import java.io.File
 
@@ -21,7 +21,6 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, HdfsUtils}
 
 import scala.util.Try
 

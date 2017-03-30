@@ -20,16 +20,16 @@ import java.io.File
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.PolicyActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, ResponsePolicy}
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -186,7 +186,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       post {
         entity(as[PolicyModel]) { policy =>
           complete {
-            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActorName, throw new ServingCoreException
             (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
               parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(policy)).mapTo[ResponsePolicy]
@@ -247,7 +247,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath) {
       delete {
         complete {
-          val statusActor = actors(AkkaConstant.statusActor)
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
           } yield policies match {
@@ -354,9 +354,9 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           for (result <- supervisor ? Find(id)) yield result match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
-              val launcherActor = actors(AkkaConstant.LauncherActor)
+              val launcherActor = actors(AkkaConstant.LauncherActorName)
               for {
-                response <- (launcherActor ? LauncherActor.Create(policy)).mapTo[Try[PolicyModel]]
+                response <- (launcherActor ? Launch(policy)).mapTo[Try[PolicyModel]]
               } yield response match {
                 case Failure(ex) => throw ex
                 case Success(policyModel) => Result("Launched policy with name " + policyModel.name)

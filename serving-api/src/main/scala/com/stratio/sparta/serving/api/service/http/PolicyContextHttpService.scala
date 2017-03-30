@@ -18,9 +18,9 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{Delete, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
@@ -51,7 +51,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       get {
         complete {
-          val statusActor = actors.get(AkkaConstant.statusActor).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policiesStatuses <- (statusActor ? FindAll).mapTo[Try[Seq[PolicyStatusModel]]]
           } yield policiesStatuses match {
@@ -82,7 +82,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       get {
         complete {
-          val statusActor = actors.get(AkkaConstant.statusActor).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policyStatus <- (statusActor ? new FindById(id)).mapTo[ResponseStatus]
           } yield policyStatus match {
@@ -104,7 +104,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath) {
       delete {
         complete {
-          val statusActor = actors.get(AkkaConstant.statusActor).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             responseCode <- (statusActor ? DeleteAll).mapTo[ResponseDelete]
           } yield responseCode match {
@@ -133,7 +133,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       delete {
         complete {
-          val statusActor = actors.get(AkkaConstant.statusActor).get
+          val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             responseDelete <- (statusActor ? Delete(id)).mapTo[ResponseDelete]
           } yield responseDelete match {
@@ -159,7 +159,7 @@ trait PolicyContextHttpService extends BaseHttpService {
       put {
         entity(as[PolicyStatusModel]) { policyStatus =>
           complete {
-            val statusActor = actors.get(AkkaConstant.statusActor).get
+            val statusActor = actors(AkkaConstant.StatusActorName)
             for {
               response <- (statusActor ? Update(policyStatus)).mapTo[ResponseStatus]
             } yield response match {
@@ -194,7 +194,7 @@ trait PolicyContextHttpService extends BaseHttpService {
       post {
         entity(as[PolicyModel]) { inputPolicy =>
           complete {
-            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActor, throw new ServingCoreException
+            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActorName, throw new ServingCoreException
             (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
               parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(inputPolicy)).mapTo[ResponsePolicy]
@@ -204,7 +204,7 @@ trait PolicyContextHttpService extends BaseHttpService {
               case ResponsePolicy(Success(policyParsed)) =>
                 PolicyValidator.validateDto(policyParsed)
                 for {
-                  policyResponseTry <- (supervisor ? LauncherActor.Create(policyParsed)).mapTo[Try[PolicyModel]]
+                  policyResponseTry <- (supervisor ? Launch(policyParsed)).mapTo[Try[PolicyModel]]
                 } yield {
                   policyResponseTry match {
                     case Success(policy) =>

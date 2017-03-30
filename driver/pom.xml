@@ -132,7 +132,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
                 <configuration>
-                    <finalName>${project.name}-plugin</finalName>
+                    <finalName>sparta-${project.name}</finalName>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <filters>
                         <filter>
@@ -156,7 +156,7 @@
                     <transformers>
                         <transformer
                             implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.stratio.sparta.driver.SpartaClusterJob</mainClass>
+                            <mainClass>com.stratio.sparta.driver.SparkDriver</mainClass>
                         </transformer>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>

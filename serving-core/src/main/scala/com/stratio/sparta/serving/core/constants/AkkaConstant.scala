@@ -23,14 +23,17 @@ package com.stratio.sparta.serving.core.constants
  */
 object AkkaConstant {
 
-  val StatusActor = "statusActor"
-  val FragmentActor = "fragmentActor"
-  val PolicyActor = "policyActor"
-  val LauncherActor = "sparkStreamingContextActor"
-  val PluginActor = "pluginActor"
-  val DriverActor = "driverActor"
-  val ControllerActor = "controllerActor"
-  val statusActor = "supervisorContextActor"
+  val FragmentActorName = "fragmentActor"
+  val PolicyActorName = "policyActor"
+  val ExecutionActorName = "executionActor"
+  val ClusterLauncherActorName = "clusterLauncherActor"
+  val LauncherActorName = "sparkStreamingContextActor"
+  val PluginActorName = "pluginActor"
+  val DriverActorName = "driverActor"
+  val ControllerActorName = "controllerActor"
+  val StatusActorName = "statusActor"
+  val MarathonAppActorName = "marathonAppActor"
+  val UpDownMarathonActor = "upDownMarathonActor"
   val ControllerActorInstances = "controllerActorInstances"
   val DefaultControllerActorInstances = 5
 

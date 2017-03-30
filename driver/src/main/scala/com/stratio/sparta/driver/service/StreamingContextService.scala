@@ -18,7 +18,6 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 
-import akka.actor.ActorRef
 import com.stratio.sparta.driver.SpartaPipeline
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.utils.LocalListenerUtils
@@ -28,11 +27,12 @@ import com.stratio.sparta.serving.core.helpers.PolicyHelper
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import com.typesafe.config.Config
+import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.StreamingContext
 
 import scala.util.Try
 
-case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[Config] = None)
+case class StreamingContextService(curatorFramework: CuratorFramework, generalConfig: Option[Config] = None)
   extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
 
   final val OutputsSparkConfiguration = "getSparkConfiguration"
@@ -51,7 +51,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
 
     sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, files)
 
-    val ssc = SpartaPipeline(policy, statusActor).run()
+    val ssc = SpartaPipeline(policy, curatorFramework).run()
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
@@ -68,7 +68,7 @@ case class StreamingContextService(statusActor: ActorRef, generalConfig: Option[
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
       val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
       sparkClusterContextInstance(outputsSparkConfig, files)
-      SpartaPipeline(policy, statusActor).run()
+      SpartaPipeline(policy, curatorFramework).run()
     })
 
     setSparkContext(ssc.sparkContext)

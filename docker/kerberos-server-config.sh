@@ -2,7 +2,7 @@
 
 ### Get keytab
 _log_sparta_sec "Downloading keytab from vault"
-#Downloads principal and keytab for spartas
+#Downloads principal and keytab for sparta
 #This wil be saved in /etc/sds/sparta/security/sparta.keytab
 #The principal is saved to HADOOP_PRINCIPAL_NAME
 getKrb userland "$TENANT_NAME" "$TENANT_NAME" "/etc/sds/sparta/security" HADOOP_PRINCIPAL_NAME

@@ -57,7 +57,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(withFragments = false)
+        .findAllPolicies(withFragments = false)
       utils.existsPolicyByNameId(name = "myName", id = Some("existingID")).get should be(
         getPolicyModel(id = Some("existingID")))
     }
@@ -71,7 +71,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(withFragments = false)
+        .findAllPolicies(withFragments = false)
 
       val actualPolicy: PolicyModel = utils.existsPolicyByNameId(name = "MYNAME", id = None).get
 
@@ -88,7 +88,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         getPolicyModel(id = Some("id#2")),
         getPolicyModel(id = Some("id#3"))))
         .when(utils)
-        .getPolicies(withFragments = true)
+        .findAllPolicies(withFragments = true)
 
       utils.existsPolicyByNameId(name = "noName", id = None) should be(None)
     }
@@ -99,7 +99,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         .existsPath
       doThrow(new RuntimeException)
         .when(utils)
-        .getPolicies(withFragments = true)
+        .findAllPolicies(withFragments = true)
 
       utils.existsPolicyByNameId(name = "noName", id = None) should be(None)
     }

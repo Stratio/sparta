@@ -68,7 +68,7 @@
       "position": "left",
       "required": false,
       "propertyType": "select",
-      "regexp": "local|mesos|yarn|standalone",
+      "regexp": "local|mesos|marathon|yarn|standalone",
       "values": [
         {
           "label": "Local",
@@ -77,6 +77,10 @@
         {
           "label": "Mesos",
           "value": "mesos"
+        },
+        {
+          "label": "Marathon",
+          "value": "marathon"
         },
         {
           "label": "Yarn",

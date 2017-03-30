@@ -43,8 +43,8 @@ class FragmentHttpServiceTest extends WordSpec
   val fragmentTestProbe = TestProbe()
 
   override implicit val actors: Map[String, ActorRef] = Map(
-    AkkaConstant.PolicyActor -> policyTestProbe.ref,
-    AkkaConstant.FragmentActor -> fragmentTestProbe.ref
+    AkkaConstant.PolicyActorName -> policyTestProbe.ref,
+    AkkaConstant.FragmentActorName -> fragmentTestProbe.ref
   )
   override val supervisor: ActorRef = testProbe.ref
 

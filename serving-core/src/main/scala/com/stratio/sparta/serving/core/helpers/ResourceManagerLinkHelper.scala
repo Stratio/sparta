@@ -28,7 +28,7 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
 
   def getLink(executionMode : String, monitoringLink: Option[String] = None): Option[String] = {
     val (host: String, port: Int) = (monitoringLink, executionMode) match {
-      case (None, AppConstant.ConfigMesos) => mesosLink
+      case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink
       case (None, AppConstant.ConfigYarn) => yarnLink
       case (None, AppConstant.ConfigStandAlone) => standaloneLink
       case (None, AppConstant.ConfigLocal) => localLink

@@ -109,6 +109,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
+            <artifactId>spark-launcher_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -170,6 +174,15 @@
         <dependency>
             <groupId>io.spray</groupId>
             <artifactId>spray-routing_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.tikitakka</groupId>
+            <artifactId>core</artifactId>
+            <version>0.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalaj</groupId>
+            <artifactId>scalaj-http_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
 </project>

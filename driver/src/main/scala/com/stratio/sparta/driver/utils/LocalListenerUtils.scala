@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparta.driver.utils
 
-import akka.actor.ActorRef
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory._
-import com.stratio.sparta.serving.core.actor.StatusActor.{AddListener, Update}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
-
-trait LocalListenerUtils extends SLF4JLogging {
-
-  val statusActor: ActorRef
+trait LocalListenerUtils extends PolicyStatusUtils {
 
   def killLocalContextListener(policy: PolicyModel, name: String): Unit = {
     log.info(s"Listener added to ${policy.name} with id: ${policy.id.get}")
-    statusActor ! AddListener(policy.id.get, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+    addListener(policy.id.get, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopping) {
           try {
             log.info("Stopping message received from Zookeeper")
-            closeContexts(policy.id.get, statusActor)
+            closeContexts(policy.id.get)
           } finally {
             Try(nodeCache.close()) match {
               case Success(_) =>
@@ -53,11 +47,10 @@ trait LocalListenerUtils extends SLF4JLogging {
     })
   }
 
-  private def closeContexts(policyId: String, statusActor: ActorRef): Unit = {
+  private def closeContexts(policyId: String): Unit = {
     val information = "The Context have been stopped correctly in the local listener"
     log.info(information)
-    statusActor ! Update(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
-    destroySparkContext(destroyStreamingContext = true)
+    updateStatus(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+    destroySparkContext()
   }
-
 }

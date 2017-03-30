@@ -16,10 +16,11 @@
 
 package com.stratio.sparta.serving.api.utils
 
-import akka.actor._
+import akka.actor.{Props, _}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.api.actor.LauncherActor.Start
-import com.stratio.sparta.serving.api.actor.{ClusterLauncherActor, LocalLauncherActor, MarathonLauncherActor}
+import com.stratio.sparta.serving.api.actor.{LocalLauncherActor, MarathonLauncherActor}
+import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
+import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
@@ -29,43 +30,36 @@ trait LauncherActorUtils extends PolicyStatusUtils {
 
   val contextLauncherActorPrefix = "contextLauncherActor"
 
-  def launch(policy: PolicyModel,
-             statusActor: ActorRef,
-             streamingContextService: StreamingContextService,
-             context: ActorContext): PolicyModel = {
+  val streamingContextService: StreamingContextService
+
+  def launch(policy: PolicyModel, context: ActorContext): PolicyModel = {
     if (isAvailableToRun(policy)) {
       log.info("Streaming Context Available, launching policy ... ")
-      val launcherActor = getLauncherActor(policy, statusActor, streamingContextService, context)
+      val actorName = cleanActorName(s"$contextLauncherActorPrefix-${policy.name}")
+      val policyActor = context.children.find(children => children.path.name == actorName)
+
+      val launcherActor = policyActor match {
+        case Some(actor) =>
+          actor
+        case None =>
+          log.info(s"Launched -> $actorName")
+          if (isExecutionType(policy, AppConstant.ConfigLocal)) {
+            log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
+            context.actorOf(Props(
+              new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
+          } else {
+            if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
+              log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")
+              context.actorOf(Props(new MarathonLauncherActor(streamingContextService.curatorFramework)), actorName)
+            }
+            else {
+              log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
+              context.actorOf(Props(new ClusterLauncherActor(streamingContextService.curatorFramework)), actorName)
+            }
+          }
+      }
       launcherActor ! Start(policy)
     }
     policy
-  }
-
-  def getLauncherActor(policy: PolicyModel,
-                       statusActor: ActorRef,
-                       streamingContextService: StreamingContextService,
-                       context: ActorContext): ActorRef = {
-    val actorName = cleanActorName(s"$contextLauncherActorPrefix-${policy.name}")
-    val policyActor = context.children.find(children => children.path.name == actorName)
-
-    policyActor match {
-      case Some(actor) =>
-        actor
-      case None =>
-        log.info(s"Launched -> $actorName")
-        if (isExecutionType(policy, AppConstant.ConfigLocal)) {
-          log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
-          context.actorOf(Props(new LocalLauncherActor(streamingContextService, statusActor)), actorName)
-        } else {
-          if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
-            log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")
-            context.actorOf(Props(new MarathonLauncherActor(statusActor)), actorName)
-          }
-          else {
-            log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
-            context.actorOf(Props(new ClusterLauncherActor(statusActor)), actorName)
-          }
-        }
-    }
   }
 }

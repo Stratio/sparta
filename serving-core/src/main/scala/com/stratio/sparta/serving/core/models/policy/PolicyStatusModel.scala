@@ -27,4 +27,5 @@ case class PolicyStatusModel(id: String,
                              description: Option[String] = None,
                              lastExecutionMode: Option[String] = None,
                              lastError: Option[PolicyErrorModel] = None,
-                             resourceManagerUrl: Option[String] = None)
+                             resourceManagerUrl: Option[String] = None,
+                             marathonId: Option[String] = None)

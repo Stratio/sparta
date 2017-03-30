@@ -46,6 +46,7 @@ object ErrorModel extends SpartaSerializer {
   val CodeErrorCreatingPolicy = "203"
   val CodeErrorDeletingPolicy = "204"
   val CodeErrorUpdatingPolicy = "205"
+  val CodeErrorUpdatingExecution = "206"
   val CodeNotExistsTemplateWithName = "300"
   val CodePolicyIsWrong = "305"
   val ValidationError = "400"

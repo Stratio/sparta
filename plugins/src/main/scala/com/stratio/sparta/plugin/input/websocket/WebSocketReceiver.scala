@@ -19,19 +19,20 @@ import org.apache.spark.Logging
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
 
-import scalawebsocket.WebSocket
 
 class WebSocketReceiver(url: String, storageLevel: StorageLevel)
   extends Receiver[String](storageLevel) with Logging {
 
 
-  @volatile private var webSocket: WebSocket = _
+  private var webSocket: Option[WebSocket] = None
 
   def onStart() {
     try {
       logInfo("Connecting to WebSocket: " + url)
-      val newWebSocket = WebSocket().open(url).onTextMessage({ msg: String => store(msg) })
-      setWebSocket(newWebSocket)
+      val newWebSocket = WebSocket().open(url)
+        .onTextMessage({ msg: String => store(msg) })
+        .onBinaryMessage({ msg: Array[Byte] => store(new Predef.String(msg)) })
+      setWebSocket(Option(newWebSocket))
       logInfo("Connected to: WebSocket" + url)
     } catch {
       case e: Exception => restart("Error starting WebSocket stream", e)
@@ -39,14 +40,13 @@ class WebSocketReceiver(url: String, storageLevel: StorageLevel)
   }
 
   def onStop() {
-    setWebSocket(null)
+    setWebSocket()
     logInfo("WebSocket receiver stopped")
   }
 
-  private def setWebSocket(newWebSocket: WebSocket) = synchronized {
-    if (webSocket != null) {
-      webSocket.shutdown()
-    }
+  private def setWebSocket(newWebSocket: Option[WebSocket] = None) = synchronized {
+    if (webSocket.isDefined)
+      webSocket.get.shutdown()
     webSocket = newWebSocket
   }
 

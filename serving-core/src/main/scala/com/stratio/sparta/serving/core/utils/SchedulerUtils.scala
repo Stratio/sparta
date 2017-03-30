@@ -29,11 +29,30 @@ trait SchedulerUtils extends SLF4JLogging {
 
   def scheduleOneTask(timeProperty: String, defaultTime: String)(f: ⇒ Unit): Cancellable = {
     import scala.concurrent.ExecutionContext.Implicits.global
-
-    val awaitContextStop = Try(SpartaConfig.getDetailConfig.get.getString(timeProperty)).toOption
+    val delay = Try(SpartaConfig.getDetailConfig.get.getString(timeProperty)).toOption
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
 
-    log.info(s"Starting scheduler task in $timeProperty with time: $awaitContextStop")
-    SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(awaitContextStop) milli)(f)
+    log.info(s"Starting scheduler task in $timeProperty with time: $delay")
+    SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(delay) milli)(f)
+  }
+
+  def scheduleTask(initTimeProperty: String,
+                   defaultInitTime: String,
+                   intervalTimeProperty: String,
+                   defaultIntervalTime: String
+                  )(f: ⇒ Unit): Cancellable = {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val initialDelay = Try(SpartaConfig.getDetailConfig.get.getString(initTimeProperty)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultInitTime)
+
+    val interval = Try(SpartaConfig.getDetailConfig.get.getString(intervalTimeProperty)).toOption
+      .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultIntervalTime)
+
+    log.info(s"Starting scheduler tasks with delay $initTimeProperty with time: $initialDelay and interval " +
+      s"$intervalTimeProperty with time: $interval")
+
+    SchedulerSystem.scheduler.schedule(
+      AggregationTime.parseValueToMilliSeconds(initialDelay) milli,
+      AggregationTime.parseValueToMilliSeconds(interval) milli)(f)
   }
 }

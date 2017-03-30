@@ -55,8 +55,6 @@ trait ParserStage extends BaseStage {
           .asInstanceOf[Parser])
     }
   }
-
-
 }
 
 object ParserStage extends SLF4JLogging {
