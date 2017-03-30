@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
@@ -36,22 +37,23 @@ class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   val apiPath = HttpConstant.PluginsPath
 
   override def receive: Receive = {
-    case UploadPlugins(files) =>
-      if (files.isEmpty) sender ! PluginResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
-      else uploadPlugins(files)
+    case UploadPlugins(files) => if (files.isEmpty) errorResponse() else uploadPlugins(files)
     case ListPlugins => browsePlugins()
     case DeletePlugins => deletePlugins()
     case DeletePlugin(fileName) => deletePlugin(fileName)
     case _ => log.info("Unrecognized message in Plugin Actor")
   }
 
+  def errorResponse(): Unit =
+    sender ! JarFilesResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
+
   def deletePlugins(): Unit = sender ! PluginResponse(deleteFiles())
 
   def deletePlugin(fileName: String): Unit = sender ! PluginResponse(deleteFile(fileName))
 
-  def browsePlugins(): Unit = sender ! PluginResponse(browseDirectory())
+  def browsePlugins(): Unit = sender ! JarFilesResponse(browseDirectory())
 
-  def uploadPlugins(files: Seq[BodyPart]): Unit = sender ! PluginResponse(uploadFiles(files))
+  def uploadPlugins(files: Seq[BodyPart]): Unit = sender ! JarFilesResponse(uploadFiles(files))
 }
 
 object PluginActor {

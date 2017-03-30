@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
@@ -36,22 +37,23 @@ class DriverActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   override val apiPath = HttpConstant.DriverPath
 
   override def receive: Receive = {
-    case UploadDrivers(files) =>
-      if (files.isEmpty) sender ! DriverResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
-      else uploadDrivers(files)
+    case UploadDrivers(files) => if (files.isEmpty) errorResponse() else uploadDrivers(files)
     case ListDrivers => browseDrivers()
     case DeleteDrivers => deleteDrivers()
     case DeleteDriver(fileName) => deleteDriver(fileName)
     case _ => log.info("Unrecognized message in Driver Actor")
   }
 
+  def errorResponse(): Unit =
+    sender ! JarFilesResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
+
   def deleteDrivers(): Unit = sender ! DriverResponse(deleteFiles())
 
   def deleteDriver(fileName: String): Unit = sender ! DriverResponse(deleteFile(fileName))
 
-  def browseDrivers(): Unit = sender ! DriverResponse(browseDirectory())
+  def browseDrivers(): Unit = sender ! JarFilesResponse(browseDirectory())
 
-  def uploadDrivers(files: Seq[BodyPart]): Unit = sender ! DriverResponse(uploadFiles(files))
+  def uploadDrivers(files: Seq[BodyPart]): Unit = sender ! JarFilesResponse(uploadFiles(files))
 }
 
 object DriverActor {

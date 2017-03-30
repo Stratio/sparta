@@ -18,11 +18,13 @@ package com.stratio.sparta.serving.api.utils
 
 import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.net.InetAddress
+import java.text.DecimalFormat
 import java.util.function.Predicate
 import java.util.regex.Pattern
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.policy.files.JarFile
 import spray.http.BodyPart
 
 import scala.util.{Failure, Success, Try}
@@ -52,17 +54,20 @@ trait FileActorUtils extends SLF4JLogging {
         plugin.delete()
     }
 
-  def browseDirectory(): Try[List[String]] =
+  def browseDirectory(): Try[Seq[JarFile]] =
     Try {
       val pluginsDirectory = new File(targetDir)
+      val formatter = new DecimalFormat("###.#")
       if (pluginsDirectory.exists && pluginsDirectory.isDirectory) {
         pluginsDirectory.listFiles.filter(_.isFile).toList.flatMap { file =>
-          if (jarFileName.test(file.getName)) Option(s"$url/${file.getName}") else None
+          if (jarFileName.test(file.getName))
+            Option(JarFile(file.getName, s"$url/${file.getName}", file.getAbsolutePath, sizeToMbFormat(file.length())))
+          else None
         }
-      } else List.empty[String]
+      } else Seq.empty[JarFile]
     }
 
-  def uploadFiles(files: Seq[BodyPart]): Try[Seq[String]] =
+  def uploadFiles(files: Seq[BodyPart]): Try[Seq[JarFile]] =
     Try {
       files.flatMap { file =>
         val fileNameOption = file.filename.orElse(file.name.orElse {
@@ -72,9 +77,10 @@ trait FileActorUtils extends SLF4JLogging {
         fileNameOption.flatMap { fileName =>
           if (jarFileName.test(fileName)) {
             val localMachineDir = s"$targetDir/$fileName"
+
             Try(saveFile(file.entity.data.toByteArray, localMachineDir)) match {
               case Success(newFile) =>
-                Option(s"$url/$fileName")
+                Option(JarFile(fileName, s"$url/$fileName", localMachineDir, sizeToMbFormat(newFile.length())))
               case Failure(e) =>
                 log.error(s"Error saving file in path $localMachineDir", e)
                 None
@@ -87,11 +93,18 @@ trait FileActorUtils extends SLF4JLogging {
       }
     }
 
-  private def saveFile(array: Array[Byte], fileName: String): Unit = {
+  private def sizeToMbFormat(size: Long) : String = {
+    val formatter = new DecimalFormat("####.##")
+    s"${formatter.format(size.toDouble / (1024 * 1024))} MB"
+  }
+
+
+  private def saveFile(array: Array[Byte], fileName: String): File = {
     log.info(s"Saving file to: $fileName")
     val bos = new BufferedOutputStream(new FileOutputStream(fileName))
     bos.write(array)
     bos.close()
+    new File(fileName)
   }
 
   private def url: String = {
