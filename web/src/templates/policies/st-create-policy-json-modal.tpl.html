@@ -7,7 +7,7 @@
 	<div class="c-modal-inner">
 		<div class="c-row">
 			<div class="c-col c-col--12">
-				<ng-form name="vm.form" data-ng-submit="vm.createPolicy()" novalidate class="c-form">
+				<ng-form name="vm.form" data-ng-submit="vm.validateForm()" novalidate class="c-form">
 					<div class="c-column-grid">
 						<div class="c-column-grid--static">
 							<div data-ng-repeat="properties in vm.template.properties" class="c-form-gutter c-col c-col--vertical-top" data-ng-class="{'c-col--{{properties.width}}': properties.width}"
@@ -25,8 +25,14 @@
 							</div>
 						</div>
 						<div class="c-column-grid--flex">
+							<!-- POLICY NAME ALREADY EXISTS OR JSON INCORRECT FORMAT ERROR -->
+							<div class="c-row c-row--separated-bottom angular-forms__error" data-ng-if="vm.error" data-qa="error-msg">
+								<i class="c-icon icon-circle-cross" ng-click="vm.error = false"></i>
+								<span translate="{{vm.errorText}}"></span>
+							</div>
 							<form-field class="c-col" data-ng-if="vm.template.jsonModel" data-ng-class="'c-col--12'" data-ng-form-id="{{vm.template.jsonModel.propertyId}}"
-							 data-field="vm.template.jsonModel" data-model="vm.policy" data-form="vm.form" data-qa="{{vm.template.jsonModel.qa}}" data-st-name="trigger{{vm.template.jsonModel.propertyName}}Form">
+							 data-field="vm.template.jsonModel" data-model="vm.policy" data-form="vm.form" data-qa="{{vm.template.jsonModel.qa}}"
+							 data-st-name="trigger{{vm.template.jsonModel.propertyName}}Form">
 							</form-field>
 							<div class="c-row c-row--separated">
 								<div class="c-col c-col--4 c-col--vertical-centered" style="float:left">
@@ -37,7 +43,7 @@
 										<span class="icon-circle-cross"></span>
 										<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
 									</button>
-									<button class="c-button c-button c-button--call-to-action-1" data-ng-click="vm.createPolicy()" data-qa="modal-ok-button">
+									<button class="c-button c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()" data-qa="modal-ok-button">
 										<span class="icon icon-circle-check"></span>
 										<span>{{"_INPUT_BUTTON_CREATE_" | translate}}</span>
 									</button>

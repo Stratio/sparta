@@ -28,7 +28,7 @@
     var vm = this;
     vm.cancel = cancel;
     vm.policy = {};
-    vm.createPolicy = createPolicy;
+    vm.validateForm = validateForm;
 
     init();
 
@@ -45,40 +45,54 @@
       $uibModalInstance.dismiss('cancel');
     }
 
-    function createPolicy(){
-      validateForm();
-    }
-
-
     function validateForm() {
       vm.form.$setSubmitted();
+      vm.error = false;
+      var name = "";
+      var description = "";
       var parsedJSON;
-      if (vm.form.$valid) {
-        try{
-          parsedJSON = JSON.parse(vm.policy.json);
-        } catch(e){
-          console.log(vm.form);
-          alert("Error");
-        }
-        vm.error = false;
+
+      try {
+        parsedJSON = JSON.parse(vm.policy.json);
+      } catch (e) {
+        vm.error = true;
+        vm.errorText = "_ERROR_._INVALID_JSON_FORMAT_";
+        return;
+      }
+
+      name = vm.policy.name && vm.policy.name.length ? vm.policy.name : parsedJSON.name;
+      description = vm.policy.description && vm.policy.description.length ? vm.policy.description : parsedJSON.description;
+
+      if (name && name.length && description && description.length) {
         /*Check if the name of the policy already exists*/
-        return PolicyFactory.existsPolicy(vm.policy.name, vm.policy.id).then(function (found) {
+        return PolicyFactory.existsPolicy(name, vm.policy.id).then(function (found) {
           vm.error = found;
           /* Policy name doesn't exist */
           if (!found) {
-            
+            createPolicy(parsedJSON, name, description);
           }
           /* Policy name exists */
           else {
             vm.errorText = "_ERROR_._200_";
-            document.querySelector('#dataSourcenameForm').focus();
+            vm.error = true;
           }
         });
+      } else {
+        vm.errorText = "_ERROR_._INVALID_JSON_FORMAT_";
+        vm.error = true;
       }
-      else {
-        /*Focus on the first invalid input*/
-        document.querySelector('input.ng-invalid').focus();
-      }
+    }
+
+    function createPolicy(json, name, description) {
+      delete json.id;
+      json.name = name;
+      json.description = description;
+      PolicyFactory.createPolicy(json).then(function () {
+        $uibModalInstance.close();
+      }, function (error) {
+        vm.error = true;
+        vm.errorText = "_ERROR_._INVALID_JSON_FORMAT_";
+      });
     }
   }
 

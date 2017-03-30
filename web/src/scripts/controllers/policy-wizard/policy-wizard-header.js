@@ -30,19 +30,6 @@
     header.wizardStatus = WizardStatusService.getStatus();
     header.leaveEditor = leaveEditor;
 
-    header.showPolicyData = showPolicyData;
-
-    function showPolicyData() {
-      var controller = 'PolicyCreationModalCtrl';
-      var templateUrl = "templates/modal/policy-creation-modal.tpl.html";
-      var resolve = {
-        title: function () {
-          return "_POLICY_._MODAL_SETTINGS_TITLE_";
-        }
-      };
-      ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
-    }
-
     function leaveEditor() {
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
@@ -66,7 +53,7 @@
       function (newStatus) {
         policyTemplate = PolicyModelFactory.getTemplate();
         if (Object.keys(policyTemplate).length > 0) {
-          if (newStatus && newStatus.currentStep >= 0 && newStatus.currentStep < policyTemplate.helpLinks.length - 1) {
+          if (newStatus && newStatus.currentStep >= 0 && newStatus.currentStep < policyTemplate.helpLinks.length) {
 
             header.helpLink = policyTemplate.helpLinks[newStatus.currentStep];
           } else {

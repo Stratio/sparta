@@ -90,10 +90,9 @@
       var resolve = {};
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
-      modalInstance.result.then(function (policyId) {
-        var index = getPolicyPosition(policyId);
-        vm.policiesData.splice(index, 1);
-        vm.successMessage.text = '_POLICY_DELETE_OK_';
+      modalInstance.result.then(function () {
+        vm.successMessage.text = '_POLICY_CREATE_OK_';
+        getPolicies(); 
       });
     }
 

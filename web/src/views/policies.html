@@ -14,15 +14,15 @@
           <span class="icon icon-circle-plus"></span>
           <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
           <st-floating-menu toggle-id="createPolicyFromJSON" align="left">
-                <st-menu-element class-icon="icon-cross"
+                <st-menu-element class-icon="icon-circle-plus"
                                  data-ng-click="policies.createPolicy()"
                                  data-qa="policy-context-menu-{{policyData.id}}-delete">
-                  {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
+                  {{"_MENU_DASHBOARD_NEW_POLICY_JSON_" | translate}}
                 </st-menu-element>
-                <st-menu-element class-icon="icon-edit2"
+                <st-menu-element class-icon="icon-circle-plus"
                                  data-ng-click="policies.createPolicyFromJSON()"
                                  data-qa="policy-context-menu-{{policyData.id}}-edit">
-                  {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
+                  {{"_MENU_DASHBOARD_NEW_POLICY_SCRATCH_" | translate}}
                 </st-menu-element>
           </st-floating-menu>
         </button>

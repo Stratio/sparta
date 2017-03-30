@@ -5,7 +5,7 @@
     <span class="c-floating-message__text" data-ng-if="nextStepAvailable || visited[current+1]"> {{steps[current+1].availableMessage | translate}}</span>
     <i class="c-icon--to-right c-icon c-icon--is-clickable icon-cross c-floating-message__close-button"
        data-ng-click="hideHelp()" data-qa="policy-navigation-help-remove"></i>
-  </div>{{steps[current+1]}}
+  </div>
   <ul class="c-step-progress-bar">
     <section data-ng-repeat="step in structuredSteps" class="c-col c-col--{{12 / structuredSteps.length | truncatenum }}">
 

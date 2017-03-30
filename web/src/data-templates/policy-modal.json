@@ -4,7 +4,6 @@
             "propertyId": "name",
             "propertyName": "_NAME_",
             "propertyType": "text",
-            "required": true,
             "qa": "trigger-name",
             "width": 12,
             "position": "left"
@@ -13,7 +12,6 @@
             "propertyId": "description",
             "propertyName": "_DESCRIPTION_",
             "propertyType": "textarea",
-            "required": true,
             "qa": "trigger-name",
             "width": 12,
             "position": "left"
