@@ -28,33 +28,33 @@
                   data-ng-class="{'sort-active': policies.sortField == 'name'}" 
                   data-ng-if="policies.sortField != 'name' || !policies.tableReverse"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('description')"> 
-            {{"_DESCRIPTION_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'description' && policies.tableReverse"></span>
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('input.name')"> 
+            {{"_INPUT_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'input.name' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down"
-                  data-ng-class="{'sort-active': policies.sortField == 'description'}"  
-                  data-ng-if="policies.sortField != 'description' || !policies.tableReverse"></span>
+                  data-ng-class="{'sort-active': policies.sortField == 'input.name'}"  
+                  data-ng-if="policies.sortField != 'input.name' || !policies.tableReverse"></span>
           </th>
-          <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('status')">
-            {{"_STATUS_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'status' && policies.tableReverse"></span>
+          <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('transformType')">
+            {{"_TRANSFORM_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'transformType' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
-                  data-ng-if="policies.sortField != 'status' || !policies.tableReverse" 
-                  ng-class="{'sort-active': policies.sortField == 'status'}"></span>
+                  data-ng-if="policies.sortField != 'transformType' || !policies.tableReverse" 
+                  ng-class="{'sort-active': policies.sortField == 'transformType'}"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('lastExecutionMode')">
-            {{"_DEPLOY_MODE_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'lastExecutionMode' && policies.tableReverse"></span>
+          <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('cubesStr')">
+            {{"_CUBES_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'cubesStr' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
-                  data-ng-if="policies.sortField != 'lastExecutionMode' || !policies.tableReverse"
-                  ng-class="{'sort-active': policies.sortField == 'lastExecutionMode'}"></span>
+                  data-ng-if="policies.sortField != 'cubesStr' || !policies.tableReverse"
+                  ng-class="{'sort-active': policies.sortField == 'cubesStr'}"></span>
           </th>
-          <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('statusInfo')">
-            {{"_STATUS_INFORMATION_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'statusInfo' && policies.tableReverse"></span>
+          <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('triggers')">
+            {{"_TRIGGERS_" | translate}}
+            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'triggers' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down " 
-                  data-ng-if="policies.sortField != 'statusInfo' || !policies.tableReverse" 
-                  ng-class="{'sort-active': policies.sortField == 'statusInfo'}"></span>
+                  data-ng-if="policies.sortField != 'triggers' || !policies.tableReverse" 
+                  ng-class="{'sort-active': policies.sortField == 'triggers'}"></span>
           </th>
           <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>
@@ -64,11 +64,16 @@
         <tbody>
 
         <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData | orderBy:policies.sortField:policies.tableReverse">
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.name}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.description}}</td>
-          <td class="c-table__td c-col--1 c-table--centered-content">{{policyData.status}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">{{policyData.lastExecutionMode}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.statusInfo}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::policyData.name}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::policyData.input.name}} - {{::policyData.input.type}}</td>
+          <td class="c-table__td c-col--1 c-table--centered-content">
+            {{::policyData.transformType}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">
+            {{::policyData.cubesStr}}
+          </td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">
+              {{::policyData.triggers}}
+            </td>
 
           <td class="c-table__td c-table__td--to-right c-col--1 c-col--to-right c-row--to-right">
             <c-icon-link icon-class="'c-table__icon c-icon c-icon--is-clickable c-icon--circle-button c-icon--call-to-action icon-globe'"
@@ -77,23 +82,18 @@
                          data-qa="cluster-UI-link">
             </c-icon-link>
           </td>
-          <td class="c-table__td c-table__td--to-right c-col--1 c-col--to-right c-row--to-right">
-            <i data-ng-class = "{'c-table__icon--warning icon-alert': policyData.lastError, ' icon-info3 c-table__icon--info': !policyData.lastError}"
-               class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button" data-ng-click="policies.showInfoModal(policyData)">
-            </i>
-          </td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
             <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-actions"
                data-ng-click="$root.stToggleFloatingMenu[policyData.id]()"
                data-qa="policy-context-menu-{{policyData.id}}">
               <st-floating-menu toggle-id="{{policyData.id}}" align="right">
                 <st-menu-element class-icon="icon-cross"
-                                 data-ng-click="policies.deletePolicy(policyData.id, policyData.status, $index)"
+                                 data-ng-click="policies.deletePolicy(policyData.id, $index)"
                                  data-qa="policy-context-menu-{{policyData.id}}-delete">
                   {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-edit2"
-                                 data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.id, policyData.status)"
+                                 data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.id)"
                                  data-qa="policy-context-menu-{{policyData.id}}-edit">
                   {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
                 </st-menu-element>
@@ -102,22 +102,6 @@
                                  data-qa="policy-context-menu-{{policyData.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>
-                <st-menu-element class-icon="icon-play"
-                                 data-ng-click="policies.runPolicy(policyData.id, policyData.status, policyData.name)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-run">
-                  {{"_OUTPUT_ACTIONS_MENU_RUN_" | translate}}
-                </st-menu-element>
-                <st-menu-element class-icon="icon-stop"
-                                 data-ng-click="policies.stopPolicy(policyData.id, policyData.status, policyData.name)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-stop">
-                  {{"_OUTPUT_ACTIONS_MENU_STOP_" | translate}}
-                </st-menu-element>
-                <st-menu-element class-icon="ico icon-cross"
-                                 data-ng-click="policies.deleteCheckpoint(policyData.name)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-stop">
-                  {{"_OUTPUT_ACTIONS_MENU_CHECKPOINT_" | translate}}
-                </st-menu-element>
-
               </st-floating-menu>
             </i>
           </td>
