@@ -33,6 +33,7 @@
     init();
 
     function init() {
+      WizardStatusService.disableNextStep();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.template = PolicyModelFactory.getTemplate();
       if (vm.policy && Object.keys(vm.template).length > 0) {

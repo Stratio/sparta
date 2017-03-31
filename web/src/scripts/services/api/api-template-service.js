@@ -30,6 +30,7 @@
     vm.getDimensionTemplateByType = getDimensionTemplateByType;
     vm.getOperatorTemplateByType = getOperatorTemplateByType;
     vm.getTriggerTemplateByType = getTriggerTemplateByType;
+    vm.getPolicyJsonTemplate = getPolicyJsonTemplate;
 
     /////////////////////////////////
 
@@ -45,6 +46,16 @@
 
     function getPolicyTemplate() {
       return $resource('/data-templates/policy.json',{},
+        {
+          'get': {
+            method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+    }
+
+    function getPolicyJsonTemplate(){
+        return $resource('/data-templates/policy-modal.json',{},
         {
           'get': {
             method: 'GET',

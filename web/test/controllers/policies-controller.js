@@ -32,7 +32,7 @@ describe('policies.wizard.controller.policies-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
-    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus','downloadPolicy', 'deletePolicyCheckpoint']);
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy', 'deletePolicyCheckpoint']);
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -93,22 +93,6 @@ describe('policies.wizard.controller.policies-controller', function() {
 
     })
   });
-
-  it("should show a confirmation modal when delete a policy", function() {
-    var fakePolicy = fakePolicyList[0];
-    var fakePolicyId = fakePolicy.id;
-    var fakePolicyStatus = "notstarted";
-
-    ctrl.deletePolicy(fakePolicy.id);
-    expect(modalServiceMock.openModal).toHaveBeenCalled();
-
-    var args = modalServiceMock.openModal.calls.mostRecent().args;
-    expect(args[0]).toBe('DeletePolicyModalCtrl');
-    expect(args[1]).toBe('templates/policies/st-delete-policy-modal.tpl.html');
-    var resolveParam = args[2];
-    expect(resolveParam.item()).toBe(fakePolicy.id);
-  });
-
 
   it("should be able to open a modal with the information of the selected policy by its position", function() {
     ctrl.policiesData = [fakePolicyStatusList[0], fakePolicyStatusList[1]];

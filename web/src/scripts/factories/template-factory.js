@@ -25,35 +25,38 @@
   function TemplateFactory($q, ApiTemplateService) {
     return {
       getNewFragmentTemplate: function (fragmentType) {
-        return ApiTemplateService.getFragmentTemplateByType().get({'type': fragmentType + '.json'}).$promise;
+        return ApiTemplateService.getFragmentTemplateByType().get({ 'type': fragmentType + '.json' }).$promise;
       },
       getPolicyTemplate: function () {
         return ApiTemplateService.getPolicyTemplate().get().$promise;
       },
-      getDimensionTemplateByType: function(dimensionType) {
+      getPolicyJsonTemplate: function () {
+        return ApiTemplateService.getPolicyJsonTemplate().get().$promise;
+      },
+      getDimensionTemplateByType: function (dimensionType) {
         var defer = $q.defer();
         dimensionType = dimensionType ? dimensionType.toLowerCase() : 'default';
-        ApiTemplateService.getDimensionTemplateByType().get({'type': 'default.json'}).$promise.then(function(defaultTemplate){
-          if (dimensionType !== 'default'){
-              ApiTemplateService.getDimensionTemplateByType().get({'type': dimensionType + '.json'}).$promise.then(function(specificTemplate){
-                defer.resolve({properties: defaultTemplate.properties.concat(specificTemplate.properties)});
-              });
-          }else {
+        ApiTemplateService.getDimensionTemplateByType().get({ 'type': 'default.json' }).$promise.then(function (defaultTemplate) {
+          if (dimensionType !== 'default') {
+            ApiTemplateService.getDimensionTemplateByType().get({ 'type': dimensionType + '.json' }).$promise.then(function (specificTemplate) {
+              defer.resolve({ properties: defaultTemplate.properties.concat(specificTemplate.properties) });
+            });
+          } else {
             defer.resolve(defaultTemplate);
           }
         });
         return defer.promise;
       },
       getOperatorTemplateByType: function (operatorType) {
-        operatorType = operatorType ? operatorType.toLowerCase(): '';
-        operatorType = operatorType != 'count' ? 'default': operatorType;
-        return ApiTemplateService.getOperatorTemplateByType().get({'type': operatorType + '.json'}).$promise;
+        operatorType = operatorType ? operatorType.toLowerCase() : '';
+        operatorType = operatorType != 'count' ? 'default' : operatorType;
+        return ApiTemplateService.getOperatorTemplateByType().get({ 'type': operatorType + '.json' }).$promise;
       },
       getTriggerTemplateByType: function (type) {
-        if (!type){
+        if (!type) {
           type = 'transformation';
         }
-        return ApiTemplateService.getTriggerTemplateByType().get({'type': type + '.json'}).$promise;
+        return ApiTemplateService.getTriggerTemplateByType().get({ 'type': type + '.json' }).$promise;
       }
     };
   }

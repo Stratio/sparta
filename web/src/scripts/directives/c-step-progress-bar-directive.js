@@ -31,7 +31,8 @@
         nextStepAvailable: '=',
         editionMode: "=",
         onClickNextStep: "&",
-        parentClass: "="
+        parentClass: "=",
+        validationFn: "="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
@@ -44,6 +45,9 @@
           scope.showHelp = false;
         };
         scope.chooseStep = function(index, order) {
+          if(scope.current == 0 && index == 1){
+            return scope.validationFn();
+          }
           if ((scope.editionMode && scope.nextStepAvailable)
               || (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable
               || (index < scope.current)) {

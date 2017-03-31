@@ -38,7 +38,8 @@
         modal: "=",
         deleteClass: "=",
         disabled: '=',
-        extraMessage: '='
+        extraMessage: '=',
+        hightSize: '='
       }
     };
     return directive;

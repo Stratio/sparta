@@ -1,0 +1,24 @@
+@mixin c-column-grid {
+	@include c-panel;
+
+	display: flex;
+	position: relative;
+
+	&--static {
+		width: $c-column-grid---static-width;
+        flex: 0 0 $c-column-grid---static-width;
+	}
+
+	&--flex {
+		flex: 1;
+	}
+
+    &--separated{
+        padding:10px;
+        background-color:get-color(b3);
+    }
+}
+
+.c-column-grid  {
+	@include c-column-grid 
+}

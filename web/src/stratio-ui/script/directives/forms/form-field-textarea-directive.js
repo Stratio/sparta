@@ -41,7 +41,8 @@
         placeholder: '=',
         extraInfo: '=',
         disabled: '=',
-        largeSize: '='
+        largeSize: '=',
+        hightsize: '='
       }
     };
 
@@ -80,6 +81,9 @@
       };
 
       scope.mouseLeaveTooltip = function () {
+        if(!scope.name || !scope.name.length){
+          return;
+        }
         var tooltipHolder = document.querySelector('#' + scope.name);
         if (tooltipHolder) {
           var tooltipParent = tooltipHolder.parentNode;

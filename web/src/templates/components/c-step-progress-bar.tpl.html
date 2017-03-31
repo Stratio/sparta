@@ -1,7 +1,7 @@
 <aside class="c-panel">
   <div class="c-col c-col--12 c-col--to-right c-col--vertical-centered c-floating-message" data-ng-if="showHelp">
     <i class="c-floating-message__icon c-icon icon-info1"></i>
-    <span class="c-floating-message__text" data-ng-if=showCurrentStepMessage()> {{steps[current].currentMessage | translate}}</span>
+    <span class="c-floating-message__text" data-ng-if=showCurrentStepMessage()> {{steps[current].currentMessage | translate}}</span> 
     <span class="c-floating-message__text" data-ng-if="nextStepAvailable || visited[current+1]"> {{steps[current+1].availableMessage | translate}}</span>
     <i class="c-icon--to-right c-icon c-icon--is-clickable icon-cross c-floating-message__close-button"
        data-ng-click="hideHelp()" data-qa="policy-navigation-help-remove"></i>
