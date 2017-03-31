@@ -25,6 +25,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFr
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
 import com.stratio.sparta.serving.core.models.policy.{PolicyStatusModel, ResponsePolicy}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -41,6 +42,7 @@ class PolicyContextHttpServiceTest extends WordSpec
   val sparkStreamingTestProbe = TestProbe()
   val fragmentActorTestProbe = TestProbe()
   val statusActorTestProbe = TestProbe()
+  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
@@ -61,7 +63,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsg(FindAll)
         responseAs[Seq[PolicyStatusModel]] should equal(Seq(getPolicyStatusModel()))
       }
@@ -76,7 +78,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyContextPath}") ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsg(FindAll)
         status should be(StatusCodes.InternalServerError)
       }
@@ -94,7 +96,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsg(FindById("id"))
         responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
       }
@@ -109,7 +111,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsg(FindById("id"))
         status should be(StatusCodes.InternalServerError)
       }
@@ -127,7 +129,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsgType[Update]
         status should be(StatusCodes.Created)
       }
@@ -142,7 +144,7 @@ class PolicyContextHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyContextPath}", getPolicyStatusModel()) ~> routes(dummyUser) ~> check {
         statusActorTestProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
       }
@@ -166,7 +168,7 @@ class PolicyContextHttpServiceTest extends WordSpec
       startAutopilot(None, fragmentActorTestProbe, fragmentAutopilot)
       startAutopilot(Success(getPolicyModel()))
 
-      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
+      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Launch]
         status should be(StatusCodes.OK)
       }
@@ -175,7 +177,7 @@ class PolicyContextHttpServiceTest extends WordSpec
     }
     "return a 500 if there was any error" in {
       startAutopilot(Failure(new MockException))
-      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes ~> check {
+      Post(s"/${HttpConstant.PolicyContextPath}", getPolicyModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Launch]
         status should be(StatusCodes.InternalServerError)
       }

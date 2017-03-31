@@ -25,6 +25,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.spray.oauth2.client.OauthClient
@@ -38,9 +39,10 @@ import scala.util.{Failure, Success}
   "included in a policy")
 trait FragmentHttpService extends BaseHttpService with OauthClient {
 
-  override def routes: Route =
-    findAll ~ findByTypeAndId ~ findByTypeAndName ~ findAllByType ~ create ~ update ~ deleteByTypeAndId ~
-      deleteByType ~ deleteByTypeAndName ~ deleteAll
+  override def routes(user: Option[LoggedUser] = None): Route =
+    findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~
+      findAllByType(user) ~ create(user) ~ update(user) ~ deleteByTypeAndId(user) ~
+      deleteByType(user) ~ deleteByTypeAndName(user) ~ deleteAll(user)
 
   @Path("/{fragmentType}/id/{fragmentId}")
   @ApiOperation(value = "Find a fragment depending of its type and id.",
@@ -63,7 +65,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findByTypeAndId: Route = {
+  def findByTypeAndId(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment / "id" / Segment) { (fragmentType, id) =>
       get {
         complete {
@@ -99,7 +101,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findByTypeAndName: Route = {
+  def findByTypeAndName(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
       get {
         complete {
@@ -131,7 +133,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findAllByType: Route = {
+  def findAllByType(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       get {
         complete {
@@ -155,7 +157,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findAll: Route = {
+  def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath) {
       get {
         complete {
@@ -180,7 +182,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       required = true,
       paramType = "body")
   ))
-  def create: Route = {
+  def create(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath) {
       post {
         entity(as[FragmentElementModel]) { fragment =>
@@ -206,7 +208,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
       dataType = "FragmentElementModel",
       required = true,
       paramType = "body")))
-  def update: Route = {
+  def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath) {
       put {
         entity(as[FragmentElementModel]) { fragment =>
@@ -255,7 +257,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
-  def deleteByTypeAndId: Route = {
+  def deleteByTypeAndId(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment / "id" / Segment) { (fragmentType, id) =>
       delete {
         complete {
@@ -293,7 +295,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
-  def deleteByTypeAndName: Route = {
+  def deleteByTypeAndName(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment / "name" / Segment) { (fragmentType, name) =>
       delete {
         complete {
@@ -326,7 +328,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
-  def deleteByType: Route = {
+  def deleteByType(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath / Segment) { (fragmentType) =>
       delete {
         complete {
@@ -351,7 +353,7 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)
   ))
-  def deleteAll: Route = {
+  def deleteAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.FragmentPath) {
       delete {
         complete {

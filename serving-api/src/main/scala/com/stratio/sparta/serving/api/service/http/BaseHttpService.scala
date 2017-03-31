@@ -20,6 +20,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import spray.httpx.Json4sJacksonSupport
 import spray.routing._
 
@@ -39,6 +40,6 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
 
   val supervisor: ActorRef
 
-  def routes: Route
+  def routes(user: Option[LoggedUser] = None): Route
 
 }

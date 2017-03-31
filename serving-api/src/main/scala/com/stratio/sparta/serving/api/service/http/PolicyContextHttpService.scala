@@ -26,6 +26,7 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.models._
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
 import com.wordnik.swagger.annotations._
@@ -37,7 +38,8 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.PolicyContextPath, description = "Operations about policy contexts.", position = 0)
 trait PolicyContextHttpService extends BaseHttpService {
 
-  override def routes: Route = findAll ~ update ~ create ~ deleteAll ~ deleteById ~ find
+  override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
+    update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
@@ -47,7 +49,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def findAll: Route = {
+  def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath) {
       get {
         complete {
@@ -78,7 +80,7 @@ trait PolicyContextHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def find: Route = {
+  def find(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       get {
         complete {
@@ -100,7 +102,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def deleteAll: Route = {
+  def deleteAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath) {
       delete {
         complete {
@@ -129,7 +131,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def deleteById: Route = {
+  def deleteById(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath / Segment) { (id) =>
       delete {
         complete {
@@ -154,7 +156,7 @@ trait PolicyContextHttpService extends BaseHttpService {
       dataType = "PolicyStatusModel",
       required = true,
       paramType = "body")))
-  def update: Route = {
+  def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath) {
       put {
         entity(as[PolicyStatusModel]) { policyStatus =>
@@ -189,7 +191,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def create: Route = {
+  def create(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath) {
       post {
         entity(as[PolicyModel]) { inputPolicy =>

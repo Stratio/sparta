@@ -29,7 +29,6 @@ object AppConstant {
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
   val ConfigDetail = "config"
-  val ConfigAkka = "akka"
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
 

@@ -49,9 +49,6 @@ object SpartaHelper extends SLF4JLogging {
       val curatorFramework = CuratorFactoryHolder.getInstance()
       log.info("Initializing Sparta Actors System ...")
       system = ActorSystem(appName, SpartaConfig.mainConfig)
-      val akkaConfig = SpartaConfig.mainConfig.get.getConfig(AppConstant.ConfigAkka)
-      val controllerInstances = if (!akkaConfig.isEmpty) akkaConfig.getInt(AkkaConstant.ControllerActorInstances)
-      else AkkaConstant.DefaultControllerActorInstances
       val statusActor = system.actorOf(Props(
         new StatusActor(curatorFramework)), AkkaConstant.StatusActorName)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), AkkaConstant.FragmentActorName)
@@ -74,8 +71,8 @@ object SpartaHelper extends SLF4JLogging {
         AkkaConstant.ExecutionActorName -> executionActor
       )
 
-      val controllerActor = system.actorOf(RoundRobinPool(controllerInstances).props(Props(
-        new ControllerActor(actors, curatorFramework))), AkkaConstant.ControllerActorName)
+      val controllerActor = system.actorOf(Props(
+        new ControllerActor(actors, curatorFramework)), AkkaConstant.ControllerActorName)
 
       if (isHttpsEnabled) loadSpartaWithHttps(controllerActor)
       else loadSpartaWithHttp(controllerActor)
