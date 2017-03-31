@@ -33,18 +33,7 @@
     vm.runPolicy = runPolicy;
     vm.stopPolicy = stopPolicy;
     vm.sortPolicies = sortPolicies;
-<<<<<<< 17d37b3b1276ca105f4951853bbc82c678a370db
-<<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
-<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
     vm.deleteCheckpoint = deleteCheckpoint;
-=======
->>>>>>> merge changes
-=======
-    vm.deleteCheckpoint = deleteCheckpoint;
->>>>>>> added success and error messages in executions view
-=======
-    vm.deleteCheckpoint = deleteCheckpoint;
->>>>>>> added success and error messages in executions view
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
@@ -80,12 +69,9 @@
     }
 
     function stopPolicy(policyId, policyStatus, policyName) {
-<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
       if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' &&
        policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished') {
-=======
-      if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping') {
->>>>>>> merge changes
+
 
         var stopPolicy =
         {
@@ -107,13 +93,6 @@
       }
     }
 
-<<<<<<< 17d37b3b1276ca105f4951853bbc82c678a370db
-<<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
-<<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
-=======
->>>>>>> added success and error messages in executions view
-=======
->>>>>>> added success and error messages in executions view
 
     function deleteCheckpoint(policyName){
       var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
@@ -122,14 +101,6 @@
       });
     }
 
-<<<<<<< 17d37b3b1276ca105f4951853bbc82c678a370db
-<<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
-=======
->>>>>>> merge changes
-=======
->>>>>>> added success and error messages in executions view
-=======
->>>>>>> added success and error messages in executions view
     function deletePolicyConfirm(size, policy) {
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
