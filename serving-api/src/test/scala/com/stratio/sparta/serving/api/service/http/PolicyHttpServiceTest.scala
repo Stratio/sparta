@@ -25,6 +25,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor.ResponseFragment
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.{FragmentActor, LauncherActor, StatusActor}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
 import com.stratio.sparta.serving.core.models.policy._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -43,6 +44,8 @@ with HttpServiceBaseTest {
 
   val statusActorTestProbe = TestProbe()
 
+  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
     AkkaConstant.FragmentActorName -> fragmentActorTestProbe.ref,
@@ -52,7 +55,7 @@ with HttpServiceBaseTest {
   "PolicyHttpService.find" should {
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
-      Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/find/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }
@@ -62,7 +65,7 @@ with HttpServiceBaseTest {
   "PolicyHttpService.findByName" should {
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
-      Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/findByName/name") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByName]
         status should be(StatusCodes.InternalServerError)
       }
@@ -92,14 +95,14 @@ with HttpServiceBaseTest {
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
 
       startAutopilot(ResponsePolicies(Success(Seq(getPolicyModel()))))
-      Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByFragment]
         responseAs[Seq[PolicyModel]] should equal(Seq(getPolicyModel()))
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
-      Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/fragment/input/name") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByFragment]
         status should be(StatusCodes.InternalServerError)
       }
@@ -119,14 +122,14 @@ with HttpServiceBaseTest {
       })
 
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Get(s"/${HttpConstant.PolicyPath}/all") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/all") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
         responseAs[Seq[PolicyModel]] should equal(Seq(getPolicyModel()))
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(ResponsePolicy(Failure(new MockException())))
-      Get(s"/${HttpConstant.PolicyPath}/all") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/all") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
         status should be(StatusCodes.InternalServerError)
       }
@@ -136,14 +139,14 @@ with HttpServiceBaseTest {
   "PolicyHttpService.update" should {
     "return an OK because the policy was updated" in {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes ~> check {
+      Put(s"/${HttpConstant.PolicyPath}", getPolicyModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
       }
@@ -162,7 +165,7 @@ with HttpServiceBaseTest {
       })
       startAutopilot(Response(Success(getFragmentModel())))
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
+      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.OK)
       }
@@ -179,7 +182,7 @@ with HttpServiceBaseTest {
       })
       startAutopilot(Response(Failure(new MockException())))
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
-      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes ~> check {
+      Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Delete]
         status should be(StatusCodes.InternalServerError)
       }
@@ -199,7 +202,7 @@ with HttpServiceBaseTest {
       })
       startAutopilot(None, sparkStreamingTestProbe, policyAutoPilot)
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/run/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/run/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.OK)
       }
@@ -216,7 +219,7 @@ with HttpServiceBaseTest {
       })
       startAutopilot(Response(Failure(new MockException())))
       startAutopilot(None, sparkStreamingTestProbe, policyAutoPilot)
-      Get(s"/${HttpConstant.PolicyPath}/run/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/run/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }
@@ -226,7 +229,7 @@ with HttpServiceBaseTest {
   "PolicyHttpService.download" should {
     "return an OK and the attachment filename" in {
       startAutopilot(ResponsePolicy(Success(getPolicyModel())))
-      Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.OK)
         header("Content-Disposition").isDefined should be(true)
@@ -234,7 +237,7 @@ with HttpServiceBaseTest {
     }
     "return a 500 if there was any error" in {
       startAutopilot(Response(Failure(new MockException())))
-      Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes ~> check {
+      Get(s"/${HttpConstant.PolicyPath}/download/id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
       }

@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.actor.DriverActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
@@ -38,7 +39,8 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
 
-  override def routes: Route = upload ~ download ~ getAll ~ deleteAllFiles ~ deleteFile
+  override def routes(user: Option[LoggedUser] = None): Route = upload(user) ~
+    download(user) ~ getAll(user) ~ deleteAllFiles(user) ~ deleteFile(user)
 
   @Path("")
   @ApiOperation(value = "Upload a file to driver directory.",
@@ -51,7 +53,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       required = true,
       paramType = "formData")
   ))
-  def upload: Route = {
+  def upload(user: Option[LoggedUser]): Route = {
     path(HttpConstant.DriverPath) {
       put {
         entity(as[MultipartFormData]) { form =>
@@ -78,7 +80,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       required = true,
       paramType = "path")
   ))
-  def download: Route =
+  def download(user: Option[LoggedUser]): Route =
     get {
       pathPrefix(HttpConstant.DriverPath) {
         getFromDirectory(
@@ -95,7 +97,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def getAll: Route =
+  def getAll(user: Option[LoggedUser]): Route =
     path(HttpConstant.DriverPath) {
       get {
         complete {
@@ -117,7 +119,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def deleteAllFiles: Route =
+  def deleteAllFiles(user: Option[LoggedUser]): Route =
     path(HttpConstant.DriverPath) {
       delete {
         complete {
@@ -146,7 +148,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def deleteFile: Route = {
+  def deleteFile(user: Option[LoggedUser]): Route = {
     path(HttpConstant.DriverPath / Segment) { file =>
       delete {
         complete {

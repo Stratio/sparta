@@ -21,6 +21,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.RequestActor._
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
@@ -31,7 +32,8 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.ExecutionsPath, description = "Operations about executions.", position = 0)
 trait ExecutionHttpService extends BaseHttpService {
 
-  override def routes: Route = findAll ~ update ~ create ~ deleteAll ~ deleteById ~ find
+  override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
+    update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
 
   @ApiOperation(value = "Finds all executions",
     notes = "Returns executions list",
@@ -41,7 +43,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def findAll: Route = {
+  def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       get {
         complete {
@@ -71,7 +73,7 @@ trait ExecutionHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def find: Route = {
+  def find(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath / Segment) { (id) =>
       get {
         complete {
@@ -92,7 +94,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def deleteAll: Route = {
+  def deleteAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       delete {
         complete {
@@ -120,7 +122,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def deleteById: Route = {
+  def deleteById(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath / Segment) { (id) =>
       delete {
         complete {
@@ -150,7 +152,7 @@ trait ExecutionHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def update: Route = {
+  def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       put {
         entity(as[SubmitRequest]) { request =>
@@ -185,7 +187,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
-  def create: Route = {
+  def create(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       post {
         entity(as[SubmitRequest]) { request =>

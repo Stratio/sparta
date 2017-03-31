@@ -34,8 +34,6 @@ object AkkaConstant {
   val StatusActorName = "statusActor"
   val MarathonAppActorName = "marathonAppActor"
   val UpDownMarathonActor = "upDownMarathonActor"
-  val ControllerActorInstances = "controllerActorInstances"
-  val DefaultControllerActorInstances = 5
 
   val DefaultTimeout = 15
 
