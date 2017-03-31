@@ -57,18 +57,6 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
     expect(policyModelFactoryMock.getTemplate).toHaveBeenCalled();
   });
 
-  it ("should be able to open the policy description modal", function(){
-    ctrl.showPolicyData();
-
-    expect(modalServiceMock.openModal).toHaveBeenCalled();
-    var callParams = modalServiceMock.openModal.calls.mostRecent().args;
-    expect(callParams[0]).toBe('PolicyCreationModalCtrl');
-    expect(callParams[1]).toBe('templates/modal/policy-creation-modal.tpl.html');
-    expect(callParams[2].title()).toBe("_POLICY_._MODAL_SETTINGS_TITLE_");
-    expect(callParams[3]).toEqual('');
-    expect(callParams[4]).toEqual('lg');
-  });
-
   describe ("should be able to open a confirmation modal when user wants to leave the wizard", function(){
   it("confirmation modal is open with correct params", function(){
     ctrl.leaveEditor();
@@ -98,7 +86,7 @@ describe('policies.wizard.controller.policy-wizard-header-controller', function 
 
       scope.$digest();
 
-      expect(ctrl.helpLink).toBe(fakeTemplate.helpLinks[fakeWizardStatus.currentStep + 1]);
+      expect(ctrl.helpLink).toBe(fakeTemplate.helpLinks[fakeWizardStatus.currentStep]);
     });
 
     it("if current step is -1, it must not do anything", function(){

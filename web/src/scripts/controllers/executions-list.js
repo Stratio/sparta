@@ -72,6 +72,7 @@
       if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' &&
        policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished') {
 
+
         var stopPolicy =
         {
           "id": policyId,

@@ -1,6 +1,7 @@
 @mixin c-step-progress-bar {
   @include c-component;
-
+  
+  width:100%;
   background: $c-step-progress-bar---background;
   display: block;
   padding: $c-step-progress-bar---padding;

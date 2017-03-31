@@ -149,6 +149,7 @@ describe('executions.wizard.controller.executions-controller', function() {
     }
   });
 
+
   it("should be able to stop a policy if is started", function() {
     var fakePolicyId = "fake policy id";
     var fakePolicyStatus = "started";
@@ -209,6 +210,7 @@ describe('executions.wizard.controller.executions-controller', function() {
 
     expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
   });
+
 
   describe("should be able to sort the current policy list", function(){
 

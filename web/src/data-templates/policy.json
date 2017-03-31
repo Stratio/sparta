@@ -1,24 +1,32 @@
 {
   "steps": [
     {
+      "name": "_POLICY_._STEPS_._SETTINGS_",
+      "icon": "icon-cog",
+      "currentMessage": "_MESSAGE_._SETTINGS_STEP_",
+      "availableMessage": "_MESSAGE_._SETTINGS_STEP_AVAILABLE_",
+      "order": 0
+    },
+    {
       "name": "_POLICY_._STEPS_._INPUT_",
       "icon": "icon-input",
       "currentMessage": "_MESSAGE_._INPUT_STEP_",
-      "order": 0
+      "availableMessage": "_MESSAGE_._INPUT_STEP_AVAILABLE_",
+      "order": 1
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-content-left",
       "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
       "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_",
-      "order": 1
+      "order": 2
     },
     {
       "name": "_POLICY_._STEPS_._TRIGGERS_",
       "icon": "icon-bell",
       "currentMessage": "_MESSAGE_._TRIGGER_STEP_",
       "availableMessage": "_MESSAGE_._TRIGGER_STEP_AVAILABLE_",
-      "order": 2,
+      "order": 3,
       "isSubStep": true,
       "isLastStep": true
     },
@@ -27,7 +35,7 @@
       "icon": "icon-box",
       "currentMessage": "_MESSAGE_._CUBE_STEP_",
       "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_",
-      "order": 2,
+      "order": 3,
       "isSubStep": true,
       "isLastStep": true
     }
@@ -54,7 +62,7 @@
     {
       "propertyId": "driverUri",
       "propertyName": "_DRIVER_URI_",
-      "width": 12,
+      "width": 6,
       "position": "left",
       "propertyType": "text",
       "required": false,
@@ -65,7 +73,7 @@
       "propertyId": "executionMode",
       "propertyName": "_EXECUTION_MODE_",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "required": false,
       "propertyType": "select",
       "regexp": "local|mesos|marathon|yarn|standalone",
@@ -101,7 +109,7 @@
       "required": true,
       "default": "MEMORY_ONLY_SER",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
       "qa": "policy-storage-level",
       "values": [
@@ -153,7 +161,7 @@
       "propertyType": "number",
       "default": 6,
       "width": 6,
-      "position": "left",
+      "position": "right",
       "tooltip": "Streaming window assigned to Spark Streaming.",
       "required": true,
       "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
@@ -163,7 +171,7 @@
       "propertyName": "_WHITE_SPACE_",
       "propertyType": "select",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
       "default": "s",
       "required": true,
@@ -199,7 +207,7 @@
       "propertyName": "_POLICY_REMEMBER_FIELD_",
       "propertyType": "number",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "tooltip": "Maximum time a certain query will be executed before being aborted.",
       "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
       "qa": "policy-remember-number"
@@ -209,7 +217,7 @@
       "propertyName": "_WHITE_SPACE_",
       "propertyType": "select",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "qa": "policy-remember-time",
       "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
       "values": [
@@ -243,7 +251,7 @@
       "propertyId": "streamTemporalTable",
       "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "propertyType": "text",
       "required": false,
       "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
@@ -253,7 +261,7 @@
       "propertyId": "monitoringLink",
       "propertyName": "_MONITORING_LINK_",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "propertyType": "text",
       "required": false,
       "tooltip": "User defined URI to monitoring policies when is launched in the polices view ",
@@ -443,8 +451,8 @@
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Outputs"
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Triggers",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
   ],
   "model": {
     "types": [
@@ -1428,7 +1436,20 @@
         "position": "left",
         "regexp": "^[a-zA-Z0-9 ]*$",
         "validateValue": "true",
-        "invalidValues": ["select", "project", "group", "default", "by", "as", "filter", "where", "insert", "delete", "update", "where" ]
+        "invalidValues": [
+          "select",
+          "project",
+          "group",
+          "default",
+          "by",
+          "as",
+          "filter",
+          "where",
+          "insert",
+          "delete",
+          "update",
+          "where"
+        ]
       }
     ],
     "writer": {

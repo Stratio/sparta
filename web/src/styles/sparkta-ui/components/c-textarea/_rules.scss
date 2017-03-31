@@ -13,6 +13,14 @@
 	width: $c-textarea--width;
 	resize: $c-textarea--resize;
 
+	&--high{
+		height:360px;
+		border:0;
+		font-size:15px;
+		padding: 10px;
+    background-color: #eff2f3;
+	}
+
 	&::-moz-placeholder {
 		color: getColor(n7);
 		font-style: italic;

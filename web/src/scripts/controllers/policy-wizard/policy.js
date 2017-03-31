@@ -34,6 +34,7 @@
     vm.isValidPolicy = isValidPolicy;
     vm.onClickPreviousStep = WizardStatusService.previousStep;
     vm.getStepNameByIndex = WizardStatusService.getStepNameByIndex;
+    vm.validateSettings = validateSettings;
     
     init();
 
@@ -178,6 +179,10 @@
 
     function isLastStep() {
       return vm.steps && (vm.status.currentStep == vm.steps.length - 1 || (vm.status.currentStep > -1 && vm.steps[vm.status.currentStep].isLastStep));
+    }
+
+    function validateSettings(){
+      $scope.$broadcast('validatePolicySettings', onClickNextStep);
     }
 
     function onClickNextStep() {

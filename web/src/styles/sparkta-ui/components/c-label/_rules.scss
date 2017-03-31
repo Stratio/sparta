@@ -23,6 +23,12 @@
 		}
 	}
 
+  &__subtitle{
+	color: #172734;
+    display: block;
+    font-size: 20px;
+  }
+  
   &--required:after {
     content: ' *';
   }
