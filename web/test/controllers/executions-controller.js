@@ -32,11 +32,15 @@ describe('executions.wizard.controller.executions-controller', function() {
     $httpBackend.when('GET', 'languages/en-US.json')
         .respond({});
     fakeCreationStatus = {"currentStep": 0};
+<<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
 <<<<<<< 3e8eb6437c45fd289d027c09f5e8ce59fe58dad5
     policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'deletePolicyCheckpoint']);
 =======
     policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['createPolicy', 'getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'downloadPolicy']);
 >>>>>>> merge changes
+=======
+    policyFactoryMock = jasmine.createSpyObj('PolicyFactory', ['getAllPolicies', 'getPoliciesStatus', 'runPolicy', 'stopPolicy', 'deletePolicyCheckpoint']);
+>>>>>>> added success and error messages in executions view
     policyFactoryMock.getAllPolicies.and.callFake(function() {
       var defer = $q.defer();
       defer.resolve(fakePolicyList);
@@ -215,8 +219,11 @@ describe('executions.wizard.controller.executions-controller', function() {
     expect(policyFactoryMock.deletePolicyCheckpoint).toHaveBeenCalledWith(fakePolicyName);
   });
 
+<<<<<<< e566edbd36a3a2bcb45ffde33420ea75341f357a
 =======
 >>>>>>> merge changes
+=======
+>>>>>>> added success and error messages in executions view
   describe("should be able to sort the current policy list", function(){
 
     beforeEach(function() {
