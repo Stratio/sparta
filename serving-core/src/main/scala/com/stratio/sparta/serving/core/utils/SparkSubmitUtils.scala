@@ -268,9 +268,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
       }
     else sparkConfs ++ Map(sparkConfKey -> pluginsFiles)
 
-  def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Boolean): Map[String, String] =
-    if (gracefullyStop) sparkConfs ++ Map(SubmitGracefullyStopConf -> gracefullyStop.toString)
-    else sparkConfs
+  def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Option[Boolean]): Map[String, String] =
+    gracefullyStop.fold(sparkConfs) {gStop => sparkConfs ++ Map(SubmitGracefullyStopConf -> gStop.toString) }
 
   protected def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
     (HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {

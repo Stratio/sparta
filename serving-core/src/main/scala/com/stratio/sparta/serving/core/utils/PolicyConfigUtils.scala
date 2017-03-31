@@ -60,9 +60,7 @@ trait PolicyConfigUtils extends SLF4JLogging {
   def pluginsJars(policy: PolicyModel): Seq[String] =
     policy.userPluginsJars.map(userJar => userJar.jarPath.trim)
 
-  def gracefulStop(policy: PolicyModel): Boolean =
-    Try(policy.stopGracefully.getOrElse(DetailConfig.getBoolean(ConfigStopGracefully)))
-      .getOrElse(DefaultStopGracefully)
+  def gracefulStop(policy: PolicyModel): Option[Boolean] = policy.stopGracefully
 
   def executionMode(policy: PolicyModel): String = policy.executionMode match {
     case Some(mode) if mode.nonEmpty => mode

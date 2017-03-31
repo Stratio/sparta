@@ -162,17 +162,8 @@ object HdfsUtils extends SLF4JLogging {
   def getPrincipalName: Option[String] =
     Option(System.getenv(AppConstant.SystemPrincipalName)).orElse {
       val hdfsConfig = SpartaConfig.getHdfsConfig
-      val principalNameSuffix = Try(hdfsConfig.get.getString(AppConstant.PrincipalNameSuffix)).toOption
-        .flatMap(x => if (x == "") None else Some(x))
-      val principalNamePrefix = Try(hdfsConfig.get.getString(AppConstant.PrincipalNamePrefix)).toOption
-        .flatMap(x => if (x == "") None else Some(x))
-      val hostName = Option(System.getenv(AppConstant.SystemHostName))
-      val principalName = (principalNamePrefix, principalNameSuffix, hostName) match {
-        case (Some(prefix), Some(suffix), Some(host)) => Some(s"$prefix$host$suffix")
-        case _ =>
-          Try(hdfsConfig.get.getString(AppConstant.PrincipalName)).toOption
+      val principalName = Try(hdfsConfig.get.getString(AppConstant.PrincipalName)).toOption
             .flatMap(x => if (x == "") None else Some(x))
-      }
       log.info(s"Connecting to HDFS with principal name: $principalName")
       principalName
     }

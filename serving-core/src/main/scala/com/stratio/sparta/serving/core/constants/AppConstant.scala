@@ -41,8 +41,6 @@ object AppConstant {
   val ConfigMarathon = "marathon"
   val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
-  val ConfigStopGracefully = "stopGracefully"
-  val DefaultStopGracefully = true
   val DriverPackageLocation = "driverPackageLocation"
   val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
   val DriverURI = "driverURI"
@@ -78,8 +76,6 @@ object AppConstant {
   val DefaultHdfsUser = "stratio"
   val KeytabPath = "keytabPath"
   val PrincipalName = "principalName"
-  val PrincipalNamePrefix = "principalNamePrefix"
-  val PrincipalNameSuffix = "principalNameSuffix"
   val ReloadKeyTabTime = "reloadKeyTabTime"
   val ReloadKeyTab = "reloadKeyTab"
   val DefaultReloadKeyTab = false

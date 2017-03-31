@@ -19,7 +19,7 @@ package com.stratio.sparta.serving.core.utils
 import akka.actor.{ActorContext, ActorRef}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.marathon.MarathonApp
+import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
@@ -93,7 +93,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
             policyStatus.marathonId match {
               case Some(marathonId) =>
                 Try {
-                  new MarathonApp(akkaContext, curatorFramework).kill(marathonId)
+                  new MarathonService(akkaContext, curatorFramework).kill(marathonId)
                 } match {
                   case Success(_) =>
                     val information = s"Finished correctly Sparta cluster job with Marathon API"
