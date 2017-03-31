@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.service.http
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.wordnik.swagger.annotations._
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
@@ -25,7 +26,7 @@ import spray.routing._
 @Api(value = HttpConstant.AppStatus, description = "Operations about sparta status.")
 trait AppStatusHttpService extends BaseHttpService {
 
-  override def routes: Route = checkStatus
+  override def routes(user: Option[LoggedUser] = None): Route = checkStatus
 
   val curatorInstance : CuratorFramework
 

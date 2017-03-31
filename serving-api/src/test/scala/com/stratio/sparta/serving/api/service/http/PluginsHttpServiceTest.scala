@@ -21,6 +21,7 @@ import akka.testkit.TestProbe
 import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
+import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
 import com.stratio.sparta.serving.core.models.policy.files.{JarFile, JarFilesResponse}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -38,6 +39,8 @@ class PluginsHttpServiceTest extends WordSpec
 
   val pluginTestProbe = TestProbe()
 
+  val dummyUser = Some(LoggedUserConstant.AnonymousUser)
+
   override implicit val actors: Map[String, ActorRef] = Map.empty
 
   override def beforeEach(): Unit = {
@@ -48,7 +51,7 @@ class PluginsHttpServiceTest extends WordSpec
     "Upload a file" in {
       val response = JarFilesResponse(Success(Seq(JarFile("", "", "", ""))))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}") ~> routes ~> check {
+      Put(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[UploadPlugins]
         status should be(StatusCodes.OK)
       }
@@ -56,7 +59,7 @@ class PluginsHttpServiceTest extends WordSpec
     "Fail when service is not available" in {
       val response = JarFilesResponse(Failure(new IllegalArgumentException("Error")))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}") ~> routes ~> check {
+      Put(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[UploadPlugins]
         status should be(StatusCodes.InternalServerError)
       }

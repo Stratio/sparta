@@ -36,7 +36,7 @@ with MockFactory {
 
   "AppStatusHttpService" should {
     "check the status of the server" in {
-      Get(s"/${HttpConstant.AppStatus}") ~> routes ~> check {
+      Get(s"/${HttpConstant.AppStatus}") ~> routes() ~> check {
         status should be (StatusCodes.InternalServerError)
       }
     }
