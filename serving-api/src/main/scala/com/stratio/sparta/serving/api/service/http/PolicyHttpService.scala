@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, ResponsePolicy}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
@@ -42,9 +43,10 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
-  override def routes: Route =
-    find ~ findAll ~ findByFragment ~ create ~ update ~ remove ~ run ~ download ~ findByName ~
-      removeAll ~ deleteCheckpoint
+  override def routes(user: Option[LoggedUser]=None): Route =
+    find(user) ~ findAll(user) ~ findByFragment(user) ~ create(user) ~
+      update(user) ~ remove(user) ~ run(user) ~ download(user) ~ findByName(user) ~
+      removeAll(user) ~ deleteCheckpoint(user)
 
   @Path("/find/{id}")
   @ApiOperation(value = "Find a policy from its id.",
@@ -62,7 +64,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def find: Route = {
+  def find(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "find" / Segment) { (id) =>
       get {
         complete {
@@ -94,7 +96,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findByName: Route = {
+  def findByName(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "findByName" / Segment) { (name) =>
       get {
         complete {
@@ -131,7 +133,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findByFragment: Route = {
+  def findByFragment(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "fragment" / Segment / Segment) { (fragmentType, id) =>
       get {
         complete {
@@ -155,7 +157,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def findAll: Route = {
+  def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "all") {
       get {
         complete {
@@ -181,7 +183,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       dataType = "AggregationPoliciesModel",
       required = true,
       paramType = "body")))
-  def create: Route = {
+  def create(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath) {
       post {
         entity(as[PolicyModel]) { policy =>
@@ -218,7 +220,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       dataType = "AggregationPoliciesModel",
       required = true,
       paramType = "body")))
-  def update: Route = {
+  def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath) {
       put {
         entity(as[PolicyModel]) { policy =>
@@ -243,7 +245,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def removeAll: Route = {
+  def removeAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath) {
       delete {
         complete {
@@ -280,7 +282,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def remove: Route = {
+  def remove(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / Segment) { (id) =>
       delete {
         complete {
@@ -311,7 +313,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def deleteCheckpoint: Route = {
+  def deleteCheckpoint(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "checkpoint" / Segment) { (name) =>
       delete {
         complete {
@@ -347,7 +349,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def run: Route = {
+  def run(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
         complete {
@@ -383,7 +385,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def download: Route = {
+  def download(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
       get {
         val future = supervisor ? Find(id)
