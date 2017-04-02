@@ -136,7 +136,7 @@ class RabbitMQDistributedInputIT extends RabbitIntegrationSpec {
 
       val input = new RabbitMQDistributedInput(props)
       val distributedStream = input.setUp(ssc.get, DefaultStorageLevel)
-      val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
+      val totalEvents = sc.get.longAccumulator("Number of events received")
 
       // Fires each time the configured window has passed.
       distributedStream.foreachRDD(rdd => {

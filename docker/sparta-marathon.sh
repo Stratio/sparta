@@ -6,7 +6,7 @@
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
  cp ${SPARTA_MARATHON_CONF_FILE} ${SPARTA_CONF_FILE}
 
- source sparta-marathon-utils.sh
+ source /sparta-marathon-utils.sh
 
  # SPARTA JAVA OPTIONS
  initJavaOptions
@@ -25,4 +25,4 @@
 
  # Run Sparta Marathon jar
  #run-marathon-app.sh >> /dev/null 2>$LOG_FILE & echo $! >$PIDFILE
- source run-marathon-app.sh
+ source /run-marathon-app.sh

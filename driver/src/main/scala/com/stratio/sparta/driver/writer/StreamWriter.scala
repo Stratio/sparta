@@ -30,7 +30,7 @@ case class StreamWriter(triggers: Seq[Trigger],
 
   def write(streamData: DStream[Row], schema: StructType): Unit = {
     streamData.foreachRDD(rdd => {
-      val parsedDataFrame = SparkContextFactory.sparkSqlContextInstance.createDataFrame(rdd, schema)
+      val parsedDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, schema)
 
       writeTriggers(parsedDataFrame, triggers, inputTableName, outputs)
     })

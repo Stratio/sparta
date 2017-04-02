@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import com.databricks.spark.avro._
 
 
 /**
@@ -40,10 +41,9 @@ class AvroOutput(name: String, properties: Map[String, Serializable]) extends Ou
     validateSaveMode(saveMode)
 
     val dataFrameWriter = dataFrame.write
-      .format("com.databricks.spark.avro")
       .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
-    applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).save(s"${path.get}/$tableName")
+    applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).avro(s"${path.get}/$tableName")
   }
 }

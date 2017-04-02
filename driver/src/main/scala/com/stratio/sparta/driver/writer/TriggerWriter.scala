@@ -32,15 +32,15 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
                     triggers: Seq[Trigger],
                     inputTableName: String,
                     outputs: Seq[Output]): Unit = {
-    val sqlContext = dataFrame.sqlContext
+    val sparkSession = dataFrame.sparkSession
     if (triggers.nonEmpty && isCorrectTableName(inputTableName)) {
-      if (!sqlContext.tableNames().contains(inputTableName)) {
-        dataFrame.registerTempTable(inputTableName)
+      if (!sparkSession.catalog.tableExists(inputTableName)) {
+        dataFrame.createOrReplaceTempView(inputTableName)
         log.debug(s"Registering temporal table in Spark with name: $inputTableName")
       }
       val tempTables = triggers.flatMap(trigger => {
         log.debug(s"Executing query in Spark: ${trigger.sql}")
-        val queryDf = Try(sqlContext.sql(trigger.sql)) match {
+        val queryDf = Try(sparkSession.sql(trigger.sql)) match {
           case Success(sqlResult) => sqlResult
           case Failure(exception: org.apache.spark.sql.AnalysisException) =>
             log.warn("Warning running analysis in Catalyst in the query ${trigger.sql} in trigger ${trigger.name}",
@@ -64,8 +64,8 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
                 trigger.triggerWriterOptions.autoCalculateFields,
                 StructType(queryDf.schema.fields ++
                   SchemaHelper.getStreamWriterPkFieldsMetadata(trigger.triggerWriterOptions.primaryKey)))
-          if (isCorrectTableName(trigger.name) && !sqlContext.tableNames().contains(trigger.name)) {
-            autoCalculatedFieldsDf.registerTempTable(trigger.name)
+          if (isCorrectTableName(trigger.name) && !sparkSession.catalog.tableExists(trigger.name)) {
+            autoCalculatedFieldsDf.createOrReplaceTempView(trigger.name)
             log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")
           }
           else log.warn(s"The trigger ${trigger.name} have incorrect name, is impossible to register as temporal table")
@@ -88,13 +88,13 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
         } else None
       })
       tempTables.foreach(tableName =>
-        if (isCorrectTableName(tableName) && sqlContext.tableNames().contains(tableName)) {
-          sqlContext.dropTempTable(tableName)
+        if (isCorrectTableName(tableName) && sparkSession.catalog.tableExists(tableName)) {
+          sparkSession.catalog.dropTempView(tableName)
           log.debug(s"Dropping temporal table in Spark with name: $tableName")
         } else log.debug(s"Impossible to drop table in Spark with name: $tableName"))
 
-      if (isCorrectTableName(inputTableName) && sqlContext.tableNames().contains(inputTableName)) {
-        sqlContext.dropTempTable(inputTableName)
+      if (isCorrectTableName(inputTableName) && sparkSession.catalog.tableExists(inputTableName)) {
+        sparkSession.catalog.dropTempView(inputTableName)
         log.debug(s"Dropping temporal table in Spark with name: $inputTableName")
       } else log.debug(s"Impossible to drop table in Spark: $inputTableName")
     } else {

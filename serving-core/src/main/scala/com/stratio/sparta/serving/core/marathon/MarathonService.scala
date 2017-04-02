@@ -16,7 +16,8 @@
 
 package com.stratio.sparta.serving.core.marathon
 
-import java.util.{Calendar, Date}
+import java.io.File
+import java.util.Calendar
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
@@ -67,10 +68,11 @@ class MarathonService(context: ActorContext,
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
-  val MesosNativeLibPath = "/opt/mesosphere/lib"
-  val MesosNativePackagesPath = "/opt/mesosphere/packages"
-  val MesosLib = s"$MesosNativeLibPath"
-  val MesosNativeLib = s"$MesosNativeLibPath/libmesos.so"
+  val DefaultSpartaDockerImage = "qa.stratio.com/stratio/sparta:1.4.0-SNAPSHOT"
+  val HostMesosNativeLibPath = "/opt/mesosphere/lib"
+  val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
+  val HostMesosLib = s"$HostMesosNativeLibPath"
+  val HostMesosNativeLib = s"$HostMesosNativeLibPath/libmesos.so"
   val ServiceName = policyModel.fold("") { policy => s"sparta/workflows/${policy.name}" }
   val DefaultMemory = 1024
 
@@ -78,7 +80,7 @@ class MarathonService(context: ActorContext,
 
   val AppTypeEnv = "SPARTA_APP_TYPE"
   val MesosNativeJavaLibraryEnv = "MESOS_NATIVE_JAVA_LIBRARY"
-  val MesosLibraryEnv = "LD_LIBRARY_PATH"
+  val LdLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
   val VaultHostEnv = "VAULT_HOST"
@@ -147,11 +149,19 @@ class MarathonService(context: ActorContext,
   private def marathonJar: Option[String] =
     Try(marathonConfig.getString("jar")).toOption.orElse(Option(AppConstant.DefaultMarathonDriverURI))
 
+  private def mesosNativeLibrary: Option[String] = Properties.envOrNone(MesosNativeJavaLibraryEnv)
+
+  private def ldNativeLibrary: Option[String] = Properties.envOrNone(MesosNativeJavaLibraryEnv)
+    .map(path => new File(path).getParent).orElse(Option(HostMesosLib))
+
   private def mesosphereLibPath: String =
-    Try(marathonConfig.getString("mesosphere.lib")).toOption.getOrElse(MesosNativeLibPath)
+    Try(marathonConfig.getString("mesosphere.lib")).toOption.getOrElse(HostMesosNativeLibPath)
 
   private def mesospherePackagesPath: String =
-    Try(marathonConfig.getString("mesosphere.packages")).toOption.getOrElse(MesosNativePackagesPath)
+    Try(marathonConfig.getString("mesosphere.packages")).toOption.getOrElse(HostMesosNativePackagesPath)
+
+  private def spartaDockerImage: String =
+    Try(marathonConfig.getString("docker.image")).toOption.getOrElse(DefaultSpartaDockerImage)
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
@@ -185,7 +195,7 @@ class MarathonService(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def transformMemoryToInt(memory: String) : Int = Try(memory match {
+  private def transformMemoryToInt(memory: String): Int = Try(memory match {
     case mem if mem.contains("G") => mem.replace("G", "").toInt * 1024
     case mem if mem.contains("g") => mem.replace("g", "").toInt * 1024
     case mem if mem.contains("m") => mem.replace("m", "").toInt
@@ -210,10 +220,15 @@ class MarathonService(context: ActorContext,
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val newDockerContainerInfo = ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-      Volume(MesosNativeLibPath, mesosphereLibPath, "RO"),
-      Volume(MesosNativePackagesPath, mesospherePackagesPath, "RO")
-    ))))
+
+    val newDockerContainerInfo = mesosNativeLibrary match {
+      case Some(_) => ContainerInfo(app.container.docker.copy(image = spartaDockerImage))
+      case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
+        Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
+        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
+        image = spartaDockerImage
+      ))
+    }
 
     app.copy(
       id = ServiceName,
@@ -231,8 +246,8 @@ class MarathonService(context: ActorContext,
     Map(
       AppMainEnv -> Option(AppMainClass),
       AppTypeEnv -> Option(MarathonApp),
-      MesosNativeJavaLibraryEnv -> Option(MesosNativeLib),
-      MesosLibraryEnv -> Option(MesosLib),
+      MesosNativeJavaLibraryEnv -> mesosNativeLibrary.orElse(Option(HostMesosNativeLib)),
+      LdLibraryEnv -> ldNativeLibrary,
       AppJarEnv -> marathonJar,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
