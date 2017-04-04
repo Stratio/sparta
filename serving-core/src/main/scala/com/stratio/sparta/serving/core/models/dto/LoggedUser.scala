@@ -26,15 +26,15 @@ import scala.util.Try
 
 object LoggedUser{
 
-  implicit def jsonToDto(stringJson: String): LoggedUser = {
-    if (stringJson.trim.nonEmpty) {
+  implicit def jsonToDto(stringJson: String): Option[LoggedUser] = {
+    if (stringJson.trim.isEmpty) None
+    else {
       implicit val json = new ObjectMapper().readTree(stringJson)
-      LoggedUser(getValue(LoggedUserConstant.infoIdTag), getValue(LoggedUserConstant.infoNameTag),
+      Some(LoggedUser(getValue(LoggedUserConstant.infoIdTag), getValue(LoggedUserConstant.infoNameTag),
         getValue(LoggedUserConstant.infoMailTag, Some(LoggedUserConstant.dummyMail)),
         getValue(LoggedUserConstant.infoGroupIDTag), getArrayValues(LoggedUserConstant.infoGroupsTag),
-        getArrayValues(LoggedUserConstant.infoRolesTag))
+        getArrayValues(LoggedUserConstant.infoRolesTag)))
     }
-    else LoggedUserConstant.AnonymousUser
   }
 
   private def getValue(tag: String, defaultElse: Option[String]= None)(implicit json: JsonNode) : String = {
