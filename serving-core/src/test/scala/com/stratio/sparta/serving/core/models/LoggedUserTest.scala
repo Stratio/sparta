@@ -22,15 +22,17 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class LoggedUserTest extends WordSpec with Matchers{
+class LoggedUserTest extends WordSpec with Matchers {
 
-  val dummyGroupID= "66"
+  val dummyGroupID = "66"
 
-  "A String containing a well-formed JSON" should {
-    "be correctly transformed into a LoggedUser" in {
-      val objectUser= LoggedUser("1234-qwerty","user1",
-        LoggedUserConstant.dummyMail, dummyGroupID ,Seq.empty[String],Seq("admin"))
-      val stringJson= """
+  "An input String" when {
+    "containing a well-formed JSON" should {
+      "be correctly transformed into a LoggedUser" in {
+        val objectUser = LoggedUser("1234-qwerty", "user1",
+          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        val stringJson =
+          """
         {"id":"1234-qwerty",
         "attributes":[
           {"cn":"user1"},
@@ -40,59 +42,42 @@ class LoggedUserTest extends WordSpec with Matchers{
           {"roles":["admin"]}
         ]}"""
 
-      val parsedUser= LoggedUser.jsonToDto(stringJson)
-      parsedUser shouldBe a[LoggedUser]
-      parsedUser should equal (objectUser)
+        val parsedUser = LoggedUser.jsonToDto(stringJson)
+        parsedUser shouldBe defined
+        parsedUser.get should equal(objectUser)
+      }
     }
   }
 
-  "An empty string" should {
-    "be transformed into the AnonymousUser" in {
-      val objectUser= LoggedUserConstant.AnonymousUser
-      val stringJson= ""
-      val parsedUser= LoggedUser.jsonToDto(stringJson)
-      parsedUser shouldBe a[LoggedUser]
-      parsedUser should equal (objectUser)
+  "An input String" when {
+    "is empty" should {
+      "be transformed into None" in {
+        val stringJson = ""
+        val parsedUser = LoggedUser.jsonToDto(stringJson)
+        parsedUser shouldBe None
+      }
     }
   }
 
-  "When Oauth2 security is enabled, a user" should{
-    "be authorized only if one of its roles is contained inside allowedRoles" in {
-      val objectUser= LoggedUser("1234-qwerty","user1",
-        LoggedUserConstant.dummyMail, dummyGroupID ,Seq.empty[String],Seq("admin"))
-      val stringJson= """
-        {"id":"1234-qwerty",
-        "attributes":[
-          {"cn":"user1"},
-          {"mail":"email@email.com"},
-          {"gidNumber":"66"},
-          {"groups":[]},
-          {"roles":["admin"]}
-        ]}"""
-
-      val parsedUser= LoggedUser.jsonToDto(stringJson)
-      objectUser.isAuthorized(securityEnabled = true, allowedRoles= Seq("admin")) === true &&
-      objectUser.isAuthorized(securityEnabled = true, allowedRoles= Seq("OtherAdministratorRole","dummyUser")) === false
+  "A user" when {
+    "Oauth2 security is enabled" should {
+      "be authorized only if one of its roles is contained inside allowedRoles" in {
+        val objectUser = LoggedUser("1234-qwerty", "user1",
+          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        objectUser.isAuthorized(securityEnabled = true, allowedRoles = Seq("admin")) === true &&
+          objectUser.isAuthorized(securityEnabled = true,
+            allowedRoles = Seq("OtherAdministratorRole", "dummyUser")) === false
+      }
     }
   }
 
-  "When Oauth2 security is disabled, a user" should{
-    "always be authorized" in {
-
-      val objectUser= LoggedUser("1234-qwerty","user1",
-        LoggedUserConstant.dummyMail, dummyGroupID ,Seq.empty[String],Seq("admin"))
-      val stringJson= """
-        {"id":"1234-qwerty",
-        "attributes":[
-          {"cn":"user1"},
-          {"mail":"email@email.com"},
-          {"gidNumber":"66"},
-          {"groups":[]},
-          {"roles":["dummyUser"]}
-        ]}"""
-
-      val parsedUser= LoggedUser.jsonToDto(stringJson)
-      objectUser.isAuthorized(securityEnabled = false, allowedRoles = LoggedUserConstant.allowedRoles) === true
+  "A user" when {
+    "Oauth2 security is disabled" should {
+      "always be authorized" in {
+        val objectUser = LoggedUser("1234-qwerty", "user1",
+          LoggedUserConstant.dummyMail, dummyGroupID, Seq.empty[String], Seq("admin"))
+        objectUser.isAuthorized(securityEnabled = false, allowedRoles = LoggedUserConstant.allowedRoles) === true
+      }
     }
   }
 

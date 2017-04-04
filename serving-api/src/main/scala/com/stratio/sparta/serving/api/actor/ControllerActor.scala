@@ -29,6 +29,7 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
+import spray.http.StatusCodes.Unauthorized
 import spray.routing._
 
 import scala.util.Try
@@ -56,10 +57,14 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   private def staticRoutes: Route = {
     if (enabledSecurity) {
-      secured {userAuth =>
-        val user: LoggedUser = userAuth
-        authorize(user.isAuthorized(enabledSecurity)) {
-          webRoutes
+      secured { userAuth =>
+        val user: Option[LoggedUser] = userAuth
+        user match {
+          case Some(parsedUser) =>
+            authorize(parsedUser.isAuthorized(enabledSecurity)) {
+              webRoutes
+            }
+          case None => complete(Unauthorized)
         }
       }
     } else webRoutes
@@ -68,9 +73,13 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   private def dynamicRoutes: Route = {
     if (enabledSecurity) {
       authorized { userAuth =>
-        val user: LoggedUser = userAuth
-        authorize(user.isAuthorized(enabledSecurity)) {
-          allServiceRoutes(Option(user))
+        val user: Option[LoggedUser] = userAuth
+        user match {
+          case Some(parsedUser) =>
+            authorize(parsedUser.isAuthorized(enabledSecurity)) {
+              allServiceRoutes(Some(parsedUser))
+            }
+          case None => complete(Unauthorized)
         }
       }
     } else allServiceRoutes(None)
