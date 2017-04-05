@@ -99,6 +99,23 @@ angular
         controllerAs: 'executions',
         templateUrl: 'views/executions.html'
       })
+      .state('dashboard.resources', {
+        abstract: true,
+        url: '/resources',
+        template: '<ui-view/>'
+      })
+      .state('dashboard.resources.plugins', {
+        url: '/plugins',
+        controller: 'PluginsListCtrl',
+        controllerAs: 'plugins',
+        templateUrl: 'views/plugins.html'
+      })
+      .state('dashboard.resources.drivers', {
+        url: '/drivers',
+        controller: 'DriversListCtrl',
+        controllerAs: 'drivers',
+        templateUrl: 'views/drivers.html'
+      })
       /******* POLICY WIZARD *******/
       .state('wizard', {
         url: '/wizard',

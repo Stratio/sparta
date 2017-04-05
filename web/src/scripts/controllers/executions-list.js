@@ -53,8 +53,7 @@
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping' ||
-          policyStatus.toLowerCase() === 'finished') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
         var policyRunning = PolicyFactory.runPolicy(policyId);
 
         policyRunning.then(function() {
@@ -102,21 +101,6 @@
       });
     }
 
-    function deletePolicyConfirm(size, policy) {
-      var controller = 'DeletePolicyModalCtrl';
-      var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
-      var resolve = {
-        item: function() {
-          return policy;
-        }
-      };
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
-
-      modalInstance.result.then(function(selectedPolicy) {
-        vm.policiesData.splice(selectedPolicy.index, 1);
-        vm.successMessage.text = '_POLICY_DELETE_OK_';
-      });
-    }
 
     function updatePoliciesStatus() {
       var defer = $q.defer();

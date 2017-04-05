@@ -1,0 +1,55 @@
+<section>
+  <c-horizontal-tabs options="plugins.menuOptions" active-option="plugins.selectedOption"></c-horizontal-tabs>
+  <div class="c-panel">
+    <aside class="c-toolbar--bottom-separation">
+      <div class="c-col c-col--10">
+        <!-- Error message -->
+        <c-animated-msg data-msg="plugins.errorMessage" data-on-click-close-msg="plugins.deleteErrorMessage()" data-timeout=10000></c-animated-msg>
+        <c-animated-msg data-msg="plugins.successMessage" data-on-click-close-msg="plugins.deleteSuccessMessage()" data-timeout=6000></c-animated-msg>
+      </div><!--
+      --><div class="c-col c-col--2 c-form-group--to-right">
+        <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin" data-ng-click="plugins.createPlugin()"
+          data-qa="plugins-new-policy-button">
+          <span class="icon icon-circle-plus"></span>
+          <span>{{'_MENU_DASHBOARD_NEW_PLUGIN_' | translate}}</span>
+        </button>
+      </div>
+    </aside>
+    <div class="br-ba-container--full-height" data-ng-if="plugins.pluginsData.length">
+      <table class="c-table  c-table--margin-bottom c-table--full-width">
+        <thead class="c-table__thead">
+          <tr>
+            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="plugins.sortPlugins('fileName')">
+              {{"_NAME_" | translate}}
+              <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'fileName' && plugins.tableReverse"></span>
+              <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'fileName'}" data-ng-if="plugins.sortField != 'fileName' || !plugins.tableReverse"></span>
+            </th>
+            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="plugins.sortPlugins('uri')">
+              {{"_URI_" | translate}}
+              <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'uri' && plugins.tableReverse"></span>
+              <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'uri'}" data-ng-if="plugins.sortField != 'input.uri' || !plugins.tableReverse"></span>
+            </th>
+            <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="plugins.sortPlugins('size')">
+              {{"_SIZE_" | translate}}
+              <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'size' && plugins.tableReverse"></span>
+              <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-if="plugins.sortField != 'size' || !plugins.tableReverse" ng-class="{'sort-active': plugins.sortField == 'size'}"></span>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="c-table__tr" data-ng-repeat="pluginData in plugins.pluginsData | orderBy:plugins.sortField:plugins.tableReverse">
+            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.fileName}}</td>
+            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.uri}}</td>
+            <td class="c-table__td c-col--1 c-table--centered-content">{{::pluginData.size}}</td>
+            <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
+              <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-cross" data-ng-click="plugins.deletePlugin(pluginData.fileName)"
+                data-qa="policy-context-menu-{{policyData.id}}">
+            </i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
