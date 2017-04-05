@@ -17,7 +17,7 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, Cancellable, PoisonPill}
-import com.stratio.sparta.serving.core.marathon.MarathonApp
+import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -64,7 +64,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
 
       createRequest(submitRequest).getOrElse(throw new Exception("Impossible to create submit request in persistence"))
 
-      (new MarathonApp(context, curatorFramework, policy, submitRequest), detailExecMode)
+      (new MarathonService(context, curatorFramework, policy, submitRequest), detailExecMode)
     } match {
       case Failure(exception) =>
         val information = s"Error when initializing Sparta Marathon App options"

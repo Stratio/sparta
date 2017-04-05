@@ -31,9 +31,6 @@
  # SPARTA ZOOKEEPER OPTIONS
  zookeeperOptions
 
- # SPARTA AKKA OPTIONS
- akkaOptions
-
  # SPARTA CONFIGURATION OPTIONS
  configOptions
 

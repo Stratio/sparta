@@ -43,10 +43,10 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
 
-class MarathonApp(context: ActorContext,
-                  val curatorFramework: CuratorFramework,
-                  policyModel: Option[PolicyModel],
-                  sparkSubmitRequest: Option[SubmitRequest]) extends OauthTokenUtils with PolicyStatusUtils {
+class MarathonService(context: ActorContext,
+                      val curatorFramework: CuratorFramework,
+                      policyModel: Option[PolicyModel],
+                      sparkSubmitRequest: Option[SubmitRequest]) extends OauthTokenUtils with PolicyStatusUtils {
 
   def this(context: ActorContext,
            curatorFramework: CuratorFramework,
@@ -71,9 +71,8 @@ class MarathonApp(context: ActorContext,
   val MesosNativePackagesPath = "/opt/mesosphere/packages"
   val MesosLib = s"$MesosNativeLibPath"
   val MesosNativeLib = s"$MesosNativeLibPath/libmesos.so"
-  val DefaultCpus = 1d
-  val DefaultMem = 1024
-  val ServiceName = policyModel.fold("") { policy => s"sparta/${policy.name}" }
+  val ServiceName = policyModel.fold("") { policy => s"sparta/workflows/${policy.name}" }
+  val DefaultMemory = 1024
 
   /* Environment variables to Marathon Application */
 
@@ -85,8 +84,6 @@ class MarathonApp(context: ActorContext,
   val VaultHostEnv = "VAULT_HOST"
   val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
-  val CpusEnv = "MARATHON_CPUS"
-  val MemEnv = "MARATHON_MEM"
   val PolicyIdEnv = "SPARTA_POLICY_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
   val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
@@ -164,10 +161,6 @@ class MarathonApp(context: ActorContext,
 
   private def envVaultToken: Option[String] = Properties.envOrNone(VaultTokenEnv)
 
-  private def envMarathonDriverCpus: Option[String] = Properties.envOrNone(CpusEnv)
-
-  private def envMarathonDriverMem: Option[String] = Properties.envOrNone(MemEnv)
-
   private def envHadoopUserName: Option[String] = Properties.envOrNone(HadoopUserNameEnv)
 
   private def envCoreSiteFromUri: Option[String] = Properties.envOrNone(CoreSiteFromUriEnv)
@@ -192,8 +185,19 @@ class MarathonApp(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
+  private def transformMemoryToInt(memory: String) : Int = Try(memory match {
+    case mem if mem.contains("G") => mem.replace("G", "").toInt * 1024
+    case mem if mem.contains("g") => mem.replace("g", "").toInt * 1024
+    case mem if mem.contains("m") => mem.replace("m", "").toInt
+    case mem if mem.contains("M") => mem.replace("M", "").toInt
+    case _ => memory.toInt
+  }).getOrElse(DefaultMemory)
+
   private def addRequirements(app: CreateApp, policyModel: PolicyModel, submitRequest: SubmitRequest): CreateApp = {
-    val subProperties = substitutionProperties(policyModel, submitRequest)
+    val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble + 1d).getOrElse(app.cpus)
+    val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt(_) + 1024)
+      .getOrElse(app.mem)
+    val subProperties = substitutionProperties(policyModel, submitRequest, newMem)
     val newEnv = app.env.map { properties =>
       properties.flatMap { case (k, v) =>
         if (v == "???")
@@ -207,21 +211,23 @@ class MarathonApp(context: ActorContext,
       else Some((k, v))
     }
     val newDockerContainerInfo = ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-      Volume(mesosphereLibPath, MesosNativeLibPath, "RO"),
-      Volume(mesospherePackagesPath, MesosNativePackagesPath, "RO")
+      Volume(MesosNativeLibPath, mesosphereLibPath, "RO"),
+      Volume(MesosNativePackagesPath, mesospherePackagesPath, "RO")
     ))))
 
     app.copy(
       id = ServiceName,
-      cpus = envMarathonDriverCpus.map(_.toDouble).getOrElse(DefaultCpus),
-      mem = envMarathonDriverMem.map(_.toInt).getOrElse(DefaultMem),
+      cpus = newCpus,
+      mem = newMem,
       env = newEnv,
       labels = newLabels,
       container = newDockerContainerInfo
     )
   }
 
-  private def substitutionProperties(policyModel: PolicyModel, submitRequest: SubmitRequest): Map[String, String] =
+  private def substitutionProperties(policyModel: PolicyModel,
+                                     submitRequest: SubmitRequest,
+                                     memory: Int): Map[String, String] =
     Map(
       AppMainEnv -> Option(AppMainClass),
       AppTypeEnv -> Option(MarathonApp),
@@ -234,8 +240,8 @@ class MarathonApp(context: ActorContext,
       VaultHostEnv -> envVaultHost,
       VaultPortEnv -> envVaulPort,
       VaultTokenEnv -> envVaultToken,
-      AppHeapSizeEnv -> envMarathonDriverMem.map(memory => s"-Xmx${memory}m"),
-      AppHeapMinimunSizeEnv -> envMarathonDriverMem.map(memory => s"-Xms${memory.toInt / 2}m"),
+      AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
+      AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> envSparkHome,
       HadoopUserNameEnv -> envHadoopUserName,
       CoreSiteFromUriEnv -> envCoreSiteFromUri,
