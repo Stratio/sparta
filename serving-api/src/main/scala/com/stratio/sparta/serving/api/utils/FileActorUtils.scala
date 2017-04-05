@@ -111,6 +111,6 @@ trait FileActorUtils extends SLF4JLogging {
     val host = Try(InetAddress.getLocalHost.getHostName).getOrElse(SpartaConfig.apiConfig.get.getString("host"))
     val port = SpartaConfig.apiConfig.get.getInt("port")
 
-    s"$host:$port/$apiPath"
+    s"http://$host:$port/$apiPath"
   }
 }

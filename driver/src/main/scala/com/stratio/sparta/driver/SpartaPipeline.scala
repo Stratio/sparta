@@ -44,8 +44,8 @@ class SpartaPipeline(val policy: PolicyModel, val curatorFramework: CuratorFrame
   def run(): StreamingContext = {
     clearError()
     val checkpointPolicyPath = checkpointPath(policy)
-    val sparkStreamingWindow = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
-    val ssc = sparkStreamingInstance(Duration(sparkStreamingWindow), checkpointPolicyPath, policy.remember)
+    val window = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
+    val ssc = sparkStreamingInstance(Duration(window), checkpointPolicyPath, policy.remember)
     val parserSchemas = SchemaHelper.getSchemasFromParsers(policy.transformations, Input.InitSchema)
     val parsers = parserStage(ReflectionUtils, parserSchemas).sorted
     val cubes = cubeStage(ReflectionUtils, parserSchemas.values.last)
@@ -63,11 +63,18 @@ class SpartaPipeline(val policy: PolicyModel, val curatorFramework: CuratorFrame
     triggerStage(policy.streamTriggers)
       .groupBy(trigger => (trigger.triggerWriterOptions.overLast, trigger.triggerWriterOptions.computeEvery))
       .foreach { case ((overLast, computeEvery), triggers) =>
-        val groupedData = parsedData.window(
-          Milliseconds(overLast.fold(sparkStreamingWindow) { over => AggregationTime.parseValueToMilliSeconds(over) }),
-          Milliseconds(computeEvery.fold(sparkStreamingWindow) { computeEvery =>
-            AggregationTime.parseValueToMilliSeconds(computeEvery)
-          }))
+
+        val groupedData = (overLast, computeEvery) match {
+          case (None, None) => parsedData
+          case (Some(overL), Some(computeE))
+            if (AggregationTime.parseValueToMilliSeconds(overL) == window) &&
+              (AggregationTime.parseValueToMilliSeconds(computeE) == window) => parsedData
+          case _ => parsedData.window(
+            Milliseconds(
+              overLast.fold(window) { over => AggregationTime.parseValueToMilliSeconds(over) }),
+            Milliseconds(
+              computeEvery.fold(window) { computeEvery =>AggregationTime.parseValueToMilliSeconds(computeEvery)}))
+        }
 
         StreamWriter(triggers, streamTemporalTable(policy.streamTemporalTable), outputs)
           .write(groupedData, parserSchemas.values.last)
