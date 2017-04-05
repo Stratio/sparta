@@ -203,7 +203,7 @@ function localSparkOptions() {
  sed -i "s|.*sparta.local.spark.master.*|sparta.local.spark.master = \""${SPARK_LOCAL_MASTER}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARK_LOCAL_APP_NAME ]]; then
-   SPARK_LOCAL_APP_NAME=SPARTA
+   SPARK_LOCAL_APP_NAME=Sparta
  fi
  sed -i "s|.*sparta.local.spark.app.name.*|sparta.local.spark.app.name = ${SPARK_LOCAL_APP_NAME}|" ${SPARTA_CONF_FILE}
 
@@ -246,6 +246,15 @@ function mesosSparkOptions() {
 
  if [ -v SPARK_MESOS_KILL_URL ] && [ ${#SPARK_MESOS_KILL_URL} != 0 ]; then
    sed -i "s|.*sparta.mesos.killUrl.*|sparta.mesos.killUrl = \""${SPARK_MESOS_KILL_URL}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_PRINCIPAL ] && [ ${#SPARK_MESOS_PRINCIPAL} != 0 ] && [ -v SPARK_MESOS_SECRET ] && [ ${#SPARK_MESOS_SECRET} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.principal.*|sparta.mesos.spark.mesos.principal = \""${SPARK_MESOS_PRINCIPAL}"\"|" ${SPARTA_CONF_FILE}
+   sed -i "s|.*sparta.mesos.spark.mesos.secret.*|sparta.mesos.spark.mesos.secret = \""${SPARK_MESOS_SECRET}"\"|" ${SPARTA_CONF_FILE}
+   if [[ ! -v SPARK_MESOS_ROLE ]]; then
+      SPARK_MESOS_ROLE=sparta
+   fi
+   sed -i "s|.*sparta.mesos.spark.mesos.role.*|sparta.mesos.spark.mesos.role = \""${SPARK_MESOS_ROLE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [ -v SPARK_MESOS_JARS ] && [ ${#SPARK_MESOS_JARS} != 0 ]; then
@@ -359,6 +368,10 @@ function mesosSparkOptions() {
 
  if [ -v SPARK_MESOS_EXECUTOR_URI ] && [ ${#SPARK_MESOS_EXECUTOR_URI} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.executor.uri.*|sparta.mesos.spark.executor.uri = \""${SPARK_MESOS_EXECUTOR_URI}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_URIS ] && [ ${#SPARK_MESOS_URIS} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.uris.*|sparta.mesos.spark.mesos.uris = \""${SPARK_MESOS_URIS}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [ -v SPARK_MESOS_SPARK_FILES ] && [ ${#SPARK_MESOS_SPARK_FILES} != 0 ]; then

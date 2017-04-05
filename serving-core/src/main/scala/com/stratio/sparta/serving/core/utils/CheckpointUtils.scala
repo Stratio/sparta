@@ -107,7 +107,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
 
   private def generateDefaultCheckpointPath(policy: PolicyModel): String =
     executionMode(policy) match {
-      case mode if mode == ConfigMesos || mode == ConfigYarn || mode == ConfigStandAlone =>
+      case mode if mode == ConfigMesos =>
         DefaultCheckpointPathClusterMode +
           Try(SpartaConfig.getHdfsConfig.get.getString(HadoopUserName))
             .getOrElse(DefaultHdfsUser) +

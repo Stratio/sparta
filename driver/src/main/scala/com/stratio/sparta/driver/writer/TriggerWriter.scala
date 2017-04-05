@@ -58,7 +58,7 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
           trigger.triggerWriterOptions.primaryKey.fold(Map.empty[String, String]) {key =>
             Map(Output.PrimaryKey -> key)}
 
-        if (queryDf.take(1).length > 0) {
+        if (!queryDf.rdd.isEmpty()) {
           val autoCalculatedFieldsDf =
               applyAutoCalculateFields(queryDf,
                 trigger.triggerWriterOptions.autoCalculateFields,

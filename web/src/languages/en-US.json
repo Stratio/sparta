@@ -283,6 +283,7 @@
   "SELECT_PLACEHOLDER": "Select one",
   "_ERROR_ALL_FIELDS_REQUIRED_": "All fields are required! Please check them and try to submit the form.",
   "_ERROR_ELEMENT_DUPLICATED_": "Item already exists!",
+  "_PRINT_META_DATA_": "Print metadata",
   "_PRINT_DATA_": "Print data",
   "_LOG_LEVEL_": "Log level",
   "_PRINT_SCHEMA_": "Print Schema",
