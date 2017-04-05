@@ -921,6 +921,15 @@
     },
     "properties": [
       {
+        "propertyId": "printMetadata",
+        "propertyName": "_PRINT_META_DATA_",
+        "propertyType": "boolean",
+        "default": true,
+        "required": false,
+        "tooltip": "Specifies if the metadata is printed by the logger depending on the level set",
+        "qa": "fragment-details-print-printMetadata"
+      },
+      {
         "propertyId": "printData",
         "propertyName": "_PRINT_DATA_",
         "propertyType": "boolean",

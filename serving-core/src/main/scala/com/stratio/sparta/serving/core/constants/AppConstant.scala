@@ -35,9 +35,7 @@ object AppConstant {
   //Config Options
   val ExecutionMode = "executionMode"
   val ConfigLocal = "local"
-  val ConfigStandAlone = "standalone"
   val ConfigMesos = "mesos"
-  val ConfigYarn = "yarn"
   val ConfigMarathon = "marathon"
   val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
