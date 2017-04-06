@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.3.0 (upcoming)
+## 1.3.0 (April 06, 2017)
 
 * Pending changelog
 
