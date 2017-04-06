@@ -1,0 +1,16 @@
+<div>
+  <ng-form name="{{name}}" class="c-form-group" data-ng-class="">
+    <label>
+    <input type="file" ng-hide="true" data-ng-model="model" data-ng-required="isRequired">
+    <button type="button" class="c-button c-button--call-to-action-1" data-ng-click="click()">
+        <i class="icon icon-upload"></i>
+        <span>{{'_UPLOAD_FILE_' | translate}}</span>
+    </button>
+    <span>{{fileName}}</span>
+  </label>
+    <div data-ng-if="invalid && form.$submitted" class="angular-forms__error angular-forms__separation">
+      <i class="icon icon-circle-cross"></i>
+      <span data-ng-if="invalid" data-qa="{{qa}}-error-required">This field is required. </span>
+    </div>
+  </ng-form>
+</div>

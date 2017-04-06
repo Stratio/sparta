@@ -16,6 +16,12 @@
 			<div class="c-header__menu__logo">
 				<img src="images/app-logo.png">
 			</div>
+			<div st-menu-tab data-title="{{'_MENU_DASHBOARD_POLICIES_' | translate}}"
+				data-route="dashboard.policies"
+				data-sref="dashboard.policies"
+				data-icon="icon-policy2"
+				data-visible="true"
+				data-qaref="dashboard-menu-policies"></div>
 			<div st-menu-tab data-title="{{'_MENU_DASHBOARD_INPUT_' | translate}}"
 				data-route="dashboard.inputs"
 				data-sref="dashboard.inputs"
@@ -28,18 +34,18 @@
 				data-icon="icon-output"
 				data-visible="true"
 				data-qaref="dashboard-menu-outputs"></div>
-			<div st-menu-tab data-title="{{'_MENU_DASHBOARD_POLICIES_' | translate}}"
-				data-route="dashboard.policies"
-				data-sref="dashboard.policies"
-				data-icon="icon-policy2"
-				data-visible="true"
-				data-qaref="dashboard-menu-policies"></div>
 			<div st-menu-tab data-title="{{'_MENU_DASHBOARD_EXECUTIONS_' | translate}}"
 				data-route="dashboard.executions"
 				data-sref="dashboard.executions"
 				data-icon="icon-toggle"
 				data-visible="true"
 				data-qaref="dashboard-menu-policies"></div>
+			<div st-menu-tab data-title="{{'_MENU_DASHBOARD_RESOURCES_' | translate}}"
+				data-route="dashboard.resources"
+				data-sref="dashboard.resources.plugins"
+				data-icon="icon-tool"
+				data-visible="true"
+				data-qaref="dashboard-menu-plugins"></div>
 		</div>
 	</div>
 	<div class="show-auxiliar-sidebar" ng-if="auxiliarSidebar" ng-click="toggleAuxiliarSidebar()">

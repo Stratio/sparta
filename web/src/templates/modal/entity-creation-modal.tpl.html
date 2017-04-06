@@ -1,0 +1,23 @@
+<aside data-qa="entity-creation-modal">
+  <div class="c-titlebar">
+    <span class="c-titlebar__title">{{vm.title | translate}}</span>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+  </div>
+  <form class="c-form" name="vm.form" id="entityCreationForm" novalidate>
+    <div class="c-modal-inner">
+      <p class="c-modal-inner__title ng-binding" ng-if="vm.text.length">{{vm.text | translate}}</p>
+      <p class="c-auto-calculated-fields__info c-label c-col c-col--12"><i class="icon-info1"></i> {{vm.info | translate}}</p>
+      <c-input-file data-file-model="vm.file" name="'file'" data-form="vm.form" data-is-required="true"></c-input-file>
+    </div>
+    <footer class="c-row c-row--footer">
+      <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.validateForm()" data-qa="policy-description-next-button">
+          <i class="icon icon-circle-plus"></i>
+          <span>{{vm.title | translate}}</span>
+        </button>
+      </div>
+    </footer>
+  </form>
+  </form>
+  </div>
+</aside>

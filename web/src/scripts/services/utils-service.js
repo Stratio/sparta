@@ -39,6 +39,7 @@
     vm.removeDuplicatedJSONs = removeDuplicatedJSONs;
     vm.generateOptionListFromStringArray = generateOptionListFromStringArray;
     vm.camelToDash = camelToDash;
+    vm.getArrayElementPosition = getArrayElementPosition;
 
     function findElementInJSONArray(array, element, attr) {
       var found = false;
@@ -247,6 +248,14 @@
         dash = '-';
       }
       return word.replace(/([A-Z])/g, function ($1) { return dash + $1.toLowerCase(); });
+    }
+
+    function getArrayElementPosition(array, atribute, value){
+      for(var i=0; i<array.length; i++){
+        if(array[i][atribute] === value){
+          return i;
+        }
+      };
     }
   }
 })

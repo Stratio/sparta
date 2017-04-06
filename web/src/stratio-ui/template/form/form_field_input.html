@@ -16,7 +16,7 @@
         <span class="c-arrow-label c-arrow-label__form" data-ng-if="outputField">
             {{'_FIELD_' | translate}}
         </span>
-        <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error">
+        <div data-ng-if="this[name][name].$invalid && form.$submitted" class="angular-forms__error angular-forms_separation">
             <i class="icon icon-circle-cross"></i>
             <span data-ng-if="this[name][name].$error.required" data-qa="{{qa}}-error-required">This field is required. </span>
             <span data-ng-if="this[name][name].$error.invalidValue" data-qa="{{qa}}-error-required">Invalid value. </span>
