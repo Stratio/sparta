@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.trigger
 
-import java.io._
+package com.stratio.sparta.driver.step
 
-import com.stratio.sparta.driver.writer.TriggerWriterOptions
-import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
+import java.io.Serializable
 
-case class Trigger(name: String,
-                   sql: String,
-                   triggerWriterOptions: TriggerWriterOptions,
+import com.stratio.sparta.driver.writer.RawDataWriterOptions
+
+
+case class RawData(dataField: String,
+                   timeField: String,
+                   rawDataStorageWriterOptions: RawDataWriterOptions,
                    configuration: Map[String, Serializable])

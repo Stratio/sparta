@@ -91,8 +91,8 @@ object SchemaHelper {
     "text" -> StringType
   )
 
-  def getSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
-                            initSchema: Map[String, StructType]): Map[String, StructType] =
+  def getSchemasFromTransformations(transformationsModel: Seq[TransformationsModel],
+                                    initSchema: Map[String, StructType]): Map[String, StructType] =
     initSchema ++ searchSchemasFromParsers(transformationsModel.sortBy(_.order), initSchema)
 
   def getCubeSchema(cubeModel: CubeModel,

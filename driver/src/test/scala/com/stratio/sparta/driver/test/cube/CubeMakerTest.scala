@@ -18,8 +18,7 @@ package com.stratio.sparta.driver.test.cube
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.driver.cube.{Cube, CubeOperations}
-import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.step.{Cube, CubeOperations, Trigger}
 import com.stratio.sparta.driver.writer.CubeWriterOptions
 import com.stratio.sparta.plugin.default.DefaultField
 import com.stratio.sparta.plugin.cube.field.datetime.DateTimeField

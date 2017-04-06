@@ -102,7 +102,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
 
   protected def getPolicyModel(id: Option[String] = Some("id"), name: String = "testPolicy"):
   PolicyModel = {
-    val rawData = new RawDataModel
+    val rawData = None
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
 

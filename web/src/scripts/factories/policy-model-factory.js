@@ -44,9 +44,7 @@
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
       delete policy.storageLevel;
-      delete policy.rawDataEnabled;
       delete policy.monitoringLink;
-      delete policy.rawDataPath;
       delete policy.checkpointPath;
       delete policy.autoDeleteCheckpoint;
       delete policy.sparkConf;
@@ -69,8 +67,6 @@
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
       policy.remember = inputPolicyJSON.remember;
       policy.storageLevel = inputPolicyJSON.storageLevel;
-      policy.rawDataEnabled = (inputPolicyJSON.rawData.enabled == "true");
-      policy.rawDataPath = inputPolicyJSON.rawData.path;
       policy.checkpointPath = inputPolicyJSON.checkpointPath;
       policy.autoDeleteCheckpoint = inputPolicyJSON.autoDeleteCheckpoint;
       policy.executionMode = inputPolicyJSON.executionMode;

@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.models.policy
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+package com.stratio.sparta.driver.writer
 
-case class RawDataModel(dataField: String,
-                        timeField: String,
-                        writer: WriterModel,
-                        configuration: Map[String, JsoneyString] = Map())
-
+case class RawDataWriterOptions(tableName: String,
+                                outputs: Seq[String],
+                                partitionBy: Option[String] = None)
