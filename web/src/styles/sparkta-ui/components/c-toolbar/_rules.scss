@@ -31,6 +31,10 @@
     z-index: $c-toolbar--filter---z-index;
   }
 
+  &--bottom-separation{
+    padding-bottom:15px;
+  }
+
   &--filter__item__label {
     margin-left:$c-toolbar--filter__item__label---margin-left;
     margin-right: $c-toolbar--filter__item__label---margin-right;

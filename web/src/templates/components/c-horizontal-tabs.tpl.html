@@ -1,0 +1,11 @@
+<section class="c-horizontal-tabs">
+  <ul class="c-horizontal-tabs__list">
+    <li data-ng-repeat="option in options"
+         class="c-horizontal-tabs__option"
+         data-ng-class="{'c-horizontal-tabs__option--active': option.name === activeOption, 'c-horizontal-tabs__option--disabled': option.isDisabled}">
+      <a class="c-horizontal-tabs__option__text"
+         data-ng-click="activateOption(option)"
+         data-qa="qaTag + '-tab-' + i">{{option.text | translate}}</a>
+    </li>
+  </ul>
+</section>

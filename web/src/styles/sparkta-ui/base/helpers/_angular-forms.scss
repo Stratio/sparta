@@ -15,6 +15,11 @@ $angular-forms--ng-invalid__error--icon---font-size: 12px !default;
 		/*color: $angular-forms--ng-invalid__input---color;*/
 	}
 }
+
+.angular-forms__separation {
+	margin-top: 8px;
+}   
+
 .angular-forms__error {
 	color: $angular-forms--ng-invalid__error---color;
 	background-color: $angular-forms--ng-invalid__error---background-color;

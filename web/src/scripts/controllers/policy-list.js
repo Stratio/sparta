@@ -20,10 +20,10 @@
     .module('webApp')
     .controller('PolicyListCtrl', PolicyListCtrl);
 
-  PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', '$state',
+  PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', 'UtilsService', '$state',
     '$translate', '$interval', '$scope', '$q', '$filter'];
 
-  function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, $state,
+  function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, UtilsService, $state,
     $translate, $interval, $scope, $q, $filter) {
     /*jshint validthis: true*/
     var vm = this;
@@ -45,7 +45,6 @@
     vm.successMessage = { type: 'success', text: '', internalTrace: '' };
     vm.loading = true;
     vm.tableReverse = false;
-    vm.showInfoModal = showInfoModal;
 
     init();
 
@@ -96,20 +95,6 @@
       });
     }
 
-    function deleteCheckpoint(policyName){
-      var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
-      deletePolicyCheckpoint.then(function(response){
-        vm.successMessage.text = $translate.instant('_DELETE_CHECKPOINT_POLICY_OK_', {policyName: policyName});
-      });
-    }
-
-    function deleteCheckpoint(policyName){
-      var deletePolicyCheckpoint = PolicyFactory.deletePolicyCheckpoint(policyName);
-      deletePolicyCheckpoint.then(function(response){
-        vm.successMessage.text = $translate.instant('_DELETE_CHECKPOINT_POLICY_OK_', {policyName: policyName});
-      });
-    }
-
     function deletePolicyConfirm(size, policyId) {
       var controller = 'DeletePolicyModalCtrl';
       var templateUrl = "templates/policies/st-delete-policy-modal.tpl.html";
@@ -121,18 +106,10 @@
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
       modalInstance.result.then(function (policyId) {
-        var index = getPolicyPosition(policyId);
+        var index = UtilsService.getArrayElementPosition(vm.policiesData, 'id', policyId);
         vm.policiesData.splice(index, 1);
         vm.successMessage.text = '_POLICY_DELETE_OK_';
       });
-    }
-
-    function getPolicyPosition(policyId){
-      for(var i=0; i<vm.policiesData.length; i++){
-        if(vm.policiesData[i].id === policyId){
-          return i;
-        }
-      };
     }
 
     function getPolicies() {
@@ -187,35 +164,6 @@
         vm.tableReverse = false;
         vm.sortField = fieldName;
       }
-    }
-
-    function showInfoModal(policy) {
-      var controller = 'PolicyInfoModalCtrl';
-      var templateUrl = "templates/modal/policy-info-modal.tpl.html";
-      var resolve = {
-        policyName: function () {
-          return policy.name;
-        },
-        policyDescription: function () {
-          return policy.description;
-        },
-        status: function () {
-          return policy.status;
-        },
-        statusInfo: function () {
-          return policy.statusInfo;
-        },
-        submissionId: function () {
-          return policy.submissionId;
-        },
-        deployMode: function () {
-          return policy.lastExecutionMode;
-        },
-        error: function () {
-          return policy.lastError;
-        }
-      };
-      ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
     }
 
     /*Stop $interval when changing the view*/
