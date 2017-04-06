@@ -2,6 +2,10 @@
 
 ## 1.3.0 (upcoming)
 
+* Pending changelog
+
+## 1.3.0 (upcoming)
+
 * Sparta dispatcher added with Marathon API
 * Sparta driver added in Marathon execution mode 
 * Diver and Plugins jars endpoints
