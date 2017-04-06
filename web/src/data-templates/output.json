@@ -658,6 +658,18 @@
             "qa": "fragment-details-postgres-saveOptionsValue"
           }
         ]
+      },
+      {
+        "propertyId": "encoding",
+        "propertyName": "_POSTGRES_ENCODING_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 10,
+        "align": "left",
+        "default": "UTF8",
+        "required": false,
+        "tooltip": "Charset encoding to use during saving",
+        "qa": "fragment-details-postgres-encoding"
       }
     ]
   },
@@ -832,7 +844,7 @@
         "propertyName": "_CONN_TIMEOUT_",
         "propertyType": "text",
         "regexp": "",
-        "default" : 1000,
+        "default": 1000,
         "required": false,
         "tooltip": "Value for the connection timeout. Default to 1000ms.",
         "qa": "fragment-details-http-output-conn-timeout"
@@ -842,7 +854,7 @@
         "propertyName": "_READ_TIMEOUT_",
         "propertyType": "text",
         "regexp": "",
-        "default" : 5000,
+        "default": 5000,
         "required": false,
         "tooltip": "Value for the read timeout. Default to 5000ms.",
         "qa": "fragment-details-http-output-read-timeout"
@@ -904,7 +916,7 @@
         "propertyName": "_PARAMETER_NAME_",
         "propertyType": "text",
         "regexp": "",
-        "default" : "",
+        "default": "",
         "required": false,
         "tooltip": "Valid only if Post Type is set to parameter. Value entered will be used a key name.",
         "qa": "fragment-details-http-parameter-name"
