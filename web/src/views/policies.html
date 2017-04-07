@@ -9,7 +9,7 @@
                         data-timeout=6000></c-animated-msg>
       </div><!--
       --><div class="c-col c-col--2 c-form-group--to-right">
-        <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin"
+        <div class="c-button c-button--toolbar c-button--call-to-action-1  divButton c-button--left-margin"
                 data-ng-click="$root.stToggleFloatingMenu['createPolicyFromJSON']()" data-qa="policies-new-policy-button">
           <span class="icon icon-circle-plus"></span>
           <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
@@ -25,7 +25,7 @@
                   {{"_MENU_DASHBOARD_NEW_POLICY_SCRATCH_" | translate}}
                 </st-menu-element>
           </st-floating-menu>
-        </button>
+        </div>
       </div>
     </aside>
 
@@ -47,21 +47,21 @@
                   data-ng-class="{'sort-active': policies.sortField == 'input.name'}"  
                   data-ng-if="policies.sortField != 'input.name' || !policies.tableReverse"></span>
           </th>
-          <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('transformType')">
+          <th class="c-table__td  c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('transformType')">
             {{"_TRANSFORM_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'transformType' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
                   data-ng-if="policies.sortField != 'transformType' || !policies.tableReverse" 
                   ng-class="{'sort-active': policies.sortField == 'transformType'}"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('cubesStr')">
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('cubesStr')">
             {{"_CUBES_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'cubesStr' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down" 
                   data-ng-if="policies.sortField != 'cubesStr' || !policies.tableReverse"
                   ng-class="{'sort-active': policies.sortField == 'cubesStr'}"></span>
           </th>
-          <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('triggers')">
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('triggers')">
             {{"_TRIGGERS_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'triggers' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down " 
@@ -70,20 +70,19 @@
           </th>
           <th class="c-table__td c-col--1"></th>
           <th class="c-table__td c-col--1"></th>
-          <th class="c-table__td c-col--1"></th>
         </tr>
         </thead>
         <tbody>
 
         <tr class="c-table__tr" data-ng-repeat="policyData in policies.policiesData | orderBy:policies.sortField:policies.tableReverse">
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::policyData.name}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::policyData.input.name}} - {{::policyData.input.type}}</td>
-          <td class="c-table__td c-col--1 c-table--centered-content">
+          <td class="c-table__td c-table__td--no-wrap c-table__td c-col--2 c-table__td--ellipsis">{{::policyData.name}}</td>
+          <td class="c-table__td c-table__td--no-wrap c-table__td c-col--2 c-table__td--ellipsis">{{::policyData.input.name}} - {{::policyData.input.type}}</td>
+          <td class="c-table__td c-col--2">
             {{::policyData.transformType}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">
+          <td class="c-table__td c-table__td c-col--2 c-table__td--no-wrap c-table__td--ellipsis">
             {{::policyData.cubesStr}}
           </td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">
+          <td class="c-table__td c-table__td c-col--2 c-table__td--no-wrap c-table__td--ellipsis">
               {{::policyData.triggers}}
             </td>
 
@@ -97,8 +96,8 @@
           <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
             <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-actions"
                data-ng-click="$root.stToggleFloatingMenu[policyData.id]()"
-               data-qa="policy-context-menu-{{policyData.id}}">
-              <st-floating-menu toggle-id="{{policyData.id}}" align="right">
+               data-qa="policy-context-menu-{{policyData.id}}"><!--
+              --><st-floating-menu toggle-id="{{policyData.id}}" align="right">
                 <st-menu-element class-icon="icon-cross"
                                  data-ng-click="policies.deletePolicy(policyData.id, $index)"
                                  data-qa="policy-context-menu-{{policyData.id}}-delete">
@@ -114,8 +113,8 @@
                                  data-qa="policy-context-menu-{{policyData.id}}-download">
                   {{"_OUTPUT_ACTIONS_MENU_DOWNLOAD_" | translate}}
                 </st-menu-element>
-              </st-floating-menu>
-            </i>
+              </st-floating-menu><!--
+            --></i>
           </td>
         </tr>
         </tbody>
