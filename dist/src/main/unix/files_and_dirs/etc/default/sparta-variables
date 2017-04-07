@@ -30,6 +30,12 @@ export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
 
 # Additional Java OPTS
 export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM_SIZE"
+export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE"
+#export SPARTA_CONFIG_JAAS_FILE=jaas.conf
+
+if [ -v SPARTA_CONFIG_JAAS_FILE ] && [ ${#SPARTA_CONFIG_JAAS_FILE} != 0 ]; then
+    export SPARTA_OPTS="$SPARTA_OPTS $SPARTA_CONFIG_JAAS_FILE"
+fi
 
 # Maximum number of open files
 export MAX_OPEN_FILES=65535
@@ -49,5 +55,3 @@ if [ -d $LOCKDIR/subsys ]; then # It's most likely a CentOS
 fi
 LOCKFILE=$LOCKDIR/$NAME
 DAEMON=$SPARTA_HOME/bin/sparta.sh
-export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE"
-
