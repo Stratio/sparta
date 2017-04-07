@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 1.3.0 (upcoming)
+## 1.3.0 (April 07, 2017)
 
 * Sparta dispatcher added with Marathon API
 * Sparta driver added in Marathon execution mode 
