@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 (upcoming)
+
+* Pending changelog
+
 ## 1.3.0 (upcoming)
 
 * Sparta dispatcher added with Marathon API
