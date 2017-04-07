@@ -1,11 +1,28 @@
 # Changelog
 
-## 1.3.0 (upcoming)
+## 1.4.0 (upcoming)
 
 * Pending changelog
 
+## 1.3.0 (April 07, 2017)
+
+* Sparta dispatcher added with Marathon API
+* Sparta driver added in Marathon execution mode 
+* Diver and Plugins jars endpoints
+* Executions properties and unified spark submit arguments and configurations
+* Policy view with important policy data
+* Settings step in wizard
+* Support user, groups and permissions with Oauth2 library
+* Delete checkpoint option
+* Sparta config refactor
+* Docker files refactor
+* Bugfix: fragments duplication
+
 ## 1.2.0 (March 24, 2017)
 
+* Optimized save modes (upsert, append and override) in Postgres and JDBC output
+* Upsert in Postgres and JDBC output
+* Postgres Output
 * Allow null values in Json parser
 * Partition by with multiple fields
 * Output table name defined by user

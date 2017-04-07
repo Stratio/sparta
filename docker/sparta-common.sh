@@ -12,8 +12,11 @@ function initSpark() {
   if [[ ! -v SPARK_ENV_FILE ]]; then
     SPARK_ENV_FILE="${SPARK_HOME}/conf/spark-env.sh"
   fi
-    if [[ ! -v SPARK_CONF_DEFAULTS_FILE ]]; then
+  if [[ ! -v SPARK_CONF_DEFAULTS_FILE ]]; then
     SPARK_CONF_DEFAULTS_FILE="${SPARK_HOME}/conf/spark-defaults.conf"
+  fi
+  if [[ ! -v SPARK_CONF_LOG_FILE ]]; then
+    SPARK_CONF_LOG_FILE="${SPARK_HOME}/conf/log4j.properties"
   fi
   echo "" >> ${VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${VARIABLES}
@@ -26,6 +29,9 @@ function initSpark() {
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${SYSTEM_VARIABLES}
+  echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${SYSTEM_VARIABLES}
 }
 
 function initHdfs() {
@@ -69,16 +75,21 @@ function logLevelOptions() {
     SPARTA_LOG_LEVEL="INFO"
   fi
   sed -i "s|com.stratio.sparta.*|com.stratio.sparta\" level= \""${SPARTA_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.com.stratio.sparta=${SPARTA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v SPARK_LOG_LEVEL ]]; then
     SPARK_LOG_LEVEL="ERROR"
   fi
   sed -i "s|org.apache.spark.*|org.apache.spark\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  sed -i "s|log4j.rootCategory.*|log4j.rootCategory= ${SPARK_LOG_LEVEL}, console|" ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v HADOOP_LOG_LEVEL ]]; then
     HADOOP_LOG_LEVEL="ERROR"
   fi
   sed -i "s|org.apache.hadoop.*|org.apache.hadoop\" level= \""${HADOOP_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.hadoop=${SPARTA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 }
 
 function logLevelToStdout() {

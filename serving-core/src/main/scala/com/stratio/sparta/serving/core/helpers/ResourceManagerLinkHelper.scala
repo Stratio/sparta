@@ -29,8 +29,6 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
   def getLink(executionMode : String, monitoringLink: Option[String] = None): Option[String] = {
     val (host: String, port: Int) = (monitoringLink, executionMode) match {
       case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink
-      case (None, AppConstant.ConfigYarn) => yarnLink
-      case (None, AppConstant.ConfigStandAlone) => standaloneLink
       case (None, AppConstant.ConfigLocal) => localLink
       case (Some(uri), _) => userLink(uri)
       case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")
@@ -62,19 +60,6 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
     val mesosDispatcherUrl = SpartaConfig.getClusterConfig().get.getString(AppConstant.MesosMasterDispatchers)
     val host = mesosDispatcherUrl.replace("mesos://", "").replaceAll(":\\d+", "")
     val port = 5050
-    (host, port)
-  }
-
-  private def yarnLink = {
-    val host = SpartaConfig.getHdfsConfig.get.getString("hdfsMaster")
-    val port = 8088
-    (host, port)
-  }
-
-  private def standaloneLink = {
-    val sparkUrl = SpartaConfig.getClusterConfig().get.getString("master")
-    val host = sparkUrl.replace("spark://", "").replaceAll(":\\d+", "")
-    val port = sparkUrl.split(":").lastOption.getOrElse("8080").toInt
     (host, port)
   }
 

@@ -44,6 +44,8 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
 
   val newLineSubstitution = properties.getString("newLineSubstitution", " ")
 
+  val encoding = properties.getString("encoding", "UTF8")
+
   val connectionProperties = {
     val props = new Properties()
     props.putAll(properties.mapValues(_.toString))
@@ -79,7 +81,7 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
               val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
               cm.copyIn(
-                s"""COPY $tableName FROM STDIN WITH (NULL 'null', FORMAT CSV, DELIMITER E'$delimiter')""",
+                s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter')""",
                 rowsToInputStream(rows)
               )
             }
@@ -93,7 +95,7 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
 
   def rowsToInputStream(rows: Iterator[Row]): InputStream = {
     val bytes: Iterator[Byte] = rows.flatMap { row =>
-      (row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n").getBytes
+      (row.mkString(delimiter).replace("\n", newLineSubstitution) + "\n").getBytes(encoding)
     }
 
     new InputStream {
