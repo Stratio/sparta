@@ -170,7 +170,7 @@ function configOptions() {
  sed -i "s|.*sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AWAIT_POLICY_CHANGE_STATUS ]]; then
-   SPARTA_AWAIT_POLICY_CHANGE_STATUS=120s
+   SPARTA_AWAIT_POLICY_CHANGE_STATUS=180s
  fi
  sed -i "s|.*sparta.config.awaitPolicyChangeStatus.*|sparta.config.awaitPolicyChangeStatus = ${SPARTA_AWAIT_POLICY_CHANGE_STATUS}|" ${SPARTA_CONF_FILE}
 
@@ -399,6 +399,12 @@ function marathonOptions() {
    SPARTA_MARATHON_MESOSPHERE_PACKAGES="/opt/mesosphere/packages"
  fi
  sed -i "s|.*sparta.marathon.mesosphere.packages.*|sparta.marathon.mesosphere.packages = \""${SPARTA_MARATHON_MESOSPHERE_PACKAGES}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_DOCKER_IMAGE ]]; then
+   SPARTA_DOCKER_IMAGE="qa.stratio.com/stratio/sparta:1.4.0-SNAPSHOT"
+ fi
+ sed -i "s|.*sparta.marathon.docker.image.*|sparta.marathon.docker.image = \""${SPARTA_DOCKER_IMAGE}"\"|" ${SPARTA_CONF_FILE}
+
 
  if [[ ! -v SPARTA_MARATHON_MESOSPHERE_LIB ]]; then
    SPARTA_MARATHON_MESOSPHERE_LIB="/opt/mesosphere/lib"

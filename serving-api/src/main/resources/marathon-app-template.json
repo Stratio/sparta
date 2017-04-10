@@ -4,7 +4,7 @@
   "mem": 2048,
   "container": {
     "docker": {
-      "image": "qa.stratio.com/stratio/sparta:1.3.0-SNAPSHOT",
+      "image": "???",
       "network": "HOST",
       "forcePullImage": false,
       "privileged" : false
@@ -47,7 +47,7 @@
     {
       "protocol": "TCP",
       "portIndex": 0,
-      "gracePeriodSeconds": 120,
+      "gracePeriodSeconds": 180,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3

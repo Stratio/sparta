@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.input.websocket
 
 import akka.event.slf4j.SLF4JLogging
 import com.ning.http.client.AsyncHttpClient
-import com.ning.http.client.ws.{WebSocketByteListener, WebSocketTextListener, WebSocketUpgradeHandler, WebSocket => WS}
+import com.ning.http.client.websocket.{WebSocketByteListener, WebSocketTextListener, WebSocketUpgradeHandler, WebSocket => WS}
 
 class WebSocket(client: AsyncHttpClient) extends SLF4JLogging {
   self =>
@@ -107,7 +107,7 @@ class WebSocket(client: AsyncHttpClient) extends SLF4JLogging {
 
   def sendText(message: String): WebSocket = {
     ws match {
-      case Some(s) if s.isOpen => s.sendMessage(message)
+      case Some(s) if s.isOpen => s.sendMessage(message.getBytes)
       case _ => throw new IllegalStateException("WebSocket is closed, use WebSocket.open(String) to reconnect)")
     }
     this

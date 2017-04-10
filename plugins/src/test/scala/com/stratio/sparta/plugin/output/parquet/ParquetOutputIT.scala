@@ -15,12 +15,10 @@
  */
 package com.stratio.sparta.plugin.output.parquet
 
-import java.sql.Timestamp
-
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -46,14 +44,14 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   trait CommonValues {
 
-    val sqlContext = new SQLContext(sc)
+    val sqlContext = SparkSession.builder().config(sc.getConf).getOrCreate()
 
     import sqlContext.implicits._
 
-    val time = new Timestamp(DateTime.now.getMillis)
+    val time = DateTime.now.getMillis
 
     val data =
-      sc.parallelize(Seq(Person("Kevin", 18, time), Person("Kira", 21, time), Person("Ariadne", 26, time))).toDF
+      sc.parallelize(Seq(Person("Kevin", 18, time), Person("Kira", 21, time), Person("Ariadne", 26, time))).toDS().toDF
 
     val tmpPath: String = File.makeTemp().name
   }
@@ -78,6 +76,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
     read.count should be(3)
     read should be eq (data)
     File(tmpPath).deleteRecursively
+    File("spark-warehouse").deleteRecursively
   }
 
   it should "throw an exception when path is not present" in {
@@ -93,4 +92,4 @@ object ParquetOutputIT {
   }
 }
 
-case class Person(name: String, age: Int, minute: Timestamp) extends Serializable
+case class Person(name: String, age: Int, minute: Long) extends Serializable

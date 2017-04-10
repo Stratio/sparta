@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
- source sparta-server-utils.sh
+ source /sparta-server-utils.sh
 
  # SPARTA JAVA OPTIONS
  initJavaOptions

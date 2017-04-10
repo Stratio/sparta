@@ -24,7 +24,6 @@ import com.stratio.sparta.sdk.pipeline.schema.{TypeConversions, TypeOp}
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
-import org.apache.spark.Logging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 
@@ -76,7 +75,7 @@ abstract class Operator(name: String,
   def defaultCastingFilterType: TypeOp = TypeOp.Any
 }
 
-object Operator extends Logging {
+object Operator {
 
   final val ClassSuffix = "Operator"
   final val OldValuesKey = "old"

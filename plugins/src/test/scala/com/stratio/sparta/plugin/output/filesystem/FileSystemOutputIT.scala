@@ -21,8 +21,8 @@ import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.output.fileSystem.FileSystemOutput
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import org.apache.commons.io.FileUtils
+import org.apache.spark.sql._
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{SQLContext, _}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
@@ -46,7 +46,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
 
   /* DataFrame generator */
   private def dfGen(): DataFrame = {
-    val sqlCtx = new SQLContext(sc)
+    val sqlCtx = SparkSession.builder().config(sc.getConf).getOrCreate()
     val dataRDD = sc.parallelize(List(("user1", 23, 1993), ("user2", 26, 1990), ("user3", 21, 1995)))
       .map { case (name, age, year) => Row(name, age, year) }
 

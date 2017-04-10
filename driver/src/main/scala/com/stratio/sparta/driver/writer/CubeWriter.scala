@@ -38,7 +38,7 @@ case class CubeWriter(cube: Cube, outputs: Seq[Output])
       toRow(dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
       if (!rdd.isEmpty()) {
-        val sqlContext = SparkContextFactory.sparkSqlContextInstance
+        val sqlContext = SparkContextFactory.sparkSessionInstance
         val cubeDf = sqlContext.createDataFrame(rdd, cube.schema)
         val cubeAutoCalculatedFieldsDf =
           applyAutoCalculateFields(cubeDf, cube.cubeWriterOptions.autoCalculateFields, cube.schema)
