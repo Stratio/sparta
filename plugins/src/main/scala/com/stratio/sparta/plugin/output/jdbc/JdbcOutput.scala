@@ -24,6 +24,7 @@ import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 
@@ -36,13 +37,6 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
 
   val url = properties.getString("url")
 
-  val connectionProperties = {
-    val props = new Properties()
-    props.putAll(properties.mapValues(_.toString))
-    getCustomProperties.foreach(customProp => props.put(customProp._1, customProp._2))
-    props
-  }
-
   override def supportedSaveModes : Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
@@ -51,6 +45,7 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
+    val connectionProperties = new JDBCOptions(url, tableName, properties.mapValues(_.toString))
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)

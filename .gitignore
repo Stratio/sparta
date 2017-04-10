@@ -65,5 +65,5 @@ nexus
 !/docker/localDocker/README.md
 
 
-
+\.spark-warehouse
 \.directory

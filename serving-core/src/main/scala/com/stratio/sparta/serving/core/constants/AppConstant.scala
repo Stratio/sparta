@@ -50,7 +50,7 @@ object AppConstant {
 
   //killing options
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
-  val DefaultAwaitPolicyChangeStatus = "60s"
+  val DefaultAwaitPolicyChangeStatus = "180s"
   val PreStopMarathonDelay = "preStopMarathonDelay"
   val DefaultPreStopMarathonDelay = "10s"
   val PreStopMarathonInterval = "preStopMarathonInterval"

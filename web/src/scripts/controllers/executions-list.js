@@ -54,7 +54,8 @@
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping' ||
+          policyStatus.toLowerCase() === 'finished') {
         var policyRunning = PolicyFactory.runPolicy(policyId);
 
         policyRunning.then(function() {

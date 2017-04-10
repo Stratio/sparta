@@ -12,7 +12,8 @@ hose {
     DEBARCH = 'all'
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9090]
-    BASEIMG = 'stratio/mesosphere-spark-scala211:1.6.2'
+    BASEIMG = 'stratio/spark-krb-dispatcher-support:2.1.0'
+    DOCKERFILECOMMAND = 'WORKDIR /'
 
 
     ITSERVICES = [

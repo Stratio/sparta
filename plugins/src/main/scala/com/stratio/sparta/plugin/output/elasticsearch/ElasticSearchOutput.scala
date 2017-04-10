@@ -22,7 +22,6 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
-import org.apache.spark.sql.types._
 
 /**
   *
@@ -51,31 +50,9 @@ class ElasticSearchOutput(name: String, properties: Map[String, JSerializable]) 
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
-    val dataFrameSchema = dataFrame.schema
     val timeDimension = getTimeFromOptions(options)
     val primaryKeyOption = getPrimaryKeyOptions(options)
     val sparkConfig = getSparkConfig(timeDimension, saveMode, primaryKeyOption)
-
-
-    //This dataFrame transformation is necessary because ES doesn't support java.sql.TimeStamp in the row values: use
-    // dateType in the cube writer options and set to long, date or dateTime
-    val newDataFrame = if (dataFrameSchema.fields.exists(stField => stField.dataType == TimestampType)) {
-      val rdd = dataFrame.map(row => {
-        val seqOfValues = row.toSeq.map { value =>
-          value match {
-            case value: java.sql.Timestamp => value.getTime
-            case _ => value
-          }
-        }
-        Row.fromSeq(seqOfValues)
-      })
-      val newSchema = StructType(dataFrameSchema.map(structField =>
-        if (structField.dataType == TimestampType) structField.copy(dataType = LongType)
-        else structField)
-      )
-      SQLContext.getOrCreate(dataFrame.rdd.sparkContext).createDataFrame(rdd, newSchema)
-    }
-    else dataFrame
 
     validateSaveMode(saveMode)
 
