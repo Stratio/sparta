@@ -21,9 +21,8 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
-import org.apache.spark.Logging
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, Row, SaveMode}
 
 abstract class Output(val name: String, properties: Map[String, JSerializable])
   extends Parameterizable(properties) with SLF4JLogging with CustomProperties {
@@ -82,8 +81,8 @@ object Output extends SLF4JLogging {
     })
 
   def applyPartitionBy(options: Map[String, String],
-                       dataFrame: DataFrameWriter,
-                       schemaFields: Array[StructField]): DataFrameWriter = {
+                       dataFrame: DataFrameWriter[Row],
+                       schemaFields: Array[StructField]): DataFrameWriter[Row] = {
 
     options.get(PartitionByKey).notBlank.fold(dataFrame)(partitions => {
       val fieldsInDataFrame = schemaFields.map(field => field.name)

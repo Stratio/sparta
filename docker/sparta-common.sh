@@ -7,7 +7,7 @@ function loadVariables() {
 
 function initSpark() {
   if [[ ! -v SPARK_HOME ]]; then
-    SPARK_HOME="/opt/sds/spark"
+    SPARK_HOME="/opt/spark/dist"
   fi
   if [[ ! -v SPARK_ENV_FILE ]]; then
     SPARK_ENV_FILE="${SPARK_HOME}/conf/spark-env.sh"

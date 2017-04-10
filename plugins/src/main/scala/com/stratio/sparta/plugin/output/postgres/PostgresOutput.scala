@@ -24,6 +24,7 @@ import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.postgresql.copy.CopyManager
@@ -46,13 +47,6 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
 
   val encoding = properties.getString("encoding", "UTF8")
 
-  val connectionProperties = {
-    val props = new Properties()
-    props.putAll(properties.mapValues(_.toString))
-    getCustomProperties.foreach(customProp => props.put(customProp._1, customProp._2))
-    props
-  }
-
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
 
@@ -60,6 +54,7 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
+    val connectionProperties = new JDBCOptions(url, tableName, properties.mapValues(_.toString))
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
@@ -77,7 +72,7 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
             SpartaJdbcUtils.upsertTable(dataFrame, url, tableName, connectionProperties, updateFields)
           } else {
             dataFrame.foreachPartition { rows =>
-              val conn = getConnection(url, connectionProperties)
+              val conn = getConnection(connectionProperties)
               val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
               cm.copyIn(

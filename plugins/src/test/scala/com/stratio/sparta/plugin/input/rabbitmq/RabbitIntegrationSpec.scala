@@ -16,10 +16,11 @@
 package com.stratio.sparta.plugin.input.rabbitmq
 
 import akka.actor.ActorSystem
+import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.{Logging, SparkConf, SparkContext}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.{Minute, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpec}
@@ -29,7 +30,7 @@ import scala.language.postfixOps
 import scala.util.Try
 
 
-abstract class RabbitIntegrationSpec extends WordSpec with Matchers with Logging with TimeLimitedTests
+abstract class RabbitIntegrationSpec extends WordSpec with Matchers with SLF4JLogging with TimeLimitedTests
   with BeforeAndAfter with BeforeAndAfterAll {
   private lazy val config = ConfigFactory.load()
 

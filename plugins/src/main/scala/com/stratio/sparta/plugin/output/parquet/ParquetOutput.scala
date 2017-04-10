@@ -42,10 +42,9 @@ class ParquetOutput(name: String, properties: Map[String, JSerializable]) extend
     validateSaveMode(saveMode)
 
     val dataFrameWriter = dataFrame.write
-      .format("parquet")
       .options(getCustomProperties)
       .mode(getSparkSaveMode(saveMode))
 
-    applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).save(s"${path.get}/$tableName")
+    applyPartitionBy(options, dataFrameWriter, dataFrame.schema.fields).parquet(s"${path.get}/$tableName")
   }
 }

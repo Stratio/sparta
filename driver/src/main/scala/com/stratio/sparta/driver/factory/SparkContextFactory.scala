@@ -20,27 +20,25 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.utils.AggregationTime
-import com.typesafe.config.Config
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc: Option[SparkContext] = None
-  private var sqlContext: Option[SQLContext] = None
+  private var sparkSession: Option[SparkSession] = None
   private var ssc: Option[StreamingContext] = None
   private var sqlInitialSentences: Seq[String] = Seq.empty[String]
 
-  def sparkSqlContextInstance: SQLContext =
+  def sparkSessionInstance: SparkSession =
     synchronized {
-      sqlContext.getOrElse{
-          if (sc.isDefined) sqlContext = Option(new SQLContext(sc.get))
-          sqlInitialSentences.foreach(sentence => if (sentence.nonEmpty) sqlContext.get.sql(sentence))
-          sqlContext.get
+      sparkSession.getOrElse {
+        if (sc.isDefined) sparkSession = Option(SparkSession.builder().config(sc.get.getConf).getOrCreate())
+        sqlInitialSentences.foreach(sentence => if (sentence.nonEmpty) sparkSession.get.sql(sentence))
+        sparkSession.get
       }
     }
 
@@ -130,7 +128,7 @@ object SparkContextFactory extends SLF4JLogging {
           sparkContext.stop()
           log.info("Stopped SparkContext with name: " + sparkContext.appName)
         } finally {
-          sqlContext = None
+          sparkSession = None
           sqlInitialSentences = Seq.empty[String]
           ssc = None
           sc = None

@@ -20,9 +20,9 @@ import java.time.Instant
 
 import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.plugin.output.parquet.Person
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -36,17 +36,19 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
-    val sqlContext = new SQLContext(sc)
-
-    import sqlContext.implicits._
+    val sparkSession = SparkSession.builder().config(sc.getConf).getOrCreate()
+    val schema = StructType(Seq(
+      StructField("name", StringType),
+      StructField("age", IntegerType),
+      StructField("minute", LongType)
+    ))
 
     val data =
-      sc.parallelize(
-        Seq(
-          Person("Kevin", Random.nextInt, Timestamp.from(Instant.now)),
-          Person("Kira", Random.nextInt, Timestamp.from(Instant.now)),
-          Person("Ariadne", Random.nextInt, Timestamp.from(Instant.now))
-        )).toDF
+      sparkSession.createDataFrame(sc.parallelize(Seq(
+        Row("Kevin", Random.nextInt, Timestamp.from(Instant.now).getTime),
+        Row("Kira", Random.nextInt, Timestamp.from(Instant.now).getTime),
+        Row("Ariadne", Random.nextInt, Timestamp.from(Instant.now).getTime)
+      )), schema)
   }
 
   trait WithEventData extends CommonValues {
@@ -55,22 +57,23 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
   }
 
 
-  "AvroOutput" should  "throw an exception when path is not present" in {
-      an[Exception] should be thrownBy new AvroOutput("avro-test", Map.empty)
-    }
+  "AvroOutput" should "throw an exception when path is not present" in {
+    an[Exception] should be thrownBy new AvroOutput("avro-test", Map.empty)
+  }
 
   it should "throw an exception when empty path " in {
-      an[Exception] should be thrownBy new AvroOutput("avro-test", Map("path" -> "    "))
-    }
+    an[Exception] should be thrownBy new AvroOutput("avro-test", Map("path" -> "    "))
+  }
 
   it should "save a dataframe " in new WithEventData {
-      output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
-      val read = sqlContext.read.avro(s"$tmpPath/person").toDF
-      read.count should be(3)
-      read should be eq data
-      File(tmpPath).deleteRecursively
-    }
+    output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
+    val read = sparkSession.read.avro(s"$tmpPath/person")
+    read.count should be(3)
+    read should be eq data
+    File(tmpPath).deleteRecursively
+    File("spark-warehouse").deleteRecursively
+  }
 
 }
 
-case class Person(name: String, age: Int, minute: Timestamp) extends Serializable
+
