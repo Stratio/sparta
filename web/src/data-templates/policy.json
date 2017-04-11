@@ -76,7 +76,7 @@
       "position": "right",
       "required": false,
       "propertyType": "select",
-      "regexp": "local|mesos|marathon|yarn|standalone",
+      "regexp": "local|mesos|marathon",
       "values": [
         {
           "label": "Local",
@@ -89,14 +89,6 @@
         {
           "label": "Marathon",
           "value": "marathon"
-        },
-        {
-          "label": "Yarn",
-          "value": "yarn"
-        },
-        {
-          "label": "StandAlone",
-          "value": "standalone"
         }
       ],
       "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
@@ -108,6 +100,7 @@
       "width": 6,
       "position": "left",
       "propertyType": "text",
+      "default": "stream",
       "required": false,
       "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
       "qa": "policy-temporal-table-name"
@@ -256,6 +249,16 @@
           "value": "w"
         }
       ]
+    },
+    {
+      "propertyId": "streamTemporalTable",
+      "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
+      "width": 6,
+      "position": "right",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
+      "qa": "policy-temporal-table-name"
     },
     {
       "propertyId": "monitoringLink",

@@ -23,13 +23,15 @@ import java.nio.ByteBuffer
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.kafka.clients.consumer.{RangeAssignor, RoundRobinAssignor}
+import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.common.utils.Bytes
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies, LocationStrategy}
+import org.apache.spark.streaming.kafka010._
+
+import scala.util.Try
 
 class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) with KafkaBase with SLF4JLogging {
 
@@ -39,7 +41,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   //scalastyle:off
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val groupId = getGroupId("group.id")
-    val metaDataBrokerList = if(properties.contains("metadata.broker.list"))
+    val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
     else getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val keySerializer = classOf[StringDeserializer]
@@ -49,44 +51,54 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     val topics = extractTopics
     val partitionStrategy = getPartitionStrategy
     val locationStrategy = getLocationStrategy
+    val autoOffset = getAutoOffset
+    val enableAutoCommit = getAutoCommit
 
-    serializerProperty match {
+    val inputDStream = serializerProperty match {
       case "long" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Long](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "int" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Int](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "double" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Double](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "bytebuffer" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, ByteBuffer](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "arraybyte" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Array[Byte]](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "bytes" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Bytes](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case _ =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, String](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
     }
+
+    if (!enableAutoCommit.head._2 && getAutoCommitInKafka) {
+      inputDStream.foreachRDD { rdd =>
+        val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+        inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+        log.info(s"Committed Kafka offsets --> ${
+          offsetRanges.map(offset =>
+            s"\tTopic: ${offset.topic}, Partition: ${offset.partition}, From: ${offset.fromOffset}, until: " +
+              s"${offset.untilOffset}"
+          ).mkString("\n")
+        }")
+      }
+    }
+
+    inputDStream.map(data => Row(data.value()))
   }
 
   //scalastyle:on
@@ -107,6 +119,25 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       case "bytes" => classOf[BytesDeserializer]
       case _ => classOf[StringDeserializer]
     }
+
+  /** OFFSETS MANAGEMENT **/
+
+  def getAutoOffset: Map[String, String] = {
+    val autoOffsetResetKey = "auto.offset.reset"
+    val autoOffsetResetValue = properties.getString(autoOffsetResetKey, "earliest")
+
+    Map(autoOffsetResetKey -> autoOffsetResetValue)
+  }
+
+  def getAutoCommit: Map[String, java.lang.Boolean] = {
+    val autoCommitKey = "enable.auto.commit"
+    val autoCommitValue = Try(properties.getBoolean(autoCommitKey)).getOrElse(false)
+
+    Map(autoCommitKey -> autoCommitValue)
+  }
+
+  def getAutoCommitInKafka: Boolean =
+    Try(properties.getBoolean("storeOffsetInKafka")).getOrElse(true)
 
   /** LOCATION STRATEGY **/
 
