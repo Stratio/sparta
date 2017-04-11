@@ -62,8 +62,7 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: 35729
       },
-      proxies: [
-        {
+      proxies: [{
           context: '/policy', // the context of the data service
           host: '127.0.0.1', // wherever the data service is running
           port: 9090, // the port that the data service is running on,
@@ -90,14 +89,20 @@ module.exports = function (grunt) {
           port: 9090, // the port that the data service is running on,
           changeOrigin: true,
           ws: true
-        },
-        {
+        }, {
           context: '/driver', // the context of the data service
           host: '127.0.0.1', // wherever the data service is running
           port: 9090, // the port that the data service is running on,
           changeOrigin: true,
           ws: true
+        }, {
+          context: '/executions', // the context of the data service
+          host: '127.0.0.1', // wherever the data service is running
+          port: 9090, // the port that the data service is running on,
+          changeOrigin: true,
+          ws: true
         }
+
       ],
       livereload: {
         options: {
@@ -221,7 +226,7 @@ module.exports = function (grunt) {
         flow: {
           html: {
             steps: {
-              js: ['concat', 'uglifyjs']//,
+              js: ['concat', 'uglifyjs'] //,
               //css: ['cssmin']
             },
             post: {}
@@ -242,7 +247,9 @@ module.exports = function (grunt) {
           '<%= stratio.dist %>/styles'
         ],
         patterns: {
-          js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
+          js: [
+            [/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']
+          ]
         }
       }
     },
