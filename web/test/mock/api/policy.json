@@ -6,10 +6,6 @@
   "description": "policy example",
   "sparkStreamingWindow": "6s",
   "remember": "1d",
-  "rawData": {
-    "enabled": "true",
-    "path": "/fake/path"
-  },
   "transformations": [{
     "type": "Morphlines",
     "order": 0,

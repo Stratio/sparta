@@ -151,33 +151,6 @@
           "value": "MEMORY_AND_DISK_SER_2"
         }
       ]
-    },
-    {
-      "propertyId": "rawDataEnabled",
-      "propertyName": "_PERSIST_RAW_DATA_",
-      "propertyType": "boolean",
-      "width": 6,
-      "position": "right",
-      "default": false,
-      "qa": "policy-raw-data"
-    },
-    {
-      "propertyId": "rawDataPath",
-      "propertyName": "_PATH_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "text",
-      "required": true,
-      "visible": [
-        [
-          {
-            "propertyId": "rawDataEnabled",
-            "value": true
-          }
-        ]
-      ],
-      "default": "/tmp/checkpoint",
-      "qa": "raw-data-path"
     }
   ],
   "steps": [

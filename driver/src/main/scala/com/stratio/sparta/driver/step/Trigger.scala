@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.models.policy
+package com.stratio.sparta.driver.step
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+import java.io._
 
-case class RawDataModel(dataField: String,
-                        timeField: String,
-                        writer: WriterModel,
-                        configuration: Map[String, JsoneyString] = Map())
+import com.stratio.sparta.driver.writer.TriggerWriterOptions
 
+case class Trigger(name: String,
+                   sql: String,
+                   triggerWriterOptions: TriggerWriterOptions,
+                   configuration: Map[String, Serializable])

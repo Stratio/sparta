@@ -103,13 +103,23 @@
       "qa": "policy-execution-mode"
     },
     {
+      "propertyId": "streamTemporalTable",
+      "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
+      "width": 6,
+      "position": "left",
+      "propertyType": "text",
+      "required": false,
+      "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
+      "qa": "policy-temporal-table-name"
+    },
+    {
       "propertyId": "storageLevel",
       "propertyName": "_STORAGELEVEL_",
       "propertyType": "select",
       "required": true,
       "default": "MEMORY_ONLY_SER",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
       "qa": "policy-storage-level",
       "values": [
@@ -161,7 +171,7 @@
       "propertyType": "number",
       "default": 6,
       "width": 6,
-      "position": "right",
+      "position": "left",
       "tooltip": "Streaming window assigned to Spark Streaming.",
       "required": true,
       "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
@@ -171,7 +181,7 @@
       "propertyName": "_WHITE_SPACE_",
       "propertyType": "select",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
       "default": "s",
       "required": true,
@@ -207,7 +217,7 @@
       "propertyName": "_POLICY_REMEMBER_FIELD_",
       "propertyType": "number",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "tooltip": "Maximum time a certain query will be executed before being aborted.",
       "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
       "qa": "policy-remember-number"
@@ -217,7 +227,7 @@
       "propertyName": "_WHITE_SPACE_",
       "propertyType": "select",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "qa": "policy-remember-time",
       "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
       "values": [
@@ -248,16 +258,6 @@
       ]
     },
     {
-      "propertyId": "streamTemporalTable",
-      "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
-      "width": 6,
-      "position": "right",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
-      "qa": "policy-temporal-table-name"
-    },
-    {
       "propertyId": "monitoringLink",
       "propertyName": "_MONITORING_LINK_",
       "width": 6,
@@ -270,8 +270,8 @@
     {
       "propertyId": "checkpointPath",
       "propertyName": "_CHECKPOINT_PATH_",
-      "width": 12,
-      "position": "left",
+      "width": 6,
+      "position": "right",
       "propertyType": "text",
       "required": false,
       "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
@@ -305,35 +305,6 @@
       "position": "left",
       "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
       "qa": "policy-stop-gracefully"
-    },
-    {
-      "propertyId": "rawDataEnabled",
-      "propertyName": "_PERSIST_RAW_DATA_",
-      "propertyType": "boolean",
-      "width": 6,
-      "position": "right",
-      "tooltip": "Save the raw data in HDFS with parquet format.",
-      "default": false,
-      "qa": "policy-raw-data"
-    },
-    {
-      "propertyId": "rawDataPath",
-      "propertyName": "_PATH_",
-      "width": 12,
-      "position": "left",
-      "propertyType": "text",
-      "tooltip": "Path in HDFS",
-      "required": true,
-      "visible": [
-        [
-          {
-            "propertyId": "rawDataEnabled",
-            "value": true
-          }
-        ]
-      ],
-      "default": "/tmp/rawData",
-      "qa": "raw-data-path"
     },
     {
       "propertyId": "sparkConf",

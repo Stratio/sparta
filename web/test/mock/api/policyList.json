@@ -5,10 +5,6 @@
     "name": "df",
     "description": "dfdf",
     "sparkStreamingWindow": "6s",
-    "rawData": {
-      "enabled": "false",
-      "path": "default"
-    },
     "transformations": [
       {
         "type": "Ingestion",
@@ -165,10 +161,6 @@
     "name": "dfdf",
     "description": "Dfdf",
     "sparkStreamingWindow": "6s",
-    "rawData": {
-      "enabled": "false",
-      "path": "default"
-    },
     "transformations": [
       {
         "type": "Ingestion",
@@ -339,10 +331,6 @@
     "name": "sds",
     "description": "dfd",
     "sparkStreamingWindow": "6s",
-    "rawData": {
-      "enabled": "false",
-      "path": "default"
-    },
     "transformations": [
       {
         "type": "Ingestion",

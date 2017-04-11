@@ -18,8 +18,7 @@ package com.stratio.sparta.driver.test.writer
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.driver.cube.Cube
-import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.step.{Cube, Trigger}
 import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, DimensionValue, DimensionValuesTime, ExpiringData, MeasuresValues, Precision}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator

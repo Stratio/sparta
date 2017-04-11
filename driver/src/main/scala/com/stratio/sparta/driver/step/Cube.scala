@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.cube
+package com.stratio.sparta.driver.step
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.trigger.Trigger
 import com.stratio.sparta.driver.writer.CubeWriterOptions
-import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.{Associative, Operator}
 import com.stratio.sparta.sdk.utils.AggregationTime

@@ -17,7 +17,7 @@ package com.stratio.sparta.driver.test
 
 import akka.actor.ActorSystem
 import akka.testkit.{TestKit, TestProbe}
-import com.stratio.sparta.driver.SpartaPipeline
+import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -36,7 +36,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpecLike, ShouldMatchers}
 
 @RunWith(classOf[JUnitRunner])
-class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
+class SpartaWorkflowTest extends TestKit(ActorSystem("SpartaWorkflowTest"))
   with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
   val model: PolicyModel = mock[PolicyModel]
@@ -63,9 +63,9 @@ class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
     when(myInputClass.setUp(ssc, model.storageLevel.get)).thenReturn(mock[DStream[Row]])
     when(reflection.tryToInstantiate[Input](mockEq("InputInput"), any())).thenReturn(myInputClass)
 
-    SpartaConfig.initMainConfig(Option(SpartaPipelineTest.config))
+    SpartaConfig.initMainConfig(Option(SpartaWorkflowTest.config))
 
-    val result = new SpartaPipeline(model, curator).inputStage(ssc, reflection)
+    val result = new SpartaWorkflow(model, curator).createInput(ssc, reflection)
     result should be(myInputClass)
 
     actor.expectNoMsg()
@@ -73,7 +73,7 @@ class SpartaPipelineTest extends TestKit(ActorSystem("SpartaPipelineTest"))
 
 }
 
-object SpartaPipelineTest {
+object SpartaWorkflowTest {
 
   val config = ConfigFactory.parseString(
     s"""

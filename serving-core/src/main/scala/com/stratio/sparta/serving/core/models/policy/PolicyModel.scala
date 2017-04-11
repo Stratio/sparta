@@ -30,7 +30,7 @@ case class PolicyModel(
                         description: String = "default description",
                         sparkStreamingWindow: String = PolicyModel.sparkStreamingWindow,
                         checkpointPath: Option[String] = None,
-                        rawData: RawDataModel,
+                        rawData: Option[RawDataModel] = None,
                         transformations: Seq[TransformationsModel],
                         streamTriggers: Seq[TriggerModel],
                         cubes: Seq[CubeModel],
@@ -59,7 +59,7 @@ case object PolicyModel {
 object PolicyValidator {
 
   def validateDto(policy: PolicyModel): Unit = {
-    val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy))
+    val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy) ::: validateRawData(policy))
       .filter(element => !element._1)
 
     if (subErrorModels.nonEmpty)
@@ -68,10 +68,26 @@ object PolicyValidator {
           Option(subErrorModels.map(element => element._2)))))
   }
 
+  def validateRawData(policy: PolicyModel): List[(Boolean, ErrorModel)] = {
+    val outputsNames = outputNamesFromPolicy(policy)
+
+    List(
+      (policy.rawData.forall(rawData => rawData.writer.outputs.forall(output => outputsNames.contains(output))),
+        new ErrorModel(ErrorModel.ValidationError_Raw_data_with_a_bad_output, "Raw data with bad outputs")),
+      (policy.rawData.forall(rawData => rawData.writer.tableName.isDefined),
+        new ErrorModel(ErrorModel.ValidationError_Raw_data_with_bad_table_name, "Raw data with empty table name")),
+      (policy.rawData.forall(rawData => rawData.dataField.nonEmpty),
+        new ErrorModel(ErrorModel.ValidationError_Raw_data_with_bad_data_field, "Raw data with empty data field")),
+      (policy.rawData.forall(rawData => rawData.timeField.nonEmpty),
+        new ErrorModel(ErrorModel.ValidationError_Raw_data_with_bad_time_field, "Raw data with empty time field"))
+    )
+  }
+
   //scalastyle:off
   private def validateCubes(policy: PolicyModel): List[(Boolean, ErrorModel)] = {
     val outputsNames = outputNamesFromPolicy(policy)
-    val errorModels = List(
+
+    List(
       (policy.cubes.forall(cube => cube.name.nonEmpty),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_without_name,
@@ -123,7 +139,6 @@ object PolicyValidator {
           ErrorModel.ValidationError_There_is_at_least_one_trigger_with_a_bad_window_attribute,
           "There is at least one trigger with a bad overlast"))
     )
-    errorModels
   }
 
   //scalastyle:on

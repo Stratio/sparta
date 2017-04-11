@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.driver.cube
+package com.stratio.sparta.driver.step
 
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValuesTime, MeasuresValues}
 import org.apache.spark.sql.Row

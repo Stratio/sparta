@@ -5,8 +5,6 @@
   "sparkStreamingWindowTime": "s",
   "rememberNumber": 2,
   "rememberTime": "d",
-  "rawDataEnabled": true,
-  "rawDataPath": "/fake/path",
   "input": {
     "description": "Reads events from RabbitMQ",
     "element": {
