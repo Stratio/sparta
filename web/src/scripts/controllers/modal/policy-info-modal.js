@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('PolicyInfoModalCtrl', PolicyInfoModalCtrl);
 
-  PolicyInfoModalCtrl.$inject = ['$uibModalInstance', 'policyName', 'policyDescription', 'status','statusInfo','submissionId', 'deployMode',  'error'];
+  PolicyInfoModalCtrl.$inject = ['$uibModalInstance', 'policyName', 'policyDescription', 'status','statusInfo','submissionId', 'deployMode', 'executionData', 'error'];
 
-  function PolicyInfoModalCtrl($uibModalInstance, policyName, policyDescription, status, statusInfo, submissionId, deployMode, error) {
+  function PolicyInfoModalCtrl($uibModalInstance, policyName, policyDescription, status, statusInfo, submissionId, deployMode,executionData, error) {
     /*jshint validthis: true*/
     var vm = this;
 
@@ -34,6 +34,7 @@
     vm.statusInfo = statusInfo;
     vm.submissionId = submissionId;
     vm.deployMode = deployMode;
+    vm.executionData = executionData;
     vm.error = error;
 
     ///////////////////////////////////////

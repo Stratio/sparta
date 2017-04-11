@@ -3,8 +3,9 @@ describe('API.policy-service', function () {
 	beforeEach(module('api/policy.json'));
 	beforeEach(module('api/policyList.json'));
 	beforeEach(module('api/policiesStatusList.json'));
+	beforeEach(module('api/execution.json'));
 
-	var srv, rootScope, httpBackend, fakePolicyById, fakePolicyList, fakePoliciesStatusList = null;
+	var srv, rootScope, httpBackend, fakePolicyById, fakePolicyList, fakePoliciesStatusList = null, fakeExecutionById;
 
 	beforeEach(
 		inject(function ($httpBackend, $rootScope, _ApiPolicyService_, _apiPolicy_, _apiPolicyList_, _apiPoliciesStatusList_) {
@@ -133,6 +134,18 @@ describe('API.policy-service', function () {
 		httpBackend.when('GET', '/policy/download/' + policyId).respond(fakePolicyById);
 
 		srv.downloadPolicy().get({ id: policyId }).$promise.then(function (result) {
+			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
+		});
+
+		rootScope.$digest();
+		httpBackend.flush();
+	});
+
+	it("Should return a execution by Id", function () {
+		var policyIdJSON = { "id": "2581f20a-fd83-4315-be45-192bc5sEdFff" };
+		httpBackend.when('GET', '/executions/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakePolicyById);
+
+		srv.getExecutionById().get(policyIdJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
 		});
 

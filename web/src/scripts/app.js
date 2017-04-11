@@ -60,7 +60,7 @@ angular
   .config(['$stateProvider', '$urlRouterProvider','$httpProvider', function ($stateProvider, $urlRouterProvider, $httpProvider) {
     $httpProvider.interceptors.push('requestInterceptor');
     // For any unmatched url, redirect to /dashboard/inputs
-    $urlRouterProvider.otherwise('/dashboard/inputs');
+    $urlRouterProvider.otherwise('/dashboard/policies');
 
     $stateProvider
     /*******  DASHBOARD *******/

@@ -57,6 +57,9 @@
       downloadPolicy: function (policyId) {
         return ApiPolicyService.downloadPolicy().get({'id': policyId}).$promise;
       },
+      getExecutionById: function (policyId) {
+        return ApiPolicyService.getExecutionById().get({'id': policyId}).$promise;
+      },
       getFakePolicy: function () {
         return ApiPolicyService.getFakePolicy().get().$promise;
       },
