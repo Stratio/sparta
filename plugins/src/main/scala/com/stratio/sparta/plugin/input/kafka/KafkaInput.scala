@@ -124,7 +124,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
 
   def getAutoOffset: Map[String, String] = {
     val autoOffsetResetKey = "auto.offset.reset"
-    val autoOffsetResetValue = properties.getString(autoOffsetResetKey, "earliest")
+    val autoOffsetResetValue = properties.getString(autoOffsetResetKey, "latest")
 
     Map(autoOffsetResetKey -> autoOffsetResetValue)
   }
