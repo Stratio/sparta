@@ -37,8 +37,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{FlatSpecLike, ShouldMatchers}
 
 @RunWith(classOf[JUnitRunner])
-class InputStageTest
-  extends TestKit(ActorSystem("InputStageTest"))
+class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
   case class TestInput(policy: PolicyModel) extends InputStage with LogError
@@ -64,7 +63,7 @@ class InputStageTest
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(myInputClass)
 
-    val result = TestInput(policy).inputStage(ssc, reflection)
+    val result = TestInput(policy).createInput(ssc, reflection)
 
     verify(reflection).tryToInstantiate(mockEq("InputInput"), any())
     result should be(myInputClass)
@@ -81,7 +80,7 @@ class InputStageTest
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStage(ssc, reflection)
+      TestInput(policy).createInput(ssc, reflection)
     } should have message "Something gone wrong creating the input: input. Please re-check the policy."
   }
 
@@ -98,7 +97,7 @@ class InputStageTest
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(output)
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStage(ssc, reflection)
+      TestInput(policy).createInput(ssc, reflection)
     } should have message "Something gone wrong creating the input: input. Please re-check the policy."
 
 
@@ -110,12 +109,15 @@ class InputStageTest
     val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
     val row = mock[DStream[Row]]
+    val reflection = mock[ReflectionUtils]
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
+    when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
+    when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
     when(inputClass.setUp(ssc, policy.storageLevel.get)).thenReturn(row)
 
-    val result = TestInput(policy).inputStreamStage(ssc, inputClass)
+    val result = TestInput(policy).inputStreamStage(ssc, reflection)
 
     verify(inputClass).setUp(ssc, "StorageLevel")
     result should be(row)
@@ -126,13 +128,16 @@ class InputStageTest
     val input = mock[PolicyElementModel]
     val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
+    val reflection = mock[ReflectionUtils]
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
+    when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
+    when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
     when(inputClass.setUp(ssc, policy.storageLevel.get)).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStreamStage(ssc, inputClass)
+      TestInput(policy).inputStreamStage(ssc, reflection)
     } should have message "Something gone wrong creating the input stream for: input."
 
     verify(inputClass).setUp(ssc, "StorageLevel")

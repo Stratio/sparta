@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.writer
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.step.Trigger
 import com.stratio.sparta.sdk.pipeline.output.Output
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType

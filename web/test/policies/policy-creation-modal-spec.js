@@ -88,7 +88,6 @@ describe('policy-creation-modal-controller', function () {
     describe("if view validations have been passed", function () {
       beforeEach(function () {
         ctrl.form = {$valid: true}; //view validations have been passed
-        ctrl.policy.rawDataEnabled = false;
       });
 
       it("but there is another policy with the same name and different id, modal is not closed", function () {

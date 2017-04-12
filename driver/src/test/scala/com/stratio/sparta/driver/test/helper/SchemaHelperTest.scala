@@ -134,7 +134,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     new CommonValues {
       val transformationsModel = Seq(transformationModel1, transformationModel2)
 
-      val res = SchemaHelper.getSchemasFromParsers(transformationsModel, Map())
+      val res = SchemaHelper.getSchemasFromTransformations(transformationsModel, Map())
 
       val expected = Map(
         "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
@@ -149,7 +149,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     new CommonValues {
       val transformationsModel = Seq(transformationModel1, transformationModel2)
 
-      val res = SchemaHelper.getSchemasFromParsers(transformationsModel, Input.InitSchema)
+      val res = SchemaHelper.getSchemasFromTransformations(transformationsModel, Input.InitSchema)
 
       val expected = Map(
         Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
@@ -176,7 +176,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
       val transformationsModel = Seq(transformationNoRaw1, transformationNoRaw2)
 
-      val schemaWithoutRaw = SchemaHelper.getSchemasFromParsers(transformationsModel, Input.InitSchema)
+      val schemaWithoutRaw = SchemaHelper.getSchemasFromTransformations(transformationsModel, Input.InitSchema)
 
       val expected = Map(
         Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),

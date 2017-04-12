@@ -28,8 +28,7 @@ trait OutputStage extends BaseStage {
   def outputStage(refUtils: ReflectionUtils): Seq[Output] =
     policy.outputs.map(o => createOutput(o, refUtils))
 
-  def createOutput(model: PolicyElementModel, refUtils: ReflectionUtils)
-  : Output = {
+  private[driver] def createOutput(model: PolicyElementModel, refUtils: ReflectionUtils): Output = {
     val errorMessage = s"Something gone wrong creating the output: ${model.name}. Please re-check the policy."
     val okMessage = s"Output: ${model.name} created correctly."
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {

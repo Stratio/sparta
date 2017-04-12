@@ -16,11 +16,9 @@
 
 package com.stratio.sparta.serving.core.models
 
-import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
@@ -33,7 +31,7 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class PolicyModelTest extends WordSpec with Matchers with MockitoSugar {
 
-  val rawData = new RawDataModel
+  val rawData = None
   val fragmentModel = new FragmentElementModel(
     Some("id"),
     "fragmentType",

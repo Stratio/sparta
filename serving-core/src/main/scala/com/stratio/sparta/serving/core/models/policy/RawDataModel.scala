@@ -15,11 +15,11 @@
  */
 package com.stratio.sparta.serving.core.models.policy
 
-case class RawDataModel(enabled: String = RawDataModel.Enabled,
-                      path: String = RawDataModel.Path)
+import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 
-case object RawDataModel {
+case class RawDataModel(dataField: String,
+                        timeField: String,
+                        writer: WriterModel,
+                        configuration: Map[String, JsoneyString] = Map())
 
-  val Enabled = "false"
-  val Path = "default"
-}

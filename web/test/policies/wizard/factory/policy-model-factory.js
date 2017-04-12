@@ -19,7 +19,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     factory = _PolicyModelFactory_;
     fakePolicy = angular.copy(_modelPolicy_);
     fakeApiPolicy = angular.copy(_apiPolicy_);
-    fakePolicy.rawData = {enabled: 'false'};
     fakePolicyTemplate = _templatePolicy_;
     fakeInput = angular.copy(_modelInput_);
     fakeOutput = _modelOutput_;
@@ -27,7 +26,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
   it("should be able to load a policy from a json", function () {
     fakeApiPolicy.fragments = [fakeInput];
-    fakePolicy.rawData = {enabled: 'false'};
     factory.setPolicy(fakeApiPolicy);
 
     var policy = factory.getCurrentPolicy();
@@ -51,8 +49,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
       expect(policy.name).toBe("");
       expect(policy.description).toBe("");
-      expect(policy.rawDataEnabled).toBe(undefined);
-      expect(policy.rawDataPath).toBe(undefined);
       expect(policy.checkpointPath).toBe(undefined);
       expect(policy.autoDeleteCheckpoint).toBe(undefined);
       expect(policy.input).toEqual({});
@@ -63,7 +59,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
 
     it("if there is a policy, returns that policy", function () {
       fakeApiPolicy.fragments = [fakeInput];
-      fakeApiPolicy.rawData = {enabled: 'false'};
       cleanFactory.setPolicy(fakeApiPolicy);
       var policy = cleanFactory.getCurrentPolicy();
       var sparkStreamingWindowTime = fakeApiPolicy.sparkStreamingWindow.split(/([0-9]+)/);
@@ -88,8 +83,6 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.id).toBeUndefined();
     expect(policy.name).toBe("");
     expect(policy.description).toBe("");
-    expect(policy.rawDataEnabled).toBe(undefined);
-    expect(policy.rawDataPath).toBe(undefined);
     expect(policy.checkpointPath).toBe(undefined);
     expect(policy.autoDeleteCheckpoint).toBe(undefined);
     expect(policy.input).toEqual({});

@@ -37,127 +37,144 @@
     vm.getPoliciesStatus = getPoliciesStatus;
     vm.downloadPolicy = downloadPolicy;
     vm.getPolicieStatus = getPolicieStatus;
+    vm.getExecutionById = getExecutionById;
 
     /////////////////////////////////
 
     function getPolicyById() {
-      return $resource('/policy/find/:id', {id: '@id'},
-        {
-          'get': {method: 'GET'},
-          timeout: apiConfigSettings.timeout
-        });
+      return $resource('/policy/find/:id', {
+        id: '@id'
+      }, {
+        'get': {
+          method: 'GET'
+        },
+        timeout: apiConfigSettings.timeout
+      });
     }
 
     function getAllPolicies() {
-      return $resource('/policy/all', {},
-        {
-          'get': {
-            method: 'GET', isArray: true,
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policy/all', {}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function createPolicy() {
-      return $resource('/policy', {},
-        {
-          'create': {
-            method: 'POST',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policy', {}, {
+        'create': {
+          method: 'POST',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function deletePolicy() {
-      return $resource('/policy/:id', {id: '@id'},
-        {
-          'delete': {
-            method: 'DELETE',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policy/:id', {
+        id: '@id'
+      }, {
+        'delete': {
+          method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function runPolicy() {
-      return $resource('/policy/run/:id', {id: '@id'},
-        {
-          'get': {
-            method: 'GET',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policy/run/:id', {
+        id: '@id'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
-    function deletePolicyCheckpoint(){
-      return $resource('/policy/checkpoint/:name', {name: '@name'},
-        {
-          'delete': {
-            method: 'DELETE',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+    function deletePolicyCheckpoint() {
+      return $resource('/policy/checkpoint/:name', {
+        name: '@name'
+      }, {
+        'delete': {
+          method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function stopPolicy() {
-      return $resource('/policyContext', {},
-        {
-          'update': {
-            method: 'PUT',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policyContext', {}, {
+        'update': {
+          method: 'PUT',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function getFakePolicy() {
-      return $resource('/data-templates/fake_data/create_policies.json', {},
-        {
-          'get': {
-            method: 'GET',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/data-templates/fake_data/create_policies.json', {}, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function savePolicy() {
-      return $resource('/policy', {},
-        {
-          'put': {
-            method: 'PUT',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policy', {}, {
+        'put': {
+          method: 'PUT',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function getPoliciesStatus() {
-      return $resource('/policyContext', {},
-        {
-          'get': {
-            method: 'GET',
-            isArray: true,
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policyContext', {}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
-    
+
     function getPolicieStatus() {
-      return $resource('/policyContext/:id', {id: '@id'},
-        {
-          'get': {
-            method: 'GET',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/policyContext/:id', {
+        id: '@id'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
 
 
     function downloadPolicy() {
-      return $resource('/policy/download/:id', {id: '@id'},
-        {
-          'get': {method: 'GET'},
-          timeout: apiConfigSettings.timeout
-        });
+      return $resource('/policy/download/:id', {
+        id: '@id'
+      }, {
+        'get': {
+          method: 'GET'
+        },
+        timeout: apiConfigSettings.timeout
+      });
     }
+
+    function getExecutionById() {
+        return $resource('/executions/:id', {
+          id: '@id'
+        }, {
+          'get': {
+            method: 'GET',
+            timeout: apiConfigSettings.timeout
+          }
+        });
+      }
   }
 })();

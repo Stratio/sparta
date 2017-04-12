@@ -50,21 +50,11 @@ describe('service.policy-service', function () {
 
   describe("should be able to generate a policy json with the agreed format expected by API server", function () {
     it("should convert the description attributes", function () {
-      fakePolicy.rawDataEnabled = true;
 
       service.generateFinalJSON().then(function (finalJson) {
-        expect(finalJson.rawData.path).toBeTruthy();
         expect(finalJson.sparkStreamingWindow).toEqual(fakePolicy.sparkStreamingWindowNumber + fakePolicy.sparkStreamingWindowTime);
-        expect(finalJson.rawDataEnabled).toBeUndefined();
       });
 
-      rootScope.$apply();
-
-      fakePolicy.rawDataEnabled = false;
-      service.generateFinalJSON().then(function (finalJson) {
-        expect(finalJson.rawData.path).toBeUndefined();
-        expect(finalJson.rawDataEnabled).toBeUndefined();
-      });
       rootScope.$apply();
     });
 
@@ -106,27 +96,18 @@ describe('service.policy-service', function () {
     });
 
     it("should remove unused attributes", function () {
-      fakePolicy.rawDataEnabled = false;
 
       service.generateFinalJSON().then(function (finalJson) {
-        expect(finalJson.rawDataPath).toBeUndefined();
-        expect(finalJson.rawDataEnabled).toBeUndefined();
         expect(finalJson.checkpointPath).toBeUndefined();
         expect(finalJson.autoDeleteCheckpoint).toBeUndefined();
         expect(finalJson.sparkStreamingWindowNumber).toBeUndefined();
         expect(finalJson.sparkStreamingWindowTime).toBeUndefined();
-        expect(finalJson.rawData.path).toBeUndefined();
       });
       rootScope.$apply();
 
-      fakePolicy.rawDataEnabled = true;
-
       service.generateFinalJSON().then(function (finalJson) {
-        expect(finalJson.rawDataPath).toBeUndefined();
-        expect(finalJson.rawDataEnabled).toBeUndefined();
         expect(finalJson.sparkStreamingWindowNumber).toBeUndefined();
         expect(finalJson.sparkStreamingWindowTime).toBeUndefined();
-        expect(finalJson.rawData.path).not.toBeUndefined();
       });
 
       rootScope.$apply();

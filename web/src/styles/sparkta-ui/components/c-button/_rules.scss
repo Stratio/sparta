@@ -32,7 +32,14 @@
 			border: $c-button--call-to-action-1--hover---border;
 			color: $c-button--call-to-action-1--hover---color;
 		}
+
+		&.divButton{
+			line-height: 30px;
+			font-size: 14.6px;
+			font-family: Cantarell;
+		}
 	}
+	
 
 	&--call-to-action-2 {
 		background: $c-button--call-to-action-2---background;

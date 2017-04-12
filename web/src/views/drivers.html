@@ -15,34 +15,34 @@
         </button>
       </div>
     </aside>
-    <div class="br-ba-container--full-height" data-ng-if="drivers.driversData.length">
+    <div data-ng-if="drivers.driversData.length">
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
           <tr>
-            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="drivers.sortDrivers('fileName')">
+            <th class="c-table__td c-col--3 c-table--sorted" data-ng-click="drivers.sortDrivers('fileName')">
               {{"_NAME_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="drivers.sortField == 'fileName' && drivers.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': drivers.sortField == 'fileName'}" data-ng-if="drivers.sortField != 'fileName' || !drivers.tableReverse"></span>
             </th>
-            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="drivers.sortDrivers('uri')">
+            <th class="c-table__td c-col--6 c-table--sorted" data-ng-click="drivers.sortDrivers('uri')">
               {{"_URI_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="drivers.sortField == 'uri' && drivers.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': drivers.sortField == 'uri'}" data-ng-if="drivers.sortField != 'input.uri' || !drivers.tableReverse"></span>
             </th>
-            <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="drivers.sortDrivers('size')">
+            <th class="c-table__td  c-col--2 c-table--centered-content c-table--sorted" data-ng-click="drivers.sortDrivers('size')">
               {{"_SIZE_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="drivers.sortField == 'size' && drivers.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-if="drivers.sortField != 'size' || !drivers.tableReverse" ng-class="{'sort-active': drivers.sortField == 'size'}"></span>
             </th>
-            <th></th>
+            <th class="c-table__td c-col--1"></th>
           </tr>
         </thead>
         <tbody>
           <tr class="c-table__tr" data-ng-repeat="driverData in drivers.driversData | orderBy:drivers.sortField:drivers.tableReverse">
-            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.fileName}}</td>
-            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.uri}}</td>
-            <td class="c-table__td c-col--1 c-table--centered-content">{{::driverData.size}}</td>
-            <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
+            <td class="c-table__td c-col--3 c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.fileName}}</td>
+            <td class="c-table__td c-col--6 c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.uri}}</td>
+            <td class="c-table__td c-col--2 c-table--centered-content">{{::driverData.size}}</td>
+            <td class="c-table__td c-col--1 c-table__td--no-wrap c-table__td--to-right c-col--1">
               <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-cross" data-ng-click="drivers.deleteDriver(driverData.fileName)"
                 data-qa="driver-delete-button">
             </i>

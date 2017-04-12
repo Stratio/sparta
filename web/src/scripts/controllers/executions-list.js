@@ -41,6 +41,7 @@
     vm.successMessage = {type: 'success', text: '', internalTrace: ''};
     vm.loading = true;
     vm.tableReverse = false;
+    vm.showInfo = showInfo;
     vm.showInfoModal = showInfoModal;
 
     init();
@@ -157,29 +158,40 @@
       }
     }
 
-    function showInfoModal(policy) {
+    function showInfo(policy){
+      PolicyFactory.getExecutionById(policy.id).then(function(execution){
+        showInfoModal(policy, execution);
+      }, function(error){
+        showInfoModal(policy);
+      });
+    }
+
+    function showInfoModal(policy, execution) {
       var controller = 'PolicyInfoModalCtrl';
       var templateUrl = "templates/modal/policy-info-modal.tpl.html";
       var resolve = {
-        policyName: function() {
+        policyName: function () {
           return policy.name;
         },
-        policyDescription: function() {
+        policyDescription: function () {
           return policy.description;
         },
-        status: function() {
+        status: function () {
           return policy.status;
         },
-        statusInfo: function() {
+        statusInfo: function () {
           return policy.statusInfo;
         },
-        submissionId: function() {
+        submissionId: function () {
           return policy.submissionId;
         },
-        deployMode: function() {
+        deployMode: function () {
           return policy.lastExecutionMode;
         },
-        error: function() {
+        executionData: function() {
+          return execution;
+        },
+        error: function () {
           return policy.lastError;
         }
       };
