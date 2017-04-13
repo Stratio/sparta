@@ -82,9 +82,9 @@ trait HttpServiceBaseTest extends WordSpec
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
 
-    val transformations =
-      Seq(TransformationsModel("Morphlines", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2), Map
-      ()))
+    val transformations = Option(TransformationsModel(
+      Seq(TransformationModel("Morphlines", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2), Map
+      ()))))
     val dimensionModel = Seq(DimensionModel(
       "dimensionName",
       "field1",
