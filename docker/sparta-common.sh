@@ -89,7 +89,14 @@ function logLevelOptions() {
   fi
   sed -i "s|org.apache.hadoop.*|org.apache.hadoop\" level= \""${HADOOP_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.hadoop=${SPARTA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.hadoop=${HADOOP_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+
+  if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
+    ZOOKEEPER_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|org.apache.zookeeper.ClientCnxn.*|org.apache.zookeeper.ClientCnxn\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.zookeeper.ClientCnxn=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 }
 
 function logLevelToStdout() {

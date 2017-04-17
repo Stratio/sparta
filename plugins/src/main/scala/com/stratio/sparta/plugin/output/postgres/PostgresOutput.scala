@@ -38,13 +38,9 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
   require(properties.getString("url", None).isDefined, "Postgres url must be provided")
 
   val url = properties.getString("url")
-
   val bufferSize = properties.getString("bufferSize", "65536").toInt
-
   val delimiter = properties.getString("delimiter", "\t")
-
   val newLineSubstitution = properties.getString("newLineSubstitution", " ")
-
   val encoding = properties.getString("encoding", "UTF8")
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
@@ -54,7 +50,7 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(url, tableName, properties.mapValues(_.toString))
+    val connectionProperties = new JDBCOptions(url, tableName, propertiesWithCustom.mapValues(_.toString))
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
