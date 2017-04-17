@@ -13,7 +13,7 @@ hose {
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9090]
     BASEIMG = 'stratio/spark-krb-dispatcher-support:2.1.0'
-    DOCKERFILECOMMAND = 'WORKDIR /'
+    DOCKERFILECOMMAND = 'WORKDIR / \n RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java'
 
 
     ITSERVICES = [

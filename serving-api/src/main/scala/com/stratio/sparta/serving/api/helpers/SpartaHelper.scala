@@ -16,9 +16,10 @@
 
 package com.stratio.sparta.serving.api.helpers
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import com.stratio.sparkta.serving.api.ssl.SSLSupport
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
@@ -28,14 +29,10 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import spray.can.Http
 
-import scala.util.{Failure, Success, Try}
-
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
  */
-object SpartaHelper extends SLF4JLogging {
-
-  implicit var system: ActorSystem = _
+object SpartaHelper extends SLF4JLogging with SSLSupport {
 
   /**
    * Initializes Sparta's akka system running an embedded http server with the REST API.
@@ -45,65 +42,37 @@ object SpartaHelper extends SLF4JLogging {
   def initSpartaAPI(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
       val curatorFramework = CuratorFactoryHolder.getInstance()
+
       log.info("Initializing Sparta Actors System ...")
-      system = ActorSystem(appName, SpartaConfig.mainConfig)
+      implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
+
       val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)), StatusActorName)
       val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), FragmentActorName)
       val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)), PolicyActorName)
       val executionActor = system.actorOf(Props(new RequestActor(curatorFramework)), ExecutionActorName)
-      val streamingContextService = StreamingContextService(curatorFramework, SpartaConfig.mainConfig)
-      val streamingContextActor = system.actorOf(Props(
-        new LauncherActor(streamingContextService, curatorFramework)), LauncherActorName)
+      val scService = StreamingContextService(curatorFramework, SpartaConfig.mainConfig)
+      val launcherActor = system.actorOf(Props(new LauncherActor(scService, curatorFramework)), LauncherActorName)
       val pluginActor = system.actorOf(Props(new PluginActor()), PluginActorName)
       val driverActor = system.actorOf(Props(new DriverActor()), DriverActorName)
       val actors = Map(
         StatusActorName -> statusActor,
         FragmentActorName -> fragmentActor,
         PolicyActorName -> policyActor,
-        LauncherActorName -> streamingContextActor,
+        LauncherActorName -> launcherActor,
         PluginActorName -> pluginActor,
         DriverActorName -> driverActor,
         ExecutionActorName -> executionActor
       )
-
       val controllerActor = system.actorOf(Props(new ControllerActor(actors, curatorFramework)), ControllerActorName)
 
-      if (isHttpsEnabled) loadSpartaWithHttps(controllerActor)
-      else loadSpartaWithHttp(controllerActor)
+      IO(Http) ! Http.Bind(controllerActor,
+        interface = SpartaConfig.apiConfig.get.getString("host"),
+        port = SpartaConfig.apiConfig.get.getInt("port")
+      )
+      log.info("Sparta Actors System initiated correctly")
 
       statusActor ! AddClusterListeners
     } else log.info("Sparta Configuration is not defined")
   }
 
-  def loadSpartaWithHttps(controllerActor: ActorRef): Unit = {
-    import com.stratio.sparkta.serving.api.ssl.SSLSupport._
-    IO(Http) ! Http.Bind(controllerActor,
-      interface = SpartaConfig.apiConfig.get.getString("host"),
-      port = SpartaConfig.apiConfig.get.getInt("port")
-    )
-    log.info("Sparta Actors System initiated correctly")
-  }
-
-  def loadSpartaWithHttp(controllerActor: ActorRef): Unit = {
-    IO(Http) ! Http.Bind(controllerActor,
-      interface = SpartaConfig.apiConfig.get.getString("host"),
-      port = SpartaConfig.apiConfig.get.getInt("port")
-    )
-    log.info("Sparta Actors System initiated correctly")
-  }
-
-  def isHttpsEnabled: Boolean =
-    SpartaConfig.getSprayConfig match {
-      case Some(config) =>
-        Try(config.getValue("ssl-encryption")) match {
-          case Success(value) =>
-            "on".equals(value.unwrapped())
-          case Failure(e) =>
-            log.error("Incorrect value in ssl-encryption option, setting https disabled", e)
-            false
-        }
-      case None =>
-        log.warn("Impossible to get spray config, setting https disabled")
-        false
-    }
 }
