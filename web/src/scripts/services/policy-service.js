@@ -66,11 +66,6 @@
 
     function convertDescriptionAttributes(json) {
       var convertedDescriptionJson = angular.copy(json);
-      convertedDescriptionJson.rawData = {};
-      convertedDescriptionJson.rawData.enabled = vm.policy.rawDataEnabled.toString();
-      if (vm.policy.rawDataEnabled) {
-        convertedDescriptionJson.rawData.path = (vm.policy.rawDataEnabled) ? vm.policy.rawDataPath : null;
-      }
       convertedDescriptionJson.sparkStreamingWindow = json.sparkStreamingWindowNumber + json.sparkStreamingWindowTime;
       if (json.rememberNumber && json.rememberTime) {
         convertedDescriptionJson.remember = json.rememberNumber + json.rememberTime;
@@ -138,16 +133,11 @@
     }
 
     function cleanUnusedAttributes(finalJSON) {
-      delete finalJSON['rawDataPath'];
-      delete finalJSON['rawDataEnabled'];
       delete finalJSON['sparkStreamingWindowNumber'];
       delete finalJSON['sparkStreamingWindowTime'];
       delete finalJSON['rememberNumber'];
       delete finalJSON['rememberTime'];
 
-      if (finalJSON.rawData.enabled == 'false') {
-        delete finalJSON.rawData['path'];
-      }
       return finalJSON;
     }
   }

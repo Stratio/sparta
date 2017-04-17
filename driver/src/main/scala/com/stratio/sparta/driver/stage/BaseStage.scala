@@ -16,6 +16,7 @@
 package com.stratio.sparta.driver.stage
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.utils.StageUtils
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
@@ -45,7 +46,7 @@ trait LogError extends ErrorPersistor with SLF4JLogging {
   def persistError(error: PolicyErrorModel): Unit = log.error(s"This error was not saved to ZK : $error")
 }
 
-trait BaseStage extends SLF4JLogging {
+trait BaseStage extends SLF4JLogging with StageUtils {
   this: ErrorPersistor =>
   def policy: PolicyModel
 

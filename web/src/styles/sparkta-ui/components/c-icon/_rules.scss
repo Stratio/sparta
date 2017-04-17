@@ -6,6 +6,7 @@
   & {
     font-family: "ico_stratio";
     vertical-align: middle;
+    display:inline;
   }
 
   &--in-input {
@@ -42,6 +43,10 @@
 
   &--to-top {
     vertical-align: top;
+  }
+
+  &--to-baseline {
+    vertical-align: baseline;
   }
 
   &--circle-button {

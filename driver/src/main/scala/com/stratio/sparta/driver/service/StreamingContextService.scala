@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 
-import com.stratio.sparta.driver.SpartaPipeline
+import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.utils.LocalListenerUtils
 import com.stratio.sparta.sdk.pipeline.output.Output
@@ -51,7 +51,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, generalCo
 
     sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, files)
 
-    val ssc = SpartaPipeline(policy, curatorFramework).run()
+    val ssc = SpartaWorkflow(policy, curatorFramework).run()
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
@@ -68,7 +68,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, generalCo
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
       val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
       sparkClusterContextInstance(outputsSparkConfig, files)
-      SpartaPipeline(policy, curatorFramework).run()
+      SpartaWorkflow(policy, curatorFramework).run()
     })
 
     setSparkContext(ssc.sparkContext)

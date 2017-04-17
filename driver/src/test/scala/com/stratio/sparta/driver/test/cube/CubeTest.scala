@@ -17,9 +17,7 @@
 
 package com.stratio.sparta.driver.test.cube
 
-
-import com.stratio.sparta.driver.cube.Cube
-import com.stratio.sparta.driver.trigger.Trigger
+import com.stratio.sparta.driver.step.{Cube, Trigger}
 import com.stratio.sparta.driver.writer.CubeWriterOptions
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
 import com.stratio.sparta.plugin.cube.operator.sum.SumOperator

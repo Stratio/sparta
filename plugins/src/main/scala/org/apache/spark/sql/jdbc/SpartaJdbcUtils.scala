@@ -20,7 +20,7 @@ import java.sql.{Connection, PreparedStatement}
 import java.util.Properties
 
 import akka.event.slf4j.SLF4JLogging
-import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils
+import org.apache.spark.sql.execution.datasources.jdbc.{JDBCOptions, JdbcUtils}
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
@@ -35,6 +35,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
   private val tablesCreated = new java.util.concurrent.ConcurrentHashMap[String, StructType]()
   private var connection: Option[Connection] = None
 
+  //scalastyle:off
+
   /** PUBLIC METHODS **/
 
   /**
@@ -42,9 +44,9 @@ object SpartaJdbcUtils extends SLF4JLogging {
    *
    */
 
-  def tableExists(url: String, connectionProperties: Properties, tableName: String, schema: StructType): Boolean = {
+  def tableExists(url: String, connectionProperties: JDBCOptions, tableName: String, schema: StructType): Boolean = {
     if (!tablesCreated.contains(tableName)) {
-      val conn = getConnection(url, connectionProperties)
+      val conn = getConnection(connectionProperties)
       val exists = JdbcUtils.tableExists(conn, url, tableName)
 
       if (exists) {
@@ -55,8 +57,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
     } else true
   }
 
-  def dropTable(url: String, connectionProperties: Properties, tableName: String): Unit = {
-    val conn = getConnection(url, connectionProperties)
+  def dropTable(url: String, connectionProperties: JDBCOptions, tableName: String): Unit = {
+    val conn = getConnection(connectionProperties)
     conn.setAutoCommit(true)
     val statement = conn.createStatement
     Try(statement.executeUpdate(s"DROP TABLE $tableName")) match {
@@ -70,8 +72,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def createTable(url: String, connectionProperties: Properties, tableName: String, schema: StructType): Boolean = {
-    val conn = getConnection(url, connectionProperties)
+  def createTable(url: String, connectionProperties: JDBCOptions, tableName: String, schema: StructType): Boolean = {
+    val conn = getConnection(connectionProperties)
     conn.setAutoCommit(true)
     val schemaStr = schemaString(schema, url)
     val sql = s"CREATE TABLE $tableName ($schemaStr)"
@@ -90,10 +92,10 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def getConnection(url: String, properties: Properties): Connection = {
+  def getConnection(properties: JDBCOptions): Connection = {
     synchronized {
       if (connection.isEmpty)
-        connection = Try(createConnectionFactory(url, properties)()) match {
+        connection = Try(createConnectionFactory(properties)()) match {
           case Success(conn) =>
             Option(conn)
           case Failure(e) =>
@@ -114,21 +116,24 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def saveTable(df: DataFrame, url: String, table: String, properties: Properties) {
+  def saveTable(df: DataFrame, url: String, table: String, properties: JDBCOptions) {
     val schema = df.schema
     val dialect = JdbcDialects.get(url)
     val nullTypes: Array[Int] = schema.fields.map { field =>
       getJdbcType(field.dataType, dialect).jdbcNullType
     }
+    val batchSize = properties.batchSize
+    val isolationLevel = properties.isolationLevel
 
     df.foreachPartition { iterator =>
-      Try(savePartition(url, properties, table, iterator, schema, nullTypes, dialect)) match {
+      Try(savePartition(properties, table, iterator, schema, nullTypes, dialect, batchSize, isolationLevel))
+      match {
         case Success(_) =>
           log.debug(s"Save partition correctly on table $table")
         case Failure(e) =>
           log.debug(s"Save partition with errors, attempting it creating the table $table and retry to save", e)
           createTable(url, properties, table, schema)
-          savePartition(url, properties, table, iterator, schema, nullTypes, dialect)
+          savePartition(properties, table, iterator, schema, nullTypes, dialect, batchSize, isolationLevel)
       }
     }
   }
@@ -136,7 +141,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
   def upsertTable(df: DataFrame,
                   url: String,
                   table: String,
-                  properties: Properties,
+                  properties: JDBCOptions,
                   searchFields: Seq[String]): Unit = {
     val schema = df.schema
     val dialect = JdbcDialects.get(url)
@@ -150,15 +155,18 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }.toMap
     val insert = insertWithExistsSql(table, schema, searchFields)
     val update = updateSql(table, schema, searchFields)
+    val batchSize = properties.batchSize
+    val isolationLevel = properties.isolationLevel
 
     df.foreachPartition { iterator =>
-      Try(upsertPartition(url, properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes)) match {
+      Try(upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, batchSize, isolationLevel))
+      match {
         case Success(_) =>
           log.debug(s"Upsert partition correctly on table $table")
         case Failure(e) =>
           log.debug(s"Upsert partition with errors, attempting it creating the table $table and retry to upsert", e)
           createTable(url, properties, table, schema)
-          upsertPartition(url, properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes)
+          upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, batchSize, isolationLevel)
       }
     }
   }
@@ -197,62 +205,143 @@ object SpartaJdbcUtils extends SLF4JLogging {
       s" SELECT $placeholders WHERE NOT EXISTS (SELECT 1 FROM $table WHERE $wherePlaceholders)"
   }
 
-  //scalastyle:off
-  private def savePartition(url: String,
-                            properties: Properties,
+  // A `JDBCValueSetter` is responsible for setting a value from `Row` into a field for
+  // `PreparedStatement`. The last argument `Int` means the index for the value to be set
+  // in the SQL statement and also used for the value in `Row`.
+  private type JDBCValueSetter = (PreparedStatement, Row, Int) => Unit
+
+  private def makeSetter(
+                          conn: Connection,
+                          dialect: JdbcDialect,
+                          dataType: DataType): JDBCValueSetter = dataType match {
+    case IntegerType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setInt(pos + 1, row.getInt(pos))
+
+    case LongType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setLong(pos + 1, row.getLong(pos))
+
+    case DoubleType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setDouble(pos + 1, row.getDouble(pos))
+
+    case FloatType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setFloat(pos + 1, row.getFloat(pos))
+
+    case ShortType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setInt(pos + 1, row.getShort(pos))
+
+    case ByteType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setInt(pos + 1, row.getByte(pos))
+
+    case BooleanType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setBoolean(pos + 1, row.getBoolean(pos))
+
+    case StringType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setString(pos + 1, row.getString(pos))
+
+    case BinaryType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setBytes(pos + 1, row.getAs[Array[Byte]](pos))
+
+    case TimestampType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setTimestamp(pos + 1, row.getAs[java.sql.Timestamp](pos))
+
+    case DateType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setDate(pos + 1, row.getAs[java.sql.Date](pos))
+
+    case t: DecimalType =>
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        stmt.setBigDecimal(pos + 1, row.getDecimal(pos))
+
+    case ArrayType(et, _) =>
+      // remove type length parameters from end of type name
+      val typeName = getJdbcType(et, dialect).databaseTypeDefinition
+        .toLowerCase.split("\\(")(0)
+      (stmt: PreparedStatement, row: Row, pos: Int) =>
+        val array = conn.createArrayOf(
+          typeName,
+          row.getSeq[AnyRef](pos).toArray)
+        stmt.setArray(pos + 1, array)
+
+    case _ =>
+      (_: PreparedStatement, _: Row, pos: Int) =>
+        throw new IllegalArgumentException(
+          s"Can't translate non-null value for field $pos")
+  }
+
+  private def savePartition(properties: JDBCOptions,
                             table: String,
                             iterator: Iterator[Row],
                             rddSchema: StructType,
                             nullTypes: Array[Int],
-                            dialect: JdbcDialect): Unit = {
-    val conn = getConnection(url, properties)
-    val batchSize = properties.getProperty("batchsize", "1000").toInt
+                            dialect: JdbcDialect,
+                            batchSize: Int,
+                            isolationLevel: Int): Unit = {
+    val conn = getConnection(properties)
     var committed = false
-    val supportsTransactions = try {
-      conn.getMetaData.supportsDataManipulationTransactionsOnly() ||
-        conn.getMetaData.supportsDataDefinitionAndDataManipulationTransactions()
-    } catch {
-      case NonFatal(e) =>
-        log.warn("Exception while detecting transaction support", e)
-        true
+    var finalIsolationLevel = Connection.TRANSACTION_NONE
+    if (isolationLevel != Connection.TRANSACTION_NONE) {
+      try {
+        val metadata = conn.getMetaData
+        if (metadata.supportsTransactions()) {
+          // Update to at least use the default isolation, if any transaction level
+          // has been chosen and transactions are supported
+          val defaultIsolation = metadata.getDefaultTransactionIsolation
+          finalIsolationLevel = defaultIsolation
+          if (metadata.supportsTransactionIsolationLevel(isolationLevel))  {
+            // Finally update to actually requested level if possible
+            finalIsolationLevel = isolationLevel
+          } else {
+            log.warn(s"Requested isolation level $isolationLevel is not supported; " +
+              s"falling back to default isolation level $defaultIsolation")
+          }
+        } else {
+          log.warn(s"Requested isolation level $isolationLevel, but transactions are unsupported")
+        }
+      } catch {
+        case NonFatal(e) => log.warn("Exception while detecting transaction support", e)
+      }
     }
+    val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
       if (supportsTransactions) conn.setAutoCommit(false)
-      val stmt = insertStatement(conn, table, rddSchema)
+      val stmt = insertStatement(conn, table, rddSchema, dialect)
+      val setters: Array[JDBCValueSetter] = rddSchema.fields.map(_.dataType)
+        .map(makeSetter(conn, dialect, _)).toArray
+      val numFields = rddSchema.fields.length
       try {
         var rowCount = 0
         while (iterator.hasNext) {
           val row = iterator.next()
           val numFields = rddSchema.fields.length
           var i = 0
-          while (i < numFields) {
-            if (row.isNullAt(i)) {
-              stmt.setNull(i + 1, nullTypes(i))
-            } else {
-              rddSchema.fields(i).dataType match {
-                case IntegerType => stmt.setInt(i + 1, row.getInt(i))
-                case LongType => stmt.setLong(i + 1, row.getLong(i))
-                case DoubleType => stmt.setDouble(i + 1, row.getDouble(i))
-                case FloatType => stmt.setFloat(i + 1, row.getFloat(i))
-                case ShortType => stmt.setInt(i + 1, row.getShort(i))
-                case ByteType => stmt.setInt(i + 1, row.getByte(i))
-                case BooleanType => stmt.setBoolean(i + 1, row.getBoolean(i))
-                case StringType => stmt.setString(i + 1, row.getString(i))
-                case BinaryType => stmt.setBytes(i + 1, row.getAs[Array[Byte]](i))
-                case TimestampType => stmt.setTimestamp(i + 1, row.getAs[java.sql.Timestamp](i))
-                case DateType => stmt.setDate(i + 1, row.getAs[java.sql.Date](i))
-                case t: DecimalType => stmt.setBigDecimal(i + 1, row.getDecimal(i))
-                case ArrayType(et, _) =>
-                  val array = conn.createArrayOf(
-                    getJdbcType(et, dialect).databaseTypeDefinition.toLowerCase,
-                    row.getSeq[AnyRef](i).toArray)
-                  stmt.setArray(i + 1, array)
-                case _ => throw new IllegalArgumentException(
-                  s"Can't translate non-null value for field $i")
+          while (iterator.hasNext) {
+            val row = iterator.next()
+            var i = 0
+            while (i < numFields) {
+              if (row.isNullAt(i)) {
+                stmt.setNull(i + 1, nullTypes(i))
+              } else {
+                setters(i).apply(stmt, row, i)
               }
+              i = i + 1
             }
-            i = i + 1
+            stmt.addBatch()
+            rowCount += 1
+            if (rowCount % batchSize == 0) {
+              stmt.executeBatch()
+              rowCount = 0
+            }
           }
           stmt.addBatch()
           rowCount += 1
@@ -276,25 +365,42 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  private def upsertPartition(url: String,
-                              properties: Properties,
+  private def upsertPartition(properties: JDBCOptions,
                               insertSql: String,
                               updateSql: String,
                               iterator: Iterator[Row],
                               rddSchema: StructType,
                               nullTypes: Array[Int],
                               dialect: JdbcDialect,
-                              searchTypes: Map[Int, (Int, Int)]): Unit = {
-    val conn = getConnection(url, properties)
-    val supportsTransactions = try {
-      conn.getMetaData.supportsDataManipulationTransactionsOnly() ||
-        conn.getMetaData.supportsDataDefinitionAndDataManipulationTransactions()
-    } catch {
-      case NonFatal(e) =>
-        log.warn("Exception while detecting transaction support", e)
-        true
+                              searchTypes: Map[Int, (Int, Int)],
+                              batchSize: Int,
+                              isolationLevel: Int): Unit = {
+    val conn = getConnection(properties)
+    var finalIsolationLevel = Connection.TRANSACTION_NONE
+    if (isolationLevel != Connection.TRANSACTION_NONE) {
+      try {
+        val metadata = conn.getMetaData
+        if (metadata.supportsTransactions()) {
+          // Update to at least use the default isolation, if any transaction level
+          // has been chosen and transactions are supported
+          val defaultIsolation = metadata.getDefaultTransactionIsolation
+          finalIsolationLevel = defaultIsolation
+          if (metadata.supportsTransactionIsolationLevel(isolationLevel))  {
+            // Finally update to actually requested level if possible
+            finalIsolationLevel = isolationLevel
+          } else {
+            log.warn(s"Requested isolation level $isolationLevel is not supported; " +
+              s"falling back to default isolation level $defaultIsolation")
+          }
+        } else {
+          log.warn(s"Requested isolation level $isolationLevel, but transactions are unsupported")
+        }
+      } catch {
+        case NonFatal(e) => log.warn("Exception while detecting transaction support", e)
+      }
     }
-    val batchSize = properties.getProperty("batchsize", "1000").toInt
+    val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
+
     try {
       if (supportsTransactions) conn.setAutoCommit(false)
       val insertStmt = conn.prepareStatement(insertSql)

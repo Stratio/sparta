@@ -9,6 +9,7 @@ syntax: glob
 *.log
 *.out
 *.tmp
+*.swp
 
 # eclipse conf file
 .settings
@@ -65,5 +66,5 @@ nexus
 !/docker/localDocker/README.md
 
 
-
+\.spark-warehouse
 \.directory

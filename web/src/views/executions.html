@@ -20,13 +20,6 @@
                   data-ng-class="{'sort-active': executions.sortField == 'name'}" 
                   data-ng-if="executions.sortField != 'name' || !executions.tableReverse"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="executions.sortPolicies('description')"> 
-            {{"_DESCRIPTION_" | translate}}
-            <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="executions.sortField == 'description' && executions.tableReverse"></span>
-            <span class="ico c-table--sort-icon icon-arrow2_down"
-                  data-ng-class="{'sort-active': executions.sortField == 'description'}"  
-                  data-ng-if="executions.sortField != 'description' || !executions.tableReverse"></span>
-          </th>
           <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="executions.sortPolicies('status')">
             {{"_STATUS_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="executions.sortField == 'status' && executions.tableReverse"></span>
@@ -57,8 +50,7 @@
 
         <tr class="c-table__tr" data-ng-repeat="policyData in executions.policiesData | orderBy:executions.sortField:executions.tableReverse">
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.name}}</td>
-          <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.description}}</td>
-          <td class="c-table__td c-col--1 c-table--centered-content">{{policyData.status}}</td>
+          <td class="c-table__td c-col--1 c-table--centered-content c-table--centered-content">{{policyData.status}}</td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis c-table--centered-content">{{policyData.lastExecutionMode}}</td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{policyData.statusInfo}}</td>
 
@@ -71,14 +63,14 @@
           </td>
           <td class="c-table__td c-table__td--to-right c-col--1 c-col--to-right c-row--to-right">
             <i data-ng-class = "{'c-table__icon--warning icon-alert': policyData.lastError, ' icon-info3 c-table__icon--info': !policyData.lastError}"
-               class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button" data-ng-click="executions.showInfoModal(policyData)">
+               class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button" data-ng-click="executions.showInfo(policyData)">
             </i>
           </td>
           <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
             <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-actions"
                data-ng-click="$root.stToggleFloatingMenu[policyData.id]()"
-               data-qa="policy-context-menu-{{policyData.id}}">
-              <st-floating-menu toggle-id="{{policyData.id}}" align="right">
+               data-qa="policy-context-menu-{{policyData.id}}"><!--
+              --><st-floating-menu toggle-id="{{policyData.id}}" align="right">
                 <st-menu-element class-icon="icon-play"
                                  data-ng-click="executions.runPolicy(policyData.id, policyData.status, policyData.name)"
                                  data-qa="policy-context-menu-{{policyData.id}}-run">
@@ -94,19 +86,12 @@
                   data-qa="policy-context-menu-{{policyData.id}}-stop">
                   {{"_OUTPUT_ACTIONS_MENU_CHECKPOINT_" | translate}}
                 </st-menu-element>
-              </st-floating-menu>
-            </i>
+              </st-floating-menu><!--
+            --></i>
           </td>
         </tr>
         </tbody>
       </table>
-
     </div>
-
-  </div>
-  <div class="c-msg--noitems c-msg--giant" data-ng-if=" !executions.loading && executions.policiesData.length === 0"
-       data-ng-click="executions.createPolicy()" data-qa="policy-first-message">
-    <i class="c-icon icon-marquee-plus"></i>
-    <span class="c-msg__text">{{"_POLICY_CREATE_FIRST_ONE_" | translate}}</span>
   </div>
 </section>

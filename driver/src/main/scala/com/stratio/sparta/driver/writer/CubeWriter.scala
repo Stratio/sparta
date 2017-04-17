@@ -18,8 +18,8 @@ package com.stratio.sparta.driver.writer
 import java.sql.{Date, Timestamp}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.cube.Cube
 import com.stratio.sparta.driver.factory.SparkContextFactory
+import com.stratio.sparta.driver.step.Cube
 import com.stratio.sparta.sdk._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{DimensionValue, DimensionValuesTime, MeasuresValues}
 import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
@@ -38,7 +38,7 @@ case class CubeWriter(cube: Cube, outputs: Seq[Output])
       toRow(dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
       if (!rdd.isEmpty()) {
-        val sqlContext = SparkContextFactory.sparkSqlContextInstance
+        val sqlContext = SparkContextFactory.sparkSessionInstance
         val cubeDf = sqlContext.createDataFrame(rdd, cube.schema)
         val cubeAutoCalculatedFieldsDf =
           applyAutoCalculateFields(cubeDf, cube.cubeWriterOptions.autoCalculateFields, cube.schema)

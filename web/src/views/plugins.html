@@ -15,33 +15,34 @@
         </button>
       </div>
     </aside>
-    <div class="br-ba-container--full-height" data-ng-if="plugins.pluginsData.length">
+
+    <div data-ng-if="plugins.pluginsData.length">
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
           <tr>
-            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="plugins.sortPlugins('fileName')">
+            <th class="c-table__td c-col--3 c-table--sorted" data-ng-click="plugins.sortPlugins('fileName')">
               {{"_NAME_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'fileName' && plugins.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'fileName'}" data-ng-if="plugins.sortField != 'fileName' || !plugins.tableReverse"></span>
             </th>
-            <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="plugins.sortPlugins('uri')">
+            <th class="c-table__td c-col--6 c-table--sorted" data-ng-click="plugins.sortPlugins('uri')">
               {{"_URI_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'uri' && plugins.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'uri'}" data-ng-if="plugins.sortField != 'input.uri' || !plugins.tableReverse"></span>
             </th>
-            <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="plugins.sortPlugins('size')">
+            <th class="c-table__td  c-col--2 c-table--centered-content c-table--sorted" data-ng-click="plugins.sortPlugins('size')">
               {{"_SIZE_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'size' && plugins.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-if="plugins.sortField != 'size' || !plugins.tableReverse" ng-class="{'sort-active': plugins.sortField == 'size'}"></span>
             </th>
-            <th></th>
+            <th class="c-table__td c-col--1"></th>
           </tr>
         </thead>
         <tbody>
           <tr class="c-table__tr" data-ng-repeat="pluginData in plugins.pluginsData | orderBy:plugins.sortField:plugins.tableReverse">
-            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.fileName}}</td>
-            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.uri}}</td>
-            <td class="c-table__td c-col--1 c-table--centered-content">{{::pluginData.size}}</td>
+            <td class="c-table__td c-col--3 c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.fileName}}</td>
+            <td class="c-table__td c-col--6 c-table__td--no-wrap c-table__td--ellipsis">{{::pluginData.uri}}</td>
+            <td class="c-table__td c-col--2 c-table--centered-content">{{::pluginData.size}}</td>
             <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
               <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-cross" data-ng-click="plugins.deletePlugin(pluginData.fileName)"
                 data-qa="policy-context-menu-{{policyData.id}}">
