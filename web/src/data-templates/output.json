@@ -531,6 +531,30 @@
         "qa": "fragment-details-jdbc-batch-size"
       },
       {
+        "propertyId": "driver",
+        "propertyName": "_JDBC_DRIVER_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "",
+        "required": false,
+        "tooltip": "Driver class, this property has priority to URL",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
+        "propertyId": "numPartitions",
+        "propertyName": "_JDBC_NUM_PARTITIONS_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "",
+        "required": false,
+        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -606,11 +630,23 @@
         "qa": "fragment-details-postgres-new-line-substitution"
       },
       {
+        "propertyId": "encoding",
+        "propertyName": "_POSTGRES_ENCODING_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "UTF8",
+        "required": false,
+        "tooltip": "Charset encoding to use during saving",
+        "qa": "fragment-details-postgres-encoding"
+      },
+      {
         "propertyId": "bufferSize",
         "propertyName": "_POSTGRES_BUFFER_SIZE_",
         "propertyType": "text",
         "width": 6,
-        "align": "right",
+        "align": "left",
         "default": "65536",
         "required": false,
         "tooltip": "Number of characters to buffer and push over network to server at once on insert mode",
@@ -622,11 +658,35 @@
         "propertyType": "text",
         "regexp": "",
         "width": 6,
-        "align": "left",
+        "align": "right",
         "default": "1000",
         "required": false,
         "tooltip": "Number of upsert statements that are sent to Database on each partition",
         "qa": "fragment-details-jdbc-batch-size"
+      },
+      {
+        "propertyId": "driver",
+        "propertyName": "_JDBC_DRIVER_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "",
+        "required": false,
+        "tooltip": "Driver class, this property has priority to URL",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
+        "propertyId": "numPartitions",
+        "propertyName": "_JDBC_NUM_PARTITIONS_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "",
+        "required": false,
+        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
+        "qa": "fragment-details-jdbc-driver"
       },
       {
         "propertyId": "saveOptions",
@@ -658,18 +718,6 @@
             "qa": "fragment-details-postgres-saveOptionsValue"
           }
         ]
-      },
-      {
-        "propertyId": "encoding",
-        "propertyName": "_POSTGRES_ENCODING_",
-        "propertyType": "text",
-        "regexp": "",
-        "width": 10,
-        "align": "left",
-        "default": "UTF8",
-        "required": false,
-        "tooltip": "Charset encoding to use during saving",
-        "qa": "fragment-details-postgres-encoding"
       }
     ]
   },
