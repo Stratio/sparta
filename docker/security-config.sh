@@ -48,3 +48,10 @@ _log_sparta_sec "Configuring kerberos Ok"
 _log_sparta_sec "Configuring Oauth ..."
 source /oauth2.sh
 _log_sparta_sec "Configuring Oauth Ok"
+
+#######################################################
+## MesosSecurity config set MESOS_USER and MESOS_PASS
+#######################################################
+_log_sparta_sec "Configuring Mesos Security ..."
+source mesos-security.sh
+_log_sparta_sec "Configuring Mesos Security Ok"
