@@ -255,6 +255,8 @@
   "_ELASTICSEARCH_SAVE_PROPERTIES_": "ElasticSearch save properties",
   "_MONGODB_SAVE_PROPERTIES_": "MongoDB save properties",
   "_JDBC_SAVE_PROPERTIES_": "JDBC save properties",
+  "_JDBC_DRIVER_": "Driver",
+  "_JDBC_NUM_PARTITIONS_": "Number of partitions",
   "_POSTGRES_SAVE_PROPERTIES_": "Postgres save properties",
   "_PARQUET_SAVE_PROPERTIES_": "Parquet save properties",
   "_AVRO_SAVE_PROPERTIES_": "Avro save properties",
