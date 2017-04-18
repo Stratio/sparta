@@ -74,16 +74,6 @@
 
           scope.current = index;
 
-          /*if ((scope.editionMode && scope.nextStepAvailable) ||
-            (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
-            (index < scope.current)) {
-            scope.visited[scope.current] = true;
-            scope.current = index;
-          } else {
-            if (index == scope.current + 1) {
-              scope.onClickNextStep();
-            }
-          }*/
           scope.showHelp = true;
         };
 
@@ -126,6 +116,7 @@
               }
             }
           }
+          console.log(transformedSteps);
           return transformedSteps;
         }
       }
