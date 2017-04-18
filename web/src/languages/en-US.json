@@ -140,6 +140,7 @@
       "_INPUT_": "Input",
       "_TRANSFORMATION_": "Transformations",
       "_CUBES_": "Cubes",
+      "_RAW_": "Raw Data",
       "_TRIGGERS_": "Triggers",
       "_FINISH_": "Finish"
     },
@@ -486,6 +487,7 @@
     "_CUBE_STEP_": "You can add a CUBES configuring, at least, one dimension and one operator or save the policy",
     "_INPUT_STEP_": "You have to select an input from your list to continue configuring the policy. You only can add one input to policy",
     "_INPUT_STEP_AVAILABLE_": "Go to INPUT",
+    "_RAW_STEP_": "You can add RAW DATA or go to TRANSFORMATIONS",
     "_CUBE_STEP_AVAILABLE_": "You can add TRIGGERS or go to CUBES",
     "_FINISH_STEP_AVAILABLE_": "You can save the policy",
     "_TRANSFORMATION_STEP_AVAILABLE_": "Go to TRANSFORMATIONS",

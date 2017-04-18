@@ -7,14 +7,22 @@
        data-ng-click="hideHelp()" data-qa="policy-navigation-help-remove"></i>
   </div>
   <ul class="c-step-progress-bar">
-    <section data-ng-repeat="step in structuredSteps" class="c-col c-col--{{12 / structuredSteps.length | truncatenum }}">
+    <section data-ng-repeat="step in structuredSteps" class="c-col c-col--{{12 / structuredSteps.length | truncatenum }}" 
+      data-ng-class="{'c-step-progress-bar__aux-option': step.auxStep}">
 
       <c-step data-ng-if="!thereAreAlternativeSteps(step)" data-ng-click="chooseStep($index, step.order)"
               class="c-col c-col--12"
               name="step.name" icon="step.icon" index="($index)" order="(step.order)" current-step="(current)"
-              data-has-been-visited="(visited[$index])"
+              data-has-been-visited="(visited[$index])" data-has-aux-step="step.auxStep"
               is-available="(nextStepAvailable)">
       </c-step>
+      <c-step data-ng-if="!thereAreAlternativeSteps(step) && step.auxStep" aux-step="true" data-ng-click="chooseStep(step.auxStep.order, step.auxStep.order)"
+        class="c-col c-col--12"
+        name="step.auxStep.name" icon="step.auxStep.icon" index="(step.auxStep.order)" order="(step.order)" current-step="(current)"
+        data-has-been-visited="(visited[step.auxStep.order])" data-has-aux-step="step.auxStep"
+        is-available="(nextStepAvailable)" is-alternative="true">
+      </c-step>
+ 
 
       <div data-ng-if="thereAreAlternativeSteps(step)" class="c-col c-col--12 c-step-progress-bar__step-column"
       data-ng-class ="{'c-step-progress-bar__step-column--enabled': nextStepAvailable && $index == current + 1}">

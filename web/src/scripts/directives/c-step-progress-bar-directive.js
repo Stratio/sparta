@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
   /*STEP DIRECTIVE*/
   angular
-      .module('webApp')
-      .directive('cStepProgressBar', stepsComponent);
+    .module('webApp')
+    .directive('cStepProgressBar', stepsComponent);
 
   function stepsComponent() {
 
@@ -37,20 +37,20 @@
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
 
-      link: function(scope) {
+      link: function (scope) {
         scope.visited = [];
         scope.showHelp = true;
         scope.structuredSteps = transformSteps(scope.steps);
-        scope.hideHelp = function() {
+        scope.hideHelp = function () {
           scope.showHelp = false;
         };
-        scope.chooseStep = function(index, order) {
-          if(scope.current == 0 && index == 1){
+        scope.chooseStep = function (index, order) {
+          if (scope.current == 0 && index == 1) {
             return scope.validationFn();
           }
-          if ((scope.editionMode && scope.nextStepAvailable)
-              || (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable
-              || (index < scope.current)) {
+          if ((scope.editionMode && scope.nextStepAvailable) ||
+            (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
+            (index < scope.current)) {
             scope.visited[scope.current] = true;
             scope.current = index;
           } else {
@@ -61,21 +61,21 @@
           scope.showHelp = true;
         };
 
-        scope.thereAreAlternativeSteps = function(step) {
+        scope.thereAreAlternativeSteps = function (step) {
           return step.subSteps != undefined;
         };
 
-        scope.showCurrentStepMessage = function() {
+        scope.showCurrentStepMessage = function () {
           return !scope.nextStepAvailable && !scope.visited[scope.current + 1] || scope.current == scope.steps.length - 1;
         };
 
         scope.$watchCollection(
-            "nextStepAvailable",
-            function(nextStepAvailable) {
-              if (nextStepAvailable) {
-                scope.showHelp = true;
-              }
-            });
+          "nextStepAvailable",
+          function (nextStepAvailable) {
+            if (nextStepAvailable) {
+              scope.showHelp = true;
+            }
+          });
 
         function transformSteps() {
           var transformedSteps = [];
@@ -83,9 +83,14 @@
             for (var i = 0; i < scope.steps.length; ++i) {
               var step = scope.steps[i];
               if (!transformedSteps[step.order] && !step.isSubStep) {
-                transformedSteps[step.order] = step;
+                if (step.isAuxStep) {
+                  transformedSteps[step.isAuxStep].auxStep = step;
+                } else {
+                  transformedSteps[step.order] = step;
+
+                }
               } else {
-                if (!transformedSteps[step.order]){
+                if (!transformedSteps[step.order]) {
                   transformedSteps[step.order] = {};
                 }
                 if (!transformedSteps[step.order].subSteps) {
@@ -95,6 +100,7 @@
               }
             }
           }
+          console.log(transformedSteps);
           return transformedSteps;
         }
       }

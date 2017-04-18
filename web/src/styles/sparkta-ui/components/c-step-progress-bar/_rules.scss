@@ -28,6 +28,21 @@
     }
   }
 
+  &__aux-option {
+    top:40px;
+
+    &:before {
+      content: '';
+      height:40px;
+      border-left: 1px $c-step-progress-bar__line---color solid;
+      position: absolute;
+      left: -19px;
+      top: 28px;
+
+
+    }
+  }
+
   & section:last-child {
     padding-right: 0;
 

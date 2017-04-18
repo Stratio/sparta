@@ -1,6 +1,5 @@
 {
-  "steps": [
-    {
+  "steps": [{
       "name": "_POLICY_._STEPS_._SETTINGS_",
       "icon": "icon-cog",
       "currentMessage": "_MESSAGE_._SETTINGS_STEP_",
@@ -16,7 +15,7 @@
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
-      "icon": "icon-content-left",
+      "icon": "icon-evolution",
       "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
       "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_",
       "order": 2
@@ -38,10 +37,18 @@
       "order": 3,
       "isSubStep": true,
       "isLastStep": true
+    },
+    {
+      "name": "_POLICY_._STEPS_._RAW_",
+      "icon": "icon-input",
+      "currentMessage": "_MESSAGE_._RAW_STEP_",
+      "availableMessage": "_MESSAGE_._RAW_STEP_AVAILABLE_",
+      "isAuxStep": 2,
+      "isLastStep": true,
+      "order":5
     }
   ],
-  "basicSettings": [
-    {
+  "basicSettings": [{
       "propertyId": "name",
       "propertyName": "_NAME_",
       "propertyType": "text",
@@ -58,8 +65,7 @@
       "col": 7
     }
   ],
-  "advancedSettings": [
-    {
+  "advancedSettings": [{
       "propertyId": "driverUri",
       "propertyName": "_DRIVER_URI_",
       "width": 6,
@@ -77,8 +83,7 @@
       "required": false,
       "propertyType": "select",
       "regexp": "local|mesos|marathon|yarn|standalone",
-      "values": [
-        {
+      "values": [{
           "label": "Local",
           "value": "local"
         },
@@ -122,8 +127,7 @@
       "position": "right",
       "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
       "qa": "policy-storage-level",
-      "values": [
-        {
+      "values": [{
           "label": "DISK_ONLY",
           "value": "DISK_ONLY"
         },
@@ -185,8 +189,7 @@
       "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
       "default": "s",
       "required": true,
-      "values": [
-        {
+      "values": [{
           "label": "Milliseconds",
           "value": "ms"
         },
@@ -230,8 +233,7 @@
       "position": "right",
       "qa": "policy-remember-time",
       "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
-      "values": [
-        {
+      "values": [{
           "label": "Milliseconds",
           "value": "ms"
         },
@@ -314,8 +316,7 @@
       "required": false,
       "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
       "qa": "policy-spark-conf",
-      "fields": [
-        {
+      "fields": [{
           "propertyId": "sparkConfKey",
           "propertyName": "_SPARK_CONF_KEY_",
           "position": "left",
@@ -348,8 +349,7 @@
       "required": false,
       "tooltip": "Spark submit arguments added when the policy is executed on a Spark cluster. Values set here will override the property file options",
       "qa": "policy-spark-submit-argument",
-      "fields": [
-        {
+      "fields": [{
           "propertyId": "submitArgument",
           "propertyName": "_SPARK_SUBMIT_ARGUMENT_",
           "position": "left",
@@ -382,19 +382,17 @@
       "required": false,
       "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources. Once launched it's possible to mix them inside the triggers",
       "qa": "policy-sql-sentences",
-      "fields": [
-        {
-          "propertyId": "sentence",
-          "propertyName": "_SQL_SENTENCE_",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "tooltip": "SQL sentence",
-          "qa": "policy-sql-sentence"
-        }
-      ]
+      "fields": [{
+        "propertyId": "sentence",
+        "propertyName": "_SQL_SENTENCE_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "hidden": false,
+        "required": false,
+        "tooltip": "SQL sentence",
+        "qa": "policy-sql-sentence"
+      }]
     },
     {
       "propertyId": "userPluginsJars",
@@ -404,18 +402,16 @@
       "required": false,
       "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
       "qa": "policy-user-plugins-jars",
-      "fields": [
-        {
-          "propertyId": "jarPath",
-          "propertyName": "_JAR_PATH",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "qa": "policy-jar-path"
-        }
-      ]
+      "fields": [{
+        "propertyId": "jarPath",
+        "propertyName": "_JAR_PATH",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "hidden": false,
+        "required": false,
+        "qa": "policy-jar-path"
+      }]
     }
   ],
   "helpLinks": [
@@ -426,8 +422,7 @@
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
   ],
   "model": {
-    "types": [
-      {
+    "types": [{
         "iconName": "ingestion",
         "name": "Ingestion"
       },
@@ -464,8 +459,7 @@
         "name": "Custom"
       }
     ],
-    "defaultOutputFieldTypes": [
-      {
+    "defaultOutputFieldTypes": [{
         "label": "String",
         "value": "string"
       },
@@ -511,13 +505,11 @@
       "value": "_attachment_body"
     },
     "Ingestion": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -550,13 +542,11 @@
       ]
     },
     "Json": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -588,8 +578,7 @@
         }
       ],
       "defaultConfiguration": {
-        "queries": [
-          {
+        "queries": [{
             "field": "field1",
             "query": "$.field1-in-json"
           },
@@ -601,13 +590,11 @@
       }
     },
     "Csv": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -649,8 +636,7 @@
         }
       ],
       "defaultConfiguration": {
-        "fields": [
-          {
+        "fields": [{
             "name": "field1"
           },
           {
@@ -660,36 +646,32 @@
       }
     },
     "Filter": {
-      "properties": [
-        {
-          "propertyId": "whenError",
-          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [
-            {
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 6,
-          "default": "Error",
-          "required": true,
-          "qa": "policy-transformation-filter-whenError"
-        }
-      ],
+      "properties": [{
+        "propertyId": "whenError",
+        "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+        "propertyType": "select",
+        "values": [{
+            "label": "Error",
+            "value": "Error"
+          },
+          {
+            "label": "Discard",
+            "value": "Discard"
+          },
+          {
+            "label": "Null",
+            "value": "Null"
+          }
+        ],
+        "position": "left",
+        "width": 6,
+        "default": "Error",
+        "required": true,
+        "qa": "policy-transformation-filter-whenError"
+      }],
       "defaultConfiguration": {
         "tooltip": "A previously defined transformation is required in order to define filtering rules over a given field.",
-        "filters": [
-          {
+        "filters": [{
             "field": "field1",
             "type": "<",
             "value": 1
@@ -703,13 +685,11 @@
       }
     },
     "Xml": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -741,8 +721,7 @@
         }
       ],
       "defaultConfiguration": {
-        "queries": [
-          {
+        "queries": [{
             "field": "field1",
             "query": "//element_path/@field1_in_xml"
           },
@@ -754,13 +733,11 @@
       }
     },
     "Morphlines": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -797,8 +774,7 @@
           "importCommands": [
             "org.kitesdk.**"
           ],
-          "commands": [
-            {
+          "commands": [{
               "readJson": {}
             },
             {
@@ -814,14 +790,12 @@
       }
     },
     "DateTime": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "inputFormat",
           "propertyName": "_INPUT_FORMAT_",
           "propertyType": "select",
           "qa": "policy-model-dateTime-inputFormat",
-          "values": [
-            {
+          "values": [{
               "label": "Unix",
               "value": "unix"
             },
@@ -961,8 +935,7 @@
           "position": "right",
           "required": false,
           "qa": "policy-cube-dimension-dateTime-granularityTime",
-          "values": [
-            {
+          "values": [{
               "label": "Millisecond(s)",
               "value": "ms"
             },
@@ -1024,8 +997,7 @@
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -1058,8 +1030,7 @@
       ]
     },
     "Geo": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "latitude",
           "propertyName": "_LATITUDE_",
           "propertyType": "text",
@@ -1093,8 +1064,7 @@
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
-          "values": [
-            {
+          "values": [{
               "label": "Error",
               "value": "Error"
             },
@@ -1114,16 +1084,13 @@
           "qa": "policy-transformation-geo-whenError"
         }
       ],
-      "outputFieldTypes": [
-        {
-          "label": "String",
-          "value": "string"
-        }
-      ]
+      "outputFieldTypes": [{
+        "label": "String",
+        "value": "string"
+      }]
     },
     "Custom": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "modelType",
           "propertyName": "_MODEL_TYPE_",
           "propertyType": "text",
@@ -1142,8 +1109,7 @@
           "tooltip": "",
           "width": 12,
           "qa": "custom-transformation-properties",
-          "fields": [
-            {
+          "fields": [{
               "propertyId": "transformationOptionsKey",
               "propertyName": "_OPTION_KEY_",
               "propertyType": "text",
@@ -1173,8 +1139,7 @@
   },
   "cube": {
     "defaultName": "cube",
-    "types": [
-      {
+    "types": [{
         "label": "Default",
         "value": "Default"
       },
@@ -1187,11 +1152,9 @@
         "value": "GeoHash"
       }
     ],
-    "precisionOptions": [
-      {
+    "precisionOptions": [{
         "type": "GeoHash",
-        "precisions": [
-          {
+        "precisions": [{
             "label": "_PRECISION_1_",
             "value": "precision1"
           },
@@ -1246,8 +1209,7 @@
         "precisions": []
       }
     ],
-    "DateTime": [
-      {
+    "DateTime": [{
         "propertyId": "precisionNumber",
         "propertyName": "_PRECISION_",
         "propertyType": "text",
@@ -1266,8 +1228,7 @@
         "qa": "policy-cube-dimension-dateTime-precisionTime",
         "default": "minute",
         "required": true,
-        "values": [
-          {
+        "values": [{
             "label": "Millisecond(s)",
             "value": "ms"
           },
@@ -1342,12 +1303,10 @@
         "required": true,
         "qa": "policy-cube-dimension-dateTime-computeLastNumber",
         "visible": [
-          [
-            {
-              "propertyId": "isTimeDimension",
-              "value": true
-            }
-          ]
+          [{
+            "propertyId": "isTimeDimension",
+            "value": true
+          }]
         ]
       },
       {
@@ -1360,8 +1319,7 @@
         "qa": "policy-cube-dimension-dateTime-computeLastTime",
         "default": "m",
         "required": true,
-        "values": [
-          {
+        "values": [{
             "label": "Millisecond(s)",
             "value": "ms"
           },
@@ -1387,45 +1345,40 @@
           }
         ],
         "visible": [
-          [
-            {
-              "propertyId": "isTimeDimension",
-              "value": true
-            }
-          ]
+          [{
+            "propertyId": "isTimeDimension",
+            "value": true
+          }]
         ]
       }
     ],
-    "properties": [
-      {
-        "propertyId": "name",
-        "propertyName": "_NAME_",
-        "propertyType": "text",
-        "required": true,
-        "qa": "cube-name",
-        "width": 12,
-        "position": "left",
-        "regexp": "^[a-zA-Z0-9 ]*$",
-        "validateValue": "true",
-        "invalidValues": [
-          "select",
-          "project",
-          "group",
-          "default",
-          "by",
-          "as",
-          "filter",
-          "where",
-          "insert",
-          "delete",
-          "update",
-          "where"
-        ]
-      }
-    ],
+    "properties": [{
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "cube-name",
+      "width": 12,
+      "position": "left",
+      "regexp": "^[a-zA-Z0-9 ]*$",
+      "validateValue": "true",
+      "invalidValues": [
+        "select",
+        "project",
+        "group",
+        "default",
+        "by",
+        "as",
+        "filter",
+        "where",
+        "insert",
+        "delete",
+        "update",
+        "where"
+      ]
+    }],
     "writer": {
-      "properties": [
-        {
+      "properties": [{
           "propertyId": "tableName",
           "propertyName": "_TABLE_NAME_",
           "propertyType": "text",
@@ -1443,8 +1396,7 @@
           "default": "Append",
           "qa": "cube-save-mode",
           "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-          "values": [
-            {
+          "values": [{
               "label": "_APPEND_",
               "value": "Append"
             },
@@ -1487,8 +1439,7 @@
           "default": "timestamp",
           "tooltip": "Before save the data, transform time fields to other type in order to prevent errors in some outputs",
           "qa": "cube-date-type",
-          "values": [
-            {
+          "values": [{
               "label": "_TIMESTAMP_",
               "value": "timestamp"
             },
