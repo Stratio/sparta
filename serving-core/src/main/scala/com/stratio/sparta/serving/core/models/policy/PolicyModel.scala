@@ -96,10 +96,6 @@ object PolicyValidator {
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
           "There is at least one cube without dimensions")),
-      (policy.outputs.nonEmpty,
-        new ErrorModel(
-          ErrorModel.ValidationError_The_policy_needs_at_least_one_output,
-          "The policy needs at least one output")),
       (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty || policy.rawData.isDefined,
         new ErrorModel(
           ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data,

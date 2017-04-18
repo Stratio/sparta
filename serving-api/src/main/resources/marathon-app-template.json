@@ -58,7 +58,8 @@
     "SPARTA_POLICY_ID": "???",
     "DCOS_SERVICE_NAME": "???",
     "DCOS_SERVICE_PORT_INDEX": "0",
-    "DCOS_SERVICE_SCHEME": "http"
+    "DCOS_SERVICE_SCHEME": "http",
+    "DCOS_PACKAGE_IS_FRAMEWORK": "false"
   }
 }
 

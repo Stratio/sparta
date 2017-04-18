@@ -17,10 +17,11 @@
 package com.stratio.sparta.serving.core.utils
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel, SubmitArgument}
 import com.typesafe.config.{Config, ConfigValueFactory}
 
 import scala.collection.JavaConversions._
@@ -146,11 +147,17 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
 
     (addSupervisedArgument(addKerberosArguments(
       submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy))),
-      addAppNameConf(addGracefulStopConf(addPluginsFilesToConf(
-        sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++
-          sparkConfFromSubmitArgumentsPolicy ++ sparkConfFromPolicy,
-        pluginsFiles
-      ), gracefulStop(policy)), policy))
+      addInputConfs(
+        addAppNameConf(
+          addGracefulStopConf(
+            addPluginsFilesToConf(
+              sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++ sparkConfFromSubmitArgumentsPolicy
+                ++ sparkConfFromPolicy, pluginsFiles
+            ), gracefulStop(policy)
+          ), policy.name
+        ), policy.input
+      )
+    )
   }
 
   /** Protected Methods **/
@@ -170,10 +177,17 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     } else driverStorageLocation
   }
 
-  protected def addAppNameConf(sparkConfs: Map[String, String], policy: PolicyModel): Map[String, String] = {
+  protected def addInputConfs(sparkConfs: Map[String, String],
+                              inputOp: Option[PolicyElementModel]): Map[String, String] =
+    inputOp.fold(sparkConfs) { input =>
+      sparkConfs ++
+        PolicyHelper.getSparkConfigs(Seq(input), Input.SparkSubmitConfigurationMethod, Input.ClassSuffix)
+    }
+
+  protected def addAppNameConf(sparkConfs: Map[String, String], name: String): Map[String, String] = {
     if (!sparkConfs.contains(SubmitAppNameConf)) {
       val format = DateTimeFormat.forPattern("yyyy/MM/dd-hh:mm:ss")
-      sparkConfs ++ Map(SubmitAppNameConf -> s"${policy.name}-${format.print(DateTime.now)}")
+      sparkConfs ++ Map(SubmitAppNameConf -> s"$name-${format.print(DateTime.now)}")
     } else sparkConfs
   }
 
@@ -269,7 +283,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     else sparkConfs ++ Map(sparkConfKey -> pluginsFiles)
 
   def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Option[Boolean]): Map[String, String] =
-    gracefullyStop.fold(sparkConfs) {gStop => sparkConfs ++ Map(SubmitGracefullyStopConf -> gStop.toString) }
+    gracefullyStop.fold(sparkConfs) { gStop => sparkConfs ++ Map(SubmitGracefullyStopConf -> gStop.toString) }
 
   protected def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
     (HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {
