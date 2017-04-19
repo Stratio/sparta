@@ -44,7 +44,12 @@
         scope.hideHelp = function () {
           scope.showHelp = false;
         };
-        scope.chooseStep = function (index, order) {
+        scope.chooseStep = function (index, order, auxIndex) {
+          var indexCopy = index;
+          if(auxIndex){
+            index = auxIndex;
+          }
+          
           if (scope.current == 0 && index == 1) {
             return scope.validationFn();
           }
@@ -52,7 +57,7 @@
             (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
             (index < scope.current)) {
             scope.visited[scope.current] = true;
-            scope.current = index;
+            scope.current = indexCopy;
           } else {
             if (index == scope.current + 1) {
               scope.onClickNextStep();
@@ -100,7 +105,6 @@
               }
             }
           }
-          console.log(transformedSteps);
           return transformedSteps;
         }
       }

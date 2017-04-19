@@ -33,11 +33,15 @@
         isAlternative: '=isAlternative',
         isAvailable: '=',
         hasBeenVisited: "=",
-        auxStep: "="
+        auxStep: "=",
+        stepAuxOrder: "="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step.tpl.html',
       link: function(scope) {
+
+        var auxIndex = scope.stepAuxOrder || scope.index;
+
         scope.isSelected = function() {
           return scope.index == scope.current;
         };
@@ -47,7 +51,7 @@
         };
 
         scope.isEnabled = function() {
-          return (scope.index == scope.current + 1 || scope.order <= scope.current + 1) && scope.isAvailable && !scope.isSelected();
+          return (auxIndex == scope.current + 1 || scope.order <= scope.current + 1) && scope.isAvailable && !scope.isSelected();
         };
       }
     };

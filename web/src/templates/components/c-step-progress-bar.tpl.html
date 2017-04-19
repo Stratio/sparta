@@ -16,9 +16,9 @@
               data-has-been-visited="(visited[$index])" data-has-aux-step="step.auxStep"
               is-available="(nextStepAvailable)">
       </c-step>
-      <c-step data-ng-if="!thereAreAlternativeSteps(step) && step.auxStep" aux-step="true" data-ng-click="chooseStep(step.auxStep.order, step.auxStep.order)"
+      <c-step data-ng-if="!thereAreAlternativeSteps(step) && step.auxStep" aux-step="true" data-ng-click="chooseStep(step.auxStep.order, step.auxStep.order, step.auxStep.isAuxStep)"
         class="c-col c-col--12"
-        name="step.auxStep.name" icon="step.auxStep.icon" index="(step.auxStep.order)" order="(step.order)" current-step="(current)"
+        name="step.auxStep.name" icon="step.auxStep.icon" index="(step.auxStep.order)" step-aux-order="($index)" order="(step.order)" current-step="(current)"
         data-has-been-visited="(visited[step.auxStep.order])" data-has-aux-step="step.auxStep"
         is-available="(nextStepAvailable)" is-alternative="true">
       </c-step>

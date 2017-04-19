@@ -47,7 +47,10 @@
         hideMessage: '@',
         qa: '@',
         submittedForm: '=',
-        outputsLength: '='
+        outputsLength: '=',
+        minLength: '=',
+        externArray: '@',
+        isError: '='
       }
     };
     return directive;

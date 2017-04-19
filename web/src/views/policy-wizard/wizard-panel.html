@@ -6,7 +6,7 @@
                        on-click-next-step="wizard.onClickNextStep()"
                        data-edition-mode="wizard.editionMode"
                        data-validation-fn="wizard.validateSettings">
-  </c-step-progress-bar>{{wizard.status.currentStep}}
+  </c-step-progress-bar>
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
     <div class="c-slider-content__button c-icon" data-ng-click="changeHiddenSectionVisibility()"
          data-ng-if="showSliderSectionButton"
@@ -37,8 +37,8 @@
       <div data-ng-switch-when="4">
         <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
       </div>
-      <div data-ng-switch-when="2aux">
-        <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
+      <div data-ng-switch-when="5">
+        <ng-include src="'views/policy-wizard/rawData-step-content.html'"></ng-include>
       </div>
       <footer class="c-row c-row--separated-bottom c-row--footer" ng-if="wizard.status.currentStep > 0">
         <div class="c-col c-col--12 c-col--vertical-centered">
