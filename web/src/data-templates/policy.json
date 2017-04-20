@@ -259,16 +259,6 @@
       ]
     },
     {
-      "propertyId": "streamTemporalTable",
-      "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
-      "width": 6,
-      "position": "right",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
-      "qa": "policy-temporal-table-name"
-    },
-    {
       "propertyId": "monitoringLink",
       "propertyName": "_MONITORING_LINK_",
       "width": 6,
