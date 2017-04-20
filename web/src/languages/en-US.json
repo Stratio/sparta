@@ -144,6 +144,8 @@
       "_FINISH_": "Finish"
     },
     "_TRANSFORMATION_OUTPUT_FIELD_ERROR_": "The output field {{outputField}} already exists in policy. Please remove it and try to save again",
+    "_TRANSFORMATION_CHANGETYPE_ERROR_": "Cannot change transformation type. At least one output is being used in policy",
+    "_TRANSFORMATION_OUTPUT_USED_ERROR_": "The output field {{outputField}} is being used in policy. Fix it and try to remove it again",
     "_MODAL_CREATION_TITLE_": "Create policy",
     "_MODAL_SETTINGS_TITLE_": "Policy settings",
     "_RAW_": "Raw",

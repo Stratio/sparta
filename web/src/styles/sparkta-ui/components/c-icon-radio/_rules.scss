@@ -18,6 +18,15 @@
 		}
 	}
 
+
+	&__label {
+		&.selected{
+			.c-icon-radio__icon {
+				@extend %c-icon-radio__icon--selected;
+			}
+		}
+	}
+
 	&__icon {
 		background: $c-icon-radio__icon---background;
 		border: $c-icon-radio__icon---border;

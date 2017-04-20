@@ -52,10 +52,17 @@
       ModelService.resetModel(vm.template);
     }
 
+    function cancelModelUpdatePanel(){
+      for(var i = 0; i< vm.modelAccordionStatus.length; i++){
+        vm.modelAccordionStatus[i] = false;
+      }
+    }
+
     function changeOpenedModel(selectedModelPosition) {
       if (vm.policy.transformations.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.length) {
         var selectedModel = vm.policy.transformations[selectedModelPosition];
-        ModelFactory.setModel(selectedModel, selectedModelPosition);
+        var selectedModelCopy = angular.copy(selectedModel);
+        ModelFactory.setModel(selectedModelCopy, selectedModelPosition);
       } else {
           ModelService.resetModel(vm.template);
       }
