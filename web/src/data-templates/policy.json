@@ -52,15 +52,6 @@
       "number": 5,
       "isSubStep": true,
       "isLastStep": true
-    },
-    {
-      "name": "_POLICY_._STEPS_._RAW_",
-      "icon": "icon-input",
-      "currentMessage": "_MESSAGE_._RAW_STEP_",
-      "availableMessage": "_MESSAGE_._RAW_STEP_AVAILABLE_",
-      "isAuxStep": 2,
-      "isLastStep": true,
-      "order":5
     }
   ],
   "basicSettings": [{

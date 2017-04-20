@@ -73,7 +73,6 @@
           }
 
           scope.current = index;
-
           scope.showHelp = true;
         };
 
