@@ -11,6 +11,6 @@ getCAbundle "/etc/sds/sparta/security" JKS "truststore.jks"
 #Add all certs from the truststore to the java truststore
 #TODO Vault: availability for default truststore for java
 export JVMCA_PASS="changeit"
-_log_sparta_sec "Adding certs to java trust strore"
+_log_sparta_sec "Adding certs to java trust store"
 keytool -importkeystore -srckeystore "/etc/sds/sparta/security/truststore.jks" -destkeystore $JAVA_HOME/jre/lib/security/cacerts \
-    -srcstorepass "$DEFAULT_KEYSTORE_PASS" -deststorepass "$JVMCA_PASS"
+    -srcstorepass "$DEFAULT_KEYSTORE_PASS" -deststorepass "$JVMCA_PASS" -noprompt

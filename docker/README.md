@@ -56,7 +56,7 @@ Entrypoint variables
 | PARAM        |
 | -------------:|
 | SPARTA_API_HOST |
-| SPARTA_API_PORT |
+| PORT_SPARTAAPI |
 | SPARTA_API_CERTIFICATE_FILE |
 | SPARTA_API_CERTIFICATE_PASSWORD |
 
