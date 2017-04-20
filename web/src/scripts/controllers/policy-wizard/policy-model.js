@@ -18,8 +18,8 @@
 
   /*POLICY MODEL CONTROLLER*/
   angular
-      .module('webApp')
-      .controller('PolicyModelCtrl', PolicyModelCtrl);
+    .module('webApp')
+    .controller('PolicyModelCtrl', PolicyModelCtrl);
 
   PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', 'UtilsService', '$scope'];
 
@@ -36,6 +36,8 @@
     vm.isLastModel = ModelService.isLastModel;
     vm.isNewModel = ModelService.isNewModel;
     vm.invalidOutputField = undefined;
+    vm.deleteTransformInput = deleteTransformInput;
+    vm.validateChange = validateChange;
 
     vm.init();
 
@@ -50,11 +52,13 @@
         vm.modelTypes = vm.template.model.types;
         vm.configPlaceholder = vm.template.configPlaceholder;
         vm.outputPattern = vm.template.outputPattern;
+        vm.usedOutputField = false;
+        vm.usedOutputFieldType = false;
         vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
       }
     }
 
-    function getTransformationTemplateUrl(){
+    function getTransformationTemplateUrl() {
       return 'templates/policies/transformation/' + vm.model.type.toLowerCase() + '-panel.tpl.html';
     }
 
@@ -66,7 +70,26 @@
 
     }
 
-    function onChangeType() {
+    function validateChange(event, creationMode) {
+      if (!creationMode) {
+        var outputs = vm.model.outputFields
+        for (var i = 0; i < outputs.length; i++) {
+          if (outputIsBeingUsed(outputs[i].name)) {
+            ModelFactory.setError("_ERROR_._GENERIC_FORM_");
+             vm.usedOutputFieldType = true;
+             vm.usedOutputFieldName =  outputs[i].name;
+             event.preventDefault();  //prevents model change
+             return true;
+          }
+        }
+      }
+      return false; 
+    }
+
+    function onChangeType(event, creationMode) {
+      if(vm.validateChange(event,creationMode)){
+        return;
+      }
       vm.model.outputFields = [];
       vm.model.inputField = "";
       vm.outputFieldTypes = vm.template.model.defaultOutputFieldTypes;
@@ -97,16 +120,22 @@
       }
     }
 
-    function addModel() {
+    function addModel(creationMode) {
       vm.form.$submitted = true;
       if (vm.form.$valid && areValidOutputFields()) {
-        if (vm.model.type == modelConstants.DATETIME && vm.model.configuration.granularityTime){
+        if (vm.model.type == modelConstants.DATETIME && vm.model.configuration.granularityTime) {
           vm.model.configuration.granularity = vm.model.configuration.granularityNumber ?
-           vm.model.configuration.granularityNumber + vm.model.configuration.granularityTime:
+            vm.model.configuration.granularityNumber + vm.model.configuration.granularityTime :
             vm.model.configuration.granularityTime;
         }
         vm.form.$submitted = false;
-        ModelService.addModel();
+
+        if (creationMode) {
+          ModelService.addModel();
+        } else {
+          ModelService.updateModel();
+        }
+
         ModelService.changeModelCreationPanelVisibility(false);
       } else {
         ModelFactory.setError("_ERROR_._GENERIC_FORM_");
@@ -114,7 +143,7 @@
     }
 
     function removeModel() {
-      return ModelService.removeModel().then(function() {
+      return ModelService.removeModel().then(function () {
         var order = 0;
         var modelNumber = vm.policy.transformations.length;
         if (modelNumber > 0) {
@@ -125,9 +154,12 @@
       });
     }
 
-    function cancelModelCreation() {
-      ModelService.disableModelCreationPanel();
-      ModelFactory.resetModel(vm.template.model, vm.model.order, vm.modelContext.position);
+    function cancelModelCreation(creationMode) {
+      if(creationMode){
+        ModelService.disableModelCreationPanel();
+      } else {
+        ModelService.cancelEdition();
+      }
     }
 
     function areValidOutputFields() {
@@ -137,7 +169,7 @@
       }
       if (vm.model.outputFields.length > 0) {
         var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,
-            ModelFactory.getContext().position);
+          ModelFactory.getContext().position);
         for (var i = 0; i < vm.model.outputFields.length; ++i) {
           var outputField = vm.model.outputFields[i];
           if (UtilsService.findElementInJSONArray(policyCurrentFields, outputField, 'name') != -1) {
@@ -149,17 +181,32 @@
       return true;
     }
 
-    $scope.$on("forceValidateForm", function() {
+    function deleteTransformInput(index) {
+      var output = vm.model.outputFields[index];
+      var outputName = output.name;
+      if (outputIsBeingUsed(outputName)) {
+        vm.usedOutputField = true;
+        vm.usedOutputFieldName =  outputName;
+      } else {
+        vm.model.outputFields.splice(index, 1);
+      }
+    }
+
+    function outputIsBeingUsed(name) {
+      return ModelService.isOutputUsed(name);
+    }
+
+    $scope.$on("forceValidateForm", function () {
       vm.form.$submitted = true;
     });
 
     $scope.$watch(
-        "vm.model.type",
-        function(previousType, newType) {
-          if (previousType != newType) {
-            vm.outputFieldTypes = getOutputList();
-          }
-        })
+      "vm.model.type",
+      function (previousType, newType) {
+        if (previousType != newType) {
+          vm.outputFieldTypes = getOutputList();
+        }
+      })
   }
 })
 ();

@@ -48,7 +48,8 @@
         help: '@',
         helpQa: '@',
         defaultType: '=',
-        disabledType: '='
+        disabledType: '=',
+        deleteTransformInput: '='
       },
       replace: "true",
       templateUrl: 'templates/components/c-output-field-list.tpl.html',
@@ -61,6 +62,10 @@
       scope.deleteInput = deleteInput;
 
       function deleteInput(index) {
+        if(scope.deleteTransformInput){
+          scope.deleteTransformInput(index);
+          return;
+        }
         scope.inputs.splice(index,1);
       }
     }
