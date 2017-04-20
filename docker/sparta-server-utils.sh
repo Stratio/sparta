@@ -21,6 +21,11 @@ function initJavaOptions() {
    MAX_OPEN_FILES=65535
  fi
  sed -i "s|export MAX_OPEN_FILES.*|export MAX_OPEN_FILES=${MAX_OPEN_FILES}|" ${VARIABLES}
+
+ if [ -v SPARTA_JAAS_FILE ] && [ ${#SPARTA_JAAS_FILE} != 0 ]; then
+    sed -i "s|.*export SPARTA_CONFIG_JAAS_FILE.*|export SPARTA_CONFIG_JAAS_FILE=\"-Djava.security.auth.login.config=${SPARTA_JAAS_FILE}\"|" ${VARIABLES}
+ fi
+
 }
 
 function hdfsOptions() {
@@ -54,10 +59,10 @@ function apiOptions() {
  fi
  sed -i "s|.*sparta.api.host.*|sparta.api.host = \"${SPARTA_API_HOST}\"|" ${SPARTA_CONF_FILE}
 
- if [[ ! -v SPARTA_API_PORT ]]; then
-   SPARTA_API_PORT=9090
+ if [[ ! -v PORT_SPARTAAPI ]]; then
+   PORT_SPARTAAPI=9090
  fi
- sed -i "s|.*sparta.api.port.*|sparta.api.port = ${SPARTA_API_PORT}|" ${SPARTA_CONF_FILE}
+ sed -i "s|.*sparta.api.port.*|sparta.api.port = ${PORT_SPARTAAPI}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_API_CERTIFICATE_FILE ]]; then
    SPARTA_API_CERTIFICATE_FILE="/home/user/certifications/stratio.jks"
