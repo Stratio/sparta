@@ -50,7 +50,9 @@
     init();
 
     function init() {
-      WizardStatusService.enableNextStep();
+      if(vm.policy.transformations.length){
+        WizardStatusService.enableNextStep();
+      }
       if (vm.createMode) {
         resetForm();
       }

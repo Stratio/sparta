@@ -57,7 +57,7 @@
 
           //triggers and cubes validation
           if (order > 2 && (!transformations || !transformations.length)) {
-            if (scope.current == 2) {
+            if (scope.current == 2 && index != 3) {
                scope.onClickNextStep();
             }
             return;

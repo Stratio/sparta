@@ -89,8 +89,8 @@
       "required": false,
       "propertyType": "select",
       "regexp": "local|mesos|marathon",
-      "values": [
-        {          "label": "Local",
+      "values": [{
+          "label": "Local",
           "value": "local"
         },
         {

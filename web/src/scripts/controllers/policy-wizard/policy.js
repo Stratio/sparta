@@ -93,12 +93,12 @@
     }
 
     function isValidPolicy() {
-      return vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0 || vm.policy.rawData.dataField);
+      return (vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0)) || (vm.policy.rawData && vm.policy.rawData.dataField);
     }
 
     function confirmPolicy() {
       var defer = $q.defer();
-      if (!vm.status.nextStepAvailable) {
+      if (!vm.status.nextStepAvailable && !vm.policy.rawData.dataField) {
         $scope.$broadcast('forceValidateForm', 1);
         defer.resolve();
       } else {

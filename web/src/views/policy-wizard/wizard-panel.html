@@ -58,7 +58,7 @@
             <span>{{"_POLICY_._SAVE_" | translate}}</span>
           </button>
           <button
-            data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
+            data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable || wizard.status.currentStep == 2,'c-button--call-to-action-2':!wizard.status.nextStepAvailable && wizard.status.currentStep != 2}"
             class="c-button c-button--to-right" data-ng-if="wizard.showNextStepButton()"
             data-ng-click="wizard.onClickNextStep()"
             data-qa="policy-next-step-button">
