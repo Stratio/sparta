@@ -30,19 +30,11 @@ EOF
 export SPARTA_JAAS_FILE=/etc/sds/sparta/security/jaas.conf
 #export SPARTA_PLUGIN_CLIENT_JAAS_PATH=$SPARTA_JAAS_FILE
 
-<<<<<<< b5a7b4b78c6bf3ba743c12a6fc1d555ab716c103
 sed -i "s#<__PRINCIPAL__>#$SPARTA_PRINCIPAL_NAME#" $SPARTA_JAAS_FILE\
    && echo "[JAAS_CONF] ZK principal configured as $SPARTA_PRINCIPAL_NAME" \
    || echo "[JAAS_CONF-ERROR] ZK principal was NOT configured"
 sed -i "s#<__KEYTAB__>#$SPARTA_KEYTAB_PATH#" $SPARTA_JAAS_FILE\
    && echo "[JAAS_CONF] ZK keytab configured as $SPARTA_KEYTAB_PATH" \
-=======
-sed -i "s#<__PRINCIPAL__>#$HADOOP_PRINCIPAL_NAME#" $SPARTA_JAAS_FILE\
-   && echo "[JAAS_CONF] ZK principal configured as $HADOOP_PRINCIPAL_NAME" \
-   || echo "[JAAS_CONF-ERROR] ZK principal was NOT configured"
-sed -i "s#<__KEYTAB__>#$HADOOP_KEYTAB_PATH#" $SPARTA_JAAS_FILE\
-   && echo "[JAAS_CONF] ZK keytab configured as $HADOOP_KEYTAB_PATH" \
->>>>>>> [DCS-1368] Integration with Zookeeper securized with Kerberos (#1827)
    || echo "[JAAS_CONF-ERROR] ZK keytab was NOT configured"
 
 echo "Kerberos to use against securized Zookeeper: OK"
