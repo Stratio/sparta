@@ -32,7 +32,9 @@
         editionMode: "=",
         onClickNextStep: "&",
         parentClass: "=",
-        validationFn: "="
+        validationFn: "=",
+        policy: '=',
+        input:'='
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
@@ -44,25 +46,44 @@
         scope.hideHelp = function () {
           scope.showHelp = false;
         };
-        scope.chooseStep = function (index, order, auxIndex) {
-          var indexCopy = index;
-          if(auxIndex){
-            index = auxIndex;
-          }
+        scope.chooseStep = function (index, order) {
+          var transformations = scope.policy.transformations;
+          var input = scope.policy.input;
           
-          if (scope.current == 0 && index == 1) {
-            return scope.validationFn();
+
+          if(order == 2 && (!input || !input.name)){
+            return;
           }
-          if ((scope.editionMode && scope.nextStepAvailable) ||
+
+          //triggers and cubes validation
+          if (order > 2 && (!transformations || !transformations.length)) {
+            if (scope.current == 2) {
+               scope.onClickNextStep();
+            }
+            return;
+          }
+
+          if (scope.current == 0) {
+            return scope.validationFn(index);
+          }
+
+          if (index < scope.current) {
+            scope.current = index;
+            return;
+          }
+
+          scope.current = index;
+
+          /*if ((scope.editionMode && scope.nextStepAvailable) ||
             (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
             (index < scope.current)) {
             scope.visited[scope.current] = true;
-            scope.current = indexCopy;
+            scope.current = index;
           } else {
             if (index == scope.current + 1) {
               scope.onClickNextStep();
             }
-          }
+          }*/
           scope.showHelp = true;
         };
 

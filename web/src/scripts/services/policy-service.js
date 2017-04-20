@@ -99,7 +99,7 @@
     function getRawDataOutputs(allOutputs){
       var outputs = [];
       var rawData = vm.policy.rawData;
-      if(!rawData.writer){
+      if(!rawData || !rawData.writer){
         return [];
       }
       var rawDataOutputs = rawData.writer.outputs;

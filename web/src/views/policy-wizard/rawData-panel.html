@@ -54,13 +54,7 @@
         <i class="c-icon icon-cross"></i>
         <span>{{"_DELETE_" | translate}}</span>
       </button>
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.saveRawData(vm.form)" data-qa="policy-rawData-add-button"
-        data-ng-if="vm.createMode">
-        <i class="icon icon-circle-plus"></i>
-        <span>{{"_POLICY_._SAVE_RAWDATA_" | translate}}</span>
-      </button>
-      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.saveRawData(vm.form)" data-qa="policy-rawData-add-button"
-        data-ng-if="!vm.createMode && vm.form.$dirty">
+      <button class="c-button c-button--call-to-action-1" data-ng-click="vm.saveRawData(vm.form)" data-qa="policy-rawData-add-button">
         <i class="icon icon-circle-plus"></i>
         <span>{{"_POLICY_._SAVE_RAWDATA_" | translate}}</span>
       </button>

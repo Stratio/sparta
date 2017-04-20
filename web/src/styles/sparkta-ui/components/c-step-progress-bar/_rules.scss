@@ -11,7 +11,7 @@
   margin-top: $c-step-progress-bar---margin-top;
 
   &__step-column {
-    top: 22px;
+    top: 45px;
     margin-left: 18px;
     &:before {
       content: '';
@@ -26,6 +26,10 @@
         border-left: 1px $c-step-progress-bar__line--enabled---color solid;
       }
     }
+  }
+
+  &__step-column2 {
+    top: 49px;
   }
 
   &__aux-option {

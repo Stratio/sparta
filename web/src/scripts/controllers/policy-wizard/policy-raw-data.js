@@ -22,9 +22,9 @@
     .controller('RawDataCtrl', RawDataCtrl);
 
 
-  RawDataCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'ModalService', '$translate'];
+  RawDataCtrl.$inject = ['TemplateFactory', 'PolicyModelFactory', 'ModalService', '$translate', 'WizardStatusService'];
 
-  function RawDataCtrl(TemplateFactory, PolicyModelFactory, ModalService, $translate) {
+  function RawDataCtrl(TemplateFactory, PolicyModelFactory, ModalService, $translate, WizardStatusService) {
 
     var vm = this;
     vm.policy = PolicyModelFactory.getCurrentPolicy();
@@ -50,6 +50,7 @@
     init();
 
     function init() {
+      WizardStatusService.enableNextStep();
       if (vm.createMode) {
         resetForm();
       }

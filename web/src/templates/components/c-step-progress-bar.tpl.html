@@ -16,20 +16,13 @@
               data-has-been-visited="(visited[$index])" data-has-aux-step="step.auxStep"
               is-available="(nextStepAvailable)">
       </c-step>
-      <c-step data-ng-if="!thereAreAlternativeSteps(step) && step.auxStep" aux-step="true" data-ng-click="chooseStep(step.auxStep.order, step.auxStep.order, step.auxStep.isAuxStep)"
-        class="c-col c-col--12"
-        name="step.auxStep.name" icon="step.auxStep.icon" index="(step.auxStep.order)" step-aux-order="($index)" order="(step.order)" current-step="(current)"
-        data-has-been-visited="(visited[step.auxStep.order])" data-has-aux-step="step.auxStep"
-        is-available="(nextStepAvailable)" is-alternative="true">
-      </c-step>
- 
 
       <div data-ng-if="thereAreAlternativeSteps(step)" class="c-col c-col--12 c-step-progress-bar__step-column"
-      data-ng-class ="{'c-step-progress-bar__step-column--enabled': nextStepAvailable && $index == current + 1}">
-        <c-step data-ng-repeat="subStep in step.subSteps" data-ng-click="chooseStep($parent.$index + $index, subStep.order)"
-                order="(subStep.order)"  index="($index + $parent.$index)"
+      data-ng-class ="{'c-step-progress-bar__step-column--enabled': nextStepAvailable && $index == current + 1, 'c-step-progress-bar__step-column2': $index == 2}">
+        <c-step data-ng-repeat="subStep in step.subSteps" data-ng-click="chooseStep(subStep.number, subStep.order)"
+                order="(subStep.order)"  index="(subStep.number)"
                 class="c-col c-col--12 c-step-progress-bar__alternative-step" name="subStep.name" icon="subStep.icon"
-                current-step="(current)" data-has-been-visited="(visited[$index + $parent.$index])"
+                current-step="(current)" data-has-been-visited="(visited[subStep.number])" is-last-step="subStep.isLastStep"
                 data-is-alternative = "true"
                 is-available="(nextStepAvailable)">
         </c-step>

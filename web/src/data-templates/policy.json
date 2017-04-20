@@ -4,28 +4,42 @@
       "icon": "icon-cog",
       "currentMessage": "_MESSAGE_._SETTINGS_STEP_",
       "availableMessage": "_MESSAGE_._SETTINGS_STEP_AVAILABLE_",
-      "order": 0
+      "order": 0,
+      "number": 0
     },
     {
       "name": "_POLICY_._STEPS_._INPUT_",
       "icon": "icon-input",
       "currentMessage": "_MESSAGE_._INPUT_STEP_",
       "availableMessage": "_MESSAGE_._INPUT_STEP_AVAILABLE_",
-      "order": 1
+      "order": 1,
+      "number": 1
     },
     {
       "name": "_POLICY_._STEPS_._TRANSFORMATION_",
       "icon": "icon-evolution",
       "currentMessage": "_MESSAGE_._TRANSFORMATION_STEP_",
       "availableMessage": "_MESSAGE_._TRANSFORMATION_STEP_AVAILABLE_",
-      "order": 2
+      "order": 2,
+      "number": 2,
+      "isSubStep": true
     },
     {
+      "name": "_POLICY_._STEPS_._RAW_",
+      "icon": "icon-input",
+      "currentMessage": "_MESSAGE_._RAW_STEP_",
+      "availableMessage": "_MESSAGE_._RAW_STEP_AVAILABLE_",
+      "isLastStep": true,
+      "isSubStep": true,
+      "order": 2,
+      "number": 3
+    }, {
       "name": "_POLICY_._STEPS_._TRIGGERS_",
       "icon": "icon-bell",
       "currentMessage": "_MESSAGE_._TRIGGER_STEP_",
       "availableMessage": "_MESSAGE_._TRIGGER_STEP_AVAILABLE_",
       "order": 3,
+      "number": 4,
       "isSubStep": true,
       "isLastStep": true
     },
@@ -35,17 +49,9 @@
       "currentMessage": "_MESSAGE_._CUBE_STEP_",
       "availableMessage": "_MESSAGE_._CUBE_STEP_AVAILABLE_",
       "order": 3,
+      "number": 5,
       "isSubStep": true,
       "isLastStep": true
-    },
-    {
-      "name": "_POLICY_._STEPS_._RAW_",
-      "icon": "icon-input",
-      "currentMessage": "_MESSAGE_._RAW_STEP_",
-      "availableMessage": "_MESSAGE_._RAW_STEP_AVAILABLE_",
-      "isAuxStep": 2,
-      "isLastStep": true,
-      "order":5
     }
   ],
   "basicSettings": [{
@@ -418,6 +424,7 @@
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
+    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Raw+data",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Triggers",
     "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
   ],
