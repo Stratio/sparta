@@ -47,7 +47,7 @@ trait LocalListenerUtils extends PolicyStatusUtils {
     })
   }
 
-  private def closeContexts(policyId: String): Unit = {
+  private[driver] def closeContexts(policyId: String): Unit = {
     val information = "The Context have been stopped correctly in the local listener"
     log.info(information)
     updateStatus(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))

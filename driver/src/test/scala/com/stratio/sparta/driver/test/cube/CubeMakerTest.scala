@@ -19,11 +19,12 @@ import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.driver.step.{Cube, CubeOperations, Trigger}
-import com.stratio.sparta.driver.writer.CubeWriterOptions
+import com.stratio.sparta.driver.writer.WriterOptions
 import com.stratio.sparta.plugin.default.DefaultField
 import com.stratio.sparta.plugin.cube.field.datetime.DateTimeField
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionValue, DimensionValuesTime, InputFields}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType, TimestampType}
@@ -68,9 +69,10 @@ class CubeMakerTest extends TestSuiteBase {
       Seq(operator),
       initSchema,
       initSchema,
+      TypeOp.Timestamp,
       expiringDataConfig = None,
       Seq.empty[Trigger],
-      CubeWriterOptions()
+      WriterOptions()
     )
     val dataCube = new CubeOperations(cube)
 

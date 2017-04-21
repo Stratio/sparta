@@ -22,7 +22,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{Column, DataFrame}
 
-trait DataFrameModifier {
+object DataFrameModifierHelper {
 
   def applyAutoCalculateFields(dataFrame: DataFrame,
                                autoCalculateFields: Seq[AutoCalculatedField],
@@ -35,7 +35,7 @@ trait DataFrameModifier {
         dataFrame
     }
 
-  private def addColumnToDataFrame(dataFrame: DataFrame,
+  private[driver] def addColumnToDataFrame(dataFrame: DataFrame,
                                    autoCalculateField: AutoCalculatedField,
                                    auxSchema: StructType): DataFrame = {
     (autoCalculateField.fromNotNullFields,
@@ -59,7 +59,7 @@ trait DataFrameModifier {
     }
   }
 
-  private def addField(name: String, outputType: String, dataFrame: DataFrame, fields: Seq[Column]): DataFrame =
+  private[driver] def addField(name: String, outputType: String, dataFrame: DataFrame, fields: Seq[Column]): DataFrame =
     outputType match {
       case "string" => dataFrame.withColumn(name, concat_ws(Output.Separator, fields: _*))
       case "array" => dataFrame.withColumn(name, array(fields: _*))
@@ -67,7 +67,7 @@ trait DataFrameModifier {
       case _ => dataFrame
     }
 
-  private def addLiteral(name: String, outputType: String, dataFrame: DataFrame, literal: String): DataFrame =
+  private[driver] def addLiteral(name: String, outputType: String, dataFrame: DataFrame, literal: String): DataFrame =
     outputType match {
       case "string" => dataFrame.withColumn(name, lit(literal))
       case "array" => dataFrame.withColumn(name, array(lit(literal)))
@@ -75,7 +75,7 @@ trait DataFrameModifier {
       case _ => dataFrame
     }
 
-  private def fieldsWithAuxMetadata(dataFrameFields: Array[StructField], auxFields: Array[StructField]) =
+  private[driver] def fieldsWithAuxMetadata(dataFrameFields: Array[StructField], auxFields: Array[StructField]) =
     dataFrameFields.map(field => {
       auxFields.find(auxField => auxField.name == field.name) match {
         case Some(auxFounded) => field.copy(metadata = auxFounded.metadata)

@@ -21,7 +21,7 @@ import com.stratio.sparta.driver.stage.{LogError, ParserStage}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, TransformationModel, TransformationsModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -50,23 +50,29 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "ParserStage" should "Generate an empty seq with no transformations" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
-    when(policy.transformations).thenReturn(Seq.empty)
-    val result = TestStage(policy).parserStage(reflection, Map.empty)
+    val transformations = mock[TransformationsModel]
+    when(policy.transformations).thenReturn(Some(transformations))
+    when(transformations.transformationsPipe).thenReturn(Seq.empty)
+    when(transformations.writer).thenReturn(None)
+    val (result, _) = TestStage(policy).parserStage(reflection, Map.empty)
 
     result should be(Seq.empty)
   }
 
   "ParserStage" should "Generate a single parser" in {
     val policy = mockPolicy
+    val transformations = mock[TransformationsModel]
+    when(policy.transformations).thenReturn(Some(transformations))
+    when(transformations.writer).thenReturn(None)
     val outputFieldModel = OutputFieldsModel("output", Some("long"))
     val input = Some("input")
     val transformationSchema = Seq(outputFieldModel)
     val configuration: Map[String, JsoneyString] = Map("conf" -> JsoneyString("prop"))
-    val transformation = TransformationsModel("Test", 1, input, transformationSchema, configuration = configuration)
+    val transformation = TransformationModel("Test", 1, input, transformationSchema, configuration = configuration)
     val outputScheme = StructType(Seq.empty)
-    when(policy.transformations).thenReturn(Seq(transformation))
+    when(transformations.transformationsPipe).thenReturn(Seq(transformation))
 
-    val result = TestStage(policy).parserStage(ReflectionUtils, Map("1" -> outputScheme))
+    val (result, _) = TestStage(policy).parserStage(ReflectionUtils, Map("1" -> outputScheme))
 
     result.size should be(1)
     val parser = result.head.asInstanceOf[TestParser]
@@ -79,17 +85,20 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   "ParserStage" should "Generate a two parsers" in {
     val policy = mockPolicy
+    val transformations = mock[TransformationsModel]
+    when(policy.transformations).thenReturn(Some(transformations))
+    when(transformations.writer).thenReturn(None)
     val outputFieldModel = OutputFieldsModel("output", Some("long"))
     val input = Some("input")
     val transformationSchema = Seq(outputFieldModel)
     val configuration: Map[String, JsoneyString] = Map("conf" -> JsoneyString("prop"))
-    val transformation = TransformationsModel("Test", 1, input, transformationSchema, configuration = configuration)
+    val transformation = TransformationModel("Test", 1, input, transformationSchema, configuration = configuration)
     val secondTransformation =
-      TransformationsModel("Test", 2, input, transformationSchema, configuration = configuration)
+      TransformationModel("Test", 2, input, transformationSchema, configuration = configuration)
     val outputScheme = StructType(Seq.empty)
-    when(policy.transformations).thenReturn(Seq(transformation, secondTransformation))
+    when(transformations.transformationsPipe).thenReturn(Seq(transformation, secondTransformation))
 
-    val result = TestStage(policy).parserStage(ReflectionUtils, Map("1" -> outputScheme, "2" -> outputScheme))
+    val (result, _) = TestStage(policy).parserStage(ReflectionUtils, Map("1" -> outputScheme, "2" -> outputScheme))
 
     result.size should be(2)
     val parser = result(1).asInstanceOf[TestParser]
@@ -103,15 +112,18 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "ParserStage" should "Fail when reflectionUtils don't behave correctly" in {
     val reflection = mock[ReflectionUtils]
     val policy = mockPolicy
+    val transformations = mock[TransformationsModel]
+    when(policy.transformations).thenReturn(Some(transformations))
+    when(transformations.writer).thenReturn(None)
     val outputFieldModel = OutputFieldsModel("output", Some("long"))
     val input = Some("input")
     val transformationSchema = Seq(outputFieldModel)
     val configuration: Map[String, JsoneyString] = Map("conf" -> JsoneyString("prop"))
-    val transformation = TransformationsModel("Test", 1, input, transformationSchema, configuration = configuration)
+    val transformation = TransformationModel("Test", 1, input, transformationSchema, configuration = configuration)
     val outputScheme = StructType(Seq.empty)
     val myInputClass = mock[Input]
     when(reflection.tryToInstantiate(any(), any())).thenReturn(myInputClass)
-    when(policy.transformations).thenReturn(Seq(transformation))
+    when(transformations.transformationsPipe).thenReturn(Seq(transformation))
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).parserStage(reflection, Map("1" -> outputScheme))
@@ -121,14 +133,17 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "ParserStage" should "Fail gracefully with bad input" in {
     val reflection = mock[ReflectionUtils]
     val policy = mockPolicy
+    val transformations = mock[TransformationsModel]
+    when(policy.transformations).thenReturn(Some(transformations))
+    when(transformations.writer).thenReturn(None)
     val outputFieldModel = OutputFieldsModel("output", Some("long"))
     val input = Some("input")
     val transformationSchema = Seq(outputFieldModel)
     val configuration: Map[String, JsoneyString] = Map("conf" -> JsoneyString("prop"))
-    val transformation = TransformationsModel("Test", 1, input, transformationSchema, configuration = configuration)
+    val transformation = TransformationModel("Test", 1, input, transformationSchema, configuration = configuration)
     val outputScheme = StructType(Seq.empty)
     when(reflection.tryToInstantiate(any(), any())).thenThrow(new RuntimeException("Fake"))
-    when(policy.transformations).thenReturn(Seq(transformation))
+    when(transformations.transformationsPipe).thenReturn(Seq(transformation))
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).parserStage(reflection, Map("1" -> outputScheme))
