@@ -98,7 +98,7 @@
 
     function confirmPolicy() {
       var defer = $q.defer();
-      if (!vm.status.nextStepAvailable && !vm.policy.rawData.dataField) {
+      if (!vm.status.nextStepAvailable && (!vm.policy.rawData || !vm.policy.rawData.dataField)) {
         $scope.$broadcast('forceValidateForm', 1);
         defer.resolve();
       } else {
