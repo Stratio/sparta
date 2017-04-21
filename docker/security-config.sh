@@ -36,7 +36,7 @@ source /truststore-config.sh
 _log_sparta_sec "Configuring truststore OK"
 
 ####################################################
-## Kerberos config set  HADOOP_PRINCIPAL_NAME and HADOOP_KEYTAB_PATH
+## Kerberos config set SPARTA_PRINCIPAL_NAME and SPARTA_KEYTAB_PATH
 ####################################################
 _log_sparta_sec "Configuring kerberos ..."
 source /kerberos-server-config.sh

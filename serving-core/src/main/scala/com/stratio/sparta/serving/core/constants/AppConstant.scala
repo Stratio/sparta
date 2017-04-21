@@ -82,8 +82,8 @@ object AppConstant {
   val CoreSite = "core-site.xml"
   val HDFSSite = "hdfs-site.xml"
   val SystemHadoopUserName = "HADOOP_USER_NAME"
-  val SystemPrincipalName = "HADOOP_PRINCIPAL_NAME"
-  val SystemKeyTabPath = "HADOOP_KEYTAB_PATH"
+  val SystemPrincipalName = "SPARTA_PRINCIPAL_NAME"
+  val SystemKeyTabPath = "SPARTA_KEYTAB_PATH"
   val SystemHostName = "HOSTNAME"
 
   //Generic Options
