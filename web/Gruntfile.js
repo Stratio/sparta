@@ -9,6 +9,7 @@ module.exports = function (grunt) {
   // Automatically load required Grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
+    ngtemplates: 'grunt-angular-templates'
   });
 
   // Configurable paths for the application
@@ -261,7 +262,18 @@ module.exports = function (grunt) {
       },
       dist: {}
     },
-
+    ngtemplates: {
+      dist: {
+        options: {
+          module: 'webApp',
+          htmlmin: '<%= htmlmin.dist.options %>',
+          usemin: 'scripts/scripts.js'
+        },
+        cwd: '<%= stratio.app %>',
+        src: ['templates/**/*.html', 'views/**/*.html', 'stratio-ui/**/*.html'],
+        dest: '.tmp/templateCache.js'
+      }
+    },
     htmlmin: {
       dist: {
         options: {
@@ -331,11 +343,6 @@ module.exports = function (grunt) {
           cwd: '.tmp/concat/scripts',
           dest: '<%= stratio.dist %>/scripts',
           src: ['**/{,*/}*.js', '**/{,*/}*.js.map']
-        }, {
-          expand: true,
-          cwd: '<%= stratio.app %>/templates',
-          dest: '<%= stratio.dist %>/templates',
-          src: ['**/{,*/}*.html']
         }]
       },
       styles: {
@@ -398,12 +405,14 @@ module.exports = function (grunt) {
       grunt.log.warn('Target already exists. If you want to force build run task `clean:dist` first');
       return true;
     }
+    grunt.loadNpmTasks('grunt-angular-templates');
 
     grunt.task.run([
       'clean:server',
       'useminPrepare',
       'concurrent:dist',
       'autoprefixer',
+      'ngtemplates',
       'concat',
       'ngAnnotate',
       'copy:dist',
