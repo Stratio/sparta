@@ -4,7 +4,6 @@
 _log_sparta_sec "Downloading keytab from vault"
 #Downloads principal and keytab for sparta
 #This will be saved in /etc/sds/sparta/security/sparta.keytab
-
 #The principal is saved to SPARTA_PRINCIPAL_NAME
 getKrb userland "$TENANT_NAME" "$TENANT_NAME" "/etc/sds/sparta/security" SPARTA_PRINCIPAL_NAME
 _log_sparta_sec "Download ok , now exporting variables"
