@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
+
 package com.stratio.sparta.driver.writer
 
-case class RawDataWriterOptions(tableName: String,
-                                outputs: Seq[String],
-                                partitionBy: Option[String] = None)
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
+import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum
+
+
+case class WriterOptions(outputs: Seq[String] = Seq.empty[String],
+                         saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                         tableName: Option[String] = None,
+                         autoCalculateFields: Seq[AutoCalculatedField] = Seq.empty[AutoCalculatedField],
+                         partitionBy: Option[String] = None,
+                         primaryKey: Option[String] = None)

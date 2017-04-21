@@ -68,7 +68,7 @@ case class CubeOperations(cube: Cube) extends SLF4JLogging {
     }), true)
   }
 
-  private def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
+  private[driver] def extractEventTime(dimensionValues: Seq[DimensionValue]) = {
 
     val timeDimension = cube.expiringDataConfig.get.timeDimension
     val dimensionsDates =
@@ -78,7 +78,7 @@ case class CubeOperations(cube: Cube) extends SLF4JLogging {
     else AggregationTime.getMillisFromSerializable(dimensionsDates.head.value)
   }
 
-  private def getDate: Long = {
+  private[driver] def getDate: Long = {
     val checkpointGranularity = cube.expiringDataConfig.get.granularity
 
     AggregationTime.truncateDate(DateTime.now(), checkpointGranularity)

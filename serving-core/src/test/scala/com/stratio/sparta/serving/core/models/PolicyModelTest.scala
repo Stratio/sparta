@@ -42,12 +42,12 @@ class PolicyModelTest extends WordSpec with Matchers with MockitoSugar {
 
   val fragmentType = FragmentType
 
-  val transformations = Seq(TransformationsModel("Morphlines",
+  val transformations = Option(TransformationsModel(Seq(TransformationModel("Morphlines",
     0,
     Some(Input.RawDataKey),
     Seq(OutputFieldsModel("out1"), OutputFieldsModel("out2")),
    Map("removeInputField" -> JsoneyString.apply("true")
-  )))
+  )))))
 
   val dimensionModel = Seq(
     DimensionModel(
