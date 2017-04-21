@@ -35,12 +35,12 @@ function hdfsOptions() {
  fi
  sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
 
- if [ -v HADOOP_PRINCIPAL_NAME ] && [ ${#HADOOP_PRINCIPAL_NAME} != 0 ]; then
-   sed -i "s|.*sparta.hdfs.principalName .*|sparta.hdfs.principalName = \""${HADOOP_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v SPARTA_PRINCIPAL_NAME ] && [ ${#SPARTA_PRINCIPAL_NAME} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.principalName .*|sparta.hdfs.principalName = \""${SPARTA_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HADOOP_KEYTAB_PATH ] && [ ${#HADOOP_KEYTAB_PATH} != 0 ]; then
-   sed -i "s|.*sparta.hdfs.keytabPath.*|sparta.hdfs.keytabPath = \""${HADOOP_KEYTAB_PATH}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v SPARTA_KEYTAB_PATH ] && [ ${#SPARTA_KEYTAB_PATH} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.keytabPath.*|sparta.hdfs.keytabPath = \""${SPARTA_KEYTAB_PATH}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [ -v HDFS_KEYTAB_RELOAD ] && [ ${#HDFS_KEYTAB_RELOAD} != 0 ]; then
