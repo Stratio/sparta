@@ -72,6 +72,7 @@
             scope.onChangeOpenedElement({selectedItemPosition: selectedItemPosition});
           }
         });
+
     }
   }
 })();
