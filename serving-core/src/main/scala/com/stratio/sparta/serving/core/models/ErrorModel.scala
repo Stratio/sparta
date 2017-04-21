@@ -55,7 +55,6 @@ object ErrorModel extends SpartaSerializer {
 
   val ValidationError_There_is_at_least_one_cube_without_name = "4000"
   val ValidationError_There_is_at_least_one_cube_without_dimensions = "4001"
-  val ValidationError_The_policy_needs_at_least_one_output = "4002"
   val ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data = "4003"
   val ValidationError_There_is_at_least_one_cube_with_a_bad_output = "4004"
   val ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output = "4005"
