@@ -13,7 +13,7 @@ hose {
     RPMARCH = 'noarch'
     EXPOSED_PORTS = [9090]
     BASEIMG = 'stratio/spark-krb-dispatcher-support:2.1.0'
-    DOCKERFILECOMMAND = 'WORKDIR / \n apt-get update -y && apt-get install -y curl wget jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 $(which jq)'
+    DOCKERFILECOMMAND = 'WORKDIR / \n RUN apt-get update -y && apt-get install -y curl wget jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 $(which jq)'
 
 
     ITSERVICES = [
