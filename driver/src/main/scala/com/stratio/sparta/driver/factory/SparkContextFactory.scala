@@ -42,8 +42,6 @@ object SparkContextFactory extends SLF4JLogging {
       }
     }
 
-  def setInitialSentences(sentences: Seq[String]): Unit = sqlInitialSentences = sentences
-
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
   Option[StreamingContext] = {
     synchronized {
@@ -55,11 +53,36 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def setSparkContext(createdContext: SparkContext): Unit = sc = Option(createdContext)
+  def sparkStandAloneContextInstance(specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
+    synchronized {
+      sc.getOrElse(instantiateSparkContext(specificConfig, jars))
+    }
 
-  def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
 
-  private def getNewStreamingContext(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
+  def destroySparkContext(destroyStreamingContext: Boolean = true): Unit = {
+    if (destroyStreamingContext) destroySparkStreamingContext()
+
+    sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
+      synchronized {
+        try {
+          log.info("Stopping SparkContext with name: " + sparkContext.appName)
+          sparkContext.stop()
+          log.info("Stopped SparkContext with name: " + sparkContext.appName)
+        } finally {
+          sparkSession = None
+          sqlInitialSentences = Seq.empty[String]
+          ssc = None
+          sc = None
+        }
+      }
+    }
+  }
+
+  private[driver] def setSparkContext(createdContext: SparkContext): Unit = sc = Option(createdContext)
+
+  private[driver] def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
+
+  private[driver] def getNewStreamingContext(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
   StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     ssc.checkpoint(checkpointDir)
@@ -67,15 +90,11 @@ object SparkContextFactory extends SLF4JLogging {
     ssc
   }
 
-  def sparkStandAloneContextInstance(specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
-    synchronized {
-      sc.getOrElse(instantiateSparkContext(specificConfig, jars))
-    }
-
-  def sparkClusterContextInstance(specificConfig: Map[String, String], files: Seq[String]): SparkContext =
+  private[driver] def sparkClusterContextInstance(specificConfig: Map[String, String],
+                                                  files: Seq[String]): SparkContext =
     sc.getOrElse(instantiateClusterContext(specificConfig, files))
 
-  private def instantiateSparkContext(specificConfig: Map[String, String], jars: Seq[File]): SparkContext = {
+  private[driver] def instantiateSparkContext(specificConfig: Map[String, String], jars: Seq[File]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
     jars.foreach(f => {
       log.info(s"Adding jar ${f.getAbsolutePath} to Spark context")
@@ -84,7 +103,8 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def instantiateClusterContext(specificConfig: Map[String, String], files: Seq[String]): SparkContext = {
+  private[driver] def instantiateClusterContext(specificConfig: Map[String, String],
+                                               files: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
     files.foreach(f => {
       log.info(s"Adding jar $f to cluster Spark context")
@@ -93,13 +113,15 @@ object SparkContextFactory extends SLF4JLogging {
     sc.get
   }
 
-  private def configToSparkConf(specificConfig: Map[String, String]): SparkConf = {
+  private[driver] def configToSparkConf(specificConfig: Map[String, String]): SparkConf = {
     val conf = new SparkConf()
     specificConfig.foreach { case (key, value) => conf.set(key, value) }
     conf
   }
 
-  def destroySparkStreamingContext(): Unit = {
+  private[driver] def setInitialSentences(sentences: Seq[String]): Unit = sqlInitialSentences = sentences
+
+  private[driver] def destroySparkStreamingContext(): Unit = {
     ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
       try {
         synchronized {
@@ -117,23 +139,4 @@ object SparkContextFactory extends SLF4JLogging {
     }
   }
 
-  def destroySparkContext(destroyStreamingContext: Boolean = true): Unit = {
-    if (destroyStreamingContext)
-      destroySparkStreamingContext()
-
-    sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
-      synchronized {
-        try {
-          log.info("Stopping SparkContext with name: " + sparkContext.appName)
-          sparkContext.stop()
-          log.info("Stopped SparkContext with name: " + sparkContext.appName)
-        } finally {
-          sparkSession = None
-          sqlInitialSentences = Seq.empty[String]
-          ssc = None
-          sc = None
-        }
-      }
-    }
-  }
 }

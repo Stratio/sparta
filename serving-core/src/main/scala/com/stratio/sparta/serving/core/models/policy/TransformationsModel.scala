@@ -13,23 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.models.policy
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.pipeline.transformation.Parser
+import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
 
-case class TransformationsModel(`type`: String,
-                                order: Integer,
-                                inputField: Option[String] = None,
-                                outputFields: Seq[OutputFieldsModel],
-                                configuration: Map[String, JsoneyString] = Map()) {
-
-  val outputFieldsTransformed = outputFields.map(field =>
-    OutputFieldsTransformedModel(field.name,
-      field.`type`.getOrElse(Parser.TypesFromParserClass.getOrElse(`type`.toLowerCase, Parser.DefaultOutputType))
-    ))
-}
-
-case class OutputFieldsModel(name: String, `type`: Option[String] = None)
-
-case class OutputFieldsTransformedModel(name: String, `type`: String)
+case class TransformationsModel(transformationsPipe: Seq[TransformationModel], writer: Option[WriterModel] = None)

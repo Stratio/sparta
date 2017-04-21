@@ -17,9 +17,11 @@ package com.stratio.sparta.driver.step
 
 import java.io._
 
-import com.stratio.sparta.driver.writer.TriggerWriterOptions
+import com.stratio.sparta.driver.writer.WriterOptions
 
 case class Trigger(name: String,
                    sql: String,
-                   triggerWriterOptions: TriggerWriterOptions,
+                   overLast: Option[String] = None,
+                   computeEvery: Option[String] = None,
+                   writerOptions: WriterOptions,
                    configuration: Map[String, Serializable])

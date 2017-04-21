@@ -23,7 +23,7 @@ import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
-import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyElementModel, PolicyModel, RawDataModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy._
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
@@ -106,12 +106,12 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
 
-    val transformations = Seq(TransformationsModel(
+    val transformations = Option(TransformationsModel(Seq(TransformationModel(
       "Morphlines",
       0,
       Some(Input.RawDataKey),
       Seq(outputFieldModel1, outputFieldModel2),
-      Map()))
+      Map()))))
     val dimensionModel = getDimensionModel
     val operators = getOperators
     val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))

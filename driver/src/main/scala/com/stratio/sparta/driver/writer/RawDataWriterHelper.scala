@@ -16,28 +16,21 @@
 
 package com.stratio.sparta.driver.writer
 
-import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.step.RawData
-import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{StringType, StructField, StructType, TimestampType}
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.{Failure, Success, Try}
 
+object RawDataWriterHelper {
 
-case class RawDataWriter(rawData: RawData, outputs: Seq[Output]) extends SLF4JLogging {
-
-  def write(input: DStream[Row]): Unit = {
+  def writeRawData(rawData: RawData, outputs: Seq[Output], input: DStream[Row]): Unit = {
     val RawSchema = StructType(Seq(
       StructField(rawData.timeField, TimestampType, nullable = false),
       StructField(rawData.dataField, StringType, nullable = true)))
-    val saveOptions = Map(Output.TableNameKey -> rawData.rawDataStorageWriterOptions.tableName) ++
-      rawData.rawDataStorageWriterOptions.partitionBy.fold(Map.empty[String, String]) { partition =>
-        Map(Output.PartitionByKey -> partition)
-      }
     val eventTime = AggregationTime.millisToTimeStamp(System.currentTimeMillis())
 
     input.map(row => Row.merge(Row(eventTime), row))
@@ -45,22 +38,7 @@ case class RawDataWriter(rawData: RawData, outputs: Seq[Output]) extends SLF4JLo
         if (!rdd.isEmpty()) {
           val rawDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, RawSchema)
 
-          rawData.rawDataStorageWriterOptions.outputs.foreach(outputName =>
-            outputs.find(output => output.name == outputName) match {
-              case Some(outputWriter) => Try {
-                outputWriter.save(rawDataFrame, SaveModeEnum.Append, saveOptions)
-              } match {
-                case Success(_) =>
-                  log.debug(s"Raw data stored with timestamp $eventTime")
-                case Failure(e) =>
-                  log.error(s"Something goes wrong storing raw data." +
-                    s" Table: ${rawData.rawDataStorageWriterOptions.tableName}")
-                  log.error(s"Schema. ${rawDataFrame.schema}")
-                  log.error(s"Head element. ${rawDataFrame.head}")
-                  log.error(s"Error message : ${e.getMessage}")
-              }
-              case None => log.error(s"The output ($outputName) in the raw data, not match in the outputs")
-            })
+          WriterHelper.write(rawDataFrame, rawData.writerOptions, Map.empty[String, String], outputs)
         }
       })
   }
