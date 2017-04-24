@@ -103,6 +103,7 @@ class MarathonService(context: ActorContext,
   val ZookeeperLogLevelEnv = "ZOOKEEPER_LOG_LEVEL"
   val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
   val DcosServiceName = "DCOS_SERVICE_NAME"
+  val Constraints = "MESOS_CONSTRAINTS"
 
   /* Lazy variables */
 
@@ -165,6 +166,8 @@ class MarathonService(context: ActorContext,
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
+  private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
+
   private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
 
   private def envVaulPort: Option[String] = Properties.envOrNone(VaultPortEnv)
@@ -207,23 +210,32 @@ class MarathonService(context: ActorContext,
     val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble + 1d).getOrElse(app.cpus)
     val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt(_) + 1024)
       .getOrElse(app.mem)
+    val envFromSubmit = submitRequest.sparkConfigurations.flatMap { case (key, value) =>
+      if (key.startsWith("spark.mesos.driverEnv.")) {
+        Option((key.split("spark.mesos.driverEnv.").tail.head, value))
+      } else None
+    }
+
     val subProperties = substitutionProperties(policyModel, submitRequest, newMem)
     val newEnv = app.env.map { properties =>
       properties.flatMap { case (k, v) =>
         if (v == "???")
           subProperties.get(k).map(vParsed => (k, vParsed))
         else Some((k, v))
-      }
-    }
+      } ++ envFromSubmit
+    }.orElse(Option(envFromSubmit))
     val newLabels = app.labels.flatMap { case (k, v) =>
       if (v == "???")
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-
+    val certificatesVolume = Volume("/etc/ssl/certs/java/cacerts", "/etc/pki/ca-trust/extracted/java/cacerts", "RO")
     val newDockerContainerInfo = mesosNativeLibrary match {
-      case Some(_) => ContainerInfo(app.container.docker.copy(image = spartaDockerImage))
+      case Some(_) =>
+        ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
+          volumes = Option(Seq(certificatesVolume))))
       case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
+        certificatesVolume,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
         Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
         image = spartaDockerImage
