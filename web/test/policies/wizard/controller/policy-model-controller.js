@@ -37,7 +37,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     fakeContext = {
       position: 2
     };
-    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs', 'getPreviousOutputFields']);
+    modelFactoryMock = jasmine.createSpyObj('ModelFactory', ['getModel', 'getError', 'getModelInputs', 'getContext', 'setError', 'resetModel', 'updateModelInputs', 'getPreviousOutputFields', 'getOutputFields']);
     modelFactoryMock.getModel.and.returnValue(fakeModel);
     modelFactoryMock.getContext.and.returnValue(fakeContext);
     utilsServiceMock = jasmine.createSpyObj('UtilsService', ['findElementInJSONArray']);

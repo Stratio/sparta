@@ -32,7 +32,8 @@
         current: '=currentStep',
         isAlternative: '=isAlternative',
         isAvailable: '=',
-        hasBeenVisited: "="
+        hasBeenVisited: "=",
+        isLastStep: "="
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step.tpl.html',
