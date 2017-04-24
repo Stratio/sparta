@@ -44,7 +44,7 @@
             angular.element('#uploadFileRead').trigger('click');
         };
 
-        element.bind("change", function (changeEvent) {
+        element.bind("change", function (event) {
             var reader = new FileReader();
             reader.readAsText(event.target.files[0]);
             reader.onload = function (loadEvent) {

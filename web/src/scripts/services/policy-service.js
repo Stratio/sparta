@@ -54,8 +54,10 @@
       OutputService.getOutputList().then(function (allOutputs) {
         var cubeOutputs = getCubeOutputs(allOutputs);
         var triggerOutputs = getTriggerOutputs(allOutputs);
+        var rawDataOutputs = getRawDataOutputs(allOutputs);
         fragments = fragments.concat(cubeOutputs);
         fragments = fragments.concat(triggerOutputs);
+        fragments = fragments.concat(rawDataOutputs);
         fragments = UtilsService.removeDuplicatedJSONs(fragments, 'id');
         convertedFragmentsPolicy.fragments = fragments;
 
@@ -90,6 +92,20 @@
 
       if (allOutputs && cubeOutputs) {
         outputs = UtilsService.getFilteredArray(allOutputs, cubeOutputs, 'name');
+      }
+      return outputs;
+    }
+
+    function getRawDataOutputs(allOutputs){
+      var outputs = [];
+      var rawData = vm.policy.rawData;
+      if(!rawData || !rawData.writer){
+        return [];
+      }
+      var rawDataOutputs = rawData.writer.outputs;
+           
+      if (allOutputs && rawDataOutputs && rawDataOutputs.length) {
+        outputs = UtilsService.getFilteredJSONByArray(allOutputs, rawDataOutputs, 'name');
       }
       return outputs;
     }

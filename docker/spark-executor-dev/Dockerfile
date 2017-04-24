@@ -14,7 +14,7 @@ MAINTAINER Sparta Team "sparta@stratio.com"
 #ENV HADOOP_CONF_DIR /etc/sds/hadoop/conf
 #ENV HADOOP_USER_NAME root
 
-RUN apt-get update && apt-get install -y curl wget vim jq libsvn1 libcurl4-nss-dev default-jre-headless
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -y curl wget vim jq libsvn1 libcurl4-nss-dev default-jre-headless && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 #ENV MESOS_NATIVE_JAVA_LIBRARY /opt/mesosphere/lib/libmesos.so
 

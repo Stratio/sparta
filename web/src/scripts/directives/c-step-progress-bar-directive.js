@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
   /*STEP DIRECTIVE*/
   angular
-      .module('webApp')
-      .directive('cStepProgressBar', stepsComponent);
+    .module('webApp')
+    .directive('cStepProgressBar', stepsComponent);
 
   function stepsComponent() {
 
@@ -32,50 +32,76 @@
         editionMode: "=",
         onClickNextStep: "&",
         parentClass: "=",
-        validationFn: "="
+        validationFn: "=",
+        policy: '=',
+        input:'='
       },
       replace: 'true',
       templateUrl: 'templates/components/c-step-progress-bar.tpl.html',
 
-      link: function(scope) {
+      link: function (scope) {
         scope.visited = [];
         scope.showHelp = true;
         scope.structuredSteps = transformSteps(scope.steps);
-        scope.hideHelp = function() {
+        scope.hideHelp = function () {
           scope.showHelp = false;
         };
-        scope.chooseStep = function(index, order) {
-          if(scope.current == 0 && index == 1){
-            return scope.validationFn();
+        scope.chooseStep = function (index, order) {
+          var transformations = scope.policy.transformations;
+          var input = scope.policy.input;
+          
+
+          if(order == 2 && (!input || !input.name)){
+            return;
           }
-          if ((scope.editionMode && scope.nextStepAvailable)
-              || (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable
-              || (index < scope.current)) {
+
+          //triggers and cubes validation
+          if (order > 2 && (!transformations || !transformations.length)) {
+            if (scope.current == 2 && index != 3) {
+               scope.onClickNextStep();
+            }
+            return;
+          }
+
+          if (scope.current == 0) {
+            return scope.validationFn(index);
+          }
+
+          if (index < scope.current) {
+            scope.current = index;
+            return;
+          }
+
+          scope.current = index;
+
+          /*if ((scope.editionMode && scope.nextStepAvailable) ||
+            (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
+            (index < scope.current)) {
             scope.visited[scope.current] = true;
             scope.current = index;
           } else {
             if (index == scope.current + 1) {
               scope.onClickNextStep();
             }
-          }
+          }*/
           scope.showHelp = true;
         };
 
-        scope.thereAreAlternativeSteps = function(step) {
+        scope.thereAreAlternativeSteps = function (step) {
           return step.subSteps != undefined;
         };
 
-        scope.showCurrentStepMessage = function() {
+        scope.showCurrentStepMessage = function () {
           return !scope.nextStepAvailable && !scope.visited[scope.current + 1] || scope.current == scope.steps.length - 1;
         };
 
         scope.$watchCollection(
-            "nextStepAvailable",
-            function(nextStepAvailable) {
-              if (nextStepAvailable) {
-                scope.showHelp = true;
-              }
-            });
+          "nextStepAvailable",
+          function (nextStepAvailable) {
+            if (nextStepAvailable) {
+              scope.showHelp = true;
+            }
+          });
 
         function transformSteps() {
           var transformedSteps = [];
@@ -83,9 +109,14 @@
             for (var i = 0; i < scope.steps.length; ++i) {
               var step = scope.steps[i];
               if (!transformedSteps[step.order] && !step.isSubStep) {
-                transformedSteps[step.order] = step;
+                if (step.isAuxStep) {
+                  transformedSteps[step.isAuxStep].auxStep = step;
+                } else {
+                  transformedSteps[step.order] = step;
+
+                }
               } else {
-                if (!transformedSteps[step.order]){
+                if (!transformedSteps[step.order]) {
                   transformedSteps[step.order] = {};
                 }
                 if (!transformedSteps[step.order].subSteps) {
