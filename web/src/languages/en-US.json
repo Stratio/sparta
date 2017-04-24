@@ -90,6 +90,8 @@
   "_MENU_DASHBOARD_NEW_POLICY_JSON_": "from scratch",
   "_MENU_DASHBOARD_NEW_POLICY_SCRATCH_": "from json",
   "_MENU_SETTINGS_TITLE_": "settings",
+  "_MENU_TABS_TRANSFORMATIONS_": "transformations",
+  "_MENU_TABS_SAVE_OPTIONS_": "save options",
   "_INPUT_HEADER_TITLE_MAIN": "inputs",
   "_INPUT_HEADER_TITLE_SECONDARY": "manage",
   "_INPUT_FILTER_NAME_": "Name",
@@ -176,6 +178,7 @@
     "_SAVE_CUBE_": "Save cube",
     "_SAVE_TRIGGER_": "Save trigger",
     "_SAVE_RAWDATA_": "Save raw data",
+    "_SAVEDATA_": "Save",
     "_EXIT_CONFIRMATION_": "If you leave the editor, you will lose the changes.",
     "_SAVE_": "Save policy",
     "_WINDOW_": {

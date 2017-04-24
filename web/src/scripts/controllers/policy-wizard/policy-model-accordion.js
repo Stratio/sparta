@@ -22,7 +22,8 @@
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
   PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
-    '$scope'];
+    '$scope'
+  ];
 
   function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService, $scope) {
     var vm = this;
@@ -32,12 +33,27 @@
     vm.modelCreationStatus = ModelService.getModelCreationStatus();
     vm.changeOpenedModel = changeOpenedModel;
     vm.activateModelCreationPanel = activateModelCreationPanel;
-  
+    vm.saveData = saveData;
+    vm.selectedOption = 'TRANSFORMATIONS';
+    vm.menuOptions = [{
+      text: '_MENU_TABS_TRANSFORMATIONS_',
+      isDisabled: false,
+      name: 'TRANSFORMATIONS'
+    }, {
+      text: '_MENU_TABS_SAVE_OPTIONS_',
+      isDisabled: false,
+      name: 'SAVE_OPTIONS'
+    }];
+    vm.form = {
+      writer: {}
+    }
+
     vm.init();
 
     function init() {
       vm.outputsWidth = "m";
       vm.template = PolicyModelFactory.getTemplate();
+      vm.outputsTemplate = vm.template.model.outputs.writer;
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.modelAccordionStatus = [];
       if (vm.policy.transformations.length == 0) {
@@ -52,8 +68,8 @@
       ModelService.resetModel(vm.template);
     }
 
-    function cancelModelUpdatePanel(){
-      for(var i = 0; i< vm.modelAccordionStatus.length; i++){
+    function cancelModelUpdatePanel() {
+      for (var i = 0; i < vm.modelAccordionStatus.length; i++) {
         vm.modelAccordionStatus[i] = false;
       }
     }
@@ -64,9 +80,14 @@
         var selectedModelCopy = angular.copy(selectedModel);
         ModelFactory.setModel(selectedModelCopy, selectedModelPosition);
       } else {
-          ModelService.resetModel(vm.template);
+        ModelService.resetModel(vm.template);
       }
       ModelFactory.updateModelInputs(vm.policy.transformations);
+    }
+
+    function saveData(form){
+      console.log(form);
+      form.$submitted = true;
     }
 
     $scope.$on("forceValidateForm", function () {
@@ -102,6 +123,6 @@
           WizardStatusService.disableNextStep();
         }
       }
-    )
+    );
   }
 })();

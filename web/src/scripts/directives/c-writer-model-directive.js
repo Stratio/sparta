@@ -41,7 +41,7 @@
     return directive;
 
     function link(scope) {
-      if (!scope.model.writer) {
+      if (!scope.model || !scope.model.writer) {
         scope.model.writer = {outputs: []};
       }
 
