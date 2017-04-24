@@ -32,6 +32,12 @@ function initSpark() {
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${SYSTEM_VARIABLES}
+  if [ -v LIBPROCESS_IP ] && [ ${#LIBPROCESS_IP} != 0 ]; then
+    echo "" >> ${VARIABLES}
+    echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${VARIABLES}
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${SYSTEM_VARIABLES}
+  fi
 }
 
 function initHdfs() {

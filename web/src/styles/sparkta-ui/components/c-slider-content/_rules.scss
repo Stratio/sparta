@@ -22,6 +22,7 @@
     cursor: $c-slider-content__button---cursor;
     margin:$c-slider-content__button---margin;
     z-index:$c-slider-content__button---z-index;
+    display:block;
   }
 
   &--to-up {

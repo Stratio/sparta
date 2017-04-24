@@ -7,20 +7,21 @@
        data-ng-click="hideHelp()" data-qa="policy-navigation-help-remove"></i>
   </div>
   <ul class="c-step-progress-bar">
-    <section data-ng-repeat="step in structuredSteps" class="c-col c-col--{{12 / structuredSteps.length | truncatenum }}">
+    <section data-ng-repeat="step in structuredSteps" class="c-col c-col--{{12 / structuredSteps.length | truncatenum }}" 
+      data-ng-class="{'c-step-progress-bar__aux-option': step.auxStep}">
 
       <c-step data-ng-if="!thereAreAlternativeSteps(step)" data-ng-click="chooseStep($index, step.order)"
               class="c-col c-col--12"
               name="step.name" icon="step.icon" index="($index)" order="(step.order)" current-step="(current)"
-              data-has-been-visited="(visited[$index])"
+              data-has-been-visited="(visited[$index])" data-has-aux-step="step.auxStep"
               is-available="(nextStepAvailable)">
       </c-step>
       <div data-ng-if="thereAreAlternativeSteps(step)" class="c-col c-col--12 c-step-progress-bar__step-column"
-      data-ng-class ="{'c-step-progress-bar__step-column--enabled': nextStepAvailable && $index == current + 1}">
-        <c-step data-ng-repeat="subStep in step.subSteps" data-ng-click="chooseStep($parent.$index + $index, subStep.order)"
-                order="(subStep.order)"  index="($index + $parent.$index)"
+      data-ng-class ="{'c-step-progress-bar__step-column--enabled': nextStepAvailable && $index == current + 1, 'c-step-progress-bar__step-column2': $index == 2}">
+        <c-step data-ng-repeat="subStep in step.subSteps" data-ng-click="chooseStep(subStep.number, subStep.order)"
+                order="(subStep.order)"  index="(subStep.number)"
                 class="c-col c-col--12 c-step-progress-bar__alternative-step" name="subStep.name" icon="subStep.icon"
-                current-step="(current)" data-has-been-visited="(visited[$index + $parent.$index])"
+                current-step="(current)" data-has-been-visited="(visited[subStep.number])" is-last-step="subStep.isLastStep"
                 data-is-alternative = "true"
                 is-available="(nextStepAvailable)">
         </c-step>

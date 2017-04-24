@@ -5,7 +5,8 @@
                        data-next-step-available="(wizard.status.nextStepAvailable)"
                        on-click-next-step="wizard.onClickNextStep()"
                        data-edition-mode="wizard.editionMode"
-                       data-validation-fn="wizard.validateSettings">
+                       data-validation-fn="wizard.validateSettings"
+                       data-policy="wizard.policy">
   </c-step-progress-bar>
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
     <div class="c-slider-content__button c-icon" data-ng-click="changeHiddenSectionVisibility()"
@@ -32,11 +33,15 @@
         <ng-include src="'views/policy-wizard/transformation-step-content.html'"></ng-include>
       </div>
       <div data-ng-switch-when="3">
-        <ng-include src="'views/policy-wizard/trigger-step-content.html'"></ng-include>
+        <ng-include src="'views/policy-wizard/rawData-step-content.html'"></ng-include>
       </div>
       <div data-ng-switch-when="4">
+        <ng-include src="'views/policy-wizard/trigger-step-content.html'"></ng-include>
+      </div>
+      <div data-ng-switch-when="5">
         <ng-include src="'views/policy-wizard/cube-step-content.html'"></ng-include>
       </div>
+
       <footer class="c-row c-row--separated-bottom c-row--footer" ng-if="wizard.status.currentStep > 0">
         <div class="c-col c-col--12 c-col--vertical-centered">
           <button class="c-button c-button--call-to-action-1" data-ng-if="wizard.showPreviousStepButton()"
@@ -53,7 +58,7 @@
             <span>{{"_POLICY_._SAVE_" | translate}}</span>
           </button>
           <button
-            data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable,'c-button--call-to-action-2':!wizard.status.nextStepAvailable }"
+            data-ng-class="{'c-button--call-to-action-1':wizard.status.nextStepAvailable || wizard.status.currentStep == 2,'c-button--call-to-action-2':!wizard.status.nextStepAvailable && wizard.status.currentStep != 2}"
             class="c-button c-button--to-right" data-ng-if="wizard.showNextStepButton()"
             data-ng-click="wizard.onClickNextStep()"
             data-qa="policy-next-step-button">
