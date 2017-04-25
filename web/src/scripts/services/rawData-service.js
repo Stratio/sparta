@@ -157,7 +157,7 @@
       var sqlSourceItems = [];
       var sourceContainer = [];
       if (rawDataContainerType == rawDataConstants.TRANSFORMATION) {
-        sourceContainer = policy.transformations;
+        sourceContainer = policy.transformations.transformationsPipe;
         var sourceSqlItem = {};
         sourceSqlItem.name = rawDataConstants.STREAM_TABLE_NAME;
         sourceSqlItem.fields = [];

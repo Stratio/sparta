@@ -26,7 +26,7 @@
     },
     {
       "name": "_POLICY_._STEPS_._RAW_",
-      "icon": "icon-input",
+      "icon": "icon-a-b",
       "currentMessage": "_MESSAGE_._RAW_STEP_",
       "availableMessage": "_MESSAGE_._RAW_STEP_AVAILABLE_",
       "isLastStep": true,

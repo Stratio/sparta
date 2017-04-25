@@ -5,7 +5,7 @@
   <div data-ng-include="'views/policy-wizard/model-savedata.html'" data-ng-show="vm.selectedOption !== 'TRANSFORMATIONS'"></div>
 
   <form class="c-form c-panel c-panel--framed" novalidate data-ng-show="vm.selectedOption === 'TRANSFORMATIONS'">
-    <c-accordion items="vm.policy.transformations"
+    <c-accordion items="vm.policy.transformations.transformationsPipe"
                  item-template="'views/policy-wizard/model-panel.html'"
                  on-change-opened-element="vm.changeOpenedModel(selectedItemPosition)"
                  item-qa-tag="policy-model"

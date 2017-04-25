@@ -50,7 +50,7 @@
     init();
 
     function init() {
-      if(vm.policy.transformations.length){
+      if(vm.policy.transformations.transformationsPipe.length){
         WizardStatusService.enableNextStep();
       }
       if (vm.createMode) {
@@ -84,7 +84,7 @@
       var size = 'lg';
       var resolve = {
         title: function () {
-          return "title"
+          return "_RAWDATA_WINDOW_DELETE_TITLE_"
         },
         message: function () {
           return ""

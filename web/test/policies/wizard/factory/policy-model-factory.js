@@ -53,7 +53,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       expect(policy.autoDeleteCheckpoint).toBe(undefined);
       expect(policy.input).toEqual({});
       expect(policy.outputs).toEqual([]);
-      expect(policy.transformations).toEqual([]);
+      expect(policy.transformations.transformationsPipe).toEqual([]);
       expect(policy.cubes).toEqual([]);
     });
 
@@ -87,7 +87,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     expect(policy.autoDeleteCheckpoint).toBe(undefined);
     expect(policy.input).toEqual({});
     expect(policy.outputs).toEqual([]);
-    expect(policy.transformations).toEqual([]);
+    expect(policy.transformations.transformationsPipe).toEqual([]);
     expect(policy.cubes).toEqual([]);
   });
 
@@ -102,7 +102,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       var fakeModel2 = {"outputFields": [{name: "fake output1 of model 2"}, {name: "fake output2 of model 2"}]};
       var fakeModel3 = {"outputFields": [{name: "fake output1 of model 3"}, {name: "fake output2 of model 3"}]};
 
-      fakeApiPolicy.transformations = [fakeModel1, fakeModel2, fakeModel3];
+      fakeApiPolicy.transformations.transformationsPipe = [fakeModel1, fakeModel2, fakeModel3];
       factory.setPolicy(fakeApiPolicy);
 
       var modelOutputs = factory.getAllModelOutputs();

@@ -6,7 +6,7 @@
       <i class="c-icon icon-circle-cross"></i>
       <span>{{vm.rawDataError.text | translate}}</span>
     </div>
-    <div class="c-col" data-ng-class="{'c-col--12': width === 'lg', 'c-col--6': width === 'm'}">
+    <div class="c-col c-col--6">
       <form-field data-ng-repeat="properties in vm.template.properties" class="c-col" data-ng-class="{'c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
         data-ng-form-id="{{properties.propertyId}}" data-field="properties" data-model="vm.rawData" data-form="vm.form" data-st-name="rawData{{properties.propertyName}}Form"
         data-qa="{{properties.qa}}">

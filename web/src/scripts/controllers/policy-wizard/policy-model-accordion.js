@@ -21,11 +21,10 @@
     .module('webApp')
     .controller('PolicyModelAccordionCtrl', PolicyModelAccordionCtrl);
 
-  PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService',
-    '$scope'
+  PolicyModelAccordionCtrl.$inject = ['WizardStatusService', 'PolicyModelFactory', 'ModelFactory', 'ModelService', '$scope', 'ModalService', '$translate'
   ];
 
-  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService, $scope) {
+  function PolicyModelAccordionCtrl(WizardStatusService, PolicyModelFactory, ModelFactory, ModelService, $scope, ModalService, $translate) {
     var vm = this;
 
     vm.init = init;
@@ -34,6 +33,13 @@
     vm.changeOpenedModel = changeOpenedModel;
     vm.activateModelCreationPanel = activateModelCreationPanel;
     vm.saveData = saveData;
+    vm.createMode = true; //creation mode
+    vm.confirmDeleteSaveData = confirmDeleteSaveData;
+    vm.successMessage = {
+      type: 'success',
+      text: '',
+      internalTrace: ''
+    };
     vm.selectedOption = 'TRANSFORMATIONS';
     vm.menuOptions = [{
       text: '_MENU_TABS_TRANSFORMATIONS_',
@@ -44,19 +50,22 @@
       isDisabled: false,
       name: 'SAVE_OPTIONS'
     }];
-    vm.form = {
-      writer: {}
-    }
+
 
     vm.init();
 
     function init() {
+      resetSaveData();
       vm.outputsWidth = "m";
       vm.template = PolicyModelFactory.getTemplate();
       vm.outputsTemplate = vm.template.model.outputs.writer;
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.modelAccordionStatus = [];
-      if (vm.policy.transformations.length == 0) {
+      if (vm.policy.transformations.writer && vm.policy.transformations.writer.tableName) {
+         vm.createMode = false; //creation mode
+        vm.saveOptions.writer = angular.copy(vm.policy.transformations.writer);
+      }
+      if (vm.policy.transformations.transformationsPipe.length == 0) {
         ModelService.changeModelCreationPanelVisibility(true);
         activateModelCreationPanel();
       }
@@ -75,23 +84,65 @@
     }
 
     function changeOpenedModel(selectedModelPosition) {
-      if (vm.policy.transformations.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.length) {
-        var selectedModel = vm.policy.transformations[selectedModelPosition];
+      if (vm.policy.transformations.transformationsPipe.length > 0 && selectedModelPosition >= 0 && selectedModelPosition < vm.policy.transformations.transformationsPipe.length) {
+        var selectedModel = vm.policy.transformations.transformationsPipe[selectedModelPosition];
         var selectedModelCopy = angular.copy(selectedModel);
         ModelFactory.setModel(selectedModelCopy, selectedModelPosition);
       } else {
         ModelService.resetModel(vm.template);
       }
-      ModelFactory.updateModelInputs(vm.policy.transformations);
+      ModelFactory.updateModelInputs(vm.policy.transformations.transformationsPipe);
     }
 
-    function saveData(form){
-      console.log(form);
+    function saveData(form) {
       form.$submitted = true;
+      if (form.$valid) {
+        vm.createMode = false;
+        vm.policy.transformations.writer = vm.saveOptions.writer;
+        vm.form.$setPristine();
+        vm.successMessage.text = $translate.instant('_OPTIONS_SAVED_OK_');
+      }
+    }
+
+    function confirmDeleteSaveData() {
+      var templateUrl = "templates/modal/confirm-modal.tpl.html";
+      var controller = "ConfirmModalCtrl";
+      var extraClass = null;
+      var size = 'lg';
+      var resolve = {
+        title: function () {
+          return "_SAVE_OPTIONS_WINDOW_DELETE_TITLE_"
+        },
+        message: function () {
+          return ""
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, extraClass, size);
+      return modalInstance.result.then(function () {
+        removeSaveData();
+      });
+    }
+
+
+    function removeSaveData() {
+      vm.form.$submitted = false;
+      vm.form.$dirty = false;
+      vm.createMode = true; //creation mode
+      vm.creationPanel = false; //hide creationPanel
+      vm.policy.transformations.writer = {}; //remove curren raw data
+      resetSaveData(); //reset form
+    }
+
+    function resetSaveData() {
+      vm.saveOptions = {
+        writer: {
+          outputs: []
+        }
+      }
     }
 
     $scope.$on("forceValidateForm", function () {
-      if (vm.policy.transformations.length == 0) {
+      if (vm.policy.transformations.transformationsPipe.length == 0) {
         PolicyModelFactory.setError("_ERROR_._TRANSFORMATION_STEP_", "error");
       } else {
         if (vm.isActiveModelCreationPanel()) {
@@ -106,7 +157,7 @@
     $scope.$watchCollection(
       "vm.modelCreationStatus",
       function (modelCreationStatus) {
-        if (!modelCreationStatus.enabled && vm.policy.transformations.length > 0) {
+        if (!modelCreationStatus.enabled && vm.policy.transformations.transformationsPipe.length > 0) {
           WizardStatusService.enableNextStep();
         } else {
           WizardStatusService.disableNextStep();
@@ -115,7 +166,7 @@
     );
 
     $scope.$watchCollection(
-      "vm.policy.transformations",
+      "vm.policy.transformations.transformationsPipe",
       function (transformations) {
         if (transformations.length > 0) {
           WizardStatusService.enableNextStep();

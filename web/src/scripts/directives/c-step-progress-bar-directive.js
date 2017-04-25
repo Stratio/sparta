@@ -47,7 +47,7 @@
           scope.showHelp = false;
         };
         scope.chooseStep = function (index, order) {
-          var transformations = scope.policy.transformations;
+          var transformations = scope.policy.transformations.transformationsPipe;
           var input = scope.policy.input;
           
 
