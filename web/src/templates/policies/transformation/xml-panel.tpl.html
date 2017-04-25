@@ -5,7 +5,6 @@
                    data-options="vm.modelInputs"
                    data-field="label"
                    data-label="{{'_INPUT_FIELD_' | translate}}"
-                   data-disabled="!editionMode"
                    data-required="true"
                    data-qa="policy-description-raw-data-partition-format">
 </form-field-select>
@@ -15,7 +14,6 @@
             data-field="item"
             data-model="vm.model.configuration"
             data-form="vm.form"
-            data-disabled="!editionMode"
             data-st-name="modelXml_{{item.propertyName}}Form"
             data-qa="{{item.qa}}">
 </form-field>
@@ -25,7 +23,6 @@
                      data-st-name="model-configuration"
                      data-model="vm.model.configuration.queries"
                      data-required="true"
-                     data-disabled="!editionMode"
                      data-extra-info="'_CONFIGURATION_INFO_' | translate"
                      data-placeholder="vm.configPlaceholder"
                      data-qa="{{'policy-model-configuration-textarea'}}"
@@ -35,7 +32,6 @@
      data-ng-class="{'submited': vm.model.outputFields.length == 0 && vm.form.$submitted, 'ng-invalid': vm.model.outputFields.length == 0 && vm.form.$submitted}">
   <div class="c-form-control c-form-control--full-width">
     <c-add-element
-      data-ng-if="editionMode"
       data-icon-class="'c-icon c-icon--is-clickable c-icon--call-to-action c-info-text__icon icon-square-plus'"
       data-model="vm.model.outputFields"
       data-type="'text'"
@@ -51,7 +47,7 @@
       data-width="3">
     </c-add-element>
     <c-output-field-list name="model-outputs"
-                         data-edition-mode="editionMode"
+                         data-edition-mode="true"
                          data-inputs="vm.model.outputFields"
                          label-control-class="'c-label c-col'"
                          readonly="'true'"
@@ -62,8 +58,8 @@
                          data-min-length="1"
                          data-label="'_OUTPUTS_FIELDS_' | translate"
                          data-form="vm.form"
+                         data-delete-transform-input="vm.deleteTransformInput"
                          data-default-type="vm.outputFieldTypes[0].value"
-                         data-disabled-type="!editionMode"
                          data-output-types="vm.outputFieldTypes">
     </c-output-field-list>
   </div>

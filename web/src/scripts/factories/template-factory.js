@@ -33,6 +33,9 @@
       getPolicyJsonTemplate: function () {
         return ApiTemplateService.getPolicyJsonTemplate().get().$promise;
       },
+      getRawDataJsonTemplate: function () {
+        return ApiTemplateService.getRawDataJsonTemplate().get().$promise;
+      },
       getDimensionTemplateByType: function (dimensionType) {
         var defer = $q.defer();
         dimensionType = dimensionType ? dimensionType.toLowerCase() : 'default';

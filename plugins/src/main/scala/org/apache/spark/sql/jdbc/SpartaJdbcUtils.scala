@@ -150,7 +150,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
     val searchTypes = schema.fields.zipWithIndex.flatMap { case (field, index) =>
       if (searchFields.contains(field.name))
-        Option(index ->(searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
+        Option(index -> (searchFields.indexOf(field.name), getJdbcType(field.dataType, dialect).jdbcNullType))
       else None
     }.toMap
     val insert = insertWithExistsSql(table, schema, searchFields)
@@ -297,7 +297,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           // has been chosen and transactions are supported
           val defaultIsolation = metadata.getDefaultTransactionIsolation
           finalIsolationLevel = defaultIsolation
-          if (metadata.supportsTransactionIsolationLevel(isolationLevel))  {
+          if (metadata.supportsTransactionIsolationLevel(isolationLevel)) {
             // Finally update to actually requested level if possible
             finalIsolationLevel = isolationLevel
           } else {
@@ -385,7 +385,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           // has been chosen and transactions are supported
           val defaultIsolation = metadata.getDefaultTransactionIsolation
           finalIsolationLevel = defaultIsolation
-          if (metadata.supportsTransactionIsolationLevel(isolationLevel))  {
+          if (metadata.supportsTransactionIsolationLevel(isolationLevel)) {
             // Finally update to actually requested level if possible
             finalIsolationLevel = isolationLevel
           } else {
@@ -467,96 +467,96 @@ object SpartaJdbcUtils extends SLF4JLogging {
       case IntegerType =>
         insertStmt.setInt(fieldIndex + 1, row.getInt(fieldIndex))
         updateStmt.setInt(fieldIndex + 1, row.getInt(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setInt(numFields + 1 + indexSearch, row.getInt(fieldIndex))
             updateStmt.setInt(numFields + 1 + indexSearch, row.getInt(fieldIndex))
           }
       case LongType =>
         insertStmt.setLong(fieldIndex + 1, row.getLong(fieldIndex))
         updateStmt.setLong(fieldIndex + 1, row.getLong(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setLong(numFields + 1 + indexSearch, row.getLong(fieldIndex))
             updateStmt.setLong(numFields + 1 + indexSearch, row.getLong(fieldIndex))
           }
       case DoubleType =>
         insertStmt.setDouble(fieldIndex + 1, row.getDouble(fieldIndex))
         updateStmt.setDouble(fieldIndex + 1, row.getDouble(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setDouble(numFields + 1 + indexSearch, row.getDouble(fieldIndex))
             updateStmt.setDouble(numFields + 1 + indexSearch, row.getDouble(fieldIndex))
           }
       case FloatType =>
         insertStmt.setFloat(fieldIndex + 1, row.getFloat(fieldIndex))
         updateStmt.setFloat(fieldIndex + 1, row.getFloat(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setFloat(numFields + 1 + indexSearch, row.getFloat(fieldIndex))
             updateStmt.setFloat(numFields + 1 + indexSearch, row.getFloat(fieldIndex))
           }
       case ShortType =>
         insertStmt.setInt(fieldIndex + 1, row.getShort(fieldIndex))
         updateStmt.setInt(fieldIndex + 1, row.getShort(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setInt(numFields + 1 + indexSearch, row.getShort(fieldIndex))
             updateStmt.setInt(numFields + 1 + indexSearch, row.getShort(fieldIndex))
           }
       case ByteType =>
         insertStmt.setInt(fieldIndex + 1, row.getByte(fieldIndex))
         updateStmt.setInt(fieldIndex + 1, row.getByte(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setInt(numFields + 1 + indexSearch, row.getByte(fieldIndex))
             updateStmt.setInt(numFields + 1 + indexSearch, row.getByte(fieldIndex))
           }
       case BooleanType =>
         insertStmt.setBoolean(fieldIndex + 1, row.getBoolean(fieldIndex))
         updateStmt.setBoolean(fieldIndex + 1, row.getBoolean(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setBoolean(numFields + 1 + indexSearch, row.getBoolean(fieldIndex))
             updateStmt.setBoolean(numFields + 1 + indexSearch, row.getBoolean(fieldIndex))
           }
       case StringType =>
         insertStmt.setString(fieldIndex + 1, row.getString(fieldIndex))
         updateStmt.setString(fieldIndex + 1, row.getString(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setString(numFields + 1 + indexSearch, row.getString(fieldIndex))
             updateStmt.setString(numFields + 1 + indexSearch, row.getString(fieldIndex))
           }
       case BinaryType =>
         insertStmt.setBytes(fieldIndex + 1, row.getAs[Array[Byte]](fieldIndex))
         updateStmt.setBytes(fieldIndex + 1, row.getAs[Array[Byte]](fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setBytes(numFields + 1 + indexSearch, row.getAs[Array[Byte]](fieldIndex))
             updateStmt.setBytes(numFields + 1 + indexSearch, row.getAs[Array[Byte]](fieldIndex))
           }
       case TimestampType =>
         insertStmt.setTimestamp(fieldIndex + 1, row.getAs[java.sql.Timestamp](fieldIndex))
         updateStmt.setTimestamp(fieldIndex + 1, row.getAs[java.sql.Timestamp](fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setTimestamp(numFields + 1 + indexSearch, row.getAs[java.sql.Timestamp](fieldIndex))
             updateStmt.setTimestamp(numFields + 1 + indexSearch, row.getAs[java.sql.Timestamp](fieldIndex))
           }
       case DateType =>
         insertStmt.setDate(fieldIndex + 1, row.getAs[java.sql.Date](fieldIndex))
         updateStmt.setDate(fieldIndex + 1, row.getAs[java.sql.Date](fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setDate(numFields + 1 + indexSearch, row.getAs[java.sql.Date](fieldIndex))
             updateStmt.setDate(numFields + 1 + indexSearch, row.getAs[java.sql.Date](fieldIndex))
           }
       case t: DecimalType =>
         insertStmt.setBigDecimal(fieldIndex + 1, row.getDecimal(fieldIndex))
         updateStmt.setBigDecimal(fieldIndex + 1, row.getDecimal(fieldIndex))
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setBigDecimal(numFields + 1 + indexSearch, row.getDecimal(fieldIndex))
             updateStmt.setBigDecimal(numFields + 1 + indexSearch, row.getDecimal(fieldIndex))
           }
@@ -566,8 +566,8 @@ object SpartaJdbcUtils extends SLF4JLogging {
           row.getSeq[AnyRef](fieldIndex).toArray)
         insertStmt.setArray(fieldIndex + 1, array)
         updateStmt.setArray(fieldIndex + 1, array)
-        searchTypes.find { case (index, (indexSearch, nullType)) => index == fieldIndex }
-          .foreach { case (index, (indexSearch, nullType)) =>
+        searchTypes.find { case (index, (_, _)) => index == fieldIndex }
+          .foreach { case (_, (indexSearch, _)) =>
             insertStmt.setArray(numFields + 1 + indexSearch, array)
             updateStmt.setArray(numFields + 1 + indexSearch, array)
           }

@@ -21,15 +21,19 @@ import java.lang.{Double, Long}
 import java.nio.ByteBuffer
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.VaultHelper
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.kafka.clients.consumer.{RangeAssignor, RoundRobinAssignor}
+import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.common.utils.Bytes
+import org.apache.spark.SparkConf
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies, LocationStrategy}
+import org.apache.spark.streaming.kafka010._
+
+import scala.util.Try
 
 class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) with KafkaBase with SLF4JLogging {
 
@@ -39,7 +43,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   //scalastyle:off
   def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val groupId = getGroupId("group.id")
-    val metaDataBrokerList = if(properties.contains("metadata.broker.list"))
+    val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
     else getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val keySerializer = classOf[StringDeserializer]
@@ -49,44 +53,62 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     val topics = extractTopics
     val partitionStrategy = getPartitionStrategy
     val locationStrategy = getLocationStrategy
+    val autoOffset = getAutoOffset
+    val enableAutoCommit = getAutoCommit
+    val kafkaSecurityOptions = securityOptions(ssc.sparkContext.getConf)
 
-    serializerProperty match {
+    val inputDStream = serializerProperty match {
       case "long" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Long](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "int" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Int](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "double" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Double](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "bytebuffer" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, ByteBuffer](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "arraybyte" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Array[Byte]](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case "bytes" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, Bytes](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
       case _ =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](
-          topics, serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++ getCustomProperties)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](topics, enableAutoCommit ++
+          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties)
         KafkaUtils.createDirectStream[String, String](ssc, locationStrategy, consumerStrategy)
-          .map(data => Row(data.value()))
     }
+
+    if (!enableAutoCommit.head._2 && getAutoCommitInKafka) {
+      inputDStream.foreachRDD { rdd =>
+        val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+        inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+        log.info(s"Committed Kafka offsets --> ${
+          offsetRanges.map(offset =>
+            s"\tTopic: ${offset.topic}, Partition: ${offset.partition}, From: ${offset.fromOffset}, until: " +
+              s"${offset.untilOffset}"
+          ).mkString("\n")
+        }")
+      }
+    }
+
+    inputDStream.map(data => Row(data.value()))
   }
 
   //scalastyle:on
@@ -108,6 +130,25 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       case _ => classOf[StringDeserializer]
     }
 
+  /** OFFSETS MANAGEMENT **/
+
+  def getAutoOffset: Map[String, String] = {
+    val autoOffsetResetKey = "auto.offset.reset"
+    val autoOffsetResetValue = properties.getString(autoOffsetResetKey, "latest")
+
+    Map(autoOffsetResetKey -> autoOffsetResetValue)
+  }
+
+  def getAutoCommit: Map[String, java.lang.Boolean] = {
+    val autoCommitKey = "enable.auto.commit"
+    val autoCommitValue = Try(properties.getBoolean(autoCommitKey)).getOrElse(false)
+
+    Map(autoCommitKey -> autoCommitValue)
+  }
+
+  def getAutoCommitInKafka: Boolean =
+    Try(properties.getBoolean("storeOffsetInKafka")).getOrElse(true)
+
   /** LOCATION STRATEGY **/
 
   def getLocationStrategy: LocationStrategy =
@@ -120,7 +161,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
       case None => LocationStrategies.PreferConsistent
     }
 
-  /** PARTITION ASSIGMENT STRATEGY **/
+  /** PARTITION ASSIGNMENT STRATEGY **/
 
   def getPartitionStrategy: Map[String, String] = {
     val partitionStrategyKey = "partition.assignment.strategy"
@@ -131,5 +172,46 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
     }
 
     Map(partitionStrategyKey -> strategy)
+  }
+
+  def securityOptions(sparkConf: SparkConf): Map[String, AnyRef] = {
+    if (sparkConf.contains("spark.secret.kafka.security.protocol")) {
+      sparkConf.getAll.flatMap { case (key, value) =>
+        if (key.startsWith("spark.secret.kafka.")) {
+          Option((key.split("spark.secret.kafka.").tail.head.toLowerCase, value))
+        } else None
+      }.toMap
+    } else Map.empty[String, AnyRef]
+  }
+}
+
+object KafkaInput {
+
+  def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    val vaultPort = scala.util.Properties.envOrElse("VAULT_PORT", "8200")
+    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOST").map(host => s"https://$host:$vaultPort")
+    val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN")
+    val vaultCertPath = configuration.getString("vaultCertPath", None)
+    val vaultCertPassPath = configuration.getString("vaultCertPassPath", None)
+    val vaultKeyPassPath = configuration.getString("vaultKeyPassPath", None)
+
+    (vaultHost, vaultToken, vaultCertPath, vaultCertPassPath, vaultKeyPassPath) match {
+      case (Some(host), Some(token), Some(certPath), Some(certPassPath), Some(keyPassPath)) =>
+        Seq(
+          ("spark.secret.kafka.security.protocol", "SSL"),
+          ("spark.mesos.executor.docker.volumes",
+            "/etc/pki/ca-trust/extracted/java/cacerts/:/etc/ssl/certs/java/cacerts:ro"),
+          ("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PATH", certPath),
+          ("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PASS_PATH", certPassPath),
+          ("spark.mesos.driverEnv.KAFKA_VAULT_KEY_PASS_PATH", keyPassPath),
+          ("spark.executorEnv.VAULT_HOST", host),
+          ("spark.executorEnv.KAFKA_VAULT_CERT_PATH", certPath),
+          ("spark.executorEnv.KAFKA_VAULT_CERT_PASS_PATH", certPassPath),
+          ("spark.executorEnv.KAFKA_VAULT_KEY_PASS_PATH", keyPassPath),
+          ("spark.secret.vault.host", host),
+          ("spark.secret.vault.tempToken", VaultHelper.getTemporalToken(host, token))
+        )
+      case _ => Seq.empty[(String, String)]
+    }
   }
 }

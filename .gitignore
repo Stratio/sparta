@@ -10,6 +10,7 @@ syntax: glob
 *.out
 *.tmp
 *.swp
+output.txt
 
 # eclipse conf file
 .settings

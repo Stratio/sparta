@@ -4,7 +4,7 @@
     "modelType": "Kafka",
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
-      "long": "There is available in Sparta, a Kafka 0.10 fork made by Stratio using the Spark 1.6 profile to support security: https://github.com/Stratio/spark-kafka",
+      "long": "There is available in Sparta, a Kafka 0.10 version with security",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
 
     },
@@ -88,8 +88,7 @@
           }
         ],
         "default": "string",
-        "required": false,
-        "tooltip": "",
+        "required": true,
         "qa": "fragment-details-stratiokafkadirect-key-deserializer"
       },
       {
@@ -127,8 +126,7 @@
           }
         ],
         "default": "string",
-        "required": false,
-        "tooltip": "Bear in mind String and Array Byte are the only available types in Spark 1.5.x.",
+        "required": true,
         "qa": "fragment-details-stratiokafkadirect-value-deserializer"
       },
       {
@@ -146,15 +144,14 @@
           }
         ],
         "default": "range",
-        "required": false,
-        "tooltip": "Field valid only for Spark 1.6.x",
+        "required": true,
         "qa": "fragment-details-stratiokafkadirect-partition-assignment-strategy"
       },
       {
         "propertyId": "locationStrategy",
         "propertyName": "_LOCATION_STRATEGY_",
         "propertyType": "select",
-        "tooltip" : "Field valid only for Spark 1.6.x",
+        "tooltip" : "",
         "values": [
           {
             "label": "Prefer Consistent",
@@ -166,8 +163,81 @@
           }
         ],
         "default": "preferconsistent",
-        "required": false,
+        "tooltip": "PreferConsistent will distribute partitions evenly across available executors. If your executors are on the same hosts as your Kafka brokers, use PreferBrokers",
+        "required": true,
         "qa": "fragment-details-stratiokafkadirect-locationStrategy"
+      },
+      {
+        "propertyId": "auto.offset.reset",
+        "propertyName": "_KAFKA_AUTO_OFFSET_",
+        "propertyType": "select",
+        "tooltip" : "Auto offset reset",
+        "values": [
+          {
+            "label": "Earliest",
+            "value": "earliest"
+          },
+          {
+            "label": "Latest",
+            "value": "latest"
+          }
+        ],
+        "default": "latest",
+        "required": true,
+        "tooltip": "earliest : automatically reset the offset to the earliest offset. latest : automatically reset the offset to the latest offset",
+        "qa": "fragment-details-stratiokafkadirect-auto-offset"
+      },
+      {
+        "propertyId": "enable.auto.commit",
+        "propertyName": "_KAFKA_ENABLE_AUTOCOMMIT_",
+        "propertyType": "boolean",
+        "tooltip": "If true the consumer's offset will be periodically committed in the background",
+        "default": false,
+        "qa": "fragment-details-kafka-enable-autocommit"
+      },
+      {
+        "propertyId": "storeOffsetInKafka",
+        "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
+        "propertyType": "boolean",
+        "tooltip": "It's mandatory to disable the auto commit",
+        "default": true,
+        "visible": [
+          [
+            {
+              "propertyId": "enable.auto.commit",
+              "value": false
+            }
+          ]
+        ],
+        "qa": "fragment-details-kafka-offset-in-kafka"
+      },
+      {
+        "propertyId": "vaultCertPath",
+        "propertyName": "_KAFKA_CERT_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/spark",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPath"
+      },
+      {
+        "propertyId": "vaultCertPassPath",
+        "propertyName": "_KAFKA_CERT_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPassPath"
+      },
+      {
+        "propertyId": "vaultKeyPassPath",
+        "propertyName": "_KAFKA_KEY_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "regexp": "",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultKeyPassPath"
       },
       {
         "propertyId": "kafkaProperties",

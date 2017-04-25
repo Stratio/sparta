@@ -531,6 +531,30 @@
         "qa": "fragment-details-jdbc-batch-size"
       },
       {
+        "propertyId": "driver",
+        "propertyName": "_JDBC_DRIVER_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "",
+        "required": false,
+        "tooltip": "Driver class, this property has priority to URL",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
+        "propertyId": "numPartitions",
+        "propertyName": "_JDBC_NUM_PARTITIONS_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "",
+        "required": false,
+        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -606,11 +630,23 @@
         "qa": "fragment-details-postgres-new-line-substitution"
       },
       {
+        "propertyId": "encoding",
+        "propertyName": "_POSTGRES_ENCODING_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "UTF8",
+        "required": false,
+        "tooltip": "Charset encoding to use during saving",
+        "qa": "fragment-details-postgres-encoding"
+      },
+      {
         "propertyId": "bufferSize",
         "propertyName": "_POSTGRES_BUFFER_SIZE_",
         "propertyType": "text",
         "width": 6,
-        "align": "right",
+        "align": "left",
         "default": "65536",
         "required": false,
         "tooltip": "Number of characters to buffer and push over network to server at once on insert mode",
@@ -622,11 +658,35 @@
         "propertyType": "text",
         "regexp": "",
         "width": 6,
-        "align": "left",
+        "align": "right",
         "default": "1000",
         "required": false,
         "tooltip": "Number of upsert statements that are sent to Database on each partition",
         "qa": "fragment-details-jdbc-batch-size"
+      },
+      {
+        "propertyId": "driver",
+        "propertyName": "_JDBC_DRIVER_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "left",
+        "default": "",
+        "required": false,
+        "tooltip": "Driver class, this property has priority to URL",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
+        "propertyId": "numPartitions",
+        "propertyName": "_JDBC_NUM_PARTITIONS_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "align": "right",
+        "default": "",
+        "required": false,
+        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
+        "qa": "fragment-details-jdbc-driver"
       },
       {
         "propertyId": "saveOptions",
@@ -658,18 +718,6 @@
             "qa": "fragment-details-postgres-saveOptionsValue"
           }
         ]
-      },
-      {
-        "propertyId": "encoding",
-        "propertyName": "_POSTGRES_ENCODING_",
-        "propertyType": "text",
-        "regexp": "",
-        "width": 10,
-        "align": "left",
-        "default": "UTF8",
-        "required": false,
-        "tooltip": "Charset encoding to use during saving",
-        "qa": "fragment-details-postgres-encoding"
       }
     ]
   },
@@ -677,20 +725,20 @@
     "name": "Kafka",
     "modelType": "Kafka",
     "description": {
-      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log.",
-      "long": "There is available in Sparta, a Kafka 0.10 fork made by Stratio using the Spark 1.6 profile to support security: https://github.com/Stratio/spark-kafka",
+      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
+      "long": "There is available in Sparta with Kafka 0.10 version",
       "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Kafka"
     },
     "properties": [
       {
-        "propertyId": "metadata.broker.list",
-        "propertyName": "_METADATA_BROKER_LIST_",
+        "propertyId": "bootstrap.servers",
+        "propertyName": "_BOOTSTRAP_SERVERS_",
         "propertyType": "list",
         "regexp": "",
         "default": "",
         "required": true,
         "tooltip": "Kafka host/port to connect",
-        "qa": "fragment-details-kafka-metadata-broker-list",
+        "qa": "fragment-details-kafka-bootstrap-servers",
         "fields": [
           {
             "propertyId": "host",
@@ -717,44 +765,85 @@
         ]
       },
       {
-        "propertyId": "serializer.class",
-        "propertyName": "_SERIALIZER_",
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
         "propertyType": "text",
         "regexp": "",
-        "default": "kafka.serializer.StringEncoder",
+        "default": "org.apache.kafka.common.serialization.StringSerializer",
         "required": true,
         "tooltip": "",
-        "qa": "fragment-details-kafka-serializer-class"
+        "qa": "fragment-details-kafka-key-serializer-class"
       },
       {
-        "propertyId": "request.required.acks",
-        "propertyName": "_REQUIRED_ACKS_",
-        "propertyType": "boolean",
-        "regexp": "true|false",
-        "default": false,
+        "propertyId": "value.serializer",
+        "propertyName": "_VALUE_SERIALIZER_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "org.apache.kafka.common.serialization.StringSerializer",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-value-serializer-class"
+      },
+      {
+        "propertyId": "acks",
+        "propertyName": "_ACKS_",
+        "propertyType": "text",
+        "default": "0",
         "required": false,
         "tooltip": "Specifies whether the producer waits for an acknowledgment from the broker.",
         "qa": "fragment-details-kafka-request-required-acks"
       },
       {
-        "propertyId": "producer.type",
-        "propertyName": "_PRODUCER_TYPE_",
-        "propertyType": "text",
-        "regexp": "async|sync",
-        "default": "async",
-        "required": true,
-        "tooltip": "Specifies whether the messages are sent asynchronously in a background thread. Set to sync by default",
-        "qa": "fragment-details-kafka-producer-type"
-      },
-      {
-        "propertyId": "batch.num.messages",
+        "propertyId": "batch.size",
         "propertyName": "_BATCH_NUM_MESSAGES_",
         "propertyType": "text",
         "regexp": "[0-9]+",
         "default": "200",
-        "required": true,
-        "tooltip": "The number of messages to send in one batch when using async mode",
+        "required": false,
+        "tooltip": "The number of messages to send in one batch",
         "qa": "fragment-details-kafka-batch-num-messages"
+      },
+      {
+        "propertyId": "ssl.truststore.location",
+        "propertyName": "_SSL_TRUSTSTORE_LOCATION_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "tooltip": "Example: /some-directory/kafka.client.truststore.jks",
+        "qa": "fragment-details-kafka-truststore-location"
+      },
+      {
+        "propertyId": "ssl.truststore.password",
+        "propertyName": "_SSL_TRUSTSTORE_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-batch-truststore-password"
+      },
+      {
+        "propertyId": "ssl.keystore.location",
+        "propertyName": "_SSL_KEYSTORE_LOCATION_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "tooltip": "Example: /some-directory/kafka.client.keystore.jks",
+        "qa": "fragment-details-kafka-keystore-location"
+      },
+      {
+        "propertyId": "ssl.keystore.password",
+        "propertyName": "_SSL_KEYSTORE_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-keystore-password"
+      },
+      {
+        "propertyId": "ssl.key.password",
+        "propertyName": "_SSL_KEY_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-key-password"
       },
       {
         "propertyId": "kafkaProperties",

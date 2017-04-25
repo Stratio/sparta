@@ -96,16 +96,10 @@ object PolicyValidator {
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
           "There is at least one cube without dimensions")),
-      (policy.outputs.nonEmpty
-        || (policy.streamTriggers.nonEmpty
-        && policy.streamTriggers.forall(trigger => trigger.writer.outputs.nonEmpty)),
+      (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty || policy.rawData.isDefined,
         new ErrorModel(
-          ErrorModel.ValidationError_The_policy_needs_at_least_one_output,
-          "The policy needs at least one output or one trigger in the cube with output")),
-      (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty,
-        new ErrorModel(
-          ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger,
-          "The policy needs at least one cube or one trigger")),
+          ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data,
+          "The policy needs at least one cube, one trigger or save raw data")),
       (policy.cubes.forall(cube =>
         cube.writer.outputs.forall(output =>
           outputsNames.contains(output))),

@@ -20,7 +20,11 @@ describe('directive.c-step-progress-bar-directive', function () {
     var currentStep = 4;
     beforeEach( inject(function ($compile, $httpBackend){
       scope.currentStep = currentStep;
-      directive = angular.element('<c-step-progress-bar current-step = "currentStep"> </c-step-progress-bar>');
+      scope.policy = {
+        transformations: [],
+        input: {}
+      }
+      directive = angular.element('<c-step-progress-bar policy = "policy" current-step = "currentStep"> </c-step-progress-bar>');
       directive = $compile(directive)(scope);
 
       scope.$digest();
@@ -31,7 +35,7 @@ describe('directive.c-step-progress-bar-directive', function () {
 
     it("if selected step is not the next to the current, current step is not changed", function () {
       newCurrentStep= 7;
-      isolatedScope.chooseStep(newCurrentStep);
+      isolatedScope.chooseStep(newCurrentStep, newCurrentStep);
       scope.$digest();
       expect(isolatedScope.current).toBe(currentStep);
     });
@@ -40,19 +44,6 @@ describe('directive.c-step-progress-bar-directive', function () {
       newCurrentStep= 2;
       isolatedScope.chooseStep(newCurrentStep);
       scope.$digest();
-      expect(isolatedScope.current).toBe(newCurrentStep);
-    });
-
-    it("if selected step is just the follow to the current, only if it is available, current step is changed", function () {
-      newCurrentStep= 5;
-      isolatedScope.nextStepAvailable= false;
-
-      isolatedScope.chooseStep(newCurrentStep);
-      scope.$digest();
-      expect(isolatedScope.current).toBe(currentStep);
-
-      isolatedScope.nextStepAvailable= true;
-      isolatedScope.chooseStep(newCurrentStep);
       expect(isolatedScope.current).toBe(newCurrentStep);
     });
 

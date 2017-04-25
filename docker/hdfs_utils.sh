@@ -9,133 +9,13 @@ function make_directory() {
 	|| echo "[$module] Something was wrong creating $dir directory or already exists"
 }
 
-function configure_core-site() {
-	local defaultfs=$1
-  local namenode_principal=$2
-  local namenode_principal_pattern=$3
-	local ha_enable=$4
-	local nameservice=$5
-	local namenode1_address=$6
-	local namenode2_address=$7
-	local namenode1_http_address=$8
-	local namenode2_http_address=$9
-
-	sed -i "s#_<DEFAULTFS>_#$defaultfs#" /tmp/core-site.xml.tmp \
-	&& echo "[CORE-SITE] HOSTNAME: $defaultFS configured in /tmp/core-site.xml.tmp" \
-	|| echo "[CORE-SITE] Something went wrong when configuring defaultfs"
-
-  sed -i "s#_<NAMENODE_PRINCIPAL>_#$namenode_principal#" /tmp/core-site.xml.tmp \
-	&& echo "[CORE-SITE] DOMAIN: $namenode_principal configured in /tmp/core-site.xml.tmp" \
-	|| echo "[CORE-SITE] Something went wrong when configuring hadoop namenode_principal"
-
-
-  if [[ $ha_enable == 'true' ]]; then
-  	sed -i "s#_<NAMESERVICE>_#$nameservice#" /tmp/core-site.xml.tmp \
-    && echo "[CORE-SITE] NAMESERVICE: $nameservice configured in /tmp/core-site.xml.tmp" \
-    || echo "[CORE-SITE] Something went wrong when configuring nameservice"
-
-    sed -i "s#_<NAMENODE1_ADDRESS>_#$namenode1_address#g" /tmp/core-site.xml.tmp \
-    && echo "[CORE-SITE] NN1: $namenode1_address configured in /tmp/core-site.xml.tmp" \
-    || echo "[CORE-SITE] Something went wrong when configuring namenode1 address"
-
-    sed -i "s#_<NAMENODE2_ADDRESS>_#$namenode2_address#g" /tmp/core-site.xml.tmp \
-    && echo "[CORE-SITE] NN2: $namenode2_address configured in /tmp/core-site.xml.tmp" \
-    || echo "[CORE-SITE] Something went wrong when configuring namenode2 address"
-
-    sed -i "s#_<NAMENODE1_HTTP_ADDRESS>_#$namenode1_http_address#g" /tmp/core-site.xml.tmp \
-    && echo "[CORE-SITE] NN1 HTTP ADDRESS: $namenode1_http_address configured in /tmp/core-site.xml.tmp" \
-    || echo "[CORE-SITE] Something went wrong when configuring namenode1 http address"
-
-    sed -i "s#_<NAMENODE2_HTTP_ADDRESS>_#$namenode2_http_address#g" /tmp/core-site.xml.tmp \
-    && echo "[CORE-SITE] NN2 HTTP ADDRESS: $namenode2_http_address configured in /tmp/core-site.xml.tmp" \
-    || echo "[CORE-SITE] Something went wrong when configuring namenode2 http address"
-
-  fi
-
-}
-
-function generate_core-site() {
-	local namenode_principal=$1
-	local ha_enable=$2
-
-	if [[ $ha_enable == 'false' ]]; then
-	cat << EOF > /tmp/core-site.xml.tmp
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
-<configuration>
-  <property>
-    <name>fs.defaultFS</name>
-    <value>hdfs://_<DEFAULTFS>_</value>
-  </property>
-  <property>
-   <name>dfs.permissions.enabled</name>
-   <value>true</value>
-  </property>
-  <property>
-   <name>dfs.permissions</name>
-   <value>true</value>
-  </property>
-</configuration>
-
-EOF
-else
-cat << EOF > /tmp/core-site.xml.tmp
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
-<configuration>
-  <property>
-    <name>fs.defaultFS</name>
-    <value>hdfs://_<DEFAULTFS>_</value>
-  </property>
-  <property>
-   <name>dfs.permissions.enabled</name>
-   <value>false</value>
-  </property>
-  <property>
-   <name>dfs.permissions</name>
-   <value>false</value>
-  </property>
-   <property>
-    <name>dfs.nameservices</name>
-    <value>_<NAMESERVICE>_</value>
-  </property>
-  <property>
-    <name>dfs.ha.namenodes._<NAMESERVICE>_</name>
-    <value>nn1,nn2</value>
-  </property>
-  <property>
-    <name>dfs.namenode.rpc-address.mycluster.nn1</name>
-    <value>_<NAMENODE1_ADDRESS>_</value>
-  </property>
-  <property>
-    <name>dfs.namenode.rpc-address.mycluster.nn2</name>
-    <value>_<NAMENODE2_ADDRESS>_</value>
-  </property>
-  <property>
-    <name>dfs.namenode.http-address.mycluster.nn1</name>
-    <value>_<NAMENODE1_HTTP_ADDRESS>_</value>
-  </property>
-  <property>
-    <name>dfs.namenode.http-address.mycluster.nn2</name>
-    <value>_<NAMENODE2_HTTP_ADDRESS>_</value>
-  </property>
-</configuration>
-
-EOF
-fi
-
-  echo -e "[CORE-SITE] hadoop core-site.xml template was created"
-}
-
 function generate_core-site-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
-  wget "http://${DEFAULT_FS}:50070/conf"
+  wget "${HADOOP_CONF_URI}/conf"
   cp conf "${CORE_SITE}"
   rm -f conf
-  sed -i "s|0.0.0.0|${DEFAULT_FS}|" ${CORE_SITE}
+  sed -i "s|0.0.0.0|${HADOOP_FS_DEFAULT_NAME}|" ${CORE_SITE}
 
   if [[ $? == 0 ]]; then
     echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
@@ -147,29 +27,188 @@ function generate_core-site-from-uri() {
   echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
 }
 
-function generate_core-site-from-fs() {
+function generate_hdfs-conf-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP"
-
-  ENABLE_HA=${ENABLE_HA:=false}
-  NAMESERVICE=${NAMESERVICE:=stratio}
-  NAMENODE1_ADDRESS=${NAMENODE1_ADDRESS:=namenode1:8020}
-  NAMENODE2_ADDRESS=${NAMENODE2_ADDRESS:=namenode2:8020}
-  NAMENODE1_HTTP_ADDRESS=${NAMENODE1_HTTP_ADDRESS:=namenode1:50070}
-  NAMENODE2_HTTP_ADDRESS=${NAMENODE2_HTTP_ADDRESS:=namenode2:50070}
-  NAMENODE_PRINCIPAL=${NAMENODE_PRINCIPAL:=hdfs/localhost}
-
-  generate_core-site ${NAMENODE_PRINCIPAL} ${ENABLE_HA}
-
-  configure_core-site $DEFAULT_FS $NAMENODE_PRINCIPAL ${ENABLE_HA} ${NAMESERVICE} ${NAMENODE1_ADDRESS} ${NAMENODE2_ADDRESS} ${NAMENODE1_HTTP_ADDRESS} ${NAMENODE2_HTTP_ADDRESS}
-
-  mv -f /tmp/core-site.xml.tmp $HADOOP_CONF_DIR/core-site.xml
+  CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
+  HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
+  wget "${HADOOP_CONF_URI}/core-site.xml"
+  wget "${HADOOP_CONF_URI}/hdfs-site.xml"
+  cp core-site.xml "${CORE_SITE}"
+  cp hdfs-site.xml "${HDFS_SITE}"
+  rm -f core-site.xml
+  rm -f hdfs-site.xml
 
   if [[ $? == 0 ]]; then
-    echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
-    echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
     exit 1
   fi
-  echo "" >> ${SYSTEM_VARIABLES}
-  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
+}
+
+function generate_hdfs-conf-from-fs() {
+  make_directory $HADOOP_CONF_DIR "HADOOP"
+
+cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+        <configuration>
+           <property>
+             <name>hadoop.security.authentication</name>
+             <value>__<SECURITY_AUTH>__</value>
+           </property>
+           <property>
+             <name>fs.default.name</name>
+             <value>__<FS_DEFAULT_NAME>__</value>
+           </property>
+           <property>
+                 <name>hadoop.rpc.protection</name>
+                 <value>__<RPC_PROTECTION>__</value>
+            </property>
+          <property>
+               <name>dfs.encrypt.data.transfer</name>
+               <value>__<ENCRYPT_DATA_TRANSFER>__</value>
+          </property>
+          <property>
+               <name>hadoop.security.token.service.use_ip</name>
+               <value>__<SECURITY_TOKEN_USE_IP>__</value>
+          </property>
+        </configuration>
+EOF
+
+sed -i "s#__<SECURITY_AUTH>__#$HADOOP_SECURITY_AUTH#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] hadoop.security.authentication configured in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_SECURITY_AUTH was configured in core-site.xml"
+
+sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] fs.default.name in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
+
+sed -i "s#__<RPC_PROTECTION>__#$HADOOP_RPC_PROTECTION#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] hadoop.rpc.protection in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_RPC_PROTECTION was configured in core-site.xml"
+
+sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] dfs.encrypt.data.transfer in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in core-site.xml"
+
+sed -i "s#__<SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] hadoop.security.token.service.use_ip configured in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in core-site.xml"
+
+cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+        <configuration>
+          <property>
+               <name>dfs.namenode.kerberos.principal</name>
+               <value>__<KERBEROS_PRINCIPAL>__</value>
+          </property>
+          <property>
+               <name>dfs.namenode.kerberos.principal.pattern</name>
+               <value>__<KERBEROS_PRINCIPAL_PATTERN>__</value>
+          </property>
+          <property>
+               <name>dfs.encrypt.data.transfer</name>
+               <value>__<ENCRYPT_DATA_TRANSFER>__</value>
+          </property>
+          <property>
+               <name>dfs.encrypt.data.transfer.cipher.suites</name>
+               <value>__<ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__</value>
+          </property>
+          <property>
+               <name>dfs.encrypt.data.transfer.cipher.key.bitlength</name>
+               <value>__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__</value>
+          </property>
+        </configuration>
+EOF
+
+sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& echo "[hdfs-site.xml] dfs.namenode.kerberos.principal in hdfs-site.xml" \
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL was configured in hdfs-site.xml"
+
+sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& echo "[hdfs-site.xml] dfs.namenode.kerberos.principal.pattern in hdfs-site.xml" \
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
+
+sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer in hdfs-site.xml" \
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in hdfs-site.xml"
+
+sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer.cipher.suites in hdfs-site.xml" \
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES was configured in hdfs-site.xml"
+
+sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer.cipher.key.bitlength in hdfs-site.xml" \
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH was configured in hdfs-site.xml"
+
+
+  if [[ $? == 0 ]]; then
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
+  else
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
+    exit 1
+  fi
+}
+
+function generate_hdfs-conf-from-fs-not-secured() {
+  make_directory $HADOOP_CONF_DIR "HADOOP"
+
+cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+        <configuration>
+           <property>
+             <name>fs.default.name</name>
+             <value>__<FS_DEFAULT_NAME>__</value>
+           </property>
+           <property>
+             <name>hadoop.security.authentication</name>
+             <value>simple</value>
+           </property>
+           <property>
+             <name>hadoop.http.authentication.type</name>
+             <value>simple</value>
+           </property>
+           <property>
+             <name>hadoop.security.authorization</name>
+             <value>false</value>
+           </property>
+           <property>
+             <name>hbase.security.authentication</name>
+             <value>Simple</value>
+           </property>
+           <property>
+             <name>hbase.security.authorization</name>
+             <value>false</value>
+           </property>
+           <property>
+             <name>ipc.client.fallback-to-simple-auth-allowed</name>
+             <value>true</value>
+           </property>
+           <property>
+             <name>dfs.replication</name>
+              <value>1</value>
+           </property>
+        </configuration>
+EOF
+
+sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/core-site.xml" \
+&& echo "[core-site.xml] fs.default.name in core-site.xml" \
+|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
+
+
+  if [[ $? == 0 ]]; then
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
+  else
+    echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured was NOT configured"
+    exit 1
+  fi
 }

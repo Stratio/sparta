@@ -44,16 +44,17 @@ function getPass() {
             secret_map[$key]="$value"
         done < <(echo "$data" | jq -r "to_entries|map(\"\(.key)=\(.value)\")|.[]")
 
-        underscore_instance=${instance//-/_}
-        underscore_secret=${secret//-/_}
+        underscore_instance=${instance//[.-]/_}
+        underscore_secret=${secret//[.-]/_}
         for key in "${!secret_map[@]}"
         do
-            underscore_key=${key//-/_}
+            underscore_key=${key//[.-]/_}
             export "${underscore_instance^^}"_"${underscore_secret^^}"_"${underscore_key^^}"="${secret_map[$key]}"
             _log "<< getpass - $instance $secret obtained succesfully"
         done
     else
         _log "<< getpass - error -1 requesting $instance $secret"
+        return 1
     fi
 
     IFS=$OLD_IFS
@@ -78,7 +79,7 @@ function getKrb() {
     local instance=$2
     local fqdn=$3
     local store_path=$4
-    declare -n principal=$5
+    local principal=$5
     local krb_credentials=''
     local encoded_ktab=''
 
@@ -94,7 +95,9 @@ function getKrb() {
     if [[ $status_code == 200 ]]; then
         json_princ_key="$fqdn"_principal
         json_ktab_key="$fqdn"_keytab
-        principal=$(echo "$krb_credentials" | jq -cMSr --arg fqdn "$json_princ_key" '.data[$fqdn]')
+        local principal_value
+        principal_value=$(echo "$krb_credentials" | jq -cMSr --arg fqdn "$json_princ_key" '.data[$fqdn]')
+        eval "$principal=$principal_value"
         encoded_ktab=$(echo "$krb_credentials" | jq -cMSr --arg fqdn "$json_ktab_key" '.data[$fqdn]')
         _log "<< getkrb - credentials to $fqdn downloaded"
 
@@ -191,8 +194,9 @@ function getCert() {
             P12|JKS)
                 p12_temp=$(mktemp -p /dev/shm)
                 getPass "$cluster" "$instance" keystore
-                underscore_instance=${instance//-/_}
+                underscore_instance=${instance//[-.]/_}
                 ptr_password="${underscore_instance^^}_KEYSTORE_PASS"
+
                 openssl pkcs12 -export \
                     -inkey "$temp_pem_priv" \
                     -in "$temp_pem_pub" \
@@ -265,9 +269,6 @@ function getCAbundle() {
     local result=''
     local status_code=''
 
-    #TODO[xd-mail 20161212]: get password from vault passwords
-    #TODO[xd-mail 20161212]: add keystore filename as parameter
-
     # get CAs list from ca-trust/certificates
     # for each ca append to $store_path/ca-bundle.pem
     # if format = jks
@@ -291,9 +292,15 @@ function getCAbundle() {
             result=$(_get_from_vault ca-trust/certificates/"$ca")
             IFS=',' read -r status_code ca_pub_key <<< "$result"
             if [[ $status_code == 200 ]]; then
-                echo "$ca_pub_key" | jq -cMSr ".data .${ca}_crt" > "$temp_pem"
-                sed 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\n/g' "$temp_pem" \
-                  | sed 's/-----END CERTIFICATE-----/\n-----END CERTIFICATE-----/g' > "$formated_pem"
+
+                json_crt="$fqdn"_crt
+                ca_public_key=$(echo "$ca_pub_key" | jq -cMSr --arg fqdn "$json_crt" '.data[$fqdn]')
+
+                echo "$ca_pub_key" | jq -cMSr ".data .${ca}_crt" | sed \
+                    -e 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\n/g' \
+                    -e 's/-----END CERTIFICATE-----/\n-----END CERTIFICATE-----/g' \
+                    -e 's/-----END CERTIFICATE----------BEGIN CERTIFICATE-----/-----END CERTIFICATE-----\n-----BEGIN CERTIFICATE-----/g'> "$formated_pem"
+
                 if [[ "$format" == "PEM" ]]; then
                     if [ "$bundle_file" == "ca-bundle" ]
                     then
@@ -313,7 +320,8 @@ function getCAbundle() {
                         bundle_file=${bundle_file}.jks
                     fi
                     getPass "$cluster" "$instance" keystore
-                    ptr_password="${instance^^}_KEYSTORE_PASS"
+                    upcase_instance=${instance^^}
+                    ptr_password="${upcase_instance//[.-]/_}_KEYSTORE_PASS"
                     keytool -import -noprompt -alias "$ca" -keystore "$store_path/$bundle_file" \
                         -storepass "${!ptr_password}" -file "$formated_pem" >/dev/null 2>&1
                     if [[ $? == 0 ]]; then
@@ -388,17 +396,23 @@ function _get_from_vault() {
 #          1 configuration key
 #          2 configuration value
 #          3 configuration file
+#          4 [mod] substitute till the end of the line
 #     OUTPUTS:
 #
 # Supported key formats:
-#     key1=<value>  | key2 = <value> | key3:<value> | key4: <value> | "key5": "<value>" | "key6": "<value>",
+#     key1=<value>  | key2 = <value> | key3:<value> | key4: <value> | "key5": "<value>" | "key6": "<value>", | key7 value
 #
 function key_substitution() {
     local key=$1
     local value=$2
     local file=$3
+    local eol=$4
 
-    sed -ri "s#(\"|)($key)(\s|\"|)(=|:)(\s|)(\"|)(\w+)(\"|)(,|\s|)#\1\2\3\4\5\6$value\8\9#g" "$file"
+    if [[ $eol ]]; then
+        sed -ri "s#(\"|)($key)(\s|\"|)(=|:| )(\s|)(\"|)(\w+).*#\1\2\3\4\5\6$value#g" "$file"
+    else
+        sed -ri "s#(\"|)($key)(\s|\"|)(=|:| )(\s|)(\"|)(\w+)(\"|)(,|\s|)#\1\2\3\4\5\6$value\8\9#g" "$file"
+    fi
     if [[ $? == 0 ]]; then
         _log "key_substitution - $key configured in $file"
     else
@@ -414,7 +428,7 @@ function _log() {
     if [[ "$JOURNAL_LOG" == "true" ]]; then
         echo "$(date +'%b %d %R:%S.%N') $message" | systemd-cat -t vault
     else
-        echo -e "$(date +'%b %d %R:%S.%N') [vault-utils] $message" | tee -a "$PWD/vault-utils.log"
+        echo -e "$(date +'%b %d %R:%S.%N') [vault-utils] $message\n" | tee -a "$PWD/vault-utils.log"
     fi
 }
 

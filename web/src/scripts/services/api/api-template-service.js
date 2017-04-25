@@ -31,67 +31,92 @@
     vm.getOperatorTemplateByType = getOperatorTemplateByType;
     vm.getTriggerTemplateByType = getTriggerTemplateByType;
     vm.getPolicyJsonTemplate = getPolicyJsonTemplate;
+    vm.getRawDataJsonTemplate = getRawDataJsonTemplate;
 
     /////////////////////////////////
 
     function getFragmentTemplateByType() {
-      return $resource('/data-templates/:type', {type: '@type'},
-        {
-          'get': {
-            method: 'GET', isArray: true,
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/data-templates/:type', {
+        type: '@type'
+      }, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function getPolicyTemplate() {
-      return $resource('/data-templates/policy.json',{},
-        {
-          'get': {
-            method: 'GET',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+      return $resource('/data-templates/policy.json', {}, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
-    function getPolicyJsonTemplate(){
-        return $resource('/data-templates/policy-modal.json',{},
-        {
-          'get': {
-            method: 'GET',
-            timeout: apiConfigSettings.timeout
-          }
-        });
+    function getPolicyJsonTemplate() {
+      return $resource('/data-templates/policy-modal.json', {}, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+
+    function getRawDataJsonTemplate() {
+      return $resource('/data-templates/raw-data.json', {}, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function getDimensionTemplateByType() {
-      return $resource('/data-templates/dimension/:type', {type: '@type'},
-          {
-            'get': {
-              method: 'GET',
-              timeout: apiConfigSettings.timeout
-            }
-          });
+      return $resource('/data-templates/dimension/:type', {
+        type: '@type'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
-    
+
+    function getDimensionTemplateByType() {
+      return $resource('/data-templates/dimension/:type', {
+        type: '@type'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
     function getOperatorTemplateByType() {
-      return $resource('/data-templates/operator/:type', {type: '@type'},
-          {
-            'get': {
-              method: 'GET',
-              timeout: apiConfigSettings.timeout
-            }
-          });
+      return $resource('/data-templates/operator/:type', {
+        type: '@type'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
 
     function getTriggerTemplateByType() {
-      return $resource('/data-templates/trigger/:type', {type: '@type'},
-          {
-            'get': {
-              method: 'GET',
-              timeout: apiConfigSettings.timeout
-            }
-          });
+      return $resource('/data-templates/trigger/:type', {
+        type: '@type'
+      }, {
+        'get': {
+          method: 'GET',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
   }
 })();
