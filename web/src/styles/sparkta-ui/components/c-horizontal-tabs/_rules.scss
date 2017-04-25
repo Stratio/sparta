@@ -9,7 +9,8 @@
   }
   &__option {
     display: inline-block;
-    width: 150px;
+    min-width: 135px;
+    padding-right: 15px;
     height: $c-horizontal-tabs__option---height;
     line-height: $c-horizontal-tabs__option---line-height;
     box-sizing: $c-horizontal-tabs__option---box-sizing;

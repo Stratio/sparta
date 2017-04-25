@@ -160,7 +160,6 @@ describe('policies.wizard.controller.policy-model-controller', function () {
     fakeModel.type = "DateTime";
 
     scope.$apply();
-
     expect(ctrl.outputFieldTypes).toEqual(fakeModelTemplate[modelConstants.DATETIME].outputFieldTypes);
 
     fakeModel.type = "Morphlines";
@@ -263,7 +262,7 @@ describe('policies.wizard.controller.policy-model-controller', function () {
       var fakeModel2 = angular.copy(fakeModel);
       fakeModel2.order = lastModelOrder;
       var models = [fakeModel, fakeModel2];
-      ctrl.policy.transformations = models;
+      ctrl.policy.transformations.transformationsPipe = models;
 
       ctrl.removeModel().then(function () {
         expect(modelFactoryMock.resetModel).toHaveBeenCalledWith(fakeModelTemplate, lastModelOrder + 1, models.length);

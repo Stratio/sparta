@@ -47,9 +47,9 @@
           scope.showHelp = false;
         };
         scope.chooseStep = function (index, order) {
-          var transformations = scope.policy.transformations;
+          var transformations = scope.policy.transformations.transformationsPipe;
           var input = scope.policy.input;
-          
+
 
           if(order == 2 && (!input || !input.name)){
             return;
@@ -73,17 +73,6 @@
           }
 
           scope.current = index;
-
-          /*if ((scope.editionMode && scope.nextStepAvailable) ||
-            (index == scope.current + 1 || order >= scope.current + 1) && scope.nextStepAvailable ||
-            (index < scope.current)) {
-            scope.visited[scope.current] = true;
-            scope.current = index;
-          } else {
-            if (index == scope.current + 1) {
-              scope.onClickNextStep();
-            }
-          }*/
           scope.showHelp = true;
         };
 
