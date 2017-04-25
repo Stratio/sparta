@@ -26,11 +26,13 @@
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'fileName'}" data-ng-if="plugins.sortField != 'fileName' || !plugins.tableReverse"></span>
             </th>
             <th class="c-table__td c-col--6 c-table--sorted" data-ng-click="plugins.sortPlugins('uri')">
+
               {{"_URI_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'uri' && plugins.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': plugins.sortField == 'uri'}" data-ng-if="plugins.sortField != 'input.uri' || !plugins.tableReverse"></span>
             </th>
             <th class="c-table__td  c-col--2 c-table--centered-content c-table--sorted" data-ng-click="plugins.sortPlugins('size')">
+
               {{"_SIZE_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="plugins.sortField == 'size' && plugins.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-if="plugins.sortField != 'size' || !plugins.tableReverse" ng-class="{'sort-active': plugins.sortField == 'size'}"></span>

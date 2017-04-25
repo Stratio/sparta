@@ -15,7 +15,7 @@
         </button>
       </div>
     </aside>
-    <div data-ng-if="drivers.driversData.length">
+    <div class="br-ba-container--full-height" data-ng-if="drivers.driversData.length">
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
           <tr>
@@ -39,10 +39,10 @@
         </thead>
         <tbody>
           <tr class="c-table__tr" data-ng-repeat="driverData in drivers.driversData | orderBy:drivers.sortField:drivers.tableReverse">
-            <td class="c-table__td c-col--3 c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.fileName}}</td>
-            <td class="c-table__td c-col--6 c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.uri}}</td>
-            <td class="c-table__td c-col--2 c-table--centered-content">{{::driverData.size}}</td>
-            <td class="c-table__td c-col--1 c-table__td--no-wrap c-table__td--to-right c-col--1">
+            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.fileName}}</td>
+            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::driverData.uri}}</td>
+            <td class="c-table__td c-col--1 c-table--centered-content">{{::driverData.size}}</td>
+            <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
               <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-cross" data-ng-click="drivers.deleteDriver(driverData.fileName)"
                 data-qa="driver-delete-button">
             </i>

@@ -89,7 +89,8 @@ module.exports = function (grunt) {
           port: 9090, // the port that the data service is running on,
           changeOrigin: true,
           ws: true
-        }, {
+        },
+        {
           context: '/driver', // the context of the data service
           host: '127.0.0.1', // wherever the data service is running
           port: 9090, // the port that the data service is running on,
