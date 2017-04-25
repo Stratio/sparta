@@ -84,7 +84,7 @@
           }
         }
       }
-      return false; 
+      return false;
     }
 
     function onChangeType(event, creationMode) {
