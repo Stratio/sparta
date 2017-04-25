@@ -32,15 +32,15 @@
 
     ///////////////////////////////////////
 
-    $scope.$on('validatePolicySettings', function (event, callback) {
-      validateForm(callback);
+    $scope.$on('validatePolicySettings', function (event, data) {
+      validateForm(data.callback, data.step);
     });
 
 
     function init() {
-      if (!$state.includes('wizard.newPolicy')) {
+
         WizardStatusService.enableNextStep();
-      }
+      
 
       return TemplateFactory.getPolicyTemplate().then(function (template) {
         PolicyModelFactory.setTemplate(template);
@@ -48,13 +48,11 @@
         vm.policy = vm.currentPolicy;
         vm.template = template;
         vm.helpLink = template.helpLinks[0];
-        if (vm.currentPolicy.name.length) {
-          WizardStatusService.enableNextStep();
-        }
+
       });
     }
 
-    function validateForm(next) {
+    function validateForm(next, step) {
       vm.form.$setSubmitted();
       if (vm.form.$valid) {
         vm.error = false;
@@ -64,9 +62,8 @@
           /* Policy name doesn't exist */
           if (!found) {
             vm.nextStepEnabled = true;
-            WizardStatusService.enableNextStep();
             angular.extend(vm.currentPolicy, vm.policy);
-            next();
+            next(step);
           }
           /* Policy name exists */
           else {

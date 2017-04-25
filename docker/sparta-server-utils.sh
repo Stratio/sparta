@@ -386,6 +386,10 @@ function mesosSparkOptions() {
  if [ -v SPARK_MESOS_SPARK_JARS_IVY ] && [ ${#SPARK_MESOS_SPARK_JARS_IVY} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.jars.ivy.*|sparta.mesos.spark.jars.ivy = \""${SPARK_MESOS_SPARK_JARS_IVY}"\"|" ${SPARTA_CONF_FILE}
  fi
+
+ if [ -v HDFS_CONF_URI ] && [ ${#HDFS_CONF_URI} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI.*|sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI = \""${HDFS_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
+ fi
 }
 
 function marathonOptions() {

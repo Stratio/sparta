@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
   /*POLICY CREATION AND EDITION CONTROLLER*/
   angular
-      .module('webApp')
-      .controller('PolicyCtrl', PolicyCtrl);
+    .module('webApp')
+    .controller('PolicyCtrl', PolicyCtrl);
 
   PolicyCtrl.$inject = ['WizardStatusService', 'TemplateFactory', 'PolicyModelFactory', 'PolicyFactory', 'ModalService', 'PolicyService', '$state', '$scope', '$stateParams', '$q'];
+
   function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $stateParams, $q) {
     var vm = this;
 
@@ -35,20 +36,19 @@
     vm.onClickPreviousStep = WizardStatusService.previousStep;
     vm.getStepNameByIndex = WizardStatusService.getStepNameByIndex;
     vm.validateSettings = validateSettings;
-    
+
     init();
 
     function init() {
-      initTemplate().then(function() {
-        initPolicy().then(function() {
+      initTemplate().then(function () {
+        initPolicy().then(function () {
           vm.status = WizardStatusService.getStatus();
           if (vm.policy && vm.status.currentStep == 0) {
             vm.steps = PolicyModelFactory.getTemplate().steps;
             vm.error = PolicyModelFactory.getError();
             vm.successfullySentPolicy = false;
             vm.showStepNavigation = true;
-          }
-          else {
+          } else {
             $state.go('dashboard.policies');
           }
         });
@@ -58,7 +58,7 @@
     function initTemplate() {
       var defer = $q.defer();
       if (Object.keys(PolicyModelFactory.getTemplate()).length == 0) {
-        TemplateFactory.getPolicyTemplate().then(function(template) {
+        TemplateFactory.getPolicyTemplate().then(function (template) {
           PolicyModelFactory.setTemplate(template);
           defer.resolve();
         });
@@ -73,13 +73,13 @@
       var id = $stateParams.id;
       if (id) {
         PolicyFactory.getPolicyById(id).then(
-            function(policyJSON) {
-              PolicyModelFactory.setPolicy(policyJSON);
-              vm.policy = PolicyModelFactory.getCurrentPolicy();
-              vm.editionMode = true;
-              WizardStatusService.nextStep();
-              defer.resolve();
-            });
+          function (policyJSON) {
+            PolicyModelFactory.setPolicy(policyJSON);
+            vm.policy = PolicyModelFactory.getCurrentPolicy();
+            vm.editionMode = true;
+            WizardStatusService.nextStep();
+            defer.resolve();
+          });
       } else {
         vm.policy = PolicyModelFactory.getCurrentPolicy();
         vm.editionMode = false;
@@ -93,12 +93,12 @@
     }
 
     function isValidPolicy() {
-      return vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0);
+      return (vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0)) || (vm.policy.rawData && vm.policy.rawData.dataField);
     }
 
     function confirmPolicy() {
       var defer = $q.defer();
-      if (!vm.status.nextStepAvailable) {
+      if (!vm.status.nextStepAvailable && (!vm.policy.rawData || !vm.policy.rawData.dataField)) {
         $scope.$broadcast('forceValidateForm', 1);
         defer.resolve();
       } else {
@@ -115,12 +115,12 @@
     function sendPolicy() {
       var defer = $q.defer();
       var modalInstance = openConfirmPolicyModal();
-      modalInstance.result.then(function() {
-        savePolicy().then(function() {
+      modalInstance.result.then(function () {
+        savePolicy().then(function () {
           PolicyModelFactory.resetPolicy();
           $state.go("dashboard.policies");
           defer.resolve();
-        }, function(error) {
+        }, function (error) {
           if (error) {
             PolicyModelFactory.setError("_ERROR_._" + error.data.i18nCode + "_", "error", error.data.subErrorModels);
           }
@@ -134,14 +134,14 @@
       var templateUrl = "templates/modal/confirm-modal.tpl.html";
       var controller = "ConfirmModalCtrl";
       var resolve = {
-        title: function() {
+        title: function () {
           if (vm.editionMode) {
             return "_POLICY_._WINDOW_._EDIT_._TITLE_";
           } else {
             return "_POLICY_._WINDOW_._CONFIRM_._TITLE_";
           }
         },
-        message: function() {
+        message: function () {
           return "";
         }
       };
@@ -150,18 +150,18 @@
 
     function savePolicy() {
       var defer = $q.defer();
-      PolicyService.generateFinalJSON().then(function(finalJSON) {
+      PolicyService.generateFinalJSON().then(function (finalJSON) {
         PolicyModelFactory.setFinalJSON(finalJSON);
         if (vm.editionMode) {
-          PolicyFactory.savePolicy(finalJSON).then(function() {
+          PolicyFactory.savePolicy(finalJSON).then(function () {
             defer.resolve();
-          }, function(error) {
+          }, function (error) {
             defer.reject(error);
           });
         } else {
-          PolicyFactory.createPolicy(finalJSON).then(function() {
+          PolicyFactory.createPolicy(finalJSON).then(function () {
             defer.resolve();
-          }, function(error) {
+          }, function (error) {
             defer.reject(error);
           });
         }
@@ -181,14 +181,21 @@
       return vm.steps && (vm.status.currentStep == vm.steps.length - 1 || (vm.status.currentStep > -1 && vm.steps[vm.status.currentStep].isLastStep));
     }
 
-    function validateSettings(){
-      $scope.$broadcast('validatePolicySettings', onClickNextStep);
+    function validateSettings(step) {
+      $scope.$broadcast('validatePolicySettings', {
+        callback: onClickNextStep,
+        step: step
+      });
     }
 
-    function onClickNextStep() {
+    function onClickNextStep(step) {
       PolicyModelFactory.setError();
       if (vm.status.nextStepAvailable) {
-        WizardStatusService.nextStep();
+        if (step) {
+          vm.status.currentStep = step;
+        } else {
+          WizardStatusService.nextStep();
+        }
       } else {
         $scope.$broadcast('forceValidateForm', 1);
       }

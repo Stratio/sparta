@@ -21,9 +21,10 @@ import java.io.{File, Serializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import com.typesafe.config.Config
+
 import scala.collection.JavaConversions._
 
 object PolicyHelper extends SLF4JLogging {
@@ -40,9 +41,9 @@ object PolicyHelper extends SLF4JLogging {
       else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))
     }.toMap
 
-  def getSparkConfigs(policy: PolicyModel, methodName: String, suffix: String): Map[String, String] = {
+  def getSparkConfigs(elements: Seq[PolicyElementModel], methodName: String, suffix: String): Map[String, String] = {
     log.info("Initializing reflection")
-    policy.outputs.flatMap(o => {
+    elements.flatMap(o => {
       val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.`type`).toString
       val clazzToInstance = ReflectionUtils.getClasspathMap.getOrElse(classType + suffix, o.`type` + suffix)
       val clazz = Class.forName(clazzToInstance)
@@ -52,7 +53,7 @@ object PolicyHelper extends SLF4JLogging {
           method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
             .asInstanceOf[Seq[(String, String)]]
         case None =>
-          Seq()
+          Seq.empty[(String, String)]
       }
     }).toMap
   }

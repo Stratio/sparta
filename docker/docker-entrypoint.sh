@@ -9,7 +9,7 @@
 
  ## Vault and secrets (configured if enabled)
  ###################################################
- if [ !  -z ${VAULT_HOST} ]; then
+ if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_HOST ] && [ ${#VAULT_HOST} != 0 ]; then
      source /security-config.sh $1
  fi
 

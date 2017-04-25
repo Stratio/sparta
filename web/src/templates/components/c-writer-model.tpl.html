@@ -13,9 +13,13 @@
   
   <form-field-select data-form="form" data-st-name="trigger-outputs" data-model="selectedPolicyOutput"
                      data-options="policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
-                     data-help="" data-required="model.writer.outputs.length == 0" data-qa="trigger-output-select"
-                     data-ng-click="addOutput()">
+                     data-help="" data-qa="trigger-output-select"
+                     data-ng-click="addOutput()" data-is-error="outputsFORM.$invalid">
   </form-field-select>
+
+  <ng-form name="outputsFORM" data-ng-hide="true">
+    <input type="number" ng-model="model.writer.outputs.length" min="1"/>
+  </ng-form>
   <c-tag-list name="trigger-outputs" form-control-class="" data-tags="model.writer.outputs"
               label-control-class="'c-label c-col'"
               readonly="'true'"

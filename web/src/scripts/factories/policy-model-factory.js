@@ -39,6 +39,7 @@
       policy.sparkSubmitArguments = [];
       policy.initSqlSentences = [];
       policy.userPluginsJars = [];
+      policy.rawData = {};
       delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
       delete policy.sparkStreamingWindowNumber;
@@ -73,6 +74,7 @@
       policy.monitoringLink = inputPolicyJSON.monitoringLink;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = setCubes(inputPolicyJSON.cubes);
+      policy.rawData = inputPolicyJSON.rawData;
       policy.streamTriggers = setStreamTriggers(inputPolicyJSON.streamTriggers);
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);

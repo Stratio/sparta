@@ -35,8 +35,6 @@ import scala.util.Try
 case class StreamingContextService(curatorFramework: CuratorFramework, generalConfig: Option[Config] = None)
   extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
 
-  final val OutputsSparkConfiguration = "getSparkConfiguration"
-
   def localStreamingContext(policy: PolicyModel, files: Seq[File]): StreamingContext = {
     killLocalContextListener(policy, policy.name)
 
@@ -44,7 +42,8 @@ case class StreamingContextService(curatorFramework: CuratorFramework, generalCo
 
     createLocalCheckpointPath(policy)
 
-    val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+    val outputsSparkConfig =
+      PolicyHelper.getSparkConfigs(policy.outputs, Output.SparkConfigurationMethod, Output.ClassSuffix)
     val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(policy)
     val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
       .getOrElse(Map.empty[String, String])
@@ -60,13 +59,13 @@ case class StreamingContextService(curatorFramework: CuratorFramework, generalCo
     ssc
   }
 
-  def clusterStreamingContext(policy: PolicyModel, files: Seq[String])
-  : StreamingContext = {
+  def clusterStreamingContext(policy: PolicyModel, files: Seq[String]): StreamingContext = {
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      val outputsSparkConfig = PolicyHelper.getSparkConfigs(policy, OutputsSparkConfiguration, Output.ClassSuffix)
+      val outputsSparkConfig =
+        PolicyHelper.getSparkConfigs(policy.outputs, Output.SparkConfigurationMethod, Output.ClassSuffix)
       sparkClusterContextInstance(outputsSparkConfig, files)
       SpartaWorkflow(policy, curatorFramework).run()
     })

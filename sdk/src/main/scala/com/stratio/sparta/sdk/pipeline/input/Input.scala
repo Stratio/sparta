@@ -42,6 +42,7 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
 object Input {
 
   val ClassSuffix = "Input"
+  val SparkSubmitConfigurationMethod = "getSparkSubmitConfiguration"
   val RawDataKey = "_attachment_body"
   val InitSchema = Map(Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))))
 }

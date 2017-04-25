@@ -21,9 +21,9 @@
     .module('webApp')
     .controller('PolicyModelCtrl', PolicyModelCtrl);
 
-  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', 'UtilsService', '$scope'];
+  PolicyModelCtrl.$inject = ['ModelFactory', 'PolicyModelFactory', 'ModelService', 'modelConstants', 'UtilsService', '$scope', 'WizardStatusService'];
 
-  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, UtilsService, $scope) {
+  function PolicyModelCtrl(ModelFactory, PolicyModelFactory, ModelService, modelConstants, UtilsService, $scope, WizardStatusService) {
     var vm = this;
 
     vm.init = init;
@@ -42,6 +42,7 @@
     vm.init();
 
     function init() {
+       //WizardStatusService.enableNextStep();
       vm.template = PolicyModelFactory.getTemplate();
       vm.policy = PolicyModelFactory.getCurrentPolicy();
       vm.model = ModelFactory.getModel();
@@ -83,7 +84,7 @@
           }
         }
       }
-      return false; 
+      return false;
     }
 
     function onChangeType(event, creationMode) {
@@ -168,7 +169,7 @@
         return false;
       }
       if (vm.model.outputFields.length > 0) {
-        var policyCurrentFields = ModelFactory.getPreviousOutputFields(vm.policy.transformations,
+        var policyCurrentFields = ModelFactory.getOutputFields(vm.policy.transformations,
           ModelFactory.getContext().position);
         for (var i = 0; i < vm.model.outputFields.length; ++i) {
           var outputField = vm.model.outputFields[i];

@@ -32,6 +32,12 @@ function initSpark() {
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${SYSTEM_VARIABLES}
+  if [ -v LIBPROCESS_IP ] && [ ${#LIBPROCESS_IP} != 0 ]; then
+    echo "" >> ${VARIABLES}
+    echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${VARIABLES}
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${SYSTEM_VARIABLES}
+  fi
 }
 
 function initHdfs() {
@@ -40,28 +46,52 @@ function initHdfs() {
     echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
   fi
 
+  if [[ ! -v HDFS_CONF_FROM_URI ]]; then
+   HDFS_CONF_FROM_URI="false"
+  fi
+  if [ $HDFS_CONF_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
+      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+    fi
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
+    source hdfs_utils.sh
+    generate_hdfs-conf-from-uri
+  fi
+
   if [[ ! -v CORE_SITE_FROM_URI ]]; then
    CORE_SITE_FROM_URI="false"
   fi
-  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v DEFAULT_FS ] && [ ${#DEFAULT_FS} != 0 ]; then
-    if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
+  if [ $CORE_SITE_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${DEFAULT_FS}"\"|" ${SPARTA_CONF_FILE}
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_core-site-from-uri
   fi
 
-  if [[ ! -v CORE_SITE_FROM_DFS ]]; then
-   CORE_SITE_FROM_DFS="false"
+  if [[ ! -v HDFS_CONF_FROM_DFS ]]; then
+   HDFS_CONF_FROM_DFS="false"
   fi
-  if [ $CORE_SITE_FROM_DFS == "true" ] && [ -v DEFAULT_FS ] && [ ${#DEFAULT_FS} != 0 ]; then
-    if [ ! -v HADOOP_CONF_DIR ] && [ HADOOP_CONF_DIR != 0 ]; then
+  if [ $HDFS_CONF_FROM_DFS == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|sparta.hdfs.hdfsMaster = \""${DEFAULT_FS}"\"|" ${SPARTA_CONF_FILE}
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_FS_DEFAULT_NAME}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
-    generate_core-site-from-fs
+    generate_hdfs-conf-from-fs
+  fi
+
+  if [[ ! -v HDFS_CONF_FROM_DFS_NOT_SECURED ]]; then
+   HDFS_CONF_FROM_DFS_NOT_SECURED="false"
+  fi
+  if [ $HDFS_CONF_FROM_DFS_NOT_SECURED == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
+    if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
+      HADOOP_CONF_DIR=/opt/sds/hadoop/conf
+    fi
+    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_FS_DEFAULT_NAME}"\"|" ${SPARTA_CONF_FILE}
+    source hdfs_utils.sh
+    generate_hdfs-conf-from-fs-not-secured
   fi
 }
 
