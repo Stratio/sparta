@@ -78,5 +78,5 @@ object ParserStage extends SLF4JLogging {
 
   def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] =
     if (parsers.isEmpty) input
-    else input.mapPartitions(rows => rows.flatMap(row => executeParsers(row, parsers)), preservePartitioning = true)
+    else input.flatMap(row => executeParsers(row, parsers))
 }
