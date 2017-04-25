@@ -18,9 +18,11 @@ package com.stratio.sparta.driver.stage
 import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.writer.{TransformationsWriterHelper, WriterOptions}
+import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -32,10 +34,18 @@ trait ParserStage extends BaseStage {
   this: ErrorPersistor =>
 
   def parserStage(refUtils: ReflectionUtils,
-                  schemas: Map[String, StructType]): Seq[Parser] =
-    policy.transformations.map(parser => createParser(parser, refUtils, schemas))
+                  schemas: Map[String, StructType]): (Seq[Parser], Option[WriterOptions]) =
+    (policy.transformations.get.transformationsPipe.map(parser => createParser(parser, refUtils, schemas)),
+      policy.transformations.get.writer.map(writer => WriterOptions(
+        writer.outputs,
+        writer.saveMode,
+        writer.tableName,
+        getAutoCalculatedFields(writer.autoCalculatedFields),
+        writer.partitionBy,
+        writer.primaryKey
+      )))
 
-  private def createParser(model: TransformationsModel,
+  private[driver] def createParser(model: TransformationModel,
                            refUtils: ReflectionUtils,
                            schemas: Map[String, StructType]): Parser = {
     val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
@@ -76,7 +86,16 @@ object ParserStage extends SLF4JLogging {
         Seq.empty[Row]
     }
 
-  def applyParsers(input: DStream[Row], parsers: Seq[Parser]): DStream[Row] =
-    if (parsers.isEmpty) input
+  def applyParsers(input: DStream[Row],
+                   parsers: Seq[Parser],
+                   schema: StructType,
+                   outputs: Seq[Output],
+                   writerOptions: Option[WriterOptions]): DStream[Row] = {
+    val transformedData = if (parsers.isEmpty) input
     else input.flatMap(row => executeParsers(row, parsers))
+
+    writerOptions.foreach(options =>
+      TransformationsWriterHelper.writeTransformations(transformedData, schema, outputs, options))
+    transformedData
+  }
 }

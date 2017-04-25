@@ -17,8 +17,9 @@
 package com.stratio.sparta.driver
 
 import com.stratio.sparta.driver.factory.SparkContextFactory._
-import com.stratio.sparta.driver.helper.SchemaHelper
+import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.stage._
+import com.stratio.sparta.driver.writer.TransformationsWriterHelper
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
@@ -46,11 +47,16 @@ class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFrame
 
     saveRawData(policy.rawData, inputDStream, outputs)
 
-    val parserSchemas = SchemaHelper.getSchemasFromTransformations(policy.transformations, Input.InitSchema)
-    val parsedData = ParserStage.applyParsers(inputDStream, parserStage(ReflectionUtils, parserSchemas).sorted)
+    policy.transformations.foreach { transformationsModel =>
+      val parserSchemas = SchemaHelper.getSchemasFromTransformations(
+        transformationsModel.transformationsPipe, Input.InitSchema)
+      val (parsers, writerOptions) = parserStage(ReflectionUtils, parserSchemas)
+      val parsedData = ParserStage.applyParsers(
+        inputDStream, parsers, parserSchemas.values.last, outputs, writerOptions)
 
-    triggersStreamStage(parserSchemas.values.last, parsedData, outputs, window)
-    cubesStreamStage(ReflectionUtils, parserSchemas.values.last, parsedData, outputs)
+      triggersStreamStage(parserSchemas.values.last, parsedData, outputs, window)
+      cubesStreamStage(ReflectionUtils, parserSchemas.values.last, parsedData, outputs)
+    }
 
     ssc.get
   }

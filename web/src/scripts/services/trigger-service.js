@@ -157,7 +157,7 @@
       var sqlSourceItems = [];
       var sourceContainer = [];
       if (triggerContainerType == triggerConstants.TRANSFORMATION) {
-        sourceContainer = policy.transformations;
+        sourceContainer = policy.transformations.transformationsPipe;
         var sourceSqlItem = {};
         sourceSqlItem.name = triggerConstants.STREAM_TABLE_NAME;
         sourceSqlItem.fields = [];

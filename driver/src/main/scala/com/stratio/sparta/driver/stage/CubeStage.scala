@@ -17,10 +17,10 @@ package com.stratio.sparta.driver.stage
 
 import java.io.Serializable
 
-import com.stratio.sparta.driver.helper.SchemaHelper
-import com.stratio.sparta.driver.helper.SchemaHelper.DefaultTimeStampTypeString
+import com.stratio.sparta.driver.schema.SchemaHelper
+import com.stratio.sparta.driver.schema.SchemaHelper.DefaultTimeStampTypeString
 import com.stratio.sparta.driver.step.{Cube, CubeMaker}
-import com.stratio.sparta.driver.writer.{CubeWriter, CubeWriterOptions}
+import com.stratio.sparta.driver.writer.{CubeWriterHelper, WriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.Output
@@ -45,7 +45,9 @@ trait CubeStage extends BaseStage with TriggerStage {
     generalTransformation(PhaseEnum.CubeStream, okMessage, errorMessage) {
       val dataCube = CubeMaker(cubes).setUp(inputData)
       dataCube.foreach { case (cubeName, aggregatedData) =>
-        getCubeWriter(cubeName, cubes, outputs).write(aggregatedData)
+        val cubeWriter = cubes.find(cube => cube.name == cubeName)
+          .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
+        CubeWriterHelper.writeCube(cubeWriter, outputs, aggregatedData)
       }
     }
   }
@@ -53,16 +55,9 @@ trait CubeStage extends BaseStage with TriggerStage {
   private[driver] def cubeStage(refUtils: ReflectionUtils, initSchema: StructType): Seq[Cube] =
     policy.cubes.map(cube => createCube(cube, refUtils, initSchema: StructType))
 
-  private[driver] def getCubeWriter(cubeName: String, cubes: Seq[Cube], outputs: Seq[Output]): CubeWriter = {
-    val cubeWriter = cubes.find(cube => cube.name == cubeName)
-      .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
-
-    CubeWriter(cubeWriter, outputs)
-  }
-
   private[driver] def createCube(cubeModel: CubeModel,
-                         refUtils: ReflectionUtils,
-                         initSchema: StructType): Cube = {
+                                 refUtils: ReflectionUtils,
+                                 initSchema: StructType): Cube = {
     val okMessage = s"Cube: ${cubeModel.name} created correctly."
     val errorMessage = s"Something gone wrong creating the cube: ${cubeModel.name}. Please re-check the policy."
     generalTransformation(PhaseEnum.Cube, okMessage, errorMessage) {
@@ -86,11 +81,11 @@ trait CubeStage extends BaseStage with TriggerStage {
         operators,
         initSchema,
         schema,
+        dateType,
         expiringDataConfig,
         triggers,
-        CubeWriterOptions(
+        WriterOptions(
           cubeModel.writer.outputs,
-          dateType,
           cubeModel.writer.saveMode,
           cubeModel.writer.tableName,
           getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields),
@@ -102,13 +97,13 @@ trait CubeStage extends BaseStage with TriggerStage {
   }
 
   private[driver] def getOperators(operatorsModel: Seq[OperatorModel],
-                           refUtils: ReflectionUtils,
-                           initSchema: StructType): Seq[Operator] =
+                                   refUtils: ReflectionUtils,
+                                   initSchema: StructType): Seq[Operator] =
     operatorsModel.map(operator => createOperator(operator, refUtils, initSchema))
 
   private[driver] def createOperator(model: OperatorModel,
-                             refUtils: ReflectionUtils,
-                             initSchema: StructType): Operator = {
+                                     refUtils: ReflectionUtils,
+                                     initSchema: StructType): Operator = {
     val okMessage = s"Operator: ${model.`type`} created correctly."
     val errorMessage = s"Something gone wrong creating the operator: ${model.`type`}. Please re-check the policy."
     generalTransformation(PhaseEnum.Operator, okMessage, errorMessage) {
@@ -122,9 +117,9 @@ trait CubeStage extends BaseStage with TriggerStage {
   }
 
   private[driver] def instantiateDimensionType(dimensionType: String,
-                                       configuration: Option[Map[String, String]],
-                                       refUtils: ReflectionUtils,
-                                       defaultType: Option[TypeOp]): DimensionType =
+                                               configuration: Option[Map[String, String]],
+                                               refUtils: ReflectionUtils,
+                                               defaultType: Option[TypeOp]): DimensionType =
     refUtils.tryToInstantiate[DimensionType](dimensionType + Dimension.FieldClassSuffix, (c) => {
       (configuration, defaultType) match {
         case (Some(conf), Some(defType)) =>

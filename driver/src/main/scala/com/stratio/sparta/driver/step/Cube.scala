@@ -16,9 +16,10 @@
 package com.stratio.sparta.driver.step
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.driver.writer.CubeWriterOptions
+import com.stratio.sparta.driver.writer.WriterOptions
 import com.stratio.sparta.sdk.pipeline.aggregation.cube._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.{Associative, Operator}
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -42,9 +43,10 @@ case class Cube(name: String,
                 operators: Seq[Operator],
                 initSchema: StructType,
                 schema: StructType,
+                dateType: TypeOp.Value = TypeOp.Timestamp,
                 expiringDataConfig: Option[ExpiringData] = None,
                 triggers: Seq[Trigger],
-                cubeWriterOptions: CubeWriterOptions) extends SLF4JLogging {
+                writerOptions: WriterOptions) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
@@ -88,7 +90,7 @@ case class Cube(name: String,
     }
   }
 
-  private def updateFuncNonAssociativeWithTime =
+  private[driver] def updateFuncNonAssociativeWithTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
 
       iterator.filter {
@@ -104,7 +106,7 @@ case class Cube(name: String,
   def dateFromGranularity: Long =
     DateTime.now().getMillis - AggregationTime.parseValueToMilliSeconds(expiringDataConfig.get.timeAvailability)
 
-  private def updateFuncNonAssociativeWithoutTime =
+  private[driver] def updateFuncNonAssociativeWithoutTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[InputFields], Option[AggregationsValues])]) => {
       iterator
         .flatMap { case (dimensionsKey, values, state) =>
@@ -150,7 +152,7 @@ case class Cube(name: String,
       MeasuresValues(measures)
     })
 
-  private def updateFuncAssociativeWithTime =
+  private[driver] def updateFuncAssociativeWithTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
       iterator.filter {
         case (DimensionValuesTime(_, _, Some(timeConfig)), _, _) =>
@@ -163,7 +165,7 @@ case class Cube(name: String,
         }
     }
 
-  private def updateFuncAssociativeWithoutTime =
+  private[driver] def updateFuncAssociativeWithoutTime =
     (iterator: Iterator[(DimensionValuesTime, Seq[AggregationsValues], Option[Measures])]) => {
       iterator
         .flatMap { case (dimensionsKey, values, state) =>

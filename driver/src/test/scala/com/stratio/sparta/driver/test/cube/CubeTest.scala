@@ -18,11 +18,12 @@
 package com.stratio.sparta.driver.test.cube
 
 import com.stratio.sparta.driver.step.{Cube, Trigger}
-import com.stratio.sparta.driver.writer.CubeWriterOptions
+import com.stratio.sparta.driver.writer.WriterOptions
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
 import com.stratio.sparta.plugin.cube.operator.sum.SumOperator
 import com.stratio.sparta.plugin.default.DefaultField
 import com.stratio.sparta.sdk.pipeline.aggregation.cube._
+import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.utils.AggregationTime
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
@@ -59,9 +60,10 @@ class CubeTest extends TestSuiteBase {
       Seq(operatorCount, operatorSum),
       initSchema,
       initSchema,
+      TypeOp.Timestamp,
       Option(expiringDataConfig),
       Seq.empty[Trigger],
-      CubeWriterOptions()
+      WriterOptions()
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
@@ -135,9 +137,10 @@ class CubeTest extends TestSuiteBase {
       Seq(operatorCount, operatorSum),
       initSchema,
       initSchema,
+      TypeOp.Timestamp,
       expiringDataConfig = None,
       Seq.empty[Trigger],
-      CubeWriterOptions()
+      WriterOptions()
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
