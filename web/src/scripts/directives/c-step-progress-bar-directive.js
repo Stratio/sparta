@@ -116,7 +116,6 @@
               }
             }
           }
-          console.log(transformedSteps);
           return transformedSteps;
         }
       }
