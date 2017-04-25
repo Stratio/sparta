@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.core.marathon
 
-import java.io.File
 import java.util.Calendar
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
@@ -31,7 +30,7 @@ import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorMode
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message._
-import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Volume}
+import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Parameter, Volume}
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
@@ -44,6 +43,7 @@ import scala.concurrent.duration._
 import scala.io.Source
 import scala.util.{Properties, Try}
 
+//scalastyle:off
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
                       policyModel: Option[PolicyModel],
@@ -75,6 +75,9 @@ class MarathonService(context: ActorContext,
   val HostMesosNativeLib = s"$HostMesosNativeLibPath/libmesos.so"
   val ServiceName = policyModel.fold("") { policy => s"sparta/workflows/${policy.name}" }
   val DefaultMemory = 1024
+  val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
+  val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
+  val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
 
   /* Environment variables to Marathon Application */
 
@@ -83,6 +86,7 @@ class MarathonService(context: ActorContext,
   val LdLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
+  val VaultEnable = "VAULT_ENABLE"
   val VaultHostEnv = "VAULT_HOST"
   val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
@@ -92,10 +96,13 @@ class MarathonService(context: ActorContext,
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
-  val HadoopUserNameEnv = "HADOOP_USER_NAME"
+  val HadoopUserNameEnv = "HDFS_USER_NAME"
+  val HdfsConfFromUriEnv = "HDFS_CONF_FROM_URI"
   val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
-  val CoreSiteFromDfsEnv = "CORE_SITE_FROM_DFS"
-  val DefaultFsEnv = "DEFAULT_FS"
+  val HdfsConfFromDfsEnv = "HDFS_CONF_FROM_DFS"
+  val HdfsConfFromDfsNotSecuredEnv = "HDFS_CONF_FROM_DFS_NOT_SECURED"
+  val DefaultFsEnv = "HADOOP_FS_DEFAULT_NAME"
+  val DefaultHdfsConfUriEnv = "HADOOP_CONF_URI"
   val HadoopConfDirEnv = "HADOOP_CONF_DIR"
   val ServiceLogLevelEnv = "SERVICE_LOG_LEVEL"
   val SpartaLogLevelEnv = "SPARTA_LOG_LEVEL"
@@ -104,6 +111,14 @@ class MarathonService(context: ActorContext,
   val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
   val DcosServiceName = "DCOS_SERVICE_NAME"
   val Constraints = "MESOS_CONSTRAINTS"
+  val HdfsRpcProtectionEnv = "HADOOP_RPC_PROTECTION"
+  val HdfsSecurityAuthEnv = "HADOOP_SECURITY_AUTH"
+  val HdfsEncryptDataEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER"
+  val HdfsTokenUseIpEnv = "HADOOP_SECURITY_TOKEN_USE_IP"
+  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL"
+  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN"
+  val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
+  val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
 
   /* Lazy variables */
 
@@ -152,8 +167,10 @@ class MarathonService(context: ActorContext,
 
   private def mesosNativeLibrary: Option[String] = Properties.envOrNone(MesosNativeJavaLibraryEnv)
 
-  private def ldNativeLibrary: Option[String] = Properties.envOrNone(MesosNativeJavaLibraryEnv)
-    .map(path => new File(path).getParent).orElse(Option(HostMesosLib))
+  private def ldNativeLibrary: Option[String] = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
+    case Some(_) => None
+    case None => Option(HostMesosLib)
+  }
 
   private def mesosphereLibPath: String =
     Try(marathonConfig.getString("mesosphere.lib")).toOption.getOrElse(HostMesosNativeLibPath)
@@ -176,11 +193,33 @@ class MarathonService(context: ActorContext,
 
   private def envHadoopUserName: Option[String] = Properties.envOrNone(HadoopUserNameEnv)
 
+  private def envHdfsConfFromUri: Option[String] = Properties.envOrNone(HdfsConfFromUriEnv)
+
   private def envCoreSiteFromUri: Option[String] = Properties.envOrNone(CoreSiteFromUriEnv)
 
-  private def envCoreSiteFromDfs: Option[String] = Properties.envOrNone(CoreSiteFromDfsEnv)
+  private def envHdfsConfFromDfs: Option[String] = Properties.envOrNone(HdfsConfFromDfsEnv)
+
+  private def envHdfsConfFromDfsNotSecured: Option[String] = Properties.envOrNone(HdfsConfFromDfsNotSecuredEnv)
 
   private def envDefaultFs: Option[String] = Properties.envOrNone(DefaultFsEnv)
+
+  private def envHdfsRpcProtection: Option[String] = Properties.envOrNone(HdfsRpcProtectionEnv)
+
+  private def envHdfsSecurityAuth: Option[String] = Properties.envOrNone(HdfsSecurityAuthEnv)
+
+  private def envHdfsEncryptData: Option[String] = Properties.envOrNone(HdfsEncryptDataEnv)
+
+  private def envHdfsTokenUseIp: Option[String] = Properties.envOrNone(HdfsTokenUseIpEnv)
+
+  private def envHdfsKerberosPrincipal: Option[String] = Properties.envOrNone(HdfsKerberosPrincipalEnv)
+
+  private def envHdfsKerberosPrincipalPattern: Option[String] = Properties.envOrNone(HdfsKerberosPrincipalPatternEnv)
+
+  private def envHdfsEncryptDataTransfer: Option[String] = Properties.envOrNone(HdfsEncryptDataTransferEnv)
+
+  private def envHdfsEncryptDataBitLength: Option[String] = Properties.envOrNone(HdfsEncryptDataBitLengthEnv)
+
+  private def envDefaultHdfsConfUri: Option[String] = Properties.envOrNone(DefaultHdfsConfUriEnv)
 
   private def envHadoopConfDir: Option[String] = Properties.envOrNone(HadoopConfDirEnv)
 
@@ -196,6 +235,13 @@ class MarathonService(context: ActorContext,
     val templateFile = Try(marathonConfig.getString("template.file")).toOption.getOrElse(DefaultMarathonTemplateFile)
     val fileContent = Source.fromFile(templateFile).mkString
     Json.parse(fileContent).as[CreateApp]
+  }
+
+  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnable) match {
+    case Some(vaultEnable) if Try(vaultEnable.toBoolean).getOrElse(false) =>
+      Seq(Parameter("volume", Krb5ConfFile))
+    case None =>
+      Seq.empty[Parameter]
   }
 
   private def transformMemoryToInt(memory: String): Int = Try(memory match {
@@ -229,16 +275,19 @@ class MarathonService(context: ActorContext,
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val certificatesVolume = Volume("/etc/ssl/certs/java/cacerts", "/etc/pki/ca-trust/extracted/java/cacerts", "RO")
+    val certificatesVolume = Volume(ContainerCertificatePath, HostCertificatePath, "RO")
     val newDockerContainerInfo = mesosNativeLibrary match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
-          volumes = Option(Seq(certificatesVolume))))
+          volumes = Option(Seq(certificatesVolume)),
+          parameters = Option(getKrb5ConfVolume)
+        ))
       case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
         certificatesVolume,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
         Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
-        image = spartaDockerImage
+        image = spartaDockerImage,
+        parameters = Option(getKrb5ConfVolume)
       ))
     }
 
@@ -271,14 +320,25 @@ class MarathonService(context: ActorContext,
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> envSparkHome,
       HadoopUserNameEnv -> envHadoopUserName,
+      HdfsConfFromUriEnv -> envHdfsConfFromUri,
       CoreSiteFromUriEnv -> envCoreSiteFromUri,
-      CoreSiteFromDfsEnv -> envCoreSiteFromDfs,
+      HdfsConfFromDfsEnv -> envHdfsConfFromDfs,
+      HdfsConfFromDfsNotSecuredEnv -> envHdfsConfFromDfsNotSecured,
       DefaultFsEnv -> envDefaultFs,
+      DefaultHdfsConfUriEnv -> envDefaultHdfsConfUri,
       HadoopConfDirEnv -> envHadoopConfDir,
       ServiceLogLevelEnv -> envServiceLogLevel,
       SpartaLogLevelEnv -> envSpartaLogLevel,
       SparkLogLevelEnv -> envSparkLogLevel,
       HadoopLogLevelEnv -> envHadoopLogLevel,
+      HdfsRpcProtectionEnv -> envHdfsRpcProtection,
+      HdfsSecurityAuthEnv -> envHdfsSecurityAuth,
+      HdfsEncryptDataEnv -> envHdfsEncryptData,
+      HdfsTokenUseIpEnv -> envHdfsTokenUseIp,
+      HdfsKerberosPrincipalEnv -> envHdfsKerberosPrincipal,
+      HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
+      HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
+      HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
       DcosServiceName -> Option(ServiceName)
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }
