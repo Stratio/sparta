@@ -15,6 +15,7 @@ echo "Setting configuration options needed for securized Zookeeper"
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
 export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/sparta.keytab
 
+
 ## Creating a jaas.conf that must be used to connect to Zookeeper if Zookeeper is securized
 
 cat > /etc/sds/sparta/security/jaas.conf<<EOF

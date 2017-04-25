@@ -18,10 +18,10 @@ package com.stratio.sparta.driver.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.driver.writer.RawDataWriterOptions
+import com.stratio.sparta.driver.writer.WriterOptions
 
 
 case class RawData(dataField: String,
                    timeField: String,
-                   rawDataStorageWriterOptions: RawDataWriterOptions,
+                   writerOptions: WriterOptions,
                    configuration: Map[String, Serializable])

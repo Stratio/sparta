@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.driver.helper
+package com.stratio.sparta.driver.schema
 
-import com.stratio.sparta.driver.writer.TriggerWriterOptions
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, ExpiringData}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.models.policy.TransformationsModel
+import com.stratio.sparta.serving.core.models.policy.TransformationModel
 import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
 import org.apache.spark.sql.types.{StructType, _}
 
@@ -32,19 +31,12 @@ import scala.util.Try
 
 object SchemaHelper {
 
-  val Default_Precision = 10
-  val Default_Scale = 0
-  val Nullable = true
-  val NotNullable = false
-  val DefaultTimeStampTypeString = "timestamp"
-  val DefaultTimeStampType = TypeOp.Timestamp
+  private val Default_Precision = 10
+  private val Default_Scale = 0
+  private val Nullable = true
+  private val NotNullable = false
   private val MetadataBuilder = new MetadataBuilder
-  val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, value = true).build()
-  val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true).build()
-  val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true)
-    .putBoolean(Output.TimeDimensionKey, value = true).build()
-
-  val mapTypes = Map(
+  private val mapTypes = Map(
     TypeOp.Long -> LongType,
     TypeOp.Double -> DoubleType,
     TypeOp.BigDecimal -> DecimalType(Default_Precision, Default_Scale),
@@ -57,25 +49,8 @@ object SchemaHelper {
     TypeOp.ArrayString -> ArrayType(StringType),
     TypeOp.String -> StringType,
     TypeOp.MapStringLong -> MapType(StringType, LongType),
-    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, valueContainsNull = false)
-  )
-
-  val mapSparkTypes: Map[DataType, TypeOp] = Map(
-    LongType -> TypeOp.Long,
-    DoubleType -> TypeOp.Double,
-    DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
-    IntegerType -> TypeOp.Int,
-    BooleanType -> TypeOp.Boolean,
-    DateType -> TypeOp.Date,
-    TimestampType -> TypeOp.Timestamp,
-    ArrayType(DoubleType) -> TypeOp.ArrayDouble,
-    ArrayType(StringType) -> TypeOp.ArrayString,
-    StringType -> TypeOp.String,
-    MapType(StringType, LongType) -> TypeOp.MapStringLong,
-    MapType(StringType, DoubleType, valueContainsNull = false) -> TypeOp.MapStringDouble
-  )
-
-  val mapStringSparkTypes = Map(
+    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, valueContainsNull = false))
+  private val mapStringSparkTypes = Map(
     "long" -> LongType,
     "double" -> DoubleType,
     "int" -> IntegerType,
@@ -88,10 +63,28 @@ object SchemaHelper {
     "string" -> StringType,
     "arraydouble" -> ArrayType(DoubleType),
     "arraystring" -> ArrayType(StringType),
-    "text" -> StringType
-  )
+    "text" -> StringType)
 
-  def getSchemasFromTransformations(transformationsModel: Seq[TransformationsModel],
+  private[driver] val DefaultTimeStampTypeString = "timestamp"
+  private[driver] val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, value = true).build()
+  private[driver] val PkMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true).build()
+  private[driver] val PkTimeMetadata = MetadataBuilder.putBoolean(Output.PrimaryKeyMetadataKey, value = true)
+    .putBoolean(Output.TimeDimensionKey, value = true).build()
+  private[driver] val mapSparkTypes: Map[DataType, TypeOp] = Map(
+    LongType -> TypeOp.Long,
+    DoubleType -> TypeOp.Double,
+    DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
+    IntegerType -> TypeOp.Int,
+    BooleanType -> TypeOp.Boolean,
+    DateType -> TypeOp.Date,
+    TimestampType -> TypeOp.Timestamp,
+    ArrayType(DoubleType) -> TypeOp.ArrayDouble,
+    ArrayType(StringType) -> TypeOp.ArrayString,
+    StringType -> TypeOp.String,
+    MapType(StringType, LongType) -> TypeOp.MapStringLong,
+    MapType(StringType, DoubleType, valueContainsNull = false) -> TypeOp.MapStringDouble)
+
+  def getSchemasFromTransformations(transformationsModel: Seq[TransformationModel],
                                     initSchema: Map[String, StructType]): Map[String, StructType] =
     initSchema ++ searchSchemasFromParsers(transformationsModel.sortBy(_.order), initSchema)
 
@@ -137,8 +130,38 @@ object SchemaHelper {
       case _ => TypeOp.String
     }
 
-  private def searchSchemasFromParsers(transformationsModel: Seq[TransformationsModel],
-                                       schemas: Map[String, StructType]): Map[String, StructType] =
+
+  def getTimeFieldType(dateTimeType: TypeOp,
+                       fieldName: String,
+                       nullable: Boolean,
+                       metadata: Option[Metadata] = None): StructField =
+    dateTimeType match {
+      case TypeOp.Date | TypeOp.DateTime =>
+        Output.defaultDateField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Timestamp =>
+        Output.defaultTimeStampField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.Long =>
+        Output.defaultLongField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case TypeOp.String =>
+        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+      case _ =>
+        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
+    }
+
+  private[driver] def measuresFields(operators: Seq[Operator], avoidNullValues: Boolean): Seq[StructField] =
+    operators.map(operator =>
+      StructField(operator.key, rowTypeFromOption(operator.returnType), !avoidNullValues, MeasureMetadata))
+
+  private[driver] def dimensionsFields(fields: Seq[Dimension], avoidNullValues: Boolean): Seq[StructField] =
+    fields.map(field =>
+      StructField(field.name, rowTypeFromOption(field.precision.typeOp), !avoidNullValues, PkMetadata)
+    )
+
+  private[driver] def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
+
+
+  private[driver] def searchSchemasFromParsers(transformationsModel: Seq[TransformationModel],
+                                               schemas: Map[String, StructType]): Map[String, StructType] =
     transformationsModel.headOption match {
       case Some(transformationModel) =>
         val schema = transformationModel.outputFieldsTransformed.map(outputField =>
@@ -166,15 +189,16 @@ object SchemaHelper {
         schemas
     }
 
-  private def filterDimensionsByTime(dimensions: Seq[Dimension], timeDimension: Option[String]): Seq[Dimension] =
+  private[driver] def filterDimensionsByTime(dimensions: Seq[Dimension],
+                                             timeDimension: Option[String]): Seq[Dimension] =
     timeDimension match {
       case Some(timeName) => dimensions.filter(dimension => dimension.name != timeName)
       case None => dimensions
     }
 
-  private def timeDimensionFieldType(timeDimension: Option[String],
-                                     dateType: TypeOp.Value,
-                                     avoidNullValues: Boolean): Seq[StructField] = {
+  private[driver] def timeDimensionFieldType(timeDimension: Option[String],
+                                             dateType: TypeOp.Value,
+                                             avoidNullValues: Boolean): Seq[StructField] = {
     timeDimension match {
       case None =>
         Seq.empty[StructField]
@@ -182,32 +206,4 @@ object SchemaHelper {
         Seq(getTimeFieldType(dateType, timeDimensionName, !avoidNullValues, Some(PkTimeMetadata)))
     }
   }
-
-  def getTimeFieldType(dateTimeType: TypeOp,
-                       fieldName: String,
-                       nullable: Boolean,
-                       metadata: Option[Metadata] = None): StructField =
-    dateTimeType match {
-      case TypeOp.Date | TypeOp.DateTime =>
-        Output.defaultDateField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.Timestamp =>
-        Output.defaultTimeStampField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.Long =>
-        Output.defaultLongField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case TypeOp.String =>
-        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-      case _ =>
-        Output.defaultStringField(fieldName, nullable, metadata.getOrElse(Metadata.empty))
-    }
-
-  private def measuresFields(operators: Seq[Operator], avoidNullValues: Boolean): Seq[StructField] =
-    operators.map(operator =>
-      StructField(operator.key, rowTypeFromOption(operator.returnType), !avoidNullValues, MeasureMetadata))
-
-  private def dimensionsFields(fields: Seq[Dimension], avoidNullValues: Boolean): Seq[StructField] =
-    fields.map(field =>
-      StructField(field.name, rowTypeFromOption(field.precision.typeOp), !avoidNullValues, PkMetadata)
-    )
-
-  private def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
 }

@@ -16,7 +16,7 @@
 package com.stratio.sparta.driver.stage
 
 import com.stratio.sparta.driver.step.Trigger
-import com.stratio.sparta.driver.writer.{StreamWriter, TriggerWriterOptions}
+import com.stratio.sparta.driver.writer.{TriggerWriterHelper, WriterOptions}
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.models.policy.PhaseEnum
@@ -38,7 +38,7 @@ trait TriggerStage extends BaseStage {
     val okMessage = s"Triggers Stream executed correctly."
     generalTransformation(PhaseEnum.TriggerStream, okMessage, errorMessage) {
       triggersStage
-        .groupBy(trigger => (trigger.triggerWriterOptions.overLast, trigger.triggerWriterOptions.computeEvery))
+        .groupBy(trigger => (trigger.overLast, trigger.computeEvery))
         .foreach { case ((overLast, computeEvery), triggers) =>
           val groupedData = (overLast, computeEvery) match {
             case (None, None) => inputData
@@ -51,8 +51,8 @@ trait TriggerStage extends BaseStage {
               Milliseconds(
                 computeEvery.fold(window) { computeEvery => AggregationTime.parseValueToMilliSeconds(computeEvery) }))
           }
-          StreamWriter(triggers, streamTemporalTable(policy.streamTemporalTable), outputs)
-            .write(groupedData, initSchema)
+          TriggerWriterHelper.writeStream(triggers, streamTemporalTable(policy.streamTemporalTable), outputs,
+            groupedData, initSchema)
         }
     }
   }
@@ -67,14 +67,14 @@ trait TriggerStage extends BaseStage {
       Trigger(
         trigger.name,
         trigger.sql,
-        TriggerWriterOptions(
+        trigger.overLast,
+        trigger.computeEvery,
+        WriterOptions(
           trigger.writer.outputs,
-          trigger.overLast,
-          trigger.computeEvery,
-          trigger.writer.tableName,
-          trigger.writer.primaryKey,
           trigger.writer.saveMode,
+          trigger.writer.tableName,
           getAutoCalculatedFields(trigger.writer.autoCalculatedFields),
+          trigger.writer.primaryKey,
           trigger.writer.partitionBy
         ),
         trigger.configuration)

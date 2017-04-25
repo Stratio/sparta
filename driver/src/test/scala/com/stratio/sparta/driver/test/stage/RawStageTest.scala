@@ -18,8 +18,9 @@ package com.stratio.sparta.driver.test.stage
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
 import com.stratio.sparta.driver.stage.{LogError, RawDataStage}
+import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+import com.stratio.sparta.serving.core.models.policy.writer.{AutoCalculatedFieldModel, WriterModel}
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, RawDataModel}
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
@@ -46,6 +47,7 @@ class RawStageTest
     val tableName = Some("table")
     val outputs = Seq("output")
     val partitionBy = Some("field")
+    val autocalculateFields = Seq(AutoCalculatedFieldModel())
     val configuration = Map.empty[String, JsoneyString]
 
     val policy = mockPolicy
@@ -59,16 +61,17 @@ class RawStageTest
     when(writerModel.tableName).thenReturn(tableName)
     when(writerModel.outputs).thenReturn(outputs)
     when(writerModel.partitionBy).thenReturn(partitionBy)
+    when(writerModel.autoCalculatedFields).thenReturn(autocalculateFields)
     when(rawData.configuration).thenReturn(configuration)
 
     val result = TestRawData(policy).rawDataStage()
 
     result.timeField should be(timeField)
     result.dataField should be(field)
-    result.rawDataStorageWriterOptions.tableName should be(tableName.get)
-    result.rawDataStorageWriterOptions.partitionBy should be(partitionBy)
+    result.writerOptions.tableName should be(tableName)
+    result.writerOptions.partitionBy should be(partitionBy)
     result.configuration should be(configuration)
-    result.rawDataStorageWriterOptions.outputs should be(outputs)
+    result.writerOptions.outputs should be(outputs)
   }
 
   "rawDataStage" should "Fail with bad table name" in {

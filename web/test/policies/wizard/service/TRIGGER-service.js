@@ -256,7 +256,7 @@ describe('policies.wizard.service.policy-trigger-service', function () {
           type: "string"
         }]
       };
-      fakePolicy.transformations = [fakeTransformation1, fakeTransformation2];
+      fakePolicy.transformations.transformationsPipe = [fakeTransformation1, fakeTransformation2];
 
       var sqlHelpItems = service.getSqlHelpSourceItems();
 

@@ -16,8 +16,8 @@
 package com.stratio.sparta.driver.stage
 
 import com.stratio.sparta.driver.step.RawData
-import com.stratio.sparta.driver.writer.{RawDataWriter, RawDataWriterOptions}
-import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.driver.writer.{RawDataWriterHelper, WriterOptions}
+import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, RawDataModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
@@ -29,7 +29,7 @@ trait RawDataStage extends BaseStage {
     if (rawModel.isDefined) {
       val rawData = rawDataStage()
 
-      RawDataWriter(rawData, outputs).write(input)
+      RawDataWriterHelper.writeRawData(rawData, outputs, input)
     }
 
   private[driver] def rawDataStage(): RawData = {
@@ -51,10 +51,13 @@ trait RawDataStage extends BaseStage {
       RawData(
         rawDataModel.dataField,
         rawDataModel.timeField,
-        RawDataWriterOptions(
-          rawDataModel.writer.tableName.get,
+        WriterOptions(
           rawDataModel.writer.outputs,
-          rawDataModel.writer.partitionBy
+          SaveModeEnum.Append,
+          rawDataModel.writer.tableName,
+          getAutoCalculatedFields(rawDataModel.writer.autoCalculatedFields),
+          rawDataModel.writer.partitionBy,
+          rawDataModel.writer.primaryKey
         ),
         rawDataModel.configuration)
     }
