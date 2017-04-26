@@ -46,7 +46,7 @@ trait SSLSupport {
 
   implicit def sslEngineProvider: ServerSSLEngineProvider = {
     ServerSSLEngineProvider { engine =>
-      engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_128_CBC_SHA"))
+      engine.setEnabledCipherSuites(Array("TLS_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_128_CBC_SHA"))
       engine.setEnabledProtocols(Array( "TLSv1.2" ))
       engine
     }

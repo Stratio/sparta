@@ -95,7 +95,7 @@ function oauthOptions() {
    sed -i "s|.*oauth2.url.authorize.*|oauth2.url.authorize = \""${OAUTH2_SSL_AUTHORIZE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ ! -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
+ if [ -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
    sed -i "s|.*oauth2.url.accessToken.*|oauth2.url.accessToken = \""${OAUTH2_URL_ACCESS_TOKEN}"\"|" ${SPARTA_CONF_FILE}
  fi
 
@@ -115,11 +115,11 @@ function oauthOptions() {
    sed -i "s|.*oauth2.url.onLoginGoTo.*|oauth2.url.onLoginGoTo = \""${OAUTH2_URL_ON_LOGIN_GO_TO}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v OAUTH2_CLIENT_ID ] && [ ${#OAUTH2_URL_ON_LOGIN_GO_TO} != 0 ]; then
+ if [ -v OAUTH2_CLIENT_ID ] && [ ${#OAUTH2_CLIENT_ID} != 0 ]; then
    sed -i "s|.*oauth2.client.id.*|oauth2.client.id = \""${OAUTH2_CLIENT_ID}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v OAUTH2_CLIENT_SECRET ] && [ ${#OAUTH2_URL_ON_LOGIN_GO_TO} != 0 ]; then
+ if [ -v OAUTH2_CLIENT_SECRET ] && [ ${#OAUTH2_CLIENT_SECRET} != 0 ]; then
    sed -i "s|.*oauth2.client.secret.*|oauth2.client.secret = \""${OAUTH2_CLIENT_SECRET}"\"|" ${SPARTA_CONF_FILE}
  fi
 }

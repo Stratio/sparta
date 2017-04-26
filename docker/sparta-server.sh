@@ -50,7 +50,7 @@
    "debug") # In this mode, Sparta will be launched as a service within the docker container.
      logLevelToFile
      service sparta start
-     tail -F /var/log/sds/sparta/sparta.log
+     tail -f /var/log/sds/sparta/sparta.log
      ;;
    *) # Default mode: Sparta run as a docker application
      logLevelToStdout
