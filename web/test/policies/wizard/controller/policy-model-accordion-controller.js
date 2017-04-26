@@ -69,7 +69,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         models = [fakeModel, fakeModel2];
       });
       it("if position is between 0 and policy models length, the factory model is updated with the model of that position in the policy model array", function () {
-        ctrl.policy.transformations = models;
+        ctrl.policy.transformations.transformationsPipe = models;
         var position = 1;
         ctrl.modelAccordionStatus[position] = true;
 
@@ -82,7 +82,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
         fakeModel2.name = "fake model 2";
 
         var models = [fakeModel, fakeModel2];
-        ctrl.policy.transformations = models;
+        ctrl.policy.transformations.transformationsPipe = models;
         var position = 2;
         ctrl.modelAccordionStatus[position] = true;
 
@@ -112,14 +112,14 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
 
     });
     it("if transformation array is empty, policy error is updated to 'at least one transformation is needed'", function () {
-      ctrl.policy.transformations = [];
+      ctrl.policy.transformations.transformationsPipe = [];
       scope.$broadcast("forceValidateForm");
 
       expect(policyModelFactoryMock.setError).toHaveBeenCalledWith('_ERROR_._TRANSFORMATION_STEP_', 'error');
     });
     it("if transformation array is not empty, but user is creating a transformation, " +
       "policy error is updated to warn user about saving his changes'", function () {
-      ctrl.policy.transformations = [fakeModel];
+      ctrl.policy.transformations.transformationsPipe = [fakeModel];
       ctrl.isActiveModelCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
@@ -134,7 +134,7 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
     });
 
     it("if transformation is activated, creation panel is opened", function(){
-      ctrl.policy.transformations = [fakeModel];
+      ctrl.policy.transformations.transformationsPipe = [fakeModel];
       ctrl.isActiveModelCreationPanel.and.returnValue(true);
 
       scope.$broadcast("forceValidateForm");
@@ -146,14 +146,14 @@ describe('policies.wizard.controller.policy-model-accordion-controller', functio
   describe("Should be able to see changes in model creation status and transformation array in order to enable or disable next step", function(){
     it ("next step is enabled only if model is not activated and transformation array is not empty", function(){
       ctrl.modelCreationStatus = {};
-      ctrl.policy.transformations = [];
+      ctrl.policy.transformations.transformationsPipe = [];
 
       ctrl.modelCreationStatus.enabled = true;
       scope.$apply();
 
       expect(wizardStatusServiceMock.disableNextStep).toHaveBeenCalled();
 
-      ctrl.policy.transformations = [fakeModel];
+      ctrl.policy.transformations.transformationsPipe = [fakeModel];
       ctrl.modelCreationStatus.enabled = true;
       scope.$apply();
 

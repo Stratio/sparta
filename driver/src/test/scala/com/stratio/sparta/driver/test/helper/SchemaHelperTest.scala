@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.test.helper
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.driver.helper.SchemaHelper
+import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, Precision}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.input.Input
@@ -27,7 +27,7 @@ import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
-import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -75,9 +75,9 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
     val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
     val transformationModel1 =
-      TransformationsModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2))
+      TransformationModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2))
 
-    val transformationModel2 = TransformationsModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
+    val transformationModel2 = TransformationModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
       outputFieldModel4))
     val writerModel = WriterModel(Seq("outputName"))
   }
@@ -169,9 +169,9 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
     new CommonValues {
 
       val transformationNoRaw1 =
-        TransformationsModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2),
+        TransformationModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2),
           Map("removeInputField" -> JsoneyString.apply("true")))
-      val transformationNoRaw2 = TransformationsModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
+      val transformationNoRaw2 = TransformationModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
         outputFieldModel4), Map("removeInputField" -> JsoneyString.apply("true")))
 
       val transformationsModel = Seq(transformationNoRaw1, transformationNoRaw2)
