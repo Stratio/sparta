@@ -21,7 +21,11 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparta</groupId>
+<<<<<<< HEAD
         <version>1.4.0-RC2-SNAPSHOT</version>
+=======
+        <version>1.5.0-SNAPSHOT</version>
+>>>>>>> fix/Jenkinsfile_updated_OpenSSL
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
