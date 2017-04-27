@@ -49,7 +49,6 @@
         scope.chooseStep = function (index, order) {
           var transformations = scope.policy.transformations.transformationsPipe;
           var input = scope.policy.input;
-          
 
           if(order == 2 && (!input || !input.name)){
             return;
