@@ -28,6 +28,7 @@
     var error = {};
 
     function initPolicy() {
+      policy = {};
       policy.name = "";
       policy.description = "";
       policy.input = {};
@@ -57,6 +58,11 @@
       delete policy.driverUri;
       delete policy.stopGracefully;
       delete policy.streamTemporalTable;
+    }
+
+    function setEditPolicy(inputPolicyJSON) {
+      policy = {};
+      setPolicy(inputPolicyJSON)
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -210,6 +216,7 @@
 
     return {
       setPolicy: setPolicy,
+      setEditPolicy:setEditPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,

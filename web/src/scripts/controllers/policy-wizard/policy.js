@@ -71,6 +71,7 @@
     function initPolicy() {
       var defer = $q.defer();
       var id = $stateParams.id;
+      PolicyModelFactory.resetPolicy();
       if (id) {
         PolicyFactory.getPolicyById(id).then(
           function (policyJSON) {
