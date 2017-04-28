@@ -15,16 +15,8 @@
         </label>
       </div>
       <div class="c-col c-col--12 c-panel--x-small__container">
-      <form-field-select select-class="c-combobox--full-width"
-          data-form="vm.form"
-          data-model="input.type"
-          data-options="outputTypes"
-          data-field="label"
-          data-defaultvalue="defaultType"
-          data-required="true"
-          data-hide-message="true"
-          data-disabled="disabledType">
-        </form-field-select>
+        <select ng-model="input.type" ng-options="item.value as item.label for item in outputTypes" class="c-combobox c-form-group">
+        </select>
 
       </div>
     </span>
