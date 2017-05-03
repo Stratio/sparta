@@ -40,6 +40,7 @@
     init();
 
     function init() {
+      PolicyModelFactory.initializePolicy();
       initTemplate().then(function () {
         initPolicy().then(function () {
           vm.status = WizardStatusService.getStatus();
@@ -71,7 +72,6 @@
     function initPolicy() {
       var defer = $q.defer();
       var id = $stateParams.id;
-      PolicyModelFactory.resetPolicy();
       if (id) {
         PolicyFactory.getPolicyById(id).then(
           function (policyJSON) {
