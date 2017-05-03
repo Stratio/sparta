@@ -59,7 +59,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadPlugins(form.fields)).mapTo[JarFilesResponse]
+              response <- (supervisor ? UploadPlugins(form.fields, user)).mapTo[JarFilesResponse]
             } yield response match {
               case JarFilesResponse(Success(newFilesUris)) => newFilesUris
               case JarFilesResponse(Failure(exception)) => throw exception
@@ -102,7 +102,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListPlugins).mapTo[JarFilesResponse]
+            response <- (supervisor ? ListPlugins(user)).mapTo[JarFilesResponse]
           } yield response match {
             case JarFilesResponse(Success(filesUris)) => filesUris
             case JarFilesResponse(Failure(exception)) => throw exception
@@ -153,7 +153,7 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeletePlugin(file)).mapTo[PluginResponse]
+            response <- (supervisor ? DeletePlugin(file, user)).mapTo[PluginResponse]
           } yield response match {
             case PluginResponse(Success(_)) => StatusCodes.OK
             case PluginResponse(Failure(exception)) => throw exception

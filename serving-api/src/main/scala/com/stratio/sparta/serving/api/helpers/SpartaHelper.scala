@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.actor.{FragmentActor, RequestActor, Statu
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import spray.can.Http
 
 /**
@@ -46,14 +47,16 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       log.info("Initializing Sparta Actors System ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
 
-      val statusActor = system.actorOf(Props(new StatusActor(curatorFramework)), StatusActorName)
-      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)), FragmentActorName)
-      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor)), PolicyActorName)
+      val secManager = SecurityManagerHelper.securityManager
+      val statusActor = system.actorOf(Props(new StatusActor(curatorFramework, secManager)), StatusActorName)
+      val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework, secManager)), FragmentActorName)
+      val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, secManager)),
+        PolicyActorName)
       val executionActor = system.actorOf(Props(new RequestActor(curatorFramework)), ExecutionActorName)
       val scService = StreamingContextService(curatorFramework, SpartaConfig.mainConfig)
       val launcherActor = system.actorOf(Props(new LauncherActor(scService, curatorFramework)), LauncherActorName)
-      val pluginActor = system.actorOf(Props(new PluginActor()), PluginActorName)
-      val driverActor = system.actorOf(Props(new DriverActor()), DriverActorName)
+      val pluginActor = system.actorOf(Props(new PluginActor(secManager)), PluginActorName)
+      val driverActor = system.actorOf(Props(new DriverActor(secManager)), DriverActorName)
       val actors = Map(
         StatusActorName -> statusActor,
         FragmentActorName -> fragmentActor,

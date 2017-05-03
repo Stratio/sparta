@@ -20,10 +20,15 @@ import java.util
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.FragmentActor.{Response, ResponseFragment, ResponseFragments}
+import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -36,7 +41,7 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
 class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
@@ -84,7 +89,27 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         |}
       """.stripMargin
 
+    val outputFragment =
+      """
+        |{
+        |  "id": "id3",
+        |  "fragmentType": "output",
+        |  "name": "outputname",
+        |  "description": "output description",
+        |  "shortDescription": "output description",
+        |  "element": {
+        |    "name": "output",
+        |    "type": "output",
+        |    "configuration": {
+        |      "configKey": "configValue"
+        |    }
+        |  }
+        |}rootUser
+      """.stripMargin
+
+    val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
     val fragmentElementModel = read[FragmentElementModel](fragment)
+    val fragmentElementModel2 = read[FragmentElementModel](outputFragment)
     val curatorFramework = mock[CuratorFramework]
     val getChildrenBuilder = mock[GetChildrenBuilder]
     val getDataBuilder = mock[GetDataBuilder]
@@ -93,24 +118,27 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
     val deleteBuilder = mock[DeleteBuilder]
     val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
-    val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework)))
+    val fragmentActor = system.actorOf(Props(new FragmentActor(curatorFramework, secManager)))
     implicit val timeout: Timeout = Timeout(15.seconds)
   }
 
   override def afterAll: Unit = shutdown()
 
+  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+
   "FragmentActor" must {
 
-    "findByType: returns an empty Seq because the node of type not exists yet" in new TestData {
+    "findByType: returns an empty Seq because the node of type does not exist yet" in new TestData {
       when(curatorFramework.getChildren)
         .thenReturn(getChildrenBuilder)
       when(curatorFramework.getChildren
         .forPath("/stratio/sparta/fragments/input"))
         .thenThrow(new NoNodeException)
 
-      fragmentActor ! FragmentActor.FindByType("input")
+      fragmentActor ! FragmentActor.FindByType("input", rootUser)
 
-      expectMsg(new ResponseFragments(Success(Seq())))
+      expectMsg(ResponseFragments(Success(Seq())))
     }
 
     "findByTypeAndId: returns a failure holded by a ResponseFragment when the node does not exist" in new TestData {
@@ -120,7 +148,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         .forPath("/stratio/sparta/fragments/input"))
         .thenThrow(new NoNodeException)
 
-      fragmentActor ! FragmentActor.FindByTypeAndId("input", "id")
+      fragmentActor ! FragmentActor.FindByTypeAndId("input", "id", rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
     }
@@ -132,7 +160,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         .forPath("/stratio/sparta/fragments/input"))
         .thenThrow(new NoNodeException)
 
-      fragmentActor ! FragmentActor.FindByTypeAndName("input", "inputname")
+      fragmentActor ! FragmentActor.FindByTypeAndName("input", "inputname", rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
     }
@@ -144,9 +172,16 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         .forPath("/stratio/sparta/fragments/input"))
         .thenThrow(new NoSuchElementException)
 
-      fragmentActor ! FragmentActor.FindByTypeAndName("input", "inputname")
+      fragmentActor ! FragmentActor.FindByTypeAndName("input", "inputname", rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
+    }
+
+    "findAll: returns a error message when limitedUser attempts to list all the fragments" in new TestData {
+      //try {
+      fragmentActor ! FragmentActor.FindAllFragments(limitedUser)
+
+      expectMsgAnyClassOf(classOf[UnauthorizedResponse])
     }
 
     // XXX create
@@ -173,7 +208,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         .forPath("/stratio/sparta/fragments/input/element"))
         .thenReturn(fragment)
 
-      fragmentActor ! FragmentActor.Create(fragmentElementModel)
+      fragmentActor ! FragmentActor.CreateFragment(fragmentElementModel, rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
     }
@@ -190,9 +225,17 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
         .forPath("/stratio/sparta/fragments/input"))
         .thenReturn(util.Arrays.asList("id"))
 
-      fragmentActor ! FragmentActor.Create(fragmentElementModel)
+      fragmentActor ! FragmentActor.CreateFragment(fragmentElementModel, rootUser)
 
       expectMsgAnyClassOf(classOf[ResponseFragment])
+    }
+
+   "create: an output fragment but an exception is encountered " +
+     "because the user doesn't have enough permissions" in new TestData {
+
+       fragmentActor ! FragmentActor.CreateFragment(fragmentElementModel2, limitedUser)
+
+       expectMsgAnyClassOf(classOf[UnauthorizedResponse])
     }
   }
 
@@ -209,16 +252,24 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
     when(curatorFramework.getChildren
       .forPath("/stratio/sparta/fragments/input"))
       .thenReturn(util.Arrays.asList("id"))
-    when(curatorFramework.setData)
+    when(curatorFramework.setData())
       .thenReturn(setDataBuilder)
-    when(curatorFramework.setData
+    when(curatorFramework.setData()
       .forPath("/stratio/sparta/fragments/input/element"))
       .thenReturn(new Stat())
 
-    fragmentActor ! FragmentActor.Update(fragmentElementModel)
+    fragmentActor ! FragmentActor.Update(fragmentElementModel, rootUser)
 
-    expectMsg(new Response(Success(fragmentElementModel)))
+    expectMsg(Response(Success(fragmentElementModel)))
+
     // scalastyle:on null
+  }
+
+  "update: tries to update a fragment but the user doesn't have enough permission to do so" in new TestData {
+
+      fragmentActor ! FragmentActor.Update(fragmentElementModel, limitedUser)
+
+      expectMsgAnyClassOf(classOf[UnauthorizedResponse])
   }
 
   "update: tries to update a fragment but it is impossible because the fragment exists" in new TestData {
@@ -238,7 +289,7 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       .forPath("/stratio/sparta/fragments/input/id"))
       .thenReturn(otherFragment.getBytes)
 
-    fragmentActor ! FragmentActor.Update(fragmentElementModel)
+    fragmentActor ! FragmentActor.Update(fragmentElementModel, rootUser)
 
     expectMsgAnyClassOf(classOf[FragmentActor.Response])
   }
@@ -260,13 +311,13 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       .forPath("/stratio/sparta/fragments/input/id"))
       .thenReturn(fragment.getBytes)
 
-    when(curatorFramework.setData)
+    when(curatorFramework.setData())
       .thenReturn(setDataBuilder)
-    when(curatorFramework.setData
+    when(curatorFramework.setData()
       .forPath("/stratio/sparta/fragments/input/element"))
       .thenThrow(new NoNodeException)
 
-    fragmentActor ! FragmentActor.Update(fragmentElementModel)
+    fragmentActor ! FragmentActor.Update(fragmentElementModel, rootUser)
 
     expectMsgAnyClassOf(classOf[FragmentActor.Response])
   }
@@ -280,9 +331,10 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       .forPath("/stratio/sparta/fragments/input/id"))
       .thenReturn(null)
 
-    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id")
+    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id", rootUser)
 
-    expectMsg(new Response(Success()))
+    expectMsgAnyClassOf(classOf[FragmentActor.Response])
+    //expectMsg(Response(Success()))
     // scalastyle:on null
   }
 
@@ -293,8 +345,16 @@ class FragmentActorTest extends TestKit(ActorSystem("FragmentActorSpec"))
       .forPath("/stratio/sparta/fragments/input/id"))
       .thenThrow(new NoNodeException)
 
-    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id")
+    fragmentActor ! FragmentActor.DeleteByTypeAndId("input", "id", rootUser)
 
     expectMsgAnyClassOf(classOf[FragmentActor.Response])
   }
+
+  "delete: tries to delete a fragment but the user doesn't have enough permissions" in new TestData {
+
+    fragmentActor ! FragmentActor.DeleteAllFragments(limitedUser)
+
+    expectMsgAnyClassOf(classOf[UnauthorizedResponse])
+  }
+
 }

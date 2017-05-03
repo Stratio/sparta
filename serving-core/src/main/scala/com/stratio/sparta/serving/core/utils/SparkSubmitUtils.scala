@@ -106,8 +106,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
   /**
-   * Checks if we have a valid Spark home.
-   */
+    * Checks if we have a valid Spark home.
+    */
   def validateSparkHome(clusterConfig: Config): String = {
     val sparkHome = Try(extractSparkHome(clusterConfig))
     require(sparkHome.isSuccess,

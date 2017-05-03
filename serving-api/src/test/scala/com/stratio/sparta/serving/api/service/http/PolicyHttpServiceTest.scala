@@ -77,7 +77,7 @@ with HttpServiceBaseTest {
       val fragmentActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case FragmentActor.FindByTypeAndId(fragmentType, id) =>
+            case FragmentActor.FindByTypeAndId(fragmentType, id, userId) =>
               sender ! ResponseFragment(Success(getFragmentModel()))
               TestActor.NoAutoPilot
           }
@@ -87,7 +87,7 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.FindById(id) =>
+            case StatusActor.FindById(id, user) =>
               sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
@@ -115,7 +115,7 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.FindById(id) =>
+            case StatusActor.FindById(id, user) =>
               sender ! StatusActor.ResponseStatus(Success(getPolicyStatusModel()))
               TestActor.NoAutoPilot
           }
@@ -158,7 +158,7 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.Delete(id) =>
+            case StatusActor.DeleteStatus(id, user) =>
               sender ! StatusActor.ResponseDelete(Success(true))
               TestActor.NoAutoPilot
           }
@@ -166,7 +166,7 @@ with HttpServiceBaseTest {
       startAutopilot(Response(Success(getFragmentModel())))
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Delete]
+        testProbe.expectMsgType[DeletePolicy]
         status should be(StatusCodes.OK)
       }
     }
@@ -175,7 +175,7 @@ with HttpServiceBaseTest {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case StatusActor.Delete(id) =>
+            case StatusActor.DeleteStatus(id, user) =>
               sender ! StatusActor.ResponseDelete(Success(true))
               TestActor.NoAutoPilot
           }
@@ -183,7 +183,7 @@ with HttpServiceBaseTest {
       startAutopilot(Response(Failure(new MockException())))
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Delete(s"/${HttpConstant.PolicyPath}/id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Delete]
+        testProbe.expectMsgType[DeletePolicy]
         status should be(StatusCodes.InternalServerError)
       }
     }

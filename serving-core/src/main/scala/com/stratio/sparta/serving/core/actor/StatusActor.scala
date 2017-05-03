@@ -17,49 +17,72 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{Actor, _}
+import com.stratio.sparta.security._
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.actor.StatusActor._
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
-import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, PolicyStatusUtils}
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, ClusterListenerUtils, PolicyStatusUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
-class StatusActor(val curatorFramework: CuratorFramework) extends Actor
-  with PolicyStatusUtils with ClusterListenerUtils {
+class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+  with PolicyStatusUtils with ClusterListenerUtils with ActionUserAuthorize{
+
+  val ResourceType = "context"
 
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
-    case Create(policyStatus) => sender ! ResponseStatus(createStatus(policyStatus))
-    case Update(policyStatus) => sender ! ResponseStatus(updateStatus(policyStatus))
+    case CreateStatus(policyStatus, user) => createStatus(policyStatus, user)
+    case Update(policyStatus, user) => update(policyStatus, user)
     case ClearLastError(id) => sender ! clearLastError(id)
-    case FindAll => sender ! findAllStatuses()
-    case FindById(id) => sender ! ResponseStatus(findStatusById(id))
-    case DeleteAll => sender ! ResponseDelete(deleteAllStatuses())
+    case FindAll(user) => findAll(user)
+    case FindById(id, user) => findById(id, user)
+    case DeleteAll(user) => deleteAll(user)
     case AddListener(name, callback) => addListener(name, callback)
     case AddClusterListeners => addClusterListeners(findAllStatuses(), context)
-    case Delete(id) => sender ! ResponseDelete(deleteStatus(id))
+    case DeleteStatus(id, user) => sender ! ResponseDelete(deleteStatus(id))
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
+
+  def createStatus(policyStatus: PolicyStatusModel, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, Create, ResponseStatus(createStatus(policyStatus)))
+
+  def update(policyStatus: PolicyStatusModel, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, Edit, ResponseStatus(updateStatus(policyStatus)))
+
+  def findAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, View, findAllStatuses())
+
+  def findById(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, View, ResponseStatus(findStatusById(id)))
+
+  def deleteAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, Delete, ResponseDelete(deleteAllStatuses()))
+
+  def deleteStatus(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(secManagerOpt, user, ResourceType, Delete, ResponseDelete(deleteStatus(id)))
 
   //scalastyle:on cyclomatic.complexity
 }
 
 object StatusActor {
 
-  case class Update(policyStatus: PolicyStatusModel)
+  case class Update(policyStatus: PolicyStatusModel, user: Option[LoggedUser])
 
-  case class Create(policyStatus: PolicyStatusModel)
+  case class CreateStatus(policyStatus: PolicyStatusModel, user: Option[LoggedUser])
 
   case class AddListener(name: String, callback: (PolicyStatusModel, NodeCache) => Unit)
 
-  case class Delete(id: String)
+  case class DeleteStatus(id: String, user: Option[LoggedUser])
 
-  case object DeleteAll
+  case class DeleteAll(user: Option[LoggedUser])
 
-  case object FindAll
+  case class FindAll(user: Option[LoggedUser])
 
-  case class FindById(id: String)
+  case class FindById(id: String, user: Option[LoggedUser])
 
   case class ResponseStatus(policyStatus: Try[PolicyStatusModel])
 

@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.exception
+package com.stratio.sparta.serving.core.helpers
 
-case class ServingCoreException(msg: String) extends RuntimeException(msg)
+import com.stratio.sparta.security._
 
-object ServingCoreException {
+class DummySecurityClass extends SpartaSecurityManager {
+  override def start(): Unit = {}
 
-  def create(msg: String): ServingCoreException = ServingCoreException(msg)
+  override def stop(): Unit = {}
 
-  def create(msg: String, cause: Throwable): Throwable = ServingCoreException(msg).initCause(cause)
+  override def authorize(userId: String, resource: Resource, action: Action): Boolean = true
+
+  override def audit(auditEvent: AuditEvent): Unit = {}
+
 }

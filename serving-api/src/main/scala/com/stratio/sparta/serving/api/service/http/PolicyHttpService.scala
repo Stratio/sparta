@@ -69,7 +69,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? Find(id)).mapTo[ResponsePolicy]
+            response <- (supervisor ? Find(id, user)).mapTo[ResponsePolicy]
           } yield response match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
@@ -101,7 +101,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindByName(name)).mapTo[ResponsePolicy]
+            response <- (supervisor ? FindByName(name, user)).mapTo[ResponsePolicy]
           } yield response match {
             case ResponsePolicy(Failure(exception)) =>
               throw exception
@@ -138,7 +138,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
+            response <- (supervisor ? FindByFragment(fragmentType, id, user)).mapTo[ResponsePolicies]
           } yield response match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) => policies
@@ -162,7 +162,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindAll()).mapTo[ResponsePolicies]
+            response <- (supervisor ? FindAll(user)).mapTo[ResponsePolicies]
           } yield response match {
             case ResponsePolicies(Failure(exception)) => throw exception
             case ResponsePolicies(Success(policies)) => policies
@@ -198,7 +198,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
               case ResponsePolicy(Success(policyParsed)) =>
                 PolicyValidator.validateDto(policyParsed)
                 for {
-                  response <- (supervisor ? Create(policy)).mapTo[ResponsePolicy]
+                  response <- (supervisor ? CreatePolicy(policy, user)).mapTo[ResponsePolicy]
                 } yield response match {
                   case ResponsePolicy(Failure(exception)) => throw exception
                   case ResponsePolicy(Success(policy)) => policy
@@ -227,7 +227,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           complete {
             PolicyValidator.validateDto(policy)
             for {
-              response <- (supervisor ? Update(policy)).mapTo[ResponsePolicy]
+              response <- (supervisor ? Update(policy, user)).mapTo[ResponsePolicy]
             } yield response match {
               case ResponsePolicy(Failure(exception)) => throw exception
               case ResponsePolicy(Success(policy)) => HttpResponse(StatusCodes.OK)
@@ -251,7 +251,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
+            policies <- (supervisor ? DeleteAll(user)).mapTo[ResponsePolicies]
           } yield policies match {
             case ResponsePolicies(Failure(exception)) =>
               throw exception
@@ -287,7 +287,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       delete {
         complete {
           for {
-            response <- (supervisor ? Delete(id)).mapTo[Response]
+            response <- (supervisor ? DeletePolicy(id, user)).mapTo[Response]
           } yield response match {
             case Response(Failure(ex)) => throw ex
             case Response(Success(_)) => StatusCodes.OK
@@ -318,7 +318,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       delete {
         complete {
           for {
-            responsePolicy <- (supervisor ? FindByName(name)).mapTo[ResponsePolicy]
+            responsePolicy <- (supervisor ? FindByName(name, user)).mapTo[ResponsePolicy]
           } yield responsePolicy match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) => for {
@@ -353,7 +353,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
         complete {
-          for (result <- supervisor ? Find(id)) yield result match {
+          for (result <- supervisor ? Find(id, user)) yield result match {
             case ResponsePolicy(Failure(exception)) => throw exception
             case ResponsePolicy(Success(policy)) =>
               val launcherActor = actors(AkkaConstant.LauncherActorName)
@@ -388,7 +388,7 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   def download(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
       get {
-        val future = supervisor ? Find(id)
+        val future = supervisor ? Find(id, user)
         Await.result(future, timeout.duration) match {
           case ResponsePolicy(Failure(exception)) =>
             throw exception
