@@ -58,7 +58,7 @@ describe('policies.wizard.controller.policy-controller', function () {
     stateParamsMock = {id: null};
     wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus', 'nextStep']);
     wizardStatusServiceMock.getStatus.and.returnValue(fakeCreationStatus);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'isValidSparkStreamingWindow', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'initializePolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'isValidSparkStreamingWindow', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -104,6 +104,10 @@ describe('policies.wizard.controller.policy-controller', function () {
   }));
 
   describe("when it is initialized", function () {
+
+    it("policy model is initialized", function() {
+      expect(policyModelFactoryMock.initializePolicy).toHaveBeenCalled();
+    });
 
     it("if policy template, has not been loaded yet, it is requested to template factory and loaded to policy factory", (inject(function ($controller) {
       policyModelFactoryMock.getTemplate.and.callFake(function () {
