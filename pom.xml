@@ -29,7 +29,7 @@
 
     <groupId>com.stratio.sparta</groupId>
     <artifactId>parent</artifactId>
-    <version>1.4.0-RC3</version>
+    <version>1.4.0-RC4-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <url>http://www.stratio.com</url>
