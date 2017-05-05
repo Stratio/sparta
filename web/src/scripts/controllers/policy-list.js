@@ -129,7 +129,7 @@
       angular.forEach(policies, function(policy){
         policy.triggers = convertObjectArrayToString(policy.streamTriggers, 'name');
         policy.cubesStr = convertObjectArrayToString(policy.cubes, 'name');
-        policy.transformType = convertObjectArrayToString(policy.transformations, 'type');
+        policy.transformType = convertObjectArrayToString(policy.transformations.transformationsPipe, 'type');
       });
 
       return policies;

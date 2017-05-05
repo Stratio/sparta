@@ -1,97 +1,82 @@
-[
-  {
+[{
     "id": "8c062142-7e52-4f5c-ae7d-39bd619a019e",
     "storageLevel": "MEMORY_ONLY_SER",
     "name": "df",
     "description": "dfdf",
     "sparkStreamingWindow": "6s",
-    "transformations": [
-      {
+    "transformations": {
+      "transformationsPipe": [{
         "type": "Ingestion",
         "order": 0,
         "inputField": "_attachment_body",
-        "outputFields": [
-          {
-            "name": "df",
-            "type": "string"
-          }
-        ],
+        "outputFields": [{
+          "name": "df",
+          "type": "string"
+        }],
         "configuration": {
           "whenError": "Error",
           "removeInputField": false
         }
-      }
-    ],
+      }]
+    },
     "streamTriggers": [],
-    "cubes": [
-      {
-        "name": "cube1",
-        "dimensions": [
-          {
-            "name": "df",
-            "field": "df",
-            "precision": "identity",
-            "type": "Default"
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+        "name": "df",
+        "field": "df",
+        "precision": "identity",
+        "type": "Default"
+      }],
+      "operators": [{
+          "type": "Accumulator",
+          "name": "accumulator",
+          "configuration": {
+            "dfdf": "dfdfdf"
           }
-        ],
-        "operators": [
-          {
-            "type": "Accumulator",
-            "name": "accumulator",
-            "configuration": {
-              "dfdf": "dfdfdf"
-            }
-          },
-          {
-            "type": "EntityCount",
-            "name": "entitycount",
-            "configuration": {
-              "b": "bbvvb"
-            }
-          }
-        ],
-        "writer": {
-          "outputs": [
-            "fdfdf"
-          ],
-          "dateType": "timestamp",
-          "autoCalculatedFields": [],
-          "saveMode": "Append"
         },
-        "triggers": [],
-        "avoidNullValues": true
-      }
-    ],
+        {
+          "type": "EntityCount",
+          "name": "entitycount",
+          "configuration": {
+            "b": "bbvvb"
+          }
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "fdfdf"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
     "input": {
       "name": "a",
       "type": "Custom",
       "configuration": {
         "modelType": "Custom",
-        "inputOptions": [
-          {
-            "inputOptionsKey": "df",
-            "inputOptionsValue": "df"
-          }
-        ]
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
       }
     },
-    "outputs": [
-      {
-        "name": "fdfdf",
-        "type": "Custom",
-        "configuration": {
-          "modelType": "Custom",
-          "saveOptions": [
-            {
-              "saveOptionsKey": "fdf",
-              "saveOptionsValue": "dfdfd"
-            }
-          ]
-        }
+    "outputs": [{
+      "name": "fdfdf",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "saveOptions": [{
+          "saveOptionsKey": "fdf",
+          "saveOptionsValue": "dfdfd"
+        }]
       }
-    ],
-    "fragments": [
-      {
+    }],
+    "fragments": [{
         "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
         "fragmentType": "input",
         "name": "a",
@@ -102,12 +87,10 @@
           "type": "Custom",
           "configuration": {
             "modelType": "Custom",
-            "inputOptions": [
-              {
-                "inputOptionsKey": "df",
-                "inputOptionsValue": "df"
-              }
-            ]
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
           }
         }
       },
@@ -122,38 +105,28 @@
           "type": "Custom",
           "configuration": {
             "modelType": "Custom",
-            "saveOptions": [
-              {
-                "saveOptionsKey": "fdf",
-                "saveOptionsValue": "dfdfd"
-              }
-            ]
+            "saveOptions": [{
+              "saveOptionsKey": "fdf",
+              "saveOptionsValue": "dfdfd"
+            }]
           }
         }
       }
     ],
-    "userPluginsJars": [
-      {
-        "jarPath": ""
-      }
-    ],
-    "sparkConf": [
-      {
-        "sparkConfKey": "",
-        "sparkConfValue": ""
-      }
-    ],
-    "sparkSubmitArguments": [
-      {
-        "submitArgument": "",
-        "submitValue": ""
-      }
-    ],
-    "initSqlSentences": [
-      {
-        "sentence": ""
-      }
-    ]
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
   },
   {
     "id": "1db9edd0-ae4e-4e4d-b313-55bf4e4f122e",
@@ -161,98 +134,82 @@
     "name": "dfdf",
     "description": "Dfdf",
     "sparkStreamingWindow": "6s",
-    "transformations": [
-      {
+    "transformations": {
+      "transformationsPipe": [{
         "type": "Ingestion",
         "order": 0,
         "inputField": "_attachment_body",
-        "outputFields": [
-          {
-            "name": "dfdf",
-            "type": "string"
-          }
-        ],
+        "outputFields": [{
+          "name": "dfdf",
+          "type": "string"
+        }],
         "configuration": {
           "whenError": "Error",
           "removeInputField": false
         }
-      }
-    ],
+      }]
+    },
     "streamTriggers": [],
-    "cubes": [
-      {
-        "name": "cube1",
-        "dimensions": [
-          {
-            "name": "dfdf",
-            "field": "dfdf",
-            "precision": "identity",
-            "type": "Default"
-          }
-        ],
-        "operators": [
-          {
-            "type": "MeanAssociative",
-            "name": "meanassociative",
-            "configuration": {}
-          },
-          {
-            "type": "EntityCount",
-            "name": "entitycount",
-            "configuration": {}
-          }
-        ],
-        "writer": {
-          "outputs": [
-            "adsdsd"
-          ],
-          "dateType": "timestamp",
-          "autoCalculatedFields": [],
-          "saveMode": "Append"
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+        "name": "dfdf",
+        "field": "dfdf",
+        "precision": "identity",
+        "type": "Default"
+      }],
+      "operators": [{
+          "type": "MeanAssociative",
+          "name": "meanassociative",
+          "configuration": {}
         },
-        "triggers": [],
-        "avoidNullValues": true
-      }
-    ],
+        {
+          "type": "EntityCount",
+          "name": "entitycount",
+          "configuration": {}
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "adsdsd"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
     "input": {
       "name": "a",
       "type": "Custom",
       "configuration": {
         "modelType": "Custom",
-        "inputOptions": [
-          {
-            "inputOptionsKey": "df",
-            "inputOptionsValue": "df"
-          }
-        ]
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
       }
     },
-    "outputs": [
-      {
-        "name": "adsdsd",
-        "type": "Cassandra",
-        "configuration": {
-          "connectionHost": "localhost",
-          "cluster": "sparta",
-          "keyspace": "sparta",
-          "connectionPort": "9042",
-          "saveOptions": [
-            {
-              "saveOptionsKey": "",
-              "saveOptionsValue": ""
-            }
-          ],
-          "sparkProperties": [
-            {
-              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-              "sparkPropertyValue": "180000"
-            }
-          ]
-        }
+    "outputs": [{
+      "name": "adsdsd",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "localhost",
+        "cluster": "sparta",
+        "keyspace": "sparta",
+        "connectionPort": "9042",
+        "saveOptions": [{
+          "saveOptionsKey": "",
+          "saveOptionsValue": ""
+        }],
+        "sparkProperties": [{
+          "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+          "sparkPropertyValue": "180000"
+        }]
       }
-    ],
-    "fragments": [
-      {
+    }],
+    "fragments": [{
         "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
         "fragmentType": "input",
         "name": "a",
@@ -263,12 +220,10 @@
           "type": "Custom",
           "configuration": {
             "modelType": "Custom",
-            "inputOptions": [
-              {
-                "inputOptionsKey": "df",
-                "inputOptionsValue": "df"
-              }
-            ]
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
           }
         }
       },
@@ -286,44 +241,32 @@
             "cluster": "sparta",
             "keyspace": "sparta",
             "connectionPort": "9042",
-            "saveOptions": [
-              {
-                "saveOptionsKey": "",
-                "saveOptionsValue": ""
-              }
-            ],
-            "sparkProperties": [
-              {
-                "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                "sparkPropertyValue": "180000"
-              }
-            ]
+            "saveOptions": [{
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
+            }],
+            "sparkProperties": [{
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }]
           }
         }
       }
     ],
-    "userPluginsJars": [
-      {
-        "jarPath": ""
-      }
-    ],
-    "sparkConf": [
-      {
-        "sparkConfKey": "",
-        "sparkConfValue": ""
-      }
-    ],
-    "sparkSubmitArguments": [
-      {
-        "submitArgument": "",
-        "submitValue": ""
-      }
-    ],
-    "initSqlSentences": [
-      {
-        "sentence": ""
-      }
-    ]
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
   },
   {
     "id": "b10dbf78-167a-444d-a879-a4bce3ae2ce7",
@@ -331,121 +274,105 @@
     "name": "sds",
     "description": "dfd",
     "sparkStreamingWindow": "6s",
-    "transformations": [
-      {
+    "transformations": {
+      "transformationsPipe": [{
         "type": "Ingestion",
         "order": 0,
         "inputField": "_attachment_body",
-        "outputFields": [
-          {
-            "name": "df",
-            "type": "string"
-          }
-        ],
+        "outputFields": [{
+          "name": "df",
+          "type": "string"
+        }],
         "configuration": {
           "whenError": "Error",
           "removeInputField": false
         }
-      }
-    ],
+      }]
+    },
     "streamTriggers": [],
-    "cubes": [
-      {
-        "name": "cube1",
-        "dimensions": [
-          {
-            "name": "df",
-            "field": "df",
-            "precision": "identity",
-            "type": "Default"
-          },
-          {
-            "name": "dfgffgfg",
-            "field": "df",
-            "precision": "3232h",
-            "type": "DateTime",
-            "computeLast": "34ms",
-            "configuration": {
-              "typeOp": "double"
-            }
-          },
-          {
-            "name": "dfcvcvfdf",
-            "field": "df",
-            "precision": "precision6",
-            "type": "GeoHash",
-            "configuration": {
-              "typeOp": "integer"
-            }
-          },
-          {
-            "name": "dfdfdf",
-            "field": "df",
-            "precision": "identity",
-            "type": "Default",
-            "configuration": {
-              "typeOp": "arraydouble"
-            }
-          }
-        ],
-        "operators": [
-          {
-            "type": "Sum",
-            "name": "sum",
-            "configuration": {}
-          }
-        ],
-        "writer": {
-          "outputs": [
-            "adsdsd"
-          ],
-          "dateType": "timestamp",
-          "autoCalculatedFields": [],
-          "saveMode": "Append"
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+          "name": "df",
+          "field": "df",
+          "precision": "identity",
+          "type": "Default"
         },
-        "triggers": [],
-        "avoidNullValues": true
-      }
-    ],
+        {
+          "name": "dfgffgfg",
+          "field": "df",
+          "precision": "3232h",
+          "type": "DateTime",
+          "computeLast": "34ms",
+          "configuration": {
+            "typeOp": "double"
+          }
+        },
+        {
+          "name": "dfcvcvfdf",
+          "field": "df",
+          "precision": "precision6",
+          "type": "GeoHash",
+          "configuration": {
+            "typeOp": "integer"
+          }
+        },
+        {
+          "name": "dfdfdf",
+          "field": "df",
+          "precision": "identity",
+          "type": "Default",
+          "configuration": {
+            "typeOp": "arraydouble"
+          }
+        }
+      ],
+      "operators": [{
+        "type": "Sum",
+        "name": "sum",
+        "configuration": {}
+      }],
+      "writer": {
+        "outputs": [
+          "adsdsd"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
     "input": {
       "name": "a",
       "type": "Custom",
       "configuration": {
         "modelType": "Custom",
-        "inputOptions": [
-          {
-            "inputOptionsKey": "df",
-            "inputOptionsValue": "df"
-          }
-        ]
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
       }
     },
-    "outputs": [
-      {
-        "name": "adsdsd",
-        "type": "Cassandra",
-        "configuration": {
-          "connectionHost": "localhost",
-          "cluster": "sparta",
-          "keyspace": "sparta",
-          "connectionPort": "9042",
-          "saveOptions": [
-            {
-              "saveOptionsKey": "",
-              "saveOptionsValue": ""
-            }
-          ],
-          "sparkProperties": [
-            {
-              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-              "sparkPropertyValue": "180000"
-            }
-          ]
-        }
+    "outputs": [{
+      "name": "adsdsd",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "localhost",
+        "cluster": "sparta",
+        "keyspace": "sparta",
+        "connectionPort": "9042",
+        "saveOptions": [{
+          "saveOptionsKey": "",
+          "saveOptionsValue": ""
+        }],
+        "sparkProperties": [{
+          "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+          "sparkPropertyValue": "180000"
+        }]
       }
-    ],
-    "fragments": [
-      {
+    }],
+    "fragments": [{
         "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
         "fragmentType": "input",
         "name": "a",
@@ -456,12 +383,10 @@
           "type": "Custom",
           "configuration": {
             "modelType": "Custom",
-            "inputOptions": [
-              {
-                "inputOptionsKey": "df",
-                "inputOptionsValue": "df"
-              }
-            ]
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
           }
         }
       },
@@ -479,43 +404,31 @@
             "cluster": "sparta",
             "keyspace": "sparta",
             "connectionPort": "9042",
-            "saveOptions": [
-              {
-                "saveOptionsKey": "",
-                "saveOptionsValue": ""
-              }
-            ],
-            "sparkProperties": [
-              {
-                "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
-                "sparkPropertyValue": "180000"
-              }
-            ]
+            "saveOptions": [{
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
+            }],
+            "sparkProperties": [{
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }]
           }
         }
       }
     ],
-    "userPluginsJars": [
-      {
-        "jarPath": ""
-      }
-    ],
-    "sparkConf": [
-      {
-        "sparkConfKey": "",
-        "sparkConfValue": ""
-      }
-    ],
-    "sparkSubmitArguments": [
-      {
-        "submitArgument": "",
-        "submitValue": ""
-      }
-    ],
-    "initSqlSentences": [
-      {
-        "sentence": ""
-      }
-    ]
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
   }
 ]
