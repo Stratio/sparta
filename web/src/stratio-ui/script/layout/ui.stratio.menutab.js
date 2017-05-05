@@ -25,7 +25,7 @@ function stMenuTab(TEMPLATE_URL){
 		restrict: 'AE',
 		require: 'ngModel',
 		scope: {
-			title: '@title',
+			title: '=title',
 			visible: '@visible',
 			route: '@route',
 			sref: '@sref',

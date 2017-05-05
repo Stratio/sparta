@@ -61,7 +61,7 @@ angular
     $httpProvider.interceptors.push('requestInterceptor');
     // For any unmatched url, redirect to /dashboard/inputs
     $urlRouterProvider.otherwise('/dashboard/policies');
-
+    
     $stateProvider
     /*******  DASHBOARD *******/
       .state('dashboard', {

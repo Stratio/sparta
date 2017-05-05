@@ -32,7 +32,8 @@
       policy.description = "";
       policy.input = {};
       policy.outputs = [];
-      policy.transformations = [];
+      policy.transformations = {};
+      policy.transformations.transformationsPipe = [];
       policy.cubes = [];
       policy.streamTriggers = [];
       policy.sparkConf = {};
@@ -160,7 +161,7 @@
 
     function getAllModelOutputs() {
       var allModelOutputs = [];
-      var models = policy.transformations;
+      var models = policy.transformations.transformationsPipe;
       var outputs = [];
       var modelOutputs, output = null;
       for (var i = 0; i < models.length; ++i) {

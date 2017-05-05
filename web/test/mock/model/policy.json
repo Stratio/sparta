@@ -63,7 +63,10 @@
       ]
     }
   ],
-  "transformations": [],
+  "transformations": {
+    "transformationsPipe": [],
+    "writer": {}
+  },
   "streamTriggers": [
     {
       "name": "stream trigger",

@@ -16,16 +16,30 @@
 package com.stratio.sparta.driver.writer
 
 import akka.event.slf4j.SLF4JLogging
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.driver.helper.SchemaHelper
+import com.stratio.sparta.driver.factory.SparkContextFactory
+import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.step.Trigger
 import com.stratio.sparta.sdk.pipeline.output.Output
 import org.apache.spark.sql.types.StructType
+import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
+object TriggerWriterHelper extends SLF4JLogging {
+
+  def writeStream(triggers: Seq[Trigger],
+                  inputTableName: String,
+                  outputs: Seq[Output],
+                  streamData: DStream[Row],
+                  schema: StructType): Unit = {
+    streamData.foreachRDD(rdd => {
+      val parsedDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, schema)
+
+      writeTriggers(parsedDataFrame, triggers, inputTableName, outputs)
+    })
+  }
 
   //scalastyle:off
   def writeTriggers(dataFrame: DataFrame,
@@ -50,40 +64,16 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
             log.warn(s"Warning running sql in the query ${trigger.sql} in trigger ${trigger.name}", exception.getMessage)
             throw DriverException(exception.getMessage, exception)
         }
-
-        val outputTableName = trigger.triggerWriterOptions.tableName.getOrElse(trigger.name)
-        val saveOptions = Map(Output.TableNameKey -> outputTableName) ++
-          trigger.triggerWriterOptions.partitionBy.fold(Map.empty[String, String]) {partition =>
-            Map(Output.PartitionByKey -> partition)} ++
-          trigger.triggerWriterOptions.primaryKey.fold(Map.empty[String, String]) {key =>
-            Map(Output.PrimaryKey -> key)}
+        val extraOptions = Map(Output.TableNameKey -> trigger.name)
 
         if (!queryDf.rdd.isEmpty()) {
-          val autoCalculatedFieldsDf =
-              applyAutoCalculateFields(queryDf,
-                trigger.triggerWriterOptions.autoCalculateFields,
-                StructType(queryDf.schema.fields ++
-                  SchemaHelper.getStreamWriterPkFieldsMetadata(trigger.triggerWriterOptions.primaryKey)))
+          val autoCalculatedFieldsDf = WriterHelper.write(queryDf, trigger.writerOptions, extraOptions, outputs)
           if (isCorrectTableName(trigger.name) && !sparkSession.catalog.tableExists(trigger.name)) {
             autoCalculatedFieldsDf.createOrReplaceTempView(trigger.name)
             log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")
           }
           else log.warn(s"The trigger ${trigger.name} have incorrect name, is impossible to register as temporal table")
-          trigger.triggerWriterOptions.outputs.foreach(outputName =>
-            outputs.find(output => output.name == outputName) match {
-              case Some(outputWriter) => Try {
-                outputWriter.save(autoCalculatedFieldsDf, trigger.triggerWriterOptions.saveMode, saveOptions)
-              } match {
-                case Success(_) =>
-                  log.debug(s"Trigger data stored in $outputTableName")
-                case Failure(e) =>
-                  log.error(s"Something goes wrong. Table: $outputTableName")
-                  log.error(s"Schema. ${autoCalculatedFieldsDf.schema}")
-                  log.error(s"Head element. ${autoCalculatedFieldsDf.head}")
-                  log.error(s"Error message : ${e.getMessage}")
-              }
-              case None => log.error(s"The output in the trigger : $outputName not match in the outputs")
-            })
+
           Option(trigger.name)
         } else None
       })
@@ -105,7 +95,8 @@ trait TriggerWriter extends DataFrameModifier with SLF4JLogging {
   }
 
   //scalastyle:on
-  private def isCorrectTableName(tableName: String): Boolean =
+
+  private[driver] def isCorrectTableName(tableName: String): Boolean =
     tableName.nonEmpty && tableName != "" &&
       tableName.toLowerCase != "select" &&
       tableName.toLowerCase != "project" &&

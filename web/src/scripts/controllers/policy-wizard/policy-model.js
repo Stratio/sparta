@@ -84,7 +84,7 @@
           }
         }
       }
-      return false; 
+      return false;
     }
 
     function onChangeType(event, creationMode) {
@@ -146,12 +146,12 @@
     function removeModel() {
       return ModelService.removeModel().then(function () {
         var order = 0;
-        var modelNumber = vm.policy.transformations.length;
+        var modelNumber = vm.policy.transformations.transformationsPipe.length;
         if (modelNumber > 0) {
-          order = vm.policy.transformations[modelNumber - 1].order + 1
+          order = vm.policy.transformations.transformationsPipe[modelNumber - 1].order + 1
         }
         ModelFactory.resetModel(vm.template.model, order, modelNumber);
-        ModelFactory.updateModelInputs(vm.policy.transformations);
+        ModelFactory.updateModelInputs(vm.policy.transformations.transformationsPipe);
       });
     }
 
@@ -169,7 +169,7 @@
         return false;
       }
       if (vm.model.outputFields.length > 0) {
-        var policyCurrentFields = ModelFactory.getOutputFields(vm.policy.transformations,
+        var policyCurrentFields = ModelFactory.getOutputFields(vm.policy.transformations.transformationsPipe,
           ModelFactory.getContext().position);
         for (var i = 0; i < vm.model.outputFields.length; ++i) {
           var outputField = vm.model.outputFields[i];

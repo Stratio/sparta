@@ -37,7 +37,6 @@
     function init() {
       return TemplateFactory.getPolicyJsonTemplate().then(function (template) {
         vm.template = template;
-        console.log(template);
       });
     }
 

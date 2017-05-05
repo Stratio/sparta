@@ -1,8 +1,21 @@
 # Changelog
 
-## 1.4.0 (upcoming)
+## 1.5.0 (upcoming)
 
 * Pending changelog
+
+## 1.4.0 (upcoming)
+
+* Update to Spark 2.1
+* Integration with HDFS securized
+* Integration with Kafka securized
+* Integration with Zookeeper securized
+* Save Kafka offsets in Kafka with Spark 2.1 API
+* Save transformations with writer
+* Save Raw Data step
+* Execution information with Spark properties
+* Updated SSO with GoSec
+* Added Postgres options
 
 ## 1.3.0 (April 07, 2017)
 
