@@ -9,23 +9,19 @@
                         data-timeout=6000></c-animated-msg>
       </div><!--
       --><div class="c-col c-col--2 c-form-group--to-right">
-        <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin"
-                data-ng-click="$root.stToggleFloatingMenu['createPolicyFromJSON']()" data-qa="policies-new-policy-button">
-          <span class="icon icon-circle-plus"></span>
-          <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
-          <st-floating-menu toggle-id="createPolicyFromJSON" align="left">
-                <st-menu-element class-icon="icon-circle-plus"
-                                 data-ng-click="policies.createPolicy()"
-                                 data-qa="policy-context-menu-{{policyData.id}}-delete">
-                  {{"_MENU_DASHBOARD_NEW_POLICY_JSON_" | translate}}
-                </st-menu-element>
-                <st-menu-element class-icon="icon-circle-plus"
-                                 data-ng-click="policies.createPolicyFromJSON()"
-                                 data-qa="policy-context-menu-{{policyData.id}}-edit">
-                  {{"_MENU_DASHBOARD_NEW_POLICY_SCRATCH_" | translate}}
-                </st-menu-element>
-          </st-floating-menu>
-        </button>
+      <div class="c-button c-button--toolbar c-button--call-to-action-1  divButton c-button--left-margin" data-ng-click="$root.stToggleFloatingMenu['createPolicyFromJSON']()"
+           data-qa="policies-new-policy-button">
+        <span class="icon icon-circle-plus"></span>
+        <span>{{'_MENU_DASHBOARD_NEW_POLICY_' | translate}}</span>
+        <st-floating-menu toggle-id="createPolicyFromJSON" align="left">
+          <st-menu-element class-icon="icon-circle-plus" data-ng-click="policies.createPolicy()" data-qa="policy-context-menu-{{policyData.id}}-delete">
+            {{"_MENU_DASHBOARD_NEW_POLICY_JSON_" | translate}}
+          </st-menu-element>
+          <st-menu-element class-icon="icon-circle-plus" data-ng-click="policies.createPolicyFromJSON()" data-qa="policy-context-menu-{{policyData.id}}-edit">
+            {{"_MENU_DASHBOARD_NEW_POLICY_SCRATCH_" | translate}}
+          </st-menu-element>
+        </st-floating-menu>
+      </div>
       </div>
     </aside>
 
@@ -36,36 +32,36 @@
           <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('name')">
             {{"_NAME_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'name' && policies.tableReverse"></span>
-            <span class="ico c-table--sort-icon icon-arrow2_down" 
-                  data-ng-class="{'sort-active': policies.sortField == 'name'}" 
+            <span class="ico c-table--sort-icon icon-arrow2_down"
+                  data-ng-class="{'sort-active': policies.sortField == 'name'}"
                   data-ng-if="policies.sortField != 'name' || !policies.tableReverse"></span>
           </th>
-          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('input.name')"> 
+          <th class="c-table__td c-col--2 c-table--sorted" data-ng-click="policies.sortPolicies('input.name')">
             {{"_INPUT_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'input.name' && policies.tableReverse"></span>
             <span class="ico c-table--sort-icon icon-arrow2_down"
-                  data-ng-class="{'sort-active': policies.sortField == 'input.name'}"  
+                  data-ng-class="{'sort-active': policies.sortField == 'input.name'}"
                   data-ng-if="policies.sortField != 'input.name' || !policies.tableReverse"></span>
           </th>
           <th class="c-table__td  c-col--1 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('transformType')">
             {{"_TRANSFORM_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'transformType' && policies.tableReverse"></span>
-            <span class="ico c-table--sort-icon icon-arrow2_down" 
-                  data-ng-if="policies.sortField != 'transformType' || !policies.tableReverse" 
+            <span class="ico c-table--sort-icon icon-arrow2_down"
+                  data-ng-if="policies.sortField != 'transformType' || !policies.tableReverse"
                   ng-class="{'sort-active': policies.sortField == 'transformType'}"></span>
           </th>
           <th class="c-table__td c-col--2 c-table--centered-content c-table--sorted" data-ng-click="policies.sortPolicies('cubesStr')">
             {{"_CUBES_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'cubesStr' && policies.tableReverse"></span>
-            <span class="ico c-table--sort-icon icon-arrow2_down" 
+            <span class="ico c-table--sort-icon icon-arrow2_down"
                   data-ng-if="policies.sortField != 'cubesStr' || !policies.tableReverse"
                   ng-class="{'sort-active': policies.sortField == 'cubesStr'}"></span>
           </th>
           <th class="c-table__td c-col--5 c-table--sorted" data-ng-click="policies.sortPolicies('triggers')">
             {{"_TRIGGERS_" | translate}}
             <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="policies.sortField == 'triggers' && policies.tableReverse"></span>
-            <span class="ico c-table--sort-icon icon-arrow2_down " 
-                  data-ng-if="policies.sortField != 'triggers' || !policies.tableReverse" 
+            <span class="ico c-table--sort-icon icon-arrow2_down "
+                  data-ng-if="policies.sortField != 'triggers' || !policies.tableReverse"
                   ng-class="{'sort-active': policies.sortField == 'triggers'}"></span>
           </th>
           <th class="c-table__td c-col--1"></th>

@@ -53,7 +53,8 @@
 
     function runPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() === 'notstarted' || policyStatus.toLowerCase() === 'failed' ||
-          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping') {
+          policyStatus.toLowerCase() === 'stopped' || policyStatus.toLowerCase() === 'stopping' ||
+          policyStatus.toLowerCase() === 'killed') {
         var policyRunning = PolicyFactory.runPolicy(policyId);
 
         policyRunning.then(function() {
@@ -70,7 +71,8 @@
 
     function stopPolicy(policyId, policyStatus, policyName) {
       if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'stopped' &&
-       policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished') {
+       policyStatus.toLowerCase() !== 'stopping' && policyStatus.toLowerCase() !== 'finished' &&
+       policyStatus.toLowerCase() !== 'killed') {
 
 
         var stopPolicy =
