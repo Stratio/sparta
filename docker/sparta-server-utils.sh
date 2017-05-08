@@ -75,9 +75,14 @@ function apiOptions() {
  sed -i "s|.*sparta.api.certificate-password.*|sparta.api.certificate-password = \""${SPARTA_API_CERTIFICATE_PASSWORD}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPRAY_CAN_SERVER_SSL_ENCRYPTION ]]; then
-   SPRAY_CAN_SERVER_SSL_ENCRYPTION=off
+   SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=off
+   elif [[ $SPRAY_CAN_SERVER_SSL_ENCRYPTION == "true" ]]; then
+    SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=on
+   else
+    SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=off
  fi
- sed -i "s|.*spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION}|" ${SPARTA_CONF_FILE}
+
+ sed -i "s|.*spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH}|" ${SPARTA_CONF_FILE}
 }
 
 function oauthOptions() {
