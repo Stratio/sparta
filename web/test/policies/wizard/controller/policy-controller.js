@@ -105,10 +105,6 @@ describe('policies.wizard.controller.policy-controller', function () {
 
   describe("when it is initialized", function () {
 
-    it("policy model is initialized", function() {
-      expect(policyModelFactoryMock.initializePolicy).toHaveBeenCalled();
-    });
-
     it("if policy template, has not been loaded yet, it is requested to template factory and loaded to policy factory", (inject(function ($controller) {
       policyModelFactoryMock.getTemplate.and.callFake(function () {
         return {};
@@ -195,6 +191,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       it("user is redirected to policy list page", function () {
         expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
       })
+      
     });
   });
 

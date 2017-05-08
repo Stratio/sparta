@@ -28,7 +28,6 @@
     var error = {};
 
     function initPolicy() {
-      policy = {};
       policy.name = "";
       policy.description = "";
       policy.input = {};
@@ -44,6 +43,7 @@
       policy.rawData = {};
       delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
+      delete policy.addTimeToCheckpointPath;
       delete policy.sparkStreamingWindowNumber;
       delete policy.sparkStreamingWindowTime;
       delete policy.storageLevel;
@@ -64,16 +64,12 @@
       delete policy.sparkKerberos;
     }
 
-    function setEditPolicy(inputPolicyJSON) {
-      policy = {};
-      setPolicy(inputPolicyJSON)
-    }
-
     function setPolicy(inputPolicyJSON) {
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
       policy.driverUri = inputPolicyJSON.driverUri;
       policy.streamTemporalTable = inputPolicyJSON.streamTemporalTable;
+      policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
       policy.stopGracefully = inputPolicyJSON.stopGracefully;
       policy.description = inputPolicyJSON.description;
       policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
@@ -97,6 +93,14 @@
       policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
       policy.sparkUser = inputPolicyJSON.sparkUser;
       policy.sparkKerberos = inputPolicyJSON.sparkKerberos;
+    }
+
+    function initializePolicy() {
+      policy = {};
+      finalJSON = {};
+      template = {};
+      error = {};
+      initPolicy();
     }
 
     function formatAttributes() {
@@ -221,9 +225,10 @@
       error.subErrors = subErrors;
     }
 
+      
     return {
+      initializePolicy:initializePolicy,
       setPolicy: setPolicy,
-      setEditPolicy:setEditPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
@@ -238,5 +243,3 @@
   }
 
 })();
-
-

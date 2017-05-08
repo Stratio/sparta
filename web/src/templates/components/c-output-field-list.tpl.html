@@ -15,7 +15,7 @@
         </label>
       </div>
       <div class="c-col c-col--12 c-panel--x-small__container">
-        <select ng-model="input.type" ng-options="item.value as item.label for item in outputTypes" class="c-combobox c-form-group">
+        <select ng-model="input.type" ng-options="item.value as item.label for item in outputTypes" class="c-combobox c-form-group" data-ng-init="input.type =input.type || outputTypes[0].value">
         </select>
 
       </div>

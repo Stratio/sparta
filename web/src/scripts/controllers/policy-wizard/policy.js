@@ -25,7 +25,7 @@
 
   function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $stateParams, $q) {
     var vm = this;
-
+   // PolicyModelFactory.initializePolicy();
     vm.confirmPolicy = confirmPolicy;
     vm.closeErrorMessage = closeErrorMessage;
     vm.onClickNextStep = onClickNextStep;
@@ -71,7 +71,6 @@
     function initPolicy() {
       var defer = $q.defer();
       var id = $stateParams.id;
-      PolicyModelFactory.resetPolicy();
       if (id) {
         PolicyFactory.getPolicyById(id).then(
           function (policyJSON) {
