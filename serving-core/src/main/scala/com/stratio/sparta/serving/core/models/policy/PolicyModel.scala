@@ -47,7 +47,8 @@ case class PolicyModel(
                         driverUri: Option[String] = None,
                         stopGracefully: Option[Boolean] = None,
                         streamTemporalTable: Option[String] = None,
-                        monitoringLink: Option[String] = None
+                        monitoringLink: Option[String] = None,
+                        addTimeToCheckpointPath: Option[Boolean] = None
                       )
 
 case object PolicyModel {
