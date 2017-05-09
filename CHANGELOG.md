@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1 (upcoming)
+
+* Bugfix: Create policy from scratch
+* Bugfix: Updated kafka input/output with last Spark integration with auto commit offsets
+* Bugfix: AutoDelete checkpoint enable by default
+
 ## 1.3.0 (April 07, 2017)
 
 * Sparta dispatcher added with Marathon API
