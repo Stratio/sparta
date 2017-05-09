@@ -59,7 +59,7 @@ object AppConstant {
 
   //Checkpooint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
-  val DefaultAutoDeleteCheckpoint = false
+  val DefaultAutoDeleteCheckpoint = true
   val ConfigAddTimeToCheckpointPath = "addTimeToCheckpointPath"
   val DefaultAddTimeToCheckpointPath = false
   val ConfigCheckpointPath = "checkpointPath"

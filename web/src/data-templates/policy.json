@@ -288,21 +288,11 @@
       "qa": "auto-delete-checkpoint"
     },
     {
-      "propertyId": "addTimeToCheckpointPath",
-      "propertyName": "_ADD_TIME_TO_CHECKPOINT_",
-      "width": 6,
-      "position": "right",
-      "propertyType": "boolean",
-      "required": false,
-      "tooltip": "Add the current time to checkpoint path. Be careful if you need HA in your streaming process.",
-      "qa": "auto-delete-checkpoint"
-    },
-    {
       "propertyId": "stopGracefully",
       "propertyName": "_STOP_GRACEFULLY_",
       "propertyType": "boolean",
       "width": 6,
-      "position": "left",
+      "position": "right",
       "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
       "qa": "policy-stop-gracefully"
     },
@@ -311,7 +301,7 @@
       "propertyName": "_PERSIST_RAW_DATA_",
       "propertyType": "boolean",
       "width": 6,
-      "position": "right",
+      "position": "left",
       "tooltip": "Save the raw data in HDFS with parquet format.",
       "default": false,
       "qa": "policy-raw-data"
@@ -320,7 +310,7 @@
       "propertyId": "rawDataPath",
       "propertyName": "_PATH_",
       "width": 12,
-      "position": "left",
+      "position": "right",
       "propertyType": "text",
       "tooltip": "Path in HDFS",
       "required": true,

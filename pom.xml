@@ -190,7 +190,7 @@
         <reflections.version>0.9.10</reflections.version>
         <guava.version>18.0</guava.version>
         <curator.version>3.2.0</curator.version>
-        <zookeeper.version>3.5.1-alpha</zookeeper.version>
+        <zookeeper.version>3.5.2-alpha</zookeeper.version>
         <http.client.version>4.5.2</http.client.version>
         <scala.mock.version>3.2.2</scala.mock.version>
         <easy.mock.version>2.5.2</easy.mock.version>
