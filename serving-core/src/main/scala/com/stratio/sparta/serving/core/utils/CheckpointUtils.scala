@@ -72,7 +72,7 @@ trait CheckpointUtils extends PolicyConfigUtils {
     val path = policy.checkpointPath.map(path => cleanCheckpointPath(path))
       .getOrElse(checkpointPathFromProperties(policy))
 
-    if(checkTime && addTimeToCheckpointPathFromProperties())
+    if(checkTime && addTimeToCheckpointPath(policy))
       s"$path/${policy.name}/${Calendar.getInstance().getTime.getTime}"
     else s"$path/${policy.name}"
   }
@@ -100,6 +100,9 @@ trait CheckpointUtils extends PolicyConfigUtils {
   private def autoDeleteCheckpointPathFromProperties(): Boolean =
     Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAutoDeleteCheckpoint))
       .getOrElse(DefaultAutoDeleteCheckpoint)
+
+  private def addTimeToCheckpointPath(policy: PolicyModel): Boolean =
+    policy.addTimeToCheckpointPath.getOrElse(addTimeToCheckpointPathFromProperties())
 
   private def addTimeToCheckpointPathFromProperties(): Boolean =
     Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAddTimeToCheckpointPath))
