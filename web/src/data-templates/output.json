@@ -785,6 +785,33 @@
         "qa": "fragment-details-kafka-value-serializer-class"
       },
       {
+        "propertyId": "format",
+        "propertyName": "_KAFKA_FORMAT_",
+        "propertyType": "select",
+        "regexp": "JSON|ROW",
+        "values": [
+          {
+            "label": "JSON",
+            "value": "JSON"
+          },
+          {
+            "label": "ROW",
+            "value": "ROW"
+          }
+        ],
+        "default": "JSON",
+        "required": true,
+        "qa": "fragment-details-kafka-format"
+      },
+      {
+        "propertyId": "rowSeparator",
+        "propertyName": "_KAFKA_ROW_SEPARATOR_",
+        "propertyType": "text",
+        "default": ",",
+        "required": false,
+        "qa": "fragment-details-kafka-row-separator"
+      },
+      {
         "propertyId": "acks",
         "propertyName": "_ACKS_",
         "propertyType": "text",
@@ -802,6 +829,25 @@
         "required": false,
         "tooltip": "The number of messages to send in one batch",
         "qa": "fragment-details-kafka-batch-num-messages"
+      },
+      {
+        "propertyId": "security.protocol",
+        "propertyName": "_SECURITY_PROTOCOL_",
+        "propertyType": "select",
+        "regexp": "PLAINTEXT|SSL",
+        "values": [
+          {
+            "label": "PLAINTEXT",
+            "value": "PLAINTEXT"
+          },
+          {
+            "label": "SSl",
+            "value": "SSL"
+          }
+        ],
+        "default": "PLAINTEXT",
+        "required": true,
+        "qa": "fragment-details-kafka-security-protocol"
       },
       {
         "propertyId": "ssl.truststore.location",
