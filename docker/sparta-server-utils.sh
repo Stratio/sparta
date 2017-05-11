@@ -12,11 +12,6 @@ function initJavaOptions() {
  fi
  sed -i "s|export SPARTA_HEAP_MINIMUM_SIZE.*|export SPARTA_HEAP_MINIMUM_SIZE=${SPARTA_HEAP_MINIMUM_SIZE}|" ${VARIABLES}
 
- if [[ ! -v SPARTA_MAX_PERM_SIZE ]]; then
-   SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
- fi
- sed -i "s|export SPARTA_MAX_PERM_SIZE.*|export SPARTA_MAX_PERM_SIZE=${SPARTA_MAX_PERM_SIZE}|" ${VARIABLES}
-
  if [[ ! -v MAX_OPEN_FILES ]]; then
    MAX_OPEN_FILES=65535
  fi

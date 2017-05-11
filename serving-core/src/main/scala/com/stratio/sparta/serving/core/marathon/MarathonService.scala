@@ -277,17 +277,20 @@ class MarathonService(context: ActorContext,
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val certificatesVolume = Volume(ContainerCertificatePath, HostCertificatePath, "RO")
+    val javaCertificatesVolume = {
+      if(envVaultEnable.isDefined && envVaultHost.isDefined && envVaulPort.isDefined && envVaultToken.isDefined)
+        Seq.empty[Volume]
+      else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
+    }
     val newDockerContainerInfo = mesosNativeLibrary match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
-          volumes = Option(Seq(certificatesVolume)),
+          volumes = Option(javaCertificatesVolume),
           parameters = Option(getKrb5ConfVolume)
         ))
       case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-        certificatesVolume,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
+        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
         image = spartaDockerImage,
         parameters = Option(getKrb5ConfVolume)
       ))
