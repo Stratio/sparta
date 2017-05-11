@@ -24,6 +24,7 @@
     "SPARTA_ZOOKEEPER_CONFIG": "???",
     "SPARTA_DETAIL_CONFIG": "???",
     "SPARTA_POLICY_ID": "???",
+    "VAULT_ENABLE": "???",
     "VAULT_HOST": "???",
     "VAULT_PORT": "???",
     "VAULT_TOKEN": "???",

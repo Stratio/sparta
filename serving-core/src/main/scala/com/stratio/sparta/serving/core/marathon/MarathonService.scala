@@ -86,7 +86,7 @@ class MarathonService(context: ActorContext,
   val LdLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
-  val VaultEnable = "VAULT_ENABLE"
+  val VaultEnableEnv = "VAULT_ENABLE"
   val VaultHostEnv = "VAULT_HOST"
   val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
@@ -185,6 +185,8 @@ class MarathonService(context: ActorContext,
 
   private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
 
+  private def envVaultEnable: Option[String] = Properties.envOrNone(VaultEnableEnv)
+
   private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
 
   private def envVaulPort: Option[String] = Properties.envOrNone(VaultPortEnv)
@@ -237,7 +239,7 @@ class MarathonService(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnable) match {
+  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnableEnv) match {
     case Some(vaultEnable) if Try(vaultEnable.toBoolean).getOrElse(false) =>
       Seq(Parameter("volume", Krb5ConfFile))
     case None =>
@@ -313,6 +315,7 @@ class MarathonService(context: ActorContext,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
       PolicyIdEnv -> policyModel.id,
+      VaultEnableEnv -> envVaultEnable,
       VaultHostEnv -> envVaultHost,
       VaultPortEnv -> envVaulPort,
       VaultTokenEnv -> envVaultToken,
