@@ -42,7 +42,7 @@
     /////////////////////////////////
 
     function getPolicyById() {
-      return $resource('/policy/find/:id', {
+      return $resource('policy/find/:id', {
         id: '@id'
       }, {
         'get': {
@@ -53,7 +53,7 @@
     }
 
     function getAllPolicies() {
-      return $resource('/policy/all', {}, {
+      return $resource('policy/all', {}, {
         'get': {
           method: 'GET',
           isArray: true,
@@ -63,7 +63,7 @@
     }
 
     function createPolicy() {
-      return $resource('/policy', {}, {
+      return $resource('policy', {}, {
         'create': {
           method: 'POST',
           timeout: apiConfigSettings.timeout
@@ -72,7 +72,7 @@
     }
 
     function deletePolicy() {
-      return $resource('/policy/:id', {
+      return $resource('policy/:id', {
         id: '@id'
       }, {
         'delete': {
@@ -83,7 +83,7 @@
     }
 
     function runPolicy() {
-      return $resource('/policy/run/:id', {
+      return $resource('policy/run/:id', {
         id: '@id'
       }, {
         'get': {
@@ -94,7 +94,7 @@
     }
 
     function deletePolicyCheckpoint() {
-      return $resource('/policy/checkpoint/:name', {
+      return $resource('policy/checkpoint/:name', {
         name: '@name'
       }, {
         'delete': {
@@ -105,7 +105,7 @@
     }
 
     function stopPolicy() {
-      return $resource('/policyContext', {}, {
+      return $resource('policyContext', {}, {
         'update': {
           method: 'PUT',
           timeout: apiConfigSettings.timeout
@@ -114,7 +114,7 @@
     }
 
     function getFakePolicy() {
-      return $resource('/data-templates/fake_data/create_policies.json', {}, {
+      return $resource('data-templates/fake_data/create_policies.json', {}, {
         'get': {
           method: 'GET',
           timeout: apiConfigSettings.timeout
@@ -123,7 +123,7 @@
     }
 
     function savePolicy() {
-      return $resource('/policy', {}, {
+      return $resource('policy', {}, {
         'put': {
           method: 'PUT',
           timeout: apiConfigSettings.timeout
@@ -132,7 +132,7 @@
     }
 
     function getPoliciesStatus() {
-      return $resource('/policyContext', {}, {
+      return $resource('policyContext', {}, {
         'get': {
           method: 'GET',
           isArray: true,
@@ -143,7 +143,7 @@
 
 
     function getPolicieStatus() {
-      return $resource('/policyContext/:id', {
+      return $resource('policyContext/:id', {
         id: '@id'
       }, {
         'get': {
@@ -156,7 +156,7 @@
 
 
     function downloadPolicy() {
-      return $resource('/policy/download/:id', {
+      return $resource('policy/download/:id', {
         id: '@id'
       }, {
         'get': {
@@ -167,7 +167,7 @@
     }
 
     function getExecutionById() {
-        return $resource('/executions/:id', {
+        return $resource('executions/:id', {
           id: '@id'
         }, {
           'get': {

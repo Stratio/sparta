@@ -36,7 +36,7 @@
     /////////////////////////////////
 
     function getFragmentTemplateByType() {
-      return $resource('/data-templates/:type', {
+      return $resource('data-templates/:type', {
         type: '@type'
       }, {
         'get': {
@@ -48,7 +48,7 @@
     }
 
     function getPolicyTemplate() {
-      return $resource('/data-templates/policy.json', {}, {
+      return $resource('data-templates/policy.json', {}, {
         'get': {
           method: 'GET',
           timeout: apiConfigSettings.timeout
@@ -57,7 +57,7 @@
     }
 
     function getPolicyJsonTemplate() {
-      return $resource('/data-templates/policy-modal.json', {}, {
+      return $resource('data-templates/policy-modal.json', {}, {
         'get': {
           method: 'GET',
           timeout: apiConfigSettings.timeout
@@ -67,7 +67,7 @@
 
 
     function getRawDataJsonTemplate() {
-      return $resource('/data-templates/raw-data.json', {}, {
+      return $resource('data-templates/raw-data.json', {}, {
         'get': {
           method: 'GET',
           timeout: apiConfigSettings.timeout
@@ -76,7 +76,7 @@
     }
 
     function getDimensionTemplateByType() {
-      return $resource('/data-templates/dimension/:type', {
+      return $resource('data-templates/dimension/:type', {
         type: '@type'
       }, {
         'get': {
@@ -87,7 +87,7 @@
     }
 
     function getDimensionTemplateByType() {
-      return $resource('/data-templates/dimension/:type', {
+      return $resource('data-templates/dimension/:type', {
         type: '@type'
       }, {
         'get': {
@@ -98,7 +98,7 @@
     }
 
     function getOperatorTemplateByType() {
-      return $resource('/data-templates/operator/:type', {
+      return $resource('data-templates/operator/:type', {
         type: '@type'
       }, {
         'get': {
@@ -109,7 +109,7 @@
     }
 
     function getTriggerTemplateByType() {
-      return $resource('/data-templates/trigger/:type', {
+      return $resource('data-templates/trigger/:type', {
         type: '@type'
       }, {
         'get': {
