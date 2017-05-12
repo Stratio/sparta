@@ -1,9 +1,16 @@
 #!/bin/bash
 
-#Setup vault hosts (better in universe??)
+function _log_sparta_sec() {
+    local message=$1
+    echo "[SPARTA-SECURITY] $message"
+}
+
+_log_sparta_sec "Setup vault hosts"
 export VAULT_HOSTS=($VAULT_HOST)
 
+_log_sparta_sec "Loading kms-utils ... "
 source /kms_utils.sh
+_log_sparta_sec "Loaded kms-utils"
 
 #Ensure security folder is created
 mkdir -p /etc/sds/sparta/security
@@ -16,10 +23,7 @@ export TENANT_NAME='sparta'   # MARATHON_APP_ID without slash
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"
 
-function _log_sparta_sec() {
-    local message=$1
-    echo -e "$(date +'%b %d %R:%S.%N') [SPARTA-SEC] $message" | tee -a "$PWD/sparta-sec.log"
-}
+
 
 ####################################################
 ## Get TLS Server Info and set SPARTA_KEYSTORE_PASS
