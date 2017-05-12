@@ -26,18 +26,17 @@ import org.apache.spark.streaming.dstream.DStream
 trait InputStage extends BaseStage {
   this: ErrorPersistor =>
 
-  def inputStreamStage(ssc: StreamingContext, refUtils: ReflectionUtils): DStream[Row] = {
-    val input = createInput(ssc, refUtils)
+  def inputStreamStage(ssc: StreamingContext, input: Input): DStream[Row] = {
     val errorMessage = s"Something gone wrong creating the input stream for: ${policy.input.get.name}."
     val okMessage = s"Stream for Input: ${policy.input.get.name} created correctly."
 
     generalTransformation(PhaseEnum.InputStream, okMessage, errorMessage) {
       require(policy.storageLevel.isDefined, "You need to define the storage level")
-      input.setUp(ssc, policy.storageLevel.get)
+      input.initStream(ssc, policy.storageLevel.get)
     }
   }
 
-  private[driver] def createInput(ssc: StreamingContext, refUtils: ReflectionUtils): Input = {
+  def createInput(ssc: StreamingContext, refUtils: ReflectionUtils): Input = {
     val errorMessage = s"Something gone wrong creating the input: ${policy.input.get.name}. Please re-check the policy."
     val okMessage = s"Input: ${policy.input.get.name} created correctly."
 

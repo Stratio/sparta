@@ -72,11 +72,12 @@ object SparkDriver extends PluginsFilesUtils {
         log.info(startingInfo)
         policyStatusUtils.updateStatus(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(curatorInstance)
-        val ssc = streamingContextService.clusterStreamingContext(policy, pluginsFiles)
+        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(policy, pluginsFiles)
         policyStatusUtils.updateStatus(PolicyStatusModel(
           id = policyId,
           status = NotDefined,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
+        spartaWorkflow.setup()
         ssc.start
         val policyConfigUtils = new PolicyConfigUtils {}
         val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
@@ -90,6 +91,7 @@ object SparkDriver extends PluginsFilesUtils {
             policyConfigUtils.executionMode(policy), policy.monitoringLink)
         ))
         ssc.awaitTermination()
+        spartaWorkflow.cleanUp()
       } match {
         case Success(_) =>
           val information = s"Stopped correctly Sparta cluster job"

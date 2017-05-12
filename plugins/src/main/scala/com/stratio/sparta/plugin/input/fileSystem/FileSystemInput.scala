@@ -32,7 +32,7 @@ import org.apache.spark.streaming.dstream.DStream
   */
 class FileSystemInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, storageLevel: String): DStream[Row] = {
 
     ssc.textFileStream(properties.getString("directory", "")).map(data => Row(data))
   }
