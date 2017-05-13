@@ -29,7 +29,7 @@ import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
 class RabbitMQInput(properties: Map[String, JSerializable])
   extends Input(properties) with RabbitMQGenericProps {
 
-  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val messageHandler = MessageHandler(properties).handler
     val params = propsWithStorageLevel(sparkStorageLevel)
     createStream(ssc, params, messageHandler)

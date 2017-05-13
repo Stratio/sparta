@@ -95,4 +95,9 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
         else -1
     }
   }
+
+  override def cleanUp(options: Map[String, String]): Unit = {
+    log.info(s"Closing connections in Postgres Output: $name")
+    closeConnection()
+  }
 }
