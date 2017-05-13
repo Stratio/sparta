@@ -59,6 +59,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   val SubmitExecutorMemoryConf = "spark.executor.memory"
   val SubmitGracefullyStopConf = "spark.streaming.stopGracefullyOnShutdown"
   val SubmitAppNameConf = "spark.app.name"
+  val SubmitSparkUserConf = "sparta.mesos.spark.mesos.driverEnv.SPARK_USER"
 
   // Properties only available in spark-submit
   val SubmitPropertiesFile = "--properties-file"
@@ -106,8 +107,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
   /**
-   * Checks if we have a valid Spark home.
-   */
+    * Checks if we have a valid Spark home.
+    */
   def validateSparkHome(clusterConfig: Config): String = {
     val sparkHome = Try(extractSparkHome(clusterConfig))
     require(sparkHome.isSuccess,
@@ -148,19 +149,27 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     (addSupervisedArgument(addKerberosArguments(
       submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy))),
       addInputConfs(
-        addAppNameConf(
-          addGracefulStopConf(
-            addPluginsFilesToConf(
-              sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++ sparkConfFromSubmitArgumentsPolicy
-                ++ sparkConfFromPolicy, pluginsFiles
-            ), gracefulStop(policy)
-          ), policy.name
+        addSparkUserConf(
+          addAppNameConf(
+            addGracefulStopConf(
+              addPluginsFilesToConf(
+                sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++ sparkConfFromSubmitArgumentsPolicy
+                  ++ sparkConfFromPolicy, pluginsFiles
+              ), gracefulStop(policy)
+            ), policy.name
+          ), policy.sparkUser
         ), policy.input
       )
-    )
+      )
   }
 
   /** Protected Methods **/
+
+  protected def addSparkUserConf(sparkConfs: Map[String, String], sparkUser: Option[String]): Map[String, String] = {
+    if (!sparkConfs.contains(SubmitSparkUserConf) && sparkUser.isDefined) {
+      sparkConfs ++ Map(SubmitSparkUserConf -> sparkUser.get)
+    } else sparkConfs
+  }
 
   protected def driverJarSubmit(policy: PolicyModel,
                                 detailConfig: Config,
