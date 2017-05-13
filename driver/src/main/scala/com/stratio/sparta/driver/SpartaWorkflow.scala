@@ -19,7 +19,6 @@ package com.stratio.sparta.driver
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.stage._
-import com.stratio.sparta.driver.writer.TransformationsWriterHelper
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.helpers.PolicyHelper
@@ -32,18 +31,31 @@ class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFrame
   with InputStage with OutputStage with ParserStage with CubeStage with RawDataStage with TriggerStage
   with ZooKeeperError {
 
+  clearError()
+
   private val ReflectionUtils = PolicyHelper.ReflectionUtils
+  private val outputs = outputStage(ReflectionUtils)
+  private var input: Option[Input] = None
 
-  def run(): StreamingContext = {
+  def setup(): Unit = {
+    input.foreach(input => input.setUp())
+    outputs.foreach(output => output.setUp())
+  }
+
+  def cleanUp(): Unit = {
+    input.foreach(input => input.cleanUp())
+    outputs.foreach(output => output.cleanUp())
+  }
+
+  def streamingStages(): StreamingContext = {
     clearError()
-    val outputs = outputStage(ReflectionUtils)
-
-    outputs.foreach(output => output.setup())
 
     val checkpointPolicyPath = checkpointPath(policy)
     val window = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
     val ssc = sparkStreamingInstance(Duration(window), checkpointPolicyPath, policy.remember)
-    val inputDStream = inputStreamStage(ssc.get, ReflectionUtils)
+    if(input.isEmpty)
+      input = Option(createInput(ssc.get, ReflectionUtils))
+    val inputDStream = inputStreamStage(ssc.get, input.get)
 
     saveRawData(policy.rawData, inputDStream, outputs)
 
@@ -60,7 +72,6 @@ class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFrame
 
     ssc.get
   }
-
 }
 
 object SpartaWorkflow {

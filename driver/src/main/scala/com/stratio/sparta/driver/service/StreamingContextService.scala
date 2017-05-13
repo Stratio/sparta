@@ -35,7 +35,7 @@ import scala.util.Try
 case class StreamingContextService(curatorFramework: CuratorFramework, generalConfig: Option[Config] = None)
   extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
 
-  def localStreamingContext(policy: PolicyModel, files: Seq[File]): StreamingContext = {
+  def localStreamingContext(policy: PolicyModel, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
     killLocalContextListener(policy, policy.name)
 
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
@@ -50,30 +50,32 @@ case class StreamingContextService(curatorFramework: CuratorFramework, generalCo
 
     sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, files)
 
-    val ssc = SpartaWorkflow(policy, curatorFramework).run()
+    val spartaWorkflow = SpartaWorkflow(policy, curatorFramework)
+    val ssc = spartaWorkflow.streamingStages()
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
     setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
-    ssc
+    (spartaWorkflow, ssc)
   }
 
-  def clusterStreamingContext(policy: PolicyModel, files: Seq[String]): StreamingContext = {
+  def clusterStreamingContext(policy: PolicyModel, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
     if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
+    val spartaWorkflow = SpartaWorkflow(policy, curatorFramework)
 
     val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
       log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
       val outputsSparkConfig =
         PolicyHelper.getSparkConfigs(policy.outputs, Output.SparkConfigurationMethod, Output.ClassSuffix)
       sparkClusterContextInstance(outputsSparkConfig, files)
-      SpartaWorkflow(policy, curatorFramework).run()
+      spartaWorkflow.streamingStages()
     })
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
     setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
-    ssc
+    (spartaWorkflow, ssc)
   }
 }

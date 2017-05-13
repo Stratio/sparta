@@ -87,6 +87,11 @@ class KafkaOutput(name: String, properties: Map[String, JSerializable])
         ACKS_CONFIG -> properties.getString(ACKS_CONFIG, DefaultAck),
         BATCH_SIZE_CONFIG -> properties.getString(BATCH_SIZE_CONFIG, DefaultBatchNumMessages)
       )
+
+  override def cleanUp(options: Map[String, String]): Unit = {
+    log.info(s"Closing Kafka producer in Kafka Output: $name")
+    KafkaOutput.closeProducers()
+  }
 }
 
 object KafkaOutput {
@@ -95,6 +100,10 @@ object KafkaOutput {
 
   def getProducer(producerKey: String, properties: Properties): KafkaProducer[String, String] = {
     getInstance(producerKey, properties)
+  }
+
+  def closeProducers(): Unit = {
+    producers.values.foreach(producer => producer.close())
   }
 
   private[kafka] def getInstance(key: String, properties: Properties): KafkaProducer[String, String] = {

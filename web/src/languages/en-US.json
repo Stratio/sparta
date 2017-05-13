@@ -500,7 +500,7 @@
     "_4000_": "There is at least one cube without name",
     "_4001_": "There is at least one cube without dimensions",
     "_4002_": "The policy needs at least one output",
-    "_4003_": "The policy needs at least one cube or one trigger",
+    "_4003_": "The policy needs at least one cube, trigger, raw data or transformations with outputs",
     "_4004_": "There is at least one cube with an incorrect output",
     "_4005_": "There is at least one cube with triggers with an incorrect output",
     "_4006_": "There is at least one stream trigger with an incorrect output",

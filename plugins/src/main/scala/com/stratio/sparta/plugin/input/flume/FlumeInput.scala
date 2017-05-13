@@ -32,7 +32,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
   val DEFAULT_MAXBATCHSIZE = 1000
   val DEFAULT_PARALLELISM = 5
 
-  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
 
     if (properties.getString("type").equalsIgnoreCase("pull")) {
       FlumeUtils.createPollingStream(
