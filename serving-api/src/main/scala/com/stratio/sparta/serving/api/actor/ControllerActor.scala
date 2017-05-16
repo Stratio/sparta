@@ -29,8 +29,10 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes.Unauthorized
+import spray.http.StatusCodes._
 import spray.routing._
+import scala.util.Properties
+
 
 import scala.util.Try
 
@@ -52,7 +54,19 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = cors{
-    secRoute ~ staticRoutes ~ dynamicRoutes
+    redirectToRoot ~
+      pathPrefix(HttpConstant.SpartaRootPath){
+        secRoute ~ staticRoutes ~ dynamicRoutes
+      } ~ secRoute ~ staticRoutes ~ dynamicRoutes
+  }
+
+  private def redirectToRoot: Route =
+  path(HttpConstant.SpartaRootPath){
+    get{
+      requestUri{ uri =>
+        redirect(s"${uri.toString}/", Found)
+      }
+    }
   }
 
   private def staticRoutes: Route = {
@@ -130,6 +144,14 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   def swaggerRoute: Route = swaggerService.routes
 
+  def getMarathonLBPath: Option[String] = {
+    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST","")
+    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "")
+    if(marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
+      Some("http://" + marathonLB_host + marathonLB_path)
+    else None
+  }
+
   private val fragmentService = new FragmentHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.FragmentActorName)
@@ -175,5 +197,9 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
+    override implicit def baseUrl: String = getMarathonLBPath match {
+      case Some(marathonLBpath) => marathonLBpath
+      case None => "/"
+    }
   }
 }
