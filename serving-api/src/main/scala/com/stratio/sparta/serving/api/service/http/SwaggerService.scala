@@ -16,14 +16,14 @@
 
 package com.stratio.sparta.serving.api.service.http
 
-import com.gettyimages.spray.swagger.SwaggerHttpService
-import com.wordnik.swagger.model.ApiInfo
+import com.github.swagger.spray.{SwaggerHttpService, model}
+import com.github.swagger.spray.model._
 
 import scala.reflect.runtime.universe._
 
 trait SwaggerService extends SwaggerHttpService {
 
-  override def apiTypes: Seq[Type] = Seq(
+  override val apiTypes: Seq[Type] = Seq(
     typeOf[FragmentHttpService],
     typeOf[PolicyHttpService],
     typeOf[PolicyContextHttpService],
@@ -33,11 +33,17 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[ExecutionHttpService]
   )
 
-  override def apiVersion: String = "1.0"
-
   // let swagger-ui determine the host and port
-  override def docsPath: String = "api-docs"
+  override val apiDocsPath: String = "api-docs"
 
+  override val info= Info(
+    description = "Sparta",
+    version = "1.0",
+    title = "A real time spark-based analytics engine spark based",
+    contact = Option(Contact("Sparta","http://www.stratio.com/","sparta@stratio.com")),
+    license = Option(License("Apache V2","http://www.apache.org/licenses/LICENSE-2.0"))
+  )
+  /*
   override def apiInfo: Option[ApiInfo] = Some(ApiInfo(
     "SpaRTA",
     "A real time aggregation engine full spark based.",
@@ -45,6 +51,6 @@ trait SwaggerService extends SwaggerHttpService {
     "Sparta@stratio.com",
     "Apache V2",
     "http://www.apache.org/licenses/LICENSE-2.0"
-  ))
+  ))*/
 
 }

@@ -144,13 +144,13 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   def swaggerRoute: Route = swaggerService.routes
 
-  def getMarathonLBPath: Option[String] = {
-    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST","")
-    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "")
-    if(marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
-      Some("http://" + marathonLB_host + marathonLB_path)
-    else None
+  def getMarathonLBPath: MarathonLBPath = {
+    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST","localhost")
+    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "/")
+    MarathonLBPath(marathonLB_host, marathonLB_path)
   }
+
+  case class MarathonLBPath(host:String, path:String)
 
   private val fragmentService = new FragmentHttpService {
     implicit val actors = actorsMap
@@ -197,9 +197,9 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
-    override implicit def baseUrl: String = getMarathonLBPath match {
-      case Some(marathonLBpath) => marathonLBpath
-      case None => "/"
-    }
+    val marathonLBPath: MarathonLBPath = getMarathonLBPath
+    override val host: String = marathonLBPath.host
+    override val basePath: String = marathonLBPath.path
+
   }
 }
