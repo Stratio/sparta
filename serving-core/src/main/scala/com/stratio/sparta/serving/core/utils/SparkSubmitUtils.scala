@@ -59,7 +59,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   val SubmitExecutorMemoryConf = "spark.executor.memory"
   val SubmitGracefullyStopConf = "spark.streaming.stopGracefullyOnShutdown"
   val SubmitAppNameConf = "spark.app.name"
-  val SubmitSparkUserConf = "sparta.mesos.spark.mesos.driverEnv.SPARK_USER"
+  val SubmitSparkUserConf = "spark.mesos.driverEnv.SPARK_USER"
 
   // Properties only available in spark-submit
   val SubmitPropertiesFile = "--properties-file"

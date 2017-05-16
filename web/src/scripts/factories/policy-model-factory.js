@@ -57,6 +57,9 @@
       delete policy.driverUri;
       delete policy.stopGracefully;
       delete policy.streamTemporalTable;
+      delete policy.remember;
+      delete policy.addTimeToCheckpointPath;
+      delete policy.sparkUser;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -84,6 +87,8 @@
       policy.sparkSubmitArguments = inputPolicyJSON.sparkSubmitArguments;
       policy.initSqlSentences = inputPolicyJSON.initSqlSentences;
       policy.userPluginsJars = inputPolicyJSON.userPluginsJars;
+      policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
+      policy.sparkUser = inputPolicyJSON.sparkUser;
     }
 
     function formatAttributes() {
