@@ -30,14 +30,13 @@ import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorMode
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message._
-import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Parameter, Volume}
+import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
 
-import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.io.Source
@@ -78,6 +77,12 @@ class MarathonService(context: ActorContext,
   val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
+  val DefaultGracePeriodSeconds = 180
+  val DefaultIntervalSeconds = 60
+  val DefaultTimeoutSeconds = 20
+  val DefaultMaxConsecutiveFailures = 3
+  val DefaultForcePullImage = false
+  val DefaultPrivileged = false
 
   /* Environment variables to Marathon Application */
 
@@ -119,6 +124,7 @@ class MarathonService(context: ActorContext,
   val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN"
   val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
   val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
+  val SparkUserEnv = "SPARK_USER"
 
   /* Lazy variables */
 
@@ -180,6 +186,24 @@ class MarathonService(context: ActorContext,
 
   private def spartaDockerImage: String =
     Try(marathonConfig.getString("docker.image")).toOption.getOrElse(DefaultSpartaDockerImage)
+
+  private def gracePeriodSeconds: Int =
+    Try(marathonConfig.getInt("gracePeriodSeconds")).toOption.getOrElse(DefaultGracePeriodSeconds)
+
+  private def intervalSeconds: Int =
+    Try(marathonConfig.getInt("intervalSeconds")).toOption.getOrElse(DefaultIntervalSeconds)
+
+  private def timeoutSeconds: Int =
+    Try(marathonConfig.getInt("timeoutSeconds")).toOption.getOrElse(DefaultTimeoutSeconds)
+
+  private def maxConsecutiveFailures: Int =
+    Try(marathonConfig.getInt("maxConsecutiveFailures")).toOption.getOrElse(DefaultMaxConsecutiveFailures)
+
+  private def forcePullImage: Boolean =
+    Try(marathonConfig.getBoolean("docker.forcePullImage")).toOption.getOrElse(DefaultForcePullImage)
+
+  private def privileged: Boolean =
+    Try(marathonConfig.getBoolean("docker.privileged")).toOption.getOrElse(DefaultPrivileged)
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
@@ -278,7 +302,7 @@ class MarathonService(context: ActorContext,
       else Some((k, v))
     }
     val javaCertificatesVolume = {
-      if(envVaultEnable.isDefined && envVaultHost.isDefined && envVaulPort.isDefined && envVaultToken.isDefined)
+      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaulPort.isDefined && envVaultToken.isDefined)
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
@@ -292,9 +316,19 @@ class MarathonService(context: ActorContext,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
         Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
         image = spartaDockerImage,
-        parameters = Option(getKrb5ConfVolume)
+        parameters = Option(getKrb5ConfVolume),
+        forcePullImage = Option(forcePullImage),
+        privileged = Option(privileged)
       ))
     }
+    val newHealthChecks = Option(Seq(HealthCheck(
+      protocol = "TCP",
+      portIndex = Option(0),
+      gracePeriodSeconds = gracePeriodSeconds,
+      intervalSeconds = intervalSeconds,
+      timeoutSeconds = timeoutSeconds,
+      maxConsecutiveFailures = maxConsecutiveFailures
+    )))
 
     app.copy(
       id = ServiceName,
@@ -302,7 +336,8 @@ class MarathonService(context: ActorContext,
       mem = newMem,
       env = newEnv,
       labels = newLabels,
-      container = newDockerContainerInfo
+      container = newDockerContainerInfo,
+      healthChecks = newHealthChecks
     )
   }
 
@@ -345,6 +380,7 @@ class MarathonService(context: ActorContext,
       HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
       HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
       HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
-      DcosServiceName -> Option(ServiceName)
+      DcosServiceName -> Option(ServiceName),
+      SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }

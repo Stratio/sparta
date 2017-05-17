@@ -34,6 +34,7 @@
     "MESOS_NATIVE_JAVA_LIBRARY": "???",
     "LD_LIBRARY_PATH": "???",
     "HDFS_USER_NAME": "???",
+    "SPARK_USER": "???",
     "HDFS_CONF_FROM_URI": "???",
     "CORE_SITE_FROM_URI": "???",
     "HDFS_CONF_FROM_DFS": "???",

@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, 
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 object SparkDriver extends PluginsFilesUtils {
 
@@ -39,12 +39,17 @@ object SparkDriver extends PluginsFilesUtils {
   val PolicyIdIndex = 3
   val DriverLocationConfigIndex = 4
   val ZookeeperConfigurationIndex = 5
+  val JaasConfEnv = "SPARTA_JAAS_FILE"
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
     assert(args.length == NumberOfArguments,
       s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
+      Properties.envOrNone(JaasConfEnv).foreach(jaasConf => {
+        log.info(s"Adding java security conf file: $jaasConf")
+        System.setProperty("java.security.auth.login.config", jaasConf)
+      })
       val policyId = args(PolicyIdIndex)
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigurationIndex)))
