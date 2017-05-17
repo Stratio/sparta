@@ -19,7 +19,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.wordnik.swagger.annotations._
+import io.swagger.annotations._
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
 

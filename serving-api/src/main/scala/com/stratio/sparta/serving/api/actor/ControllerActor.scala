@@ -29,8 +29,10 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes.Unauthorized
+import spray.http.StatusCodes._
 import spray.routing._
+import scala.util.Properties
+
 
 import scala.util.Try
 
@@ -52,7 +54,19 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = cors{
-    secRoute ~ staticRoutes ~ dynamicRoutes
+    redirectToRoot ~
+      pathPrefix(HttpConstant.SpartaRootPath){
+        secRoute ~ staticRoutes ~ dynamicRoutes
+      } ~ secRoute ~ staticRoutes ~ dynamicRoutes
+  }
+
+  private def redirectToRoot: Route =
+  path(HttpConstant.SpartaRootPath){
+    get{
+      requestUri{ uri =>
+        redirect(s"${uri.toString}/", Found)
+      }
+    }
   }
 
   private def staticRoutes: Route = {
@@ -130,6 +144,14 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   def swaggerRoute: Route = swaggerService.routes
 
+  def getMarathonLBPath: MarathonLBPath = {
+    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST","localhost")
+    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "/")
+    MarathonLBPath(marathonLB_host, marathonLB_path)
+  }
+
+  case class MarathonLBPath(host:String, path:String)
+
   private val fragmentService = new FragmentHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.FragmentActorName)
@@ -175,5 +197,9 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
+    val marathonLBPath: MarathonLBPath = getMarathonLBPath
+    override val host: String = marathonLBPath.host
+    override val basePath: String = marathonLBPath.path
+
   }
 }

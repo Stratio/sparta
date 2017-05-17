@@ -105,8 +105,8 @@
             <artifactId>reflections</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.gettyimages</groupId>
-            <artifactId>spray-swagger_${scala.binary.version}</artifactId>
+            <groupId>com.github.swagger-spray</groupId>
+            <artifactId>swagger-spray_${scala.binary.version}</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>com.typesafe.akka</groupId>

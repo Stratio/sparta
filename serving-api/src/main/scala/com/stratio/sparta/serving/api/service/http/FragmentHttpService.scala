@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
 import com.stratio.spray.oauth2.client.OauthClient
-import com.wordnik.swagger.annotations._
+import io.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing.Route
 

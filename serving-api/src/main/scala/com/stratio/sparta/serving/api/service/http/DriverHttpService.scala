@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
-import com.wordnik.swagger.annotations._
+import io.swagger.annotations._
 import spray.http._
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route

@@ -84,7 +84,7 @@
         <akka.version>2.4.8</akka.version>
         <json4s.version>3.2.11</json4s.version>
         <jackson.version>2.6.5</jackson.version>
-        <swagger.version>0.5.0</swagger.version>
+        <swagger.version>0.8.0</swagger.version>
         <mockito.version>1.10.19</mockito.version>
         <exec.maven.plugin.version>1.4.0</exec.maven.plugin.version>
         <reflections.version>0.9.10</reflections.version>
@@ -282,8 +282,8 @@
                 <version>${spray.json.test.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.gettyimages</groupId>
-                <artifactId>spray-swagger_${scala.binary.version}</artifactId>
+                <groupId>com.github.swagger-spray</groupId>
+                <artifactId>swagger-spray_${scala.binary.version}</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
             <dependency>
