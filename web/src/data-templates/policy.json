@@ -279,6 +279,25 @@
       "qa": "checkpoint-path"
     },
     {
+      "propertyId": "sparkUser",
+      "propertyName": "_SPARK_USER_",
+      "propertyType": "text",
+      "width": 6,
+      "position": "left",
+      "default": "sparta",
+      "tooltip": "Set the spark user in Mesos deployments.",
+      "qa": "policy-spark-user"
+    },
+    {
+      "propertyId": "stopGracefully",
+      "propertyName": "_STOP_GRACEFULLY_",
+      "propertyType": "boolean",
+      "width": 6,
+      "position": "right",
+      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
+      "qa": "policy-stop-gracefully"
+    },
+    {
       "propertyId": "autoDeleteCheckpoint",
       "propertyName": "_AUTO_DELETE_CHECKPOINT_",
       "width": 6,
@@ -297,15 +316,6 @@
       "required": false,
       "tooltip": "Add the current time to checkpoint path. Be careful if you need HA in your streaming process.",
       "qa": "auto-delete-checkpoint"
-    },
-    {
-      "propertyId": "stopGracefully",
-      "propertyName": "_STOP_GRACEFULLY_",
-      "propertyType": "boolean",
-      "width": 6,
-      "position": "left",
-      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
-      "qa": "policy-stop-gracefully"
     },
     {
       "propertyId": "sparkConf",
