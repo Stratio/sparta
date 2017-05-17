@@ -48,7 +48,8 @@ case class PolicyModel(
                         stopGracefully: Option[Boolean] = None,
                         streamTemporalTable: Option[String] = None,
                         monitoringLink: Option[String] = None,
-                        addTimeToCheckpointPath: Option[Boolean] = None
+                        addTimeToCheckpointPath: Option[Boolean] = None,
+                        sparkUser: Option[String] = None
                       )
 
 case object PolicyModel {

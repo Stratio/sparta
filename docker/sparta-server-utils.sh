@@ -390,6 +390,18 @@ function mesosSparkOptions() {
  if [ -v HDFS_CONF_URI ] && [ ${#HDFS_CONF_URI} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI.*|sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI = \""${HDFS_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
  fi
+
+ if [ -v SPARK_MESOS_SPARK_LOCALITY_WAIT ] && [ ${#SPARK_MESOS_SPARK_LOCALITY_WAIT} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.locality.wait.*|sparta.mesos.spark.locality.wait = \""${SPARK_MESOS_SPARK_LOCALITY_WAIT}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_SPARK_TASK_MAXFILURES ] && [ ${#SPARK_MESOS_SPARK_TASK_MAXFILURES} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.task.maxFailures.*|sparta.mesos.spark.task.maxFailures = ${SPARK_MESOS_SPARK_TASK_MAXFILURES}|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL ] && [ ${#SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.streaming.blockInterval.*|sparta.mesos.spark.streaming.blockInterval = \""${SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL}"\"|" ${SPARTA_CONF_FILE}
+ fi
 }
 
 function marathonOptions() {
@@ -419,6 +431,36 @@ function marathonOptions() {
    SPARTA_MARATHON_MESOSPHERE_LIB="/opt/mesosphere/lib"
  fi
  sed -i "s|.*sparta.marathon.mesosphere.lib.*|sparta.marathon.mesosphere.lib = \""${SPARTA_MARATHON_MESOSPHERE_LIB}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_FORCE_PULL_IMAGE ]]; then
+   SPARTA_MARATHON_FORCE_PULL_IMAGE=false
+ fi
+ sed -i "s|.*sparta.marathon.docker.forcePullImage.*|sparta.marathon.docker.forcePullImage = ${SPARTA_MARATHON_FORCE_PULL_IMAGE}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_PRIVILEGED ]]; then
+   SPARTA_MARATHON_PRIVILEGED=false
+ fi
+ sed -i "s|.*sparta.marathon.docker.privileged.*|sparta.marathon.docker.privileged = ${SPARTA_MARATHON_PRIVILEGED}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_GRACEPERIODS_SECONDS ]]; then
+   SPARTA_MARATHON_GRACEPERIODS_SECONDS=180
+ fi
+ sed -i "s|.*sparta.marathon.gracePeriodSeconds.*|sparta.marathon.gracePeriodSeconds = ${SPARTA_MARATHON_GRACEPERIODS_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_INTERVAL_SECONDS ]]; then
+   SPARTA_MARATHON_INTERVAL_SECONDS=60
+ fi
+ sed -i "s|.*sparta.marathon.intervalSeconds.*|sparta.marathon.intervalSeconds = ${SPARTA_MARATHON_INTERVAL_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_TIMEOUT_SECONDS ]]; then
+   SPARTA_MARATHON_TIMEOUT_SECONDS=20
+ fi
+ sed -i "s|.*sparta.marathon.timeoutSeconds.*|sparta.marathon.timeoutSeconds = ${SPARTA_MARATHON_TIMEOUT_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_MAX_FAILURES ]]; then
+   SPARTA_MARATHON_MAX_FAILURES=3
+ fi
+ sed -i "s|.*sparta.marathon.maxConsecutiveFailures.*|sparta.marathon.maxConsecutiveFailures = ${SPARTA_MARATHON_MAX_FAILURES}|" ${SPARTA_CONF_FILE}
 
  if [ -v MARATHON_SSO_URI ] && [ ${#MARATHON_SSO_URI} != 0 ]; then
    sed -i "s|.*sparta.marathon.sso.uri.*|sparta.marathon.sso.uri = \""${MARATHON_SSO_URI}"\"|" ${SPARTA_CONF_FILE}
