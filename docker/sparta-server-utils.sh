@@ -95,7 +95,7 @@ function oauthOptions() {
    sed -i "s|.*oauth2.url.authorize.*|oauth2.url.authorize = \""${OAUTH2_SSL_AUTHORIZE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ ! -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
+ if [ -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
    sed -i "s|.*oauth2.url.accessToken.*|oauth2.url.accessToken = \""${OAUTH2_URL_ACCESS_TOKEN}"\"|" ${SPARTA_CONF_FILE}
  fi
 
@@ -170,7 +170,7 @@ function configOptions() {
  sed -i "s|.*sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_PLUGIN_PACKAGE_LOCATION ]]; then
-   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/plugins/"
+   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/sparta/plugins/"
  fi
  sed -i "s|.*sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
