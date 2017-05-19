@@ -88,9 +88,6 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     SubmitPackages -> SubmitPackagesConf,
     SubmitExcludePackages -> SubmitExcludePackagesConf,
     SubmitJars -> SubmitJarsConf,
-    SubmitDriverJavaOptions -> SubmitDriverJavaOptionsConf,
-    SubmitDriverLibraryPath -> SubmitDriverLibraryPathConf,
-    SubmitDriverClassPath -> SubmitDriverClassPathConf,
     SubmitDriverCores -> SubmitDriverCoresConf,
     SubmitDriverMemory -> SubmitDriverMemoryConf,
     SubmitExecutorCores -> SubmitExecutorCoresConf,
@@ -147,7 +144,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     val sparkConfFromSubmitArgumentsPolicy = submitArgsToConf(submitArgumentsFromPolicy)
 
     (addSupervisedArgument(addKerberosArguments(
-      submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy))),
+      submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy),
+      policy.sparkKerberos)),
       addInputConfs(
         addSparkUserConf(
           addAppNameConf(
@@ -294,9 +292,10 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Option[Boolean]): Map[String, String] =
     gracefullyStop.fold(sparkConfs) { gStop => sparkConfs ++ Map(SubmitGracefullyStopConf -> gStop.toString) }
 
-  protected def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
-    (HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {
-      case (Some(principalName), Some(keyTabPath)) =>
+  protected def addKerberosArguments(submitArgs: Map[String, String],
+                                     sparkKerberos: Option[Boolean]): Map[String, String] =
+    (sparkKerberos, HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {
+      case (Some(kerberosEnable), Some(principalName), Some(keyTabPath)) if kerberosEnable =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments... \n\t")
         submitArgs ++ Map(SubmitPrincipal -> principalName, SubmitKeyTab -> keyTabPath)
       case _ =>

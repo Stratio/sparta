@@ -126,6 +126,11 @@ class MarathonService(context: ActorContext,
   val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
   val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
   val SparkUserEnv = "SPARK_USER"
+  val SecurityTlsEnv = "SECURITY_TLS_ENABLE"
+  val SecurityTrustoreEnv = "SECURITY_TRUSTSTORE_ENABLE"
+  val SecurityKerberosEnv = "SECURITY_KERBEROS_ENABLE"
+  val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
+  val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
 
   /* Lazy variables */
 
@@ -201,10 +206,10 @@ class MarathonService(context: ActorContext,
     Try(marathonConfig.getInt("maxConsecutiveFailures")).toOption.getOrElse(DefaultMaxConsecutiveFailures)
 
   private def forcePullImage: Boolean =
-    Try(marathonConfig.getBoolean("docker.forcePullImage")).toOption.getOrElse(DefaultForcePullImage)
+    Try(marathonConfig.getString("docker.forcePullImage").toBoolean).getOrElse(DefaultForcePullImage)
 
   private def privileged: Boolean =
-    Try(marathonConfig.getBoolean("docker.privileged")).toOption.getOrElse(DefaultPrivileged)
+    Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
@@ -257,6 +262,18 @@ class MarathonService(context: ActorContext,
   private def envSparkLogLevel: Option[String] = Properties.envOrNone(SparkLogLevelEnv)
 
   private def envHadoopLogLevel: Option[String] = Properties.envOrNone(HadoopLogLevelEnv)
+
+  private def envZookeeperLogLevel: Option[String] = Properties.envOrNone(ZookeeperLogLevelEnv)
+
+  private def envTls: Option[String] = Properties.envOrNone(SecurityTlsEnv)
+
+  private def envTrustore: Option[String] = Properties.envOrNone(SecurityTrustoreEnv)
+
+  private def envKerberos: Option[String] = Properties.envOrNone(SecurityKerberosEnv)
+
+  private def envOauth2: Option[String] = Properties.envOrNone(SecurityOauth2Env)
+
+  private def envMesos: Option[String] = Properties.envOrNone(SecurityMesosEnv)
 
   private def getMarathonAppFromFile: CreateApp = {
     val templateFile = Try(marathonConfig.getString("template.file")).toOption.getOrElse(DefaultMarathonTemplateFile)
@@ -374,6 +391,7 @@ class MarathonService(context: ActorContext,
       SpartaLogLevelEnv -> envSpartaLogLevel,
       SparkLogLevelEnv -> envSparkLogLevel,
       HadoopLogLevelEnv -> envHadoopLogLevel,
+      ZookeeperLogLevelEnv -> envZookeeperLogLevel,
       HdfsRpcProtectionEnv -> envHdfsRpcProtection,
       HdfsSecurityAuthEnv -> envHdfsSecurityAuth,
       HdfsEncryptDataEnv -> envHdfsEncryptData,
@@ -382,6 +400,11 @@ class MarathonService(context: ActorContext,
       HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
       HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
       HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
+      SecurityTlsEnv -> envTls,
+      SecurityTrustoreEnv -> envTrustore,
+      SecurityKerberosEnv -> envKerberos,
+      SecurityOauth2Env -> envOauth2,
+      SecurityMesosEnv -> envMesos,
       DcosServiceName -> Option(ServiceName),
       SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap

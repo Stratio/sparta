@@ -18,7 +18,7 @@ function initJavaOptions() {
  sed -i "s|export MAX_OPEN_FILES.*|export MAX_OPEN_FILES=${MAX_OPEN_FILES}|" ${VARIABLES}
 
  if [ -v SPARTA_JAAS_FILE ] && [ ${#SPARTA_JAAS_FILE} != 0 ]; then
-    sed -i "s|.*export SPARTA_CONFIG_JAAS_FILE.*|export SPARTA_CONFIG_JAAS_FILE=\"-Djava.security.auth.login.config=${SPARTA_JAAS_FILE}\"|" ${VARIABLES}
+   sed -i "s|.*export SPARTA_CONFIG_JAAS_FILE.*|export SPARTA_CONFIG_JAAS_FILE=\"-Djava.security.auth.login.config=${SPARTA_JAAS_FILE}\"|" ${VARIABLES}
  fi
 
 }
@@ -30,19 +30,22 @@ function hdfsOptions() {
  fi
  sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
 
- if [ -v SPARTA_PRINCIPAL_NAME ] && [ ${#SPARTA_PRINCIPAL_NAME} != 0 ]; then
+ if [[ ! -v HDFS_SECURITY_ENABLED ]]; then
+   HDFS_SECURITY_ENABLED=false
+ fi
+ if [ $HDFS_SECURITY_ENABLED == "true" ] && [ -v SPARTA_PRINCIPAL_NAME ] && [ ${#SPARTA_PRINCIPAL_NAME} != 0 ]; then
    sed -i "s|.*sparta.hdfs.principalName .*|sparta.hdfs.principalName = \""${SPARTA_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v SPARTA_KEYTAB_PATH ] && [ ${#SPARTA_KEYTAB_PATH} != 0 ]; then
+ if [ $HDFS_SECURITY_ENABLED == "true" ] && [ -v SPARTA_KEYTAB_PATH ] && [ ${#SPARTA_KEYTAB_PATH} != 0 ]; then
    sed -i "s|.*sparta.hdfs.keytabPath.*|sparta.hdfs.keytabPath = \""${SPARTA_KEYTAB_PATH}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_KEYTAB_RELOAD ] && [ ${#HDFS_KEYTAB_RELOAD} != 0 ]; then
+ if [ $HDFS_SECURITY_ENABLED == "true" ] && [ -v HDFS_KEYTAB_RELOAD ] && [ ${#HDFS_KEYTAB_RELOAD} != 0 ]; then
    sed -i "s|.*sparta.hdfs.reloadKeyTab.*|sparta.hdfs.reloadKeyTab = ${HDFS_KEYTAB_RELOAD}|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v HDFS_KEYTAB_RELOAD_TIME ] && [ ${#HDFS_KEYTAB_RELOAD_TIME} != 0 ]; then
+ if [ $HDFS_SECURITY_ENABLED == "true" ] && [ -v HDFS_KEYTAB_RELOAD_TIME ] && [ ${#HDFS_KEYTAB_RELOAD_TIME} != 0 ]; then
    sed -i "s|.*sparta.hdfs.reloadKeyTabTime.*|sparta.hdfs.reloadKeyTabTime = ${HDFS_KEYTAB_RELOAD_TIME}|" ${SPARTA_CONF_FILE}
  fi
 }
@@ -198,6 +201,7 @@ function configOptions() {
    SPARTA_ADD_TIME_TO_CHECKPOINT=false
  fi
  sed -i "s|.*sparta.config.addTimeToCheckpointPath.*|sparta.config.addTimeToCheckpointPath = ${SPARTA_ADD_TIME_TO_CHECKPOINT}|" ${SPARTA_CONF_FILE}
+
 }
 
 function localSparkOptions() {

@@ -54,7 +54,12 @@
     "SPARTA_LOG_LEVEL": "???",
     "SPARK_LOG_LEVEL": "???",
     "HADOOP_LOG_LEVEL": "???",
-    "ZOOKEEPER_LOG_LEVEL": "???"
+    "ZOOKEEPER_LOG_LEVEL": "???",
+    "SECURITY_TLS_ENABLE": "???",
+    "SECURITY_TRUSTSTORE_ENABLE": "???",
+    "SECURITY_KERBEROS_ENABLE": "???",
+    "SECURITY_OAUTH2_ENABLE": "???",
+    "SECURITY_MESOS_ENABLE": "???"
   },
   "healthChecks": [
     {

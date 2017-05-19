@@ -318,6 +318,16 @@
       "qa": "auto-delete-checkpoint"
     },
     {
+      "propertyId": "sparkKerberos",
+      "propertyName": "_SPARK_KERBEROS_ENABLE_",
+      "width": 6,
+      "position": "left",
+      "propertyType": "boolean",
+      "required": false,
+      "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available.",
+      "qa": "auto-spark-kerberos"
+    },
+    {
       "propertyId": "sparkConf",
       "propertyName": "_SPARK_CONF_",
       "propertyType": "list",
