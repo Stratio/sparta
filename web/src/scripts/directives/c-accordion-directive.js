@@ -39,7 +39,8 @@
         itemAttributeInHeader: "@",
         newItemHeader: "@",
         additionalModifierClass: "@",
-        width: '@'
+        width: '@',
+        resetOnClose:'='
       },
       replace: "true",
       templateUrl: 'templates/components/c-accordion.tpl.html',

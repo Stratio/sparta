@@ -57,7 +57,7 @@
     /////////////////////////////////
 
     function init() {
-      getAllPlugins();
+      vm.getAllPlugins();
     }
 
     function getAllPlugins() {
@@ -85,14 +85,14 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
-      modalInstance.result.then(function () {
+      return modalInstance.result.then(function () {
         getAllPlugins();
         vm.successMessage.text = '_PLUGIN_CREATE_OK_';
       });
     }
 
     function deletePlugin(fileName) {
-      deletePluginConfirm('lg', fileName);
+      return deletePluginConfirm('lg', fileName);
     }
 
     function deletePluginConfirm(size, fileName) {
@@ -111,7 +111,7 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
-      modalInstance.result.then(function (fileName) {
+      return modalInstance.result.then(function (fileName) {
         var index = UtilsService.getArrayElementPosition(vm.pluginsData, 'fileName', fileName);
         vm.pluginsData.splice(index, 1);
         vm.successMessage.text = '_PLUGIN_DELETE_OK_';

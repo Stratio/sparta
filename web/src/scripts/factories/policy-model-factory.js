@@ -164,6 +164,14 @@
       initPolicy();
     }
 
+    function initializePolicy() {
+      var policy = {};
+      var finalJSON = {};
+      var template = {};
+      var error = {};
+      initPolicy();
+    }
+
     function getAllModelOutputs() {
       var allModelOutputs = [];
       var models = policy.transformations.transformationsPipe;
@@ -219,6 +227,7 @@
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
       resetPolicy: resetPolicy,
+      initializePolicy: initializePolicy,
       getAllModelOutputs: getAllModelOutputs,
       getFinalJSON: getFinalJSON,
       setFinalJSON: setFinalJSON,
@@ -229,5 +238,3 @@
   }
 
 })();
-
-

@@ -40,6 +40,7 @@
     init();
 
     function init() {
+      PolicyModelFactory.initializePolicy();
       initTemplate().then(function () {
         initPolicy().then(function () {
           vm.status = WizardStatusService.getStatus();
