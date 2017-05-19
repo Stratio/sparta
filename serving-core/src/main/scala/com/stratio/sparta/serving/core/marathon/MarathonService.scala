@@ -102,6 +102,7 @@ class MarathonService(context: ActorContext,
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
   val HadoopUserNameEnv = "HDFS_USER_NAME"
+  val HdfsUserNameEnv = "HADOOP_USER_NAME"
   val HdfsConfFromUriEnv = "HDFS_CONF_FROM_URI"
   val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
   val HdfsConfFromDfsEnv = "HDFS_CONF_FROM_DFS"
@@ -361,6 +362,7 @@ class MarathonService(context: ActorContext,
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> envSparkHome,
       HadoopUserNameEnv -> envHadoopUserName,
+      HdfsUserNameEnv -> envHadoopUserName,
       HdfsConfFromUriEnv -> envHdfsConfFromUri,
       CoreSiteFromUriEnv -> envCoreSiteFromUri,
       HdfsConfFromDfsEnv -> envHdfsConfFromDfs,
