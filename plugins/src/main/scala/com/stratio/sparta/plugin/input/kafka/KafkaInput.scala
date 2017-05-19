@@ -41,7 +41,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   val ValueDeserializer = "value.deserializer"
 
   //scalastyle:off
-  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val groupId = getGroupId("group.id")
     val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)

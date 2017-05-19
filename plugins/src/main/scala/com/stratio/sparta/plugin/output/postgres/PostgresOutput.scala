@@ -50,7 +50,10 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(url, tableName, propertiesWithCustom.mapValues(_.toString))
+    val connectionProperties = new JDBCOptions(url,
+      tableName,
+      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+    )
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
@@ -94,5 +97,10 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
         if (bytes.hasNext) bytes.next & 0xff
         else -1
     }
+  }
+
+  override def cleanUp(options: Map[String, String]): Unit = {
+    log.info(s"Closing connections in Postgres Output: $name")
+    closeConnection()
   }
 }

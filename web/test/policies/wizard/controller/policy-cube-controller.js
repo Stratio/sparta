@@ -14,7 +14,7 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     scope = $rootScope.$new();
     q = $q;
     $httpBackend.when('GET', 'languages/en-US.json').respond({});
-    $httpBackend.when('GET', '/fragment/output').respond({});
+    $httpBackend.when('GET', 'fragment/output').respond({});
 
 
     inject(function (_modelPolicy_, _templatePolicy_, _modelCube_) {

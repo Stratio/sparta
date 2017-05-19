@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function _log_sparta_run_marathon() {
+    local message=$1
+    echo "[SPARTA-RUN-MARATHON] $message"
+}
+
 # If a specific java binary isn't specified search for the standard 'java' binary
 if [ -z "$JAVACMD" ] ; then
   if [ -n "$JAVA_HOME"  ] ; then
@@ -30,8 +35,13 @@ CLASSPATH="$SPARTA_HOME"/:/etc/sds/sparta:"$SPARTA_MARATHON_JAR"
 SPARTA_MARATHON_OPTIONS="$MARATHON_APP_HEAP_MINIMUM_SIZE $MARATHON_APP_HEAP_SIZE"
 
 if [ -v SPARTA_CONFIG_JAAS_FILE ] && [ ${#SPARTA_CONFIG_JAAS_FILE} != 0 ]; then
-    SPARTA_MARATHON_OPTIONS="$SPARTA_MARATHON_OPTIONS $SPARTA_CONFIG_JAAS_FILE"
+  _log_sparta_run_marathon "Running Marathon app with JAAS file: $SPARTA_CONFIG_JAAS_FILE"
+  SPARTA_MARATHON_OPTIONS="$SPARTA_MARATHON_OPTIONS $SPARTA_CONFIG_JAAS_FILE"
 fi
+
+_log_sparta_run_marathon "Running Marathon app with java command: $JAVACMD"
+_log_sparta_run_marathon "Running Marathon app with java options: $SPARTA_MARATHON_OPTIONS"
+_log_sparta_run_marathon "Running Marathon app with arguments: policyId -> $SPARTA_POLICY_ID & zookeeperConfig -> $SPARTA_ZOOKEEPER_CONFIG & detailConfig -> $SPARTA_DETAIL_CONFIG"
 
 exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -classpath "$CLASSPATH" \

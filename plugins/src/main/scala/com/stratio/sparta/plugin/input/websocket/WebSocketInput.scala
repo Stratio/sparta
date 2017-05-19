@@ -25,7 +25,7 @@ import org.apache.spark.streaming.dstream.DStream
 
 class WebSocketInput(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel(sparkStorageLevel)))
       .map(data => Row(data))
   }

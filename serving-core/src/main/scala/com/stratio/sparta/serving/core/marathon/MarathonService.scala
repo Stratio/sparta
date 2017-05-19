@@ -30,14 +30,13 @@ import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorMode
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message._
-import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Parameter, Volume}
+import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
 
-import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.io.Source
@@ -78,6 +77,12 @@ class MarathonService(context: ActorContext,
   val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
+  val DefaultGracePeriodSeconds = 180
+  val DefaultIntervalSeconds = 60
+  val DefaultTimeoutSeconds = 20
+  val DefaultMaxConsecutiveFailures = 3
+  val DefaultForcePullImage = false
+  val DefaultPrivileged = false
 
   /* Environment variables to Marathon Application */
 
@@ -86,7 +91,7 @@ class MarathonService(context: ActorContext,
   val LdLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
-  val VaultEnable = "VAULT_ENABLE"
+  val VaultEnableEnv = "VAULT_ENABLE"
   val VaultHostEnv = "VAULT_HOST"
   val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
@@ -97,6 +102,7 @@ class MarathonService(context: ActorContext,
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
   val HadoopUserNameEnv = "HDFS_USER_NAME"
+  val HdfsUserNameEnv = "HADOOP_USER_NAME"
   val HdfsConfFromUriEnv = "HDFS_CONF_FROM_URI"
   val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
   val HdfsConfFromDfsEnv = "HDFS_CONF_FROM_DFS"
@@ -119,6 +125,7 @@ class MarathonService(context: ActorContext,
   val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN"
   val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
   val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
+  val SparkUserEnv = "SPARK_USER"
 
   /* Lazy variables */
 
@@ -181,9 +188,29 @@ class MarathonService(context: ActorContext,
   private def spartaDockerImage: String =
     Try(marathonConfig.getString("docker.image")).toOption.getOrElse(DefaultSpartaDockerImage)
 
+  private def gracePeriodSeconds: Int =
+    Try(marathonConfig.getInt("gracePeriodSeconds")).toOption.getOrElse(DefaultGracePeriodSeconds)
+
+  private def intervalSeconds: Int =
+    Try(marathonConfig.getInt("intervalSeconds")).toOption.getOrElse(DefaultIntervalSeconds)
+
+  private def timeoutSeconds: Int =
+    Try(marathonConfig.getInt("timeoutSeconds")).toOption.getOrElse(DefaultTimeoutSeconds)
+
+  private def maxConsecutiveFailures: Int =
+    Try(marathonConfig.getInt("maxConsecutiveFailures")).toOption.getOrElse(DefaultMaxConsecutiveFailures)
+
+  private def forcePullImage: Boolean =
+    Try(marathonConfig.getBoolean("docker.forcePullImage")).toOption.getOrElse(DefaultForcePullImage)
+
+  private def privileged: Boolean =
+    Try(marathonConfig.getBoolean("docker.privileged")).toOption.getOrElse(DefaultPrivileged)
+
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
   private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
+
+  private def envVaultEnable: Option[String] = Properties.envOrNone(VaultEnableEnv)
 
   private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
 
@@ -237,7 +264,7 @@ class MarathonService(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnable) match {
+  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnableEnv) match {
     case Some(vaultEnable) if Try(vaultEnable.toBoolean).getOrElse(false) =>
       Seq(Parameter("volume", Krb5ConfFile))
     case None =>
@@ -275,21 +302,34 @@ class MarathonService(context: ActorContext,
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val certificatesVolume = Volume(ContainerCertificatePath, HostCertificatePath, "RO")
+    val javaCertificatesVolume = {
+      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaulPort.isDefined && envVaultToken.isDefined)
+        Seq.empty[Volume]
+      else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
+    }
     val newDockerContainerInfo = mesosNativeLibrary match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
-          volumes = Option(Seq(certificatesVolume)),
+          volumes = Option(javaCertificatesVolume),
           parameters = Option(getKrb5ConfVolume)
         ))
       case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-        certificatesVolume,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
+        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
         image = spartaDockerImage,
-        parameters = Option(getKrb5ConfVolume)
+        parameters = Option(getKrb5ConfVolume),
+        forcePullImage = Option(forcePullImage),
+        privileged = Option(privileged)
       ))
     }
+    val newHealthChecks = Option(Seq(HealthCheck(
+      protocol = "TCP",
+      portIndex = Option(0),
+      gracePeriodSeconds = gracePeriodSeconds,
+      intervalSeconds = intervalSeconds,
+      timeoutSeconds = timeoutSeconds,
+      maxConsecutiveFailures = maxConsecutiveFailures
+    )))
 
     app.copy(
       id = ServiceName,
@@ -297,7 +337,8 @@ class MarathonService(context: ActorContext,
       mem = newMem,
       env = newEnv,
       labels = newLabels,
-      container = newDockerContainerInfo
+      container = newDockerContainerInfo,
+      healthChecks = newHealthChecks
     )
   }
 
@@ -313,6 +354,7 @@ class MarathonService(context: ActorContext,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
       PolicyIdEnv -> policyModel.id,
+      VaultEnableEnv -> envVaultEnable,
       VaultHostEnv -> envVaultHost,
       VaultPortEnv -> envVaulPort,
       VaultTokenEnv -> envVaultToken,
@@ -320,6 +362,7 @@ class MarathonService(context: ActorContext,
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> envSparkHome,
       HadoopUserNameEnv -> envHadoopUserName,
+      HdfsUserNameEnv -> envHadoopUserName,
       HdfsConfFromUriEnv -> envHdfsConfFromUri,
       CoreSiteFromUriEnv -> envCoreSiteFromUri,
       HdfsConfFromDfsEnv -> envHdfsConfFromDfs,
@@ -339,6 +382,7 @@ class MarathonService(context: ActorContext,
       HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
       HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
       HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
-      DcosServiceName -> Option(ServiceName)
+      DcosServiceName -> Option(ServiceName),
+      SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }

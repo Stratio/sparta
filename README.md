@@ -108,6 +108,7 @@ Outputs
 - HDFS/S3
 - Http Rest
 - Avro
+- Logger
 
 ![Outputs](./images/outputs.png)
 
@@ -150,12 +151,14 @@ In a debian distribution:
   - fakeroot
   - dpkg-dev
   - rpm
+  - jq
   
 In a centOS distribution:
 
   - fakeroot
   - dpkg-dev
   - rpmdevtools
+  - jq
   
 In all distributions:
 

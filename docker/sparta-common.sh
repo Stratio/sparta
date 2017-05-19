@@ -42,6 +42,8 @@ function initSpark() {
 
 function initHdfs() {
   if [[ -v HDFS_USER_NAME ]]; then
+      echo "" >> ${VARIABLES}
+    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
   fi

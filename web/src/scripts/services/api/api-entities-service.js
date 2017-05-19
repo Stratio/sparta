@@ -20,9 +20,9 @@
     .module('webApp')
     .service('ApiEntitiesService', ApiEntitiesService);
 
-  ApiEntitiesService.$inject = ['$resource', 'apiConfigSettings'];
+  ApiEntitiesService.$inject = ['$resource', 'apiConfigSettings', '$browser'];
 
-  function ApiEntitiesService($resource, apiConfigSettings) {
+  function ApiEntitiesService($resource, apiConfigSettings, $browser) {
     var vm = this;
 
     vm.getAllPlugins = getAllPlugins;
@@ -33,9 +33,10 @@
     vm.createDriver = createDriver;
 
     /////////////////////////////////
+  console.log($browser.baseHref());
 
     function getAllPlugins() {
-      return $resource('/plugins', {}, {
+      return $resource('plugins', {}, {
         'get': {
           method: 'GET',
           isArray: true,
@@ -45,7 +46,7 @@
     }
 
     function createPlugin() {
-      return $resource('/plugins', {}, {
+      return $resource('plugins', {}, {
         'put': {
           method: 'PUT',
           transformRequest: angular.identity,
@@ -57,7 +58,7 @@
     }
 
     function deletePlugin() {
-      return $resource('/plugins/:fileName', {
+      return $resource('plugins/:fileName', {
         fileName: '@fileName'
       }, {
         'delete': {
@@ -68,7 +69,7 @@
     }
 
     function getAllDrivers() {
-      return $resource('/driver', {}, {
+      return $resource('driver', {}, {
         'get': {
           method: 'GET',
           isArray: true,
@@ -78,7 +79,7 @@
     }
 
     function createDriver() {
-      return $resource('/driver', {}, {
+      return $resource('driver', {}, {
         'put': {
           method: 'PUT',
           transformRequest: angular.identity,
@@ -90,7 +91,7 @@
     }
 
     function deleteDriver() {
-      return $resource('/driver/:fileName', {
+      return $resource('driver/:fileName', {
         fileName: '@fileName'
       }, {
         'delete': {

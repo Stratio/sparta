@@ -12,11 +12,6 @@ function initJavaOptions() {
  fi
  sed -i "s|export SPARTA_HEAP_MINIMUM_SIZE.*|export SPARTA_HEAP_MINIMUM_SIZE=${SPARTA_HEAP_MINIMUM_SIZE}|" ${VARIABLES}
 
- if [[ ! -v SPARTA_MAX_PERM_SIZE ]]; then
-   SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
- fi
- sed -i "s|export SPARTA_MAX_PERM_SIZE.*|export SPARTA_MAX_PERM_SIZE=${SPARTA_MAX_PERM_SIZE}|" ${VARIABLES}
-
  if [[ ! -v MAX_OPEN_FILES ]]; then
    MAX_OPEN_FILES=65535
  fi
@@ -75,9 +70,14 @@ function apiOptions() {
  sed -i "s|.*sparta.api.certificate-password.*|sparta.api.certificate-password = \""${SPARTA_API_CERTIFICATE_PASSWORD}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPRAY_CAN_SERVER_SSL_ENCRYPTION ]]; then
-   SPRAY_CAN_SERVER_SSL_ENCRYPTION=off
+   SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=off
+   elif [[ $SPRAY_CAN_SERVER_SSL_ENCRYPTION == "true" ]]; then
+    SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=on
+   else
+    SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH=off
  fi
- sed -i "s|.*spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION}|" ${SPARTA_CONF_FILE}
+
+ sed -i "s|.*spray.can.server.ssl-encryption.*|spray.can.server.ssl-encryption = ${SPRAY_CAN_SERVER_SSL_ENCRYPTION_SWITCH}|" ${SPARTA_CONF_FILE}
 }
 
 function oauthOptions() {
@@ -95,7 +95,7 @@ function oauthOptions() {
    sed -i "s|.*oauth2.url.authorize.*|oauth2.url.authorize = \""${OAUTH2_SSL_AUTHORIZE}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ ! -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
+ if [ -v OAUTH2_URL_ACCESS_TOKEN ] && [ ${#OAUTH2_URL_ACCESS_TOKEN} != 0 ]; then
    sed -i "s|.*oauth2.url.accessToken.*|oauth2.url.accessToken = \""${OAUTH2_URL_ACCESS_TOKEN}"\"|" ${SPARTA_CONF_FILE}
  fi
 
@@ -115,11 +115,11 @@ function oauthOptions() {
    sed -i "s|.*oauth2.url.onLoginGoTo.*|oauth2.url.onLoginGoTo = \""${OAUTH2_URL_ON_LOGIN_GO_TO}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v OAUTH2_CLIENT_ID ] && [ ${#OAUTH2_URL_ON_LOGIN_GO_TO} != 0 ]; then
+ if [ -v OAUTH2_CLIENT_ID ] && [ ${#OAUTH2_CLIENT_ID} != 0 ]; then
    sed -i "s|.*oauth2.client.id.*|oauth2.client.id = \""${OAUTH2_CLIENT_ID}"\"|" ${SPARTA_CONF_FILE}
  fi
 
- if [ -v OAUTH2_CLIENT_SECRET ] && [ ${#OAUTH2_URL_ON_LOGIN_GO_TO} != 0 ]; then
+ if [ -v OAUTH2_CLIENT_SECRET ] && [ ${#OAUTH2_CLIENT_SECRET} != 0 ]; then
    sed -i "s|.*oauth2.client.secret.*|oauth2.client.secret = \""${OAUTH2_CLIENT_SECRET}"\"|" ${SPARTA_CONF_FILE}
  fi
 }
@@ -170,7 +170,7 @@ function configOptions() {
  sed -i "s|.*sparta.config.driverURI.*|sparta.config.driverURI = \""${SPARTA_DRIVER_URI}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_PLUGIN_PACKAGE_LOCATION ]]; then
-   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/plugins/"
+   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/sparta/plugins/"
  fi
  sed -i "s|.*sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
@@ -190,7 +190,7 @@ function configOptions() {
  sed -i "s|.*sparta.config.checkpointPath.*|sparta.config.checkpointPath = \""${SPARTA_CHECKPOINT_PATH}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AUTO_DELETE_CHECKPOINT ]]; then
-   SPARTA_AUTO_DELETE_CHECKPOINT=false
+   SPARTA_AUTO_DELETE_CHECKPOINT=true
  fi
  sed -i "s|.*sparta.config.autoDeleteCheckpoint.*|sparta.config.autoDeleteCheckpoint = ${SPARTA_AUTO_DELETE_CHECKPOINT}|" ${SPARTA_CONF_FILE}
 
@@ -390,6 +390,18 @@ function mesosSparkOptions() {
  if [ -v HDFS_CONF_URI ] && [ ${#HDFS_CONF_URI} != 0 ]; then
    sed -i "s|.*sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI.*|sparta.mesos.spark.mesos.driverEnv.HDFS_CONF_URI = \""${HDFS_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
  fi
+
+ if [ -v SPARK_MESOS_SPARK_LOCALITY_WAIT ] && [ ${#SPARK_MESOS_SPARK_LOCALITY_WAIT} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.locality.wait.*|sparta.mesos.spark.locality.wait = \""${SPARK_MESOS_SPARK_LOCALITY_WAIT}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_SPARK_TASK_MAXFILURES ] && [ ${#SPARK_MESOS_SPARK_TASK_MAXFILURES} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.task.maxFailures.*|sparta.mesos.spark.task.maxFailures = ${SPARK_MESOS_SPARK_TASK_MAXFILURES}|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ -v SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL ] && [ ${#SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL} != 0 ]; then
+   sed -i "s|.*sparta.mesos.spark.streaming.blockInterval.*|sparta.mesos.spark.streaming.blockInterval = \""${SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL}"\"|" ${SPARTA_CONF_FILE}
+ fi
 }
 
 function marathonOptions() {
@@ -419,6 +431,36 @@ function marathonOptions() {
    SPARTA_MARATHON_MESOSPHERE_LIB="/opt/mesosphere/lib"
  fi
  sed -i "s|.*sparta.marathon.mesosphere.lib.*|sparta.marathon.mesosphere.lib = \""${SPARTA_MARATHON_MESOSPHERE_LIB}"\"|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_FORCE_PULL_IMAGE ]]; then
+   SPARTA_MARATHON_FORCE_PULL_IMAGE=false
+ fi
+ sed -i "s|.*sparta.marathon.docker.forcePullImage.*|sparta.marathon.docker.forcePullImage = ${SPARTA_MARATHON_FORCE_PULL_IMAGE}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_PRIVILEGED ]]; then
+   SPARTA_MARATHON_PRIVILEGED=false
+ fi
+ sed -i "s|.*sparta.marathon.docker.privileged.*|sparta.marathon.docker.privileged = ${SPARTA_MARATHON_PRIVILEGED}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_GRACEPERIODS_SECONDS ]]; then
+   SPARTA_MARATHON_GRACEPERIODS_SECONDS=180
+ fi
+ sed -i "s|.*sparta.marathon.gracePeriodSeconds.*|sparta.marathon.gracePeriodSeconds = ${SPARTA_MARATHON_GRACEPERIODS_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_INTERVAL_SECONDS ]]; then
+   SPARTA_MARATHON_INTERVAL_SECONDS=60
+ fi
+ sed -i "s|.*sparta.marathon.intervalSeconds.*|sparta.marathon.intervalSeconds = ${SPARTA_MARATHON_INTERVAL_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_TIMEOUT_SECONDS ]]; then
+   SPARTA_MARATHON_TIMEOUT_SECONDS=20
+ fi
+ sed -i "s|.*sparta.marathon.timeoutSeconds.*|sparta.marathon.timeoutSeconds = ${SPARTA_MARATHON_TIMEOUT_SECONDS}|" ${SPARTA_CONF_FILE}
+
+ if [[ ! -v SPARTA_MARATHON_MAX_FAILURES ]]; then
+   SPARTA_MARATHON_MAX_FAILURES=3
+ fi
+ sed -i "s|.*sparta.marathon.maxConsecutiveFailures.*|sparta.marathon.maxConsecutiveFailures = ${SPARTA_MARATHON_MAX_FAILURES}|" ${SPARTA_CONF_FILE}
 
  if [ -v MARATHON_SSO_URI ] && [ ${#MARATHON_SSO_URI} != 0 ]; then
    sed -i "s|.*sparta.marathon.sso.uri.*|sparta.marathon.sso.uri = \""${MARATHON_SSO_URI}"\"|" ${SPARTA_CONF_FILE}

@@ -35,7 +35,7 @@
     /////////////////////////////////
 
     function getFragmentById() {
-      return $resource('/fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
+      return $resource('fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
         {
           'get': {method: 'GET',
             timeout: apiConfigSettings.timeout}
@@ -43,7 +43,7 @@
     }
 
     function getFragments() {
-      return $resource('/fragment/:type', {type: '@type'},
+      return $resource('fragment/:type', {type: '@type'},
         {
           'get': {method: 'GET', isArray: true,
             timeout: apiConfigSettings.timeout}
@@ -51,7 +51,7 @@
     }
 
     function createFragment() {
-      return $resource('/fragment/', {},
+      return $resource('fragment/', {},
         {
           'create': {method: 'POST',
             timeout: apiConfigSettings.timeout}
@@ -59,7 +59,7 @@
     }
 
     function updateFragment() {
-      return $resource('/fragment/', {},
+      return $resource('fragment/', {},
         {
           'update': {method: 'PUT',
             timeout: apiConfigSettings.timeout}
@@ -67,7 +67,7 @@
     }
 
     function deleteFragment() {
-      return $resource('/fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
+      return $resource('fragment/:type/id/:fragmentId', {type: '@type', fragmentId: '@fragmentId'},
         {
           'delete': {method: 'DELETE',
             timeout: apiConfigSettings.timeout}
@@ -75,7 +75,7 @@
     }
 
     function getFakeFragments() {
-      return $resource('/data-templates/fake_data/:type', {type: '@type'},
+      return $resource('data-templates/fake_data/:type', {type: '@type'},
         {
           'get': {method: 'GET', isArray: true,
             timeout: apiConfigSettings.timeout}

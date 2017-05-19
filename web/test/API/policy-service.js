@@ -22,7 +22,7 @@ describe('API.policy-service', function () {
 
 	it("Should return a policy by Id", function () {
 		var policyIdJSON = { "id": "2581f20a-fd83-4315-be45-192bc5sEdFff" };
-		httpBackend.when('GET', '/policy/find/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakePolicyById);
+		httpBackend.when('GET', 'policy/find/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakePolicyById);
 
 		srv.getPolicyById().get(policyIdJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
@@ -33,7 +33,7 @@ describe('API.policy-service', function () {
 	});
 
 	it("Should return all the policies", function () {
-		httpBackend.when('GET', '/policy/all').respond(fakePolicyList);
+		httpBackend.when('GET', 'policy/all').respond(fakePolicyList);
 
 		srv.getAllPolicies().get().$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyList));
@@ -44,7 +44,7 @@ describe('API.policy-service', function () {
 	});
 
 	it("Should create a policy", function () {
-		httpBackend.when('POST', '/policy').respond(fakePolicyById);
+		httpBackend.when('POST', 'policy').respond(fakePolicyById);
 
 		srv.createPolicy().create().$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
@@ -57,7 +57,7 @@ describe('API.policy-service', function () {
 	it("Should delete a policy by Id", function () {
 		var policyIdJSON = { "id": "2581f20a-av83-4315-be45-192bc5sEdFff" };
 		var deletedPolicyJSON = {};
-		httpBackend.when('DELETE', '/policy/2581f20a-av83-4315-be45-192bc5sEdFff').respond(deletedPolicyJSON);
+		httpBackend.when('DELETE', 'policy/2581f20a-av83-4315-be45-192bc5sEdFff').respond(deletedPolicyJSON);
 
 		srv.deletePolicy().delete(policyIdJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(deletedPolicyJSON));
@@ -70,7 +70,7 @@ describe('API.policy-service', function () {
 	it("Should run a policy by Id", function () {
 		var policyIdJSON = { "id": "2581f20a-av83-4315-be45-192bc5sEdFff" };
 		var policyRunningJSON = { "message": "test" };
-		httpBackend.when('GET', '/policy/run/2581f20a-av83-4315-be45-192bc5sEdFff').respond(policyRunningJSON);
+		httpBackend.when('GET', 'policy/run/2581f20a-av83-4315-be45-192bc5sEdFff').respond(policyRunningJSON);
 
 		srv.runPolicy().get(policyIdJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(policyRunningJSON));
@@ -83,7 +83,7 @@ describe('API.policy-service', function () {
 	it("Should delete a policy checkpoint", function () {
 		var policyNameJSON = { "name": "policyName" };
 		var deletedPolicyCheckpointJSON = {};
-		httpBackend.when('DELETE', '/policy/checkpoint/policyName').respond(deletedPolicyCheckpointJSON);
+		httpBackend.when('DELETE', 'policy/checkpoint/policyName').respond(deletedPolicyCheckpointJSON);
 
 		srv.deletePolicyCheckpoint().delete(policyNameJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(deletedPolicyCheckpointJSON));
@@ -97,7 +97,7 @@ describe('API.policy-service', function () {
 
 	it("Should stop a policy", function () {
 		var stopPolicyJSON = { "id": "2581f20a-av83-4315-be45-192bc5sEdFff", "status": "Stopping" };
-		httpBackend.when('PUT', '/policyContext').respond({});
+		httpBackend.when('PUT', 'policyContext').respond({});
 
 		srv.stopPolicy().update(stopPolicyJSON).$promise.then(function (response) {
 			expect(JSON.stringify(response)).toEqual(JSON.stringify({}));
@@ -108,7 +108,7 @@ describe('API.policy-service', function () {
 	});
 
 	it("Should save a policy", function () {
-		httpBackend.when('PUT', '/policy').respond(fakePolicyById);
+		httpBackend.when('PUT', 'policy').respond(fakePolicyById);
 
 		srv.savePolicy().put().$promise.then(function (response) {
 			expect(JSON.stringify(response)).toEqual(JSON.stringify(fakePolicyById));
@@ -119,7 +119,7 @@ describe('API.policy-service', function () {
 	});
 
 	it("Should get policies status", function () {
-		httpBackend.when('GET', '/policyContext').respond(fakePoliciesStatusList);
+		httpBackend.when('GET', 'policyContext').respond(fakePoliciesStatusList);
 
 		srv.getPoliciesStatus().get().$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePoliciesStatusList));
@@ -131,7 +131,7 @@ describe('API.policy-service', function () {
 
 	it("Should download a policy by its Id", function () {
 		var policyId = '2581f20a-av83-4315-be45-192bc5sEdFff';
-		httpBackend.when('GET', '/policy/download/' + policyId).respond(fakePolicyById);
+		httpBackend.when('GET', 'policy/download/' + policyId).respond(fakePolicyById);
 
 		srv.downloadPolicy().get({ id: policyId }).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
@@ -143,7 +143,7 @@ describe('API.policy-service', function () {
 
 	it("Should return a execution by Id", function () {
 		var policyIdJSON = { "id": "2581f20a-fd83-4315-be45-192bc5sEdFff" };
-		httpBackend.when('GET', '/executions/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakePolicyById);
+		httpBackend.when('GET', 'executions/2581f20a-fd83-4315-be45-192bc5sEdFff').respond(fakePolicyById);
 
 		srv.getExecutionById().get(policyIdJSON).$promise.then(function (result) {
 			expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyById));
