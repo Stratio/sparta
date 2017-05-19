@@ -156,6 +156,11 @@ In a centOS distribution:
   - fakeroot
   - dpkg-dev
   - rpmdevtools
+  
+In all distributions:
+
+  - Java 8
+  - Maven 3
 
 Documentation
 ========
