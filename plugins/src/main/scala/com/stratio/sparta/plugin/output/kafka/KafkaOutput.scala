@@ -73,7 +73,7 @@ class KafkaOutput(name: String, properties: Map[String, JSerializable])
 
   private[kafka] def createProducerProps: Properties = {
     val props = new Properties()
-    properties.foreach { case (key, value) => props.put(key, value.toString) }
+    properties.filter(_._1 != customKey).foreach { case (key, value) => props.put(key, value.toString) }
     mandatoryOptions.foreach { case (key, value) => props.put(key, value) }
     getCustomProperties.foreach { case (key, value) => props.put(key, value) }
     props
@@ -85,9 +85,13 @@ class KafkaOutput(name: String, properties: Map[String, JSerializable])
         KEY_SERIALIZER_CLASS_CONFIG -> properties.getString(KEY_SERIALIZER_CLASS_CONFIG, DefaultKafkaSerializer),
         VALUE_SERIALIZER_CLASS_CONFIG -> properties.getString(VALUE_SERIALIZER_CLASS_CONFIG, DefaultKafkaSerializer),
         ACKS_CONFIG -> properties.getString(ACKS_CONFIG, DefaultAck),
-        "security.protocol" -> "SSL",
         BATCH_SIZE_CONFIG -> properties.getString(BATCH_SIZE_CONFIG, DefaultBatchNumMessages)
       )
+
+  override def cleanUp(options: Map[String, String]): Unit = {
+    log.info(s"Closing Kafka producer in Kafka Output: $name")
+    KafkaOutput.closeProducers()
+  }
 }
 
 object KafkaOutput {
@@ -96,6 +100,10 @@ object KafkaOutput {
 
   def getProducer(producerKey: String, properties: Properties): KafkaProducer[String, String] = {
     getInstance(producerKey, properties)
+  }
+
+  def closeProducers(): Unit = {
+    producers.values.foreach(producer => producer.close())
   }
 
   private[kafka] def getInstance(key: String, properties: Properties): KafkaProducer[String, String] = {

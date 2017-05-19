@@ -75,4 +75,9 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
         log.error(s"Error creating/dropping table $tableName")
     }
   }
+
+  override def cleanUp(options: Map[String, String]): Unit = {
+    log.info(s"Closing connections in JDBC Output: $name")
+    closeConnection()
+  }
 }

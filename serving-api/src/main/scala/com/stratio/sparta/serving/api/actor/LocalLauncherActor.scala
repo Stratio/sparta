@@ -34,8 +34,6 @@ import scala.util.{Failure, Success, Try}
 class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
   extends Actor with PolicyConfigUtils with LauncherUtils with PolicyStatusUtils{
 
-  private var ssc: Option[StreamingContext] = None
-
   override def receive: PartialFunction[Any, Unit] = {
     case Start(policy: PolicyModel) => doInitSpartaContext(policy)
     case ResponseStatus(status) => loggingResponsePolicyStatus(status)
@@ -55,8 +53,9 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.LocalValue)
       ))
-      ssc = Option(streamingContextService.localStreamingContext(policy, jars))
-      ssc.get.start()
+      val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(policy, jars)
+      spartaWorkflow.setup()
+      ssc.start()
       val startedInformation = s"The Sparta local job was started correctly"
       log.info(startedInformation)
       updateStatus(PolicyStatusModel(
@@ -65,7 +64,8 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         statusInfo = Some(startedInformation),
         resourceManagerUrl = ResourceManagerLinkHelper.getLink(executionMode(policy), policy.monitoringLink)
       ))
-      ssc.get.awaitTermination()
+      ssc.awaitTermination()
+      spartaWorkflow.cleanUp()
     } match {
       case Success(_) =>
         val information = s"Stopped correctly Sparta local job"

@@ -47,14 +47,21 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
   //scalastyle:off
   def doStartApp(policyId: String): Unit = {
     Try {
+      log.debug(s"Obtaining status by id: $policyId")
       findStatusById(policyId) match {
         case Success(status) =>
+          log.debug(s"Obtained status: ${status.status}")
           if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
             status.status != Finished) {
+            log.debug(s"Obtaining policy with fragments by id: $policyId")
             val policy = getPolicyWithFragments(getPolicyById(policyId))
+            log.debug(s"Obtained policy: ${policy.toString}")
+            log.debug(s"Closing checker by id: $policyId and name: ${policy.name}")
             closeChecker(policy.id.get, policy.name)
+            log.debug(s"Obtaining request by id: $policyId")
             findRequestById(policyId) match {
               case Success(submitRequest) =>
+                log.debug(s"Starting request: ${submitRequest.toString}")
                 val clusterLauncherActor =
                   context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
                 clusterLauncherActor ! StartWithRequest(policy, submitRequest)
@@ -71,7 +78,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
         log.info(s"StartApp in Marathon App finished without errors")
       case Failure(exception) =>
         val information = s"Error submitting job with Marathon App"
-        log.error(information)
+        log.error(information, exception)
         updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Option(information),
           lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))))
         preStopActions()

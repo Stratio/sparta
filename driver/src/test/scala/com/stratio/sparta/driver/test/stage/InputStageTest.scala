@@ -115,11 +115,11 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.setUp(ssc, policy.storageLevel.get)).thenReturn(row)
+    when(inputClass.initStream(ssc, policy.storageLevel.get)).thenReturn(row)
 
-    val result = TestInput(policy).inputStreamStage(ssc, reflection)
+    val result = TestInput(policy).inputStreamStage(ssc, inputClass)
 
-    verify(inputClass).setUp(ssc, "StorageLevel")
+    verify(inputClass).initStream(ssc, "StorageLevel")
     result should be(row)
   }
 
@@ -134,13 +134,13 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.setUp(ssc, policy.storageLevel.get)).thenThrow(new RuntimeException("Fake"))
+    when(inputClass.initStream(ssc, policy.storageLevel.get)).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStreamStage(ssc, reflection)
+      TestInput(policy).inputStreamStage(ssc, inputClass)
     } should have message "Something gone wrong creating the input stream for: input."
 
-    verify(inputClass).setUp(ssc, "StorageLevel")
+    verify(inputClass).initStream(ssc, "StorageLevel")
 
   }
 

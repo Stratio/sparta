@@ -55,7 +55,7 @@ object ErrorModel extends SpartaSerializer {
 
   val ValidationError_There_is_at_least_one_cube_without_name = "4000"
   val ValidationError_There_is_at_least_one_cube_without_dimensions = "4001"
-  val ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data = "4003"
+  val ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data_or_transformations_with_save = "4003"
   val ValidationError_There_is_at_least_one_cube_with_a_bad_output = "4004"
   val ValidationError_There_is_at_least_one_cube_with_triggers_with_a_bad_output = "4005"
   val ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output = "4006"
@@ -64,6 +64,7 @@ object ErrorModel extends SpartaSerializer {
   val ValidationError_Raw_data_with_bad_data_field = "4009"
   val ValidationError_Raw_data_with_bad_time_field = "4010"
   val ValidationError_Raw_data_with_bad_table_name = "4011"
+  val ValidationError_Transformations_with_a_bad_output = "4012"
 
   def toString(errorModel: ErrorModel): String = write(errorModel)
 
