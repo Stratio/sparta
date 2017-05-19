@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 ######################### SPARTA VARIABLES #########################
 
 # Application Name
@@ -26,10 +28,9 @@ export WORK_DIR=/tmp/$NAME
 # Heap Size (defaults to 256m min, 1g max)
 export SPARTA_HEAP_SIZE=-Xmx2048m
 export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
-export SPARTA_MAX_PERM_SIZE=-XX:MaxPermSize=512m
 
 # Additional Java OPTS
-export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE $SPARTA_MAX_PERM_SIZE"
+export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE"
 export DAEMON_OPTS="-Dconfig.file=$CONFIG_FILE"
 #export SPARTA_CONFIG_JAAS_FILE=jaas.conf
 

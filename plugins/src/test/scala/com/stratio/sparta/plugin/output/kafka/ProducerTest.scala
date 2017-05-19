@@ -69,13 +69,12 @@ class ProducerTest extends FlatSpec with Matchers {
     val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
 
     val options = kafkatest.mandatoryOptions
-    options.size shouldBe 6
+    options.size shouldBe 5
     options("bootstrap.servers") shouldBe "localhost:9092"
     options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("value.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("acks") shouldBe "1"
     options("batch.size") shouldBe "200"
-    options("security.protocol") shouldBe "SSL"
   }
 
   "extractOptions" should "extract default mandatory options when map is empty" in {
@@ -83,26 +82,24 @@ class ProducerTest extends FlatSpec with Matchers {
     val kafkatest = new KafkaOutput("kafka", Map.empty)
 
     val options = kafkatest.mandatoryOptions
-    options.size shouldBe 6
+    options.size shouldBe 5
     options("bootstrap.servers") shouldBe "localhost:9092"
     options("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("value.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options("acks") shouldBe "0"
     options("batch.size") shouldBe "200"
-    options("security.protocol") shouldBe "SSL"
   }
 
   "extractOptions" should "create a correct properties file" in {
     val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
 
     val options: Properties = kafkatest.createProducerProps
-    options.size shouldBe 6
+    options.size shouldBe 5
     options.get("bootstrap.servers") shouldBe "localhost:9092"
     options.get("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options.get("value.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
     options.get("acks") shouldBe "1"
     options.get("batch.size") shouldBe "200"
-    options.get("security.protocol") shouldBe "SSL"
   }
 
   "createProducer" should "return a valid KafkaProducer" in {
