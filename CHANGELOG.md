@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 1.4.0 (upcoming)
+## 1.4.0 (May 17, 2017)
 
 * Update to Spark 2.1
 * Integration with HDFS securized
