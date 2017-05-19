@@ -45,7 +45,10 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(url, tableName, propertiesWithCustom.mapValues(_.toString))
+    val connectionProperties = new JDBCOptions(url,
+      tableName,
+      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+    )
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
