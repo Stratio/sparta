@@ -37,3 +37,5 @@ function _log_sparta_entrypoint() {
      source /sparta-server.sh
      ;;
  esac
+
+sed -i "s|\"FRONT_TIMEOUT\":.*|\"FRONT_TIMEOUT\":\"${TIMEOUT:=5000}\"|"  ${CONF_PATH:=/usr/share/web/data-templates/config.json}

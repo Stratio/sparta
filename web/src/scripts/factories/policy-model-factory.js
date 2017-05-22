@@ -28,6 +28,7 @@
     var error = {};
 
     function initPolicy() {
+      policy = {};
       policy.name = "";
       policy.description = "";
       policy.input = {};
@@ -60,6 +61,11 @@
       delete policy.remember;
       delete policy.addTimeToCheckpointPath;
       delete policy.sparkUser;
+    }
+
+    function setEditPolicy(inputPolicyJSON) {
+      policy = {};
+      setPolicy(inputPolicyJSON)
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -215,6 +221,7 @@
 
     return {
       setPolicy: setPolicy,
+      setEditPolicy:setEditPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,
       getCurrentPolicy: getCurrentPolicy,
