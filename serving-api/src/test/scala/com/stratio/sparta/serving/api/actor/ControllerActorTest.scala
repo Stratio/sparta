@@ -47,6 +47,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   val sparkStreamingContextActor = _system.actorOf(
     Props(new LauncherActor(streamingContextService, curatorFramework)))
   val pluginActor = _system.actorOf(Props(new PluginActor()))
+  val configActor = _system.actorOf(Props(new ConfigActor()))
 
   def this() =
     this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -57,7 +58,8 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
     AkkaConstant.PolicyActorName -> policyActor,
     AkkaConstant.LauncherActorName -> sparkStreamingContextActor,
     AkkaConstant.PluginActorName -> pluginActor,
-    AkkaConstant.ExecutionActorName -> executionActor
+    AkkaConstant.ExecutionActorName -> executionActor,
+    AkkaConstant.ConfigActorName -> configActor
   )
 
   override def afterAll {

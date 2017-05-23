@@ -13,21 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.api.constants
+package com.stratio.sparta.serving.core.models.frontend
 
-object HttpConstant  {
-  final val SpartaRootPath = "sparta"
-  final val DriverPath = "driver"
-  final val PluginsPath = "plugins"
-  final val FragmentPath = "fragment"
-  final val TemplatePath = "template"
-  final val PolicyPath = "policy"
-  final val PolicyContextPath = "policyContext"
-  final val ExecutionsPath = "executions"
-  final val SwaggerPath = "swagger"
-  final val ContextsPath = "contexts"
-  final val ConfigPath = "config"
-  final val AppStatus= "status"
-  final val NotFound = 400
-  final val NotFoundMessage = "Not Found"
-}
+case class FrontendConfiguration(timeout: Int)

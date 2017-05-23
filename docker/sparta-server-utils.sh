@@ -202,6 +202,10 @@ function configOptions() {
  fi
  sed -i "s|.*sparta.config.addTimeToCheckpointPath.*|sparta.config.addTimeToCheckpointPath = ${SPARTA_ADD_TIME_TO_CHECKPOINT}|" ${SPARTA_CONF_FILE}
 
+ if [[ -v FRONTEND_TIMEOUT ]] && [ ${#FRONTEND_TIMEOUT} != 0 ]; then
+ sed -i "s|.*sparta.config.frontend.timeout.*|sparta.config.frontend.timeout = ${FRONTEND_TIMEOUT}|" ${SPARTA_CONF_FILE}
+ fi
+
 }
 
 function localSparkOptions() {

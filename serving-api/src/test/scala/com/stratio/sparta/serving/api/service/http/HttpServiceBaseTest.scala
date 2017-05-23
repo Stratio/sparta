@@ -20,8 +20,11 @@ import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.serving.api.actor.ConfigActor.ConfigResponse
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import com.stratio.sparta.serving.core.models.policy._
 import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
@@ -66,6 +69,8 @@ trait HttpServiceBaseTest extends WordSpec
     """.stripMargin)
 
   // XXX Protected methods.
+  protected def retrieveStringConfig(): FrontendConfiguration =
+    FrontendConfiguration(AppConstant.DefaultFrontEndTimeout)
 
   protected def getFragmentModel(id: Option[String]): FragmentElementModel =
     new FragmentElementModel(id, "input", "name", "description", "shortDescription",

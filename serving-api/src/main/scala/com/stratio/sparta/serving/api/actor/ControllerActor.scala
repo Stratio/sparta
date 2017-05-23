@@ -103,7 +103,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     serviceRoutes.fragmentRoute(user) ~ serviceRoutes.policyContextRoute(user) ~
       serviceRoutes.executionRoute(user) ~ serviceRoutes.policyRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~
-      serviceRoutes.swaggerRoute
+      serviceRoutes.configRoute(user) ~ serviceRoutes.swaggerRoute
   }
 
   private def webRoutes: Route =
@@ -141,6 +141,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def pluginsRoute(user: Option[LoggedUser]): Route = pluginsService.routes(user)
 
   def driversRoute(user: Option[LoggedUser]): Route = driversService.routes(user)
+
+  def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -203,4 +205,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
       case None => "/"
     }
   }
+
+  private val configService = new ConfigHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.ConfigActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+
 }
