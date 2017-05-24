@@ -21,10 +21,11 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.FragmentActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.actor.StatusActor.{Delete, FindAll, _}
+import com.stratio.sparta.serving.core.actor.StatusActor.{DeleteStatus, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy._
@@ -39,7 +40,7 @@ import scala.util.{Failure, Success, Try}
 trait PolicyContextHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
-    update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
+    update(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
 
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
@@ -55,17 +56,20 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            policiesStatuses <- (statusActor ? FindAll).mapTo[Try[Seq[PolicyStatusModel]]]
+            policiesStatuses <- (statusActor ? FindAll(user))
+              .mapTo[Either[Try[Seq[PolicyStatusModel]], UnauthorizedResponse]]
           } yield policiesStatuses match {
-            case Failure(exception) => throw exception
-            case Success(statuses) => statuses
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(statuses)) => statuses
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in context")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Find a policy context from its id.",
+  @ApiOperation(value = "Finds a policy context from its id.",
     notes = "Find a policy context from its id.",
     httpMethod = "GET",
     response = classOf[PolicyStatusModel])
@@ -86,17 +90,20 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            policyStatus <- (statusActor ? new FindById(id)).mapTo[ResponseStatus]
+            policyStatus <- (statusActor ? FindById(id, user))
+              .mapTo[Either[ResponseStatus, UnauthorizedResponse]]
           } yield policyStatus match {
-            case ResponseStatus(Failure(exception)) => throw exception
-            case ResponseStatus(Success(policy)) => policy
+            case Left(ResponseStatus(Failure(exception))) => throw exception
+            case Left(ResponseStatus(Success(policy))) => policy
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in context")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete all policy contexts",
+  @ApiOperation(value = "Deletes all policy contexts",
     notes = "Delete all policy contexts",
     httpMethod = "DELETE")
   @ApiResponses(
@@ -108,17 +115,20 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            responseCode <- (statusActor ? DeleteAll).mapTo[ResponseDelete]
+            responseCode <- (statusActor ? DeleteAll)
+              .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
           } yield responseCode match {
-            case ResponseDelete(Failure(exception)) => throw exception
-            case ResponseDelete(Success(_)) => StatusCodes.OK
+            case Left(ResponseDelete(Failure(exception))) => throw exception
+            case Left(ResponseDelete(Success(_))) => StatusCodes.OK
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in context")
           }
         }
       }
     }
   }
 
-  @ApiOperation(value = "Delete a policy contexts by its id",
+  @ApiOperation(value = "Deletes a policy contexts by its id",
     notes = "Delete a policy contexts by its id",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
@@ -137,10 +147,13 @@ trait PolicyContextHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            responseDelete <- (statusActor ? Delete(id)).mapTo[ResponseDelete]
+            responseDelete <- (statusActor ? DeleteStatus(id, user))
+              .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
           } yield responseDelete match {
-            case ResponseDelete(Failure(exception)) => throw exception
-            case ResponseDelete(Success(_)) => StatusCodes.OK
+            case Left(ResponseDelete(Failure(exception))) => throw exception
+            case Left(ResponseDelete(Success(_))) => StatusCodes.OK
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in context")
           }
         }
       }
@@ -163,73 +176,21 @@ trait PolicyContextHttpService extends BaseHttpService {
           complete {
             val statusActor = actors(AkkaConstant.StatusActorName)
             for {
-              response <- (statusActor ? Update(policyStatus)).mapTo[ResponseStatus]
+              response <- (statusActor ? Update(policyStatus, user))
+                .mapTo[Either[ResponseStatus, UnauthorizedResponse]]
             } yield response match {
-              case ResponseStatus(Success(status)) => HttpResponse(StatusCodes.Created)
-              case ResponseStatus(Failure(ex)) =>
+              case Left(ResponseStatus(Success(status))) => HttpResponse(StatusCodes.Created)
+              case Left(ResponseStatus(Failure(ex))) =>
                 log.error("Can't update policy", ex)
                 throw new ServingCoreException(ErrorModel.toString(
                   ErrorModel(ErrorModel.CodeErrorUpdatingPolicy, "Can't update policy")
                 ))
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in context")
             }
           }
         }
       }
     }
   }
-
-  @ApiOperation(value = "Creates a policy, the status context and launch the policy created.",
-    notes = "Returns the result",
-    httpMethod = "POST",
-    response = classOf[PolicyResult])
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "policy",
-      value = "policy json",
-      dataType = "AggregationPoliciesModel",
-      required = true,
-      paramType = "body")))
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)))
-  def create(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.PolicyContextPath) {
-      post {
-        entity(as[PolicyModel]) { inputPolicy =>
-          complete {
-            val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActorName, throw new ServingCoreException
-            (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
-            for {
-              parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(inputPolicy)).mapTo[ResponsePolicy]
-            } yield parsedP match {
-              case ResponsePolicy(Failure(exception)) =>
-                throw exception
-              case ResponsePolicy(Success(policyParsed)) =>
-                PolicyValidator.validateDto(policyParsed)
-                for {
-                  policyResponseTry <- (supervisor ? Launch(policyParsed)).mapTo[Try[PolicyModel]]
-                } yield {
-                  policyResponseTry match {
-                    case Success(policy) =>
-                      val inputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
-                      val outputs = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.output)
-                      createFragments(fragmentActor, outputs.toList ::: inputs.toList)
-                      PolicyResult(policy.id.getOrElse(""), policy.name)
-                    case Failure(ex: Throwable) =>
-                      log.error("Can't create policy", ex)
-                      throw new ServingCoreException(ErrorModel.toString(
-                        ErrorModel(ErrorModel.CodeErrorCreatingPolicy, "Can't create policy")
-                      ))
-                  }
-                }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // XXX Protected methods
-
-  protected def createFragments(fragmentActor: ActorRef, fragments: Seq[FragmentElementModel]): Unit =
-    fragments.foreach(fragment => fragmentActor ! FragmentActor.Create(fragment))
 }

@@ -45,7 +45,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
 
     jars.foreach(file => JarsHelper.addToClasspath(file))
     Try {
-      val startingInfo = s"Starting Sparta local job for policy"
+      val startingInfo = s"Starting a Sparta local job for the policy"
       log.info(startingInfo)
       updateStatus(PolicyStatusModel(
         id = policy.id.get,
@@ -56,7 +56,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(policy, jars)
       spartaWorkflow.setup()
       ssc.start()
-      val startedInformation = s"The Sparta local job was started correctly"
+      val startedInformation = s"Sparta local job was started correctly"
       log.info(startedInformation)
       updateStatus(PolicyStatusModel(
         id = policy.id.get,
@@ -68,13 +68,13 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       spartaWorkflow.cleanUp()
     } match {
       case Success(_) =>
-        val information = s"Stopped correctly Sparta local job"
+        val information = s"Sparta local job stopped correctly"
         log.info(information)
         updateStatus(PolicyStatusModel(
           id = policy.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
         self ! PoisonPill
       case Failure(exception) =>
-        val information = s"Error initiating Sparta local job"
+        val information = s"Error initiating the Sparta local job"
         log.error(information, exception)
         updateStatus(PolicyStatusModel(
           id = policy.id.get,

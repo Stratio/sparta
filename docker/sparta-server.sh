@@ -63,6 +63,9 @@ _log_sparta_server "Loading Sparta server functions ... "
  marathonOptions
  _log_sparta_server "Loaded Sparta Marathon options"
 
+ # GOSEC OPTIONS
+ goSecOptions
+
  if [[ ! -v RUN_MODE ]]; then
    RUN_MODE="production"
  fi
