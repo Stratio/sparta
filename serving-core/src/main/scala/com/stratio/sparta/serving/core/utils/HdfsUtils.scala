@@ -164,7 +164,7 @@ object HdfsUtils extends SLF4JLogging {
       val hdfsConfig = SpartaConfig.getHdfsConfig
       val principalName = Try(hdfsConfig.get.getString(AppConstant.PrincipalName)).toOption
             .flatMap(x => if (x == "") None else Some(x))
-      log.info(s"Connecting to HDFS with principal name: $principalName")
+      log.info(s"Kerberos with principal name: $principalName")
       principalName
     }
 
@@ -174,7 +174,7 @@ object HdfsUtils extends SLF4JLogging {
       val keyTabPath = Try(hdfsConfig.get.getString(AppConstant.KeytabPath)).toOption.flatMap(x =>
         if (x == "") None else Some(x))
 
-      log.info(s"Connecting to HDFS with keyTabPath: $keyTabPath")
+      log.info(s"Kerberos with keyTabPath: $keyTabPath")
       keyTabPath
     }
 

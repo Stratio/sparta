@@ -40,6 +40,7 @@
   "_BROKER_": "Broker",
   "_QUEUE_": "Queue",
   "_EXCHANGE_NAME_": "Exchange name",
+  "_SPARK_KERBEROS_ENABLE_": "Spark Kerberos",
   "_ROUTING_KEYS_": "Routing keys",
   "_ROUTING_KEY_": "Routing key",
   "_CONSUMER_KEY_": "Consumer key",

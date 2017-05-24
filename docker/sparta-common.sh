@@ -38,6 +38,12 @@ function initSpark() {
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export SPARK_LOCAL_IP=${LIBPROCESS_IP}" >> ${SYSTEM_VARIABLES}
   fi
+
+  rm "${SPARK_HOME}/jars/curator-client-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/curator-recipes-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/curator-framework-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/zookeeper-3.4.6.jar"
+
 }
 
 function initHdfs() {

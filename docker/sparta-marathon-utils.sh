@@ -10,7 +10,7 @@ function initJavaOptions() {
    export MARATHON_APP_HEAP_MINIMUM_SIZE=-Xms1024m
  fi
 
-  if [ -v SPARTA_JAAS_FILE ] && [ ${#SPARTA_JAAS_FILE} != 0 ]; then
+ if [ -v SPARTA_JAAS_FILE ] && [ ${#SPARTA_JAAS_FILE} != 0 ]; then
    export SPARTA_CONFIG_JAAS_FILE="-Djava.security.auth.login.config=${SPARTA_JAAS_FILE}"
  fi
 }

@@ -9,12 +9,16 @@ _log_sparta_sec "Downloading keytab from vault"
 getKrb userland "$TENANT_NAME" "$TENANT_NAME" "/etc/sds/sparta/security" SPARTA_PRINCIPAL_NAME
 _log_sparta_sec "Download ok , now exporting variables"
 
-echo "Setting configuration options needed for securized Zookeeper"
+export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}
+echo "" >> ${VARIABLES}
+echo "export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}" >> ${VARIABLES}
 
+echo "Setting configuration options needed for securized Zookeeper"
 
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
 export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/sparta.keytab
-
+echo "" >> ${VARIABLES}
+echo "export SPARTA_KEYTAB_PATH=${SPARTA_KEYTAB_PATH}" >> ${VARIABLES}
 
 ## Creating a jaas.conf that must be used to connect to Zookeeper if Zookeeper is securized
 

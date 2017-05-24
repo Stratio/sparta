@@ -60,6 +60,7 @@
       delete policy.remember;
       delete policy.addTimeToCheckpointPath;
       delete policy.sparkUser;
+      delete policy.sparkKerberos;
     }
 
     function setPolicy(inputPolicyJSON) {
@@ -89,6 +90,7 @@
       policy.userPluginsJars = inputPolicyJSON.userPluginsJars;
       policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
       policy.sparkUser = inputPolicyJSON.sparkUser;
+      policy.sparkKerberos = inputPolicyJSON.sparkKerberos;
     }
 
     function formatAttributes() {
