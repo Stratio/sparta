@@ -44,9 +44,7 @@ object AppConstant {
   val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
   val DriverPackageLocation = "driverPackageLocation"
-  val BackupsLocation = "backupsLocation"
   val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
-  val DefaultBackupsLocation = "/opt/sds/sparta/backups/"
   val DriverURI = "driverURI"
   val DefaultProvidedDriverURI = "http://0.0.0.0:9090/driver/sparta-driver.jar"
   val DefaultMarathonDriverURI = "/opt/sds/sparta/driver/sparta-driver.jar"
