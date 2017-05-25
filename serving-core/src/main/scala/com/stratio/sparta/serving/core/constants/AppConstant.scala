@@ -23,6 +23,8 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
  */
 object AppConstant {
 
+  val version = "1.5.0"
+
   //Config keys
   val ClasspathJarFolder = "repo"
   val ConfigAppName = "sparta"
@@ -41,7 +43,9 @@ object AppConstant {
   val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
   val DriverPackageLocation = "driverPackageLocation"
+  val BackupsLocation = "backupsLocation"
   val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
+  val DefaultBackupsLocation = "/opt/sds/sparta/backups/"
   val DriverURI = "driverURI"
   val DefaultProvidedDriverURI = "http://0.0.0.0:9090/driver/sparta-driver.jar"
   val DefaultMarathonDriverURI = "/opt/sds/sparta/driver/sparta-driver.jar"
@@ -126,23 +130,23 @@ object AppConstant {
   val AddJars = "addJars"
 
   //Zookeeper
-  val ZookeeperConnection = "connectionString"
-  val DefaultZookeeperConnection = "127.0.0.1:2181"
-  val ZookeeperConnectionTimeout = "connectionTimeout"
-  val DefaultZookeeperConnectionTimeout = 15000
-  val ZookeeperSessionTimeout = "sessionTimeout"
-  val DefaultZookeeperSessionTimeout = 60000
-  val ZookeeperRetryAttemps = "retryAttempts"
-  val DefaultZookeeperRetryAttemps = 5
-  val ZookeeperRetryInterval = "retryInterval"
-  val DefaultZookeeperRetryInterval = 10000
+  val ZKConnection = "connectionString"
+  val DefaultZKConnection = "127.0.0.1:2181"
+  val ZKConnectionTimeout = "connectionTimeout"
+  val DefaultZKConnectionTimeout = 15000
+  val ZKSessionTimeout = "sessionTimeout"
+  val DefaultZKSessionTimeout = 60000
+  val ZKRetryAttemps = "retryAttempts"
+  val DefaultZKRetryAttemps = 5
+  val ZKRetryInterval = "retryInterval"
+  val DefaultZKRetryInterval = 10000
 
   //Zookeeper paths
-  val BaseZKPath = "stratio/sparta"
-  val PoliciesBasePath = s"/$BaseZKPath/policies"
-  val ContextPath = s"/$BaseZKPath/contexts"
-  val ExecutionsPath = s"/$BaseZKPath/executions"
-  val FragmentsPath = s"/$BaseZKPath/fragments"
+  val BaseZKPath = "/stratio/sparta"
+  val PoliciesBasePath = s"$BaseZKPath/policies"
+  val ContextPath = s"$BaseZKPath/contexts"
+  val ExecutionsPath = s"$BaseZKPath/executions"
+  val FragmentsPath = s"$BaseZKPath/fragments"
   val ErrorsZkPath = s"$BaseZKPath/error"
 
   //Scheduler system to schedule threads executions

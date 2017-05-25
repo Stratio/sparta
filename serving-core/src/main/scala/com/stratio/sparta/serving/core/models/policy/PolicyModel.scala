@@ -160,11 +160,6 @@ object PolicyValidator {
           outputsNames.contains(outputName))),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
-          "There is at least one stream trigger that contains a bad output")),
-      (policy.streamTriggers.forall(trigger =>
-        trigger.writer.outputs.nonEmpty),
-        new ErrorModel(
-          ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
           "There is at least one stream trigger that contains a bad output"))
     )
     errorModels

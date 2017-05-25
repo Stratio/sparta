@@ -31,7 +31,9 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[DriverHttpService],
     typeOf[AppStatusHttpService],
     typeOf[ExecutionHttpService],
-    typeOf[ConfigHttpService]
+    typeOf[InfoServiceHttpService],
+    typeOf[ConfigHttpService],
+    typeOf[MetadataHttpService]
   )
 
   override def apiVersion: String = "1.0"

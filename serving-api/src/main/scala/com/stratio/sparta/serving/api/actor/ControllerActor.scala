@@ -102,8 +102,9 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
     serviceRoutes.fragmentRoute(user) ~ serviceRoutes.policyContextRoute(user) ~
       serviceRoutes.executionRoute(user) ~ serviceRoutes.policyRoute(user) ~ serviceRoutes.appStatusRoute ~
-      serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~
-      serviceRoutes.configRoute(user) ~ serviceRoutes.swaggerRoute
+      serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
+      serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user)
+
   }
 
   private def webRoutes: Route =
@@ -143,6 +144,10 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def driversRoute(user: Option[LoggedUser]): Route = driversService.routes(user)
 
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
+
+  def metadataRoute(user: Option[LoggedUser]): Route = metadataService.routes(user)
+
+  def serviceInfoRoute(user: Option[LoggedUser]): Route = serviceInfoService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
 
@@ -198,6 +203,24 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
+  private val configService = new ConfigHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.ConfigActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val metadataService = new MetadataHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.MetadataActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val serviceInfoService = new InfoServiceHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.MetadataActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
     override def baseUrl: String = getMarathonLBPath match {
@@ -205,12 +228,4 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
       case None => "/"
     }
   }
-
-  private val configService = new ConfigHttpService {
-    override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.ConfigActorName)
-    override val actorRefFactory: ActorRefFactory = context
-  }
-
-
 }
