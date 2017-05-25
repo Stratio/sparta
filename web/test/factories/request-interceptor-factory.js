@@ -1,14 +1,24 @@
 describe('policies.factories.request-interceptor-factory', function () {
-  beforeEach(module('webApp'));
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
 
   var factory, srv, httpBackend, rootScope, fragmentTypeIdJSON = null;
-  var windowObj = {location:{href: ''}};
+  var windowObj = {
+    location: {
+      href: ''
+    }
+  };
   var locationObj = {
     protocol: function () {
       return "http"
-    }, host: function () {
+    },
+    host: function () {
       return "fakeHost"
-    }, port: function () {
+    },
+    port: function () {
       return 8080
     }
   };
@@ -25,7 +35,10 @@ describe('policies.factories.request-interceptor-factory', function () {
     srv = _ApiFragmentService_;
 
     httpBackend.when('GET', 'languages/en-US.json').respond({});
-    fragmentTypeIdJSON = {"type": "input", "fragmentId": "2581f20a-fd83-4315-be45-192bc5sEdFff"};
+    fragmentTypeIdJSON = {
+      "type": "input",
+      "fragmentId": "2581f20a-fd83-4315-be45-192bc5sEdFff"
+    };
   }));
 
 

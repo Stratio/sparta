@@ -1,5 +1,9 @@
 describe('policies.wizard.controller.new-dimension-modal-controller', function () {
-  beforeEach(module('webApp'));
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
   beforeEach(module('template/policy.json'));
 
   var ctrl, modalInstanceMock, UtilsServiceMock, fakeDimensionName, fakeFieldName, fakeDimensions, fakeCubeTemplate, fakeIsNewDimension, scope = null;
@@ -15,7 +19,9 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
     fakeIsNewDimension = true;
 
     spyOn(document, "querySelector").and.callFake(function () {
-      return {"focus": jasmine.createSpy()}
+      return {
+        "focus": jasmine.createSpy()
+      }
     });
 
     inject(function (_templatePolicy_, $rootScope) {
@@ -47,7 +53,9 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
   describe("should be able to accept the modal", function () {
     describe("if view validations have been passed", function () {
       beforeEach(function () {
-        ctrl.form = {"$valid": true};
+        ctrl.form = {
+          "$valid": true
+        };
       });
 
       describe("precision is validated", function () {
@@ -119,7 +127,9 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
             'isTimeDimension': fakeIsNewDimension,
             '$scope': scope
           });
-          ctrl.form = {"$valid": true};
+          ctrl.form = {
+            "$valid": true
+          };
           ctrl.dimension['configuration.typOp'] = "fakeOpt";
 
           ctrl.dimension['configuration.fakeDottedProperty'] = "fake dotted property";
@@ -132,8 +142,12 @@ describe('policies.wizard.controller.new-dimension-modal-controller', function (
               name: 'fake dimension name',
               field: 'fake field name',
               type: 'Default',
-              configuration: {typOp: 'fakeOpt', fakeDottedProperty: "fake dotted property"}
-            }, isTimeDimension: fakeIsNewDimension
+              configuration: {
+                typOp: 'fakeOpt',
+                fakeDottedProperty: "fake dotted property"
+              }
+            },
+            isTimeDimension: fakeIsNewDimension
           });
         }));
       })

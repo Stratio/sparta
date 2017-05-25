@@ -1,12 +1,16 @@
 describe('policies.wizard.controller.policy-cube-controller', function () {
-  beforeEach(module('webApp'));
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
   beforeEach(module('model/policy.json'));
   beforeEach(module('template/policy.json'));
   beforeEach(module('model/cube.json'));
 
   var ctrl, scope, q, fakePolicy, fakeCubeTemplate, fakeCube, policyModelFactoryMock, fakeOutputs, fakePolicyTemplate,
     cubeModelFactoryMock, cubeServiceMock, modalServiceMock, resolvedPromise, triggerModelFactoryMock,
-    fakeDimension,fakeOperator, triggerServiceMock, rejectedPromise;
+    fakeDimension, fakeOperator, triggerServiceMock, rejectedPromise;
 
   // init mock modules
 
@@ -41,7 +45,9 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     };
 
     spyOn(document, "querySelector").and.callFake(function () {
-      return {"focus": jasmine.createSpy()}
+      return {
+        "focus": jasmine.createSpy()
+      }
     });
 
     cubeServiceMock = jasmine.createSpyObj('CubeService', ['isLastCube', 'isNewCube', 'addCube', 'removeCube', 'changeCubeCreationPanelVisibility', 'generateOutputList']);
@@ -63,7 +69,9 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
     modalServiceMock.openModal.and.callFake(function () {
       var defer = $q.defer();
       defer.resolve();
-      return {"result": defer.promise};
+      return {
+        "result": defer.promise
+      };
     });
 
     ctrl = $controller('CubeCtrl', {
@@ -90,8 +98,16 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
       return defer.promise;
     };
 
-    fakeDimension = {name: "fake dimension", type: "DateTime", precision: "1m" };
-    fakeOperator = {type: "Accumulator", name: "fake operator name", configuration:{}};
+    fakeDimension = {
+      name: "fake dimension",
+      type: "DateTime",
+      precision: "1m"
+    };
+    fakeOperator = {
+      type: "Accumulator",
+      name: "fake operator name",
+      configuration: {}
+    };
   }));
 
   describe("when it is initialized", function () {
@@ -158,9 +174,14 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
       modalServiceMock.openModal.and.callFake(function () {
         var defer = q.defer();
-        defer.resolve({dimension: fakeDimension, isTimeDimension: true});
+        defer.resolve({
+          dimension: fakeDimension,
+          isTimeDimension: true
+        });
 
-        return  {"result": defer.promise};
+        return {
+          "result": defer.promise
+        };
       });
       var currentDimensionLength = ctrl.cube.dimensions.length;
       ctrl.addOutputToDimensions(fakeOutputName).then(function () {
@@ -186,7 +207,15 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     it("when modal is closed, the dimension from the specified position is removed from the cube", function () {
       var fakeDimensionIndex = 2;
-      var fakeDimensions = [{"name": "fake dimension 1"}, {"name": "fake dimension 2"}, {"name": "fake dimension 3"}, {"name": "fake dimension 4"}];
+      var fakeDimensions = [{
+        "name": "fake dimension 1"
+      }, {
+        "name": "fake dimension 2"
+      }, {
+        "name": "fake dimension 3"
+      }, {
+        "name": "fake dimension 4"
+      }];
       ctrl.cube.dimensions = angular.copy(fakeDimensions);
       ctrl.removeOutputFromDimensions(fakeDimensionIndex).then(function () {
         expect(ctrl.cube.dimensions.length).toBe(fakeDimensions.length - 1);
@@ -239,7 +268,15 @@ describe('policies.wizard.controller.policy-cube-controller', function () {
 
     it("when modal is closed, the operator from the specified position is removed from the cube", function () {
       var fakeOperatorIndex = 2;
-      var fakeOperators = [{"name": "fake operator 1"}, {"name": "fake operator 2"}, {"name": "fake operator 3"}, {"name": "fake operator 4"}];
+      var fakeOperators = [{
+        "name": "fake operator 1"
+      }, {
+        "name": "fake operator 2"
+      }, {
+        "name": "fake operator 3"
+      }, {
+        "name": "fake operator 4"
+      }];
       ctrl.cube.operators = angular.copy(fakeOperators);
       ctrl.removeFunctionFromOperators(fakeOperatorIndex).then(function () {
         expect(ctrl.cube.operators.length).toBe(fakeOperators.length - 1);
