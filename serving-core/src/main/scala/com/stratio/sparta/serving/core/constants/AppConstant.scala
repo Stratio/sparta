@@ -31,6 +31,7 @@ object AppConstant {
   val ConfigDetail = "config"
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
+  val ConfigFrontend = "config.frontend"
 
   //Config Options
   val ExecutionMode = "executionMode"
@@ -47,6 +48,7 @@ object AppConstant {
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+  val DefaultFrontEndTimeout = 10000
 
   //killing options
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"

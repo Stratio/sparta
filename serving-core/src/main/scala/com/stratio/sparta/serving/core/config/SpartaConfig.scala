@@ -86,6 +86,8 @@ object SpartaConfig extends SLF4JLogging {
 
   def getZookeeperConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigZookeeper, config))
 
+  def getFrontendConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigFrontend,config))
+
   def getSprayConfig: Option[Config] = SpartaConfigFactory().getConfig(ConfigSpray)
 
   def initOptionalConfig(node: String,
