@@ -16,6 +16,8 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import java.util.regex.Pattern
+
 import akka.actor.Actor
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -23,7 +25,7 @@ import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
+import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
@@ -35,6 +37,7 @@ class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
     .getOrElse(AppConstant.DefaultPluginsPackageLocation)
   val apiPath = HttpConstant.PluginsPath
+  override val patternFileName = Option(Pattern.compile(""".*\.jar""").asPredicate())
 
   override def receive: Receive = {
     case UploadPlugins(files) => if (files.isEmpty) errorResponse() else uploadPlugins(files)
@@ -45,15 +48,15 @@ class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   }
 
   def errorResponse(): Unit =
-    sender ! JarFilesResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
+    sender ! SpartaFilesResponse(Failure(new IllegalArgumentException(s"Almost one file is expected")))
 
   def deletePlugins(): Unit = sender ! PluginResponse(deleteFiles())
 
   def deletePlugin(fileName: String): Unit = sender ! PluginResponse(deleteFile(fileName))
 
-  def browsePlugins(): Unit = sender ! JarFilesResponse(browseDirectory())
+  def browsePlugins(): Unit = sender ! SpartaFilesResponse(browseDirectory())
 
-  def uploadPlugins(files: Seq[BodyPart]): Unit = sender ! JarFilesResponse(uploadFiles(files))
+  def uploadPlugins(files: Seq[BodyPart]): Unit = sender ! SpartaFilesResponse(uploadFiles(files))
 }
 
 object PluginActor {

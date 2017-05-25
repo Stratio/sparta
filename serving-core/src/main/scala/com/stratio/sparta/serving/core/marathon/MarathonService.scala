@@ -25,6 +25,7 @@ import akka.util.Timeout
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
@@ -67,7 +68,9 @@ class MarathonService(context: ActorContext,
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
-  val DefaultSpartaDockerImage = "qa.stratio.com/stratio/sparta:1.4.0-SNAPSHOT"
+  val versionInfo = InfoHelper.getVersionInfo
+  val versionParsed = if(versionInfo.pomVersion != "${project.version}") versionInfo.pomVersion else version
+  val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
   val HostMesosNativeLibPath = "/opt/mesosphere/lib"
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
   val HostMesosLib = s"$HostMesosNativeLibPath"

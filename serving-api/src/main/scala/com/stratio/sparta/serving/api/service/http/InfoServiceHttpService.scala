@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
+
+import javax.ws.rs.Path
 
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.info.VersionInfo
 import com.wordnik.swagger.annotations._
-import org.apache.curator.framework.CuratorFramework
 import spray.routing._
 
-@Api(value = HttpConstant.AppStatus, description = "Operations about sparta status.")
-trait AppStatusHttpService extends BaseHttpService {
+import scala.util.Try
 
-  override def routes(user: Option[LoggedUser] = None): Route = checkStatus
+@Api(value = HttpConstant.ServerInfoPath, description = "Operations about information of service")
+trait InfoServiceHttpService extends BaseHttpService {
 
-  val curatorInstance : CuratorFramework
+  override def routes(user: Option[LoggedUser] = None): Route = getInfo
 
-  @ApiOperation(value = "Check Sparta status depends to Zookeeper connexion",
-    notes = "Returns Sparta status",
-    httpMethod = "GET",
-    response = classOf[String],
-    responseContainer = "List")
-  @ApiResponses(
-    Array(new ApiResponse(code = HttpConstant.NotFound,
-      message = HttpConstant.NotFoundMessage)))
-  def checkStatus: Route = {
-    path(HttpConstant.AppStatus) {
+  @Path("")
+  @ApiOperation(value = "Return server version info",
+    notes = "Return server version info",
+    httpMethod = "GET")
+  @ApiResponses(Array(new ApiResponse(code = 200, message = "Return version info", response = classOf[VersionInfo])))
+  def getInfo: Route = {
+    path(HttpConstant.ServerInfoPath) {
       get {
         complete {
-          if (!curatorInstance.getZookeeperClient.getZooKeeper.getState.isConnected)
+          Try(InfoHelper.getVersionInfo).getOrElse(
             throw new ServingCoreException(ErrorModel.toString(
-              new ErrorModel(ErrorModel.CodeUnknown, s"Zk isn't connected at" +
-                s" ${curatorInstance.getZookeeperClient.getCurrentConnectionString}.")
+              new ErrorModel(ErrorModel.CodeUnknown, s"Imposible to extract service information")
             ))
-          else "OK"
+          )
         }
       }
     }

@@ -28,6 +28,8 @@ object HttpConstant  {
   final val ContextsPath = "contexts"
   final val ConfigPath = "config"
   final val AppStatus= "status"
+  final val ServerInfoPath = "versionInfo"
+  final val MetadataPath= "metadata"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
 }

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.policy.files
+package com.stratio.sparta.serving.core.models.files
 
-import scala.util.Try
 
-case class JarFilesResponse(files: Try[Seq[JarFile]])
-
+case class BackupRequest(fileName: String, deleteAllBefore: Boolean = false)
