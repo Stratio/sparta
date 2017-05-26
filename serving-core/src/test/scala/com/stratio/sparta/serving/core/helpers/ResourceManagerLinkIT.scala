@@ -29,6 +29,9 @@ class ResourceManagerLinkIT extends FlatSpec with
   ShouldMatchers with Matchers with BeforeAndAfter {
 
   var serverSocket: ServerSocketChannel = _
+  val sparkUIPort = 4040
+  val mesosPort = 5050
+  val localhost = "127.0.0.1"
 
   after {
     serverSocket.close()
@@ -37,7 +40,7 @@ class ResourceManagerLinkIT extends FlatSpec with
   it should "return local Spark UI link" in {
     serverSocket = ServerSocketChannel.open()
     val localhostName = java.net.InetAddress.getLocalHost().getHostName()
-    serverSocket.socket.bind(new InetSocketAddress(localhostName, 4040))
+    serverSocket.socket.bind(new InetSocketAddress(localhostName, sparkUIPort))
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -47,12 +50,12 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("local") should be(Some(s"http://${localhostName}:4040"))
+    ResourceManagerLinkHelper.getLink("local") should be(Some(s"http://${localhostName}:${sparkUIPort}"))
   }
 
   it should "return Mesos UI link" in {
     serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress("127.0.0.1",5050))
+    serverSocket.socket.bind(new InetSocketAddress(localhost,mesosPort))
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -66,7 +69,7 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("mesos") should be(Some("http://127.0.0.1:5050"))
+    ResourceManagerLinkHelper.getLink("mesos") should be(Some(s"http://$localhost:$mesosPort"))
   }
 
 }

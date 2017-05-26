@@ -1,16 +1,21 @@
-describe('policies.wizard.factory.template-factory', function() {
-  beforeEach(module('webApp'));
+describe('policies.wizard.factory.template-factory', function () {
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
   beforeEach(module('template/dimension/default.json'));
   beforeEach(module('template/dimension/datetime.json'));
   beforeEach(module('template/dimension/geohash.json'));
 
   var factory, ApiTemplateService, q, promiseMock, scope, httpBackend,
-      fakeGeoHashTemplate, fakeDefaultDimensionTemplate, fakeDateTimeTemplate = null;
+    fakeGeoHashTemplate, fakeDefaultDimensionTemplate, fakeDateTimeTemplate = null;
 
-  beforeEach(module(function($provide, _templateDimensionDefault_,
-                             _templateDimensionDatetime_, _templateDimensionGeohash_) {
+  beforeEach(module(function ($provide, _templateDimensionDefault_,
+    _templateDimensionDatetime_, _templateDimensionGeohash_) {
     ApiTemplateService = jasmine.createSpyObj(['getFragmentTemplateByType', 'getPolicyTemplate',
-      'getOperatorTemplateByType', 'getDimensionTemplateByType', 'getTriggerTemplateByType']);
+      'getOperatorTemplateByType', 'getDimensionTemplateByType', 'getTriggerTemplateByType'
+    ]);
     fakeGeoHashTemplate = _templateDimensionGeohash_;
     fakeDefaultDimensionTemplate = _templateDimensionDefault_;
     fakeDateTimeTemplate = _templateDimensionDatetime_;
@@ -18,82 +23,91 @@ describe('policies.wizard.factory.template-factory', function() {
     $provide.value('ApiTemplateService', ApiTemplateService);
   }));
 
-  beforeEach(inject(function(TemplateFactory, $q, $rootScope, $httpBackend) {
+  beforeEach(inject(function (TemplateFactory, $q, $rootScope, $httpBackend) {
     factory = TemplateFactory;
     q = $q;
     scope = $rootScope.$new();
     httpBackend = $httpBackend;
     $httpBackend.when('GET', "languages/en-US.json").respond({});
 
-    promiseMock = jasmine.createSpy('promise').and.callFake(function() {
+    promiseMock = jasmine.createSpy('promise').and.callFake(function () {
       var defer = q.defer();
-      defer.resolve({properties: []});
-      return {"$promise": defer.promise};
+      defer.resolve({
+        properties: []
+      });
+      return {
+        "$promise": defer.promise
+      };
     });
 
   }));
 
-  describe("should have a function for each template api service", function() {
-    it("get new fragment template by fragment type", function() {
+  describe("should have a function for each template api service", function () {
+    it("get new fragment template by fragment type", function () {
       var fakeFragmentType = "output";
 
-      ApiTemplateService.getFragmentTemplateByType.and.returnValue(
-          {
-            "get": promiseMock
-          });
+      ApiTemplateService.getFragmentTemplateByType.and.returnValue({
+        "get": promiseMock
+      });
 
       factory.getNewFragmentTemplate(fakeFragmentType);
-      expect(promiseMock).toHaveBeenCalledWith({'type': fakeFragmentType + '.json'});
+      expect(promiseMock).toHaveBeenCalledWith({
+        'type': fakeFragmentType + '.json'
+      });
     });
 
-    it("get policy template", function() {
-      ApiTemplateService.getPolicyTemplate.and.returnValue(
-          {
-            "get": promiseMock
-          });
+    it("get policy template", function () {
+      ApiTemplateService.getPolicyTemplate.and.returnValue({
+        "get": promiseMock
+      });
 
       factory.getPolicyTemplate();
       expect(promiseMock).toHaveBeenCalledWith();
 
     });
 
-    describe("Should generate dimension template according its type", function() {
-      it('if dimension is default, it returns only the common template', function() {
-        ApiTemplateService.getDimensionTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+    describe("Should generate dimension template according its type", function () {
+      it('if dimension is default, it returns only the common template', function () {
+        ApiTemplateService.getDimensionTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getDimensionTemplateByType('default');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'default.json'
+        });
       });
 
-      it('if dimension type is empty, it returns only the common template', function() {
-        ApiTemplateService.getDimensionTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+      it('if dimension type is empty, it returns only the common template', function () {
+        ApiTemplateService.getDimensionTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getDimensionTemplateByType();
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'default.json'
+        });
       });
 
-      it('if dimension is date time, it returns a template generated by joining the default and date time templates', function() {
-        ApiTemplateService.getDimensionTemplateByType.and.returnValue(
-            {
-              "get": jasmine.createSpy('promise').and.callFake(function(dimensionType) {
-                var defer = q.defer();
-                if (dimensionType.type.indexOf('default')  != -1) {
-                    defer.resolve(fakeDefaultDimensionTemplate);
-                } else {
-                    defer.resolve(fakeDateTimeTemplate);
-                }
-                return {"$promise": defer.promise};
-              })
-            });
+      it('if dimension is date time, it returns a template generated by joining the default and date time templates', function () {
+        ApiTemplateService.getDimensionTemplateByType.and.returnValue({
+          "get": jasmine.createSpy('promise').and.callFake(function (dimensionType) {
+            var defer = q.defer();
+            if (dimensionType.type.indexOf('default') != -1) {
+              defer.resolve(fakeDefaultDimensionTemplate);
+            } else {
+              defer.resolve(fakeDateTimeTemplate);
+            }
+            return {
+              "$promise": defer.promise
+            };
+          })
+        });
         ApiTemplateService.getDimensionTemplateByType.calls.reset();
-        factory.getDimensionTemplateByType('dateTime').then(function(result) {
-          expect(result).toEqual({properties: fakeDefaultDimensionTemplate.properties.concat(fakeDateTimeTemplate.properties)});
+        factory.getDimensionTemplateByType('dateTime').then(function (result) {
+          expect(result).toEqual({
+            properties: fakeDefaultDimensionTemplate.properties.concat(fakeDateTimeTemplate.properties)
+          });
         });
 
         scope.$apply();
@@ -101,62 +115,69 @@ describe('policies.wizard.factory.template-factory', function() {
 
     });
 
-    describe("Should return operator template by type", function() {
-      it('if operator is a count, it returns its specific template', function() {
-        ApiTemplateService.getOperatorTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+    describe("Should return operator template by type", function () {
+      it('if operator is a count, it returns its specific template', function () {
+        ApiTemplateService.getOperatorTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getOperatorTemplateByType('count');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'count.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'count.json'
+        });
       });
 
-      it('if operator is not a count, it returns the default template', function() {
-        ApiTemplateService.getOperatorTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+      it('if operator is not a count, it returns the default template', function () {
+        ApiTemplateService.getOperatorTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getOperatorTemplateByType('sum');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'default.json'
+        });
 
         factory.getOperatorTemplateByType('multiply');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'default.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'default.json'
+        });
       });
 
     });
-    describe("Should return trigger template by type", function() {
-      it('if trigger type is transformation, it returns its specific template', function() {
-        ApiTemplateService.getOperatorTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+    describe("Should return trigger template by type", function () {
+      it('if trigger type is transformation, it returns its specific template', function () {
+        ApiTemplateService.getOperatorTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getOperatorTemplateByType('count');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'count.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'count.json'
+        });
       });
 
-      it('if trigger type is cube, it returns its specific template', function() {
-        ApiTemplateService.getTriggerTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+      it('if trigger type is cube, it returns its specific template', function () {
+        ApiTemplateService.getTriggerTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
 
         factory.getTriggerTemplateByType('cube');
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'cube.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'cube.json'
+        });
       });
 
-      it('if trigger type is not defined, it returns the transformation template', function() {
-        ApiTemplateService.getTriggerTemplateByType.and.returnValue(
-            {
-              "get": promiseMock
-            });
+      it('if trigger type is not defined, it returns the transformation template', function () {
+        ApiTemplateService.getTriggerTemplateByType.and.returnValue({
+          "get": promiseMock
+        });
         factory.getTriggerTemplateByType();
 
-        expect(promiseMock).toHaveBeenCalledWith({type: 'transformation.json'});
+        expect(promiseMock).toHaveBeenCalledWith({
+          type: 'transformation.json'
+        });
       });
 
     });
@@ -164,5 +185,4 @@ describe('policies.wizard.factory.template-factory', function() {
   });
 
 
-})
-;
+});

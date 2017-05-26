@@ -125,7 +125,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
     }
 
-    "delete: returns failure when deleting an existing ID and an error occurs while deleling" in {
+    "delete: returns failure when deleting an existing ID and an error occurs while deleting" in {
       // scalastyle:off null
       when(curatorFramework
         .checkExists())
