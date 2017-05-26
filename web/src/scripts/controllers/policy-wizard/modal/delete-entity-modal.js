@@ -43,12 +43,18 @@
     function ok() {
       var promise;
 
-      if(type === "PLUGIN") {
-        promise = EntityFactory.deletePlugin(vm.fileName);
-      } else {
-        promise = EntityFactory.deleteDriver(vm.fileName);
+      switch (type) {
+        case 'PLUGIN':
+          promise = EntityFactory.deletePlugin(vm.fileName);
+          break;
+        case 'DRIVER':
+          promise = EntityFactory.deleteDriver(vm.fileName);
+          break;
+        case 'BACKUP':
+          promise = EntityFactory.deleteBackup(vm.fileName);
+          break;
       }
-      
+
       return promise.then(function () {
         $uibModalInstance.close(vm.fileName);
 

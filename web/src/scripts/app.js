@@ -57,13 +57,13 @@ angular
   }])
 
   /*ROUTER*/
-  .config(['$stateProvider', '$urlRouterProvider','$httpProvider', function ($stateProvider, $urlRouterProvider, $httpProvider) {
+  .config(['$stateProvider', '$urlRouterProvider', '$httpProvider', function ($stateProvider, $urlRouterProvider, $httpProvider) {
     $httpProvider.interceptors.push('requestInterceptor');
     // For any unmatched url, redirect to /dashboard/inputs
     $urlRouterProvider.otherwise('/dashboard/policies');
-    
+
     $stateProvider
-    /*******  DASHBOARD *******/
+      /*******  DASHBOARD *******/
       .state('dashboard', {
         url: '/dashboard',
         views: {
@@ -101,8 +101,10 @@ angular
       })
       .state('dashboard.resources', {
         abstract: true,
+        controller: 'ResourcesCtrl',
+        controllerAs: 'resources',
         url: '/resources',
-        template: '<ui-view/>'
+        templateUrl: 'views/resources.html'
       })
       .state('dashboard.resources.plugins', {
         url: '/plugins',
@@ -115,6 +117,12 @@ angular
         controller: 'DriversListCtrl',
         controllerAs: 'drivers',
         templateUrl: 'views/drivers.html'
+      })
+      .state('dashboard.resources.settings', {
+        url: '/general-settings',
+        controller: 'GeneralSettingsCtrl',
+        controllerAs: 'settings',
+        templateUrl: 'views/settings.html'
       })
       /******* POLICY WIZARD *******/
       .state('wizard', {
@@ -143,7 +151,9 @@ angular
         headerClass: 'c-header--small',
         containerClass: 'c-slider-content__backdrop base-content-wrapper--small-header',
         url: '/wizard/edit_policy/:id',
-        params: {id: null},
+        params: {
+          id: null
+        },
         controller: 'PolicyCtrl',
         controllerAs: 'wizard',
         templateUrl: 'views/policy-wizard/wizard-panel.html'
@@ -168,7 +178,3 @@ angular
       $rootScope.containerClass = toState.containerClass;
     });
   }]);
-
-
-
-

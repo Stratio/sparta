@@ -18,18 +18,20 @@
 
   angular
     .module('webApp')
-    .controller('DriversListCtrl', DriversListCtrl);
+    .controller('GeneralSettingsCtrl', GeneralSettingsCtrl);
 
-  DriversListCtrl.$inject = ['$scope', 'EntityFactory', 'ModalService', 'UtilsService', '$state'];
+  GeneralSettingsCtrl.$inject = ['$scope', 'EntityFactory', 'ModalService', 'UtilsService', '$state'];
 
-  function DriversListCtrl($scope, EntityFactory, ModalService, UtilsService, $state) {
+  function GeneralSettingsCtrl($scope, EntityFactory, ModalService, UtilsService, $state) {
     /*jshint validthis: true*/
     var vm = this;
-    vm.deleteDriver = deleteDriver;
-    vm.getAllDrivers = getAllDrivers;
-    vm.createDriver = createDriver;
-    vm.sortDrivers = sortDrivers;
+    vm.deleteBackup = deleteBackup;
+    vm.getAllBackups = getAllBackups;
+    vm.createBackup = createBackup;
+    vm.sortBackups = sortBackups;
     vm.tableReverse = false;
+    vm.generateBackup = generateBackup;
+    vm.downloadBackup = downloadBackup;
     vm.sortField = 'fileName';
     vm.errorMessage = {
       type: 'error',
@@ -47,45 +49,63 @@
     /////////////////////////////////
 
     function init() {
-      getAllDrivers();
+      getAllBackups();
     }
 
-    function getAllDrivers() {
-      EntityFactory.getAllDrivers().then(function (drivers) {
-        vm.driversData = drivers;
+    function getAllBackups() {
+      EntityFactory.getAllBackups().then(function (backups) {
+        vm.backups = backups;
       });
     }
 
-    function createDriver() {
+    function createBackup() {
       var controller = 'CreateEntityModalCtrl';
       var templateUrl = "templates/modal/entity-creation-modal.tpl.html";
       var resolve = {
         type: function () {
-          return "DRIVER";
+          return "BACKUP";
         },
         title: function () {
-          return "_ENTITY_._CREATE_DRIVER_TITLE_";
+          return "_ENTITY_._CREATE_BACKUP_TITLE_";
         },
         info: function () {
-          return "_DRIVER_INFO_";
+          return "_BACKUP_INFO_";
         },
         text: function () {
-          return "_DRIVER_TEXT_";
+          return "_BACKUP_TEXT_";
         },
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
       modalInstance.result.then(function () {
-        getAllDrivers();
-        vm.successMessage.text = '_DRIVER_CREATE_OK_';
+        getAllBackups();
+        vm.successMessage.text = '_BACKUP_CREATE_OK_';
       });
     }
 
-    function deleteDriver(fileName) {
-      deleteDriverConfirm('lg', fileName);
+    function generateBackup() {
+      EntityFactory.buildBackup().then(function () {
+        getAllBackups();
+      });
     }
 
-    function deleteDriverConfirm(size, fileName) {
+    function downloadBackup(fileName) {
+      EntityFactory.downloadBackup(fileName).then(function (policyFile) {
+        var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(policyFile[0]));
+        var a = document.createElement('a');
+        a.href = 'data:' + data;
+        a.download = policyFile.name + ".json";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      });
+    }
+
+    function deleteBackup(fileName) {
+      deleteBackupConfirm('lg', fileName);
+    }
+
+    function deleteBackupConfirm(size, fileName) {
       var controller = 'DeleteEntityModalCtrl';
       var templateUrl = "templates/modal/entity-delete-modal.tpl.html";
       var resolve = {
@@ -93,22 +113,22 @@
           return fileName;
         },
         type: function () {
-          return "DRIVER";
+          return "BACKUP";
         },
         title: function () {
-          return "_ENTITY_._DELETE_DRIVER_TITLE_";
+          return "_ENTITY_._DELETE_BACKUP_TITLE_";
         }
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
       modalInstance.result.then(function (fileName) {
-        var index = UtilsService.getArrayElementPosition(vm.driversData, 'fileName', fileName);
-        vm.driversData.splice(index, 1);
-        vm.successMessage.text = '_DRIVER_DELETE_OK_';
+        var index = UtilsService.getArrayElementPosition(vm.backups, 'fileName', fileName);
+        vm.backups.splice(index, 1);
+        vm.successMessage.text = '_BACKUP_DELETE_OK_';
       });
     }
 
-    function sortDrivers(fieldName) {
+    function sortBackups(fieldName) {
       if (fieldName == vm.sortField) {
         vm.tableReverse = !vm.tableReverse;
       } else {

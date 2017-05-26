@@ -31,9 +31,12 @@
     vm.getAllDrivers = getAllDrivers;
     vm.deleteDriver = deleteDriver;
     vm.createDriver = createDriver;
+    vm.getAllBackups = getAllBackups;
+    vm.buildBackup = buildBackup;
+    vm.deleteBackup = deleteBackup;
+    vm.downloadBackup = downloadBackup;
 
     /////////////////////////////////
-  console.log($browser.baseHref());
 
     function getAllPlugins() {
       return $resource('plugins', {}, {
@@ -51,7 +54,9 @@
           method: 'PUT',
           transformRequest: angular.identity,
           isArray: true,
-          headers: { 'Content-Type': undefined },
+          headers: {
+            'Content-Type': undefined
+          },
           timeout: apiConfigSettings.timeout
         }
       });
@@ -84,7 +89,9 @@
           method: 'PUT',
           transformRequest: angular.identity,
           isArray: true,
-          headers: { 'Content-Type': undefined },
+          headers: {
+            'Content-Type': undefined
+          },
           timeout: apiConfigSettings.timeout
         }
       });
@@ -98,6 +105,49 @@
           method: 'DELETE',
           timeout: apiConfigSettings.timeout
         }
+      });
+    }
+
+    function getAllBackups() {
+      return $resource('metadata/backup', {}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function buildBackup() {
+      return $resource('metadata/backup/build', {}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function deleteBackup() {
+      return $resource('/metadata/backup/:fileName', {
+        fileName: '@fileName'
+      }, {
+        'delete': {
+          method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function downloadBackup() {
+      return $resource('/metadata/backup/:fileName', {
+        fileName: '@fileName'
+      }, {
+        'get': {
+          method: 'GET',
+          isArray: true
+        },
+        timeout: apiConfigSettings.timeout
       });
     }
   }

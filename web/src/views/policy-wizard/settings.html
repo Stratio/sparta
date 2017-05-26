@@ -6,7 +6,7 @@
       <span translate="{{vm.errorText}}"></span>
     </div>
 
-    <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class={'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}>
+    <form class="c-form" name="vm.form" id="configurationForm" novalidate data-ng-class="{'c-accordion-tool--items-hide-left':!(vm.compositionStatus.getConfigurationVisibility())}">
       <form-field
         data-ng-repeat="properties in vm.template.basicSettings"
         class="c-form-gutter c-col c-col--vertical-top"
