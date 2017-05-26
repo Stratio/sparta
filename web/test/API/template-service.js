@@ -1,5 +1,9 @@
 describe('API.template-service', function() {
-  beforeEach(module('webApp'));
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
   beforeEach(module('template/input.json'));
   beforeEach(module('template/output.json'));
   beforeEach(module('template/policy.json'));
