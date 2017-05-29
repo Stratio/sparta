@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
@@ -31,9 +31,8 @@ import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
+
 import scala.util.Properties
-
-
 import scala.util.Try
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
@@ -47,9 +46,9 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
-  val oauthConfig: Option[Config] = SpartaConfig.initConfig("oauth2")
+  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
-  val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse("user")
+  val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 

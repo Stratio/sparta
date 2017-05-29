@@ -15,6 +15,4 @@
  */
 package com.stratio.sparta.serving.core.models.frontend
 
-import com.stratio.sparta.serving.core.constants.AppConstant
-
-case class FrontendConfiguration(timeout: Int, cookieName: String =  AppConstant.DefaultOauth2CookieName)
+case class FrontendConfiguration(timeout: Int, cookieName: Option[String] =  None)

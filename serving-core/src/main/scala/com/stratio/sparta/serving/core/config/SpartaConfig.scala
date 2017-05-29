@@ -29,6 +29,7 @@ object SpartaConfig extends SLF4JLogging {
 
   var mainConfig: Option[Config] = None
   var apiConfig: Option[Config] = None
+  var oauth2Config: Option[Config] = None
 
   def initConfig(node: String,
                  currentConfig: Option[Config] = None,
@@ -66,6 +67,11 @@ object SpartaConfig extends SLF4JLogging {
     apiConfig
   }
 
+  def initOauth2Config(configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+    oauth2Config = initConfig(ConfigOauth2)
+    oauth2Config
+  }
+
   def getClusterConfig(executionMode: Option[String] = None): Option[Config] =
     Try {
       executionMode match {
@@ -87,6 +93,14 @@ object SpartaConfig extends SLF4JLogging {
   def getZookeeperConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigZookeeper, config))
 
   def getFrontendConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigFrontend,config))
+
+  def getOauth2Config: Option[Config] = oauth2Config match {
+    case Some(config) => Some(config)
+    case None => {
+      oauth2Config = initOauth2Config()
+      oauth2Config
+    }
+  }
 
   def getSprayConfig: Option[Config] = SpartaConfigFactory().getConfig(ConfigSpray)
 
