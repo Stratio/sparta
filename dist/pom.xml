@@ -229,6 +229,9 @@
                                 <mkdirs>
                                     <path>/opt/sds/sparta/plugins</path>
                                 </mkdirs>
+                                <mkdirs>
+                                    <path>/opt/sds/sparta/backups</path>
+                                </mkdirs>
                                 <copyDirectory>
                                     <from>target/appassembler/bin</from>
                                     <to>/opt/sds/sparta/bin</to>
