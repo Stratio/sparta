@@ -7,7 +7,7 @@
         <c-animated-msg data-msg="settings.errorMessage" data-on-click-close-msg="settings.deleteErrorMessage()" data-timeout=10000></c-animated-msg>
         <c-animated-msg data-msg="settings.successMessage" data-on-click-close-msg="settings.deleteSuccessMessage()" data-timeout=6000></c-animated-msg>
       </div><!--
-      --><div class="c-col c-col--9 c-form-group--to-left">
+      --><div class="c-col c-col--6 c-form-group--to-left">
         <button class="c-button c-button--toolbar c-button--call-to-action-3" data-ng-click="settings.generateBackup()"
           data-qa="settings-new-policy-button">
           <span class="icon icon-circle-plus"></span>
@@ -16,11 +16,16 @@
         <c-input-file on-file-upload="settings.uploadBackup" toolbar-button="true" data-file-model="settings.file" name="'file'" data-form="settings.form" data-is-required="true" data-text="'_MENU_DASHBOARD_UPLOAD_BACKUP_'">
         </c-input-file>
       </div><!--
-      --><div class="c-col c-col--3 c-form-group--to-right" data-ng-if="settings.backups.length">
+      --><div class="c-col c-col--6 c-form-group--to-right">
         <button class="c-button c-button--toolbar c-button--danger  c-button--right-margin" data-ng-click="settings.deleteAllBackups()"
           data-qa="settings-new-policy-button">
           <span class="icon icon-cross"></span>
           <span>{{'_MENU_DASHBOARD_DELETE_ALL_BACKUP_' | translate}}</span>
+        </button>
+        <button class="c-button c-button--toolbar c-button--danger-2  c-button--right-margin" data-ng-click="settings.deleteMetadata()"
+          data-qa="settings-new-policy-button">
+          <span class="icon icon-cross"></span>
+          <span>{{'_MENU_DASHBOARD_DELETE_ALL_METADATA_' | translate}}</span>
         </button>
       </div>
     </aside>

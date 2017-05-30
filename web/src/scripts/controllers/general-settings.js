@@ -34,6 +34,7 @@
     vm.downloadBackup = downloadBackup;
     vm.uploadBackup = uploadBackup;
     vm.deleteAllBackups = deleteAllBackups;
+    vm.deleteMetadata = deleteMetadata;
     vm.executeBackup = executeBackup;
     vm.sortField = 'fileName';
     vm.errorMessage = {
@@ -174,7 +175,7 @@
       });
     }
 
-    function executeBackup(fileName){
+    function executeBackup(fileName) {
       var controller = 'ExecuteBackupModalCtrl';
       var templateUrl = "templates/modal/execute-backup-modal.tpl.html";
       var resolve = {
@@ -187,6 +188,28 @@
       modalInstance.result.then(function () {
         getAllBackups();
         vm.successMessage.text = '_BACKUP_EXECUTION_OK_';
+      });
+    }
+
+    function deleteMetadata() {
+      var controller = 'DeleteEntityModalCtrl';
+      var templateUrl = "templates/modal/entity-delete-modal.tpl.html";
+      var resolve = {
+        item: function () {
+          return "";
+        },
+        type: function () {
+          return "ALL_METADATA";
+        },
+        title: function () {
+          return "_ENTITY_._DELETE_ALL_METADATA_TITLE_";
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+
+      modalInstance.result.then(function () {
+        vm.successMessage.text = "_ALL_METADATA_DELETE_OK_";
+        getAllBackups();
       });
     }
 

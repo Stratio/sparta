@@ -119,7 +119,7 @@ angular
         templateUrl: 'views/drivers.html'
       })
       .state('dashboard.resources.settings', {
-        url: '/general-settings',
+        url: '/backups',
         controller: 'GeneralSettingsCtrl',
         controllerAs: 'settings',
         templateUrl: 'views/settings.html'

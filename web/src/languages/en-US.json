@@ -88,6 +88,7 @@
   "_MENU_DASHBOARD_NEW_POLICY_": "New workflow",
   "_MENU_DASHBOARD_GENERATE_BACKUP_": "Generate Backup",
   "_MENU_DASHBOARD_DELETE_ALL_BACKUP_": "Delete All Backups",
+  "_MENU_DASHBOARD_DELETE_ALL_METADATA_": "Delete Metadata",  
   "_MENU_DASHBOARD_UPLOAD_BACKUP_": "Upload Backup",
   "_MENU_DASHBOARD_NEW_PLUGIN_": "New plugin",
   "_MENU_DASHBOARD_NEW_DRIVER_": "New driver",
@@ -151,6 +152,7 @@
     "_CREATE_DRIVER_TITLE_": "Create driver",
     "_DELETE_BACKUP_TITLE_": "Delete backup",
     "_DELETE_ALL_BACKUPS_TITLE_": "Delete all backups",
+    "_DELETE_ALL_METADATA_TITLE_": "Delete all metadata",
     "_EXECUTE_BACKUP_TITLE_": "Execute backup"
   },
   "_POLICY_": {
@@ -371,8 +373,10 @@
   "_DRIVER_CREATE_OK_": "The driver has been created!",
   "_BACKUP_DELETE_OK_": "The backup has been deleted!",
   "_BACKUP_EXECUTION_ADVICE_": "Executing the backup could cause a potential loss of data.",
+  "_METADATA_DELETE_ADVICE_": "If you continue, you will lose all the information.",
   "_BACKUP_REMOVE_DATA_": "Remove all data before running backup",
   "_ALL_BACKUPS_DELETE_OK_": "All backups has been deleted!",
+  "_ALL_METADATA_DELETE_OK_": "All metadata has been deleted",
   "_BACKUP_EXECUTION_OK_": "The backup has been executed",
   "_DRIVER_INFO_": "Sparta driver that will be used by Spark jobs as driver application.",
   "_DRIVER_TEXT_": "Upload a new driver",

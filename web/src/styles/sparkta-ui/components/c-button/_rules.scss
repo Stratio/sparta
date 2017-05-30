@@ -130,6 +130,18 @@
 		}
 	}
 
+	&--danger-2 {
+		background: #a93426;
+		border: $c-button--danger-2---border;
+		color: $c-button--danger-2---color;
+
+		&:hover {
+			background: $c-button--danger--hover---background;
+			border: $c-button--danger--hover---border;
+			color: $c-button--danger--hover---color;
+		}
+	}
+
   &--rounded {
     width: $c-button--rounded---width;
     min-width: $c-button--rounded---min-width;

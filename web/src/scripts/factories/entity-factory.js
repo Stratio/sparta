@@ -79,6 +79,9 @@
           'fileName': fileName,
           'deleteAllBefore': deleteAllBefore
         }).$promise;
+      },
+      deleteMetadata: function(){
+        return ApiEntitiesService.deleteMetadata().delete({}).$promise;
       }
     };
   }

@@ -38,6 +38,10 @@
 
     function init() {
       vm.fileName = item;
+
+      if(type== 'ALL_METADATA'){
+        vm.textInfo = '_METADATA_DELETE_ADVICE_';
+      }
     }
 
     function ok() {
@@ -55,6 +59,9 @@
           break;
         case 'ALL_BACKUPS':
           promise = EntityFactory. deleteAllBackups();
+          break;
+        case 'ALL_METADATA':
+          promise =  EntityFactory.deleteMetadata();
           break;
       }
 

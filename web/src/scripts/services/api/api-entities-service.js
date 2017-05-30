@@ -38,6 +38,7 @@
     vm.uploadBackup = uploadBackup;
     vm.deleteAllBackups = deleteAllBackups;
     vm.executeBackup = executeBackup;
+    vm.deleteMetadata = deleteMetadata;
 
     /////////////////////////////////
 
@@ -184,6 +185,15 @@
           timeout: apiConfigSettings.timeout
         }
       }); 
+    }
+
+    function deleteMetadata(){
+      return $resource('/metadata', {}, {
+        'delete': {
+          method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
     }
   }
 })();
