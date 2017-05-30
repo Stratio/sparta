@@ -116,7 +116,6 @@ Entrypoint variables
 | SPARK_LOCAL_METRICS_CONF |
 
 
-
 ## MESOS EXECUTION OPTIONS
 | PARAM        |
 | -------------:|

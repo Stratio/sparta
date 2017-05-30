@@ -23,6 +23,8 @@ function generate_core-site-from-uri() {
     echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
     exit 1
   fi
+  echo "" >> ${VARIABLES}
+  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
 }
@@ -40,6 +42,8 @@ function generate_hdfs-conf-from-uri() {
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
@@ -152,6 +156,8 @@ sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_D
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
@@ -209,6 +215,8 @@ sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/co
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
