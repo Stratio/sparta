@@ -34,6 +34,7 @@ object AppConstant {
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
   val ConfigFrontend = "config.frontend"
+  val DefaultOauth2CookieName = "user"
 
   //Config Options
   val ExecutionMode = "executionMode"
@@ -63,7 +64,7 @@ object AppConstant {
   val DefaultPreStopMarathonInterval = "5s"
 
 
-  //Checkpooint
+  //Checkpoint
   val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
   val DefaultAutoDeleteCheckpoint = true
   val ConfigAddTimeToCheckpointPath = "addTimeToCheckpointPath"

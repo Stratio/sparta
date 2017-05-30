@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.api.actor.ConfigActor
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import org.junit.runner.RunWith
@@ -46,6 +46,9 @@ class ConfigHttpServiceTest extends WordSpec
   override def beforeEach(): Unit = {
     SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
   }
+
+  protected def retrieveStringConfig(): FrontendConfiguration =
+    FrontendConfiguration(AppConstant.DefaultFrontEndTimeout, AppConstant.DefaultOauth2CookieName)
 
   "ConfigHttpService.FindAll" should {
     "retrieve a FrontendConfiguration item" in {

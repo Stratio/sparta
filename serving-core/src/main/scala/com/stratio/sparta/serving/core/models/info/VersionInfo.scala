@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.models.frontend
+package com.stratio.sparta.serving.core.models.info
 
-import com.stratio.sparta.serving.core.constants.AppConstant
-
-case class FrontendConfiguration(timeout: Int, cookieName: String =  AppConstant.DefaultOauth2CookieName)
+case class VersionInfo(pomVersion: String, profileId: String, buildTimestamp: String)

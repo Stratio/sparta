@@ -69,8 +69,6 @@ trait HttpServiceBaseTest extends WordSpec
     """.stripMargin)
 
   // XXX Protected methods.
-  protected def retrieveStringConfig(): FrontendConfiguration =
-    FrontendConfiguration(AppConstant.DefaultFrontEndTimeout)
 
   protected def getFragmentModel(id: Option[String]): FragmentElementModel =
     new FragmentElementModel(id, "input", "name", "description", "shortDescription",
