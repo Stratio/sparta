@@ -1,0 +1,16 @@
+[{
+  "fileName": "driver-1.5.0-SNAPSHOT.jar",
+  "uri": "http://user-P553UA:9090/driver/driver-1.5.0-SNAPSHOT.jar",
+  "localPath": "/home/user/workspace/projects/sparta/driver/target/driver-1.5.0-SNAPSHOT.jar",
+  "size": "0.39 MB"
+}, {
+  "fileName": "sparta-driver.jar",
+  "uri": "http://user-P553UA:9090/driver/sparta-driver.jar",
+  "localPath": "/home/user/workspace/projects/sparta/driver/target/sparta-driver.jar",
+  "size": "181.65 MB"
+}, {
+  "fileName": "driver-1.5.0-SNAPSHOT-javadoc.jar",
+  "uri": "http://user-P553UA:9090/driver/driver-1.5.0-SNAPSHOT-javadoc.jar",
+  "localPath": "/home/user/workspace/projects/sparta/driver/target/driver-1.5.0-SNAPSHOT-javadoc.jar",
+  "size": "0.5 MB"
+}]

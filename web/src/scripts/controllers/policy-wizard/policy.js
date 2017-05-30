@@ -25,7 +25,7 @@
 
   function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $stateParams, $q) {
     var vm = this;
-
+   // PolicyModelFactory.initializePolicy();
     vm.confirmPolicy = confirmPolicy;
     vm.closeErrorMessage = closeErrorMessage;
     vm.onClickNextStep = onClickNextStep;

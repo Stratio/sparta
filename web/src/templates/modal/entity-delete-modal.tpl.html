@@ -6,7 +6,7 @@
 
 	<div class="c-modal-inner">
 		<p class="c-modal-inner__title">{{"_ARE_YOU_SURE_" | translate}}</p>
-
+		<p data-ng-if="vm.textInfo ">{{vm.textInfo | translate}}</p>
 		<div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
 			<i class="c-icon icon-circle-cross"></i>
 			<span translate="{{vm.errorText}}"></span>

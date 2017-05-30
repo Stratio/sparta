@@ -24,6 +24,7 @@ function stMenuTab(TEMPLATE_URL){
 	var directive = {
 		restrict: 'AE',
 		require: 'ngModel',
+		transclude: true,
 		scope: {
 			title: '=title',
 			visible: '@visible',
