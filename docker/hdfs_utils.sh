@@ -129,13 +129,13 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
         </configuration>
 EOF
 
-sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KRB_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.namenode.kerberos.principal in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL was configured in hdfs-site.xml"
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL was configured in hdfs-site.xml"
 
-sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.namenode.kerberos.principal.pattern in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.encrypt.data.transfer in hdfs-site.xml" \

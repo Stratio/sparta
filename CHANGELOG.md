@@ -9,6 +9,7 @@
 * Info service
 * Security options configurable
 * Https with marathon-lb
+* Frontend performance improvements
 * Bugfix: Postgres library added
 
 ## 1.4.0 (May 17, 2017)

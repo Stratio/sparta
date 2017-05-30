@@ -46,7 +46,7 @@ fi
 ####################################################
 ## Kerberos config set SPARTA_PRINCIPAL_NAME and SPARTA_KEYTAB_PATH
 ####################################################
-if [ -v SECURITY_KERBEROS_ENABLE ] && [ ${#SECURITY_KERBEROS_ENABLE} != 0 ] && [ $SECURITY_KERBEROS_ENABLE == "true" ]; then
+if [ -v SECURITY_KRB_ENABLE ] && [ ${#SECURITY_KRB_ENABLE} != 0 ] && [ $SECURITY_KRB_ENABLE == "true" ]; then
   _log_sparta_sec "Configuring kerberos ..."
   source /kerberos-server-config.sh
   _log_sparta_sec "Configuring kerberos Ok"

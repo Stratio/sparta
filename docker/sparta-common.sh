@@ -47,17 +47,17 @@ function initSpark() {
 }
 
 function initHdfs() {
-  if [[ -v HDFS_USER_NAME ]]; then
+  if [[ -v HADOOP_USER_NAME ]]; then
       echo "" >> ${VARIABLES}
-    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${VARIABLES}
+    echo "export HADOOP_USER_NAME=${HADOOP_USER_NAME}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
-    echo "export HADOOP_USER_NAME=${HDFS_USER_NAME}" >> ${SYSTEM_VARIABLES}
+    echo "export HADOOP_USER_NAME=${HADOOP_USER_NAME}" >> ${SYSTEM_VARIABLES}
   fi
 
-  if [[ ! -v HDFS_CONF_FROM_URI ]]; then
-   HDFS_CONF_FROM_URI="false"
+  if [[ ! -v HADOOP_CONF_FROM_URI ]]; then
+   HADOOP_CONF_FROM_URI="false"
   fi
-  if [ $HDFS_CONF_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
+  if [ $HADOOP_CONF_FROM_URI == "true" ] && [ -v HADOOP_CONF_URI ] && [ ${#HADOOP_CONF_URI} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
@@ -78,10 +78,10 @@ function initHdfs() {
     generate_core-site-from-uri
   fi
 
-  if [[ ! -v HDFS_CONF_FROM_DFS ]]; then
-   HDFS_CONF_FROM_DFS="false"
+  if [[ ! -v HADOOP_CONF_FROM_DFS ]]; then
+   HADOOP_CONF_FROM_DFS="false"
   fi
-  if [ $HDFS_CONF_FROM_DFS == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
+  if [ $HADOOP_CONF_FROM_DFS == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
@@ -90,10 +90,10 @@ function initHdfs() {
     generate_hdfs-conf-from-fs
   fi
 
-  if [[ ! -v HDFS_CONF_FROM_DFS_NOT_SECURED ]]; then
-   HDFS_CONF_FROM_DFS_NOT_SECURED="false"
+  if [[ ! -v HADOOP_CONF_FROM_DFS_NOT_SECURED ]]; then
+   HADOOP_CONF_FROM_DFS_NOT_SECURED="false"
   fi
-  if [ $HDFS_CONF_FROM_DFS_NOT_SECURED == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
+  if [ $HADOOP_CONF_FROM_DFS_NOT_SECURED == "true" ] && [ -v HADOOP_FS_DEFAULT_NAME ] && [ ${#HADOOP_FS_DEFAULT_NAME} != 0 ]; then
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
