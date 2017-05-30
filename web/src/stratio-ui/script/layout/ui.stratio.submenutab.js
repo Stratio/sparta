@@ -16,11 +16,11 @@
 'use strict';
 
 angular
-	.module('StratioUI.layout.menutab',[])
-	.directive('stMenuTab', stMenuTab);
+	.module('StratioUI.layout.menutab')
+	.directive('stSubmenuTab', stSubmenuTab);
 
-stMenuTab.$inject = ['TEMPLATE_URL'];
-function stMenuTab(TEMPLATE_URL){
+stSubmenuTab.$inject = ['TEMPLATE_URL'];
+function stSubmenuTab(TEMPLATE_URL){
 	var directive = {
 		restrict: 'AE',
 		require: 'ngModel',
@@ -34,7 +34,7 @@ function stMenuTab(TEMPLATE_URL){
 			label: '@label',
 			qaref: '@qaref'
 		},
-		templateUrl: TEMPLATE_URL('layout', 'menutab'),
+		templateUrl: TEMPLATE_URL('layout', 'submenutab'),
 		controller: controller
 	};
 

@@ -25,7 +25,11 @@
           fileModel: '=',
           name: '=',
           isRequired: '=',
-          form: '='
+          form: '=',
+          text: '=',
+          showFileName: '=',
+          onFileUpload: '=',
+          toolbarButton: '='
         },
         link: function (scope, element, attrs) {
           scope.invalid = true;
@@ -39,6 +43,11 @@
             scope.$apply(function () {
               scope.fileName = input[0].files[0].name;
               scope.fileModel = input[0].files[0];
+
+              if(scope.onFileUpload && (typeof scope.onFileUpload == 'function')){
+                scope.onFileUpload(scope.fileModel);
+              }
+              input.val("");
             });
           });
         },

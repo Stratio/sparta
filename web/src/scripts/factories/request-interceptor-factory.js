@@ -38,6 +38,11 @@
             $window.location.href = host;
             break;
           }
+          case 200:
+          {
+            alert("sin permisos");
+            break;
+          }
           default:
             break;
         }
