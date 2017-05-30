@@ -152,17 +152,6 @@
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-solr-cell</artifactId>
-            <version>${morphline.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-json</artifactId>
             <version>${morphline.version}</version>
         </dependency>
@@ -235,6 +224,10 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
             <version>${kafka.spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
 
         <!--Test dependencies-->

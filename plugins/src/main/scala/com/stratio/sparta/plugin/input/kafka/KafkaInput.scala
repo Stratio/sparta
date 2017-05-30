@@ -188,8 +188,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
 object KafkaInput {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    val vaultPort = scala.util.Properties.envOrElse("VAULT_PORT", "8200")
-    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOST").map(host => s"https://$host:$vaultPort")
+    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOST")
     val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN")
     val vaultCertPath = configuration.getString("vaultCertPath", None)
     val vaultCertPassPath = configuration.getString("vaultCertPassPath", None)

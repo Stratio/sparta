@@ -241,7 +241,6 @@ The parameters involved are :
 | -------------|:-------------:|
 | VAULT_HOST   | The host of the vault installation.If not present the docker image will not attempt to download any secrets |
 | VAULT_TOKEN  | The vault token|
-| VAULT_PORT   | The vault port      |
 
 In the integration.env file there is an example for a vault configuration.
 In the example we are mapping an ip to a host (like adding an entry to /etc/hosts )
