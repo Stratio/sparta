@@ -25,12 +25,14 @@
   function EntityFactory(ApiEntitiesService, $filter, $q) {
     return {
       getAllPlugins: function () {
-         return ApiEntitiesService.getAllPlugins().get().$promise;
+        return ApiEntitiesService.getAllPlugins().get().$promise;
       },
-      deletePlugin: function(fileName){
-        return ApiEntitiesService.deletePlugin().delete({'fileName': fileName}).$promise;
+      deletePlugin: function (fileName) {
+        return ApiEntitiesService.deletePlugin().delete({
+          'fileName': fileName
+        }).$promise;
       },
-      createPlugin: function(file){
+      createPlugin: function (file) {
         var fd = new FormData();
         fd.append('file', file);
         return ApiEntitiesService.createPlugin().put(fd).$promise;
@@ -38,14 +40,49 @@
       getAllDrivers: function () {
         return ApiEntitiesService.getAllDrivers().get().$promise;
       },
-      deleteDriver: function(fileName) {
-        return ApiEntitiesService.deleteDriver().delete({'fileName': fileName}).$promise;
+      deleteDriver: function (fileName) {
+        return ApiEntitiesService.deleteDriver().delete({
+          'fileName': fileName
+        }).$promise;
       },
-      createDriver: function(file){
+      createDriver: function (file) {
         var fd = new FormData();
         fd.append('file', file);
         return ApiEntitiesService.createDriver().put(fd).$promise;
       },
+      getAllBackups: function () {
+        return ApiEntitiesService.getAllBackups().get().$promise;
+      },
+      buildBackup: function () {
+        return ApiEntitiesService.buildBackup().get().$promise;
+      },
+      deleteBackup: function (fileName) {
+        return ApiEntitiesService.deleteBackup().delete({
+          'fileName': fileName
+        }).$promise;
+      },
+      downloadBackup: function (fileName) {
+        return ApiEntitiesService.downloadBackup().get({
+          'fileName': fileName
+        }).$promise;
+      },
+      uploadBackup: function (file) {
+        var fd = new FormData();
+        fd.append('file', file);
+        return ApiEntitiesService.uploadBackup().put(fd).$promise;
+      },
+      deleteAllBackups: function () {
+        return ApiEntitiesService.deleteAllBackups().delete({}).$promise;
+      },
+      executeBackup: function(fileName,deleteAllBefore ){
+        return ApiEntitiesService.executeBackup().post({
+          'fileName': fileName,
+          'deleteAllBefore': deleteAllBefore
+        }).$promise;
+      },
+      deleteMetadata: function(){
+        return ApiEntitiesService.deleteMetadata().delete({}).$promise;
+      }
     };
   }
 })();

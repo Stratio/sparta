@@ -2,6 +2,7 @@
 @import 'sparkta-ui/base/settings/fonts';
 @import 'sparkta-ui/base/settings/layers';
 @import 'sparkta-ui/base/settings/typography';
+@import 'sparkta-ui/base/helpers/helpers';
 @import 'sparkta-ui/base/helpers/colors';
 @import 'sparkta-ui/base/helpers/typography';
 @import 'sparkta-ui/base/helpers/layers';
@@ -26,6 +27,7 @@
 @import 'sparkta-ui/components/c-list/index';
 @import 'sparkta-ui/components/c-button/index';
 @import 'sparkta-ui/components/c-input/index';
+@import 'sparkta-ui/components/c-input-file/index';
 @import 'sparkta-ui/components/c-searchbox/index';
 @import 'sparkta-ui/components/c-combobox/index';
 @import 'sparkta-ui/components/c-label/index';
