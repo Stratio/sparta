@@ -31,7 +31,6 @@
     vm.sortPlugins = sortPlugins;
     vm.tableReverse = false;
     vm.sortField = 'fileName';
-    vm.selectedOption = 'PLUGINS';
     vm.errorMessage = {
       type: 'error',
       text: '',
@@ -42,16 +41,7 @@
       text: '',
       internalTrace: ''
     };
-    vm.menuOptions = [{
-      text: '_MENU_DASHBOARD_PLUGINS_',
-      isDisabled: false,
-      name: 'PLUGINS'
-    }, {
-      text: '_MENU_DASHBOARD_DRIVERS_',
-      isDisabled: false,
-      name: 'DRIVERS'
-    }];
-
+   
     init();
 
     /////////////////////////////////
@@ -126,11 +116,5 @@
         vm.sortField = fieldName;
       }
     }
-
-
-    $scope.$on("newTabOptionValue", function (event, value) {
-      $state.go("dashboard.resources.drivers");
-    });
-
   }
 })();

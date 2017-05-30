@@ -38,17 +38,33 @@
 
     function init() {
       vm.fileName = item;
+
+      if(type== 'ALL_METADATA'){
+        vm.textInfo = '_METADATA_DELETE_ADVICE_';
+      }
     }
 
     function ok() {
       var promise;
 
-      if(type === "PLUGIN") {
-        promise = EntityFactory.deletePlugin(vm.fileName);
-      } else {
-        promise = EntityFactory.deleteDriver(vm.fileName);
+      switch (type) {
+        case 'PLUGIN':
+          promise = EntityFactory.deletePlugin(vm.fileName);
+          break;
+        case 'DRIVER':
+          promise = EntityFactory.deleteDriver(vm.fileName);
+          break;
+        case 'BACKUP':
+          promise = EntityFactory.deleteBackup(vm.fileName);
+          break;
+        case 'ALL_BACKUPS':
+          promise = EntityFactory. deleteAllBackups();
+          break;
+        case 'ALL_METADATA':
+          promise =  EntityFactory.deleteMetadata();
+          break;
       }
-      
+
       return promise.then(function () {
         $uibModalInstance.close(vm.fileName);
 

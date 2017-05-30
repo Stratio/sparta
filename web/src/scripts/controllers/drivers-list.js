@@ -28,7 +28,6 @@
     vm.deleteDriver = deleteDriver;
     vm.getAllDrivers = getAllDrivers;
     vm.createDriver = createDriver;
-    vm.selectedOption = 'DRIVERS';
     vm.sortDrivers = sortDrivers;
     vm.tableReverse = false;
     vm.sortField = 'fileName';
@@ -42,15 +41,6 @@
       text: '',
       internalTrace: ''
     };
-    vm.menuOptions = [{
-      text: '_MENU_DASHBOARD_PLUGINS_',
-      isDisabled: false,
-      name: 'PLUGINS'
-    }, {
-      text: '_MENU_DASHBOARD_DRIVERS_',
-      isDisabled: false,
-      name: 'DRIVERS'
-    }];
 
     init();
 
@@ -126,11 +116,6 @@
         vm.sortField = fieldName;
       }
     }
-
-
-    $scope.$on("newTabOptionValue", function (event, value) {
-      $state.go("dashboard.resources.plugins");
-    });
 
   }
 })();
