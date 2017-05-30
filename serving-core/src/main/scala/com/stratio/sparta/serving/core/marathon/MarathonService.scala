@@ -96,7 +96,6 @@ class MarathonService(context: ActorContext,
   val AppJarEnv = "SPARTA_MARATHON_JAR"
   val VaultEnableEnv = "VAULT_ENABLE"
   val VaultHostEnv = "VAULT_HOST"
-  val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
   val PolicyIdEnv = "SPARTA_POLICY_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
@@ -134,6 +133,7 @@ class MarathonService(context: ActorContext,
   val SecurityKerberosEnv = "SECURITY_KERBEROS_ENABLE"
   val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
   val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
+  val SecuritySparkKafkaEnv = "SPARK_SECURITY_KAFKA_ENABLE"
 
   /* Lazy variables */
 
@@ -214,6 +214,14 @@ class MarathonService(context: ActorContext,
   private def privileged: Boolean =
     Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
+  private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
+    if(sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PASS_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_KEY_PASS_PATH")) {
+      Option("true")
+    } else None
+  }
+
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
   private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
@@ -221,8 +229,6 @@ class MarathonService(context: ActorContext,
   private def envVaultEnable: Option[String] = Properties.envOrNone(VaultEnableEnv)
 
   private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
-
-  private def envVaulPort: Option[String] = Properties.envOrNone(VaultPortEnv)
 
   private def envVaultToken: Option[String] = Properties.envOrNone(VaultTokenEnv)
 
@@ -323,7 +329,7 @@ class MarathonService(context: ActorContext,
       else Some((k, v))
     }
     val javaCertificatesVolume = {
-      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaulPort.isDefined && envVaultToken.isDefined)
+      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaultToken.isDefined)
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
@@ -376,7 +382,6 @@ class MarathonService(context: ActorContext,
       PolicyIdEnv -> policyModel.id,
       VaultEnableEnv -> envVaultEnable,
       VaultHostEnv -> envVaultHost,
-      VaultPortEnv -> envVaulPort,
       VaultTokenEnv -> envVaultToken,
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
@@ -408,6 +413,7 @@ class MarathonService(context: ActorContext,
       SecurityKerberosEnv -> envKerberos,
       SecurityOauth2Env -> envOauth2,
       SecurityMesosEnv -> envMesos,
+      SecuritySparkKafkaEnv -> envSparkSecurityKafka(submitRequest.sparkConfigurations),
       DcosServiceName -> Option(ServiceName),
       SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap

@@ -26,7 +26,6 @@
     "SPARTA_POLICY_ID": "???",
     "VAULT_ENABLE": "???",
     "VAULT_HOST": "???",
-    "VAULT_PORT": "???",
     "VAULT_TOKEN": "???",
     "MARATHON_APP_HEAP_SIZE": "???",
     "MARATHON_APP_HEAP_MINIMUM_SIZE": "???",
@@ -59,7 +58,8 @@
     "SECURITY_TRUSTSTORE_ENABLE": "???",
     "SECURITY_KERBEROS_ENABLE": "???",
     "SECURITY_OAUTH2_ENABLE": "???",
-    "SECURITY_MESOS_ENABLE": "???"
+    "SECURITY_MESOS_ENABLE": "???",
+    "SPARK_SECURITY_KAFKA_ENABLE": "???"
   },
   "healthChecks": [
     {

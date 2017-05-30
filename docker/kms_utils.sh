@@ -8,7 +8,6 @@
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 #@@@@    Note all this functions expects the following vars as globals   @@@@@@@
 #@@@@        - VAULT_HOSTS [array]                                       @@@@@@@
-#@@@@        - VAULT_PORT  [int]                                         @@@@@@@
 #@@@@        - VAULT_TOKEN [string]                                      @@@@@@@
 #@@@@                                                                    @@@@@@@
 #@@@@      To read an array from comma separted string                   @@@@@@@
@@ -366,7 +365,6 @@ function getCAbundle() {
 function _get_from_vault() {
     local path=$1
     local vault_hosts=$VAULT_HOSTS
-    local vault_port=$VAULT_PORT
     local vault_token=$VAULT_TOKEN
     local response=''
     local data=''
@@ -377,7 +375,7 @@ function _get_from_vault() {
     for Vhost in "${vault_hosts[@]}"
         do
             response=$(curl $curl_opts -w "%{response_code}" -H "X-Vault-Token:$vault_token" \
-                "https://$Vhost:$vault_port/v1/$path")
+                "$Vhost/v1/$path")
             data=$(echo "$response" |head -1 )
             status_code=$(echo "$response" | tail -1)
             if [[ $status_code == 200 ]];then
