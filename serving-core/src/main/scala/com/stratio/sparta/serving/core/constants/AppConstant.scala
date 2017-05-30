@@ -31,6 +31,7 @@ object AppConstant {
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
   val ConfigDetail = "config"
+  val ConfigOauth2 = "oauth2"
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
   val ConfigFrontend = "config.frontend"
@@ -152,6 +153,5 @@ object AppConstant {
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
-
   val CustomTypeKey = "modelType"
 }

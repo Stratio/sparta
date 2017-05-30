@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
+import com.typesafe.config.Config
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
@@ -30,6 +31,10 @@ import scala.util.Try
 class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer {
 
   val apiPath = HttpConstant.ConfigPath
+
+  val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
+  val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
+  val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
   override def receive: Receive = {
     case FindAll => findFrontendConfig()
@@ -41,10 +46,13 @@ class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with
   }
 
   def retrieveStringConfig(): FrontendConfiguration = {
-      FrontendConfiguration(
+    enabledSecurity match {
+      case true => FrontendConfiguration(
         Try(SpartaConfig.getFrontendConfig.get
-          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout),
-        Try(SpartaConfig.initConfig("oauth2").get.getString("cookieName")).getOrElse("user"))
+          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), Option(cookieName))
+      case false => FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get
+        .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), Option(""))
+    }
   }
 
 }
