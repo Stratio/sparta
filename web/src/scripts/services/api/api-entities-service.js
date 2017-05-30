@@ -35,6 +35,9 @@
     vm.buildBackup = buildBackup;
     vm.deleteBackup = deleteBackup;
     vm.downloadBackup = downloadBackup;
+    vm.uploadBackup = uploadBackup;
+    vm.deleteAllBackups = deleteAllBackups;
+    vm.executeBackup = executeBackup;
 
     /////////////////////////////////
 
@@ -149,6 +152,38 @@
         },
         timeout: apiConfigSettings.timeout
       });
+    }
+
+    function uploadBackup() {
+      return $resource('metadata/backup', {}, {
+        'put': {
+          method: 'PUT',
+          transformRequest: angular.identity,
+          isArray: true,
+          headers: {
+            'Content-Type': undefined
+          },
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function deleteAllBackups(){
+      return $resource('/metadata/backup', {}, {
+        'delete': {
+          method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function executeBackup(){
+      return $resource('/metadata/backup', {}, {
+        'post': {
+          method: 'POST',
+          timeout: apiConfigSettings.timeout
+        }
+      }); 
     }
   }
 })();

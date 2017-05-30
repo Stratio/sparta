@@ -1,18 +1,26 @@
 <section>
   <div class="c-panel">
     <aside class="c-toolbar--bottom-separation">
-      <div class="c-col c-col--10">
+      <h3 class="section_title">{{'_BACKUPS_LIST_' | translate}}</h3>
+      <div class="c-col c-col--12 c-toolbar--bottom-separation">
         <!-- Error message -->
         <c-animated-msg data-msg="settings.errorMessage" data-on-click-close-msg="settings.deleteErrorMessage()" data-timeout=10000></c-animated-msg>
         <c-animated-msg data-msg="settings.successMessage" data-on-click-close-msg="settings.deleteSuccessMessage()" data-timeout=6000></c-animated-msg>
-      </div>
-      <!--
-      -->
-      <div class="c-col c-col--2 c-form-group--to-right">
-        <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin" data-ng-click="settings.generateBackup()"
+      </div><!--
+      --><div class="c-col c-col--9 c-form-group--to-left">
+        <button class="c-button c-button--toolbar c-button--call-to-action-3" data-ng-click="settings.generateBackup()"
           data-qa="settings-new-policy-button">
           <span class="icon icon-circle-plus"></span>
           <span>{{'_MENU_DASHBOARD_GENERATE_BACKUP_' | translate}}</span>
+        </button>
+        <c-input-file on-file-upload="settings.uploadBackup" toolbar-button="true" data-file-model="settings.file" name="'file'" data-form="settings.form" data-is-required="true" data-text="'_MENU_DASHBOARD_UPLOAD_BACKUP_'">
+        </c-input-file>
+      </div><!--
+      --><div class="c-col c-col--3 c-form-group--to-right" data-ng-if="settings.backups.length">
+        <button class="c-button c-button--toolbar c-button--danger  c-button--right-margin" data-ng-click="settings.deleteAllBackups()"
+          data-qa="settings-new-policy-button">
+          <span class="icon icon-cross"></span>
+          <span>{{'_MENU_DASHBOARD_DELETE_ALL_BACKUP_' | translate}}</span>
         </button>
       </div>
     </aside>
@@ -20,17 +28,12 @@
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
           <tr>
-            <th class="c-table__td c-col--3 c-table--sorted" data-ng-click="settings.sortDrivers('fileName')">
+            <th class="c-table__td c-col--3 c-table--sorted" data-ng-click="settings.sortBackups('fileName')">
               {{"_NAME_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="settings.sortField == 'fileName' && settings.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': settings.sortField == 'fileName'}" data-ng-if="settings.sortField != 'fileName' || !settings.tableReverse"></span>
             </th>
-            <th class="c-table__td c-col--6 c-table--sorted" data-ng-click="settings.sortDrivers('uri')">
-              {{"_URI_" | translate}}
-              <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="settings.sortField == 'uri' && settings.tableReverse"></span>
-              <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-class="{'sort-active': settings.sortField == 'uri'}" data-ng-if="settings.sortField != 'input.uri' || !settings.tableReverse"></span>
-            </th>
-            <th class="c-table__td  c-col--2 c-table--centered-content c-table--sorted" data-ng-click="settings.sortDrivers('size')">
+            <th class="c-table__td  c-col--2 c-table--centered-content c-table--sorted" data-ng-click="settings.sortBackups('size')">
               {{"_SIZE_" | translate}}
               <span class="ico c-table--sort-icon icon-arrow2_up sort-active" data-ng-if="settings.sortField == 'size' && settings.tableReverse"></span>
               <span class="ico c-table--sort-icon icon-arrow2_down" data-ng-if="settings.sortField != 'size' || !settings.tableReverse"
@@ -42,16 +45,15 @@
         <tbody>
           <tr class="c-table__tr" data-ng-repeat="workflowData in settings.backups | orderBy:settings.sortField:settings.tableReverse">
             <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::workflowData.fileName}}</td>
-            <td class="c-table__td c-table__td--no-wrap c-table__td--ellipsis">{{::workflowData.uri}}</td>
             <td class="c-table__td c-col--1 c-table--centered-content">{{::workflowData.size}}</td>
             <td class="c-table__td c-table__td--no-wrap c-table__td--to-right c-col--1">
               <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-actions" data-ng-click="$root.stToggleFloatingMenu[workflowData.uri]()"
                 data-qa="policy-context-menu-{{workflowData.uri}}"><!--
               --><st-floating-menu toggle-id="{{workflowData.uri}}" align="right">
-                    <st-menu-element class-icon="icon-edit2"
-                                 data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.id)"
+                    <st-menu-element class-icon="icon-play"
+                                 data-ng-click="settings.executeBackup(workflowData.fileName)"
                                  data-qa="policy-context-menu-{{workflowData.id}}-edit">
-                  {{"_OUTPUT_ACTIONS_IMPORT_" | translate}}
+                  {{"_OUTPUT_ACTIONS_EXECUTE_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-download"
                                  data-ng-click="settings.downloadBackup(workflowData.fileName)"

@@ -32,6 +32,9 @@
     vm.tableReverse = false;
     vm.generateBackup = generateBackup;
     vm.downloadBackup = downloadBackup;
+    vm.uploadBackup = uploadBackup;
+    vm.deleteAllBackups = deleteAllBackups;
+    vm.executeBackup = executeBackup;
     vm.sortField = 'fileName';
     vm.errorMessage = {
       type: 'error',
@@ -91,10 +94,10 @@
 
     function downloadBackup(fileName) {
       EntityFactory.downloadBackup(fileName).then(function (policyFile) {
-        var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(policyFile[0]));
+        var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(policyFile));
         var a = document.createElement('a');
         a.href = 'data:' + data;
-        a.download = policyFile.name + ".json";
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -135,6 +138,56 @@
         vm.tableReverse = false;
         vm.sortField = fieldName;
       }
+    }
+
+    function uploadBackup(file) {
+      EntityFactory.uploadBackup(file).then(function () {
+        getAllBackups();
+      });
+
+    }
+
+    function deleteAllBackups() {
+      deleteAllBackupsConfirm('lg');
+    }
+
+    function deleteAllBackupsConfirm(size) {
+
+      var controller = 'DeleteEntityModalCtrl';
+      var templateUrl = "templates/modal/entity-delete-modal.tpl.html";
+      var resolve = {
+        item: function () {
+          return "";
+        },
+        type: function () {
+          return "ALL_BACKUPS";
+        },
+        title: function () {
+          return "_ENTITY_._DELETE_ALL_BACKUPS_TITLE_";
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
+
+      modalInstance.result.then(function () {
+        vm.successMessage.text = "_ALL_BACKUPS_DELETE_OK_";
+        getAllBackups();
+      });
+    }
+
+    function executeBackup(fileName){
+      var controller = 'ExecuteBackupModalCtrl';
+      var templateUrl = "templates/modal/execute-backup-modal.tpl.html";
+      var resolve = {
+        item: function () {
+          return fileName;
+        }
+      };
+      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
+
+      modalInstance.result.then(function () {
+        getAllBackups();
+        vm.successMessage.text = '_BACKUP_EXECUTION_OK_';
+      });
     }
 
   }

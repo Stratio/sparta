@@ -53,6 +53,9 @@
         case 'BACKUP':
           promise = EntityFactory.deleteBackup(vm.fileName);
           break;
+        case 'ALL_BACKUPS':
+          promise = EntityFactory. deleteAllBackups();
+          break;
       }
 
       return promise.then(function () {

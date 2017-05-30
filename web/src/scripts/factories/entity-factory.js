@@ -61,8 +61,24 @@
           'fileName': fileName
         }).$promise;
       },
-       downloadBackup: function (fileName) {
-        return ApiEntitiesService.downloadBackup().get({'fileName': fileName}).$promise;
+      downloadBackup: function (fileName) {
+        return ApiEntitiesService.downloadBackup().get({
+          'fileName': fileName
+        }).$promise;
+      },
+      uploadBackup: function (file) {
+        var fd = new FormData();
+        fd.append('file', file);
+        return ApiEntitiesService.uploadBackup().put(fd).$promise;
+      },
+      deleteAllBackups: function () {
+        return ApiEntitiesService.deleteAllBackups().delete({}).$promise;
+      },
+      executeBackup: function(fileName,deleteAllBefore ){
+        return ApiEntitiesService.executeBackup().post({
+          'fileName': fileName,
+          'deleteAllBefore': deleteAllBefore
+        }).$promise;
       }
     };
   }

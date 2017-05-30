@@ -1,12 +1,12 @@
-<div>
-  <ng-form name="{{name}}" class="c-form-group" data-ng-class="">
+<div class="c-input-file" data-ng-class="{'inline-position': toolbarButton}">
+  <ng-form name="{{name}}" class="c-form-group">
     <label>
     <input type="file" ng-hide="true" data-ng-model="model" data-ng-required="isRequired">
-    <button type="button" class="c-button c-button--call-to-action-1" data-ng-click="click()">
+    <button type="button" class="c-button c-button--call-to-action-1" data-ng-click="click()" data-ng-class="{'c-button--toolbar': toolbarButton}">
         <i class="icon icon-upload"></i>
-        <span>{{'_UPLOAD_FILE_' | translate}}</span>
+        <span>{{text || '_UPLOAD_FILE_' | translate}}</span>
     </button>
-    <span>{{fileName}}</span>
+    <span ng-if="showFileName">{{fileName}}</span>
   </label>
     <div data-ng-if="invalid && form.$submitted" class="angular-forms__error angular-forms__separation">
       <i class="icon icon-circle-cross"></i>

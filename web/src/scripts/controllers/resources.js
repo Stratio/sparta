@@ -25,7 +25,7 @@
   function ResourcesCtrl($scope, $state) {
     /*jshint validthis: true*/
     var vm = this;
-    vm.selectedOption = 'PLUGINS';
+    vm.selectedOption = $state.current.name.split("dashboard.resources.")[1].toUpperCase();
     vm.errorMessage = {
       type: 'error',
       text: '',
@@ -45,7 +45,7 @@
       isDisabled: false,
       name: 'DRIVERS'
     },{
-      text: '_MENU_DASHBOARD_SETTINGS_',
+      text: '_MENU_DASHBOARD_BACKUPS_',
       isDisabled: false,
       name: 'SETTINGS'
     }];
