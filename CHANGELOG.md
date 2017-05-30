@@ -2,7 +2,14 @@
 
 ## 1.5.0 (upcoming)
 
-* Pending changelog
+* Backup metadata
+* Restore metadata
+* Clean metadata
+* Timeout configurable
+* Info service
+* Security options configurable
+* Https with marathon-lb
+* Bugfix: Postgres library added
 
 ## 1.4.0 (May 17, 2017)
 
