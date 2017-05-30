@@ -43,7 +43,8 @@ class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with
   def retrieveStringConfig(): FrontendConfiguration = {
       FrontendConfiguration(
         Try(SpartaConfig.getFrontendConfig.get
-          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout))
+          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout),
+        Try(SpartaConfig.initConfig("oauth2").get.getString("cookieName")).getOrElse("user"))
   }
 
 }
