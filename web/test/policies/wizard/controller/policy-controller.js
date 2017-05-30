@@ -58,7 +58,7 @@ describe('policies.wizard.controller.policy-controller', function () {
     stateParamsMock = {id: null};
     wizardStatusServiceMock = jasmine.createSpyObj('wizardStatusService', ['getStatus', 'nextStep']);
     wizardStatusServiceMock.getStatus.and.returnValue(fakeCreationStatus);
-    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'isValidSparkStreamingWindow', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
+    policyModelFactoryMock = jasmine.createSpyObj('PolicyModelFactory', ['setPolicy', 'initializePolicy', 'getCurrentPolicy', 'setFinalJSON', 'setError', 'isValidSparkStreamingWindow', 'getError', 'getFinalJSON', 'setTemplate', 'getTemplate', 'getProcessStatus', 'resetPolicy']);
     policyModelFactoryMock.getCurrentPolicy.and.callFake(function () {
       return fakePolicy;
     });
@@ -191,6 +191,7 @@ describe('policies.wizard.controller.policy-controller', function () {
       it("user is redirected to policy list page", function () {
         expect(stateMock.go).toHaveBeenCalledWith("dashboard.policies");
       })
+      
     });
   });
 
