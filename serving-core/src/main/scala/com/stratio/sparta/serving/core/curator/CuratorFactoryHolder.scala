@@ -42,18 +42,18 @@ object CuratorFactoryHolder extends SLF4JLogging {
   def getInstance(config: Option[Config] = SpartaConfig.getZookeeperConfig): CuratorFramework = {
     curatorFramework match {
       case None => {
-        var defaultConnectionString = AppConstant.DefaultZookeeperConnection
-        var connectionTimeout = AppConstant.DefaultZookeeperConnectionTimeout
-        var sessionTimeout = AppConstant.DefaultZookeeperSessionTimeout
-        var retryAttempts = AppConstant.DefaultZookeeperRetryAttemps
-        var retryInterval = AppConstant.DefaultZookeeperRetryInterval
+        var defaultConnectionString = AppConstant.DefaultZKConnection
+        var connectionTimeout = AppConstant.DefaultZKConnectionTimeout
+        var sessionTimeout = AppConstant.DefaultZKSessionTimeout
+        var retryAttempts = AppConstant.DefaultZKRetryAttemps
+        var retryInterval = AppConstant.DefaultZKRetryInterval
 
         Try(config.foreach(zkConfig => {
-          defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZookeeperConnection)
-          connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperConnectionTimeout)
-          sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZookeeperSessionTimeout)
-          retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryAttemps)
-          retryInterval = getIntConfigValue(zkConfig, AppConstant.ZookeeperRetryInterval)
+          defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZKConnection)
+          connectionTimeout = getIntConfigValue(zkConfig, AppConstant.ZKConnectionTimeout)
+          sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZKSessionTimeout)
+          retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZKRetryAttemps)
+          retryInterval = getIntConfigValue(zkConfig, AppConstant.ZKRetryInterval)
         }))
 
         Try {

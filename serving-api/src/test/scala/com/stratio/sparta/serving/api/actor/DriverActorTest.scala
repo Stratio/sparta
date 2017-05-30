@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.actor
 
 import java.nio.file.{Files, Path}
@@ -20,8 +21,7 @@ import java.nio.file.{Files, Path}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
-import com.stratio.sparta.serving.api.actor.PluginActor.{PluginResponse, UploadPlugins}
-import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.api.actor.DriverActor.UploadDrivers
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.files.{SpartaFile, SpartaFilesResponse}
@@ -37,7 +37,7 @@ import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
+class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   with DefaultTimeout
   with ImplicitSender
   with WordSpecLike
@@ -58,9 +58,8 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
        |   }
        |}
        |
-       |sparta.config.pluginPackageLocation = "$tempDir"
+       |sparta.config.driverPackageLocation = "$tempDir"
     """.stripMargin)
-
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
 
@@ -75,29 +74,28 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   override implicit val timeout: Timeout = Timeout(15 seconds)
 
-  "PluginActor " must {
+  "DriverActor " must {
 
     "Not save files with wrong extension" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadPlugins(fileList)
+      val driverActor = system.actorOf(Props(new DriverActor()))
+      driverActor ! UploadDrivers(fileList)
       expectMsgPF() {
         case SpartaFilesResponse(Success(f: Seq[SpartaFile])) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadPlugins(Seq.empty)
+      val driverActor = system.actorOf(Props(new DriverActor()))
+      driverActor ! UploadDrivers(Seq.empty)
       expectMsgPF() {
         case SpartaFilesResponse(Failure(f)) => f.getMessage shouldBe "At least one file is expected"
       }
     }
     "Save a file" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")))
+      val driverActor = system.actorOf(Props(new DriverActor()))
+      driverActor ! UploadDrivers(Seq(BodyPart("reference.conf", "file.jar")))
       expectMsgPF() {
         case SpartaFilesResponse(Success(f: Seq[SpartaFile])) => f.head.fileName.endsWith("file.jar") shouldBe true
       }
     }
   }
-
 }
