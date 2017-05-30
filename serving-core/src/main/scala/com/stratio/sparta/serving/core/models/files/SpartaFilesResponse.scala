@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.policy.files
+package com.stratio.sparta.serving.core.models.files
 
-case class JarFile(fileName: String, uri: String, localPath: String, size: String)
+import scala.util.Try
+
+case class SpartaFilesResponse(files: Try[Seq[SpartaFile]])
+

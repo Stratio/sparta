@@ -55,25 +55,29 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
         <configuration>
-           <property>
-             <name>hadoop.security.authentication</name>
-             <value>__<SECURITY_AUTH>__</value>
-           </property>
-           <property>
-             <name>fs.default.name</name>
-             <value>__<FS_DEFAULT_NAME>__</value>
-           </property>
-           <property>
-                 <name>hadoop.rpc.protection</name>
-                 <value>__<RPC_PROTECTION>__</value>
-            </property>
           <property>
-               <name>dfs.encrypt.data.transfer</name>
-               <value>__<ENCRYPT_DATA_TRANSFER>__</value>
+            <name>hadoop.security.authorization</name>
+            <value>True</value>
           </property>
           <property>
-               <name>hadoop.security.token.service.use_ip</name>
-               <value>__<SECURITY_TOKEN_USE_IP>__</value>
+            <name>hadoop.security.authentication</name>
+            <value>__<SECURITY_AUTH>__</value>
+          </property>
+          <property>
+            <name>fs.default.name</name>
+            <value>__<FS_DEFAULT_NAME>__</value>
+          </property>
+          <property>
+            <name>hadoop.rpc.protection</name>
+            <value>__<RPC_PROTECTION>__</value>
+          </property>
+          <property>
+            <name>dfs.encrypt.data.transfer</name>
+            <value>__<ENCRYPT_DATA_TRANSFER>__</value>
+          </property>
+          <property>
+            <name>hadoop.security.token.service.use_ip</name>
+            <value>__<SECURITY_TOKEN_USE_IP>__</value>
           </property>
         </configuration>
 EOF

@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy.files.JarFilesResponse
+import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http._
@@ -59,10 +59,10 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadDrivers(form.fields)).mapTo[JarFilesResponse]
+              response <- (supervisor ? UploadDrivers(form.fields)).mapTo[SpartaFilesResponse]
             } yield response match {
-              case JarFilesResponse(Success(newFilesUris)) => newFilesUris
-              case JarFilesResponse(Failure(exception)) => throw exception
+              case SpartaFilesResponse(Success(newFilesUris)) => newFilesUris
+              case SpartaFilesResponse(Failure(exception)) => throw exception
             }
           }
         }
@@ -102,10 +102,10 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListDrivers).mapTo[JarFilesResponse]
+            response <- (supervisor ? ListDrivers).mapTo[SpartaFilesResponse]
           } yield response match {
-            case JarFilesResponse(Success(filesUris)) => filesUris
-            case JarFilesResponse(Failure(exception)) => throw exception
+            case SpartaFilesResponse(Success(filesUris)) => filesUris
+            case SpartaFilesResponse(Failure(exception)) => throw exception
           }
         }
       }

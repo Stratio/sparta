@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.dto
+package com.stratio.sparta.serving.core.models.files
 
-object LoggedUserConstant {
-  val infoNameTag = "cn"
-  val infoIdTag = "id"
-  val infoMailTag = "mail"
-  val infoRolesTag = "roles"
-  val infoGroupIDTag= "gidNumber"
-  val infoGroupsTag= "groups"
+import com.stratio.sparta.serving.core.models.info.AppInfo
 
-  val dummyMail = "email@email.com"
-
-  val AnonymousUser = LoggedUser("*", "Anonymous", dummyMail,"0",Seq.empty[String],Seq.empty[String])
-
-  val allowedRoles = Seq("FullAdministrator","management_admin","sparta","sparta_zk")
-}
+case class SpartaFile(fileName: String,
+                      uri: String,
+                      localPath: String,
+                      size: String,
+                      version: Option[AppInfo] = None)

@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.serving.core.models.info
 
-package com.stratio.sparta.serving.core.models.dto
-
-object LoggedUserConstant {
-  val infoNameTag = "cn"
-  val infoIdTag = "id"
-  val infoMailTag = "mail"
-  val infoRolesTag = "roles"
-  val infoGroupIDTag= "gidNumber"
-  val infoGroupsTag= "groups"
-
-  val dummyMail = "email@email.com"
-
-  val AnonymousUser = LoggedUser("*", "Anonymous", dummyMail,"0",Seq.empty[String],Seq.empty[String])
-
-  val allowedRoles = Seq("FullAdministrator","management_admin","sparta","sparta_zk")
-}
+case class AppInfo(pomVersion: String,
+                   profileId: String,
+                   buildTimestamp: String,
+                   devContact: String,
+                   supportContact: String,
+                   license: String)
