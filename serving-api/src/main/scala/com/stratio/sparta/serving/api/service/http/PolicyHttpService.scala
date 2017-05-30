@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.actor.{FragmentActor, StatusActor}
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseDelete
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
 import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyValidator, ResponsePolicy}
@@ -43,14 +44,14 @@ import scala.util.{Failure, Success, Try}
 @Api(value = HttpConstant.PolicyPath, description = "Operations over policies.")
 trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
 
-  override def routes(user: Option[LoggedUser]=None): Route =
+  override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ findByFragment(user) ~ create(user) ~
       update(user) ~ remove(user) ~ run(user) ~ download(user) ~ findByName(user) ~
       removeAll(user) ~ deleteCheckpoint(user)
 
   @Path("/find/{id}")
-  @ApiOperation(value = "Find a policy from its id.",
-    notes = "Find a policy from its id.",
+  @ApiOperation(value = "Finds a policy from its id.",
+    notes = "Finds a policy from its id.",
     httpMethod = "GET",
     response = classOf[PolicyModel])
   @ApiImplicitParams(Array(
@@ -69,11 +70,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? Find(id)).mapTo[ResponsePolicy]
+            response <- (supervisor ? Find(id, user))
+              .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
           } yield response match {
-            case ResponsePolicy(Failure(exception)) =>
-              throw exception
-            case ResponsePolicy(Success(policy)) => policy
+            case Left(ResponsePolicy(Failure(exception))) => throw exception
+            case Left(ResponsePolicy(Success(policy))) => policy
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
@@ -81,8 +84,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   }
 
   @Path("/findByName/{name}")
-  @ApiOperation(value = "Find a policy from its name.",
-    notes = "Find a policy from its name.",
+  @ApiOperation(value = "Finds a policy from its name.",
+    notes = "Finds a policy from its name.",
     httpMethod = "GET",
     response = classOf[PolicyModel])
   @ApiImplicitParams(Array(
@@ -101,11 +104,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindByName(name)).mapTo[ResponsePolicy]
+            response <- (supervisor ? FindByName(name, user))
+              .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
           } yield response match {
-            case ResponsePolicy(Failure(exception)) =>
-              throw exception
-            case ResponsePolicy(Success(policy)) => policy
+            case Left(ResponsePolicy(Failure(exception))) => throw exception
+            case Left(ResponsePolicy(Success(policy))) => policy
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
@@ -138,10 +143,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindByFragment(fragmentType, id)).mapTo[ResponsePolicies]
+            response <- (supervisor ? FindByFragment(fragmentType, id, user))
+              .mapTo[Either[ResponsePolicies, UnauthorizedResponse]]
           } yield response match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
+            case Left(ResponsePolicies(Failure(exception))) => throw exception
+            case Left(ResponsePolicies(Success(policies))) => policies
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
@@ -162,16 +170,20 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindAll()).mapTo[ResponsePolicies]
+            response <- (supervisor ? FindAll(user))
+              .mapTo[Either[ResponsePolicies, UnauthorizedResponse]]
           } yield response match {
-            case ResponsePolicies(Failure(exception)) => throw exception
-            case ResponsePolicies(Success(policies)) => policies
+            case Left(ResponsePolicies(Failure(exception))) => throw exception
+            case Left(ResponsePolicies(Success(policies))) => policies
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
     }
   }
 
+  // scalastyle:off cyclomatic.complexity
   @ApiOperation(value = "Creates a policy.",
     notes = "Creates a policy.",
     httpMethod = "POST",
@@ -191,24 +203,30 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
             val fragmentActor = actors.getOrElse(AkkaConstant.FragmentActorName, throw new ServingCoreException
             (ErrorModel.toString(ErrorModel(ErrorModel.CodeUnknown, s"Error getting fragmentActor"))))
             for {
-              parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(policy)).mapTo[ResponsePolicy]
+              parsedP <- (fragmentActor ? FragmentActor.PolicyWithFragments(policy, user))
+                .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
             } yield parsedP match {
-              case ResponsePolicy(Failure(exception)) =>
-                throw exception
-              case ResponsePolicy(Success(policyParsed)) =>
+              case Left(ResponsePolicy(Failure(exception))) => throw exception
+              case Left(ResponsePolicy(Success(policyParsed))) =>
                 PolicyValidator.validateDto(policyParsed)
                 for {
-                  response <- (supervisor ? Create(policy)).mapTo[ResponsePolicy]
+                  response <- (supervisor ? CreatePolicy(policy, user))
+                    .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
                 } yield response match {
-                  case ResponsePolicy(Failure(exception)) => throw exception
-                  case ResponsePolicy(Success(policy)) => policy
+                  case Left(ResponsePolicy(Failure(exception))) => throw exception
+                  case Left(ResponsePolicy(Success(pol))) => pol
+                  case Right(UnauthorizedResponse(exception)) => throw exception
+                  case _ => throw new RuntimeException("Unexpected behaviour in policies")
                 }
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in policies")
             }
           }
         }
       }
     }
   }
+
 
   @ApiOperation(value = "Updates a policy.",
     notes = "Updates a policy.",
@@ -227,10 +245,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
           complete {
             PolicyValidator.validateDto(policy)
             for {
-              response <- (supervisor ? Update(policy)).mapTo[ResponsePolicy]
+              response <- (supervisor ? Update(policy, user))
+                .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
             } yield response match {
-              case ResponsePolicy(Failure(exception)) => throw exception
-              case ResponsePolicy(Success(policy)) => HttpResponse(StatusCodes.OK)
+              case Left(ResponsePolicy(Failure(exception))) => throw exception
+              case Left(ResponsePolicy(Success(pol))) => HttpResponse(StatusCodes.OK)
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in policies")
             }
           }
         }
@@ -251,22 +272,29 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            policies <- (supervisor ? DeleteAll()).mapTo[ResponsePolicies]
+            policies <- (supervisor ? DeleteAll(user))
+              .mapTo[Either[ResponsePolicies, UnauthorizedResponse]]
           } yield policies match {
-            case ResponsePolicies(Failure(exception)) =>
+            case Left(ResponsePolicies(Failure(exception))) =>
               throw exception
-            case ResponsePolicies(Success(policies: Seq[PolicyModel])) =>
+            case Left(ResponsePolicies(Success(policies: Seq[PolicyModel]))) =>
               for {
-                response <- (statusActor ? StatusActor.DeleteAll).mapTo[ResponseDelete]
+                response <- (statusActor ? StatusActor.DeleteAll)
+                  .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
               } yield response match {
-                case ResponseDelete(Success(_)) => StatusCodes.OK
-                case ResponseDelete(Failure(exception)) => throw exception
+                case Left(ResponseDelete(Success(_))) => StatusCodes.OK
+                case Left(ResponseDelete(Failure(exception))) => throw exception
+                case Right(UnauthorizedResponse(exception)) => throw exception
+                case _ => throw new RuntimeException("Unexpected behaviour in policies")
               }
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
     }
   }
+
 
   @ApiOperation(value = "Deletes a policy from its id.",
     notes = "Deletes a policy from its id.",
@@ -287,10 +315,13 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       delete {
         complete {
           for {
-            response <- (supervisor ? Delete(id)).mapTo[Response]
+            response <- (supervisor ? DeletePolicy(id, user))
+              .mapTo[Either[Response, UnauthorizedResponse]]
           } yield response match {
-            case Response(Failure(ex)) => throw ex
-            case Response(Success(_)) => StatusCodes.OK
+            case Left(Response(Failure(ex))) => throw ex
+            case Left(Response(Success(_))) => StatusCodes.OK
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
@@ -298,8 +329,8 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   }
 
   @Path("/checkpoint/{name}")
-  @ApiOperation(value = "Delete checkpoint associated to one policy from its name.",
-    notes = "Delete checkpoint associated to one policy from its name.",
+  @ApiOperation(value = "Delete checkpoint associated to a policy by its name.",
+    notes = "Delete checkpoint associated to a policy by its name.",
     httpMethod = "DELETE",
     response = classOf[Result])
   @ApiImplicitParams(Array(
@@ -318,24 +349,31 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
       delete {
         complete {
           for {
-            responsePolicy <- (supervisor ? FindByName(name)).mapTo[ResponsePolicy]
+            responsePolicy <- (supervisor ? FindByName(name, user))
+              .mapTo[Either[ResponsePolicy, UnauthorizedResponse]]
           } yield responsePolicy match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) => for {
-              response <- (supervisor ? DeleteCheckpoint(policy)).mapTo[Response]
+            case Left(ResponsePolicy(Failure(exception))) => throw exception
+            case Left(ResponsePolicy(Success(policy))) => for {
+              response <- (supervisor ? DeleteCheckpoint(policy, user))
+                .mapTo[Either[Response, UnauthorizedResponse]]
             } yield response match {
-              case Response(Failure(ex)) => throw ex
-              case Response(Success(_)) => Result("Checkpoint deleted from policy: " + policy.name)
+              case Left(Response(Failure(ex))) => throw ex
+              case Left(Response(Success(_))) => Result("Checkpoint deleted from policy: " + policy.name)
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in policies")
             }
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
     }
   }
 
+
   @Path("/run/{id}")
-  @ApiOperation(value = "Runs a policy from its name.",
-    notes = "Runs a policy from its name.",
+  @ApiOperation(value = "Runs a policy from by name.",
+    notes = "Runs a policy by its name.",
     httpMethod = "GET",
     response = classOf[Result])
   @ApiImplicitParams(Array(
@@ -353,25 +391,33 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
     path(HttpConstant.PolicyPath / "run" / Segment) { (id) =>
       get {
         complete {
-          for (result <- supervisor ? Find(id)) yield result match {
-            case ResponsePolicy(Failure(exception)) => throw exception
-            case ResponsePolicy(Success(policy)) =>
+          for (result <- supervisor ? Find(id, user)) yield result match {
+            case Left((ResponsePolicy(Failure(exception)))) => throw exception
+            case Left(ResponsePolicy(Success(policy))) =>
               val launcherActor = actors(AkkaConstant.LauncherActorName)
               for {
-                response <- (launcherActor ? Launch(policy)).mapTo[Try[PolicyModel]]
+                response <- (launcherActor ? Launch(policy, user))
+                  .mapTo[Either[Try[PolicyModel], UnauthorizedResponse]]
               } yield response match {
-                case Failure(ex) => throw ex
-                case Success(policyModel) => Result("Launched policy with name " + policyModel.name)
+                case Left(Failure(ex)) => throw ex
+                case Left(Success(policyModel)) => Result("Launched policy with name " + policyModel.name)
+                case Right(UnauthorizedResponse(exception)) => throw exception
+                case _ => throw new RuntimeException("Unexpected behaviour in policies")
               }
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in policies")
           }
         }
       }
     }
   }
 
+  //scalastyle:on cyclomatic.complexity
+
+
   @Path("/download/{id}")
-  @ApiOperation(value = "Downloads a policy from its id.",
-    notes = "Downloads a policy from its id.",
+  @ApiOperation(value = "Downloads a policy by its id.",
+    notes = "Downloads a policy by its id.",
     httpMethod = "GET",
     response = classOf[PolicyModel])
   @ApiImplicitParams(Array(
@@ -388,11 +434,11 @@ trait PolicyHttpService extends BaseHttpService with SpartaSerializer {
   def download(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyPath / "download" / Segment) { (id) =>
       get {
-        val future = supervisor ? Find(id)
+        val future = supervisor ? Find(id, user)
         Await.result(future, timeout.duration) match {
-          case ResponsePolicy(Failure(exception)) =>
+          case Left(ResponsePolicy(Failure(exception))) =>
             throw exception
-          case ResponsePolicy(Success(policy)) =>
+          case Left(ResponsePolicy(Success(policy))) =>
             PolicyValidator.validateDto(policy)
             val tempFile = File.createTempFile(s"${policy.id.get}-${policy.name}-", ".json")
             tempFile.deleteOnExit()

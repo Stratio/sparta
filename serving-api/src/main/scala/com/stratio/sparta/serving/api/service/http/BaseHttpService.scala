@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser

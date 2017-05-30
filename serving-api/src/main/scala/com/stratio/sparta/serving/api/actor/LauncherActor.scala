@@ -19,17 +19,21 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.SupervisorStrategy.Escalate
 import akka.actor._
 import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.api.utils.LauncherActorUtils
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.utils.PolicyUtils
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class LauncherActor(val streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
-  extends Actor with LauncherActorUtils with PolicyUtils {
+class LauncherActor(val streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework,
+                    val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with LauncherActorUtils with PolicyUtils with ActionUserAuthorize{
+
+  val ResourceType = "context"
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy() {
@@ -39,7 +43,10 @@ class LauncherActor(val streamingContextService: StreamingContextService, val cu
     }
 
   override def receive: Receive = {
-    case Launch(policy) => sender ! create(policy)
+
+    case Launch(policy, user) =>
+      def callback() = create(policy)
+      securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 

@@ -28,5 +28,5 @@ object LoggedUserConstant {
 
   val AnonymousUser = LoggedUser("*", "Anonymous", dummyMail,"0",Seq.empty[String],Seq.empty[String])
 
-  val allowedRoles = Seq("FullAdministrator","management_admin")
+  val allowedRoles = Seq("FullAdministrator","management_admin", "sparta")
 }

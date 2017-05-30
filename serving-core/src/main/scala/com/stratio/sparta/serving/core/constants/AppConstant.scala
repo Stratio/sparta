@@ -49,6 +49,7 @@ object AppConstant {
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
   val DefaultFrontEndTimeout = 10000
+  val ConfigSecurity = "security"
 
   //killing options
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
