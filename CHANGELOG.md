@@ -2,6 +2,10 @@
 
 ## 1.5.0 (upcoming)
 
+* Pending changelog
+
+## 1.5.0 (upcoming)
+
 * Backup metadata
 * Restore metadata
 * Clean metadata
