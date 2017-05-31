@@ -25,10 +25,10 @@ function initJavaOptions() {
 
 function hdfsOptions() {
 
- if [[ ! -v HDFS_PORT ]]; then
-   HDFS_PORT=9000
+ if [[ ! -v HADOOP_PORT ]]; then
+   HADOOP_PORT=9000
  fi
- sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HDFS_PORT}|" ${SPARTA_CONF_FILE}
+ sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HADOOP_PORT}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v HDFS_SECURITY_ENABLED ]]; then
    HDFS_SECURITY_ENABLED=false

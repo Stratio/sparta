@@ -23,6 +23,8 @@ function generate_core-site-from-uri() {
     echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
     exit 1
   fi
+  echo "" >> ${VARIABLES}
+  echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
 }
@@ -40,6 +42,8 @@ function generate_hdfs-conf-from-uri() {
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
@@ -129,13 +133,13 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
         </configuration>
 EOF
 
-sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KRB_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.namenode.kerberos.principal in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL was configured in hdfs-site.xml"
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL was configured in hdfs-site.xml"
 
-sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
+sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.namenode.kerberos.principal.pattern in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
+|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
 && echo "[hdfs-site.xml] dfs.encrypt.data.transfer in hdfs-site.xml" \
@@ -152,6 +156,8 @@ sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_D
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
@@ -209,6 +215,8 @@ sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/co
 
   if [[ $? == 0 ]]; then
     echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
+    echo "" >> ${VARIABLES}
+    echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else

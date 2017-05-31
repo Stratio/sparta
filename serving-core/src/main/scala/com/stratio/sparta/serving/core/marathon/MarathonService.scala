@@ -103,12 +103,12 @@ class MarathonService(context: ActorContext,
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
-  val HadoopUserNameEnv = "HDFS_USER_NAME"
+  val HadoopUserNameEnv = "HADOOP_USER_NAME"
   val HdfsUserNameEnv = "HADOOP_USER_NAME"
-  val HdfsConfFromUriEnv = "HDFS_CONF_FROM_URI"
+  val HdfsConfFromUriEnv = "HADOOP_CONF_FROM_URI"
   val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
-  val HdfsConfFromDfsEnv = "HDFS_CONF_FROM_DFS"
-  val HdfsConfFromDfsNotSecuredEnv = "HDFS_CONF_FROM_DFS_NOT_SECURED"
+  val HdfsConfFromDfsEnv = "HADOOP_CONF_FROM_DFS"
+  val HdfsConfFromDfsNotSecuredEnv = "HADOOP_CONF_FROM_DFS_NOT_SECURED"
   val DefaultFsEnv = "HADOOP_FS_DEFAULT_NAME"
   val DefaultHdfsConfUriEnv = "HADOOP_CONF_URI"
   val HadoopConfDirEnv = "HADOOP_CONF_DIR"
@@ -123,17 +123,18 @@ class MarathonService(context: ActorContext,
   val HdfsSecurityAuthEnv = "HADOOP_SECURITY_AUTH"
   val HdfsEncryptDataEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER"
   val HdfsTokenUseIpEnv = "HADOOP_SECURITY_TOKEN_USE_IP"
-  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL"
-  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN"
+  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL"
+  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN"
   val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
   val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
   val SparkUserEnv = "SPARK_USER"
   val SecurityTlsEnv = "SECURITY_TLS_ENABLE"
   val SecurityTrustoreEnv = "SECURITY_TRUSTSTORE_ENABLE"
-  val SecurityKerberosEnv = "SECURITY_KERBEROS_ENABLE"
+  val SecurityKerberosEnv = "SECURITY_KRB_ENABLE"
   val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
   val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
   val SecuritySparkKafkaEnv = "SPARK_SECURITY_KAFKA_ENABLE"
+  val SecuritySparkHdfsEnv = "HDFS_CONF_URI"
 
   /* Lazy variables */
 
@@ -221,6 +222,9 @@ class MarathonService(context: ActorContext,
       Option("true")
     } else None
   }
+
+  private def envSparkSecurityHdfs(sparkConfigurations: Map[String, String]): Option[String] =
+    sparkConfigurations.get("spark.mesos.driverEnv.HDFS_CONF_URI")
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
@@ -414,6 +418,7 @@ class MarathonService(context: ActorContext,
       SecurityOauth2Env -> envOauth2,
       SecurityMesosEnv -> envMesos,
       SecuritySparkKafkaEnv -> envSparkSecurityKafka(submitRequest.sparkConfigurations),
+      SecuritySparkHdfsEnv -> envSparkSecurityHdfs(submitRequest.sparkConfigurations),
       DcosServiceName -> Option(ServiceName),
       SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
