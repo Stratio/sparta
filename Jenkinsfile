@@ -2,11 +2,11 @@
 
 hose {
     EMAIL = 'sparta'
-    MODULE = 'sparta'
+    MODULE = 'sparta-workflow'
     DEVTIMEOUT = 70
     RELEASETIMEOUT = 40
     FOSS = true
-    REPOSITORY = 'sparta'    
+    REPOSITORY = 'sparta-workflow'
     PKGMODULES = ['dist']
     PKGMODULESNAMES = ['stratio-sparta']
     DEBARCH = 'all'
