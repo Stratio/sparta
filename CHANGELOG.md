@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.0 (upcoming)
+## 1.5.0 (May 31, 2017)
 
 * Backup metadata
 * Restore metadata
