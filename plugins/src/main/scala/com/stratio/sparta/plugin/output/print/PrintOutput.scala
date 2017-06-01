@@ -47,7 +47,7 @@ class PrintOutput(name: String, properties: Map[String, JSerializable])
         schemaInfo.foreach(schema => log.error(schema))
         if(printData) dataFrame.foreach(row => log.error(row.mkString(",")))
       case _ =>
-        metadataInfo.foreach(info => log.error(info))
+        metadataInfo.foreach(info => log.info(info))
         schemaInfo.foreach(schema => log.info(schema))
         if(printData) dataFrame.foreach(row => log.info(row.mkString(",")))
     }

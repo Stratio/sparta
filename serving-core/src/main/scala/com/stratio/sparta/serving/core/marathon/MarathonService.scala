@@ -216,9 +216,9 @@ class MarathonService(context: ActorContext,
     Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
   private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
-    if(sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PASS_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_KEY_PASS_PATH")) {
+    if(sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PASS_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_KEY_PASS_PATH")) {
       Option("true")
     } else None
   }
