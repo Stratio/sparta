@@ -1,5 +1,14 @@
+Discontinued
+============
+After around two years of development, we have decided to discontinue this project due to a major refactor in its structure and in a near future open Sparta 2.0.
 
-About [Stratio Sparta](http://www.stratio.com/sparta)
+We would like to thank all the open source community for their contribution.
+Needless to say that you can continue using this repository as a basis for your developments as it contains the latest stable version as of today and minor issues will be attended.
+
+If you are interested in the new Sparta 2.0 with pipelines and workflows, please contact with us in the email sparta@stratio.com
+
+
+About Stratio Sparta
 ============
 
 At Stratio, we have implemented several real-time analytics projects based on Apache Spark, Kafka, Flume, Cassandra, ElasticSearch or MongoDB.
@@ -164,11 +173,6 @@ In all distributions:
 
   - Java 8
   - Maven 3
-
-Documentation
-========
-
-- [Stratio Sparta](https://stratio.atlassian.net/wiki/spaces/SPARTA1x1x2)
 
 License
 ========

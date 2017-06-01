@@ -433,14 +433,7 @@
       }]
     }
   ],
-  "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Raw+data",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Triggers",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
-  ],
+  "helpLinks": [],
   "model": {
     "outputs": {
       "writer": {
