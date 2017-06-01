@@ -101,6 +101,8 @@
         <spark.version>2.1.0</spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <netty.version>3.8.0.Final</netty.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
     </properties>
 
     <dependencyManagement>

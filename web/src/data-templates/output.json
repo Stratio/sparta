@@ -5,7 +5,7 @@
     "description": {
       "short": "The Cassandra output uses the generic implementation with DataFrames.",
       "long": "Datastax Spark Connector:  goo.gl/PO4k4F",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Cassandra"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -119,7 +119,7 @@
     "description": {
       "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
       "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Elasticsearch"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -211,7 +211,7 @@
     "description": {
       "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
       "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-MongoDB"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -263,7 +263,7 @@
     "description": {
       "short": "Parquet output uses the generic implementation with DataFrames.",
       "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Parquet"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -315,7 +315,7 @@
     "description": {
       "short": "Persist your data in HDFS with CSV format.",
       "long": "https://github.com/databricks/spark-csv",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-CSV"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -398,7 +398,7 @@
     "description": {
       "short": "Saves the processed data to file into any storage service",
       "long": "This output enables you to save the processed data in any HDFS-compatible storage service such as HDFS itself, Amazon S3, Azure or locally.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Filesystem"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -451,7 +451,7 @@
     "description": {
       "short": "Avro output uses the databricks implementation with DataFrames.",
       "long": "Avro is a remote procedure call and data serialization framework developed within Apache's Hadoop project. It uses JSON for defining data types and protocols, and serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Avro"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -727,7 +727,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
       "long": "There is available in Sparta with Kafka 0.10 version",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Kafka"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -930,7 +930,7 @@
     "description": {
       "short": "The output of Redis doesnt use the generic implementation with DataFrames.",
       "long": "Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Redis"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -961,7 +961,7 @@
     "description": {
       "short": "Enables you to do POST requests to a certain URL",
       "long": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with a parameter name or attached in the request body.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-HTTPPost"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -1064,7 +1064,7 @@
     "description": {
       "short": "Print the number of elements, schemas and data",
       "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with its schema.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Print"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -1126,7 +1126,7 @@
     "description": {
       "short": "Custom output defined by user",
       "long": "User can extend the Sparta SDK with his own implementation of Input class",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/SDK"
+      "learnMore": ""
     },
     "properties": [
       {

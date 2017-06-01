@@ -5,7 +5,7 @@
     "description": {
       "short": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
       "long": "There is available in Sparta, a Kafka 0.10 version with security",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
+      "learnMore": ""
 
     },
     "properties": [
@@ -278,7 +278,7 @@
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
       "long": "https://www.rabbitmq.com/",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-RabbitMQ"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -360,7 +360,7 @@
     "description": {
       "short": "RabbitMQ is an open source message broker software (sometimes called message-oriented middleware) that implements the Advanced Message Queuing Protocol (AMQP)",
       "long": "https://www.rabbitmq.com/distributed.html",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARKTA/Inputs#Inputs-RabbitMQDistributed"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -489,7 +489,7 @@
     "description": {
       "short": "Flume is a distributed, reliable, and available service for efficiently collecting, aggregating, and moving large amounts of log data.",
       "long": "https://flume.apache.org/",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Flume"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -657,7 +657,7 @@
     "description": {
       "short": "A network socket is an endpoint of an inter-process communication across a computer network.",
       "long": "",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Socket"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -688,7 +688,7 @@
     "description": {
       "short": "Reads events from Twitter stream and return the status in a json.",
       "long": "http://twitter4j.org/en/index.html",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Twitter"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -749,7 +749,7 @@
     "description": {
       "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
       "long": "",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-WebSocket"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -770,7 +770,7 @@
     "description": {
       "short": "Allows you to load files from a Hadoop-compatible monitored filesystem directory.",
       "long": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-FileSystem"
+      "learnMore": ""
     },
     "properties": [
       {
@@ -791,7 +791,7 @@
     "description": {
       "short": "Custom input defined by user",
       "long": "User can extend the Sparta SDK with his own implementation of Input class",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/SDK"
+      "learnMore": ""
     },
     "properties": [
       {
