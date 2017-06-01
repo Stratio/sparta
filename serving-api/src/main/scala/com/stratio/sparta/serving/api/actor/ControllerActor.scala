@@ -50,6 +50,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
+
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
   def getRoutes: Route = cors{

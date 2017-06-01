@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.api.actor
 import java.util.regex.Pattern
 
 import akka.actor.Actor
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.FileActorUtils
@@ -26,12 +27,15 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Try}
 
-class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils with SpartaSerializer {
+class PluginActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+  with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize{
 
   //The dir where the jars will be saved
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
@@ -39,36 +43,55 @@ class PluginActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   val apiPath = HttpConstant.PluginsPath
   override val patternFileName = Option(Pattern.compile(""".*\.jar""").asPredicate())
 
+  val ResourceType = "plugin"
+
   override def receive: Receive = {
-    case UploadPlugins(files) => if (files.isEmpty) errorResponse() else uploadPlugins(files)
-    case ListPlugins => browsePlugins()
-    case DeletePlugins => deletePlugins()
-    case DeletePlugin(fileName) => deletePlugin(fileName)
+    case UploadPlugins(files, user) => if (files.isEmpty) errorResponse() else uploadPlugins(files, user)
+    case ListPlugins(user) => browsePlugins(user)
+    case DeletePlugins(user) => deletePlugins(user)
+    case DeletePlugin(fileName, user) => deletePlugin(fileName, user)
     case _ => log.info("Unrecognized message in Plugin Actor")
   }
 
   def errorResponse(): Unit =
-    sender ! SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected")))
+    sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
 
-  def deletePlugins(): Unit = sender ! PluginResponse(deleteFiles())
+  def deletePlugins(user: Option[LoggedUser]): Unit = {
+    def callback() = PluginResponse(deleteFiles())
 
-  def deletePlugin(fileName: String): Unit = sender ! PluginResponse(deleteFile(fileName))
+    securityActionAuthorizer[PluginResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
+  }
 
-  def browsePlugins(): Unit = sender ! SpartaFilesResponse(browseDirectory())
+  def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit = {
+    def callback() = PluginResponse(deleteFile(fileName))
 
-  def uploadPlugins(files: Seq[BodyPart]): Unit = sender ! SpartaFilesResponse(uploadFiles(files))
+    securityActionAuthorizer[PluginResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
+  }
+
+  def browsePlugins(user: Option[LoggedUser]): Unit = {
+    def callback() = SpartaFilesResponse(browseDirectory())
+
+    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> View), callback)
+  }
+
+  def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit = {
+    def callback() = SpartaFilesResponse(uploadFiles(files))
+
+    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Upload), callback)
+  }
+
 }
 
 object PluginActor {
 
-  case class UploadPlugins(files: Seq[BodyPart])
+  case class UploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser])
 
   case class PluginResponse(status: Try[_])
 
-  case object ListPlugins
+  case class ListPlugins(user: Option[LoggedUser])
 
-  case object DeletePlugins
+  case class DeletePlugins(user: Option[LoggedUser])
 
-  case class DeletePlugin(fileName: String)
+  case class DeletePlugin(fileName: String, user: Option[LoggedUser])
 
 }

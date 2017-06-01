@@ -71,8 +71,8 @@ trait HttpServiceBaseTest extends WordSpec
   // XXX Protected methods.
 
   protected def getFragmentModel(id: Option[String]): FragmentElementModel =
-    new FragmentElementModel(id, "input", "name", "description", "shortDescription",
-      new PolicyElementModel("name", "input", Map()))
+     FragmentElementModel(id, "input", "name", "description", "shortDescription",
+       PolicyElementModel("name", "input", Map()))
 
   protected def getFragmentModel(): FragmentElementModel =
     getFragmentModel(None)

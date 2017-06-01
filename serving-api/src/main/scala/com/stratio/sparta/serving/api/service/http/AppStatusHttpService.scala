@@ -23,14 +23,14 @@ import com.wordnik.swagger.annotations._
 import org.apache.curator.framework.CuratorFramework
 import spray.routing._
 
-@Api(value = HttpConstant.AppStatus, description = "Operations about sparta status.")
+@Api(value = HttpConstant.AppStatus, description = "Operations about Sparta status.")
 trait AppStatusHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = checkStatus
 
   val curatorInstance : CuratorFramework
 
-  @ApiOperation(value = "Check Sparta status depends to Zookeeper connexion",
+  @ApiOperation(value = "Checks Sparta status based on the Zookeeper connection",
     notes = "Returns Sparta status",
     httpMethod = "GET",
     response = classOf[String],

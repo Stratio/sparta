@@ -21,9 +21,12 @@ import java.nio.file.{Files, Path}
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.DriverActor.UploadDrivers
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
+import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.{SpartaFile, SpartaFilesResponse}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
@@ -62,6 +65,9 @@ class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     """.stripMargin)
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
+  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
   override def beforeEach(): Unit = {
     SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
@@ -77,24 +83,25 @@ class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   "DriverActor " must {
 
     "Not save files with wrong extension" in {
-      val driverActor = system.actorOf(Props(new DriverActor()))
-      driverActor ! UploadDrivers(fileList)
+      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      driverActor ! UploadDrivers(fileList, rootUser)
       expectMsgPF() {
-        case SpartaFilesResponse(Success(f: Seq[SpartaFile])) => f.isEmpty shouldBe true
+        case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
-      val driverActor = system.actorOf(Props(new DriverActor()))
-      driverActor ! UploadDrivers(Seq.empty)
+      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      driverActor ! UploadDrivers(Seq.empty, rootUser)
       expectMsgPF() {
-        case SpartaFilesResponse(Failure(f)) => f.getMessage shouldBe "At least one file is expected"
+        case Left(SpartaFilesResponse(Failure(f))) => f.getMessage shouldBe "At least one file is expected"
       }
     }
     "Save a file" in {
-      val driverActor = system.actorOf(Props(new DriverActor()))
-      driverActor ! UploadDrivers(Seq(BodyPart("reference.conf", "file.jar")))
+      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      driverActor ! UploadDrivers(Seq(BodyPart("reference.conf", "file.jar")), rootUser)
       expectMsgPF() {
-        case SpartaFilesResponse(Success(f: Seq[SpartaFile])) => f.head.fileName.endsWith("file.jar") shouldBe true
+        case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) =>
+          f.head.fileName.endsWith("file.jar") shouldBe true
       }
     }
   }

@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.serving.core.models.dto
 
+import akka.event.slf4j.SLF4JLogging
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
@@ -24,7 +25,7 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 
-object LoggedUser{
+object LoggedUser extends SLF4JLogging{
 
   implicit def jsonToDto(stringJson: String): Option[LoggedUser] = {
     if (stringJson.trim.isEmpty) None

@@ -19,19 +19,23 @@ package com.stratio.sparta.serving.api.actor
 import java.util.regex.Pattern
 
 import akka.actor.Actor
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.DriverActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Try}
 
-class DriverActor extends Actor with Json4sJacksonSupport with FileActorUtils with SpartaSerializer {
+class DriverActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+  with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize{
 
   //The dir where the jars will be saved
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
@@ -39,36 +43,54 @@ class DriverActor extends Actor with Json4sJacksonSupport with FileActorUtils wi
   override val apiPath = HttpConstant.DriverPath
   override val patternFileName = Option(Pattern.compile(""".*\.jar""").asPredicate())
 
+  val ResourceType = "driver"
+
   override def receive: Receive = {
-    case UploadDrivers(files) => if (files.isEmpty) errorResponse() else uploadDrivers(files)
-    case ListDrivers => browseDrivers()
-    case DeleteDrivers => deleteDrivers()
-    case DeleteDriver(fileName) => deleteDriver(fileName)
+    case UploadDrivers(files, user) => if (files.isEmpty) errorResponse() else uploadDrivers(files, user)
+    case ListDrivers(user) => browseDrivers(user)
+    case DeleteDrivers(user) => deleteDrivers(user)
+    case DeleteDriver(fileName, user) => deleteDriver(fileName, user)
     case _ => log.info("Unrecognized message in Driver Actor")
   }
 
   def errorResponse(): Unit =
-    sender ! SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected")))
+    sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
 
-  def deleteDrivers(): Unit = sender ! DriverResponse(deleteFiles())
+  def deleteDrivers(user: Option[LoggedUser]): Unit = {
+    def callback() = DriverResponse(deleteFiles())
 
-  def deleteDriver(fileName: String): Unit = sender ! DriverResponse(deleteFile(fileName))
+    securityActionAuthorizer[DriverResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
+  }
 
-  def browseDrivers(): Unit = sender ! SpartaFilesResponse(browseDirectory())
+  def deleteDriver(fileName: String, user: Option[LoggedUser]): Unit = {
+    def callback() = DriverResponse(deleteFile(fileName))
 
-  def uploadDrivers(files: Seq[BodyPart]): Unit = sender ! SpartaFilesResponse(uploadFiles(files))
+    securityActionAuthorizer[DriverResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
+  }
+
+  def browseDrivers(user: Option[LoggedUser]): Unit = {
+    def callback() = SpartaFilesResponse(browseDirectory())
+
+    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> View), callback)
+  }
+
+  def uploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser]): Unit = {
+    def callback() = SpartaFilesResponse(uploadFiles(files))
+
+    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Upload), callback)
+  }
 }
 
 object DriverActor {
 
-  case class UploadDrivers(files: Seq[BodyPart])
+  case class UploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser])
 
   case class DriverResponse(status: Try[_])
 
-  case object ListDrivers
+  case class ListDrivers(user: Option[LoggedUser])
 
-  case object DeleteDrivers
+  case class DeleteDrivers(user: Option[LoggedUser])
 
-  case class DeleteDriver(fileName: String)
+  case class DeleteDriver(fileName: String, user: Option[LoggedUser])
 
 }

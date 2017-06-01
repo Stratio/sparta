@@ -49,6 +49,7 @@ class LoggedUserTest extends WordSpec with Matchers {
     }
   }
 
+
   "An input String" when {
     "has missing fields" should {
       "be correctly parsed " in {

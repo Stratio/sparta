@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.api.actor.DriverActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
@@ -33,7 +34,7 @@ import spray.routing.Route
 
 import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.DriverPath, description = "Operations over plugins: now only to upload/download jars.")
+@Api(value = HttpConstant.DriverPath, description = "Operations over plugins: now only to upload/download jars")
 trait DriverHttpService extends BaseHttpService with OauthClient {
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
@@ -43,8 +44,8 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
     download(user) ~ getAll(user) ~ deleteAllFiles(user) ~ deleteFile(user)
 
   @Path("")
-  @ApiOperation(value = "Upload a file to driver directory.",
-    notes = "Creates a file in the server filesystem with the uploaded jar.",
+  @ApiOperation(value = "Uploads a file to the driver directory",
+    notes = "Creates a file in the server filesystem with the uploaded jar",
     httpMethod = "PUT")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "file",
@@ -59,10 +60,13 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadDrivers(form.fields)).mapTo[SpartaFilesResponse]
+              response <- (supervisor ? UploadDrivers(form.fields, user))
+                .mapTo[Either[SpartaFilesResponse,UnauthorizedResponse]]
             } yield response match {
-              case SpartaFilesResponse(Success(newFilesUris)) => newFilesUris
-              case SpartaFilesResponse(Failure(exception)) => throw exception
+              case Left(SpartaFilesResponse(Success(newFilesUris))) => newFilesUris
+              case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in drivers")
             }
           }
         }
@@ -71,7 +75,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
   }
 
   @Path("/{fileName}")
-  @ApiOperation(value = "Download a file from the driver directory.",
+  @ApiOperation(value = "Downloads a file from the driver directory",
     httpMethod = "GET")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fileName",
@@ -91,7 +95,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
 
   @Path("")
   @ApiOperation(value = "Browse all drivers uploaded",
-    notes = "Finds all drivers.",
+    notes = "Finds all drivers",
     httpMethod = "GET")
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
@@ -102,18 +106,21 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListDrivers).mapTo[SpartaFilesResponse]
+            response <- (supervisor ? ListDrivers(user))
+              .mapTo[Either[SpartaFilesResponse,UnauthorizedResponse]]
           } yield response match {
-            case SpartaFilesResponse(Success(filesUris)) => filesUris
-            case SpartaFilesResponse(Failure(exception)) => throw exception
+            case Left(SpartaFilesResponse(Success(filesUris))) => filesUris
+            case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
           }
         }
       }
     }
 
   @Path("")
-  @ApiOperation(value = "Delete all drivers uploaded",
-    notes = "Delete all drivers.",
+  @ApiOperation(value = "Deletes all drivers uploaded",
+    notes = "Deletes all drivers",
     httpMethod = "DELETE")
   @ApiResponses(Array(
     new ApiResponse(code = HttpConstant.NotFound,
@@ -124,18 +131,21 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteDrivers).mapTo[DriverResponse]
+            response <- (supervisor ? DeleteDrivers(user))
+              .mapTo[Either[DriverResponse,UnauthorizedResponse]]
           } yield response match {
-            case DriverResponse(Success(_)) => StatusCodes.OK
-            case DriverResponse(Failure(exception)) => throw exception
+            case Left(DriverResponse(Success(_))) => StatusCodes.OK
+            case Left(DriverResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
           }
         }
       }
     }
 
   @Path("/{fileName}")
-  @ApiOperation(value = "Delete one driver uploaded",
-    notes = "Delete one driver.",
+  @ApiOperation(value = "Deletes a driver uploaded by its name",
+    notes = "Deletes one driver",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "fileName",
@@ -153,10 +163,13 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteDriver(file)).mapTo[DriverResponse]
+            response <- (supervisor ? DeleteDriver(file, user))
+              .mapTo[Either[DriverResponse,UnauthorizedResponse]]
           } yield response match {
-            case DriverResponse(Success(_)) => StatusCodes.OK
-            case DriverResponse(Failure(exception)) => throw exception
+            case Left(DriverResponse(Success(_))) => StatusCodes.OK
+            case Left(DriverResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
           }
         }
       }
