@@ -1,6 +1,6 @@
 Discontinued
 ============
-After around two years of development, we have decided to discontinue this project due to a major refactor in its structure and in a near future open Sparta 2.0.
+After around two years of development, we have decided to discontinue this project due to a major refactor in its structure and in a near future we will launch Sparta 2.0.
 
 We would like to thank all the open source community for their contribution.
 Needless to say that you can continue using this repository as a basis for your developments as it contains the latest stable version as of today and minor issues will be attended.
