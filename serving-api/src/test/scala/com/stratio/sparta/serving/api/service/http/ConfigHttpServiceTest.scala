@@ -48,13 +48,13 @@ class ConfigHttpServiceTest extends WordSpec
   }
 
   protected def retrieveStringConfig(): FrontendConfiguration =
-    FrontendConfiguration(AppConstant.DefaultFrontEndTimeout, Option(AppConstant.DefaultOauth2CookieName))
+    FrontendConfiguration(AppConstant.DefaultFrontEndTimeout, dummyUser.get.name)
 
   "ConfigHttpService.FindAll" should {
     "retrieve a FrontendConfiguration item" in {
       startAutopilot(ConfigResponse(retrieveStringConfig()))
       Get(s"/${HttpConstant.ConfigPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[ConfigActor.FindAll.type]
+        testProbe.expectMsgType[ConfigActor.FindAll]
         responseAs[FrontendConfiguration] should equal(retrieveStringConfig())
       }
     }

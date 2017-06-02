@@ -22,6 +22,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import com.typesafe.config.Config
 import spray.httpx.Json4sJacksonSupport
@@ -34,30 +35,36 @@ class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with
 
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
-  val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
+  val emptyField = ""
 
   override def receive: Receive = {
-    case FindAll => findFrontendConfig()
+    case FindAll(user) => findFrontendConfig(user)
     case _ => log.info("Unrecognized message in ConfigActor")
   }
 
-  def findFrontendConfig(): Unit = {
-    sender ! ConfigResponse(retrieveStringConfig())
+  def findFrontendConfig(user: Option[LoggedUser]): Unit = {
+    sender ! ConfigResponse(retrieveStringConfig(user))
   }
 
-  def retrieveStringConfig(): FrontendConfiguration = {
+  def retrieveStringConfig(user: Option[LoggedUser]): FrontendConfiguration = {
     enabledSecurity match {
       case true => FrontendConfiguration(
         Try(SpartaConfig.getFrontendConfig.get
-          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), Option(cookieName))
+          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout),
+        retrieveNameUser(user))
       case false => FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get
-        .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), Option(""))
+        .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), emptyField)
     }
   }
 
+  private def retrieveNameUser(user: Option[LoggedUser]): String = user match {
+    case Some(currentUser) if currentUser.name.nonEmpty => currentUser.name
+    case Some(currentUser) if currentUser.name.isEmpty => "Anonymous"
+    case None => emptyField
+  }
 }
 
 object ConfigActor {
-  object FindAll
+  case class FindAll(user: Option[LoggedUser])
   case class ConfigResponse(frontendConfiguration:FrontendConfiguration)
 }

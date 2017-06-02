@@ -43,7 +43,7 @@ trait ConfigHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for {
-            response <- (supervisor ? FindAll).mapTo[ConfigResponse]
+            response <- (supervisor ? FindAll(user)).mapTo[ConfigResponse]
           } yield response match {
             case ConfigResponse(config) => config
           }
