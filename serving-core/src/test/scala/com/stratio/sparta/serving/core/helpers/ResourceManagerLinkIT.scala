@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.helpers
 
-import java.net.InetSocketAddress
-import java.nio.channels.ServerSocketChannel
+package com.stratio.sparta.serving.core.helpers
 
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.typesafe.config.ConfigFactory
@@ -25,22 +23,14 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ResourceManagerLinkIT extends FlatSpec with
-  ShouldMatchers with Matchers with BeforeAndAfter {
+class ResourceManagerLinkIT extends FlatSpec with ShouldMatchers with Matchers {
 
-  var serverSocket: ServerSocketChannel = _
   val sparkUIPort = 4040
   val mesosPort = 5050
   val localhost = "127.0.0.1"
 
-  after {
-    serverSocket.close()
-  }
-
   it should "return local Spark UI link" in {
-    serverSocket = ServerSocketChannel.open()
     val localhostName = java.net.InetAddress.getLocalHost().getHostName()
-    serverSocket.socket.bind(new InetSocketAddress(localhostName, sparkUIPort))
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -50,12 +40,10 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("local") should be(Some(s"http://${localhostName}:${sparkUIPort}"))
+    ResourceManagerLinkHelper.getLink("local", None, false) should be(Some(s"http://${localhostName}:${sparkUIPort}"))
   }
 
   it should "return Mesos UI link" in {
-    serverSocket = ServerSocketChannel.open()
-    serverSocket.socket.bind(new InetSocketAddress(localhost,mesosPort))
     val config = ConfigFactory.parseString(
       """
         |sparta{
@@ -69,7 +57,6 @@ class ResourceManagerLinkIT extends FlatSpec with
         |}
       """.stripMargin)
     SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("mesos") should be(Some(s"http://$localhost:$mesosPort"))
+    ResourceManagerLinkHelper.getLink("mesos", None, false) should be(Some(s"http://$localhost:$mesosPort"))
   }
-
 }

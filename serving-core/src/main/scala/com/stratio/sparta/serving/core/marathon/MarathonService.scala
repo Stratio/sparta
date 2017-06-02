@@ -134,7 +134,7 @@ class MarathonService(context: ActorContext,
   val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
   val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
   val SecuritySparkKafkaEnv = "SPARK_SECURITY_KAFKA_ENABLE"
-  val SecuritySparkHdfsEnv = "HDFS_CONF_URI"
+  val SecuritySparkHdfsEnv = "SPARK_SECURITY_HDFS_CONF_URI"
 
   /* Lazy variables */
 
@@ -216,15 +216,15 @@ class MarathonService(context: ActorContext,
     Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
   private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
-    if(sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PASS_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_KEY_PASS_PATH")) {
+    if(sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PASS_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_KEY_PASS_PATH")) {
       Option("true")
     } else None
   }
 
   private def envSparkSecurityHdfs(sparkConfigurations: Map[String, String]): Option[String] =
-    sparkConfigurations.get("spark.mesos.driverEnv.HDFS_CONF_URI")
+    sparkConfigurations.get("spark.mesos.driverEnv.SPARK_SECURITY_HDFS_CONF_URI")
 
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 

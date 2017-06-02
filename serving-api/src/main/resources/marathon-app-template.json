@@ -36,7 +36,7 @@
     "SPARK_USER": "???",
     "HADOOP_CONF_FROM_URI": "???",
     "CORE_SITE_FROM_URI": "???",
-    "HDFS_CONF_URI": "???",
+    "SPARK_SECURITY_HDFS_CONF_URI": "???",
     "HADOOP_CONF_FROM_DFS": "???",
     "HADOOP_CONF_FROM_DFS_NOT_SECURED": "???",
     "HADOOP_FS_DEFAULT_NAME": "???",

@@ -26,7 +26,9 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 
 object ResourceManagerLinkHelper extends SLF4JLogging {
 
-  def getLink(executionMode : String, monitoringLink: Option[String] = None): Option[String] = {
+  def getLink(executionMode : String,
+              monitoringLink: Option[String] = None,
+              withCheck: Boolean = true): Option[String] = {
     val (host: String, port: Int) = (monitoringLink, executionMode) match {
       case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink
       case (None, AppConstant.ConfigLocal) => localLink
@@ -34,7 +36,8 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
       case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")
     }
 
-    checkConnectivity(host, port)
+    if(withCheck) checkConnectivity(host, port)
+    else monitoringLink.orElse(Option(s"http://$host:$port"))
   }
 
   def checkConnectivity(host: String, port: Int, monitoringLink: Option[String] = None): Option[String] = {
