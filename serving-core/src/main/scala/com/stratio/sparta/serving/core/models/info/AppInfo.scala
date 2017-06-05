@@ -20,4 +20,5 @@ case class AppInfo(pomVersion: String,
                    buildTimestamp: String,
                    devContact: String,
                    supportContact: String,
+                   description: String,
                    license: String)

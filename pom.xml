@@ -102,6 +102,8 @@
         <kafka.version>0.10.0.1</kafka.version>
         <netty.version>3.8.0.Final</netty.version>
         <gosec.version>0.8.0</gosec.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
     </properties>
 
     <dependencyManagement>

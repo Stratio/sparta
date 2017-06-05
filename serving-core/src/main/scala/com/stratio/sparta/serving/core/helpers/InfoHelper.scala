@@ -28,6 +28,7 @@ object InfoHelper extends SLF4JLogging {
 
   val devContact = "sparta@stratio.com"
   val supportContact = "support@stratio.com"
+  val description = " Real Time Analytics and Data Pipelines based on Spark Streaming"
   val license = Try {
     Source.fromInputStream(InfoHelper.getClass.getClassLoader.getResourceAsStream("LICENSE.txt")).mkString
   }.getOrElse("")
@@ -43,11 +44,12 @@ object InfoHelper extends SLF4JLogging {
         val timestampParsed = {
           if (timestamp != "${timestamp}") timestamp
           else {
-            val format = DateTimeFormat.forPattern("yyyy-MM-dd-hh:mm:ss")
+            val format = DateTimeFormat.forPattern("yyyy-MM-dd-hh:mm")
             format.print(DateTime.now)
           }
         }
-        AppInfo(pomParsed, profileIdParsed, timestampParsed, devContact, supportContact, license)
+
+        AppInfo(pomParsed, profileIdParsed, timestampParsed, devContact, supportContact, description, license)
       case Failure(e) =>
         log.error("Cannot get version info", e)
         throw e
