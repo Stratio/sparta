@@ -93,7 +93,7 @@ class ProducerTest extends FlatSpec with Matchers {
   "extractOptions" should "create a correct properties file" in {
     val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
 
-    val options: Properties = kafkatest.createProducerProps
+    val options: Properties = kafkatest.createProducerProps(Map.empty)
     options.size shouldBe 5
     options.get("bootstrap.servers") shouldBe "localhost:9092"
     options.get("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
@@ -105,7 +105,7 @@ class ProducerTest extends FlatSpec with Matchers {
   "createProducer" should "return a valid KafkaProducer" in {
     val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
 
-    val options = kafkatest.createProducerProps
+    val options = kafkatest.createProducerProps(Map.empty)
     val createProducer = Try(KafkaOutput.getProducer("key", options))
 
     createProducer match {

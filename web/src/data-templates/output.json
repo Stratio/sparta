@@ -850,6 +850,34 @@
         "qa": "fragment-details-kafka-security-protocol"
       },
       {
+        "propertyId": "vaultCertPath",
+        "propertyName": "_KAFKA_CERT_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/spark",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPath"
+      },
+      {
+        "propertyId": "vaultCertPassPath",
+        "propertyName": "_KAFKA_CERT_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPassPath"
+      },
+      {
+        "propertyId": "vaultKeyPassPath",
+        "propertyName": "_KAFKA_KEY_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "regexp": "",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultKeyPassPath"
+      },
+      {
         "propertyId": "ssl.truststore.location",
         "propertyName": "_SSL_TRUSTSTORE_LOCATION_",
         "propertyType": "text",
