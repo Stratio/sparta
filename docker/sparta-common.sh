@@ -32,6 +32,11 @@ function initSpark() {
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${SYSTEM_VARIABLES}
+
+  rm "${SPARK_HOME}/jars/curator-client-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/curator-recipes-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/curator-framework-2.6.0.jar"
+  rm "${SPARK_HOME}/jars/zookeeper-3.4.6.jar"
 }
 
 function initHdfs() {
