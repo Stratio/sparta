@@ -2,7 +2,11 @@
 
 ## 1.6.0 (upcoming)
 
-* Pending changelog
+* Authorization system with Stratio Dyplon
+* Kafka output securized
+* Logout option
+* Contact information in UI
+* About informationin UI
 
 ## 1.5.0 (May 31, 2017)
 
