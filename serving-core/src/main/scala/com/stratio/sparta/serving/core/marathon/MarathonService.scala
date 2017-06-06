@@ -69,7 +69,7 @@ class MarathonService(context: ActorContext,
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
   val appInfo = InfoHelper.getAppInfo
-  val versionParsed = if(appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
+  val versionParsed = if (appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
   val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
   val HostMesosNativeLibPath = "/opt/mesosphere/lib"
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
@@ -216,7 +216,7 @@ class MarathonService(context: ActorContext,
     Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
   private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
-    if(sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PATH") &&
+    if (sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PATH") &&
       sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PASS_PATH") &&
       sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_KEY_PASS_PATH")) {
       Option("true")
@@ -339,13 +339,17 @@ class MarathonService(context: ActorContext,
     }
     val newDockerContainerInfo = mesosNativeLibrary match {
       case Some(_) =>
-        ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
+        ContainerInfo(app.container.docker.copy(
+          image = spartaDockerImage,
           volumes = Option(javaCertificatesVolume),
-          parameters = Option(getKrb5ConfVolume)
+          parameters = Option(getKrb5ConfVolume),
+          forcePullImage = Option(forcePullImage),
+          privileged = Option(privileged)
         ))
-      case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-        Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
+      case None => ContainerInfo(app.container.docker.copy(
+        volumes = Option(Seq(
+          Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
+          Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
         image = spartaDockerImage,
         parameters = Option(getKrb5ConfVolume),
         forcePullImage = Option(forcePullImage),
