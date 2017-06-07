@@ -10,8 +10,13 @@ $item-name-height: 70px;
     position: relative;
     float: left;
     width: 100%;
-    overflow: hidden;
 }
+
+.clear{
+    clear:both;
+}
+
+
 
 .br-ba-item {
     box-sizing: border-box;

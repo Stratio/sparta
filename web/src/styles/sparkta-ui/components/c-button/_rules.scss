@@ -7,8 +7,10 @@
 	height: $c-button---height;
 	min-width: $c-button---min-width;
 	padding: $c-button---padding;
+	min-height: 2.3em;
 	position: relative;
 	text-align: $c-button---text-align;
+	font-size:$c-button---font-size;
 	text-transform: $c-button---text-transform;
 
 	@include item-to-right;
@@ -36,7 +38,6 @@
 		&.divButton{
 			line-height: 30px;
 			font-size: 14.6px;
-			font-family: Cantarell;
 		}
 	}
 	

@@ -69,7 +69,7 @@
     }
 
     function getAutoCalculatedFieldTemplate() {
-      return $resource('/data-templates/auto-calculated-field.json', {},
+      return $resource('data-templates/auto-calculated-field.json', {},
           {
             'get': {
               method: 'GET',

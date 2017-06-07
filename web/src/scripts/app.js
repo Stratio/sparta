@@ -70,6 +70,9 @@ angular
           'header': {
             templateUrl: 'views/dashboard/dashboard_header.html'
           },
+          'footer': {
+            templateUrl: 'views/dashboard/dashboard_footer.html'
+          },
           'content': {
             templateUrl: 'views/dashboard/dashboard_content.html'
           }

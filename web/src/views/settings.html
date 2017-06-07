@@ -1,14 +1,14 @@
 <section>
   <div class="c-panel">
     <aside class="c-toolbar--bottom-separation">
-      <!--<h3 class="section_title">{{'_BACKUPS_LIST_' | translate}}</h3>-->
+      <!-- <h3 class="section_title">{{'_BACKUPS_LIST_' | translate}}</h3> -->
       <div class="c-col c-col--12 c-toolbar--bottom-separation">
         <!-- Error message -->
         <c-animated-msg data-msg="settings.errorMessage" data-on-click-close-msg="settings.deleteErrorMessage()" data-timeout=10000></c-animated-msg>
         <c-animated-msg data-msg="settings.successMessage" data-on-click-close-msg="settings.deleteSuccessMessage()" data-timeout=6000></c-animated-msg>
       </div><!--
       --><div class="c-col c-col--6 c-form-group--to-left">
-        <button class="c-button c-button--toolbar c-button--call-to-action-3" data-ng-click="settings.generateBackup()"
+        <button class="c-button c-button--toolbar c-button--call-to-action-3 c-button--right-margin" data-ng-click="settings.generateBackup()"
           data-qa="settings-new-policy-button">
           <span class="icon icon-circle-plus"></span>
           <span>{{'_MENU_DASHBOARD_GENERATE_BACKUP_' | translate}}</span>
@@ -29,7 +29,7 @@
         </button>
       </div>
     </aside>
-    <div class="br-ba-container--full-height" data-ng-if="settings.backups.length">
+    <div data-ng-if="settings.backups.length">
       <table class="c-table  c-table--margin-bottom c-table--full-width">
         <thead class="c-table__thead">
           <tr>

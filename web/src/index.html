@@ -18,6 +18,7 @@
 <div id="stratio-base">
     <header class="stratio-base-header" ui-view="header"  data-ng-class="headerClass"></header>
     <div id="base-content-wrapper" data-ng-class="containerClass" ui-view="content"></div>
+    <div ui-view="footer" class="c-footer"></div>
 </div>
 
 <!-- build:js(.) scripts/vendors.js -->
@@ -45,7 +46,9 @@
 <script src="scripts/controllers/general-settings.js"></script>
 <script src="scripts/controllers/settings.js"></script>
 <script src="scripts/controllers/modal/new-fragment-modal.js"></script>
+<script src="scripts/controllers/modal/legal-terms-modal.js"></script>
 <script src="scripts/controllers/fragments/edit-fragment.js"></script>
+<script src="scripts/controllers/fragments/footer-controller.js"></script>
 <script src="scripts/controllers/fragments/duplicate-fragment.js"></script>
 <script src="scripts/controllers/fragments/delete-fragment.js"></script>
 <script src="scripts/controllers/policy-wizard/policy.js"></script>
@@ -103,6 +106,7 @@
 <script src="scripts/directives/c-panel-directive.js"></script>
 <script src="scripts/directives/c-slider-section-directive.js"></script>
 <script src="scripts/directives/c-animated-msg-directive.js"></script>
+<script src="scripts/directives/c-session-directive.js"></script>
 <script src="scripts/directives/c-auto-calculated-fields-directive.js"></script>
 <script src="scripts/directives/c-writer-model-directive.js"></script>
 <script src="scripts/directives/c-value-validate-directive.js"></script>
@@ -129,6 +133,7 @@
 <script src="scripts/services/utils-service.js"></script>
 <script src="scripts/services/modal-service.js"></script>
 <script src="scripts/services/output-service.js"></script>
+<script src="scripts/services/new-workflow-service.js"></script>
 <script src="scripts/services/wizard-status-service.js"></script>
 <script src="scripts/services/policy-service.js"></script>
 <script src="scripts/services/fragment-service.js"></script>

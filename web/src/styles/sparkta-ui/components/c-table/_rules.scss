@@ -6,11 +6,6 @@
 	line-height: $c-table---line-height;
     overflow: auto;
 
-	&--margin-bottom {
-		margin-bottom: $c-table--margin-bottom---margin-bottom;
-	}
-
-
 	&--centered-content{
 		text-align: center;
 	}
@@ -51,6 +46,7 @@
 
 		.c-table__td {
 			padding-bottom: $c-table__thead---padding-bottom;
+			font-size: 17px;
 		}
 
 		.ico.sort-active{
@@ -69,6 +65,8 @@
 
 	@at-root &__td {
 		padding: $c-table---padding-top $c-table---cell-spacing $c-table---padding-bottom;
+		font-size: 16px;
+
 		@include container-to-right;
 
 		&:first-child {

@@ -1,12 +1,11 @@
 // Regular
 @font-face {
     font-family: 'Brandon Text';
-
-    src: 'randonText-Regular.eot';
-    src: 'randonText-Regular.eot?#iefix' format('embedded-opentype'),
-    'randonText-Regular.woff' format('woff'),
-    'randonText-Regular.ttf' format('truetype'),
-    'randonText-Regular.svg#BrandonGrotesqueRegular' format('svg');
+    src: url('vendors/brandon-text/BrandonText-Regular.eot');
+    src: url('vendors/brandon-text/BrandonText-Regular.eot?#iefix') format('embedded-opentype'),
+    url('vendors/brandon-text/BrandonText-Regular.woff') format('woff'),
+    url('vendors/brandon-text/BrandonText-Regular.ttf') format('truetype'),
+    url('vendors/brandon-text/BrandonText-Regular.svg#BrandonGrotesqueRegular') format('svg');
     font-weight: normal;
     font-weight: 400;
     font-style: normal;
@@ -15,11 +14,11 @@
 // Bold
 @font-face {
     font-family: 'Brandon Text';
-    src: 'randonText-Medium.eot';
-    src: 'randonText-Medium.eot?#iefix' format('embedded-opentype'),
-    'randonText-Medium.woff' format('woff'),
-    'randonText-Medium.ttf' format('truetype'),
-    'randonText-Medium.svg#BrandonGrotesqueBold' format('svg');
+    src: url('vendors/brandon-text/BrandonText-Medium.eot');
+    src: url('vendors/brandon-text/BrandonText-Medium.eot?#iefix') format('embedded-opentype'),
+    url('vendors/brandon-text/BrandonText-Medium.woff') format('woff'),
+    url('vendors/brandon-text/BrandonText-Medium.ttf') format('truetype'),
+    url('vendors/brandon-text/BrandonText-Medium.svg#BrandonGrotesqueBold') format('svg');
     font-weight: normal;
     font-weight: 700;
     font-style: normal;

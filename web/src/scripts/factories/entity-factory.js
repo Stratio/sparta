@@ -82,6 +82,9 @@
       },
       deleteMetadata: function(){
         return ApiEntitiesService.deleteMetadata().delete({}).$promise;
+      },
+      getAppInfo: function () {
+        return ApiEntitiesService.getAppInfo().get().$promise;
       }
     };
   }

@@ -39,6 +39,7 @@
     vm.deleteAllBackups = deleteAllBackups;
     vm.executeBackup = executeBackup;
     vm.deleteMetadata = deleteMetadata;
+    vm.getAppInfo = getAppInfo;
 
     /////////////////////////////////
 
@@ -169,7 +170,7 @@
       });
     }
 
-    function deleteAllBackups(){
+    function deleteAllBackups() {
       return $resource('metadata/backup', {}, {
         'delete': {
           method: 'DELETE',
@@ -178,19 +179,29 @@
       });
     }
 
-    function executeBackup(){
+    function executeBackup() {
       return $resource('metadata/backup', {}, {
         'post': {
           method: 'POST',
           timeout: apiConfigSettings.timeout
         }
-      }); 
+      });
     }
 
-    function deleteMetadata(){
+    function deleteMetadata() {
       return $resource('metadata', {}, {
         'delete': {
           method: 'DELETE',
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function getAppInfo() {
+      return $resource('appInfo', {}, {
+        'get': {
+          method: 'GET',
+          isArray: false,
           timeout: apiConfigSettings.timeout
         }
       });

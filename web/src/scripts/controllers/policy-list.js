@@ -21,23 +21,22 @@
     .controller('PolicyListCtrl', PolicyListCtrl);
 
   PolicyListCtrl.$inject = ['WizardStatusService', 'PolicyFactory', 'PolicyModelFactory', 'ModalService', 'UtilsService', '$state',
-    '$translate', '$interval', '$scope', '$q', '$filter'];
+    '$translate', '$interval', '$scope', '$q', '$filter', 'NewWorkflowService'];
 
   function PolicyListCtrl(WizardStatusService, PolicyFactory, PolicyModelFactory, ModalService, UtilsService, $state,
-    $translate, $interval, $scope, $q, $filter) {
+    $translate, $interval, $scope, $q, $filter, NewWorkflowService) {
     /*jshint validthis: true*/
     var vm = this;
 
     var checkPoliciesStatus = null;
 
-    vm.createPolicy = createPolicy;
+    vm.showCreatePolicyModal = showCreatePolicyModal;
     vm.deletePolicy = deletePolicy;
     vm.editPolicy = editPolicy;
     vm.deleteErrorMessage = deleteErrorMessage;
     vm.deleteSuccessMessage = deleteSuccessMessage;
     vm.downloadPolicy = downloadPolicy;
     vm.sortPolicies = sortPolicies;
-    vm.createPolicyFromJSON = createPolicyFromJSON;
 
     vm.policiesData = [];
     vm.policiesJsonData = {};
@@ -64,13 +63,12 @@
       vm.successMessage.internalTrace = '';
     }
 
-    function createPolicy() {
-      PolicyModelFactory.resetPolicy();
-      WizardStatusService.reset();
-      //WizardStatusService.enableNextStep();
-      WizardStatusService.nextStep();
-      $state.go('wizard.newPolicy', 'create');
-    
+    function showCreatePolicyModal() {
+      NewWorkflowService.showCreationModeModal().then(function(result){
+        if(result){
+          getPolicies(); 
+        }
+      });
     }
 
     function editPolicy(route, policyId) {
@@ -81,18 +79,6 @@
 
     function deletePolicy(policyId) {
         deletePolicyConfirm('lg', policyId);
-    }
-
-    function createPolicyFromJSON(){
-      var controller = 'CreatePolicyJSONModalCtrl';
-      var templateUrl = "templates/policies/st-create-policy-json-modal.tpl.html";
-      var resolve = {};
-      var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
-
-      modalInstance.result.then(function () {
-        vm.successMessage.text = '_POLICY_CREATE_OK_';
-        getPolicies(); 
-      });
     }
 
     function deletePolicyConfirm(size, policyId) {

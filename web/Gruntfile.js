@@ -60,7 +60,7 @@ module.exports = function (grunt) {
       options: {
         port: 9000,
         // Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost',
+        hostname: '0.0.0.0',
         livereload: 35729
       },
       proxies: [{
@@ -113,6 +113,13 @@ module.exports = function (grunt) {
         },
         {
           context: '/metadata', // the context of the data service
+          host: '127.0.0.1', // wherever the data service is running
+          port: 9090, // the port that the data service is running on,
+          changeOrigin: true,
+          ws: true
+        },
+        {
+          context: '/appInfo', // the context of the data service
           host: '127.0.0.1', // wherever the data service is running
           port: 9090, // the port that the data service is running on,
           changeOrigin: true,

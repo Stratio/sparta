@@ -1,4 +1,4 @@
-@function get-font($font-family: bariol) {
+@function get-font($font-family: brandon) {
 	@return map-get($font-families, $font-family);
 }
 

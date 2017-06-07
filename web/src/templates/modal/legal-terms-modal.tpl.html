@@ -1,0 +1,48 @@
+<aside>
+  <div class="c-titlebar">
+    <span class="c-titlebar__title c-text--bold">{{"_LEGAL_TERMS_" | translate}}</span>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.close()" data-qa="modal-cancel-icon"></i>
+  </div>
+  <div class="c-modal-inner">
+      <div class="c-panel--bottom-margin">
+    <div class="c-panel--license">
+      <pre>
+        {{vm.appInfo.license}}
+        </pre>
+    </div>
+    <div class="c-panel--info">
+      <div class="c-col c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-padding c-fieldset--padding-bottom c-form-gutter ">
+        <div>
+          <label class="c-label">{{'_VERSION_' | translate}}</label>
+          <p>{{vm.appInfo.pomVersion}}</p>
+        </div>
+      </div>
+      <div class="c-col c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-padding c-fieldset--padding-bottom c-form-gutter ">
+        <div>
+          <label class="c-label">{{'_BUILD_TIME_' | translate}}</label>
+          <p>{{vm.appInfo.buildTimestamp}}</p>
+        </div>
+      </div>
+      <div class="c-col c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-padding c-fieldset--padding-bottom c-form-gutter ">
+        <div>
+          <label class="c-label">{{'_SUPPORT_CONTACT_' | translate}}</label>
+          <p>{{vm.appInfo.supportContact}}</p>
+        </div>
+      </div>
+      <div class="c-col c-fieldset c-fieldset--bottom-margin c-fieldset--bottom-padding c-fieldset--padding-bottom c-form-gutter ">
+        <div>
+          <label class="c-label">{{'_DEV_CONTACT_' | translate}}</label>
+          <p>{{vm.appInfo.devContact}}</p>
+        </div>
+      </div>
+      <div class="clear"></div>
+    </div>
+      </div>
+<div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.close()" data-qa="modal-ok-button">
+          <span class="icon icon-circle-check"></span>
+          <span>Close</span>
+        </button>
+      </div>
+  </div>
+</aside>

@@ -214,6 +214,15 @@
       "_JSON_CREATE_": {
         "_TITLE_": "Create workflow from json",
         "_INFO_": "You must enter the new name and description before you can save the workflow, it will overwrite the fields of the json"
+      },
+      "_CREATE_": {
+        "_TITLE_": "Create workflow",
+        "_METHOD_": "Choose method:",
+        "_SCRATCH_OPTION_": "New workflow from scratch",
+        "_JSON_OPTION_": "New workflow from json file",
+        "_SET_CONFIG_": "Set configuration",
+        "_SET_JSON_": "Set from JSON",
+        "_OR_": "OR"
       }
     },
     "_CUBE_": {
@@ -495,6 +504,7 @@
   "_ADD_AUTO_CALCULATED_FIELDS_": "Add auto calculated fields selecting its type with following selector",
   "_FIELD_": "Field",
   "_VALUE_": "Value",
+  "_LOGOUT_": "Logout",
   "_OUTPUT_TYPE_": "Output type",
   "_FROM_NOT_NULL_FIELDS_": "From not null fields",
   "_FROM_PK_FIELDS_": "From PK Fields",
@@ -511,6 +521,12 @@
   "_OPTION_PROPERTIES_": "Option properties",
   "_OPTION_KEY_": "Option key",
   "_OPTION_VALUE_": "Option value",
+  "_FOOTER_LICENCE_": "© Stratio Big Data Inc. All Rights Reserved",
+  "_LEGAL_TERMS_": "Legal Terms",
+  "_VERSION_": "Sparta Version",
+  "_BUILD_TIME_": "Build Time",
+  "_SUPPORT_CONTACT_": "Suport Contact",
+  "_DEV_CONTACT_": "Dev Contact",
   "_FRAGMENT_WARNING_AFFECTED_POLICIES_": "Keep it in mind that if you modify this {{fragmentType}} you will be able to see the changes after restarting affected workflows",
   "_ERROR_": {
     "_CHANGES_WITHOUT_SAVING_": "You have to save all your changes or cancel them before going to the next step",

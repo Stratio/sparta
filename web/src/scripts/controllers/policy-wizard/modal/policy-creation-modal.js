@@ -21,49 +21,27 @@
     .module('webApp')
     .controller('PolicyCreationModalCtrl', PolicyCreationModalCtrl);
 
-  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory', 'title', 'PolicyFactory', 'TemplateFactory', '$uibModalInstance'];
+  PolicyCreationModalCtrl.$inject = ['PolicyModelFactory', 'WizardStatusService', '$uibModalInstance', '$state'];
 
-  function PolicyCreationModalCtrl(PolicyModelFactory, title, PolicyFactory, TemplateFactory, $uibModalInstance) {
-    /*jshint validthis: true*/
+  function PolicyCreationModalCtrl(PolicyModelFactory, WizardStatusService, $uibModalInstance, $state) {
+
     var vm = this;
     vm.cancel = cancel;
-    vm.validateForm = validateForm;
+    vm.createPolicyScratch = createPolicyScratch;
+    vm.createPolicyJSON = createPolicyJSON;
+    
+    function createPolicyScratch() {
+      PolicyModelFactory.resetPolicy();
+      WizardStatusService.reset();
+      //WizardStatusService.enableNextStep();
+      WizardStatusService.nextStep();
+      $uibModalInstance.close();
+      $state.go('wizard.newPolicy', 'create');
 
-    init();
-
-    ///////////////////////////////////////
-
-    function init() {
-      vm.title = title;
-      return TemplateFactory.getPolicyTemplate().then(function (template) {
-        PolicyModelFactory.setTemplate(template);
-        vm.policy = PolicyModelFactory.getCurrentPolicy();
-        vm.template = template;
-        vm.helpLink = template.helpLinks[0];
-      });
     }
 
-    function validateForm() {
-      if (vm.form.$valid) {
-        vm.error = false;
-        /*Check if the name of the policy already exists*/
-        return PolicyFactory.existsPolicy(vm.policy.name, vm.policy.id).then(function (found) {
-          vm.error = found;
-          /* Policy name doesn't exist */
-          if (!found) {
-            $uibModalInstance.close();
-          }
-          /* Policy name exists */
-          else {
-            vm.errorText = "_ERROR_._200_";
-            document.querySelector('#dataSourcenameForm').focus();
-          }
-        });
-      }
-      else{
-        /*Focus on the first invalid input*/
-        document.querySelector('input.ng-invalid').focus();
-      }
+    function createPolicyJSON(){
+       $uibModalInstance.close('JSON');
     }
 
     function cancel() {

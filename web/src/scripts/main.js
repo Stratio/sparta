@@ -37,11 +37,15 @@
     function fetchData() {
         var initInjector = angular.injector(['ng']);
         var $http = initInjector.get('$http');
-        var timeout = 10000;           
+        var timeout = 10000, userName = "";           
         return $http.get("config").then(function(config) {
             timeout = config.data.timeout;
+            userName = config.data.userName;
         }).finally(function(){
-            angular.module('ng').constant('apiConfigSettings', {timeout: timeout});
+            angular.module('ng').constant('apiConfigSettings', {
+                timeout: timeout,
+                userName: userName
+            });
             bootstrapApplication();
         });
     }

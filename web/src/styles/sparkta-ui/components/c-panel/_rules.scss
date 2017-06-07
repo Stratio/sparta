@@ -31,6 +31,20 @@
     background-color: get-color(n2);
   }
 
+
+  &--license {
+    overflow: auto;
+    max-height: 300px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+    width: 620px;
+    float:right;
+    line-height: 16px;
+    padding: 10px;
+    padding-top: 0;
+    font-family: MONOSPACE;
+  }
+
   &--x-small {
     border: $c-panel--x-small---border;
     display: inline-block;

@@ -1,0 +1,42 @@
+@mixin c-footer {
+  @include c-component;
+  footer {
+    width: 100%;
+    background-color: #37b5e4;
+    background: linear-gradient(#b5c1c5, #919b9e);
+    height: 65px;
+    padding: 20px 20px 30px 20px;
+    bottom: 0;
+    position: absolute;
+    color: #fff;
+    font-family: Open Sans;
+    font-size: .82rem;
+  }
+
+  .content {
+    margin-top:5px;
+    float:left;
+  }
+
+ .link{
+    color:#fff;
+ }
+
+  p, ul, li{
+      display: inline-block;
+  }
+
+  li {
+    cursor: pointer;
+  }
+
+  img{
+    width: 100px;
+    float:right;
+  }
+}
+
+  .c-footer {
+    @include c-footer;
+  }
+

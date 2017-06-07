@@ -26,6 +26,7 @@
   }
 
   &--to-up {
+    background:$c-slider-content--to-up---border-background;
     border-top: $c-slider-content--to-up---border-top;
     width: $c-slider-content--to-up---width;
     -webkit-box-shadow: $c-slider-content--to-up---shadow;

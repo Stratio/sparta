@@ -1,11 +1,14 @@
 .section_title{
-    font-family: Open Sans;
-    font-size: 1.75rem;
-    margin-top: 50px;
-    margin-bottom: 20px;
-    padding: 0;
-    letter-spacing: -1px;
-    color: #405467;
+    white-space: nowrap;
+    line-height: 25px;
+    padding-bottom: 10px;
+    vertical-align: bottom;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #283440;
+        font-size: 2.12rem;
     text-transform: uppercase;
-    font-weight: 400;
+     border-bottom: 2px solid #cbcbcb;
+         margin: 0;
+    margin-bottom: 20px;
 }
