@@ -850,6 +850,57 @@
         "qa": "fragment-details-kafka-security-protocol"
       },
       {
+        "propertyId": "ssl.client.auth",
+        "propertyName": "_SECURITY_AUTH_",
+        "propertyType": "select",
+        "regexp": "none|required|requested",
+        "values": [
+          {
+            "label": "none",
+            "value": "none"
+          },
+          {
+            "label": "required",
+            "value": "required"
+          },
+          {
+            "label": "requested",
+            "value": "requested"
+          }
+        ],
+        "default": "none",
+        "required": true,
+        "qa": "fragment-details-kafka-security-auth"
+      },
+      {
+        "propertyId": "vaultCertPath",
+        "propertyName": "_KAFKA_CERT_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/spark",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPath"
+      },
+      {
+        "propertyId": "vaultCertPassPath",
+        "propertyName": "_KAFKA_CERT_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPassPath"
+      },
+      {
+        "propertyId": "vaultKeyPassPath",
+        "propertyName": "_KAFKA_KEY_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "regexp": "",
+        "default": "",
+        "required": false,
+        "qa": "fragment-details-kafka-vaultKeyPassPath"
+      },
+      {
         "propertyId": "ssl.truststore.location",
         "propertyName": "_SSL_TRUSTSTORE_LOCATION_",
         "propertyType": "text",

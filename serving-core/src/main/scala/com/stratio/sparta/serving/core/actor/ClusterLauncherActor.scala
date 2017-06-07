@@ -113,6 +113,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       // Driver (Sparta) params
       submitRequest.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
         .foreach { case (_, argValue) => sparkLauncher.addAppArgs(argValue) }
+      //Redirect Log
+      sparkLauncher.redirectError()
       // Launch SparkApp
       sparkLauncher.startApplication(addSparkListener(policy))
     } match {

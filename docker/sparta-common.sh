@@ -121,6 +121,8 @@ function logLevelOptions() {
   fi
   sed -i "s|org.apache.spark.*|org.apache.spark\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   sed -i "s|log4j.rootCategory.*|log4j.rootCategory= ${SPARK_LOG_LEVEL}, console|" ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.spark=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.spark-project=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v HADOOP_LOG_LEVEL ]]; then
     HADOOP_LOG_LEVEL="ERROR"
@@ -130,11 +132,34 @@ function logLevelOptions() {
   echo "log4j.logger.org.apache.hadoop=${HADOOP_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
-    ZOOKEEPER_LOG_LEVEL="ERROR"
+    ZOOKEEPER_LOG_LEVEL="OFF"
   fi
   sed -i "s|org.apache.zookeeper.ClientCnxn.*|org.apache.zookeeper.ClientCnxn\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  sed -i "s|org.I0Itec.zkclient.*|org.I0Itec.zkclient\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.zookeeper.ClientCnxn=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.zookeeper=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.I0Itec.zkclient=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+
+  if [[ ! -v PARQUET_LOG_LEVEL ]]; then
+    PARQUET_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|org.apache.parquet.*|org.apache.parquet\" level= \""${PARQUET_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.parquet=${PARQUET_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+
+  if [[ ! -v AVRO_LOG_LEVEL ]]; then
+    AVRO_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|org.apache.avro.*|org.apache.avro\" level= \""${AVRO_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.org.apache.avro=${AVRO_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+
+  if [[ ! -v NETTY_LOG_LEVEL ]]; then
+    NETTY_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|io.netty.*|io.netty\" level= \""${NETTY_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.io.netty=${NETTY_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 }
 
 function logLevelToStdout() {

@@ -50,16 +50,17 @@ abstract class Output(val name: String, properties: Map[String, JSerializable])
 
 object Output extends SLF4JLogging {
 
-  final val ClassSuffix = "Output"
-  final val SparkConfigurationMethod = "getSparkConfiguration"
-  final val Separator = "_"
-  final val FieldsSeparator = ","
-  final val PrimaryKey = "primaryKey"
-  final val TableNameKey = "tableName"
-  final val PartitionByKey = "partitionBy"
-  final val TimeDimensionKey = "timeDimension"
-  final val MeasureMetadataKey = "measure"
-  final val PrimaryKeyMetadataKey = "pk"
+  val ClassSuffix = "Output"
+  val SparkConfigurationMethod = "getSparkConfiguration"
+  val SparkSubmitConfigurationMethod = "getSparkSubmitConfiguration"
+  val Separator = "_"
+  val FieldsSeparator = ","
+  val PrimaryKey = "primaryKey"
+  val TableNameKey = "tableName"
+  val PartitionByKey = "partitionBy"
+  val TimeDimensionKey = "timeDimension"
+  val MeasureMetadataKey = "measure"
+  val PrimaryKeyMetadataKey = "pk"
 
   def getSparkSaveMode(saveModeEnum: SaveModeEnum.Value): SaveMode =
     saveModeEnum match {

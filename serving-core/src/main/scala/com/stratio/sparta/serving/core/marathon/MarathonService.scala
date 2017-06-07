@@ -117,6 +117,9 @@ class MarathonService(context: ActorContext,
   val SparkLogLevelEnv = "SPARK_LOG_LEVEL"
   val ZookeeperLogLevelEnv = "ZOOKEEPER_LOG_LEVEL"
   val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
+  val ParquetLogLevelEnv = "PARQUET_LOG_LEVEL"
+  val AvroLogLevelEnv = "AVRO_LOG_LEVEL"
+  val NettyLogLevelEnv = "NETTY_LOG_LEVEL"
   val DcosServiceName = "DCOS_SERVICE_NAME"
   val Constraints = "MESOS_CONSTRAINTS"
   val HdfsRpcProtectionEnv = "HADOOP_RPC_PROTECTION"
@@ -278,6 +281,12 @@ class MarathonService(context: ActorContext,
 
   private def envZookeeperLogLevel: Option[String] = Properties.envOrNone(ZookeeperLogLevelEnv)
 
+  private def envParquetLogLevel: Option[String] = Properties.envOrNone(ParquetLogLevelEnv)
+
+  private def envAvroLogLevel: Option[String] = Properties.envOrNone(AvroLogLevelEnv)
+
+  private def envNettyLogLevel: Option[String] = Properties.envOrNone(NettyLogLevelEnv)
+
   private def envTls: Option[String] = Properties.envOrNone(SecurityTlsEnv)
 
   private def envTrustore: Option[String] = Properties.envOrNone(SecurityTrustoreEnv)
@@ -408,6 +417,9 @@ class MarathonService(context: ActorContext,
       SparkLogLevelEnv -> envSparkLogLevel,
       HadoopLogLevelEnv -> envHadoopLogLevel,
       ZookeeperLogLevelEnv -> envZookeeperLogLevel,
+      ParquetLogLevelEnv -> envParquetLogLevel,
+      AvroLogLevelEnv -> envAvroLogLevel,
+      NettyLogLevelEnv -> envNettyLogLevel,
       HdfsRpcProtectionEnv -> envHdfsRpcProtection,
       HdfsSecurityAuthEnv -> envHdfsSecurityAuth,
       HdfsEncryptDataEnv -> envHdfsEncryptData,

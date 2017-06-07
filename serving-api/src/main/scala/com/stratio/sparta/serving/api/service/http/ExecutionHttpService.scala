@@ -83,7 +83,7 @@ trait ExecutionHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? FindById(id, user))
-              .mapTo[Either[Try[Seq[SubmitRequest]], UnauthorizedResponse]]
+              .mapTo[Either[Try[SubmitRequest], UnauthorizedResponse]]
           } yield response match {
             case Left(Failure(exception)) => throw exception
             case Left(Success(request)) => request

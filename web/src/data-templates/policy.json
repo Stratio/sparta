@@ -304,6 +304,7 @@
       "position": "left",
       "propertyType": "boolean",
       "required": false,
+      "default": true,
       "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file.",
       "qa": "auto-delete-checkpoint"
     },

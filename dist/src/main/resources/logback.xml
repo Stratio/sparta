@@ -49,10 +49,14 @@
 
     <logger name="org.jboss" level="ERROR"/>
     <logger name="org.mortbay" level="ERROR"/>
-    <logger name="org.apache.avro.ipc.NettyTransceiver" level="ERROR"/>
-    <logger name="org.apache.zookeeper.ClientCnxn" level="ERROR" />
+
+    <logger name="org.apache.zookeeper.ClientCnxn" level="OFF" />
     <logger name="org.I0Itec.zkclient" level="OFF"/>
+
     <logger name="org.apache.hadoop" level="ERROR"/>
+    <logger name="org.apache.parquet" level="ERROR"/>
+    <logger name="org.apache.avro" level="ERROR"/>
+    <logger name="io.netty" level="ERROR"/>
     <logger name="org.apache.spark" level="ERROR"/>
     <logger name="com.stratio.sparta" level="INFO"/>
 

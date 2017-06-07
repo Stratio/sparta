@@ -18,10 +18,11 @@ package com.stratio.sparta.serving.core.utils
 
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel, SubmitArgument}
+import com.stratio.sparta.serving.core.helpers.PolicyHelper._
+import com.stratio.sparta.serving.core.models.policy.{PolicyModel, SubmitArgument}
 import com.typesafe.config.{Config, ConfigValueFactory}
 
 import scala.collection.JavaConversions._
@@ -104,8 +105,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
   /**
-    * Checks if we have a valid Spark home.
-    */
+   * Checks if we have a valid Spark home.
+   */
   def validateSparkHome(clusterConfig: Config): String = {
     val sparkHome = Try(extractSparkHome(clusterConfig))
     require(sparkHome.isSuccess,
@@ -136,8 +137,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   def extractSubmitArgumentsAndSparkConf(policy: PolicyModel,
                                          clusterConfig: Config,
                                          pluginsFiles: Seq[String]): (Map[String, String], Map[String, String]) = {
-    val sparkConfFromProps = PolicyHelper.getSparkConfFromProps(clusterConfig)
-    val sparkConfFromPolicy = PolicyHelper.getSparkConfigFromPolicy(policy)
+    val sparkConfFromProps = getSparkConfFromProps(clusterConfig)
+    val sparkConfFromPolicy = getSparkConfigFromPolicy(policy)
     val submitArgumentsFromProps = submitArgsFromProps(clusterConfig)
     val sparkConfFromSubmitArgumentsProps = submitArgsToConf(submitArgumentsFromProps)
     val submitArgumentsFromPolicy = submitArgsFromPolicy(policy.sparkSubmitArguments)
@@ -146,7 +147,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     (addSupervisedArgument(addKerberosArguments(
       submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy),
       policy.sparkKerberos)),
-      addInputConfs(
+      addPluginsConfs(
         addSparkUserConf(
           addAppNameConf(
             addGracefulStopConf(
@@ -156,9 +157,9 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
               ), gracefulStop(policy)
             ), policy.name
           ), policy.sparkUser
-        ), policy.input
+        ), policy
       )
-      )
+    )
   }
 
   /** Protected Methods **/
@@ -184,12 +185,14 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     } else driverStorageLocation
   }
 
-  protected def addInputConfs(sparkConfs: Map[String, String],
-                              inputOp: Option[PolicyElementModel]): Map[String, String] =
-    inputOp.fold(sparkConfs) { input =>
-      sparkConfs ++
-        PolicyHelper.getSparkConfigs(Seq(input), Input.SparkSubmitConfigurationMethod, Input.ClassSuffix)
+  protected def addPluginsConfs(sparkConfs: Map[String, String], policy: PolicyModel): Map[String, String] = {
+    val inputConfs = policy.input.fold(Map.empty[String, String]) { input =>
+      getSparkConfigs(Seq(input), Input.SparkSubmitConfigurationMethod, Input.ClassSuffix)
     }
+    val outputsConfs = getSparkConfigs(policy.outputs, Output.SparkSubmitConfigurationMethod, Output.ClassSuffix)
+
+    sparkConfs ++ inputConfs ++ outputsConfs
+  }
 
   protected def addAppNameConf(sparkConfs: Map[String, String], name: String): Map[String, String] = {
     if (!sparkConfs.contains(SubmitAppNameConf)) {
@@ -280,8 +283,9 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     } else sparkConfs
   }
 
-  protected def addPropValueToConf(pluginsFiles: String, sparkConfKey: String, sparkConfs: Map[String, String])
-  : Map[String, String] =
+  protected def addPropValueToConf(pluginsFiles: String,
+                                   sparkConfKey: String,
+                                   sparkConfs: Map[String, String]): Map[String, String] =
     if (sparkConfs.contains(sparkConfKey))
       sparkConfs.map { case (confKey, value) =>
         if (confKey == sparkConfKey) confKey -> s"$value,$pluginsFiles"
