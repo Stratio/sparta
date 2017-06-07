@@ -133,7 +133,7 @@
     }
 
     function deleteBackup() {
-      return $resource('/metadata/backup/:fileName', {
+      return $resource('metadata/backup/:fileName', {
         fileName: '@fileName'
       }, {
         'delete': {
@@ -144,7 +144,7 @@
     }
 
     function downloadBackup() {
-      return $resource('/metadata/backup/:fileName', {
+      return $resource('metadata/backup/:fileName', {
         fileName: '@fileName'
       }, {
         'get': {
@@ -170,7 +170,7 @@
     }
 
     function deleteAllBackups(){
-      return $resource('/metadata/backup', {}, {
+      return $resource('metadata/backup', {}, {
         'delete': {
           method: 'DELETE',
           timeout: apiConfigSettings.timeout
@@ -179,7 +179,7 @@
     }
 
     function executeBackup(){
-      return $resource('/metadata/backup', {}, {
+      return $resource('metadata/backup', {}, {
         'post': {
           method: 'POST',
           timeout: apiConfigSettings.timeout
@@ -188,7 +188,7 @@
     }
 
     function deleteMetadata(){
-      return $resource('/metadata', {}, {
+      return $resource('metadata', {}, {
         'delete': {
           method: 'DELETE',
           timeout: apiConfigSettings.timeout

@@ -19,30 +19,48 @@
     .module('webApp')
     .factory('requestInterceptor', requestInterceptor);
 
-  requestInterceptor.$inject = ['$q', '$rootScope', '$location', '$window'];
+  requestInterceptor.$inject = ['$q', '$rootScope', '$location', '$window', '$timeout'];
 
-  function requestInterceptor($q, $rootScope, $location, $window) {
-
+  function requestInterceptor($q, $rootScope, $location, $window, $timeout) {
+    var timer;
     return {
       'responseError': function (rejection) {
         switch (rejection.status) {
           case 0:
           case 503:
-          {
-            $rootScope.error = "_ERROR_._UNAVAILABLE_SERVER_";
-            break;
-          }
+            {
+              $rootScope.error = "_ERROR_._UNAVAILABLE_SERVER_";
+              $timeout.cancel(timer);
+              timer = $timeout(function () {
+                $rootScope.error = "";
+              }, 8000);
+
+              break;
+            }
           case 401:
-          {
-            var host = $location.protocol() + "://"+ $location.host() + ":" + $location.port()+ "/";
-            $window.location.href = host;
-            break;
-          }
-          case 200:
-          {
-            alert("sin permisos");
-            break;
-          }
+            {
+              var host = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/";
+              $window.location.href = host;
+              break;
+            }
+          case 403:
+            {
+              $rootScope.error = "_UNAUTHORIZED_MESSAGE_";
+              $timeout.cancel(timer);
+              timer = $timeout(function () {
+                $rootScope.error = "";
+              }, 8000);
+            }
+          case 404:
+            {
+              if (rejection.data && rejection.data.i18nCode) {
+                $rootScope.error = "_ERROR_._" + rejection.data.i18nCode + "_";
+                $timeout.cancel(timer);
+                timer = $timeout(function () {
+                  $rootScope.error = "";
+                }, 8000);
+              }
+            }
           default:
             break;
         }
