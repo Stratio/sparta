@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0 (upcoming)
+
+* Pending changelog
+
 ## 1.6.0 (upcoming)
 
 * Authorization system with Stratio Dyplon
