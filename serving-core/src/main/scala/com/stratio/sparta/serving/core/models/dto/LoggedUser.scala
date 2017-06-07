@@ -65,9 +65,14 @@ case class LoggedUser(id: String, name: String, email: String, gid: String,
                       groups:Seq[String], roles: Seq[String]){
 
   def isAuthorized(securityEnabled: Boolean, allowedRoles: Seq[String] = LoggedUserConstant.allowedRoles): Boolean = {
-    if(securityEnabled){
-      roles.intersect(allowedRoles).nonEmpty
-    } else true
-  }
 
+    def rolesWithSpartaPrefix : Boolean = roles.exists(roleName => roleName.startsWith("sparta"))
+    def intersectionRoles: Boolean = roles.intersect(allowedRoles).nonEmpty
+
+    (roles, securityEnabled) match {
+      case (rolesNotEmpty, true) if rolesNotEmpty.nonEmpty => rolesWithSpartaPrefix || intersectionRoles
+      case (rolesEmpty, _) if rolesEmpty.isEmpty => false
+      case (_, false) => true
+    }
+  }
 }
