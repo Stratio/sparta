@@ -19,6 +19,7 @@ package com.stratio.sparta.driver.writer
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StructType
 
@@ -31,13 +32,13 @@ object WriterHelper extends SLF4JLogging {
             extraSaveOptions: Map[String, String],
             outputs: Seq[Output]): DataFrame = {
     val saveOptions = extraSaveOptions ++
-      writerOptions.tableName.fold(Map.empty[String, String]) { outputTableName =>
+      writerOptions.tableName.notBlank.fold(Map.empty[String, String]) { outputTableName =>
         Map(Output.TableNameKey -> outputTableName)
       } ++
-      writerOptions.partitionBy.fold(Map.empty[String, String]) { partition =>
+      writerOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
         Map(Output.PartitionByKey -> partition)
       } ++
-      writerOptions.primaryKey.fold(Map.empty[String, String]) { key =>
+      writerOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
         Map(Output.PrimaryKey -> key)
       }
     val outputTableName = saveOptions.getOrElse(Output.TableNameKey, "undefined")
