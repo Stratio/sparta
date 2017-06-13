@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 1.6.0 (upcoming)
+## 1.6.0 (June 13, 2017)
 
 * Authorization system with Stratio Dyplon
 * Kafka output securized
