@@ -2,7 +2,7 @@
 Feature: Test deleting a policy in Sparta GUI
 
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 			
 	Scenario: Stop a policy
@@ -12,7 +12,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | flumeinput |
 		| element.type | UPDATE | Flume |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
@@ -23,7 +23,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | printoutput |
 		| element.type | UPDATE | Print |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
@@ -40,7 +40,7 @@ Feature: Test deleting a policy in Sparta GUI
 		| input | DELETE | N/A |
 		| outputs | DELETE | N/A |
 		| name | UPDATE | myPolicy |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check list of policies
 		When I send a 'GET' request to '/policy/all'	
@@ -65,15 +65,15 @@ Feature: Test deleting a policy in Sparta GUI
 		And '0' elements exist with 'css:i[data-qa^="policy-context-menu-"]'
 		# Check that policyContext has disappeared
 		When I send a 'GET' request to '/policyContext'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		
 		Scenario: Delete fragments
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response must contain the text '[]'
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response must contain the text '[]'
 		

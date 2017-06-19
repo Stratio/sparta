@@ -13,7 +13,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| name | UPDATE | nonexistingpolicy |
 		| fragments | DELETE | N/A |
 		| id | UPDATE | nonExistingID |
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 		
 	Scenario: Update a non-existing policy when policies available
 		# Add a policy
@@ -21,7 +21,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| name | UPDATE | validpolicy |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check that is listed
 		When I send a 'GET' request to '/policy/all'	
@@ -31,7 +31,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| name | UPDATE | nonexistingpolicy |
 		| fragments | DELETE | N/A |
 		| id | UPDATE | nonExistingID |
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 
 	# There is no validation
 	# This test will fail
@@ -64,7 +64,7 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | inputfragment1 |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Try to update policy
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -104,17 +104,17 @@ Feature: Test all PUT operations for policies in Sparta Swagger API
 		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
 		| cubes[0].operators | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		
 	Scenario: Update a existing policy
 		When I send a 'PUT' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | newvalidpolicy |
 		| fragments | DELETE | N/A |
 		| id | UPDATE | !{previousPolicyID} |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 	
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

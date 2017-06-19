@@ -11,18 +11,18 @@ Feature: Test all PUT operations for fragments in Sparta Swagger API
 	Scenario: Update a fragment when no fragments available
 		Given I send a 'PUT' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| fragmentType | UPDATE | input |
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 		
 	Scenario: Update a non-existing fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| id | DELETE | N/A |
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | inputfragment1 |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		Given I save element '$.id' in environment variable 'previousFragmentID'
 		Given I send a 'PUT' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| fragmentType | UPDATE | input |
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 	
 	Scenario: Update a fragment with missing name
 		Given I send a 'PUT' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -74,10 +74,10 @@ Feature: Test all PUT operations for fragments in Sparta Swagger API
 		| id | UPDATE | !{previousFragmentID} |
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | inputfragment2 |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

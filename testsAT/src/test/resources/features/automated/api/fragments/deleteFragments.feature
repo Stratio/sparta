@@ -18,11 +18,11 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 	
 	Scenario: Delete a fragment with type invalid and name invalid with empty list
 		When I send a 'DELETE' request to '/fragment/invalid/invalid/invalid'
-		Then the service response status must be '405'.
+		Then the service response status must be '405'
 		
 	Scenario: Delete a fragment with type input and name invalid with empty list
 		When I send a 'DELETE' request to '/fragment/input/id/invalid'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 	
 	Scenario: Delete a fragment with type input and name invalid with non-empty list
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
@@ -30,13 +30,13 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
 		When I send a 'DELETE' request to '/fragment/input/id/invalid'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 	
 	Scenario: Delete a fragment with type input and name inputfragment1
 		When I send a 'GET' request to '/fragment/input/name/inputfragment1'
 		Given I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '0'
 	
@@ -47,7 +47,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragmentType | UPDATE | output |
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'DELETE' request to '/fragment/output/id/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '0'
 	
@@ -58,7 +58,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
 		# Save fragment id
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy referencing previously created fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -68,11 +68,11 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Delete fragment
 		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		# Check that policy has been removed
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
@@ -84,7 +84,7 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
 		# Save fragment id
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy referencing previously created fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -93,15 +93,15 @@ Feature: Test all DELETE operations for fragments in Sparta Swagger API
 		| fragments[0].fragmentType | UPDATE | output |
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Delete fragment
 		When I send a 'DELETE' request to '/fragment/output/id/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		# Check that policy has been removed
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
 
 	Scenario: Clean everything up
     	When I send a 'DELETE' request to '/fragment'
-      	Then the service response status must be '200'.
+      	Then the service response status must be '200'

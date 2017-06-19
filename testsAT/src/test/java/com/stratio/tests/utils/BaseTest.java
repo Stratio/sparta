@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.tests.utils;
+package com.stratio.qa.utils;
 
-import com.stratio.tests.utils.BaseGTest;
-import com.stratio.tests.utils.ThreadProperty;
+import com.stratio.qa.utils.BaseGTest;
+import com.stratio.qa.utils.ThreadProperty;
 import org.testng.ITestContext;
 import org.testng.annotations.*;
 

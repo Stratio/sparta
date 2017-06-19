@@ -6,24 +6,24 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		
 	Scenario: Delete a policy when no policies available
 		When I send a 'DELETE' request to '/policy/nonExistingId'
-		Then the service response status must be '500'.
+		Then the service response status must be '500'
 	
 	Scenario: Delete a non-existing policy when policies available
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | policy1 |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Check that is listed
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
 		When I send a 'DELETE' request to '/policy/nonExistingId'
-		Then the service response status must be '500'.
+		Then the service response status must be '500'
 		
 	Scenario: Delete a existing policy
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
 
@@ -33,7 +33,7 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -44,18 +44,18 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		| input | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policy/all'	
 		Then the service response status must be '200' and its response length must be '1'
 		# Delete policy
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/policy/all'
 		Then the service response status must be '200' and its response must contain the text '[]'
 		# Delete fragment
 		When I send a 'DELETE' request to '/fragment/input/id/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 
 	Scenario: Delete a policy with empty parameter
 		Given I send a 'DELETE' request to '/policy/'
@@ -63,10 +63,10 @@ Feature: Test all DELETE operations for policies in Sparta Swagger API
 
 	Scenario: Delete all policies
 		Given I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

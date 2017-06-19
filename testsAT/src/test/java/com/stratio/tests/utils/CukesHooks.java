@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.tests.utils;
+package com.stratio.qa.utils;
 
-import com.stratio.cucumber.testng.ICucumberFormatter;
-import com.stratio.cucumber.testng.ICucumberReporter;
+import com.stratio.qa.cucumber.testng.ICucumberFormatter;
+import com.stratio.qa.cucumber.testng.ICucumberReporter;
 import com.stratio.sparta.testsAT.specs.BaseSpec;
 import com.stratio.sparta.testsAT.specs.Common;
 import gherkin.formatter.model.*;

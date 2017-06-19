@@ -18,9 +18,9 @@ package com.stratio.sparta.testsAT.automated.gui.outputs;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import com.stratio.cucumber.testng.CucumberRunner;
-import com.stratio.data.BrowsersDataProvider;
-import com.stratio.tests.utils.BaseTest;
+import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.data.BrowsersDataProvider;
+import com.stratio.qa.utils.BaseTest;
 
 import cucumber.api.CucumberOptions;
 

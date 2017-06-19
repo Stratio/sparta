@@ -1,0 +1,101 @@
+{
+  "volumes": [],
+  "id": "/schema-registry-sec",
+  "cmd": null,
+  "args": null,
+  "user": null,
+  "env": {
+    "VAULT_TOKEN": "35a3cc14-b54b-c376-1450-18d88502d125",
+    "VAULT_PORT": "8200",
+    "VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
+    "SCHEMA_REGISTRY_HEAP_OPTS": "-Xmx256M",
+    "SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL": "master.mesos:2181/dcos-service-confluent-kafka-sec"
+  },
+  "instances": 1,
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "gpus": 0,
+  "executor": "",
+  "constraints": [],
+  "fetch": [],
+  "storeUrls": [],
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "qa.stratio.com/stratio/cp-schema-registry:latest",
+      "network": "HOST",
+      "portMappings": null,
+      "network": "BRIDGE",
+      "portMappings": [
+        {
+          "containerPort": 8081,
+          "hostPort": 0,
+          "servicePort": 10001,
+          "protocol": "tcp",
+          "labels": {
+            "VIP_0": "schema-registry-sec:8081"
+          }
+        }
+      ],
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "TCP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 60,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": 8081,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "readinessChecks": [],
+  "dependencies": [],
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 1,
+    "maximumOverCapacity": 1
+  },
+  "labels": {
+    "DCOS_PACKAGE_RELEASE": "0",
+    "DCOS_SERVICE_SCHEME": "http",
+    "DCOS_PACKAGE_SOURCE": "http://172.19.1.245:8080/repo",
+    "DCOS_PACKAGE_SOURCE": "http://172.19.1.0:8080/repo",
+    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiMy4wIiwibmFtZSI6ImNvbmZsdWVudC1zY2hlbWEtcmVnaXN0cnktc2VjIiwidmVyc2lvbiI6IjAuOS42LTMuMS4xIiwibWFpbnRhaW5lciI6InN1cHBvcnRAc3RyYXRpby5jb20iLCJkZXNjcmlwdGlvbiI6IkNvbmZsdWVudCBTY2hlbWEgUmVnaXN0cnkgc2VydmljZVxuXG5cdERvY3VtZW50YXRpb246IGh0dHA6Ly9kb2NzLmNvbmZsdWVudC5pby8zLjEuMS9zY2hlbWEtcmVnaXN0cnkvZG9jcy9pbnRyby5odG1sIiwidGFncyI6WyJrYWZrYSIsImNvbmZsdWVudCIsInNjaGVtYSIsInJlZ2lzdHJ5IiwiVExTIl0sInNlbGVjdGVkIjpmYWxzZSwic2NtIjoiaHR0cHM6Ly9naXRodWIuY29tL2NvbmZsdWVudGluYy9zY2hlbWEtcmVnaXN0cnkiLCJmcmFtZXdvcmsiOmZhbHNlLCJwcmVJbnN0YWxsTm90ZXMiOiJQcmVwYXJpbmcgdG8gaW5zdGFsbCBjb25mbHVlbnQtc2NoZW1hLXJlZ2lzdHJ5IiwicG9zdEluc3RhbGxOb3RlcyI6ImNvbmZsdWVudC1zY2hlbWEtcmVnaXN0cnkgaGFzIGJlZW4gaW5zdGFsbGVkLiIsInBvc3RVbmluc3RhbGxOb3RlcyI6ImNvbmZsdWVudC1zY2hlbWEtcmVnaXN0cnkgd2FzIHVuaW5zdGFsbGVkIHN1Y2Nlc3NmdWxseS4iLCJsaWNlbnNlcyI6W3sibmFtZSI6IkFwYWNoZSBMaWNlbnNlIHYyIiwidXJsIjoiaHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2NvbmZsdWVudGluYy9zY2hlbWEtcmVnaXN0cnkvbWFzdGVyL0xJQ0VOU0UifV0sImltYWdlcyI6eyJpY29uLXNtYWxsIjoiaHR0cHM6Ly9zMy11cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9jb25mbHVlbnQtbWVzb3MtZGV2ZWwvQ29uZkljb25fc21hbGwucG5nIiwiaWNvbi1tZWRpdW0iOiJodHRwczovL3MzLXVzLXdlc3QtMi5hbWF6b25hd3MuY29tL2NvbmZsdWVudC1tZXNvcy1kZXZlbC9Db25mSWNvbl9tZWRpdW0ucG5nIiwiaWNvbi1sYXJnZSI6Imh0dHBzOi8vczMtdXMtd2VzdC0yLmFtYXpvbmF3cy5jb20vY29uZmx1ZW50LW1lc29zLWRldmVsL0NvbmZJY29uX2xhcmdlLnBuZyJ9fQ==",
+    "DCOS_PACKAGE_REGISTRY_VERSION": "3.0",
+    "DCOS_SERVICE_NAME": "schema-registry-sec",
+    "DCOS_SERVICE_PORT_INDEX": "0",
+    "DCOS_PACKAGE_VERSION": "0.9.6-3.1.1",
+    "DCOS_PACKAGE_NAME": "confluent-schema-registry-sec",
+    "DCOS_PACKAGE_IS_FRAMEWORK": "false"
+  },
+  "acceptedResourceRoles": [
+    "*"
+  ],
+  "ipAddress": null,
+  "residency": null,
+  "secrets": {},
+  "taskKillGracePeriodSeconds": null,
+  "portDefinitions": [
+    {
+      "port": 8081,
+      "port": 10001,
+      "protocol": "tcp",
+      "name": "schema-registry-sec",
+      "labels": {
+        "VIP_0": "schema-registry-sec:8081"
+      }
+    }
+  ],
+  "requirePorts": false
+}

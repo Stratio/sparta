@@ -16,7 +16,7 @@ Feature: Test policy with Socket input and MongoDB output
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.hosts[0].host | UPDATE | ${MONGO_HOST} |
       | outputs[0].configuration.hosts[0].port | UPDATE | ${MONGO_PORT} |
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     And I save element '$.policyId' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
@@ -55,12 +55,12 @@ Feature: Test policy with Socket input and MongoDB output
     When I send a 'PUT' request to '/policyContext' based on 'schemas/policies/policyStatusModel.conf' as 'json' with:
       | id | UPDATE | !{previousPolicyID} |
       | status | UPDATE | Stopping |
-    Then the service response status must be '201'.
+    Then the service response status must be '201'
     And I wait '5' seconds
     When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     And I drop a MongoDB database 'csvtest'
     When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     When I send a 'DELETE' request to '/policy'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'

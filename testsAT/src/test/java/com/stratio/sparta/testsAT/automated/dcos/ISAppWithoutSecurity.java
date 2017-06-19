@@ -13,23 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.api.fragments;
-
-import com.stratio.qa.utils.BaseTest;
-import org.testng.annotations.Test;
+package com.stratio.sparta.testsAT.automated.dcos;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
-
+import com.stratio.qa.utils.BaseTest;
+import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
-@CucumberOptions(features = { "src/test/resources/features/automated/api/fragments/putFragments.feature" })
-public class Put extends BaseTest {
 
-    public Put() {
+@CucumberOptions(features = {
+        "src/test/resources/features/automated/dcos/AppWithoutSecurity.feature"
+
+})
+public class ISAppWithoutSecurity extends BaseTest {
+
+    @BeforeClass(groups = {"sparta_eos"})
+    public void setUp() {
+        ThreadProperty.set("Driver", "inst");
+
     }
 
-    @Test(enabled = true, groups = {"api"})
-    public void fragmentsTest() throws Exception {
+    public ISAppWithoutSecurity() {this.browser = browser;
+    }
+
+    @Test(enabled = true, groups = {"web"})
+    public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

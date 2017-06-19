@@ -2,7 +2,7 @@
 Feature: Test all expected elements are present in Sparta GUI for policies
 
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		And I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Check all expected elements are available for policies
@@ -28,7 +28,7 @@ Feature: Test all expected elements are present in Sparta GUI for policies
                 | name | UPDATE | policy1 |
                 | fragments | DELETE | N/A |
                 | id | DELETE | N/A |
-                Then the service response status must be '200'.
+                Then the service response status must be '200'
                 And I save element '$.id' in environment variable 'previousPolicyID'
 		Given I browse to '/#/dashboard/policies'
                 Then I wait '2' seconds
@@ -44,4 +44,4 @@ Feature: Test all expected elements are present in Sparta GUI for policies
 
 	Scenario: Delete policy created
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-                Then the service response status must be '200'.
+                Then the service response status must be '200'

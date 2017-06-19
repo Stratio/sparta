@@ -1,0 +1,130 @@
+{
+  "volumes": null,
+  "id": "/sparta/spartabasic",
+  "cmd": null,
+  "args": null,
+  "user": null,
+  "env": {
+    "SPARK_MESOS_EXECUTOR_DOCKER_ENV_MESOS": "/opt/mesosphere/lib/libmesos.so",
+    "HDFS_KEYTAB_RELOAD_TIME": "23h",
+    "ZOOKEEPER_LOG_LEVEL": "ERROR",
+    "SPARK_MESOS_GRACEFUL_STOP": "true",
+    "SPARK_MESOS_TOTAL_EXECUTOR_CORES": "2",
+    "SPARTA_HEAP_MINIMUM_SIZE": "-Xms1024m",
+    "SPARK_MESOS_SPARK_LOCALITY_WAIT": "10s",
+    "SPARTA_EXECUTION_MODE": "marathon",
+    "SPARTA_MARATHON_INTERVAL_SECONDS": "60",
+    "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "180",
+    "SPARK_MESOS_MASTER": "mesos://leader.mesos:5050",
+    "SPARTA_AUTO_DELETE_CHECKPOINT": "false",
+    "SPARTA_ZOOKEEPER_CONNECTION_STRING": "10.200.0.49:2181",
+    "CORE_SITE_FROM_URI": "false",
+    "SPARK_MESOS_PARQUET_BINARY_AS_STRING": "true",
+    "SPARK_MESOS_DEPLOY": "client",
+    "HDFS_KEYTAB_RELOAD": "false",
+    "HADOOP_SECURITY_AUTH": "kerberos",
+    "SERVICE_LOG_LEVEL": "ERROR",
+    "SPARTA_DOCKER_IMAGE": "qa.stratio.com/stratio/sparta:1.5.0",
+    "SPARK_MESOS_EXECUTOR_HOME": "/opt/spark/dist",
+    "SPARTA_MARATHON_MAX_FAILURES": "3",
+    "HDFS_CONF_FROM_URI": "false",
+    "SPARTA_MARATHON_MESOSPHERE_PACKAGES": "/opt/mesosphere/packages",
+    "HADOOP_DFS_ENCRYPT_DATA_TRANSFER": "true",
+    "SPARTA_REMEMBER_PARTITIONER": "true",
+    "SPARTA_AWAIT_POLICY_CHANGE_STATUS": "120s",
+    "SPARK_MESOS_EXECUTOR_DOCKER_VOLUMES": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+    "SPARTA_MAX_PERM_SIZE": "-XX:MaxPermSize=512m",
+    "HADOOP_LOG_LEVEL": "ERROR",
+    "SPARTA_ZOOKEEPER_SESSION_TIMEOUT": "60000",
+    "SPARTA_MARATHON_MESOSPHERE_LIB": "/opt/mesosphere/lib",
+    "SPARK_MESOS_EXECUTOR_CORES": "1",
+    "SPARTA_CHECKPOINT_PATH": "/tmp/stratio/sparta/checkpoint",
+    "HDFS_CONF_FROM_DFS_NOT_SECURED": "false",
+    "SPARTA_MARATHON_TIMEOUT_SECONDS": "20",
+    "SPARTA_ZOOKEEPER_RETRY_INTERVAL": "10000",
+    "SPARTA_HEAP_SIZE": "-Xmx2048m",
+    "SPARTA_LOG_LEVEL": "INFO",
+    "SPARTA_ADD_TIME_TO_CHECKPOINT": "false",
+    "SPARTA_ZOOKEEPER_RETRY_ATEMPTS": "5",
+    "MARATHON_TIKI_TAKKA_MARATHON_API_VERSION": "v2",
+    "RUN_MODE": "production",
+    "SPARK_MESOS_DRIVER_MEMORY": "1G",
+    "SPARTA_ZOOKEEPER_CONNECTION_TIMEOUT": "15000",
+    "SPARTA_DRIVER_URI": "/opt/sds/sparta/driver/sparta-driver.jar",
+    "SPARK_MESOS_SPARK_TASK_MAXFILURES": "8",
+    "HADOOP_RPC_PROTECTION": "privacy",
+    "HDFS_CONF_FROM_DFS": "false",
+    "SPARK_LOG_LEVEL": "ERROR",
+    "SPARK_MESOS_DRIVER_CORES": "1",
+    "SPARK_MESOS_SPARK_STREAMING_BLOCK_INTERVAL": "200ms",
+    "SPARK_MESOS_COARSE": "true",
+    "SPARK_MESOS_EXECUTOR_DOCKER_IMAGE": "qa.stratio.com/stratio/spark-krb-dispatcher-support:2.1.0",
+    "MARATHON_TIKI_TAKKA_MARATHON_URI": "http://10.200.0.21:8080",
+    "SPARK_MESOS_EXECUTOR_MEMORY": "1G",
+    "MAX_OPEN_FILES": "65535"
+  },
+  "instances": 1,
+  "cpus": 2,
+  "mem": 2046,
+  "disk": 0,
+  "gpus": 0,
+  "executor": null,
+  "constraints": null,
+  "fetch": null,
+  "storeUrls": null,
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "docker": {
+      "image": "qa.stratio.com/stratio/sparta:1.5.0",
+      "forcePullImage": false,
+      "privileged": false,
+      "parameters": [
+        {
+          "key": "volume",
+          "value": "/etc/krb5.conf:/etc/krb5.conf:ro"
+        }
+      ],
+      "network": "HOST"
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "TCP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 15,
+      "timeoutSeconds": 1,
+      "maxConsecutiveFailures": 3
+    }
+  ],
+  "readinessChecks": null,
+  "dependencies": null,
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 1,
+    "maximumOverCapacity": 1
+  },
+  "labels": {
+    "DCOS_PACKAGE_RELEASE": "3",
+    "DCOS_PACKAGE_SOURCE": "http://iodo.stratio.com:8080/repo",
+    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiMy4wIiwibmFtZSI6InNwYXJ0YSIsInZlcnNpb24iOiIxLjQuMCIsIm1haW50YWluZXIiOiJzcGFydGFAc3RyYXRpby5jb20iLCJkZXNjcmlwdGlvbiI6IlJlYWwgVGltZSBhbmFseXRpY3MgZW5naW5lIGJhc2VkIG9uIEFwYWNoZSBTcGFyayIsInRhZ3MiOlsic3BhcnRhIiwic3RyZWFtaW5nIiwic3BhcmsiLCJzcWwiLCJzdHJhdGlvIiwiYW5hbHl0aWNzIiwiZXRsIiwiYWdncmVnYXRpb24iLCJyZWFsLXRpbWUiLCJrYWZrYSIsImNhc3NhbmRyYSIsIm1vbmdvZGIiLCJlbGFzdGljc2VhcmNoIiwiZmx1bWUiLCJoZGZzIiwiaGFkb29wIiwiZGF0YXNvdXJjZXMiLCJzdHJlYW0iLCJkYXRhIiwib2xhcCIsImN1YmUiLCJsYW1iZGEiLCJ3b3JrZmxvdyIsImNlcCIsImV2ZW50Il0sInNlbGVjdGVkIjp0cnVlLCJzY20iOiJodHRwczovL2dpdGh1Yi5jb20vc3RyYXRpby9zcGFydGEiLCJmcmFtZXdvcmsiOmZhbHNlLCJwcmVJbnN0YWxsTm90ZXMiOiJQcmVwYXJpbmcgdG8gaW5zdGFsbCBTdGF0aW8gU3BhcnRhIiwicG9zdEluc3RhbGxOb3RlcyI6IlN0cmF0aW8gU3BhcnRhIGluc3RhbGxlZCBzdWNjZXNzZnVsIiwicG9zdFVuaW5zdGFsbE5vdGVzIjoiU3RyYXRpbyBTcGFydGEgdW5pbnN0YWxsZWQgc3VjY2Vzc2Z1bCIsImxpY2Vuc2VzIjpbeyJuYW1lIjoiU3BhcnRhIiwidXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL1N0cmF0aW8vU3BhcnRhL2Jsb2IvbWFzdGVyL0xJQ0VOU0UudHh0In1dLCJpbWFnZXMiOnsiaWNvbi1zbWFsbCI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyIsImljb24tbWVkaXVtIjoiaHR0cDovL2Fzc2V0cy5zdHJhdGlvLmNvbS9sb2dvcy9sb2dvX3N0cmF0aW9fdW5pdmVyc2UucG5nIiwiaWNvbi1sYXJnZSI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyJ9fQ==",
+    "DCOS_PACKAGE_REGISTRY_VERSION": "3.0",
+    "DCOS_SERVICE_NAME": "spartabasic",
+    "DCOS_PACKAGE_FRAMEWORK_NAME": "spartabasic",
+    "DCOS_PACKAGE_VERSION": "1.4.0",
+    "DCOS_PACKAGE_NAME": "sparta",
+    "DCOS_PACKAGE_IS_FRAMEWORK": "false"
+  },
+  "acceptedResourceRoles": null,
+  "residency": null,
+  "secrets": null,
+  "taskKillGracePeriodSeconds": null,
+  "portDefinitions": [
+    {
+      "protocol": "tcp",
+      "port": 10112,
+      "name": "spartaapi"
+    }
+  ],
+  "requirePorts": false
+}

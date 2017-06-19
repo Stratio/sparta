@@ -2,7 +2,7 @@
 Feature: Test adding a new MongoDB output in Sparta GUI
 		
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to add a new input
@@ -151,7 +151,7 @@ Feature: Test adding a new MongoDB output in Sparta GUI
 		# Check that output fragment has been created
 		# Retrieve output fragment id using api
 		When I send a 'GET' request to '/fragment/output/name/validmongodboutput'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Check that an output element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID}"]'

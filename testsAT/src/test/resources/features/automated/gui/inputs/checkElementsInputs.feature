@@ -2,7 +2,7 @@
 Feature: Test all expected elements are present in Sparta GUI for inputs
 
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		And I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
 	Scenario: Check all expected elements are available for inputs
@@ -38,10 +38,10 @@ Feature: Test all expected elements are present in Sparta GUI for inputs
                 | id | DELETE | N/A |
                 | fragmentType | UPDATE | input |
                 | name | UPDATE | inputfragment1 |
-                Then the service response status must be '200'.
+                Then the service response status must be '200'
 		# Retrieve input fragment id using api
                 When I send a 'GET' request to '/fragment/input/name/inputfragment1'
-                Then the service response status must be '200'.
+                Then the service response status must be '200'
                 And I save element '$.id' in environment variable 'previousFragmentID'
 		Given I browse to '/#/dashboard/inputs'
                 Then I wait '2' seconds
@@ -76,4 +76,4 @@ Feature: Test all expected elements are present in Sparta GUI for inputs
 		
 	Scenario: Delete input created
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

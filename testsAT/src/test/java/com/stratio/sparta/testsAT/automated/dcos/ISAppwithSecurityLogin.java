@@ -13,27 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.gui.policies;
+package com.stratio.sparta.testsAT.automated.dcos;
 
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-
-import com.stratio.cucumber.testng.CucumberRunner;
-import com.stratio.data.BrowsersDataProvider;
-import com.stratio.tests.utils.BaseTest;
-
+import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.utils.BaseTest;
+import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import org.testng.annotations.Factory;
+import com.stratio.qa.data.BrowsersDataProvider;
 
-@CucumberOptions(features = { "src/test/resources/features/automated/gui/policies/addAutoFragmentCreation.feature" })
-public class AddAutoFragmentCreation extends BaseTest {
+@CucumberOptions(features = {
+        "src/test/resources/features/automated/dcos/AppwithSecurityLogin.feature"
+
+})
+public class ISAppwithSecurityLogin extends BaseTest {
 
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public AddAutoFragmentCreation(String browser) {
+    public ISAppwithSecurityLogin(String browser) {
         this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"web"})
-    public void checkElementsTest() throws Exception {
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
+
+
 }

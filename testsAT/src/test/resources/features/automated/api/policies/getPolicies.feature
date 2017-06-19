@@ -14,7 +14,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 
 	Scenario: Get a policy by id when none available
 		When I send a 'GET' request to '/policy/find/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 
 	Scenario: Get all policies with a particular fragment when no policies available
 		When I send a 'GET' request to '/policy/fragment/input/nonExistingId'
@@ -22,21 +22,21 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 
 	Scenario: Run a policy when no policies available
 		When I send a 'GET' request to '/policy/run/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 
 	Scenario: Get a non-existing policy by name when policies are available
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
 		| name | UPDATE | basicpolicy |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		When I send a 'GET' request to '/policy/findByName/nonExistingPolicy'
 		Then the service response status must be '404' and its response must contain the text 'No policy with name nonexistingpolicy'
 
 	Scenario: Get a non-existing policy by id
 		When I send a 'GET' request to '/policy/find/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 
 	Scenario: Get a existing policy by name
 		When I send a 'GET' request to '/policy/findByName/basicpolicy'
@@ -50,7 +50,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 
 	Scenario: Run a non-existing policy
 		When I send a 'GET' request to '/policy/run/nonExistingId'
-		Then the service response status must be '404'.
+		Then the service response status must be '404'
 
 	Scenario: Run a existing policy
 		When I send a 'GET' request to '/policy/run/!{previousPolicyID}'
@@ -64,7 +64,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 #
 	Scenario: Delete policy previously created
 		When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 
 	Scenario: Get all policies with fragment with incorrect fragment type
 		When I send a 'GET' request to '/policy/fragment/invalid/nonExistingId'
@@ -80,7 +80,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | outputfragment1 |
 		| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create policy using fragment
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -90,7 +90,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyOneOutputFragment |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID'
 		# Get policies with fragmentType input and id !{previousFragmentID}
 		When I send a 'GET' request to '/policy/fragment/output/!{previousFragmentID}'
@@ -106,7 +106,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | outputfragment2 |
 		| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Create policy using fragments
 		When I send a 'POST' request to '/policy' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -118,7 +118,7 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 		| fragments[1].fragmentType | UPDATE | output |
 		| id | DELETE | N/A |
 		| name | UPDATE | policyTwoOutputFragment |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousPolicyID_2'
 		# Run policy
 		When I send a 'GET' request to '/policy/run/!{previousPolicyID_2}'
@@ -150,6 +150,6 @@ Feature: Test all GET operations for policies in Sparta Swagger API
 
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-    	Then the service response status must be '200'.
+    	Then the service response status must be '200'
     	When I send a 'DELETE' request to '/policy'
-    	Then the service response status must be '200'.
+    	Then the service response status must be '200'

@@ -38,7 +38,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| fragments[1] | DELETE | N/A |
 		| fragments[0].id | DELETE | N/A |
 		| id | DELETE | N/A |	
-		Then the service response status must be '500'.
+		Then the service response status must be '500'
 		
 	Scenario: Add a policy context with 2 existing input fragments
 		# Create first input fragment
@@ -46,14 +46,14 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| id | DELETE | N/A |
 		| name | UPDATE | inputfragment1 |
 		| fragmentType | UPDATE | input |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		# Create second input fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 		| id | DELETE | N/A |
 		| name | UPDATE | inputfragment2 |
 		| fragmentType | UPDATE | input |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Create policy referencing these input fragments
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -83,7 +83,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | policyContextValid |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.policyId' in environment variable 'previousPolicyID'
 		# One policyContext created
 		When I send a 'GET' request to '/policyContext'
@@ -97,7 +97,7 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		| name | UPDATE | policyContextValid |
 		| fragments | DELETE | N/A |
 		| id | DELETE | N/A |
-		Then the service response status must be '500'.
+		Then the service response status must be '500'
 
 	Scenario: Add a policyContext with existing fragment
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -114,9 +114,9 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		Then the service response status must be '200' and its response length must be '2'
 	 	# Delete fragments
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 
 	Scenario: Add a policy context with 2 existing output fragments
 	  # Create first output fragment
@@ -124,14 +124,14 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 			| id | DELETE | N/A |
 			| name | UPDATE | outputfragment1 |
 			| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 	  # Create second output fragment
 		Given I send a 'POST' request to '/fragment' based on 'schemas/fragments/fragment.conf' as 'json' with:
 			| id | DELETE | N/A |
 			| name | UPDATE | outputfragment2 |
 			| fragmentType | UPDATE | output |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 	  # Create policy using these output fragments
 		When I send a 'POST' request to '/policyContext' based on 'schemas/policies/policy.conf' as 'json' with:
@@ -149,12 +149,12 @@ Feature: Test all POST operations for policyContexts in Sparta Swagger API
 		Then the service response status must be '200' and its response length must be '2'
 		 # Delete fragments
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 
 	Scenario: Clean up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

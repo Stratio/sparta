@@ -15,10 +15,10 @@
  */
 package com.stratio.sparta.testsAT.automated.api.policies;
 
-import com.stratio.tests.utils.BaseTest;
+import com.stratio.qa.utils.BaseTest;
 import org.testng.annotations.Test;
 
-import com.stratio.cucumber.testng.CucumberRunner;
+import com.stratio.qa.cucumber.testng.CucumberRunner;
 
 import cucumber.api.CucumberOptions;
 

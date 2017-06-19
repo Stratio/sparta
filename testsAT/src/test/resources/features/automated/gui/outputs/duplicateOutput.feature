@@ -2,7 +2,7 @@
 Feature: Test duplicating an output in Sparta GUI
 		
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to duplicate an existing output
@@ -11,7 +11,7 @@ Feature: Test duplicating an output in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | outputfragment1 |
 		| element.type | UPDATE | Redis |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
@@ -64,7 +64,7 @@ Feature: Test duplicating an output in Sparta GUI
 		# Check that input fragment has been created
 		# Retrieve input fragment id using api
 		When I send a 'GET' request to '/fragment/output/name/outputfragment1bis'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Check that an input element has been created
 		Then '1' element exists with 'css:span[data-qa="output-context-menu-!{previousFragmentID_2}"]'
@@ -72,6 +72,6 @@ Feature: Test duplicating an output in Sparta GUI
 		
 		Scenario: Delete everything
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'

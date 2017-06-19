@@ -2,7 +2,7 @@
 Feature: Test filtering outputs in Sparta GUI
 		
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to filter existing outputs
@@ -12,7 +12,7 @@ Feature: Test filtering outputs in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | redisoutput |
 		| element.type | UPDATE | Redis |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
@@ -23,7 +23,7 @@ Feature: Test filtering outputs in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | printoutput |
 		| element.type | UPDATE | Print |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '2'
@@ -72,7 +72,7 @@ Feature: Test filtering outputs in Sparta GUI
 		
 		# Delete print output and create a second redis one
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 		# Create one output fragment
@@ -81,7 +81,7 @@ Feature: Test filtering outputs in Sparta GUI
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | redisoutput2 |
 		| element.type | UPDATE | Redis |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '2'
@@ -96,7 +96,7 @@ Feature: Test filtering outputs in Sparta GUI
 		
 		# Delete redis output and check that number decreases
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 		# Reload page
@@ -109,6 +109,6 @@ Feature: Test filtering outputs in Sparta GUI
 		
 		# Delete everything
 		When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response must contain the text '[]'

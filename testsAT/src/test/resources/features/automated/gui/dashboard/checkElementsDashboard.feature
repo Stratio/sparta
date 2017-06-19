@@ -2,7 +2,7 @@
 Feature: Test all expected elements are present in Sparta GUI
 	
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 
 	Scenario: Check all expected elements are available
 		Given I browse to '/#/dashboard'

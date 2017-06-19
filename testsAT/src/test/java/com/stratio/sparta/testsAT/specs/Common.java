@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.testsAT.specs;
 
-import com.stratio.specs.CommonG;
+import com.stratio.qa.specs.CommonG;
 import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 

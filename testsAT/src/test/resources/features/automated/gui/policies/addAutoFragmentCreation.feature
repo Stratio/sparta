@@ -2,7 +2,7 @@
 Feature: Test adding a new policy in Sparta GUI
 
   Background: Setup Sparta GUI
-    Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+    Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
     Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 
   Scenario: Add a new policy through api
@@ -11,7 +11,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| fragments | DELETE | N/A |
 		| outputs[1] | DELETE | N/A |
 		| id | DELETE | N/A |
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	And I save element '$.policyId' in environment variable 'previousPolicyID'
 	And I wait '2' seconds
 	# Check that is listed
@@ -65,7 +65,7 @@ Feature: Test adding a new policy in Sparta GUI
 		| fragments | DELETE | N/A |
 		| outputs[1] | DELETE | N/A |
 		| id | DELETE | N/A |
-	 Then the service response status must be '200'.
+	 Then the service response status must be '200'
 	 And I save element '$.policyId' in environment variable 'previousPolicyID_2'
 
 	# Browse to inputs
@@ -80,20 +80,20 @@ Feature: Test adding a new policy in Sparta GUI
 
     # Delete policy
     When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	When I send a 'DELETE' request to '/policy/!{previousPolicyID_2}'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	When I send a 'GET' request to '/policy/all'
 	Then the service response status must be '200' and its response must contain the text '[]'
 
 	# Delete fragments
   	When I send a 'GET' request to '/fragment/input/name/name'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	And I save element '$.id' in environment variable 'previousFragmentID'
 	When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	When I send a 'GET' request to '/fragment/output/name/name'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'
 	And I save element '$.id' in environment variable 'previousFragmentID_2'
 	When I send a 'DELETE' request to '/fragment/output/!{previousFragmentID_2}'
-	Then the service response status must be '200'.
+	Then the service response status must be '200'

@@ -27,7 +27,7 @@
 		<Root level="${sys:logLevel}">
 			<AppenderRef ref="Console"/>
 		</Root>
-		<logger name="com.stratio.tests.utils" level="INFO" additivity="false">
+		<logger name="com.stratio.tests.utils" level="${sys:logLevel}" additivity="false">
             <appender-ref ref="Hooks"/>
         </logger>
 	</Loggers>

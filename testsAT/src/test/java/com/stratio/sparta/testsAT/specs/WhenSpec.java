@@ -23,7 +23,7 @@ import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 
-import static com.stratio.assertions.Assertions.assertThat;
+import static com.stratio.qa.assertions.Assertions.assertThat;
 
 public class WhenSpec extends BaseSpec {
 

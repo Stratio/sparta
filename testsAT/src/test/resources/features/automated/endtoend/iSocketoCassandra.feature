@@ -16,7 +16,7 @@ Feature: Test policy with Socket input and Cassandra output
       | input.configuration.port | UPDATE | 10666 |
       | outputs[0].configuration.connectionHost | UPDATE | ${CASSANDRA_HOST} |
       | outputs[0].configuration.connectionPort | UPDATE | ${CASSANDRA_PORT} |
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     And I save element '$.policyId' in environment variable 'previousPolicyID'
     And I wait '10' seconds
 
@@ -60,13 +60,13 @@ Feature: Test policy with Socket input and Cassandra output
     When I send a 'PUT' request to '/policyContext' based on 'schemas/policies/policyStatusModel.conf' as 'json' with:
       | id | UPDATE | !{previousPolicyID} |
       | status | UPDATE | Stopping |
-    Then the service response status must be '201'.
+    Then the service response status must be '201'
     And I wait '5' seconds
     When I send a 'DELETE' request to '/policy/!{previousPolicyID}'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     And I truncate a Cassandra table named 'testcubewithtime_v1' using keyspace 'sparta'
     And I truncate a Cassandra table named 'testcubewithouttime_v1' using keyspace 'sparta'
     When I send a 'DELETE' request to '/fragment'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'
     When I send a 'DELETE' request to '/policy'
-    Then the service response status must be '200'.
+    Then the service response status must be '200'

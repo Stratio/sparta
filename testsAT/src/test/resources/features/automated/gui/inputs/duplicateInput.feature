@@ -2,7 +2,7 @@
 Feature: Test duplicating an input in Sparta GUI
 		
 	Background: Setup Sparta GUI
-		Given I set web base url to '${SPARTA_HOST}:${SPARTA_PORT}'
+		Given My app is running in '${SPARTA_HOST}:${SPARTA_PORT}'
 		Given I send requests to '${SPARTA_HOST}:${SPARTA_API_PORT}'
 		
 	Scenario: Try to duplicate an existing input
@@ -11,7 +11,7 @@ Feature: Test duplicating an input in Sparta GUI
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | inputfragment1 |
 		| element.type | UPDATE | Flume |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
@@ -50,8 +50,7 @@ Feature: Test duplicating an input in Sparta GUI
 		When I click on the element on index '0'
 		Then '1' elements exist with 'css:div[data-qa="error-msg"]'
 		And '1' element exists with 'css:span[translate="_ERROR_._100_"]'
-                And a text 'There was an error. The name of the fragment already exists!' exists
-		
+		And a text 'There was an error. The name of the fragment already exists!' exists
 		# Try with valid name
 		Given '1' element exists with 'css:input[data-qa="duplicate-modal-name"]'
 		When I send 'HOME, SHIFT + END, DELETE' on the element on index '0'
@@ -64,7 +63,7 @@ Feature: Test duplicating an input in Sparta GUI
 		# Check that input fragment has been created
 		# Retrieve input fragment id using api
 		When I send a 'GET' request to '/fragment/input/name/inputfragment1bis'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		And I save element '$.id' in environment variable 'previousFragmentID_2'
 		# Check that an input element has been created
 		Then '1' element exists with 'css:span[data-qa="input-context-menu-!{previousFragmentID_2}"]'
@@ -72,7 +71,7 @@ Feature: Test duplicating an input in Sparta GUI
 		
 		Scenario: Delete everything
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/fragment/input/!{previousFragmentID_2}'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		

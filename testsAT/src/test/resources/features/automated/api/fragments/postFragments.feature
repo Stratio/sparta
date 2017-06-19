@@ -50,7 +50,7 @@ Feature: Test all POST operations for fragments in Sparta Swagger API
 		| id | DELETE | N/A |
 		| fragmentType | UPDATE | input |
 		| name | UPDATE | inputfragment1 |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/input'
 		Then the service response status must be '200' and its response length must be '1'
 	
@@ -59,12 +59,12 @@ Feature: Test all POST operations for fragments in Sparta Swagger API
 		| id | DELETE | N/A |
 		| fragmentType | UPDATE | output |
 		| name | UPDATE | outputfragment1 |
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'GET' request to '/fragment/output'
 		Then the service response status must be '200' and its response length must be '1'
 
 	Scenario: Clean everything up
 		When I send a 'DELETE' request to '/fragment'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
 		When I send a 'DELETE' request to '/policy'
-		Then the service response status must be '200'.
+		Then the service response status must be '200'
