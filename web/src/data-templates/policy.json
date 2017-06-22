@@ -279,6 +279,25 @@
       "qa": "checkpoint-path"
     },
     {
+      "propertyId": "sparkUser",
+      "propertyName": "_SPARK_USER_",
+      "propertyType": "text",
+      "width": 6,
+      "position": "left",
+      "default": "sparta",
+      "tooltip": "Set the spark user in Mesos deployments.",
+      "qa": "policy-spark-user"
+    },
+    {
+      "propertyId": "stopGracefully",
+      "propertyName": "_STOP_GRACEFULLY_",
+      "propertyType": "boolean",
+      "width": 6,
+      "position": "right",
+      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
+      "qa": "policy-stop-gracefully"
+    },
+    {
       "propertyId": "autoDeleteCheckpoint",
       "propertyName": "_AUTO_DELETE_CHECKPOINT_",
       "width": 6,
@@ -299,13 +318,14 @@
       "qa": "auto-delete-checkpoint"
     },
     {
-      "propertyId": "stopGracefully",
-      "propertyName": "_STOP_GRACEFULLY_",
-      "propertyType": "boolean",
+      "propertyId": "sparkKerberos",
+      "propertyName": "_SPARK_KERBEROS_ENABLE_",
       "width": 6,
       "position": "left",
-      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
-      "qa": "policy-stop-gracefully"
+      "propertyType": "boolean",
+      "required": false,
+      "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available.",
+      "qa": "auto-spark-kerberos"
     },
     {
       "propertyId": "sparkConf",
@@ -413,14 +433,7 @@
       }]
     }
   ],
-  "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Raw+data",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Triggers",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
-  ],
+  "helpLinks": [],
   "model": {
     "outputs": {
       "writer": {

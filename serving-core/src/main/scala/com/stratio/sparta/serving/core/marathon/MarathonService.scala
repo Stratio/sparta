@@ -25,19 +25,19 @@ import akka.util.Timeout
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message._
-import com.stratio.tikitakka.common.model.{ContainerId, ContainerInfo, CreateApp, Parameter, Volume}
+import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
 import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
 
-import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.io.Source
@@ -68,7 +68,9 @@ class MarathonService(context: ActorContext,
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
   val MarathonApp = "marathon"
-  val DefaultSpartaDockerImage = "qa.stratio.com/stratio/sparta:1.4.0-SNAPSHOT"
+  val appInfo = InfoHelper.getAppInfo
+  val versionParsed = if(appInfo.pomVersion != "${project.version}") appInfo.pomVersion else version
+  val DefaultSpartaDockerImage = s"qa.stratio.com/stratio/sparta:$versionParsed"
   val HostMesosNativeLibPath = "/opt/mesosphere/lib"
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
   val HostMesosLib = s"$HostMesosNativeLibPath"
@@ -78,6 +80,12 @@ class MarathonService(context: ActorContext,
   val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
+  val DefaultGracePeriodSeconds = 180
+  val DefaultIntervalSeconds = 60
+  val DefaultTimeoutSeconds = 20
+  val DefaultMaxConsecutiveFailures = 3
+  val DefaultForcePullImage = false
+  val DefaultPrivileged = false
 
   /* Environment variables to Marathon Application */
 
@@ -86,9 +94,8 @@ class MarathonService(context: ActorContext,
   val LdLibraryEnv = "LD_LIBRARY_PATH"
   val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
   val AppJarEnv = "SPARTA_MARATHON_JAR"
-  val VaultEnable = "VAULT_ENABLE"
+  val VaultEnableEnv = "VAULT_ENABLE"
   val VaultHostEnv = "VAULT_HOST"
-  val VaultPortEnv = "VAULT_PORT"
   val VaultTokenEnv = "VAULT_TOKEN"
   val PolicyIdEnv = "SPARTA_POLICY_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
@@ -96,11 +103,12 @@ class MarathonService(context: ActorContext,
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
   val SparkHomeEnv = "SPARK_HOME"
-  val HadoopUserNameEnv = "HDFS_USER_NAME"
-  val HdfsConfFromUriEnv = "HDFS_CONF_FROM_URI"
+  val HadoopUserNameEnv = "HADOOP_USER_NAME"
+  val HdfsUserNameEnv = "HADOOP_USER_NAME"
+  val HdfsConfFromUriEnv = "HADOOP_CONF_FROM_URI"
   val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
-  val HdfsConfFromDfsEnv = "HDFS_CONF_FROM_DFS"
-  val HdfsConfFromDfsNotSecuredEnv = "HDFS_CONF_FROM_DFS_NOT_SECURED"
+  val HdfsConfFromDfsEnv = "HADOOP_CONF_FROM_DFS"
+  val HdfsConfFromDfsNotSecuredEnv = "HADOOP_CONF_FROM_DFS_NOT_SECURED"
   val DefaultFsEnv = "HADOOP_FS_DEFAULT_NAME"
   val DefaultHdfsConfUriEnv = "HADOOP_CONF_URI"
   val HadoopConfDirEnv = "HADOOP_CONF_DIR"
@@ -115,10 +123,18 @@ class MarathonService(context: ActorContext,
   val HdfsSecurityAuthEnv = "HADOOP_SECURITY_AUTH"
   val HdfsEncryptDataEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER"
   val HdfsTokenUseIpEnv = "HADOOP_SECURITY_TOKEN_USE_IP"
-  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL"
-  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KERBEROS_PRINCIPAL_PATTERN"
+  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL"
+  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN"
   val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
   val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
+  val SparkUserEnv = "SPARK_USER"
+  val SecurityTlsEnv = "SECURITY_TLS_ENABLE"
+  val SecurityTrustoreEnv = "SECURITY_TRUSTSTORE_ENABLE"
+  val SecurityKerberosEnv = "SECURITY_KRB_ENABLE"
+  val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
+  val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
+  val SecuritySparkKafkaEnv = "SPARK_SECURITY_KAFKA_ENABLE"
+  val SecuritySparkHdfsEnv = "HDFS_CONF_URI"
 
   /* Lazy variables */
 
@@ -181,13 +197,42 @@ class MarathonService(context: ActorContext,
   private def spartaDockerImage: String =
     Try(marathonConfig.getString("docker.image")).toOption.getOrElse(DefaultSpartaDockerImage)
 
+  private def gracePeriodSeconds: Int =
+    Try(marathonConfig.getInt("gracePeriodSeconds")).toOption.getOrElse(DefaultGracePeriodSeconds)
+
+  private def intervalSeconds: Int =
+    Try(marathonConfig.getInt("intervalSeconds")).toOption.getOrElse(DefaultIntervalSeconds)
+
+  private def timeoutSeconds: Int =
+    Try(marathonConfig.getInt("timeoutSeconds")).toOption.getOrElse(DefaultTimeoutSeconds)
+
+  private def maxConsecutiveFailures: Int =
+    Try(marathonConfig.getInt("maxConsecutiveFailures")).toOption.getOrElse(DefaultMaxConsecutiveFailures)
+
+  private def forcePullImage: Boolean =
+    Try(marathonConfig.getString("docker.forcePullImage").toBoolean).getOrElse(DefaultForcePullImage)
+
+  private def privileged: Boolean =
+    Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
+
+  private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
+    if(sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_CERT_PASS_PATH") &&
+      sparkConfigurations.contains("spark.mesos.driverEnv.KAFKA_VAULT_KEY_PASS_PATH")) {
+      Option("true")
+    } else None
+  }
+
+  private def envSparkSecurityHdfs(sparkConfigurations: Map[String, String]): Option[String] =
+    sparkConfigurations.get("spark.mesos.driverEnv.HDFS_CONF_URI")
+
   private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
 
   private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
 
-  private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
+  private def envVaultEnable: Option[String] = Properties.envOrNone(VaultEnableEnv)
 
-  private def envVaulPort: Option[String] = Properties.envOrNone(VaultPortEnv)
+  private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
 
   private def envVaultToken: Option[String] = Properties.envOrNone(VaultTokenEnv)
 
@@ -231,13 +276,25 @@ class MarathonService(context: ActorContext,
 
   private def envHadoopLogLevel: Option[String] = Properties.envOrNone(HadoopLogLevelEnv)
 
+  private def envZookeeperLogLevel: Option[String] = Properties.envOrNone(ZookeeperLogLevelEnv)
+
+  private def envTls: Option[String] = Properties.envOrNone(SecurityTlsEnv)
+
+  private def envTrustore: Option[String] = Properties.envOrNone(SecurityTrustoreEnv)
+
+  private def envKerberos: Option[String] = Properties.envOrNone(SecurityKerberosEnv)
+
+  private def envOauth2: Option[String] = Properties.envOrNone(SecurityOauth2Env)
+
+  private def envMesos: Option[String] = Properties.envOrNone(SecurityMesosEnv)
+
   private def getMarathonAppFromFile: CreateApp = {
     val templateFile = Try(marathonConfig.getString("template.file")).toOption.getOrElse(DefaultMarathonTemplateFile)
     val fileContent = Source.fromFile(templateFile).mkString
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnable) match {
+  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnableEnv) match {
     case Some(vaultEnable) if Try(vaultEnable.toBoolean).getOrElse(false) =>
       Seq(Parameter("volume", Krb5ConfFile))
     case None =>
@@ -275,21 +332,34 @@ class MarathonService(context: ActorContext,
         subProperties.get(k).map(vParsed => (k, vParsed))
       else Some((k, v))
     }
-    val certificatesVolume = Volume(ContainerCertificatePath, HostCertificatePath, "RO")
+    val javaCertificatesVolume = {
+      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaultToken.isDefined)
+        Seq.empty[Volume]
+      else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
+    }
     val newDockerContainerInfo = mesosNativeLibrary match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(image = spartaDockerImage,
-          volumes = Option(Seq(certificatesVolume)),
+          volumes = Option(javaCertificatesVolume),
           parameters = Option(getKrb5ConfVolume)
         ))
       case None => ContainerInfo(app.container.docker.copy(volumes = Option(Seq(
-        certificatesVolume,
         Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO"))),
+        Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
         image = spartaDockerImage,
-        parameters = Option(getKrb5ConfVolume)
+        parameters = Option(getKrb5ConfVolume),
+        forcePullImage = Option(forcePullImage),
+        privileged = Option(privileged)
       ))
     }
+    val newHealthChecks = Option(Seq(HealthCheck(
+      protocol = "TCP",
+      portIndex = Option(0),
+      gracePeriodSeconds = gracePeriodSeconds,
+      intervalSeconds = intervalSeconds,
+      timeoutSeconds = timeoutSeconds,
+      maxConsecutiveFailures = maxConsecutiveFailures
+    )))
 
     app.copy(
       id = ServiceName,
@@ -297,7 +367,8 @@ class MarathonService(context: ActorContext,
       mem = newMem,
       env = newEnv,
       labels = newLabels,
-      container = newDockerContainerInfo
+      container = newDockerContainerInfo,
+      healthChecks = newHealthChecks
     )
   }
 
@@ -313,13 +384,14 @@ class MarathonService(context: ActorContext,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
       PolicyIdEnv -> policyModel.id,
+      VaultEnableEnv -> envVaultEnable,
       VaultHostEnv -> envVaultHost,
-      VaultPortEnv -> envVaulPort,
       VaultTokenEnv -> envVaultToken,
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> envSparkHome,
       HadoopUserNameEnv -> envHadoopUserName,
+      HdfsUserNameEnv -> envHadoopUserName,
       HdfsConfFromUriEnv -> envHdfsConfFromUri,
       CoreSiteFromUriEnv -> envCoreSiteFromUri,
       HdfsConfFromDfsEnv -> envHdfsConfFromDfs,
@@ -331,6 +403,7 @@ class MarathonService(context: ActorContext,
       SpartaLogLevelEnv -> envSpartaLogLevel,
       SparkLogLevelEnv -> envSparkLogLevel,
       HadoopLogLevelEnv -> envHadoopLogLevel,
+      ZookeeperLogLevelEnv -> envZookeeperLogLevel,
       HdfsRpcProtectionEnv -> envHdfsRpcProtection,
       HdfsSecurityAuthEnv -> envHdfsSecurityAuth,
       HdfsEncryptDataEnv -> envHdfsEncryptData,
@@ -339,6 +412,14 @@ class MarathonService(context: ActorContext,
       HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
       HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
       HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
-      DcosServiceName -> Option(ServiceName)
+      SecurityTlsEnv -> envTls,
+      SecurityTrustoreEnv -> envTrustore,
+      SecurityKerberosEnv -> envKerberos,
+      SecurityOauth2Env -> envOauth2,
+      SecurityMesosEnv -> envMesos,
+      SecuritySparkKafkaEnv -> envSparkSecurityKafka(submitRequest.sparkConfigurations),
+      SecuritySparkHdfsEnv -> envSparkSecurityHdfs(submitRequest.sparkConfigurations),
+      DcosServiceName -> Option(ServiceName),
+      SparkUserEnv -> policyModel.sparkUser
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }

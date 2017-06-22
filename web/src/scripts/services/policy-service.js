@@ -55,9 +55,11 @@
         var cubeOutputs = getCubeOutputs(allOutputs);
         var triggerOutputs = getTriggerOutputs(allOutputs);
         var rawDataOutputs = getRawDataOutputs(allOutputs);
+        var transformationOutputs = getTransformationOutputs(allOutputs);
         fragments = fragments.concat(cubeOutputs);
         fragments = fragments.concat(triggerOutputs);
         fragments = fragments.concat(rawDataOutputs);
+        fragments = fragments.concat(transformationOutputs);
         fragments = UtilsService.removeDuplicatedJSONs(fragments, 'id');
         convertedFragmentsPolicy.fragments = fragments;
 
@@ -103,12 +105,26 @@
         return [];
       }
       var rawDataOutputs = rawData.writer.outputs;
-           
+
       if (allOutputs && rawDataOutputs && rawDataOutputs.length) {
         outputs = UtilsService.getFilteredJSONByArray(allOutputs, rawDataOutputs, 'name');
       }
       return outputs;
     }
+
+    function getTransformationOutputs(allOutputs){
+          var outputs = [];
+          var transformations = vm.policy.transformations;
+          if(!transformations || !transformations.writer){
+            return [];
+          }
+          var transformationsDataOutputs = transformations.writer.outputs;
+
+          if (allOutputs && transformationsDataOutputs && transformationsDataOutputs.length) {
+            outputs = UtilsService.getFilteredJSONByArray(allOutputs, transformationsDataOutputs, 'name');
+          }
+          return outputs;
+        }
 
     function getTriggerOutputs(allOutputs) {
       var outputs = [];

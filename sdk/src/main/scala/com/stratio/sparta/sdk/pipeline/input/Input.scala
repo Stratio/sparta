@@ -32,7 +32,11 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
   val customPropertyValue = "inputOptionsValue"
   val propertiesWithCustom = properties ++ getCustomProperties
 
-  def setUp(ssc: StreamingContext, storageLevel: String): DStream[Row]
+  def setUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
+
+  def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
+
+  def initStream(ssc: StreamingContext, storageLevel: String): DStream[Row]
 
   def storageLevel(sparkStorageLevel: String): StorageLevel = {
     StorageLevel.fromString(sparkStorageLevel)

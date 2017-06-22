@@ -32,7 +32,8 @@
     "karma-junit-reporter": "0.3.8",
     "phantomjs-prebuilt": "2.1.5",
     "karma-phantomjs-launcher": "1.0.0",
-    "karma-ng-json2js-preprocessor": "1.1.1"
+    "karma-ng-json2js-preprocessor": "1.1.1",
+    "grunt-angular-templates": "^1.1.0"
   },
   "devDependencies": {
     "grunt-angular-templates": "^1.1.0",

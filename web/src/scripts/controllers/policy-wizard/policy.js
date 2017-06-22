@@ -25,7 +25,7 @@
 
   function PolicyCtrl(WizardStatusService, TemplateFactory, PolicyModelFactory, PolicyFactory, ModalService, PolicyService, $state, $scope, $stateParams, $q) {
     var vm = this;
-
+   // PolicyModelFactory.initializePolicy();
     vm.confirmPolicy = confirmPolicy;
     vm.closeErrorMessage = closeErrorMessage;
     vm.onClickNextStep = onClickNextStep;
@@ -93,7 +93,9 @@
     }
 
     function isValidPolicy() {
-      return (vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0)) || (vm.policy.rawData && vm.policy.rawData.dataField);
+      return (vm.status.nextStepAvailable && (vm.policy.cubes.length > 0 || vm.policy.streamTriggers.length > 0)) ||
+      (vm.policy.rawData && vm.policy.rawData.writer && vm.policy.rawData.writer.outputs.length) ||
+      (vm.policy.transformations && vm.policy.transformations.writer && vm.policy.transformations.writer.outputs.length);
     }
 
     function confirmPolicy() {

@@ -48,7 +48,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
   }
 
   "PolicyUtils.existsByNameId" should {
-    "return an existing policy with \"existingId\" from zookeper" in {
+    "return an existing policy with \"existingId\" from zookeeper" in {
       doReturn(true)
         .when(utils)
         .existsPath
@@ -62,7 +62,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         getPolicyModel(id = Some("existingID")))
     }
 
-    "return an existing policy with not defined id but existing name from zookeper" in {
+    "return an existing policy with not defined id but existing name from zookeeper" in {
       doReturn(true)
         .when(utils)
         .existsPath

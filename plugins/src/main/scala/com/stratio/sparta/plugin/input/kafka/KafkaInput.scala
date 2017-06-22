@@ -41,7 +41,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   val ValueDeserializer = "value.deserializer"
 
   //scalastyle:off
-  def setUp(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
     val groupId = getGroupId("group.id")
     val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
@@ -188,8 +188,7 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
 object KafkaInput {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    val vaultPort = scala.util.Properties.envOrElse("VAULT_PORT", "8200")
-    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOST").map(host => s"https://$host:$vaultPort")
+    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOST")
     val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN")
     val vaultCertPath = configuration.getString("vaultCertPath", None)
     val vaultCertPassPath = configuration.getString("vaultCertPassPath", None)

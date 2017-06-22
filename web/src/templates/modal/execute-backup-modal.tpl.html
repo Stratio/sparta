@@ -1,0 +1,33 @@
+<aside data-qa="delete-policy-modal">
+  <header class="c-titlebar">
+    <span class="c-titlebar__title">{{"_ENTITY_._EXECUTE_BACKUP_TITLE_" | translate}}</b></span>
+    <i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+  </header>
+
+  <div class="c-modal-inner">
+    <p class="c-modal-inner__title">{{"_ARE_YOU_SURE_" | translate}}</p>
+    <div class="c-form">
+      <form-field-check label="Remove all data before running backup" list-compressed="false" model="vm.removeData" 
+      data-qa="remove-data-input" st-name="removeData"></form-field-check>
+    </div>
+    <div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
+      <i class="c-icon icon-circle-cross"></i>
+      <span translate="{{vm.errorText}}"></span>
+    </div>
+    <p>{{'_BACKUP_EXECUTION_ADVICE_' | translate}}</p>
+
+    <div class="c-row c-row--separated">
+      <div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+        <button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
+					<span class="icon-circle-cross"></span>
+					<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
+				</button>
+
+        <button class="c-button c-button--call-to-action-1" data-ng-click="vm.executeBackup()" data-qa="modal-execute-backup-button">
+					<span class="icon icon-circle-check"></span>
+					<span>{{"_INPUT_BUTTON_EXECUTE_" | translate}}</span>
+				</button>
+      </div>
+    </div>
+  </div>
+</aside>

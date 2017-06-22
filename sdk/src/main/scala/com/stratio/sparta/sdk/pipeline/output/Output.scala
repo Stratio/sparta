@@ -32,7 +32,9 @@ abstract class Output(val name: String, properties: Map[String, JSerializable])
   val customPropertyValue = "saveOptionsValue"
   val propertiesWithCustom = properties ++ getCustomProperties
 
-  def setup(options: Map[String, String] = Map.empty[String, String]): Unit = {}
+  def setUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
+
+  def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
   def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
 

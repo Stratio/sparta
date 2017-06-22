@@ -1,10 +1,22 @@
 # Changelog
 
-## 1.5.0 (upcoming)
+## 1.6.0 (upcoming)
 
 * Pending changelog
 
-## 1.4.0 (upcoming)
+## 1.5.0 (May 31, 2017)
+
+* Backup metadata
+* Restore metadata
+* Clean metadata
+* Timeout configurable
+* Info service
+* Security options configurable
+* Https with marathon-lb
+* Frontend performance improvements
+* Bugfix: Postgres library added
+
+## 1.4.0 (May 17, 2017)
 
 * Update to Spark 2.1
 * Integration with HDFS securized

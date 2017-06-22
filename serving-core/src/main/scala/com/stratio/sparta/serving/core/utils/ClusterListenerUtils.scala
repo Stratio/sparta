@@ -211,10 +211,10 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                           id = policyId, status = Stopped, statusInfo = Some(information),
                           lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))))
                       case Failure(e: Exception) =>
-                        val error = s"Error killing Sparta cluster job with Spark Handler"
+                        val error = s"Problems killing Sparta cluster job with Spark Handler"
                         log.info(error)
                         updateStatus(PolicyStatusModel(
-                          id = policyId, status = Failed, statusInfo = Some(error),
+                          id = policyId, status = Stopped, statusInfo = Some(error),
                           lastError = Option(PolicyErrorModel(error, PhaseEnum.Execution, e.toString))))
                     }
                 }

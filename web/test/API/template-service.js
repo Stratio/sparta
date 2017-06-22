@@ -1,5 +1,9 @@
 describe('API.template-service', function() {
-  beforeEach(module('webApp'));
+  beforeEach(module('webApp', function ($provide) {
+    $provide.constant('apiConfigSettings', {
+      timeout: 5000
+    });
+  }));
   beforeEach(module('template/input.json'));
   beforeEach(module('template/output.json'));
   beforeEach(module('template/policy.json'));
@@ -42,7 +46,7 @@ describe('API.template-service', function() {
 
   it("Should return input templates", function() {
     var fragmentTypeJSON = {"type": "input.json"};
-    httpBackend.when('GET', '/data-templates/input.json').respond(fakeFragmentTemplateByTypeInput);
+    httpBackend.when('GET', 'data-templates/input.json').respond(fakeFragmentTemplateByTypeInput);
 
     srv.getFragmentTemplateByType().get(fragmentTypeJSON).$promise.then(function(result) {
       expect(JSON.stringify(result)).toEqual(JSON.stringify(fakeFragmentTemplateByTypeInput));
@@ -54,7 +58,7 @@ describe('API.template-service', function() {
 
   it("Should return output templates", function() {
     var fragmentTypeJSON = {"type": "output.json"};
-    httpBackend.when('GET', '/data-templates/output.json').respond(fakeFragmentTemplateByTypeOutput);
+    httpBackend.when('GET', 'data-templates/output.json').respond(fakeFragmentTemplateByTypeOutput);
 
     srv.getFragmentTemplateByType().get(fragmentTypeJSON).$promise.then(function(result) {
       expect(JSON.stringify(result)).toEqual(JSON.stringify(fakeFragmentTemplateByTypeOutput));
@@ -65,7 +69,7 @@ describe('API.template-service', function() {
   });
 
   it("Should return policy templates", function() {
-    httpBackend.when('GET', '/data-templates/policy.json').respond(fakePolicyTemplate);
+    httpBackend.when('GET', 'data-templates/policy.json').respond(fakePolicyTemplate);
 
     srv.getPolicyTemplate().get().$promise.then(function(result) {
       expect(JSON.stringify(result)).toEqual(JSON.stringify(fakePolicyTemplate));
@@ -77,9 +81,9 @@ describe('API.template-service', function() {
 
   describe("Should return dimension template by type", function() {
     beforeEach(function() {
-      httpBackend.when('GET', '/data-templates/dimension/default.json').respond(fakeDefaultDimensionTemplate);
-      httpBackend.when('GET', '/data-templates/dimension/date-time.json').respond(fakeDateTimeTemplate);
-      httpBackend.when('GET', '/data-templates/dimension/geo-hash.json').respond(fakeGeoHashTemplate);
+      httpBackend.when('GET', 'data-templates/dimension/default.json').respond(fakeDefaultDimensionTemplate);
+      httpBackend.when('GET', 'data-templates/dimension/date-time.json').respond(fakeDateTimeTemplate);
+      httpBackend.when('GET', 'data-templates/dimension/geo-hash.json').respond(fakeGeoHashTemplate);
     });
     it('if dimension is default, default template is returned', function() {
       var dimensionTypeJSON = {"type": "default.json"};
@@ -112,8 +116,8 @@ describe('API.template-service', function() {
 
   describe("Should return operator template by type", function() {
     beforeEach(function() {
-      httpBackend.when('GET', '/data-templates/operator/count.json').respond(fakeCountOperatorTemplate);
-      httpBackend.when('GET', '/data-templates/operator/default.json').respond(fakeDefaultOperatorTemplate);
+      httpBackend.when('GET', 'data-templates/operator/count.json').respond(fakeCountOperatorTemplate);
+      httpBackend.when('GET', 'data-templates/operator/default.json').respond(fakeDefaultOperatorTemplate);
     });
     it('if operator is a count, it returns its specific template', function() {
       var operatorTypeJSON = {"type": "count.json"};
@@ -137,8 +141,8 @@ describe('API.template-service', function() {
 
   describe("Should return trigger template by type", function() {
     beforeEach(function() {
-      httpBackend.when('GET', '/data-templates/trigger/transformation.json').respond(fakeTransformationTriggerTemplate);
-      httpBackend.when('GET', '/data-templates/trigger/cube.json').respond(fakeCubeTriggerTemplate);
+      httpBackend.when('GET', 'data-templates/trigger/transformation.json').respond(fakeTransformationTriggerTemplate);
+      httpBackend.when('GET', 'data-templates/trigger/cube.json').respond(fakeCubeTriggerTemplate);
     });
     it('if is a transformation trigger, it returns its specific template', function() {
       var triggerTypeJSON = {"type": "transformation.json"};

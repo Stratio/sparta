@@ -47,7 +47,10 @@ case class PolicyModel(
                         driverUri: Option[String] = None,
                         stopGracefully: Option[Boolean] = None,
                         streamTemporalTable: Option[String] = None,
-                        monitoringLink: Option[String] = None
+                        monitoringLink: Option[String] = None,
+                        addTimeToCheckpointPath: Option[Boolean] = None,
+                        sparkUser: Option[String] = None,
+                        sparkKerberos: Option[Boolean] = None
                       )
 
 case object PolicyModel {
@@ -59,8 +62,8 @@ case object PolicyModel {
 object PolicyValidator {
 
   def validateDto(policy: PolicyModel): Unit = {
-    val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy) ::: validateRawData(policy))
-      .filter(element => !element._1)
+    val subErrorModels = (validateCubes(policy) ::: validateTriggers(policy) ::: validateRawData(policy) :::
+      validateTransformations(policy)).filter(element => !element._1)
 
     if (subErrorModels.nonEmpty)
       throw new ServingCoreException(ErrorModel.toString(
@@ -83,6 +86,17 @@ object PolicyValidator {
     )
   }
 
+  def validateTransformations(policy: PolicyModel): List[(Boolean, ErrorModel)] = {
+    val outputsNames = outputNamesFromPolicy(policy)
+
+    List(
+      (policy.transformations.forall(transformations =>
+        transformations.writer.forall(writer => writer.outputs.forall(output => outputsNames.contains(output)))),
+        new ErrorModel(
+          ErrorModel.ValidationError_Transformations_with_a_bad_output, "Transformations with bad outputs"))
+    )
+  }
+
   //scalastyle:off
   private def validateCubes(policy: PolicyModel): List[(Boolean, ErrorModel)] = {
     val outputsNames = outputNamesFromPolicy(policy)
@@ -96,10 +110,11 @@ object PolicyValidator {
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_cube_without_dimensions,
           "There is at least one cube without dimensions")),
-      (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty || policy.rawData.isDefined,
+      (policy.cubes.nonEmpty || policy.streamTriggers.nonEmpty || policy.rawData.isDefined ||
+        (policy.transformations.isDefined && policy.transformations.get.writer.isDefined),
         new ErrorModel(
-          ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data,
-          "The policy needs at least one cube, one trigger or save raw data")),
+          ErrorModel.ValidationError_The_policy_needs_at_least_one_cube_or_one_trigger_or_raw_data_or_transformations_with_save,
+          "The policy needs at least one cube, one trigger, save raw data or save transformations")),
       (policy.cubes.forall(cube =>
         cube.writer.outputs.forall(output =>
           outputsNames.contains(output))),
@@ -143,11 +158,6 @@ object PolicyValidator {
       (policy.streamTriggers.forall(trigger =>
         trigger.writer.outputs.forall(outputName =>
           outputsNames.contains(outputName))),
-        new ErrorModel(
-          ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
-          "There is at least one stream trigger that contains a bad output")),
-      (policy.streamTriggers.forall(trigger =>
-        trigger.writer.outputs.nonEmpty),
         new ErrorModel(
           ErrorModel.ValidationError_There_is_at_least_one_stream_trigger_with_a_bad_output,
           "There is at least one stream trigger that contains a bad output"))

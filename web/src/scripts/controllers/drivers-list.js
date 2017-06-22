@@ -28,7 +28,6 @@
     vm.deleteDriver = deleteDriver;
     vm.getAllDrivers = getAllDrivers;
     vm.createDriver = createDriver;
-    vm.selectedOption = 'DRIVERS';
     vm.sortDrivers = sortDrivers;
     vm.tableReverse = false;
     vm.sortField = 'fileName';
@@ -42,15 +41,6 @@
       text: '',
       internalTrace: ''
     };
-    vm.menuOptions = [{
-      text: '_MENU_DASHBOARD_PLUGINS_',
-      isDisabled: false,
-      name: 'PLUGINS'
-    }, {
-      text: '_MENU_DASHBOARD_DRIVERS_',
-      isDisabled: false,
-      name: 'DRIVERS'
-    }];
 
     init();
 
@@ -85,14 +75,14 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', 'lg');
 
-      modalInstance.result.then(function () {
+      return modalInstance.result.then(function () {
         getAllDrivers();
         vm.successMessage.text = '_DRIVER_CREATE_OK_';
       });
     }
 
     function deleteDriver(fileName) {
-      deleteDriverConfirm('lg', fileName);
+      return deleteDriverConfirm('lg', fileName);
     }
 
     function deleteDriverConfirm(size, fileName) {
@@ -111,7 +101,7 @@
       };
       var modalInstance = ModalService.openModal(controller, templateUrl, resolve, '', size);
 
-      modalInstance.result.then(function (fileName) {
+      return modalInstance.result.then(function (fileName) {
         var index = UtilsService.getArrayElementPosition(vm.driversData, 'fileName', fileName);
         vm.driversData.splice(index, 1);
         vm.successMessage.text = '_DRIVER_DELETE_OK_';
@@ -126,11 +116,6 @@
         vm.sortField = fieldName;
       }
     }
-
-
-    $scope.$on("newTabOptionValue", function (event, value) {
-      $state.go("dashboard.resources.plugins");
-    });
 
   }
 })();

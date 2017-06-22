@@ -10,6 +10,7 @@ syntax: glob
 *.out
 *.tmp
 *.swp
+*.lock
 output.txt
 
 # eclipse conf file
@@ -60,11 +61,11 @@ apidocs
 nexus
 
 #local docker ignore all files except the generator scripts
-/docker/localDocker/*
-!/docker/localDocker/Dockerfile
-!/docker/localDocker/createDocker.sh
-!/docker/localDocker/dependencyfix.sh
-!/docker/localDocker/README.md
+/examples/docker/localDocker/*
+!/examples/docker/localDocker/Dockerfile
+!/examples/docker/localDocker/createDocker.sh
+!/examples/docker/localDocker/dependencyfix.sh
+!/examples/docker/localDocker/README.md
 
 
 \.spark-warehouse

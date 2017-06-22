@@ -30,12 +30,13 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[PluginsHttpService],
     typeOf[DriverHttpService],
     typeOf[AppStatusHttpService],
-    typeOf[ExecutionHttpService]
+    typeOf[ExecutionHttpService],
+    typeOf[InfoServiceHttpService],
+    typeOf[ConfigHttpService],
+    typeOf[MetadataHttpService]
   )
 
   override def apiVersion: String = "1.0"
-
-  override def baseUrl: String = "/"
 
   // let swagger-ui determine the host and port
   override def docsPath: String = "api-docs"

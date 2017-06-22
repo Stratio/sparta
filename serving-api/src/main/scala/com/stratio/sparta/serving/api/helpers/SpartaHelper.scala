@@ -54,6 +54,8 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val launcherActor = system.actorOf(Props(new LauncherActor(scService, curatorFramework)), LauncherActorName)
       val pluginActor = system.actorOf(Props(new PluginActor()), PluginActorName)
       val driverActor = system.actorOf(Props(new DriverActor()), DriverActorName)
+      val configActor = system.actorOf(Props(new ConfigActor()), ConfigActorName)
+      val metadataActor = system.actorOf(Props(new MetadataActor()), MetadataActorName)
       val actors = Map(
         StatusActorName -> statusActor,
         FragmentActorName -> fragmentActor,
@@ -61,7 +63,9 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         LauncherActorName -> launcherActor,
         PluginActorName -> pluginActor,
         DriverActorName -> driverActor,
-        ExecutionActorName -> executionActor
+        ExecutionActorName -> executionActor,
+        ConfigActorName -> configActor,
+        MetadataActorName -> metadataActor
       )
       val controllerActor = system.actorOf(Props(new ControllerActor(actors, curatorFramework)), ControllerActorName)
 

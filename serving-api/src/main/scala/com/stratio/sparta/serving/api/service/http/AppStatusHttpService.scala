@@ -30,7 +30,7 @@ trait AppStatusHttpService extends BaseHttpService {
 
   val curatorInstance : CuratorFramework
 
-  @ApiOperation(value = "Check Sparta status depends to Zookeeper conexion",
+  @ApiOperation(value = "Check Sparta status depends to Zookeeper connexion",
     notes = "Returns Sparta status",
     httpMethod = "GET",
     response = classOf[String],

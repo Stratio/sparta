@@ -59,6 +59,7 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   val SubmitExecutorMemoryConf = "spark.executor.memory"
   val SubmitGracefullyStopConf = "spark.streaming.stopGracefullyOnShutdown"
   val SubmitAppNameConf = "spark.app.name"
+  val SubmitSparkUserConf = "spark.mesos.driverEnv.SPARK_USER"
 
   // Properties only available in spark-submit
   val SubmitPropertiesFile = "--properties-file"
@@ -87,9 +88,6 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     SubmitPackages -> SubmitPackagesConf,
     SubmitExcludePackages -> SubmitExcludePackagesConf,
     SubmitJars -> SubmitJarsConf,
-    SubmitDriverJavaOptions -> SubmitDriverJavaOptionsConf,
-    SubmitDriverLibraryPath -> SubmitDriverLibraryPathConf,
-    SubmitDriverClassPath -> SubmitDriverClassPathConf,
     SubmitDriverCores -> SubmitDriverCoresConf,
     SubmitDriverMemory -> SubmitDriverMemoryConf,
     SubmitExecutorCores -> SubmitExecutorCoresConf,
@@ -106,8 +104,8 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     Properties.envOrElse("SPARK_HOME", clusterConfig.getString(SparkHome)).trim
 
   /**
-   * Checks if we have a valid Spark home.
-   */
+    * Checks if we have a valid Spark home.
+    */
   def validateSparkHome(clusterConfig: Config): String = {
     val sparkHome = Try(extractSparkHome(clusterConfig))
     require(sparkHome.isSuccess,
@@ -146,21 +144,30 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
     val sparkConfFromSubmitArgumentsPolicy = submitArgsToConf(submitArgumentsFromPolicy)
 
     (addSupervisedArgument(addKerberosArguments(
-      submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy))),
+      submitArgsFiltered(submitArgumentsFromProps) ++ submitArgsFiltered(submitArgumentsFromPolicy),
+      policy.sparkKerberos)),
       addInputConfs(
-        addAppNameConf(
-          addGracefulStopConf(
-            addPluginsFilesToConf(
-              sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++ sparkConfFromSubmitArgumentsPolicy
-                ++ sparkConfFromPolicy, pluginsFiles
-            ), gracefulStop(policy)
-          ), policy.name
+        addSparkUserConf(
+          addAppNameConf(
+            addGracefulStopConf(
+              addPluginsFilesToConf(
+                sparkConfFromSubmitArgumentsProps ++ sparkConfFromProps ++ sparkConfFromSubmitArgumentsPolicy
+                  ++ sparkConfFromPolicy, pluginsFiles
+              ), gracefulStop(policy)
+            ), policy.name
+          ), policy.sparkUser
         ), policy.input
       )
-    )
+      )
   }
 
   /** Protected Methods **/
+
+  protected def addSparkUserConf(sparkConfs: Map[String, String], sparkUser: Option[String]): Map[String, String] = {
+    if (!sparkConfs.contains(SubmitSparkUserConf) && sparkUser.isDefined) {
+      sparkConfs ++ Map(SubmitSparkUserConf -> sparkUser.get)
+    } else sparkConfs
+  }
 
   protected def driverJarSubmit(policy: PolicyModel,
                                 detailConfig: Config,
@@ -285,9 +292,10 @@ trait SparkSubmitUtils extends PolicyConfigUtils with ArgumentsUtils {
   def addGracefulStopConf(sparkConfs: Map[String, String], gracefullyStop: Option[Boolean]): Map[String, String] =
     gracefullyStop.fold(sparkConfs) { gStop => sparkConfs ++ Map(SubmitGracefullyStopConf -> gStop.toString) }
 
-  protected def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
-    (HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {
-      case (Some(principalName), Some(keyTabPath)) =>
+  protected def addKerberosArguments(submitArgs: Map[String, String],
+                                     sparkKerberos: Option[Boolean]): Map[String, String] =
+    (sparkKerberos, HdfsUtils.getPrincipalName, HdfsUtils.getKeyTabPath) match {
+      case (Some(kerberosEnable), Some(principalName), Some(keyTabPath)) if kerberosEnable =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments... \n\t")
         submitArgs ++ Map(SubmitPrincipal -> principalName, SubmitKeyTab -> keyTabPath)
       case _ =>

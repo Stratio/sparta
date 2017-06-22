@@ -5,15 +5,15 @@
   <title>Stratio Sparta</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width">
-  <link rel="icon" type="image/png" href="/favicon-16.png" sizes="16x16">
-  <link rel="icon" type="image/png" href="/favicon-24.png" sizes="24x24">
-  <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="favicon-16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="favicon-24.png" sizes="24x24">
+  <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
   <!-- build:css(.tmp) styles/main.css -->
   <link rel="stylesheet" href="styles/main.css">
   <!-- endbuild -->
 </head>
 
-<body data-ng-app="webApp" class="stratio-app stratio-app--sparkta">
+<body class="stratio-app stratio-app--sparkta">
 
 <div id="stratio-base">
     <header class="stratio-base-header" ui-view="header"  data-ng-class="headerClass"></header>
@@ -38,9 +38,11 @@
 <script src="scripts/controllers/inputs.js"></script>
 <script src="scripts/controllers/outputs.js"></script>
 <script src="scripts/controllers/policy-list.js"></script>
+<script src="scripts/controllers/resources.js"></script>
 <script src="scripts/controllers/executions-list.js"></script>
 <script src="scripts/controllers/plugins-list.js"></script>
 <script src="scripts/controllers/drivers-list.js"></script>
+<script src="scripts/controllers/general-settings.js"></script>
 <script src="scripts/controllers/settings.js"></script>
 <script src="scripts/controllers/modal/new-fragment-modal.js"></script>
 <script src="scripts/controllers/fragments/edit-fragment.js"></script>
@@ -55,6 +57,7 @@
 <script src="scripts/controllers/policy-wizard/modal/create-entity-modal.js"></script>
 <script src="scripts/controllers/policy-wizard/modal/new-dimension-modal.js"></script>
 <script src="scripts/controllers/policy-wizard/modal/new-operator-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/execute-backup-modal.js"></script>
 <script src="scripts/controllers/policy-wizard/policy-cube.js"></script>
 <script src="scripts/controllers/policy-wizard/policy-model.js"></script>
 <script src="scripts/controllers/policy-wizard/policy-raw-data.js"></script>
@@ -130,7 +133,6 @@
 <script src="scripts/services/policy-service.js"></script>
 <script src="scripts/services/fragment-service.js"></script>
 <!-- Constants ----------------------------------- -->
-<script src="scripts/constants/api-config-settings.js"></script>
 <script src="scripts/constants/fragment-constants.js"></script>
 <script src="scripts/constants/trigger-constants.js"></script>
 <script src="scripts/constants/rawData-constants.js"></script>
@@ -144,6 +146,7 @@
 <script src="stratio-ui/script/helper/ui.stratio.passAllAttributes.js"></script>
 <script src="stratio-ui/script/layout/ui.stratio.dashboard.js"></script>
 <script src="stratio-ui/script/layout/ui.stratio.menutab.js"></script>
+<script src="stratio-ui/script/layout/ui.stratio.submenutab.js"></script>
 <script src="stratio-ui/script/components/ui.stratio.actionButton.js"></script>
 <script src="stratio-ui/script/components/ui.stratio.floatingMenu.js"></script>
 <script src="stratio-ui/script/components/ui.stratio.heading.js"></script>
@@ -153,6 +156,8 @@
 <script src="stratio-ui/script/components/ui.stratio.primarySidebarSubmenu.js"></script>
 <script src="stratio-ui/script/components/ui.stratio.quickSearch.js"></script>
 <script src="stratio-ui/script/ui.stratio.js"></script>
+<script src="scripts/main.js"></script>
+
 <!-- endbuild -->
 </body>
 </html>

@@ -22,7 +22,7 @@
     <parent>
         <artifactId>parent</artifactId>
         <groupId>com.stratio.sparta</groupId>
-        <version>1.5.0-SNAPSHOT</version>
+        <version>1.6.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>plugins</artifactId>
@@ -152,11 +152,6 @@
         </dependency>
         <dependency>
             <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-solr-cell</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
             <artifactId>kite-morphlines-json</artifactId>
             <version>${morphline.version}</version>
         </dependency>
@@ -229,6 +224,10 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
             <version>${kafka.spark.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
         </dependency>
 
         <!--Test dependencies-->

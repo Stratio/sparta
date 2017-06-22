@@ -1,0 +1,9 @@
+@mixin c-input-file {
+    &.inline-position{
+        display: inline-block;
+    }
+}
+
+.c-input-file {
+	@include c-input-file;
+}
