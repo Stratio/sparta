@@ -1,0 +1,416 @@
+{
+  "id": "fa82cf7f-ffdc-41cc-b6bd-5453fc998b2a",
+  "storageLevel": "MEMORY_AND_DISK_SER_2",
+  "name": "kafka-elastic-tickets-carrefour",
+  "description": "Read carrefour tickets from khermes generator",
+  "sparkStreamingWindow": "2s",
+  "transformations": {
+    "transformationsPipe": [
+      {
+        "type": "Json",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [
+          {
+            "name": "mallNumber",
+            "type": "string"
+          },
+          {
+            "name": "date",
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "clientId",
+            "type": "long"
+          },
+          {
+            "name": "shaOne",
+            "type": "string"
+          },
+          {
+            "name": "clubCardNumber",
+            "type": "long"
+          },
+          {
+            "name": "numberAuxiliaryData",
+            "type": "string"
+          },
+          {
+            "name": "auxiliaryData",
+            "type": "string"
+          },
+          {
+            "name": "header",
+            "type": "mapstringstring"
+          },
+          {
+            "name": "items",
+            "type": "arraymapstringstring"
+          },
+          {
+            "name": "operator",
+            "type": "string"
+          },
+          {
+            "name": "netAmount",
+            "type": "double"
+          },
+          {
+            "name": "vatItems",
+            "type": "arraymapstringstring"
+          },
+          {
+            "name": "lines",
+            "type": "arraystring"
+          },
+          {
+            "name": "concepts",
+            "type": "arraymapstringstring"
+          }
+        ],
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.id"
+            },
+            {
+              "field": "clientId",
+              "query": "$.clientId"
+            },
+            {
+              "field": "mallNumber",
+              "query": "$.mallNumber"
+            },
+            {
+              "field": "shaOne",
+              "query": "$.shaOne"
+            },
+            {
+              "field": "header",
+              "query": "$.header"
+            },
+            {
+              "field": "clubCardNumber",
+              "query": "$.clubCardNumber"
+            },
+            {
+              "field": "numberAuxiliaryData",
+              "query": "$.numberAuxiliaryData"
+            },
+            {
+              "field": "auxiliaryData",
+              "query": "$.auxiliaryData"
+            },
+            {
+              "field": "date",
+              "query": "$.date"
+            },
+            {
+              "field": "concepts",
+              "query": "$.concepts"
+            },
+            {
+              "field": "items",
+              "query": "$.items"
+            },
+            {
+              "field": "vatItems",
+              "query": "$.vatItems"
+            },
+            {
+              "field": "lines",
+              "query": "$.lines"
+            },
+            {
+              "field": "operator",
+              "query": "$.header.operator"
+            },
+            {
+              "field": "netAmount",
+              "query": "$.header.netAmount"
+            }
+          ],
+          "whenError": "Error",
+          "removeInputField": true
+        }
+      },
+      {
+        "type": "DateTime",
+        "order": 1,
+        "inputField": "date",
+        "outputFields": [
+          {
+            "name": "fechawena",
+            "type": "datetime"
+          }
+        ],
+        "configuration": {
+          "standardFormat": "unixMillis",
+          "userFormat": "yyyy-MM-dd'T'HH:mm",
+          "whenError": "Error",
+          "formatFrom": "USER",
+          "removeInputField": false,
+          "inputFormat": "yyyy-MM-dd'T'HH:mm"
+        }
+      }
+    ],
+    "writer": {
+      "outputs": [],
+      "autoCalculatedFields": [],
+      "saveMode": "Append"
+    }
+  },
+  "streamTriggers": [
+    {
+      "name": "wrongvat",
+      "sql": "SELECT p.id, p.header.ticketNumber, p.header.netAmount, vatitemsexplode.vatitemsexplodeselection.share FROM stream p LATERAL VIEW EXPLODE(p.vatItems) vatitemsexplode as vatitemsexplodeselection WHERE  vatitemsexplode.vatitemsexplodeselection.share <> 21 AND vatitemsexplode.vatitemsexplodeselection.share <> 4 AND vatitemsexplode.vatitemsexplodeselection.share <> 10",
+      "writer": {
+        "outputs": [
+          "elastic"
+        ],
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "overLast": "6s",
+      "configuration": {},
+      "computeEvery": "6s"
+    },
+    {
+      "name": "dangerousitems",
+      "sql": "SELECT p.id, p.header.ticketNumber, p.header.netAmount as ticketnetAmount, itemsexplode.itemsexplodeselection.description, itemsexplode.itemsexplodeselection.netAmount FROM stream p LATERAL VIEW EXPLODE(p.items) itemsexplode as itemsexplodeselection WHERE  itemsexplode.itemsexplodeselection.netAmount > 500",
+      "writer": {
+        "outputs": [
+          "elastic"
+        ],
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "overLast": "6s",
+      "configuration": {},
+      "computeEvery": "6s"
+    }
+  ],
+  "cubes": [
+    {
+      "name": "mallmetrics",
+      "dimensions": [
+        {
+          "name": "mallnumber",
+          "field": "mallNumber",
+          "precision": "identity",
+          "type": "Default"
+        },
+        {
+          "name": "date",
+          "field": "date",
+          "precision": "undefinedminute",
+          "type": "DateTime",
+          "computeLast": "365d"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "numTickets",
+          "configuration": {}
+        },
+        {
+          "type": "Sum",
+          "name": "totalAmount",
+          "configuration": {
+            "inputField": "netAmount"
+          }
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "elastic"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Upsert"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    },
+    {
+      "name": "operatormetrics",
+      "dimensions": [
+        {
+          "name": "operator",
+          "field": "operator",
+          "precision": "identity",
+          "type": "Default"
+        },
+        {
+          "name": "date",
+          "field": "date",
+          "precision": "undefinedminute",
+          "type": "DateTime",
+          "computeLast": "365d"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "numTickets",
+          "configuration": {}
+        },
+        {
+          "type": "Sum",
+          "name": "totalAmount",
+          "configuration": {
+            "inputField": "netAmount"
+          }
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "elastic"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Upsert"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    },
+    {
+      "name": "clientmetrics",
+      "dimensions": [
+        {
+          "name": "clientId",
+          "field": "clientId",
+          "precision": "identity",
+          "type": "Default"
+        },
+        {
+          "name": "date",
+          "field": "date",
+          "precision": "undefinedminute",
+          "type": "DateTime",
+          "computeLast": "365d"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "numTickets",
+          "configuration": {}
+        },
+        {
+          "type": "Sum",
+          "name": "totalAmount",
+          "configuration": {
+            "inputField": "netAmount"
+          }
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "elastic"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Upsert"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }
+  ],
+  "input": {
+    "name": "kafka-khermes",
+    "type": "Kafka",
+    "configuration": {
+      "key.deserializer": "string",
+      "locationStrategy": "preferconsistent",
+      "vaultKeyPassPath": "/v1/userland/passwords/spark-1/keystore",
+      "topics": [
+        {
+          "topic": "khermes"
+        }
+      ],
+      "auto.offset.reset": "latest",
+      "partition.assignment.strategy": "range",
+      "group.id": "",
+      "bootstrap.servers": [
+        {
+          "host": "broker-0.confluent-kafka-sec.mesos",
+          "port": "10038"
+        },
+        {
+          "host": "broker-1.confluent-kafka-sec.mesos",
+          "port": "10038"
+        },
+        {
+          "host": "broker-2.confluent-kafka-sec.mesos",
+          "port": "10038"
+        }
+      ],
+      "enable.auto.commit": false,
+      "vaultCertPath": "/v1/userland/certificates/spark-1",
+      "value.deserializer": "string",
+      "kafkaProperties": [
+        {
+          "kafkaPropertyKey": "",
+          "kafkaPropertyValue": ""
+        }
+      ],
+      "vaultCertPassPath": "/v1/userland/passwords/spark-1/keystore",
+      "storeOffsetInKafka": true
+    }
+  },
+  "outputs": [
+    {
+      "name": "elastic",
+      "type": "ElasticSearch",
+      "configuration": {
+        "nodes": [
+          {
+            "node": "localhost",
+            "httpPort": "9200"
+          }
+        ],
+        "clusterName": "elasticsearch",
+        "indexMapping": "sparta",
+        "saveOptions": [
+          {
+            "saveOptionsKey": "",
+            "saveOptionsValue": ""
+          }
+        ]
+      }
+    }
+  ],
+  "fragments": [],
+  "userPluginsJars": [
+    {
+      "jarPath": ""
+    }
+  ],
+  "sparkConf": [
+    {
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }
+  ],
+  "sparkSubmitArguments": [
+    {
+      "submitArgument": "",
+      "submitValue": ""
+    }
+  ],
+  "initSqlSentences": [
+    {
+      "sentence": ""
+    }
+  ],
+  "autoDeleteCheckpoint": true,
+  "streamTemporalTable": "stream",
+  "sparkUser": "sparta"
+}
