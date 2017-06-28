@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.stage
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.utils.StageUtils
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.apache.curator.framework.CuratorFramework
 
@@ -26,29 +26,29 @@ import scala.util.{Failure, Success, Try}
 
 
 trait ErrorPersistor {
-  def persistError(error: PolicyErrorModel): Unit
+  def persistError(error: WorkflowErrorModel): Unit
 }
 
 trait ZooKeeperError extends ErrorPersistor with PolicyStatusUtils {
 
   val curatorFramework: CuratorFramework
 
-  def policy: PolicyModel
+  def workflow: WorkflowModel
 
-  def persistError(error: PolicyErrorModel): Unit =
-    updateStatus(PolicyStatusModel(policy.id.get, NotDefined, None, None, lastError = Some(error)))
+  def persistError(error: WorkflowErrorModel): Unit =
+    updateStatus(WorkflowStatusModel(workflow.id.get, NotDefined, None, None, lastError = Some(error)))
 
   def clearError(): Unit =
-    clearLastError(policy.id.get)
+    clearLastError(workflow.id.get)
 }
 
 trait LogError extends ErrorPersistor with SLF4JLogging {
-  def persistError(error: PolicyErrorModel): Unit = log.error(s"This error was not saved to ZK : $error")
+  def persistError(error: WorkflowErrorModel): Unit = log.error(s"This error was not saved to ZK : $error")
 }
 
 trait BaseStage extends SLF4JLogging with StageUtils {
   this: ErrorPersistor =>
-  def policy: PolicyModel
+  def workflow: WorkflowModel
 
   def generalTransformation[T](code: PhaseEnum.Value, okMessage: String, errorMessage: String)
                               (f: => T): T = {
@@ -56,21 +56,21 @@ trait BaseStage extends SLF4JLogging with StageUtils {
       case Success(result) =>
         log.info(okMessage)
         result
-      case Failure(ex) => throw logAndCreateEx(code, ex, policy, errorMessage)
+      case Failure(ex) => throw logAndCreateEx(code, ex, workflow, errorMessage)
     }
   }
 
   def logAndCreateEx(code: PhaseEnum.Value,
-                      ex: Throwable,
-                      policy: PolicyModel,
-                      message: String
+                     ex: Throwable,
+                     policy: WorkflowModel,
+                     message: String
                     ): IllegalArgumentException = {
     val originalMsg = ex.getCause match {
       case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
       case exception: Throwable => exception.toString
       case _ => ex.toString
     }
-    val policyError = PolicyErrorModel(message, code, originalMsg)
+    val policyError = WorkflowErrorModel(message, code, originalMsg)
     log.error("An error was detected : {}", policyError)
     Try {
       persistError(policyError)

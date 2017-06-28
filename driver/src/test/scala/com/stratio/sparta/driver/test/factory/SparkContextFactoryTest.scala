@@ -17,7 +17,7 @@ package com.stratio.sparta.driver.test.factory
 
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.streaming.Duration
 import org.junit.runner.RunWith
@@ -34,12 +34,12 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
 
   trait WithConfig {
 
-    val config = SpartaConfig.initConfig("sparta.local")
     val wrongConfig = ConfigFactory.empty
     val seconds = 6
     val batchDuraction = Duration(seconds)
-    val specificConfig = Map("spark.driver.allowMultipleContexts" -> "true") ++
-      PolicyHelper.getSparkConfFromProps(config.get)
+    val specificConfig = Map("spark.driver.allowMultipleContexts" -> "true",
+    "spark.master" -> "local[*]",
+    "spark.app.name" -> "SPARTA")
   }
 
   "SparkContextFactorySpec" should "fails when properties is missing" in new WithConfig {
@@ -54,12 +54,12 @@ class SparkContextFactoryTest extends FlatSpec with ShouldMatchers with BeforeAn
     SparkContextFactory.destroySparkContext()
   }
 
-  it should "create and reuse same SparkSession" in new WithConfig {
+  it should "create and reuse same XDSession" in new WithConfig {
     val sc = SparkContextFactory.sparkStandAloneContextInstance(specificConfig, Seq())
-    val sqc = SparkContextFactory.sparkSessionInstance
-    sqc shouldNot be equals (null)
-    val otherSqc = SparkContextFactory.sparkSessionInstance
-    sqc should be equals (otherSqc)
+    val xdSession = SparkContextFactory.xdSessionInstance
+    xdSession shouldNot be equals (null)
+    val otherSqc = SparkContextFactory.xdSessionInstance
+    xdSession should be equals (otherSqc)
     SparkContextFactory.destroySparkContext()
   }
 

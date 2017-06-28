@@ -135,7 +135,7 @@ class RabbitMQDistributedInputIT extends RabbitIntegrationSpec {
       val props = Map(DistributedPropertyKey -> distributedProperties)
 
       val input = new RabbitMQDistributedInput(props)
-      val distributedStream = input.initStream(ssc.get, DefaultStorageLevel)
+      val distributedStream = input.initStream(ssc.get)
       val totalEvents = sc.get.longAccumulator("Number of events received")
 
       // Fires each time the configured window has passed.

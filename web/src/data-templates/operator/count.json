@@ -69,12 +69,32 @@
           "value": "timestamp"
         },
         {
-          "label": "Array Double",
+          "label": "Array(Double)",
           "value": "arraydouble"
         },
         {
-          "label": "Array String",
+          "label": "Array(String)",
           "value": "arraystring"
+        },
+        {
+          "label": "Array(Map(String, String))",
+          "value": "arraymapstringstring"
+        },
+        {
+          "label": "Map(String, Long)",
+          "value": "mapstringlong"
+        },
+        {
+          "label": "Map(String, Double)",
+          "value": "mapstringdouble"
+        },
+        {
+          "label": "Map(String, Integer)",
+          "value": "mapstringint"
+        },
+        {
+          "label": "Map(String, String)",
+          "value": "mapstringstring"
         }
       ],
       "qa": "policy-operator-output-type"

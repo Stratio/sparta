@@ -24,8 +24,8 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper._
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentType
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
@@ -36,48 +36,48 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
 
   /** METHODS TO MANAGE POLICIES IN ZOOKEEPER **/
 
-  def getPolicyById(id: String): PolicyModel = {
-    read[PolicyModel](
+  def getPolicyById(id: String): WorkflowModel = {
+    read[WorkflowModel](
       new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.PoliciesBasePath}/$id")))
   }
 
-  def findAllPolicies(withFragments: Boolean): List[PolicyModel] = {
+  def findAllPolicies(withFragments: Boolean): List[WorkflowModel] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.PoliciesBasePath)
 
     JavaConversions.asScalaBuffer(children).toList.map(id => getPolicyById(id))
   }
 
-  def deleteAllPolicies(): List[PolicyModel] = {
+  def deleteAllPolicies(): List[WorkflowModel] = {
     val policiesModels = findAllPolicies(withFragments = false)
-    policiesModels.foreach(policyModel => {
-      if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
-      doDeletePolicy(policyModel)
+    policiesModels.foreach(workflow => {
+      if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+      doDeletePolicy(workflow)
     })
     policiesModels
   }
 
-  def findPoliciesByFragmentType(fragmentType: String): List[PolicyModel] =
+  def findPoliciesByFragmentType(fragmentType: String): List[WorkflowModel] =
     findAllPolicies(withFragments = true).filter(apm => apm.fragments.exists(f => f.fragmentType == fragmentType))
 
-  def findPoliciesByFragmentId(fragmentType: String, id: String): List[PolicyModel] =
+  def findPoliciesByFragmentId(fragmentType: String, id: String): List[WorkflowModel] =
     findAllPolicies(withFragments = true).filter(apm => apm.fragments.exists(f =>
       if (f.id.isDefined)
         f.id.get == id && f.fragmentType == fragmentType
       else false
     ))
 
-  def findPoliciesByFragmentName(fragmentType: String, name: String): List[PolicyModel] =
+  def findPoliciesByFragmentName(fragmentType: String, name: String): List[WorkflowModel] =
     findAllPolicies(withFragments = true)
       .filter(apm => apm.fragments.exists(f => f.name == name && f.fragmentType == fragmentType))
 
-  def findPolicy(id: String): PolicyModel = policyWithFragments(getPolicyById(id), withFragmentCreation = false)
+  def findPolicy(id: String): WorkflowModel = policyWithFragments(getPolicyById(id), withFragmentCreation = false)
 
-  def findPolicyByName(name: String): PolicyModel =
+  def findPolicyByName(name: String): WorkflowModel =
     existsPolicyByNameId(name, None).map(policy => policyWithFragments(policy, withFragmentCreation = false))
       .getOrElse(throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeNotExistsPolicyWithName, s"No policy with name $name"))))
 
-  def createPolicy(policy: PolicyModel): PolicyModel = {
+  def createPolicy(policy: WorkflowModel): WorkflowModel = {
     val searchPolicy = existsPolicyByNameId(policy.name, policy.id)
     if (searchPolicy.isDefined) {
       throw new ServingCoreException(ErrorModel.toString(
@@ -86,7 +86,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
       ))
     }
     val policySaved = writePolicy(policyWithId(policy))
-    updateStatus(PolicyStatusModel(
+    updateStatus(WorkflowStatusModel(
       id = policySaved.id.get,
       status = PolicyStatusEnum.NotStarted,
       name = Option(policy.name),
@@ -95,7 +95,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
     policySaved
   }
 
-  def updatePolicy(policy: PolicyModel): PolicyModel = {
+  def updatePolicy(policy: WorkflowModel): WorkflowModel = {
     val searchPolicy = existsPolicyByNameId(policy.name, policy.id)
     if (searchPolicy.isEmpty) {
       throw new ServingCoreException(ErrorModel.toString(
@@ -104,7 +104,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
       ))
     } else {
       val policySaved = doUpdatePolicy(policyWithId(policy))
-      updateStatus(PolicyStatusModel(
+      updateStatus(WorkflowStatusModel(
         id = policySaved.id.get,
         status = PolicyStatusEnum.NotDefined,
         name = Option(policy.name),
@@ -115,16 +115,16 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
   }
 
   def deletePolicy(id: String): Unit = {
-    val policyModel = getPolicyById(id)
-    if (autoDeleteCheckpointPath(policyModel)) deleteCheckpointPath(policyModel)
-    doDeletePolicy(policyModel)
+    val workflow = getPolicyById(id)
+    if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+    doDeletePolicy(workflow)
   }
 
   /** PRIVATE METHODS **/
 
   private[sparta] def existsPath: Boolean = CuratorFactoryHolder.existsPath(AppConstant.PoliciesBasePath)
 
-  private[sparta] def existsPolicyByNameId(name: String, id: Option[String] = None): Option[PolicyModel] =
+  private[sparta] def existsPolicyByNameId(name: String, id: Option[String] = None): Option[WorkflowModel] =
     Try {
       if (existsPath) {
         findAllPolicies(withFragments = false).find(policy =>
@@ -138,12 +138,12 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
         None
     }
 
-  private[sparta] def doDeletePolicy(policy: PolicyModel): Unit = {
+  private[sparta] def doDeletePolicy(policy: WorkflowModel): Unit = {
     curatorFramework.delete().forPath(s"${AppConstant.PoliciesBasePath}/${policy.id.get}")
     deleteStatus(policy.id.get)
   }
 
-  private[sparta] def writePolicy(policy: PolicyModel): PolicyModel = {
+  private[sparta] def writePolicy(policy: WorkflowModel): WorkflowModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.create().creatingParentsIfNeeded().forPath(
@@ -151,7 +151,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
     policyParsed
   }
 
-  private[sparta] def doUpdatePolicy(policy: PolicyModel): PolicyModel = {
+  private[sparta] def doUpdatePolicy(policy: WorkflowModel): WorkflowModel = {
     val policyParsed = policyWithFragments(policy)
 
     curatorFramework.setData().forPath(
@@ -159,7 +159,8 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
     policyParsed
   }
 
-  private[sparta] def policyWithFragments(policy: PolicyModel, withFragmentCreation: Boolean = true): PolicyModel = {
+  private[sparta] def policyWithFragments(policy: WorkflowModel,
+                                          withFragmentCreation: Boolean = true): WorkflowModel = {
     if (withFragmentCreation)
       (populateFragmentFromPolicy(policy, FragmentType.input) ++
         populateFragmentFromPolicy(policy, FragmentType.output)
@@ -168,13 +169,13 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
 
     }
 
-  private[sparta] def policyWithId(policy: PolicyModel): PolicyModel = {
+  private[sparta] def policyWithId(policy: WorkflowModel): WorkflowModel = {
     (policy.id match {
       case None => populatePolicyWithRandomUUID(policy)
       case Some(_) => policy
     }).copy(name = policy.name.toLowerCase)
   }
 
-  private[sparta] def populatePolicyWithRandomUUID(policy: PolicyModel): PolicyModel =
+  private[sparta] def populatePolicyWithRandomUUID(policy: WorkflowModel): WorkflowModel =
     policy.copy(id = Some(UUID.randomUUID.toString))
 }

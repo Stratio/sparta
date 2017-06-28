@@ -52,7 +52,7 @@ describe('service.policy-service', function () {
     it("should convert the description attributes", function () {
 
       service.generateFinalJSON().then(function (finalJson) {
-        expect(finalJson.sparkStreamingWindow).toEqual(fakePolicy.sparkStreamingWindowNumber + fakePolicy.sparkStreamingWindowTime);
+        expect(finalJson.settings.streamingSettings.window).toEqual(fakePolicy.settings.streamingSettings.sparkStreamingWindowNumber + fakePolicy.settings.streamingSettings.sparkStreamingWindowTime);
       });
 
       rootScope.$apply();

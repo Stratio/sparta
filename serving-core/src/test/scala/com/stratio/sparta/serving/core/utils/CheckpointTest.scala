@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.constants.AppConstant
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -28,27 +27,25 @@ class CheckpointTest extends BaseUtilsTest with CheckpointUtils {
 
   "PolicyUtils.deleteCheckpointPath" should {
     "delete path from HDFS when using not local mode" in {
-      doReturn(false)
+      doReturn(true)
         .when(utils)
-        .isExecutionType(getPolicyModel(), AppConstant.ConfigLocal)
+        .isHadoopEnvironmentDefined
 
-      utils.deleteCheckpointPath(getPolicyModel())
+      val workflow = getWorkflowModel(Some("id"), "testPolicy", "marathon")
+      utils.deleteCheckpointPath(workflow)
 
-      verify(utils, times(1)).deleteFromHDFS(getPolicyModel())
+      verify(utils, times(1)).deleteFromHDFS(workflow)
     }
 
     "delete path from local when using local mode" in {
-      doReturn(true)
-        .when(utils)
-        .isExecutionType(getPolicyModel(), AppConstant.ConfigLocal)
-
       doReturn(false)
         .when(utils)
         .isHadoopEnvironmentDefined
 
-      utils.deleteCheckpointPath(getPolicyModel())
+      val workflow = getWorkflowModel()
+      utils.deleteCheckpointPath(workflow)
 
-      verify(utils, times(1)).deleteFromLocal(getPolicyModel())
+      verify(utils, times(1)).deleteFromLocal(workflow)
     }
   }
 }

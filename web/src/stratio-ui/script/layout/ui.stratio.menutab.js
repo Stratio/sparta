@@ -32,7 +32,8 @@ function stMenuTab(TEMPLATE_URL){
 			sref: '@sref',
 			icon: '@icon',
 			label: '@label',
-			qaref: '@qaref'
+			qaref: '@qaref',
+			subMenu: '='
 		},
 		templateUrl: TEMPLATE_URL('layout', 'menutab'),
 		controller: controller

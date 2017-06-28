@@ -70,9 +70,9 @@
 
     function convertDescriptionAttributes(json) {
       var convertedDescriptionJson = angular.copy(json);
-      convertedDescriptionJson.sparkStreamingWindow = json.sparkStreamingWindowNumber + json.sparkStreamingWindowTime;
-      if (json.rememberNumber && json.rememberTime) {
-        convertedDescriptionJson.remember = json.rememberNumber + json.rememberTime;
+      convertedDescriptionJson.settings.streamingSettings.window = json.settings.streamingSettings.sparkStreamingWindowNumber + json.settings.streamingSettings.sparkStreamingWindowTime;
+      if (json.settings.streamingSettings.rememberNumber && json.settings.streamingSettings.rememberTime) {
+        convertedDescriptionJson.settings.streamingSettings.remember = json.settings.streamingSettings.rememberNumber + json.settings.streamingSettings.rememberTime;
       }
       return convertedDescriptionJson;
     }

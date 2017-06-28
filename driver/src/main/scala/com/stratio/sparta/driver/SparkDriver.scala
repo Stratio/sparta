@@ -23,8 +23,8 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
-import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, PolicyConfigUtils, PolicyStatusUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowStatusModel}
+import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, PolicyStatusUtils, PolicyUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 
@@ -32,13 +32,12 @@ import scala.util.{Failure, Properties, Success, Try}
 
 object SparkDriver extends PluginsFilesUtils {
 
-  val NumberOfArguments = 6
-  val ClusterConfigIndex = 0
-  val DetailConfigurationIndex = 1
+  val NumberOfArguments = 5
+  val DetailConfigIndex = 0
+  val HdfsConfigIndex = 1
   val PluginsFilesIndex = 2
-  val PolicyIdIndex = 3
-  val DriverLocationConfigIndex = 4
-  val ZookeeperConfigurationIndex = 5
+  val WorkflowIdIndex = 3
+  val ZookeeperConfigIndex = 4
   val JaasConfEnv = "SPARTA_JAAS_FILE"
 
   //scalastyle:off
@@ -50,15 +49,15 @@ object SparkDriver extends PluginsFilesUtils {
         log.info(s"Adding java security conf file: $jaasConf")
         System.setProperty("java.security.auth.login.config", jaasConf)
       })
-      val policyId = args(PolicyIdIndex)
-      val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
-      val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigurationIndex)))
+      log.info(s"Arguments: ${args.mkString(", ")}")
+      val workflowId = args(WorkflowIdIndex)
+      val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigIndex)))
+      val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigIndex)))
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
         .split(",").filter(s => s != " " && s.nonEmpty)
-      val driverLocationConf = new String(BaseEncoding.base64().decode(args(DriverLocationConfigIndex)))
-      val clusterConf = new String(BaseEncoding.base64().decode(args(ClusterConfigIndex)))
+      val hdfsConf = new String(BaseEncoding.base64().decode(args(HdfsConfigIndex)))
 
-      initSpartaConfig(detailConf, zookeeperConf, driverLocationConf, clusterConf)
+      initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val policyStatusUtils = new PolicyStatusUtils {
@@ -72,28 +71,27 @@ object SparkDriver extends PluginsFilesUtils {
         val fragmentUtils = new FragmentUtils {
           override val curatorFramework: CuratorFramework = curatorInstance
         }
-        val policy = fragmentUtils.getPolicyWithFragments(policyUtils.getPolicyById(policyId))
-        val startingInfo = s"Starting policy in cluster"
+        val workflow = fragmentUtils.getPolicyWithFragments(policyUtils.getPolicyById(workflowId))
+        val startingInfo = s"Starting workflow in cluster"
         log.info(startingInfo)
-        policyStatusUtils.updateStatus(PolicyStatusModel(id = policyId, status = Starting, statusInfo = Some(startingInfo)))
+        policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(curatorInstance)
-        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(policy, pluginsFiles)
-        policyStatusUtils.updateStatus(PolicyStatusModel(
-          id = policyId,
+        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
+        policyStatusUtils.updateStatus(WorkflowStatusModel(
+          id = workflowId,
           status = NotDefined,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
         spartaWorkflow.setup()
         ssc.start
-        val policyConfigUtils = new PolicyConfigUtils {}
         val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
         log.info(startedInfo)
-        policyStatusUtils.updateStatus(PolicyStatusModel(
-          id = policyId,
+        policyStatusUtils.updateStatus(WorkflowStatusModel(
+          id = workflowId,
           status = Started,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
           statusInfo = Some(startedInfo),
           resourceManagerUrl = ResourceManagerLinkHelper.getLink(
-            policyConfigUtils.executionMode(policy), policy.monitoringLink)
+            workflow.settings.global.executionMode, workflow.settings.sparkSettings.master)
         ))
         ssc.awaitTermination()
         spartaWorkflow.cleanUp()
@@ -101,15 +99,15 @@ object SparkDriver extends PluginsFilesUtils {
         case Success(_) =>
           val information = s"Stopped correctly Sparta cluster job"
           log.info(information)
-          policyStatusUtils.updateStatus(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+          policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Some(information)))
         case Failure(exception) =>
           val information = s"Error initiating Sparta cluster job"
           log.error(information)
-          policyStatusUtils.updateStatus(PolicyStatusModel(
-            id = policyId,
+          policyStatusUtils.updateStatus(WorkflowStatusModel(
+            id = workflowId,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))
+            lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
           ))
           throw DriverException(information, exception)
       }
@@ -127,12 +125,11 @@ object SparkDriver extends PluginsFilesUtils {
 
   //scalastyle:on
 
-  def initSpartaConfig(detailConfig: String, zKConfig: String, locationConfig: String, clusterConfig: String): Unit = {
+  def initSpartaConfig(detailConfig: String, zKConfig: String, locationConfig: String): Unit = {
     val configStr =
       s"${detailConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
-        s"\n${locationConfig.stripPrefix("{").stripSuffix("}")}" +
-        s"\n${clusterConfig.stripPrefix("{").stripSuffix("}")}"
+        s"\n${locationConfig.stripPrefix("{").stripSuffix("}")}"
     log.info(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
   }

@@ -50,8 +50,8 @@ class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(pro
   }
   val search = terms.getOrElse(trends.toSeq)
 
-  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
-    TwitterUtils.createStream(ssc, None, search, storageLevel(sparkStorageLevel))
+  def initStream(ssc: StreamingContext): DStream[Row] = {
+    TwitterUtils.createStream(ssc, None, search, storageLevel)
       .map(stream => {
         val gson = new Gson()
         Row(gson.toJson(stream))

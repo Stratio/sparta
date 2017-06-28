@@ -72,20 +72,6 @@ object SpartaConfig extends SLF4JLogging {
     oauth2Config
   }
 
-  def getClusterConfig(executionMode: Option[String] = None): Option[Config] =
-    Try {
-      executionMode match {
-        case Some(execMode) if execMode.nonEmpty => execMode
-        case _ => getDetailConfig.get.getString(ExecutionMode)
-      }
-    } match {
-      case Success(execMode) if execMode != ConfigLocal =>
-        getOptionConfig(execMode, mainConfig.get)
-      case _ =>
-        log.error("Error when extracting cluster configuration")
-        None
-    }
-
   def getHdfsConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigHdfs, config))
 
   def getDetailConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigDetail, config))
@@ -94,12 +80,13 @@ object SpartaConfig extends SLF4JLogging {
 
   def getFrontendConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigFrontend,config))
 
+  def getMarathonConfig: Option[Config] = mainConfig.flatMap(config => getOptionConfig(ConfigMarathon,config))
+
   def getOauth2Config: Option[Config] = oauth2Config match {
     case Some(config) => Some(config)
-    case None => {
+    case None =>
       oauth2Config = initOauth2Config()
       oauth2Config
-    }
   }
 
   def getSprayConfig: Option[Config] = SpartaConfigFactory().getConfig(ConfigSpray)

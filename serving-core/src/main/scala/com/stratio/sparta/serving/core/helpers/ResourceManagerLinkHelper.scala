@@ -18,25 +18,25 @@ package com.stratio.sparta.serving.core.helpers
 
 import java.net.Socket
 
-import scala.IllegalArgumentException
-import scala.util._
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
+
+import scala.util._
 
 object ResourceManagerLinkHelper extends SLF4JLogging {
 
-  def getLink(executionMode : String,
+  def getLink(executionMode: String,
+              sparkMaster: String,
               monitoringLink: Option[String] = None,
               withCheck: Boolean = true): Option[String] = {
     val (host: String, port: Int) = (monitoringLink, executionMode) match {
-      case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink
+      case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink(sparkMaster)
       case (None, AppConstant.ConfigLocal) => localLink
       case (Some(uri), _) => userLink(uri)
       case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")
     }
 
-    if(withCheck) checkConnectivity(host, port)
+    if (withCheck) checkConnectivity(host, port)
     else monitoringLink.orElse(Option(s"http://$host:$port"))
   }
 
@@ -59,9 +59,8 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
     }
   }
 
-  private def mesosLink = {
-    val mesosDispatcherUrl = SpartaConfig.getClusterConfig().get.getString(AppConstant.MesosMasterDispatchers)
-    val host = mesosDispatcherUrl.replace("mesos://", "").replaceAll(":\\d+", "")
+  private def mesosLink(sparkMaster: String) = {
+    val host = sparkMaster.replace("mesos://", "").replaceAll(":\\d+", "")
     val port = 5050
     (host, port)
   }

@@ -30,7 +30,7 @@ object TransformationsWriterHelper {
                            writerOptions: WriterOptions): Unit = {
     input.foreachRDD(rdd =>
       if (!rdd.isEmpty()) {
-        val transformationsDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, inputSchema)
+        val transformationsDataFrame = SparkContextFactory.xdSessionInstance.createDataFrame(rdd, inputSchema)
 
         WriterHelper.write(transformationsDataFrame, writerOptions, Map.empty[String, String], outputs)
       }

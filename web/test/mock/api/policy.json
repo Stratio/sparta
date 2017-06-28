@@ -1,11 +1,72 @@
 {
   "id": "72235b82-86ff-4914-8219-28b15bdfe063",
   "version": 1,
-  "storageLevel": "MEMORY_AND_DISK_SER",
   "name": "policyexample",
   "description": "policy example",
-  "sparkStreamingWindow": "6s",
-  "remember": "1d",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "streamTemporalTable": "stream",
+      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "userPluginsJars": [{
+        "jarPath": ""
+      }],
+      "initSqlSentences": [{
+        "sentence": ""
+      }]
+    },
+    "checkpointSettings": {
+      "checkpointPath": "sparta/checkpoint",
+      "autoDeleteCheckpoint": true,
+      "addTimeToCheckpointPath": false
+    },
+    "streamingSettings": {
+      "window": "6s",
+      "remember": "44s"
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkUser": "sparta",
+      "sparkKerberos": false,
+      "sparkHome": "/opt/spark/dist",
+      "submitArguments": {
+        "userArguments": [{
+          "submitArgument": "",
+          "submitValue": ""
+        }],
+        "deployMode": "client",
+        "supervise": false
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "localityWait": "10",
+          "taskMaxFailures": "8",
+          "blockInterval": "200ms"
+        },
+        "sparkDockerConf": {
+          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorForcePullImage": false
+        },
+        "sparkMesosConf": {
+          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
+          "mesosExecutorHome": "/opt/spark/dist"
+        },
+        "userSparkConf": [{
+          "sparkConfKey": "",
+          "sparkConfValue": ""
+        }],
+        "coarse": true,
+        "stopGracefully": true,
+        "parquetBinaryAsString": true
+      }
+    }
+  },
   "transformations": [{
     "type": "Morphlines",
     "order": 0,
@@ -55,7 +116,7 @@
       "outputs": ["outputexample"],
       "dateType": "timestamp",
       "isAutoCalculatedId": false,
-      "fixedMeasure":"localhost:6"
+      "fixedMeasure": "localhost:6"
     },
     "triggers": [{
       "name": "CUBE TRIGGER",

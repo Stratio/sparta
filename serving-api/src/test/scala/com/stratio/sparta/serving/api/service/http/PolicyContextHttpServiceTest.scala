@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
-import com.stratio.sparta.serving.core.models.policy.{PolicyStatusModel, ResponsePolicy}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowStatusModel, ResponseWorkflow}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -67,7 +67,7 @@ class PolicyContextHttpServiceTest extends WordSpec
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyContextPath}") ~> routes(rootUser) ~> check {
         statusActorTestProbe.expectMsg(FindAll(rootUser))
-        responseAs[Seq[PolicyStatusModel]] should equal(Seq(getPolicyStatusModel()))
+        responseAs[Seq[WorkflowStatusModel]] should equal(Seq(getPolicyStatusModel()))
       }
     }
     "return a 500 if there was any error" in {
@@ -100,7 +100,7 @@ class PolicyContextHttpServiceTest extends WordSpec
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Get(s"/${HttpConstant.PolicyContextPath}/id") ~> routes(rootUser) ~> check {
         statusActorTestProbe.expectMsg(FindById("id", rootUser))
-        responseAs[PolicyStatusModel] should equal(getPolicyStatusModel())
+        responseAs[WorkflowStatusModel] should equal(getPolicyStatusModel())
       }
     }
     "return a 500 if there was any error" in {

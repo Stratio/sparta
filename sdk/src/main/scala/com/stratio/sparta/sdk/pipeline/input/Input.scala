@@ -23,6 +23,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 
 abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) with CustomProperties {
@@ -36,15 +37,17 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
 
   def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
-  def initStream(ssc: StreamingContext, storageLevel: String): DStream[Row]
+  def initStream(ssc: StreamingContext): DStream[Row]
 
-  def storageLevel(sparkStorageLevel: String): StorageLevel = {
-    StorageLevel.fromString(sparkStorageLevel)
+  def storageLevel: StorageLevel = {
+    val storageLevel = properties.getString("storageLevel", Input.StorageDefaultValue)
+    StorageLevel.fromString(storageLevel)
   }
 }
 
 object Input {
 
+  val StorageDefaultValue = "MEMORY_AND_DISK_SER_2"
   val ClassSuffix = "Input"
   val SparkSubmitConfigurationMethod = "getSparkSubmitConfiguration"
   val RawDataKey = "_attachment_body"

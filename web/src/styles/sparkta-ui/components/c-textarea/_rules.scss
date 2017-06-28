@@ -21,6 +21,10 @@
     background-color: #eff2f3;
 	}
 
+	&--sql-box textarea{
+		background-color: #eff2f3;
+	}
+
 	&::-moz-placeholder {
 		color: getColor(n7);
 		font-style: italic;

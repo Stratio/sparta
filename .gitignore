@@ -70,3 +70,5 @@ nexus
 
 \.spark-warehouse
 \.directory
+
+web/npm.tar.gz

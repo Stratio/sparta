@@ -18,20 +18,20 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
 import com.typesafe.config.Config
 
 import scala.util.{Failure, Success, Try}
 
 trait LauncherUtils extends SLF4JLogging{
 
-  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
+  def loggingResponseWorkflowStatus(response: Try[WorkflowStatusModel]): Unit =
     response match {
       case Success(statusModel) =>
-        log.info(s"Policy status model created or updated correctly: " +
+        log.info(s"Workflow status model created or updated correctly: " +
           s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
       case Failure(e) =>
-        log.error(s"Policy status model creation failure. Error: ${e.getLocalizedMessage}", e)
+        log.error(s"Workflow status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }
 
   def getZookeeperConfig: Config = SpartaConfig.getZookeeperConfig.getOrElse {

@@ -24,9 +24,9 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.FragmentsHelper
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType._
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentType._
+import com.stratio.sparta.serving.core.models.workflow.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
@@ -144,7 +144,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
 
   /* POLICY METHODS */
 
-  def getPolicyWithFragments(policy: PolicyModel): PolicyModel = {
+  def getPolicyWithFragments(policy: WorkflowModel): WorkflowModel = {
     val policyWithFragments = parseFragments(fillFragments(policy))
     if (policyWithFragments.fragments.isEmpty) {
       val input = FragmentsHelper.populateFragmentFromPolicy(policy, FragmentType.input)
@@ -153,7 +153,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     } else policyWithFragments
   }
 
-  private def parseFragments(apConfig: PolicyModel): PolicyModel = {
+  private def parseFragments(apConfig: WorkflowModel): WorkflowModel = {
     val fragmentInputs = getFragmentFromType(apConfig.fragments, FragmentType.input)
     val fragmentOutputs = getFragmentFromType(apConfig.fragments, FragmentType.output)
 
@@ -162,7 +162,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
       outputs = getCurrentOutputs(fragmentOutputs, apConfig.outputs))
   }
 
-  private def fillFragments(apConfig: PolicyModel): PolicyModel = {
+  private def fillFragments(apConfig: WorkflowModel): WorkflowModel = {
     val currentFragments = apConfig.fragments.flatMap(fragment => {
       fragment.id match {
         case Some(id) =>
@@ -180,7 +180,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
   }
 
   private def getCurrentInput(fragmentsInputs: Seq[FragmentElementModel],
-                              inputs: Option[PolicyElementModel]): PolicyElementModel = {
+                              inputs: Option[WorkflowElementModel]): WorkflowElementModel = {
 
     if (fragmentsInputs.isEmpty && inputs.isEmpty) {
       throw new IllegalStateException("It is mandatory to define one input in the policy.")
@@ -199,7 +199,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
   }
 
   private def getCurrentOutputs(fragmentsOutputs: Seq[FragmentElementModel],
-                                outputs: Seq[PolicyElementModel]): Seq[PolicyElementModel] = {
+                                outputs: Seq[WorkflowElementModel]): Seq[WorkflowElementModel] = {
 
     val outputsTypesNames = fragmentsOutputs.map(fragment =>
       (fragment.element.configuration.getOrElse(AppConstant.CustomTypeKey, fragment.element.`type`), fragment.name))

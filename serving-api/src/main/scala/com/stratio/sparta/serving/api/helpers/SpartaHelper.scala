@@ -19,9 +19,9 @@ package com.stratio.sparta.serving.api.helpers
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
-import com.stratio.sparkta.serving.api.ssl.SSLSupport
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
+import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor.{FragmentActor, RequestActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -53,7 +53,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val policyActor = system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, secManager)),
         PolicyActorName)
       val executionActor = system.actorOf(Props(new RequestActor(curatorFramework, secManager)), ExecutionActorName)
-      val scService = StreamingContextService(curatorFramework, SpartaConfig.mainConfig)
+      val scService = StreamingContextService(curatorFramework)
       val launcherActor = system.actorOf(Props(new LauncherActor(scService, curatorFramework, secManager)),
         LauncherActorName)
       val pluginActor = system.actorOf(Props(new PluginActor(secManager)), PluginActorName)

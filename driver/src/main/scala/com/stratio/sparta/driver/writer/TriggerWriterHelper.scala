@@ -19,7 +19,6 @@ import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.{DataFrame, Row}
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory
-import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.step.Trigger
 import com.stratio.sparta.sdk.pipeline.output.Output
 import org.apache.spark.sql.types.StructType
@@ -35,7 +34,7 @@ object TriggerWriterHelper extends SLF4JLogging {
                   streamData: DStream[Row],
                   schema: StructType): Unit = {
     streamData.foreachRDD(rdd => {
-      val parsedDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, schema)
+      val parsedDataFrame = SparkContextFactory.xdSessionInstance.createDataFrame(rdd, schema)
 
       writeTriggers(parsedDataFrame, triggers, inputTableName, outputs)
     })
@@ -46,15 +45,15 @@ object TriggerWriterHelper extends SLF4JLogging {
                     triggers: Seq[Trigger],
                     inputTableName: String,
                     outputs: Seq[Output]): Unit = {
-    val sparkSession = dataFrame.sparkSession
+    val xdSession = SparkContextFactory.xdSessionInstance
     if (triggers.nonEmpty && isCorrectTableName(inputTableName)) {
-      if (!sparkSession.catalog.tableExists(inputTableName)) {
+      if (!xdSession.catalog.tableExists(inputTableName)) {
         dataFrame.createOrReplaceTempView(inputTableName)
         log.debug(s"Registering temporal table in Spark with name: $inputTableName")
       }
       val tempTables = triggers.flatMap(trigger => {
         log.debug(s"Executing query in Spark: ${trigger.sql}")
-        val queryDf = Try(sparkSession.sql(trigger.sql)) match {
+        val queryDf = Try(xdSession.sql(trigger.sql)) match {
           case Success(sqlResult) => sqlResult
           case Failure(exception: org.apache.spark.sql.AnalysisException) =>
             log.warn("Warning running analysis in Catalyst in the query ${trigger.sql} in trigger ${trigger.name}",
@@ -68,7 +67,7 @@ object TriggerWriterHelper extends SLF4JLogging {
 
         if (!queryDf.rdd.isEmpty()) {
           val autoCalculatedFieldsDf = WriterHelper.write(queryDf, trigger.writerOptions, extraOptions, outputs)
-          if (isCorrectTableName(trigger.name) && !sparkSession.catalog.tableExists(trigger.name)) {
+          if (isCorrectTableName(trigger.name) && !xdSession.catalog.tableExists(trigger.name)) {
             autoCalculatedFieldsDf.createOrReplaceTempView(trigger.name)
             log.debug(s"Registering temporal table in Spark with name: ${trigger.name}")
           }
@@ -78,13 +77,13 @@ object TriggerWriterHelper extends SLF4JLogging {
         } else None
       })
       tempTables.foreach(tableName =>
-        if (isCorrectTableName(tableName) && sparkSession.catalog.tableExists(tableName)) {
-          sparkSession.catalog.dropTempView(tableName)
+        if (isCorrectTableName(tableName) && xdSession.catalog.tableExists(tableName)) {
+          xdSession.catalog.dropTempView(tableName)
           log.debug(s"Dropping temporal table in Spark with name: $tableName")
         } else log.debug(s"Impossible to drop table in Spark with name: $tableName"))
 
-      if (isCorrectTableName(inputTableName) && sparkSession.catalog.tableExists(inputTableName)) {
-        sparkSession.catalog.dropTempView(inputTableName)
+      if (isCorrectTableName(inputTableName) && xdSession.catalog.tableExists(inputTableName)) {
+        xdSession.catalog.dropTempView(inputTableName)
         log.debug(s"Dropping temporal table in Spark with name: $inputTableName")
       } else log.debug(s"Impossible to drop table in Spark: $inputTableName")
     } else {

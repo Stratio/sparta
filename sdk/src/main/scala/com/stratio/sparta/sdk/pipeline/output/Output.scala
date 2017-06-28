@@ -51,8 +51,8 @@ abstract class Output(val name: String, properties: Map[String, JSerializable])
 object Output extends SLF4JLogging {
 
   val ClassSuffix = "Output"
-  val SparkConfigurationMethod = "getSparkConfiguration"
-  val SparkSubmitConfigurationMethod = "getSparkSubmitConfiguration"
+  val SparkConfMethod = "getSparkConfiguration"
+  val SparkSubmitConfMethod = "getSparkSubmitConfiguration"
   val Separator = "_"
   val FieldsSeparator = ","
   val PrimaryKey = "primaryKey"

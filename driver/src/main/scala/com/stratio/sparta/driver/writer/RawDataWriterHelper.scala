@@ -36,7 +36,7 @@ object RawDataWriterHelper {
     input.map(row => Row.merge(Row(eventTime), row))
       .foreachRDD(rdd => {
         if (!rdd.isEmpty()) {
-          val rawDataFrame = SparkContextFactory.sparkSessionInstance.createDataFrame(rdd, RawSchema)
+          val rawDataFrame = SparkContextFactory.xdSessionInstance.createDataFrame(rdd, RawSchema)
 
           WriterHelper.write(rawDataFrame, rawData.writerOptions, Map.empty[String, String], outputs)
         }

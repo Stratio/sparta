@@ -106,6 +106,61 @@
 				display:block;
 			}
 		}
+		.submenu-element{
+			position:absolute;
+			top:52px;
+
+
+			&:before{
+				border-left: 7px solid transparent;
+				border-right: 7px solid transparent;
+				border-top-width: 7px;
+				border-top-style: solid;
+				border-top-color: #0f1b27;
+				content:' ';
+				top:-14px;
+				left:25px;
+				position:absolute;
+			}
+
+			@media screen and (max-width: 1400px) {
+					left: -130px;
+
+					&:before{
+						left: 50%;
+						margin-left: -20px;
+					}
+				}
+
+
+			li{
+				display:inline-block;
+				margin: 0 10px 0 10px;
+				color: #999;
+				padding: 0 10px 0 10px;
+				cursor: pointer;
+				position:relative;
+
+				&.active{
+					color:#555;
+					border-bottom: 4px solid #37b5e4;
+					padding-bottom: 12px;
+				}
+
+				&:before{
+					content: '|';
+					color: #cbcbcb;
+					font-family: "Brandon Text";
+					font-size: 0.94rem;
+					position: absolute;
+					left: -10px;
+				}
+
+				&:first-child:before{
+					content:'';
+				}
+			}
+		}
 	}
 }
 

@@ -26,10 +26,10 @@ import org.apache.spark.sql.types.StructType
 import scala.util.Try
 
 class CsvParser(order: Integer,
-                 inputField: Option[String],
-                 outputFields: Seq[String],
-                 schema: StructType,
-                 properties: Map[String, JSerializable])
+                inputField: Option[String],
+                outputFields: Seq[String],
+                schema: StructType,
+                properties: Map[String, JSerializable])
   extends Parser(order, inputField, outputFields, schema, properties) {
 
   val fieldsModel = properties.getPropertiesFields("fields")
@@ -41,35 +41,37 @@ class CsvParser(order: Integer,
     val newData = Try {
       inputValue match {
         case Some(value) =>
-          val valuesSplitted = {
-            value match {
-              case valueCast: Array[Byte] => new Predef.String(valueCast)
-              case valueCast: String => valueCast
-              case _ => value.toString
-            }
-          }.split(fieldsSeparator)
-
-          if(valuesSplitted.length == fieldsModel.fields.length){
-            val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplitted).toMap
-            outputFields.map { outputField =>
-              val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
-              outputSchemaValid match {
-                case Some(outSchema) =>
-                  valuesParsed.get(outSchema.name) match {
-                    case Some(valueParsed) =>
-                      parseToOutputType(outSchema, valueParsed)
-                    case None =>
-                      returnWhenError(new IllegalStateException(
-                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
-                  }
-                case None =>
-                  returnWhenError(new IllegalStateException(
-                    s"Impossible to parse outputField: $outputField in the schema"))
+          if (value.toString.nonEmpty) {
+            val valuesSplitted = {
+              value match {
+                case valueCast: Array[Byte] => new Predef.String(valueCast)
+                case valueCast: String => valueCast
+                case _ => value.toString
               }
-            }
-          } else returnWhenError(new IllegalStateException(s"The values splitted are greater or lower than the properties fields"))
+            }.split(fieldsSeparator)
+
+            if (valuesSplitted.length == fieldsModel.fields.length) {
+              val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplitted).toMap
+              outputFields.map { outputField =>
+                val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
+                outputSchemaValid match {
+                  case Some(outSchema) =>
+                    valuesParsed.get(outSchema.name) match {
+                      case Some(valueParsed) =>
+                        parseToOutputType(outSchema, valueParsed)
+                      case None =>
+                        returnWhenError(new IllegalStateException(
+                          s"The values parsed don't contain the schema field: ${outSchema.name}"))
+                    }
+                  case None =>
+                    returnWhenError(new IllegalStateException(
+                      s"Impossible to parse outputField: $outputField in the schema"))
+                }
+              }
+            } else returnWhenError(new IllegalStateException(s"The values splitted are greater or lower than the properties fields"))
+          } else returnWhenError(new IllegalStateException(s"The input value is empty"))
         case None =>
-          returnWhenError(new IllegalStateException(s"The input value is null or empty"))
+          returnWhenError(new IllegalStateException(s"The input value is null"))
       }
     }
 

@@ -27,7 +27,7 @@ import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

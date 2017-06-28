@@ -50,23 +50,5 @@
       name: 'SETTINGS'
     }];
 
-    $scope.$on("newTabOptionValue", function (event, value) {
-      switch (value) {
-        case 'PLUGINS':
-          $state.go("dashboard.resources.plugins");
-          break;
-        case 'DRIVERS':
-          $state.go("dashboard.resources.drivers");
-          break;
-        case 'SETTINGS':
-          $state.go("dashboard.resources.settings");
-          break;
-        default:
-          $state.go("dashboard.resources.plugins");
-          break;
-      }
-
-    });
-
   }
 })();

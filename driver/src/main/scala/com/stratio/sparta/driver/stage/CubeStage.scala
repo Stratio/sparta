@@ -25,8 +25,8 @@ import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionTyp
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp.TypeOp
-import com.stratio.sparta.serving.core.models.policy.PhaseEnum
-import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
+import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, OperatorModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -40,7 +40,7 @@ trait CubeStage extends BaseStage with TriggerStage {
                        inputData: DStream[Row],
                        outputs: Seq[Output]): Unit = {
     val cubes = cubeStage(refUtils, initSchema)
-    val errorMessage = s"Something gone wrong executing the cubes stream for: ${policy.input.get.name}."
+    val errorMessage = s"Something gone wrong executing the cubes stream for: ${workflow.input.get.name}."
     val okMessage = s"Cubes executed correctly."
     generalTransformation(PhaseEnum.CubeStream, okMessage, errorMessage) {
       val dataCube = CubeMaker(cubes).setUp(inputData)
@@ -53,7 +53,7 @@ trait CubeStage extends BaseStage with TriggerStage {
   }
 
   private[driver] def cubeStage(refUtils: ReflectionUtils, initSchema: StructType): Seq[Cube] =
-    policy.cubes.map(cube => createCube(cube, refUtils, initSchema: StructType))
+    workflow.cubes.map(cube => createCube(cube, refUtils, initSchema: StructType))
 
   private[driver] def createCube(cubeModel: CubeModel,
                                  refUtils: ReflectionUtils,
@@ -91,7 +91,8 @@ trait CubeStage extends BaseStage with TriggerStage {
           getAutoCalculatedFields(cubeModel.writer.autoCalculatedFields),
           cubeModel.writer.partitionBy,
           cubeModel.writer.primaryKey
-        )
+        ),
+        cubeModel.rememberPartitioner
       )
     }
   }

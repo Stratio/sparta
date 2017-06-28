@@ -16,48 +16,72 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.config.{SpartaConfigFactory, SpartaConfig}
+import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
 import org.junit.runner.RunWith
+import org.mockito.Mockito.{doReturn, spy}
 import org.scalatest.junit.JUnitRunner
+
+import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
 class PolicyStatusUtilsTest extends BaseUtilsTest with PolicyStatusUtils {
 
+  val utils = spy(this)
+
   "SparkStreamingContextActor.isAnyPolicyStarted" should {
 
     "return false if there is no policy Starting/Started mode" in {
-      SpartaConfig.initMainConfig(Option(yarnConfig), SpartaConfigFactory(yarnConfig))
-
-      val response = isAnyPolicyStarted
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Stopped))))
+        .when(utils)
+        .findAllStatuses()
+      val response =  utils.isAnyPolicyStarted
       response should be(false)
     }
   }
 
   "SparkStreamingContextActor.isContextAvailable" should {
-    "return true when execution mode is yarn" in {
-      val response = isAvailableToRun(getPolicyModel())
+    "return true when execution mode is marathon" in {
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Stopped))))
+        .when(utils)
+        .findAllStatuses()
+
+      val response = isAvailableToRun(getWorkflowModel(Some("id"), "testPolicy", "marathon"))
+      response should be(true)
+    }
+
+    "return true when execution mode is marathon and started" in {
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Started))))
+        .when(utils)
+        .findAllStatuses()
+
+      val response = isAvailableToRun(getWorkflowModel(Some("id"), "testPolicy", "marathon"))
       response should be(true)
     }
 
     "return false when execution mode is mesos" in {
-      SpartaConfig.initMainConfig(Option(mesosConfig), SpartaConfigFactory(mesosConfig))
-
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Stopped))))
+        .when(utils)
+        .findAllStatuses()
       val response = isAnyPolicyStarted
       response should be(false)
     }
 
+    "return false when execution mode is local and started" in {
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Started))))
+        .when(utils)
+        .findAllStatuses()
 
-    "return true when execution mode is local and there is no running policy" in {
-      SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
-
-      val response = isAvailableToRun(getPolicyModel())
+      val response = isAvailableToRun(getWorkflowModel())
       response should be(true)
     }
 
-    "return true when execution mode is standalone and there is no running policy" in {
-      SpartaConfig.initMainConfig(Option(standaloneConfig), SpartaConfigFactory(standaloneConfig))
+    "return true when execution mode is local and there is no running policy" in {
+      doReturn(Try(Seq(WorkflowStatusModel("id", PolicyStatusEnum.Stopped))))
+        .when(utils)
+        .findAllStatuses()
 
-      val response = isAvailableToRun(getPolicyModel())
+      val response = isAvailableToRun(getWorkflowModel())
       response should be(true)
     }
   }

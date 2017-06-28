@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.output.parquet
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -44,9 +44,9 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   trait CommonValues {
 
-    val sqlContext = SparkSession.builder().config(sc.getConf).getOrCreate()
+    val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
 
-    import sqlContext.implicits._
+    import xdSession.implicits._
 
     val time = DateTime.now.getMillis
 
@@ -72,7 +72,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
 
   "ParquetOutputIT" should "save a dataframe" in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
-    val read = sqlContext.read.parquet(s"$tmpPath/person").toDF
+    val read = xdSession.read.parquet(s"$tmpPath/person").toDF
     read.count should be(3)
     read should be eq (data)
     File(tmpPath).deleteRecursively

@@ -41,7 +41,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         StructField(checkpointGranularity, TimestampType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger], WriterOptions())
+        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger], WriterOptions(), true)
 
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", Map())
@@ -57,7 +57,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp, None,
-        Seq.empty[Trigger], WriterOptions())
+        Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
@@ -72,7 +72,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        None, Seq.empty[Trigger], WriterOptions())
+        None, Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
@@ -87,7 +87,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        None, Seq.empty[Trigger], WriterOptions())
+        None, Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesT, measures)

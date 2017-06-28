@@ -61,6 +61,10 @@
 		&:hover{
 			background: $c-table__tr--hover---background;
 		}
+
+		&--hover{
+			cursor:pointer;
+		}
 	}
 
 	@at-root &__td {
@@ -100,6 +104,21 @@
 				white-space: normal;
 			}
 		}
+	}
+
+	&--long-table{
+		th{
+			& > div{
+				display:flex;
+			}
+			padding-bottom: 15px;
+			position:relative;
+			&:first-child {
+				padding-left: $c-table---padding-left;
+			}
+			padding-right:20px;
+		}
+
 	}
 
 	@include full-width;

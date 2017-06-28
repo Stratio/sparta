@@ -55,69 +55,6 @@ class SpartaConfigTest extends WordSpec with Matchers {
 
     }
 
-
-    "getClusterConfig(Case: Success) should return cluster config" in {
-      SpartaConfig.mainConfig = None
-      SpartaConfig.apiConfig = None
-
-      val configCluster = ConfigFactory.parseString(
-        """
-          |sparta {
-          |  config {
-          |    executionMode = mesos
-          |    rememberPartitioner = true
-          |    topGracefully = false
-          |  }
-          |  mesos {
-          |   deployMode = cluster
-          |   numExecutors = 2
-          |  }
-          |  }
-        """.stripMargin
-      )
-
-      SpartaConfig.initMainConfig(Some(configCluster), SpartaConfigFactory(configCluster))
-
-      val clusterConf = SpartaConfig.getClusterConfig().get.toString
-
-      clusterConf should be ("""Config(SimpleConfigObject({"deployMode":"cluster","numExecutors":2}))""")
-
-    }
-    "getClusterConfig(Case: Success and executionMode = local) should return None" in {
-      SpartaConfig.mainConfig = None
-      SpartaConfig.apiConfig = None
-
-      val configCluster = ConfigFactory.parseString(
-        """
-          |sparta {
-          |  config {
-          |    executionMode = local
-          |    rememberPartitioner = true
-          |    topGracefully = false
-          |  }
-          |  }
-        """.stripMargin
-      )
-
-      SpartaConfig.initMainConfig(Some(configCluster), SpartaConfigFactory(configCluster))
-
-      val clusterConf = SpartaConfig.getClusterConfig()
-
-      clusterConf should be (None)
-
-    }
-
-    "getClusterConfig(Case: _) should return None" in {
-      SpartaConfig.mainConfig = None
-      SpartaConfig.apiConfig = None
-
-      val clusterConf = SpartaConfig.getClusterConfig()
-
-      clusterConf should be (None)
-
-    }
-
-
     "getHdfsConfig(Case: Some(config) should return hdfs config" in {
       SpartaConfig.mainConfig = None
       SpartaConfig.apiConfig = None

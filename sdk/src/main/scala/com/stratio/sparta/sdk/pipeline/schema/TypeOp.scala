@@ -17,6 +17,7 @@
 package com.stratio.sparta.sdk.pipeline.schema
 
 import java.sql.Timestamp
+import java.util
 import java.util.Date
 
 import com.github.nscala_time.time.Imports._
@@ -26,14 +27,17 @@ import org.apache.spark.sql.types._
 import org.json4s.JDecimal
 import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 
+import collection.JavaConverters._
 import scala.util.Try
 
 //scalastyle:off
 object TypeOp extends Enumeration {
 
   type TypeOp = Value
-  val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp, ArrayDouble,
-  ArrayString, MapStringLong, MapStringDouble, Any = Value
+  val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp,
+  ArrayDouble, ArrayString, ArrayMapStringString,
+  MapStringLong, MapStringInt, MapStringDouble, MapStringString,
+  Any = Value
 
   final val TypeOperationsNames = Map(
     "number" -> TypeOp.Number,
@@ -51,8 +55,11 @@ object TypeOp extends Enumeration {
     "timestamp" -> TypeOp.Timestamp,
     "arraydouble" -> TypeOp.ArrayDouble,
     "arraystring" -> TypeOp.ArrayString,
+    "arraymapstringstring" -> TypeOp.ArrayMapStringString,
     "mapstringlong" -> TypeOp.MapStringLong,
-    "mapstringany" -> TypeOp.MapStringDouble,
+    "mapstringdouble" -> TypeOp.MapStringDouble,
+    "mapstringint" -> TypeOp.MapStringInt,
+    "mapstringstring" -> TypeOp.MapStringString,
     "any" -> TypeOp.Any
   )
 
@@ -166,12 +173,15 @@ object TypeOp extends Enumeration {
       case TypeOp.Int => checkIntType(origValue)
       case TypeOp.ArrayDouble => checkArrayDoubleType(origValue)
       case TypeOp.ArrayString => checkArrayStringType(origValue)
+      case TypeOp.ArrayMapStringString => checkArrayMapStringStringType(origValue)
       case TypeOp.Timestamp => checkTimestampType(origValue)
       case TypeOp.Date => checkDateType(origValue)
       case TypeOp.DateTime => checkDateTimeType(origValue)
       case TypeOp.Long => checkLongType(origValue)
       case TypeOp.MapStringLong => checkMapStringLongType(origValue)
       case TypeOp.MapStringDouble => checkMapStringDoubleType(origValue)
+      case TypeOp.MapStringInt => checkMapStringIntType(origValue)
+      case TypeOp.MapStringString => checkMapStringStringType(origValue)
       case TypeOp.Boolean => checkBooleanType(origValue)
       case TypeOp.Any => origValue
       case _ => origValue
@@ -185,12 +195,15 @@ object TypeOp extends Enumeration {
       case TypeOp.Int => checkAnyIntType(origValue)
       case TypeOp.ArrayDouble => checkAnyArrayDoubleType(origValue)
       case TypeOp.ArrayString => checkAnyArrayStringType(origValue)
+      case TypeOp.ArrayMapStringString => checkAnyArrayMapStringStringType(origValue)
       case TypeOp.Timestamp => checkAnyTimestampType(origValue)
       case TypeOp.Date => checkAnyDateType(origValue)
       case TypeOp.DateTime => checkAnyDateTimeType(origValue)
       case TypeOp.Long => checkAnyLongType(origValue)
       case TypeOp.MapStringLong => checkAnyMapStringLongType(origValue)
       case TypeOp.MapStringDouble => checkAnyMapStringDoubleType(origValue)
+      case TypeOp.MapStringInt => checkAnyMapStringIntType(origValue)
+      case TypeOp.MapStringString => checkAnyMapStringStringType(origValue)
       case TypeOp.Boolean => checkAnyBooleanType(origValue)
       case TypeOp.Any => origValue
       case _ => origValue
@@ -206,8 +219,141 @@ object TypeOp extends Enumeration {
       case DateType => checkDateType(origValue)
       case LongType => checkLongType(origValue)
       case BooleanType => checkBooleanType(origValue)
+      case ArrayType(elemType, _) if elemType.isInstanceOf[DoubleType] =>
+        checkArrayDoubleType(origValue)
+      case ArrayType(elemType, _) if elemType.isInstanceOf[StringType] =>
+        checkArrayStringType(origValue)
+      case ArrayType(elemType, _) if elemType.isInstanceOf[MapType] =>
+        checkArrayMapStringStringType(origValue)
+      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[StringType] =>
+        checkMapStringStringType(origValue)
+      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[LongType] =>
+        checkMapStringLongType(origValue)
+      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[IntegerType] =>
+        checkMapStringIntType(origValue)
+      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[DoubleType] =>
+        checkMapStringDoubleType(origValue)
       case _ => origValue
     }
+  }
+
+  private def checkArrayStringType[T](origValue: T): T = checkAnyArrayStringType(origValue).asInstanceOf[T]
+
+  private def checkAnyArrayStringType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.List[_]] =>
+      value.asInstanceOf[util.List[_]].asScala.map(value =>
+        if (value == null) null
+        else value.toString)
+    case value if value.isInstanceOf[Seq[_]] =>
+      value.asInstanceOf[Seq[_]].map(value =>
+        if (value == null) null
+        else value.toString
+      )
+    case value if value == null => null
+    case _ => Seq(origValue.toString)
+  }
+
+  private def checkArrayDoubleType[T](origValue: T): T = checkAnyArrayDoubleType(origValue).asInstanceOf[T]
+
+  private def checkAnyArrayDoubleType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.List[_]] =>
+      value.asInstanceOf[util.List[_]].asScala.map(value =>
+        if (value == null) null
+        else value.toString.toDouble)
+    case value if value.isInstanceOf[Seq[_]] =>
+      value.asInstanceOf[Seq[_]].map(value =>
+        if (value == null) null
+        else value.toString.toDouble
+      )
+    case value if value == null => null
+    case _ => Seq(origValue.toString.toDouble)
+  }
+
+  private def checkArrayMapStringStringType[T](origValue: T): T =
+    checkAnyArrayMapStringStringType(origValue).asInstanceOf[T]
+
+  private def checkAnyArrayMapStringStringType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.List[util.Map[_, _]]] =>
+      value.asInstanceOf[util.List[util.Map[_, _]]].asScala
+        .map(value => value.asScala.map(cast =>
+          cast._1.toString -> {
+            if (cast._2 == null) null else cast._2.toString
+          }).toMap)
+    case value if value.isInstanceOf[Seq[Map[_, _]]] =>
+      value.asInstanceOf[Seq[Map[_, _]]].map(_.map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString
+        }))
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Seq[Map[String, String]]]
+  }
+
+  private def checkMapStringStringType[T](origValue: T): T = checkAnyMapStringStringType(origValue).asInstanceOf[T]
+
+  private def checkAnyMapStringStringType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.Map[_, _]] =>
+      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString
+        }).toMap
+    case value if value.isInstanceOf[Map[_, _]] =>
+      value.asInstanceOf[Map[_, _]].map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString
+        })
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Map[String, String]]
+  }
+
+  private def checkMapStringIntType[T](origValue: T): T = checkAnyMapStringIntType(origValue).asInstanceOf[T]
+
+  private def checkAnyMapStringIntType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.Map[_, _]] =>
+      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toInt
+        }).toMap
+    case value if value.isInstanceOf[Map[_, _]] =>
+      value.asInstanceOf[Map[_, _]].map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toInt
+        })
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Map[String, Int]]
+  }
+
+  private def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
+
+  private def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.Map[_, _]] =>
+      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toLong
+        }).toMap
+    case value if value.isInstanceOf[Map[_, Any]] =>
+      value.asInstanceOf[Map[_, Any]].map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toLong
+        })
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Map[String, Long]]
+  }
+
+  private def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
+
+  private def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.Map[_, _]] =>
+      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toDouble
+        }).toMap
+    case value if value.isInstanceOf[Map[_, Any]] =>
+      value.asInstanceOf[Map[_, Any]].map(cast =>
+        cast._1.toString -> {
+          if (cast._2 == null) null else cast._2.toString.toDouble
+        })
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Map[String, Double]]
   }
 
   private def checkStringType[T](origValue: T): T = checkAnyStringType(origValue).asInstanceOf[T]
@@ -217,58 +363,21 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(value.asInstanceOf[Array[Byte]])
     case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s
     case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].mkString(Output.Separator)
+    case value if value == null => null
     case _ => origValue.toString
-  }
-
-  private def checkArrayDoubleType[T](origValue: T): T = checkAnyArrayDoubleType(origValue).asInstanceOf[T]
-
-  private def checkAnyArrayDoubleType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].map(_.toString.toDouble)
-    case _ => Seq(origValue.toString.toDouble)
-  }
-
-  private def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
-
-  private def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Map[_, Any]] =>
-      value.asInstanceOf[Map[_, Any]].map(cast => cast._1.toString -> cast._2.toString.toLong)
-    case _ =>
-      origValue.asInstanceOf[Map[String, Long]]
-  }
-
-  private def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
-
-  private def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Map[_, Any]] =>
-      value.asInstanceOf[Map[_, Any]].map(cast => cast._1.toString -> cast._2.toString.toDouble)
-    case _ =>
-      origValue.asInstanceOf[Map[String, Double]]
-  }
-
-  private def checkArrayStringType[T](origValue: T): T = checkAnyArrayStringType(origValue).asInstanceOf[T]
-
-  private def checkAnyArrayStringType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].map(_.toString)
-    case _ => Seq(origValue.toString)
   }
 
   private def checkTimestampType[T](origValue: T): T = checkAnyTimestampType(origValue).asInstanceOf[T]
 
   private def checkAnyTimestampType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[Timestamp] =>
-      value
-    case value if value.isInstanceOf[Date] =>
-      millisToTimeStamp(value.asInstanceOf[Date].getTime)
-    case value if value.isInstanceOf[DateTime] =>
-      millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
-    case value if value.isInstanceOf[Long] =>
-      millisToTimeStamp(value.asInstanceOf[Long])
-    case value if value.isInstanceOf[JString] =>
-      millisToTimeStamp(value.asInstanceOf[JString].s.toLong)
-    case value if value.isInstanceOf[Array[Byte]] =>
-      millisToTimeStamp(new Predef.String(value.asInstanceOf[Array[Byte]]).toLong)
-    case _ =>
-      millisToTimeStamp(origValue.toString.toLong)
+    case value if value.isInstanceOf[Timestamp] => value
+    case value if value.isInstanceOf[Date] => millisToTimeStamp(value.asInstanceOf[Date].getTime)
+    case value if value.isInstanceOf[DateTime] => millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
+    case value if value.isInstanceOf[Long] => millisToTimeStamp(value.asInstanceOf[Long])
+    case value if value.isInstanceOf[JString] => millisToTimeStamp(value.asInstanceOf[JString].s.toLong)
+    case value if value.isInstanceOf[Array[Byte]] => millisToTimeStamp(new Predef.String(value.asInstanceOf[Array[Byte]]).toLong)
+    case value if value == null => null
+    case _ => millisToTimeStamp(origValue.toString.toLong)
   }
 
   private def checkDateType[T](origValue: T): T = checkAnyDateType(origValue).asInstanceOf[T]
@@ -280,6 +389,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Long] => new Date(value.asInstanceOf[Long])
     case value if value.isInstanceOf[JString] => new Date(value.asInstanceOf[JString].s)
     case value if value.isInstanceOf[Array[Byte]] => new Date(new Predef.String(value.asInstanceOf[Array[Byte]]))
+    case value if value == null => null
     case _ => new Date(origValue.toString.toLong)
   }
 
@@ -291,8 +401,8 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date].getTime)
     case value if value.isInstanceOf[Long] => new DateTime(value.asInstanceOf[Long])
     case value if value.isInstanceOf[JString] => new DateTime(origValue.asInstanceOf[JString].s)
-    case value if value.isInstanceOf[Array[Byte]] =>
-      new DateTime(new Predef.String(origValue.asInstanceOf[Array[Byte]]))
+    case value if value.isInstanceOf[Array[Byte]] => new DateTime(new Predef.String(origValue.asInstanceOf[Array[Byte]]))
+    case value if value == null => null
     case _ => new DateTime(origValue.toString)
   }
 
@@ -313,6 +423,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Date] => origValue.asInstanceOf[Date].getTime
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toLong
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toLong
+    case value if value == null => null
     case _ => origValue.toString.toLong
   }
 
@@ -330,6 +441,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].doubleValue()
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toDouble
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toDouble
+    case value if value == null => null
     case _ => origValue.toString.toDouble
   }
 
@@ -347,6 +459,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].intValue()
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toInt
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toInt
+    case value if value == null => null
     case _ => origValue.toString.toInt
   }
 
@@ -357,6 +470,7 @@ object TypeOp extends Enumeration {
     case value if value.isInstanceOf[JBool] => value.asInstanceOf[JBool].value
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toBoolean
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toBoolean
+    case value if value == null => null
     case _ => origValue.toString.toBoolean
   }
 }

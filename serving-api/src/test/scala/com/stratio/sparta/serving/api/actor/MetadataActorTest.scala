@@ -35,6 +35,7 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import spray.http.BodyPart
+import com.stratio.sparta.serving.core.constants._
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -64,6 +65,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
        |   }
        |   zookeeper: {
        |     connectionString = "localhost:2181",
+       |     storagePath = "/stratio/sparta/sparta"
        |     connectionTimeout = 15000,
        |     sessionTimeout = 60000
        |     retryAttempts = 5
@@ -141,7 +143,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
     "Build backup and response the uploaded file" in {
       val instance = CuratorFactoryHolder.getInstance()
-      instance.create().creatingParentsIfNeeded().forPath("/stratio/sparta/test", "testData".getBytes)
+      instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
       val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup
       expectMsgPF() {
@@ -158,7 +160,8 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       metadataActor ! BuildBackup
       expectMsgPF() {
         case BackupResponse(Failure(e: Exception)) => e.getLocalizedMessage shouldBe
-          "org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for /stratio/sparta"
+          "org.apache.zookeeper.KeeperException$NoNodeException: KeeperErrorCode = NoNode for " +
+            s"${AppConstant.DefaultZKPath}"
       }
       metadataActor ! DeleteBackups
       expectMsgPF() {
@@ -168,7 +171,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
     "Build backup, clean metadata and execute backup" in {
       val instance = CuratorFactoryHolder.getInstance()
-      instance.create().creatingParentsIfNeeded().forPath("/stratio/sparta/test", "testData".getBytes)
+      instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
       val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup
       var backupFile = ""
@@ -178,7 +181,8 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       }
       metadataActor ! CleanMetadata
       expectMsgPF() {
-        case BackupResponse(Success(_)) => CuratorFactoryHolder.existsPath("/stratio/sparta/test") shouldBe false
+        case BackupResponse(Success(_)) =>
+          CuratorFactoryHolder.existsPath(s"${AppConstant.DefaultZKPath}/test") shouldBe false
       }
 
       metadataActor ! ExecuteBackup(BackupRequest(backupFile))
@@ -186,7 +190,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
         case BackupResponse(Success(_)) =>
       }
 
-      CuratorFactoryHolder.existsPath("/stratio/sparta/test") shouldBe true
+      CuratorFactoryHolder.existsPath(s"${AppConstant.DefaultZKPath}/test") shouldBe true
 
       metadataActor ! DeleteBackups
       expectMsgPF() {
@@ -196,7 +200,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
     "Build backup and delete backup" in {
       val instance = CuratorFactoryHolder.getInstance()
-      instance.create().creatingParentsIfNeeded().forPath("/stratio/sparta/test", "testData".getBytes)
+      instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
       val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup
       var backupFile = ""

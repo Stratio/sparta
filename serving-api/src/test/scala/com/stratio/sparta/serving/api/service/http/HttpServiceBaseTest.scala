@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.{ActorRef, ActorRefFactory}
@@ -20,15 +21,13 @@ import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.serving.api.actor.ConfigActor.ConfigResponse
-import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
-import com.stratio.sparta.serving.core.models.policy._
-import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
@@ -55,6 +54,9 @@ trait HttpServiceBaseTest extends WordSpec
       |   config {
       |     executionMode = local
       |   }
+      |   zookeeper{
+      |     storagePath = "/stratio/sparta/sparta"
+      |   }
       |
       |   local {
       |    spark.app.name = SPARTA
@@ -71,16 +73,16 @@ trait HttpServiceBaseTest extends WordSpec
   // XXX Protected methods.
 
   protected def getFragmentModel(id: Option[String]): FragmentElementModel =
-     FragmentElementModel(id, "input", "name", "description", "shortDescription",
-       PolicyElementModel("name", "input", Map()))
+    FragmentElementModel(id, "input", "name", "description", "shortDescription",
+      WorkflowElementModel("name", "input", Map()))
 
   protected def getFragmentModel(): FragmentElementModel =
     getFragmentModel(None)
 
-  protected def getPolicyStatusModel(): PolicyStatusModel =
-    new PolicyStatusModel("id", PolicyStatusEnum.Launched)
+  protected def getPolicyStatusModel(): WorkflowStatusModel =
+    new WorkflowStatusModel("id", PolicyStatusEnum.Launched)
 
-  protected def getPolicyModel(): PolicyModel = {
+  protected def getPolicyModel(): WorkflowModel = {
     val rawData = None
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -98,27 +100,29 @@ trait HttpServiceBaseTest extends WordSpec
     val writerModel = WriterModel(Seq("mongo"))
     val operators = Seq(OperatorModel("Count", "countoperator", Map()))
     val cubes = Seq(CubeModel("cube1", dimensionModel, operators, writerModel))
-    val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
-    val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = PolicyModel(id = Option("id"),
-      storageLevel = PolicyModel.storageDefaultValue,
+    val outputs = Seq(WorkflowElementModel("mongo", "MongoDb", Map()))
+    val input = Some(WorkflowElementModel("kafka", "Kafka", Map()))
+    val settingsModel = SettingsModel(
+      GlobalSettings(),
+      CheckpointSettings("test/test"),
+      StreamingSettings(),
+      SparkSettings("local[*]", false, Option("/opt/spark/dist"), None, None, SubmitArguments(),
+        SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+    )
+    val policy = WorkflowModel(
+      id = Option("id"),
+      settings = settingsModel,
       name = "testpolicy",
       description = "whatever",
-      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
-      checkpointPath = Option("test/test"),
-      rawData,
-      transformations,
+      rawData = rawData,
+      transformations = transformations,
       streamTriggers = Seq(),
-      cubes,
-      input,
-      outputs,
-      fragments = Seq(),
-      userPluginsJars = Seq(),
-      remember = None,
-      sparkConf = Seq(),
-      initSqlSentences = Seq(),
-      autoDeleteCheckpoint = None
+      cubes = cubes,
+      input = input,
+      outputs = outputs,
+      fragments = Seq()
     )
+
     policy
   }
 

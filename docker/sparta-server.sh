@@ -51,14 +51,6 @@ _log_sparta_server "Loading Sparta server functions ... "
  configOptions
  _log_sparta_server "Loaded Sparta Config options"
 
- _log_sparta_server "Loading Sparta local Spark options ... "
- localSparkOptions
- _log_sparta_server "Loaded Sparta local Spark options"
-
- _log_sparta_server "Loading Sparta Mesos Spark options ... "
- mesosSparkOptions
- _log_sparta_server "Loaded Sparta Mesos Spark options"
-
  _log_sparta_server "Loading Sparta Marathon options ... "
  marathonOptions
  _log_sparta_server "Loaded Sparta Marathon options"

@@ -19,16 +19,16 @@ import java.io.Serializable
 
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowElementModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 
 trait OutputStage extends BaseStage {
   this: ErrorPersistor =>
 
   def outputStage(refUtils: ReflectionUtils): Seq[Output] =
-    policy.outputs.map(o => createOutput(o, refUtils))
+    workflow.outputs.map(o => createOutput(o, refUtils))
 
-  private[driver] def createOutput(model: PolicyElementModel, refUtils: ReflectionUtils): Output = {
+  private[driver] def createOutput(model: WorkflowElementModel, refUtils: ReflectionUtils): Output = {
     val errorMessage = s"Something gone wrong creating the output: ${model.name}. Please re-check the policy."
     val okMessage = s"Output: ${model.name} created correctly."
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {

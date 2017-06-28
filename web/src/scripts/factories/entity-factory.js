@@ -85,6 +85,22 @@
       },
       getAppInfo: function () {
         return ApiEntitiesService.getAppInfo().get().$promise;
+      },
+      getCrossDatabases: function() {
+        return ApiEntitiesService.getCrossDatabases().get().$promise;
+      },
+      getCrossTables: function() {
+        return ApiEntitiesService.getCrossTables().get().$promise;
+      },
+      getTableInfo: function(tableName){
+        return ApiEntitiesService.getTableInfo().post({
+          tableName:tableName
+        }).$promise;
+      },
+      executeQuery: function(query){
+        return ApiEntitiesService.executeQuery().post({
+          query: query
+        }).$promise;
       }
     };
   }

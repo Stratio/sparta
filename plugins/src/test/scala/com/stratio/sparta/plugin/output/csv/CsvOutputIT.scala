@@ -18,14 +18,15 @@ package com.stratio.sparta.plugin.output.csv
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.Row
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.apache.spark.sql.crossdata.XDSession
+
 
 import scala.reflect.io.File
 import scala.util.Random
@@ -36,7 +37,7 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
-    val sparkSession = SparkSession.builder().config(sc.getConf).getOrCreate()
+    val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
     val schema = StructType(Seq(
       StructField("name", StringType),
       StructField("age", IntegerType),
@@ -44,7 +45,7 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
     ))
 
     val data =
-      sparkSession.createDataFrame(sc.parallelize(Seq(
+      xdSession.createDataFrame(sc.parallelize(Seq(
         Row("Kevin", Random.nextInt, Timestamp.from(Instant.now).getTime),
         Row("Kira", Random.nextInt, Timestamp.from(Instant.now).getTime),
         Row("Ariadne", Random.nextInt, Timestamp.from(Instant.now).getTime)
@@ -67,7 +68,7 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
-    val read = sparkSession.read.csv(s"$tmpPath/person.csv")
+    val read = xdSession.read.csv(s"$tmpPath/person.csv")
     read.count should be(3)
     read should be eq data
     File(tmpPath).deleteRecursively

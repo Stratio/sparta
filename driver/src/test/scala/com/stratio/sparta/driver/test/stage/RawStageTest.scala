@@ -20,8 +20,9 @@ import akka.testkit.TestKit
 import com.stratio.sparta.driver.stage.{LogError, RawDataStage}
 import com.stratio.sparta.sdk.pipeline.autoCalculations.AutoCalculatedField
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.writer.{AutoCalculatedFieldModel, WriterModel}
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, RawDataModel}
+import com.stratio.sparta.serving.core.models.workflow.writer.{AutoCalculatedFieldModel, WriterModel}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.rawData.RawDataModel
 import org.junit.runner.RunWith
 import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
@@ -33,10 +34,10 @@ class RawStageTest
   extends TestKit(ActorSystem("RawStageTest"))
     with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
-  case class TestRawData(policy: PolicyModel) extends RawDataStage with LogError
+  case class TestRawData(workflow: WorkflowModel) extends RawDataStage with LogError
 
-  def mockPolicy: PolicyModel = {
-    val policy = mock[PolicyModel]
+  def mockPolicy: WorkflowModel = {
+    val policy = mock[WorkflowModel]
     when(policy.id).thenReturn(Some("id"))
     policy
   }

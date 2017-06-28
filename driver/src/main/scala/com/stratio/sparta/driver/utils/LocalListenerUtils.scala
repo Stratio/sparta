@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.utils
 
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.apache.curator.framework.recipes.cache.NodeCache
 
@@ -26,9 +26,9 @@ import scala.util.{Failure, Success, Try}
 
 trait LocalListenerUtils extends PolicyStatusUtils {
 
-  def killLocalContextListener(policy: PolicyModel, name: String): Unit = {
+  def killLocalContextListener(policy: WorkflowModel, name: String): Unit = {
     log.info(s"Listener added to ${policy.name} with id: ${policy.id.get}")
-    addListener(policy.id.get, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+    addListener(policy.id.get, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopping) {
           try {
@@ -50,7 +50,7 @@ trait LocalListenerUtils extends PolicyStatusUtils {
   private[driver] def closeContexts(policyId: String): Unit = {
     val information = "The Context have been stopped correctly in the local listener"
     log.info(information)
-    updateStatus(PolicyStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+    updateStatus(WorkflowStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
     destroySparkContext()
   }
 }

@@ -17,7 +17,7 @@
 package com.stratio.sparta.driver.utils
 
 import com.stratio.sparta.sdk.pipeline.autoCalculations.{FromFixedValue, _}
-import com.stratio.sparta.serving.core.models.policy.writer.AutoCalculatedFieldModel
+import com.stratio.sparta.serving.core.models.workflow.writer.AutoCalculatedFieldModel
 
 
 trait StageUtils {

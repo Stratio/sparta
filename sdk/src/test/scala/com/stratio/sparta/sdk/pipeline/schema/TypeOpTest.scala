@@ -33,8 +33,14 @@ class TypeOpTest extends WordSpec with Matchers {
     }
 
     "typeOperation ArrayDouble from any must be " in {
-      val expected = Seq(1)
+      val expected = Seq(1d)
       val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayDouble, Seq("1"))
+      result should be(expected)
+    }
+
+    "typeOperation ArrayMapStringString from any must be " in {
+      val expected = Seq(Map("key" -> "1"))
+      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayMapStringString, Seq(Map("key" -> 1)))
       result should be(expected)
     }
 
@@ -56,6 +62,29 @@ class TypeOpTest extends WordSpec with Matchers {
       result should be(expected)
     }
 
+    "typeOperation MapStringString from any must be " in {
+      val expected = Map("key" -> "1")
+      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringString, Map("key" -> 1))
+      result should be(expected)
+    }
+
+    "typeOperation MapStringLong from any must be " in {
+      val expected = Map("key" -> 1L)
+      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("key" -> 1))
+      result should be(expected)
+    }
+
+    "typeOperation MapStringDouble from any must be " in {
+      val expected = Map("key" -> 1d)
+      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringDouble, Map("key" -> "1"))
+      result should be(expected)
+    }
+
+    "typeOperation MapStringInt from any must be " in {
+      val expected = Map("key" -> 1)
+      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringInt, Map("key" -> "1"))
+      result should be(expected)
+    }
 
     "typeOperation Timestamp must be " in {
       val expected = new Timestamp(1L)
@@ -171,15 +200,27 @@ class TypeOpTest extends WordSpec with Matchers {
       result should be(expected)
     }
 
+    "operation by name ArrayMapStringString must be " in {
+      val expected = TypeOp.ArrayMapStringString
+      val result = TypeOp.getTypeOperationByName("ArrayMapStringString", TypeOp.String)
+      result should be(expected)
+    }
+
     "operation by name MapStringLong must be " in {
       val expected = TypeOp.MapStringLong
       val result = TypeOp.getTypeOperationByName("MapStringLong", TypeOp.String)
       result should be(expected)
     }
 
-    "operation by name not founded must be " in {
-      val expected = TypeOp.MapStringLong
-      val result = TypeOp.getTypeOperationByName("hello", TypeOp.MapStringLong)
+    "operation by name MapStringInt must be " in {
+      val expected = TypeOp.MapStringInt
+      val result = TypeOp.getTypeOperationByName("MapStringInt", TypeOp.String)
+      result should be(expected)
+    }
+
+    "operation by name MapStringString must be " in {
+      val expected = TypeOp.MapStringString
+      val result = TypeOp.getTypeOperationByName("MapStringString", TypeOp.String)
       result should be(expected)
     }
   }

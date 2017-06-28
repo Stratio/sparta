@@ -21,9 +21,10 @@ import akka.testkit._
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
-import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel, TransformationsModel}
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
@@ -37,71 +38,11 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
 
   SpartaConfig.initMainConfig()
   val curatorFramework = mock[CuratorFramework]
-
-  val localConfig = ConfigFactory.parseString(
-    """
-      |sparta{
-      |   config {
-      |     executionMode = local
-      |   }
-      |
-      |   local {
-      |    spark.app.name = SPARTA
-      |    spark.master = "local[*]"
-      |    spark.executor.memory = 1024m
-      |    spark.app.name = SPARTA
-      |    spark.sql.parquet.binaryAsString = true
-      |    spark.streaming.concurrentJobs = 1
-      |    #spark.metrics.conf = /opt/sds/sparta/benchmark/src/main/resources/metrics.properties
-      |  }
-      |}
-    """.stripMargin)
-  val standaloneConfig = ConfigFactory.parseString(
-    """
-      |sparta{
-      |   config {
-      |     executionMode = standalone
-      |   }
-      |}
-    """.stripMargin)
-
-  val yarnConfig = ConfigFactory.parseString(
-    """
-      |sparta{
-      |   config {
-      |     executionMode = yarn
-      |   }
-      |}
-    """.stripMargin)
-
-  val mesosConfig = ConfigFactory.parseString(
-    """
-      |sparta{
-      |   config {
-      |     executionMode = mesos
-      |   }
-      |
-      |   mesos {
-      |    sparkHome = ""
-      |    deployMode = cluster
-      |    numExecutors = 2
-      |    master =  "mesos://127.0.0.1:5050"
-      |    spark.app.name = SPARTA
-      |    spark.streaming.concurrentJobs = 1
-      |    spark.cores.max = 2
-      |    spark.mesos.extra.cores = 1
-      |    spark.mesos.coarse = true
-      |    spark.executor.memory = 2G
-      |    spark.driver.cores = 1
-      |    spark.driver.memory= 2G
-      |    #spark.metrics.conf = /opt/sds/sparta/benchmark/src/main/resources/metrics.properties
-      |  }
-      |}
-    """.stripMargin)
   val interval = 60000
 
-  protected def getPolicyModel(id: Option[String] = Some("id"), name: String = "testPolicy"):
-  PolicyModel = {
+  protected def getWorkflowModel(id: Option[String] = Some("id"),
+                                 name: String = "testPolicy",
+                                 executionMode : String = "local"): WorkflowModel = {
     val rawData = None
     val outputFieldModel1 = OutputFieldsModel("out1")
     val outputFieldModel2 = OutputFieldsModel("out2")
@@ -115,27 +56,27 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
     val dimensionModel = getDimensionModel
     val operators = getOperators
     val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))
-    val outputs = Seq(PolicyElementModel("mongo", "MongoDb", Map()))
-    val input = Some(PolicyElementModel("kafka", "Kafka", Map()))
-    val policy = PolicyModel(
+    val outputs = Seq(WorkflowElementModel("mongo", "MongoDb", Map()))
+    val input = Some(WorkflowElementModel("kafka", "Kafka", Map()))
+    val settingsModel = SettingsModel(
+      GlobalSettings(executionMode),
+      CheckpointSettings(),
+      StreamingSettings(),
+      SparkSettings("local[*]", false, None, None, None, SubmitArguments(),
+        SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+    )
+    val policy = WorkflowModel(
       id = id,
-      storageLevel = PolicyModel.storageDefaultValue,
+      settings = settingsModel,
       name = name,
       description = "whatever",
-      sparkStreamingWindow = PolicyModel.sparkStreamingWindow,
-      checkpointPath = Option("test/test"),
-      rawData,
-      transformations,
+      rawData = rawData,
+      transformations = transformations,
       streamTriggers = Seq(),
-      cubes,
-      input,
-      outputs,
-      fragments = Seq(),
-      userPluginsJars = Seq(),
-      remember = None,
-      sparkConf = Seq(),
-      initSqlSentences = Seq(),
-      autoDeleteCheckpoint = None
+      cubes = cubes,
+      input = input,
+      outputs = outputs,
+      fragments = Seq()
     )
     policy
   }

@@ -32,13 +32,13 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
   val DEFAULT_MAXBATCHSIZE = 1000
   val DEFAULT_PARALLELISM = 5
 
-  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext): DStream[Row] = {
 
     if (properties.getString("type").equalsIgnoreCase("pull")) {
       FlumeUtils.createPollingStream(
         ssc,
         getAddresses,
-        storageLevel(sparkStorageLevel),
+        storageLevel,
         maxBatchSize,
         parallelism
       ).map(data => Row(data.event.getBody.array))
@@ -47,7 +47,7 @@ class FlumeInput(properties: Map[String, Serializable]) extends Input(properties
       FlumeUtils.createStream(
         ssc, properties.getString("hostname"),
         properties.getString("port").toInt,
-        storageLevel(sparkStorageLevel),
+        storageLevel,
         enableDecompression
       ).map(data => Row(data.event.getBody.array))
     }

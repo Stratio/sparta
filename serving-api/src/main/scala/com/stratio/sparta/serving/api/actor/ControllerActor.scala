@@ -32,8 +32,7 @@ import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
 
-import scala.util.Properties
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
@@ -50,24 +49,23 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
-
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route = cors{
+  def getRoutes: Route = cors {
     redirectToRoot ~
-      pathPrefix(HttpConstant.SpartaRootPath){
+      pathPrefix(HttpConstant.SpartaRootPath) {
         secRoute ~ staticRoutes ~ dynamicRoutes
       } ~ secRoute ~ staticRoutes ~ dynamicRoutes
   }
 
   private def redirectToRoot: Route =
-  path(HttpConstant.SpartaRootPath){
-    get{
-      requestUri{ uri =>
-        redirect(s"${uri.toString}/", Found)
+    path(HttpConstant.SpartaRootPath) {
+      get {
+        requestUri { uri =>
+          redirect(s"${uri.toString}/", Found)
+        }
       }
     }
-  }
 
   private def staticRoutes: Route = {
     if (enabledSecurity) {
@@ -103,8 +101,8 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     serviceRoutes.fragmentRoute(user) ~ serviceRoutes.policyContextRoute(user) ~
       serviceRoutes.executionRoute(user) ~ serviceRoutes.policyRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
-      serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user)
-
+      serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
+      serviceRoutes.crossdataRoute(user)
   }
 
   private def webRoutes: Route =
@@ -149,13 +147,15 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   def serviceInfoRoute(user: Option[LoggedUser]): Route = serviceInfoService.routes(user)
 
+  def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
+
   def swaggerRoute: Route = swaggerService.routes
 
   def getMarathonLBPath: Option[String] = {
-    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST","")
+    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST", "")
     val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "")
 
-    if(marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
+    if (marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
       Some("https://" + marathonLB_host + marathonLB_path)
     else None
   }
@@ -221,8 +221,15 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
+  private val crossdataService = new CrossdataHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = null
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
   private val swaggerService = new SwaggerService {
     override implicit def actorRefFactory: ActorRefFactory = context
+
     override def baseUrl: String = getMarathonLBPath match {
       case Some(marathonLBpath) => marathonLBpath
       case None => "/"

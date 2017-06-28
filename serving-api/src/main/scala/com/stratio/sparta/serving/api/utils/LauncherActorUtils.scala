@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 
 trait LauncherActorUtils extends PolicyStatusUtils {
@@ -32,10 +32,10 @@ trait LauncherActorUtils extends PolicyStatusUtils {
 
   val streamingContextService: StreamingContextService
 
-  def launch(policy: PolicyModel, context: ActorContext): PolicyModel = {
-    if (isAvailableToRun(policy)) {
+  def launch(workflow: WorkflowModel, context: ActorContext): WorkflowModel = {
+    if (isAvailableToRun(workflow)) {
       log.info("Streaming Context Available, launching policy ... ")
-      val actorName = cleanActorName(s"$contextLauncherActorPrefix-${policy.name}")
+      val actorName = cleanActorName(s"$contextLauncherActorPrefix-${workflow.name}")
       val policyActor = context.children.find(children => children.path.name == actorName)
 
       val launcherActor = policyActor match {
@@ -43,23 +43,23 @@ trait LauncherActorUtils extends PolicyStatusUtils {
           actor
         case None =>
           log.info(s"Launched -> $actorName")
-          if (isExecutionType(policy, AppConstant.ConfigLocal)) {
-            log.info(s"Launching policy: ${policy.name} with actor: $actorName in local mode")
+          if (workflow.settings.global.executionMode == AppConstant.ConfigLocal) {
+            log.info(s"Launching policy: ${workflow.name} with actor: $actorName in local mode")
             context.actorOf(Props(
               new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
           } else {
-            if(isExecutionType(policy, AppConstant.ConfigMarathon)) {
-              log.info(s"Launching policy: ${policy.name} with actor: $actorName in marathon mode")
+            if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon) {
+              log.info(s"Launching policy: ${workflow.name} with actor: $actorName in marathon mode")
               context.actorOf(Props(new MarathonLauncherActor(streamingContextService.curatorFramework)), actorName)
             }
             else {
-              log.info(s"Launching policy: ${policy.name} with actor: $actorName in cluster mode")
+              log.info(s"Launching policy: ${workflow.name} with actor: $actorName in cluster mode")
               context.actorOf(Props(new ClusterLauncherActor(streamingContextService.curatorFramework)), actorName)
             }
           }
       }
-      launcherActor ! Start(policy)
+      launcherActor ! Start(workflow)
     }
-    policy
+    workflow
   }
 }

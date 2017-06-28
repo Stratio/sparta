@@ -19,7 +19,7 @@ import com.stratio.sparta.driver.stage.{LogError, OutputStage}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.types.StructType
 import org.junit.runner.RunWith
@@ -32,11 +32,10 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 @RunWith(classOf[JUnitRunner])
 class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
-  case class TestStage(policy: PolicyModel) extends OutputStage with LogError
+  case class TestStage(workflow: WorkflowModel) extends OutputStage with LogError
 
-  def mockPolicy: PolicyModel = {
-    val policy = mock[PolicyModel]
-    when(policy.storageLevel).thenReturn(Some("StorageLevel"))
+  def mockPolicy: WorkflowModel = {
+    val policy = mock[WorkflowModel]
     when(policy.id).thenReturn(Some("id"))
     policy
   }
@@ -54,7 +53,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Generate an output " in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
-    val outputs = Seq(PolicyElementModel("output", "Output", Map.empty))
+    val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     val outputClass = mock[Output]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
@@ -67,7 +66,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Fail gracefully with bad input" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
-    val outputs = Seq(PolicyElementModel("output", "Output", Map.empty))
+    val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(any(), any())).thenThrow(new RuntimeException("Fake"))
 
@@ -80,7 +79,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Fail when reflectionUtils don't behave correctly" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
-    val outputs = Seq(PolicyElementModel("output", "Output", Map.empty))
+    val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     val myInputClass = mock[Input]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(any(), any())).thenReturn(myInputClass)
@@ -94,8 +93,8 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
     val outputs = Seq(
-      PolicyElementModel("output", "Output", Map.empty),
-      PolicyElementModel("output", "OtherOutput", Map.empty)
+      WorkflowElementModel("output", "Output", Map.empty),
+      WorkflowElementModel("output", "OtherOutput", Map.empty)
     )
     val outputClass = mock[Output]
     when(policy.outputs).thenReturn(outputs)
@@ -111,8 +110,8 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Filter outputs " in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
-    val firstOutput = PolicyElementModel("output", "Output", Map.empty)
-    val secondOutput = PolicyElementModel("outputOne", "OtherOutput", Map.empty)
+    val firstOutput = WorkflowElementModel("output", "Output", Map.empty)
+    val secondOutput = WorkflowElementModel("outputOne", "OtherOutput", Map.empty)
     val outputs = Seq(firstOutput, secondOutput)
     val outputClass = mock[Output]
     when(policy.outputs).thenReturn(outputs)

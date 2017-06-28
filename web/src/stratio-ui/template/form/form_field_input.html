@@ -1,4 +1,4 @@
-<ng-form name="{{name}}" class="c-form-group" data-ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled, submitted: form.$submitted || submittedForm, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed}">
+<ng-form name="{{name}}" class="c-form-group submitted" data-ng-class="{empty: !model && model !== 0, focus: isFocused, placeholder: placeholder && !label, error: this[name][name].$invalid && form.$submitted, small: type=='number', disabled: disabled, submitted: form.$submitted || submittedForm, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed}">
     <div class="c-form-control c-form-control--full-width">
         <span class="c-icon-label c-col c-col--12" data-ng-if="label">
             <label class="c-icon-label__text c-label" title="{{label}}" for="{{name}}">

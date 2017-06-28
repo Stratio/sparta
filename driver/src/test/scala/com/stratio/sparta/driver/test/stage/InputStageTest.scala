@@ -23,7 +23,7 @@ import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.StatusActor.Update
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyElementModel, PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowElementModel, WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
@@ -40,20 +40,19 @@ import org.scalatest.{FlatSpecLike, ShouldMatchers}
 class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
-  case class TestInput(policy: PolicyModel) extends InputStage with LogError
+  case class TestInput(workflow: WorkflowModel) extends InputStage with LogError
 
-  case class TestInputZK(policy: PolicyModel, curatorFramework: CuratorFramework) extends InputStage with ZooKeeperError
+  case class TestInputZK(workflow: WorkflowModel, curatorFramework: CuratorFramework) extends InputStage with ZooKeeperError
 
-  def mockPolicy: PolicyModel = {
-    val policy = mock[PolicyModel]
-    when(policy.storageLevel).thenReturn(Some("StorageLevel"))
+  def mockPolicy: WorkflowModel = {
+    val policy = mock[WorkflowModel]
     when(policy.id).thenReturn(Some("id"))
     policy
   }
 
   "inputStage" should "Generate a input" in {
     val policy = mockPolicy
-    val input = mock[PolicyElementModel]
+    val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val myInputClass = mock[Input]
@@ -71,7 +70,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
   "inputStage" should "Fail gracefully with bad input" in {
     val policy = mockPolicy
-    val input = mock[PolicyElementModel]
+    val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     when(policy.input).thenReturn(Some(input))
@@ -86,7 +85,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
   "inputStage" should "Fail when reflectionUtils don't behave correctly" in {
     val policy = mockPolicy
-    val input = mock[PolicyElementModel]
+    val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val output = mock[Output]
@@ -105,7 +104,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
   "inputStreamStage" should "Generate a inputStream" in {
     val policy = mockPolicy
-    val input = mock[PolicyElementModel]
+    val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
     val row = mock[DStream[Row]]
@@ -115,17 +114,17 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.initStream(ssc, policy.storageLevel.get)).thenReturn(row)
+    when(inputClass.initStream(ssc)).thenReturn(row)
 
     val result = TestInput(policy).inputStreamStage(ssc, inputClass)
 
-    verify(inputClass).initStream(ssc, "StorageLevel")
+    verify(inputClass).initStream(ssc)
     result should be(row)
   }
 
   "inputStreamStage" should "Fail gracefully with bad input" in {
     val policy = mockPolicy
-    val input = mock[PolicyElementModel]
+    val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
     val reflection = mock[ReflectionUtils]
@@ -134,13 +133,13 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.initStream(ssc, policy.storageLevel.get)).thenThrow(new RuntimeException("Fake"))
+    when(inputClass.initStream(ssc)).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
       TestInput(policy).inputStreamStage(ssc, inputClass)
     } should have message "Something gone wrong creating the input stream for: input."
 
-    verify(inputClass).initStream(ssc, "StorageLevel")
+    verify(inputClass).initStream(ssc)
 
   }
 

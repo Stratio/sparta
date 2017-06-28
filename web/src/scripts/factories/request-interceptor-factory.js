@@ -53,7 +53,7 @@
             }
           case 404:
             {
-              if (rejection.data && rejection.data.i18nCode) {
+              if (rejection.data && rejection.data.i18nCode && rejection.data.i18nCode != 201) {
                 $rootScope.error = "_ERROR_._" + rejection.data.i18nCode + "_";
                 $timeout.cancel(timer);
                 timer = $timeout(function () {

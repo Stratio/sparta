@@ -18,7 +18,8 @@ package com.stratio.sparta.driver.stage
 import com.stratio.sparta.driver.step.RawData
 import com.stratio.sparta.driver.writer.{RawDataWriterHelper, WriterOptions}
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, RawDataModel}
+import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
+import com.stratio.sparta.serving.core.models.workflow.rawData.RawDataModel
 import org.apache.spark.sql.Row
 import org.apache.spark.streaming.dstream.DStream
 
@@ -37,10 +38,10 @@ trait RawDataStage extends BaseStage {
     val okMessage = s"RawData: created correctly."
 
     generalTransformation(PhaseEnum.RawData, okMessage, errorMessage) {
-      require(policy.rawData.isDefined, "You need a raw data stage defined in your policy")
-      require(policy.rawData.get.writer.tableName.isDefined, "You need a table name defined in your raw data stage")
+      require(workflow.rawData.isDefined, "You need a raw data stage defined in your policy")
+      require(workflow.rawData.get.writer.tableName.isDefined, "You need a table name defined in your raw data stage")
 
-      createRawData(policy.rawData.get)
+      createRawData(workflow.rawData.get)
     }
   }
 

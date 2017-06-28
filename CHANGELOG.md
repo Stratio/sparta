@@ -6,11 +6,16 @@
 
 ## 1.6.0 (June 13, 2017)
 
-* Authorization system with Stratio Dyplon
+* **Authorization system with Stratio GoSec Dyplon**
 * Kafka output securized
 * Logout option
+* _New Transformation_: **Explode**. Explode Array and Map fields into multiple rows.
+* _New Transformation_: **Split**. Split a field into multiple fields either _by index_ or _by char_ or _by regex_
+* Added support for MapType and ArrayType
+* Added Datetime conversion via user-defined format
 * Contact information in UI
-* About informationin UI
+* About information in UI
+
 
 ## 1.5.0 (May 31, 2017)
 

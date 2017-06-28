@@ -1,6 +1,5 @@
 <c-slider-section data-hidden-section-id="step-progress-bar">
   <c-step-progress-bar data-ng-if="wizard.steps" steps="wizard.steps" class="c-slider-content" id="step-progress-bar"
-                       data-ng-if="showHiddenSection"
                        data-current-step="(wizard.status.currentStep)"
                        data-next-step-available="(wizard.status.nextStepAvailable)"
                        on-click-next-step="wizard.onClickNextStep()"
@@ -9,11 +8,6 @@
                        data-policy="wizard.policy">
   </c-step-progress-bar>
   <div class="c-slider-content--to-up c-panel--white" data-ng-switch on="wizard.status.currentStep">
-    <div class="c-slider-content__button c-icon" data-ng-click="changeHiddenSectionVisibility()"
-         data-ng-if="showSliderSectionButton"
-         data-ng-class="{'icon-arrow2_up':  showHiddenSection, 'icon-arrow2_down':  !showHiddenSection}">
-    </div>
-
     <div class="c-step-content">
       <header class="alignleft">
         <h1 class="c-step-content__title">

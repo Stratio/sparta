@@ -1,10 +1,76 @@
 {
   "id": "2581f20a-fd83-4315-be45-192bc5sEdFff",
   "name": "fake policy",
-  "sparkStreamingWindowNumber": 1,
-  "sparkStreamingWindowTime": "s",
   "rememberNumber": 2,
   "rememberTime": "d",
+    "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "streamTemporalTable": "stream",
+      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "userPluginsJars": [{
+        "jarPath": ""
+      }],
+      "initSqlSentences": [{
+        "sentence": ""
+      }]
+    },
+    "checkpointSettings": {
+      "checkpointPath": "sparta/checkpoint",
+      "autoDeleteCheckpoint": true,
+      "addTimeToCheckpointPath": false
+    },
+    "streamingSettings": {
+      "window": "1s",
+      "remember": "44s",
+      "sparkStreamingWindowNumber":1,
+      "sparkStreamingWindowTime":"s",
+      "rememberNumber":44,
+      "rememberTime":"s"
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkUser": "sparta",
+      "sparkKerberos": false,
+      "sparkHome": "/opt/spark/dist",
+      "submitArguments": {
+        "userArguments": [{
+          "submitArgument": "",
+          "submitValue": ""
+        }],
+        "deployMode": "client",
+        "supervise": false
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "localityWait": "10",
+          "taskMaxFailures": "8",
+          "blockInterval": "200ms"
+        },
+        "sparkDockerConf": {
+          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorForcePullImage": false
+        },
+        "sparkMesosConf": {
+          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
+          "mesosExecutorHome": "/opt/spark/dist"
+        },
+        "userSparkConf": [{
+          "sparkConfKey": "",
+          "sparkConfValue": ""
+        }],
+        "coarse": true,
+        "stopGracefully": true,
+        "parquetBinaryAsString": true
+      }
+    }
+  },
   "input": {
     "description": "Reads events from RabbitMQ",
     "element": {

@@ -83,15 +83,15 @@
               <i class="c-icon c-icon--is-clickable c-table__icon c-icon--circle-button icon-actions" data-ng-click="$root.stToggleFloatingMenu[policyData.id]()"
                 data-qa="policy-context-menu-{{policyData.id}}"><!--
               --><st-floating-menu toggle-id="{{policyData.id}}" align="right">
-                <st-menu-element class-icon="icon-cross"
-                                 data-ng-click="policies.deletePolicy(policyData.id, $index)"
-                                 data-qa="policy-context-menu-{{policyData.id}}-delete">
-                  {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
-                </st-menu-element>
                 <st-menu-element class-icon="icon-edit2"
                                  data-ng-click="policies.editPolicy('wizard.editPolicy', policyData.id)"
                                  data-qa="policy-context-menu-{{policyData.id}}-edit">
                   {{"_OUTPUT_ACTIONS_MENU_EDIT_" | translate}}
+                </st-menu-element>
+                  <st-menu-element class-icon="icon-cross"
+                    data-ng-click="policies.deletePolicy(policyData.id, $index)"
+                    data-qa="policy-context-menu-{{policyData.id}}-delete">
+                  {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
                 </st-menu-element>
                 <st-menu-element class-icon="icon-download"
                                  data-ng-click="policies.downloadPolicy(policyData.id)"

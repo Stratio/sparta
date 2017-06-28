@@ -46,15 +46,13 @@ case class Cube(name: String,
                 dateType: TypeOp.Value = TypeOp.Timestamp,
                 expiringDataConfig: Option[ExpiringData] = None,
                 triggers: Seq[Trigger],
-                writerOptions: WriterOptions) extends SLF4JLogging {
+                writerOptions: WriterOptions,
+                rememberPartitioner : Boolean) extends SLF4JLogging {
 
   private val associativeOperators = operators.filter(op => op.isAssociative)
   private lazy val associativeOperatorsMap = associativeOperators.map(op => op.key -> op).toMap
   private val nonAssociativeOperators = operators.filter(op => !op.isAssociative)
   private lazy val nonAssociativeOperatorsMap = nonAssociativeOperators.map(op => op.key -> op).toMap
-  private lazy val rememberPartitioner =
-    Try(SpartaConfig.getDetailConfig.get.getBoolean(AppConstant.ConfigRememberPartitioner))
-      .getOrElse(AppConstant.DefaultRememberPartitioner)
   private final val NotUpdatedValues = 0
   private final val UpdatedValues = 1
 

@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.PolicyStatusModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -60,7 +60,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
-  val status = PolicyStatusModel("existingID", PolicyStatusEnum.Launched)
+  val status = WorkflowStatusModel("existingID", PolicyStatusEnum.Launched)
   val statusRaw =
     """
       |{

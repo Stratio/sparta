@@ -9,8 +9,10 @@
                    data-qa="policy-description-raw-data-partition-format">
 </form-field-select>
 <form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
-            class="c-col c-col--3 c-col--vertical-top c-col--right-margin"
+            class="c-col c-col--vertical-top c-col--right-margin c-form-group--with-gutter"
+            data-ng-class="{'c-col--{{item.width}}': item.width}"
             data-ng-form-id="{{item.propertyId}}"
+            data-c-new-row="{{item.newRow}}"
             data-field="item"
             data-model="vm.model.configuration"
             data-form="vm.form"

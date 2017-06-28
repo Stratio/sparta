@@ -61,17 +61,21 @@ abstract class Parser(order: Integer,
 
   //scalastyle:off
   def returnWhenError(exception: Exception): Null =
-  whenErrorDo match {
-    case WhenError.Null => null
-    case _ => throw exception
-  }
+    whenErrorDo match {
+      case WhenError.Null => null
+      case _ => throw exception
+    }
 
   //scalastyle:on
 
   def parseToOutputType(outSchema: StructField, inputValue: Any): Any =
-    Try(TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any]))
-      .getOrElse(returnWhenError(new IllegalStateException(
-        s"Error parsing to output type the value: ${inputValue.toString}")))
+    Try {
+      TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
+    } match {
+      case Success(result) => result
+      case Failure(e) => returnWhenError(new IllegalStateException(
+        s"Error parsing to output type the value: ${inputValue.toString}", e))
+    }
 
   def returnData(newData: Try[Seq[_]], prevData: Seq[_]): Seq[Row] =
     newData match {
@@ -92,7 +96,7 @@ abstract class Parser(order: Integer,
     }
 
   def removeIndex(row: Seq[_], inputFieldIndex: Int): Seq[_] = if (row.size < inputFieldIndex) row
-    else row.take(inputFieldIndex) ++ row.drop(inputFieldIndex + 1)
+  else row.take(inputFieldIndex) ++ row.drop(inputFieldIndex + 1)
 
   def removeInputField(row: Row): Seq[_] = {
     if (inputFieldRemoved && inputField.isDefined)
@@ -100,8 +104,6 @@ abstract class Parser(order: Integer,
     else
       row.toSeq
   }
-
-
 }
 
 object Parser {

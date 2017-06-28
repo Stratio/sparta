@@ -23,5 +23,5 @@ import org.apache.spark.streaming.dstream.DStream
 
 class InputMock(properties: Map[String, JSerializable]) extends Input(properties) {
 
-  override def initStream(ssc: StreamingContext, storageLevel: String): DStream[Row] = ???
+  override def initStream(ssc: StreamingContext): DStream[Row] = ???
 }

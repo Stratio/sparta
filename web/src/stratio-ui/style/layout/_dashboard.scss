@@ -143,9 +143,7 @@ body {
     }
   }
   @media #{$mq-auxiliar-sidebar-hidden} {
-    #base-content-wrapper {
-      padding-right: 0 !important;
-    }
+
     #base-auxiliar-sidebar {
       right: -$layout-base-right - 10px !important;
     }

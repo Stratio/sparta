@@ -35,6 +35,22 @@
       policy.transformations = {};
       policy.transformations.transformationsPipe = [];
       policy.cubes = [];
+      policy.settings = {
+        global: {},
+        checkpointSettings: {},
+        streamingSettings: {},
+        sparkSettings: {
+          submitArguments: {
+            userArguments: []
+          },
+          sparkConf:{
+            sparkResourcesConf:{},
+            sparkDockerConf: {},
+            sparkMesosConf:{},
+            userSparkConf:[]
+          }
+        }
+      };
       policy.streamTriggers = [];
       policy.sparkConf = {};
       policy.sparkSubmitArguments = [];
@@ -43,41 +59,14 @@
       policy.rawData = {};
       delete policy.id;
       ///* Reset policy advanced settings to be loaded from template automatically */
-      delete policy.addTimeToCheckpointPath;
-      delete policy.sparkStreamingWindowNumber;
-      delete policy.sparkStreamingWindowTime;
-      delete policy.storageLevel;
-      delete policy.monitoringLink;
-      delete policy.checkpointPath;
-      delete policy.autoDeleteCheckpoint;
-      delete policy.sparkConf;
-      delete policy.sparkSubmitArguments;
-      delete policy.initSqlSentences;
-      delete policy.userPluginsJars;
-      delete policy.executionMode;
-      delete policy.driverUri;
-      delete policy.stopGracefully;
-      delete policy.streamTemporalTable;
-      delete policy.remember;
-      delete policy.addTimeToCheckpointPath;
-      delete policy.sparkUser;
-      delete policy.sparkKerberos;
     }
 
     function setPolicy(inputPolicyJSON) {
       policy.id = inputPolicyJSON.id;
       policy.name = inputPolicyJSON.name;
-      policy.driverUri = inputPolicyJSON.driverUri;
-      policy.streamTemporalTable = inputPolicyJSON.streamTemporalTable;
-      policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
-      policy.stopGracefully = inputPolicyJSON.stopGracefully;
       policy.description = inputPolicyJSON.description;
-      policy.sparkStreamingWindow = inputPolicyJSON.sparkStreamingWindow;
-      policy.remember = inputPolicyJSON.remember;
-      policy.storageLevel = inputPolicyJSON.storageLevel;
-      policy.checkpointPath = inputPolicyJSON.checkpointPath;
-      policy.autoDeleteCheckpoint = inputPolicyJSON.autoDeleteCheckpoint;
-      policy.executionMode = inputPolicyJSON.executionMode;
+
+      policy.settings = inputPolicyJSON.settings;
       policy.monitoringLink = inputPolicyJSON.monitoringLink;
       policy.transformations = inputPolicyJSON.transformations;
       policy.cubes = setCubes(inputPolicyJSON.cubes);
@@ -86,13 +75,6 @@
       formatAttributes();
       var policyFragments = separateFragments(inputPolicyJSON.fragments);
       policy.input = policyFragments.input;
-      policy.sparkConf = inputPolicyJSON.sparkConf;
-      policy.sparkSubmitArguments = inputPolicyJSON.sparkSubmitArguments;
-      policy.initSqlSentences = inputPolicyJSON.initSqlSentences;
-      policy.userPluginsJars = inputPolicyJSON.userPluginsJars;
-      policy.addTimeToCheckpointPath = inputPolicyJSON.addTimeToCheckpointPath;
-      policy.sparkUser = inputPolicyJSON.sparkUser;
-      policy.sparkKerberos = inputPolicyJSON.sparkKerberos;
     }
 
     function initializePolicy() {
@@ -104,16 +86,17 @@
     }
 
     function formatAttributes() {
-      var sparkStreamingWindow = policy.sparkStreamingWindow.split(/([0-9]+)/);
-      policy.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
-      policy.sparkStreamingWindowTime = sparkStreamingWindow[2];
-      delete policy.sparkStreamingWindow;
-      if (policy.remember) {
-        var rememberField = policy.remember.split(/([0-9]+)/);
-        policy.rememberNumber = Number(rememberField[1]);
-        policy.rememberTime = rememberField[2];
+      var sparkStreamingWindow = policy.settings.streamingSettings.window.split(/([0-9]+)/);
+      policy.settings.streamingSettings.sparkStreamingWindowNumber = Number(sparkStreamingWindow[1]);
+      policy.settings.streamingSettings.sparkStreamingWindowTime = sparkStreamingWindow[2];
+      delete policy.settings.streamingSettings.sparkStreamingWindow;
+
+      if (policy.settings.streamingSettings.remember) {
+        var rememberField = policy.settings.streamingSettings.remember.split(/([0-9]+)/);
+        policy.settings.streamingSettings.rememberNumber = Number(rememberField[1]);
+        policy.settings.streamingSettings.rememberTime = rememberField[2];
       }
-      delete policy.remember;
+      delete policy.settings.streamingSettings.remember;
     }
 
     function setStreamTriggers(streamTriggers) {
@@ -203,12 +186,12 @@
 
     function isValidSparkStreamingWindow() {
       var valid = true;
-      if (policy.streamTriggers && policy.sparkStreamingWindowNumber > 0) {
+      if (policy.streamTriggers && policy.settings.streamingSettings.sparkStreamingWindowNumber > 0) {
         var i = 0;
         while (valid && i < policy.streamTriggers.length) {
           valid = valid &&
-            ((policy.streamTriggers[i].overLastNumber % policy.sparkStreamingWindowNumber) == 0) &&
-            ((policy.streamTriggers[i].computeEveryNumber % policy.sparkStreamingWindowNumber) == 0);
+            ((policy.streamTriggers[i].overLastNumber % policy.settings.streamingSettings.sparkStreamingWindowNumber) == 0) &&
+            ((policy.streamTriggers[i].computeEveryNumber % policy.settings.streamingSettings.sparkStreamingWindowNumber) == 0);
           ++i;
         }
       }
@@ -225,9 +208,9 @@
       error.subErrors = subErrors;
     }
 
-      
+
     return {
-      initializePolicy:initializePolicy,
+      initializePolicy: initializePolicy,
       setPolicy: setPolicy,
       setTemplate: setTemplate,
       getTemplate: getTemplate,

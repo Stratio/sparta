@@ -17,16 +17,16 @@ package com.stratio.sparta.serving.core.constants
 
 import akka.actor.ActorSystem
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.utils.ZookeeperUtils
+
+import scala.util.Properties
 
 /**
  * Global constants of the application.
  */
-object AppConstant {
+object AppConstant extends ZookeeperUtils {
 
-  val version = "1.5.0"
-
-  //Config keys
-  val ClasspathJarFolder = "repo"
+  val version = "1.6.0"
   val ConfigAppName = "sparta"
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
@@ -36,51 +36,34 @@ object AppConstant {
   val ConfigZookeeper = "zookeeper"
   val ConfigFrontend = "config.frontend"
   val DefaultOauth2CookieName = "user"
-
-  //Config Options
-  val ExecutionMode = "executionMode"
   val ConfigLocal = "local"
   val ConfigMesos = "mesos"
   val ConfigMarathon = "marathon"
-  val ConfigRememberPartitioner = "rememberPartitioner"
   val DefaultRememberPartitioner = true
   val DriverPackageLocation = "driverPackageLocation"
   val BackupsLocation = "backupsLocation"
-  val DefaultDriverPackageLocation = "/opt/sds/sparta/driver/"
-  val DefaultBackupsLocation = "/opt/sds/sparta/backups/"
+  val DefaultDriverPackageLocation = "/opt/sds/sparta/driver"
+  val DefaultBackupsLocation = "/opt/sds/sparta/backups"
   val DriverURI = "driverURI"
-  val DefaultProvidedDriverURI = "http://0.0.0.0:9090/driver/sparta-driver.jar"
   val DefaultMarathonDriverURI = "/opt/sds/sparta/driver/sparta-driver.jar"
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
-  val DefaultPluginsPackageLocation = "/opt/sds/plugins/"
+  val DefaultPluginsPackageLocation = "/opt/sds/sparta/plugins"
   val DefaultFrontEndTimeout = 10000
   val ConfigSecurity = "security"
-
-  //killing options
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
-  val DefaultAwaitPolicyChangeStatus = "180s"
+  val DefaultAwaitPolicyChangeStatus = "360s"
   val PreStopMarathonDelay = "preStopMarathonDelay"
   val DefaultPreStopMarathonDelay = "10s"
   val PreStopMarathonInterval = "preStopMarathonInterval"
   val DefaultPreStopMarathonInterval = "5s"
-
-
-  //Checkpoint
-  val ConfigAutoDeleteCheckpoint = "autoDeleteCheckpoint"
-  val DefaultAutoDeleteCheckpoint = true
-  val ConfigAddTimeToCheckpointPath = "addTimeToCheckpointPath"
-  val DefaultAddTimeToCheckpointPath = false
-  val ConfigCheckpointPath = "checkpointPath"
-  val DefaultCheckpointPath = "sparta/checkpoint"
-  val DefaultCheckpointPathLocalMode = s"/tmp/$DefaultCheckpointPath"
-  val DefaultCheckpointPathClusterMode = "/user/"
+  val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"
   val HdfsMaster = "hdfsMaster"
   val HdfsPort = "hdfsPort"
-  val DefaultHdfsUser = "stratio"
+  val DefaultHdfsUser = "sparta"
   val KeytabPath = "keytabPath"
   val PrincipalName = "principalName"
   val ReloadKeyTabTime = "reloadKeyTabTime"
@@ -95,43 +78,6 @@ object AppConstant {
   val SystemKeyTabPath = "SPARTA_KEYTAB_PATH"
   val SystemHostName = "HOSTNAME"
 
-  //Generic Options
-  val Master = "master"
-  val Supervise = "supervise"
-  val DeployMode = "deployMode"
-  val Name = "name"
-  val PropertiesFile = "propertiesFile"
-  val TotalExecutorCores = "totalExecutorCores"
-  val SparkHome = "sparkHome"
-  val Packages = "packages"
-  val ExcludePackages = "exclude-packages"
-  val Repositories = "repositories"
-  val Jars = "jars"
-  val ProxyUser = "proxy-user"
-  val DriverJavaOptions = "driver-java-options"
-  val DriverLibraryPath = "driver-library-path"
-  val DriverClassPath = "driver-class-path"
-  val ClusterValue = "cluster"
-  val ClientValue = "client"
-  val MarathonValue = "marathon"
-  val LocalValue = "local"
-  val KillUrl = "killUrl"
-  val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
-
-  //Mesos Options
-  val MesosMasterDispatchers = "master"
-
-  //Yarn
-  val YarnQueue = "queue"
-  val NumExecutors = "numExecutors"
-  val ExecutorMemory = "executorMemory"
-  val ExecutorCores = "executorCores"
-  val DriverMemory = "driverMemory"
-  val DriverCores = "driverCores"
-  val Files = "files"
-  val Archives = "archives"
-  val AddJars = "addJars"
-
   //Zookeeper
   val ZKConnection = "connectionString"
   val DefaultZKConnection = "127.0.0.1:2181"
@@ -143,14 +89,22 @@ object AppConstant {
   val DefaultZKRetryAttemps = 5
   val ZKRetryInterval = "retryInterval"
   val DefaultZKRetryInterval = 10000
+  val DefaultZKPath = "/stratio/sparta/sparta"
 
   //Zookeeper paths
-  val BaseZKPath = "/stratio/sparta"
-  val PoliciesBasePath = s"$BaseZKPath/policies"
-  val ContextPath = s"$BaseZKPath/contexts"
-  val ExecutionsPath = s"$BaseZKPath/executions"
-  val FragmentsPath = s"$BaseZKPath/fragments"
-  val ErrorsZkPath = s"$BaseZKPath/error"
+  val instanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+  lazy val BaseZKPath: String = (retrievePathFromEnvOrConf, instanceName) match {
+    case (Some(path), _ ) if checkIfValidPath(path) => path
+    case (Some(_), Some(instance) )=> s"/stratio/sparta/$instance"
+    case (Some(path), None )=> path
+    case (None, Some(instance)) => s"/stratio/sparta/$instance"
+    case (None, None) => DefaultZKPath
+  }
+  lazy val PoliciesBasePath = s"$BaseZKPath/policies"
+  lazy val ContextPath = s"$BaseZKPath/contexts"
+  lazy val ExecutionsPath = s"$BaseZKPath/executions"
+  lazy val FragmentsPath = s"$BaseZKPath/fragments"
+  lazy val ErrorsZkPath = s"$BaseZKPath/error"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)

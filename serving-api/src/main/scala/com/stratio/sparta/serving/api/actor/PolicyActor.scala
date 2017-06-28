@@ -24,8 +24,8 @@ import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel, ResponsePolicy}
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel, ResponseWorkflow}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils, PolicyUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -69,7 +69,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
     def callback() = ResponsePolicies(Try {
       findAllPolicies(withFragments = true)
     }.recover {
-      case _: NoNodeException => Seq.empty[PolicyModel]
+      case _: NoNodeException => Seq.empty[WorkflowModel]
     })
 
     securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
@@ -90,7 +90,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
   def findByFragmentType(fragmentType: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentType(fragmentType)).recover {
-        case _: NoNodeException => Seq.empty[PolicyModel]
+        case _: NoNodeException => Seq.empty[WorkflowModel]
       })
 
     securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
@@ -99,7 +99,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
   def findByFragmentId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentId(fragmentType, id)).recover {
-        case _: NoNodeException => Seq.empty[PolicyModel]
+        case _: NoNodeException => Seq.empty[WorkflowModel]
       })
 
     securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
@@ -108,46 +108,46 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
   def findByFragmentName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponsePolicies(
       Try(findPoliciesByFragmentName(fragmentType, name)).recover {
-        case _: NoNodeException => Seq.empty[PolicyModel]
+        case _: NoNodeException => Seq.empty[WorkflowModel]
       })
 
     securityActionAuthorizer[ResponsePolicies](secManagerOpt, user, Map(ResourcePol -> View), callback)
   }
 
   def find(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() =  ResponsePolicy(Try(findPolicy(id)).recover {
+    def callback() =  ResponseWorkflow(Try(findPolicy(id)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with id $id.")
         ))
     })
 
-    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> View), callback)
+    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
   }
 
   def findByName(name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponsePolicy(Try(findPolicyByName(name)))
+    def callback() = ResponseWorkflow(Try(findPolicyByName(name)))
 
-    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> View), callback)
+    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
   }
 
 
-  def create(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponsePolicy(Try(createPolicy(policy)))
-    securityActionAuthorizer[ResponsePolicy](secManagerOpt,
+  def create(policy: WorkflowModel, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponseWorkflow(Try(createPolicy(policy)))
+    securityActionAuthorizer[ResponseWorkflow](secManagerOpt,
       user,
       Map(ResourcePol -> Create, ResourceContext -> Create),
       callback)
   }
 
-  def update(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponsePolicy(Try(updatePolicy(policy)).recover {
+  def update(policy: WorkflowModel, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponseWorkflow(Try(updatePolicy(policy)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy with name ${policy.name}.")
         ))
     })
-    securityActionAuthorizer[ResponsePolicy](secManagerOpt, user, Map(ResourcePol -> Edit), callback)
+    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> Edit), callback)
   }
 
   def delete(id: String, user: Option[LoggedUser]): Unit = {
@@ -167,7 +167,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
       callback)
   }
 
-  def deleteCheckpoint(policy: PolicyModel, user: Option[LoggedUser]): Unit = {
+  def deleteCheckpoint(policy: WorkflowModel, user: Option[LoggedUser]): Unit = {
     def callback() = Response(Try(deleteCheckpointPath(policy)))
 
     securityActionAuthorizer[Response](secManagerOpt, user,
@@ -185,7 +185,7 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
         log.error(s"Fragment creation failure. Error: ${e.getLocalizedMessage}", e)
     }
 
-  def loggingResponsePolicyStatus(response: Try[PolicyStatusModel]): Unit =
+  def loggingResponsePolicyStatus(response: Try[WorkflowStatusModel]): Unit =
     response match {
       case Success(statusModel) =>
         log.info(s"Policy status model created or updated correctly: " +
@@ -197,9 +197,9 @@ class PolicyActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
 
 object PolicyActor extends SLF4JLogging {
 
-  case class CreatePolicy(policy: PolicyModel, user: Option[LoggedUser])
+  case class CreatePolicy(policy: WorkflowModel, user: Option[LoggedUser])
 
-  case class Update(policy: PolicyModel, user: Option[LoggedUser])
+  case class Update(policy: WorkflowModel, user: Option[LoggedUser])
 
   case class DeletePolicy(name: String, user: Option[LoggedUser])
 
@@ -217,10 +217,10 @@ object PolicyActor extends SLF4JLogging {
 
   case class FindByFragmentName(fragmentType: String, name: String, user: Option[LoggedUser])
 
-  case class DeleteCheckpoint(policy: PolicyModel, user: Option[LoggedUser])
+  case class DeleteCheckpoint(policy: WorkflowModel, user: Option[LoggedUser])
 
   case class Response(status: Try[_])
 
-  case class ResponsePolicies(policies: Try[Seq[PolicyModel]])
+  case class ResponsePolicies(policies: Try[Seq[WorkflowModel]])
 
 }

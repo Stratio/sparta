@@ -22,7 +22,8 @@ import com.stratio.sparta.driver.writer.{TransformationsWriterHelper, WriterOpti
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, TransformationModel}
+import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
+import com.stratio.sparta.serving.core.models.workflow.transformations.TransformationModel
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -35,8 +36,8 @@ trait ParserStage extends BaseStage {
 
   def parserStage(refUtils: ReflectionUtils,
                   schemas: Map[String, StructType]): (Seq[Parser], Option[WriterOptions]) =
-    (policy.transformations.get.transformationsPipe.map(parser => createParser(parser, refUtils, schemas)),
-      policy.transformations.get.writer.map(writer => WriterOptions(
+    (workflow.transformations.get.transformationsPipe.map(parser => createParser(parser, refUtils, schemas)),
+      workflow.transformations.get.writer.map(writer => WriterOptions(
         writer.outputs,
         writer.saveMode,
         writer.tableName,

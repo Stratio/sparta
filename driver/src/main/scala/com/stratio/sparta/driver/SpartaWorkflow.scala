@@ -21,19 +21,19 @@ import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.stage._
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.utils.AggregationTime
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models.policy._
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFramework) extends CheckpointUtils
+class SpartaWorkflow(val workflow: WorkflowModel, val curatorFramework: CuratorFramework) extends CheckpointUtils
   with InputStage with OutputStage with ParserStage with CubeStage with RawDataStage with TriggerStage
   with ZooKeeperError {
 
   clearError()
 
-  private val ReflectionUtils = PolicyHelper.ReflectionUtils
+  private val ReflectionUtils = WorkflowHelper.ReflectionUtils
   private val outputs = outputStage(ReflectionUtils)
   private var input: Option[Input] = None
 
@@ -50,16 +50,19 @@ class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFrame
   def streamingStages(): StreamingContext = {
     clearError()
 
-    val checkpointPolicyPath = checkpointPath(policy)
-    val window = AggregationTime.parseValueToMilliSeconds(policy.sparkStreamingWindow)
-    val ssc = sparkStreamingInstance(Duration(window), checkpointPolicyPath, policy.remember)
+    val checkpointPolicyPath = checkpointPath(workflow)
+    val window = AggregationTime.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
+    val ssc = sparkStreamingInstance(Duration(window),
+      checkpointPolicyPath,
+      workflow.settings.streamingSettings.remember
+    )
     if(input.isEmpty)
       input = Option(createInput(ssc.get, ReflectionUtils))
     val inputDStream = inputStreamStage(ssc.get, input.get)
 
-    saveRawData(policy.rawData, inputDStream, outputs)
+    saveRawData(workflow.rawData, inputDStream, outputs)
 
-    policy.transformations.foreach { transformationsModel =>
+    workflow.transformations.foreach { transformationsModel =>
       val parserSchemas = SchemaHelper.getSchemasFromTransformations(
         transformationsModel.transformationsPipe, Input.InitSchema)
       val (parsers, writerOptions) = parserStage(ReflectionUtils, parserSchemas)
@@ -76,6 +79,6 @@ class SpartaWorkflow(val policy: PolicyModel, val curatorFramework: CuratorFrame
 
 object SpartaWorkflow {
 
-  def apply(policy: PolicyModel, curatorFramework: CuratorFramework): SpartaWorkflow =
+  def apply(policy: WorkflowModel, curatorFramework: CuratorFramework): SpartaWorkflow =
     new SpartaWorkflow(policy, curatorFramework)
 }

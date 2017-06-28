@@ -61,12 +61,11 @@ describe('policies.wizard.factory.policy-model-factory', function () {
       fakeApiPolicy.fragments = [fakeInput];
       cleanFactory.setPolicy(fakeApiPolicy);
       var policy = cleanFactory.getCurrentPolicy();
-      var sparkStreamingWindowTime = fakeApiPolicy.sparkStreamingWindow.split(/([0-9]+)/);
+      var sparkStreamingWindowTime = fakeApiPolicy.settings.streamingSettings.window.split(/([0-9]+)/);
       expect(policy.name).toBe(fakeApiPolicy.name);
       expect(policy.description).toBe(fakeApiPolicy.description);
-      expect(policy.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
-      expect(policy.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
-      expect(policy.storageLevel).toBe(fakeApiPolicy.storageLevel);
+      expect(policy.settings.streamingSettings.sparkStreamingWindowNumber).toBe(Number(sparkStreamingWindowTime[1]));
+      expect(policy.settings.streamingSettings.sparkStreamingWindowTime).toBe(sparkStreamingWindowTime[2]);
       expect(policy.input).toEqual(fakeInput);
       expect(policy.transformations).toEqual(fakeApiPolicy.transformations);
       expect(policy.cubes).toEqual(fakeApiPolicy.cubes);
@@ -126,7 +125,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     it("if policy has stream triggers, all their overLast have to be multiple of the Spark streaming window", function () {
       var fakeSparkStreamingWindowNumber = 4;
       fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 1 + 's', computeEvery: 2 * fakeSparkStreamingWindowNumber + 's'}];
-      fakeApiPolicy.sparkStreamingWindow = fakeSparkStreamingWindowNumber + 's';
+      fakeApiPolicy.settings.streamingSettings.window = fakeSparkStreamingWindowNumber + 's';
 
       factory.setPolicy(fakeApiPolicy);
 
@@ -141,7 +140,7 @@ describe('policies.wizard.factory.policy-model-factory', function () {
     it("if policy has stream triggers, all their computeEvery have to be multiple of the Spark streaming window", function () {
       var fakeSparkStreamingWindowNumber = 4;
       fakeApiPolicy.streamTriggers = [{overLast: 2 * fakeSparkStreamingWindowNumber + 's', computeEvery: 2 * fakeSparkStreamingWindowNumber + 1 + 's'}];
-      fakeApiPolicy.sparkStreamingWindow = fakeSparkStreamingWindowNumber + 's';
+      fakeApiPolicy.settings.streamingSettings.window = fakeSparkStreamingWindowNumber + 's';
 
       factory.setPolicy(fakeApiPolicy);
 

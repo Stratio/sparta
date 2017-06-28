@@ -22,59 +22,52 @@ import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.utils.LocalListenerUtils
 import com.stratio.sparta.sdk.pipeline.output.Output
-import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.helpers.PolicyHelper
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
-import com.typesafe.config.Config
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils, SparkSubmitService}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.StreamingContext
 
-import scala.util.Try
-
-case class StreamingContextService(curatorFramework: CuratorFramework, generalConfig: Option[Config] = None)
+case class StreamingContextService(curatorFramework: CuratorFramework)
   extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
 
-  def localStreamingContext(policy: PolicyModel, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
-    killLocalContextListener(policy, policy.name)
+  def localStreamingContext(workflow: WorkflowModel, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
+    killLocalContextListener(workflow, workflow.name)
 
-    if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
+    if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
 
-    createLocalCheckpointPath(policy)
+    createLocalCheckpointPath(workflow)
 
-    val outputsSparkConfig =
-      PolicyHelper.getSparkConfigs(policy.outputs, Output.SparkConfigurationMethod, Output.ClassSuffix)
-    val policySparkConfig = PolicyHelper.getSparkConfigFromPolicy(policy)
-    val propsConfig = Try(PolicyHelper.getSparkConfFromProps(generalConfig.get.getConfig(ConfigLocal)))
-      .getOrElse(Map.empty[String, String])
+    val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
+    val sparkSubmitService = new SparkSubmitService(workflow)
+    val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
-    sparkStandAloneContextInstance(propsConfig ++ policySparkConfig ++ outputsSparkConfig, files)
+    sparkStandAloneContextInstance(sparkConfig ++ outputsSparkConfig, files)
 
-    val spartaWorkflow = SpartaWorkflow(policy, curatorFramework)
+    val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
     val ssc = spartaWorkflow.streamingStages()
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-    setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     (spartaWorkflow, ssc)
   }
 
-  def clusterStreamingContext(policy: PolicyModel, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
-    if (autoDeleteCheckpointPath(policy)) deleteCheckpointPath(policy)
-    val spartaWorkflow = SpartaWorkflow(policy, curatorFramework)
+  def clusterStreamingContext(workflow: WorkflowModel, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
+    if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+    val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
 
-    val ssc = StreamingContext.getOrCreate(checkpointPath(policy), () => {
-      log.info(s"Nothing in checkpoint path: ${checkpointPath(policy)}")
-      val outputsSparkConfig =
-        PolicyHelper.getSparkConfigs(policy.outputs, Output.SparkConfigurationMethod, Output.ClassSuffix)
+    val ssc = StreamingContext.getOrCreate(checkpointPath(workflow), () => {
+      log.info(s"Nothing in checkpoint path: ${checkpointPath(workflow)}")
+      val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
       sparkClusterContextInstance(outputsSparkConfig, files)
       spartaWorkflow.streamingStages()
     })
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-    setInitialSentences(policy.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     (spartaWorkflow, ssc)
   }

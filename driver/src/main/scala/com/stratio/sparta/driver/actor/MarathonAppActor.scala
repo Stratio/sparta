@@ -22,7 +22,7 @@ import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.{FragmentUtils, PolicyStatusUtils, PolicyUtils, RequestUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
@@ -79,8 +79,8 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
       case Failure(exception) =>
         val information = s"Error submitting job with Marathon App"
         log.error(information, exception)
-        updateStatus(PolicyStatusModel(id = policyId, status = Failed, statusInfo = Option(information),
-          lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, exception.toString))))
+        updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Option(information),
+          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))))
         preStopActions()
     }
   }
@@ -89,13 +89,13 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
 
   def closeChecker(policyId: String, policyName: String): Unit = {
     log.info(s"Listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: PolicyStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopped || policyStatus.status == Failed) {
           try {
             val information = s"Executing pre-close actions in Marathon App ..."
             log.info(information)
-            updateStatus(PolicyStatusModel(id = policyId, status = NotDefined, statusInfo = Some(information)))
+            updateStatus(WorkflowStatusModel(id = policyId, status = NotDefined, statusInfo = Some(information)))
             preStopActions()
           } finally {
             Try(nodeCache.close()) match {

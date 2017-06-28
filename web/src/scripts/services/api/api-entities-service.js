@@ -40,6 +40,10 @@
     vm.executeBackup = executeBackup;
     vm.deleteMetadata = deleteMetadata;
     vm.getAppInfo = getAppInfo;
+    vm.getCrossDatabases = getCrossDatabases;
+    vm.getTableInfo = getTableInfo;
+    vm.getCrossTables = getCrossTables;
+    vm.executeQuery = executeQuery;
 
     /////////////////////////////////
 
@@ -202,6 +206,46 @@
         'get': {
           method: 'GET',
           isArray: false,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function getCrossDatabases() {
+      return $resource('crossdata/databases',{}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function getCrossTables(){
+      return $resource('crossdata/tables',{}, {
+        'get': {
+          method: 'GET',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function executeQuery(){
+      return $resource('crossdata/queries', {}, {
+        'post': {
+          method: 'POST',
+          isArray: true,
+          timeout: apiConfigSettings.timeout
+        }
+      });
+    }
+
+    function getTableInfo(){
+      return $resource('crossdata/tables/info', {}, {
+        'post': {
+          method: 'POST',
+          isArray: true,
           timeout: apiConfigSettings.timeout
         }
       });

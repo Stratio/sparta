@@ -36,10 +36,10 @@
       error.text = "";
       if (type == triggerConstants.TRANSFORMATION) {
         var currentPolicy = PolicyModelFactory.getCurrentPolicy();
-        trigger.overLastNumber = currentPolicy.sparkStreamingWindowNumber;
-        trigger.overLastTime = currentPolicy.sparkStreamingWindowTime;
-        trigger.computeEveryNumber = currentPolicy.sparkStreamingWindowNumber;
-        trigger.computeEveryTime = currentPolicy.sparkStreamingWindowTime;
+        trigger.overLastNumber = currentPolicy.settings.streamingSettings.sparkStreamingWindowNumber;
+        trigger.overLastTime = currentPolicy.settings.streamingSettings.sparkStreamingWindowTime;
+        trigger.computeEveryNumber = currentPolicy.settings.streamingSettings.sparkStreamingWindowNumber;
+        trigger.computeEveryTime = currentPolicy.settings.streamingSettings.sparkStreamingWindowTime;
       } else {
         delete trigger.overLast;
         delete trigger.overLastNumber;

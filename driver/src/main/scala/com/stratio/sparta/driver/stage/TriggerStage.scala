@@ -19,8 +19,8 @@ import com.stratio.sparta.driver.step.Trigger
 import com.stratio.sparta.driver.writer.{TriggerWriterHelper, WriterOptions}
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime
-import com.stratio.sparta.serving.core.models.policy.PhaseEnum
-import com.stratio.sparta.serving.core.models.policy.trigger.TriggerModel
+import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
+import com.stratio.sparta.serving.core.models.workflow.trigger.TriggerModel
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.Milliseconds
@@ -33,8 +33,8 @@ trait TriggerStage extends BaseStage {
                           inputData: DStream[Row],
                           outputs: Seq[Output],
                           window: Long): Unit = {
-    val triggersStage = triggerStage(policy.streamTriggers)
-    val errorMessage = s"Something gone wrong executing the triggers stream for: ${policy.input.get.name}."
+    val triggersStage = triggerStage(workflow.streamTriggers)
+    val errorMessage = s"Something gone wrong executing the triggers stream for: ${workflow.input.get.name}."
     val okMessage = s"Triggers Stream executed correctly."
     generalTransformation(PhaseEnum.TriggerStream, okMessage, errorMessage) {
       triggersStage
@@ -51,7 +51,9 @@ trait TriggerStage extends BaseStage {
               Milliseconds(
                 computeEvery.fold(window) { computeEvery => AggregationTime.parseValueToMilliSeconds(computeEvery) }))
           }
-          TriggerWriterHelper.writeStream(triggers, streamTemporalTable(policy.streamTemporalTable), outputs,
+          TriggerWriterHelper.writeStream(triggers,
+            workflow.settings.global.streamTemporalTable,
+            outputs,
             groupedData, initSchema)
         }
     }
@@ -80,9 +82,4 @@ trait TriggerStage extends BaseStage {
         trigger.configuration)
     }
   }
-
-  private[driver] def streamTemporalTable(policyTableName: Option[String]): String =
-    policyTableName.flatMap(tableName => if (tableName.nonEmpty) Some(tableName) else None)
-      .getOrElse("stream")
-
 }

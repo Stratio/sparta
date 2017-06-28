@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparkta.serving.api.ssl
+package com.stratio.sparta.serving.api.service.ssl
 
 import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}

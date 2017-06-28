@@ -10,6 +10,10 @@
 		}
 	}
 
+	&--auto{
+		display:inline-block;
+	}
+
 	&--vertical-centered {
 		vertical-align: middle;
 	}

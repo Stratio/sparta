@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.output.http
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.pipeline.output.OutputFormatEnum
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -57,11 +58,11 @@ class HttpOutputTest extends TemporalSparkContext with Matchers {
 
   /* DataFrame generator */
   private def dfGen(): DataFrame = {
-    val sqlCtx = SparkSession.builder().config(sc.getConf).getOrCreate()
+    val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
     val dataRDD = sc.parallelize(List(("user1", 23, 1993), ("user2", 26, 1990))).map { case (name, age, year) =>
       Row(name, age, year)
     }
-    sqlCtx.createDataFrame(dataRDD, fields)
+    xdSession.createDataFrame(dataRDD, fields)
   }
 
   val restMock1 = new HttpOutput("key", properties)

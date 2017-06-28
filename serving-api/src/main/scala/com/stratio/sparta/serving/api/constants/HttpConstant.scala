@@ -15,8 +15,10 @@
  */
 package com.stratio.sparta.serving.api.constants
 
+import scala.util.Properties
+
 object HttpConstant  {
-  final val SpartaRootPath = "sparta"
+  final val SpartaRootPath = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME","sparta")
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"
   final val FragmentPath = "fragment"
@@ -28,6 +30,7 @@ object HttpConstant  {
   final val ContextsPath = "contexts"
   final val ConfigPath = "config"
   final val AppStatus= "status"
+  final val CrossdataPath= "crossdata"
   final val AppInfoPath = "appInfo"
   final val MetadataPath= "metadata"
   final val NotFound = 400

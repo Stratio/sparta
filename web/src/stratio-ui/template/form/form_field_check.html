@@ -3,12 +3,10 @@
   <div class="c-form-control c-form-control--full-width">
         <span class="c-icon-label c-col c-col--12">
           <input id="{{name}}" ng-attr-id="{{name}}" name="{{name}}" class="c-input c-checkbox" type="checkbox"
-                 data-ng-model="model" data-ng-required="required" data-ng-disabled="disabled"
+                 data-ng-model="model" data-ng-disabled="disabled"
                  data-ng-pattern="pattern"><label class="c-label" for="{{name}}" data-qa="{{qa}}"></label>
-
             <label class="c-icon-label__text c-label" title="{{label}}" for="{{name}}">
                 {{label}}
-                <span data-ng-if="required === false && !extraMessage" class="c-label__optional">{{'_OPTIONAL_' | translate}}</span>
                 <span data-ng-if="extraMessage" class="c-label__optional">{{extraMessage}}</span>
                       </label>
             <i data-ng-if="help" id="tooltip-{{name}}" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"

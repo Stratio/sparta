@@ -24,9 +24,9 @@ import org.scalatest.{Matchers, WordSpec}
 class InputTest extends WordSpec with Matchers {
 
   "Input" should {
-    val input = new InputMock(Map())
+    val input = new InputMock(Map("storageLevel" -> "DISK_ONLY"))
     val expected = StorageLevel.DISK_ONLY
-    val result = input.storageLevel("DISK_ONLY")
+    val result = input.storageLevel
 
     "Return the associated storageLevel" in {
       result should be(expected)

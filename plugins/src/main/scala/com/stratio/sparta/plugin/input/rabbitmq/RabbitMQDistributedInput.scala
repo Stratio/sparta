@@ -51,9 +51,9 @@ class RabbitMQDistributedInput(properties: Map[String, JSerializable])
   import RabbitMQDistributedInput._
 
 
-  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext): DStream[Row] = {
     val messageHandler = MessageHandler(properties).handler
-    val params = propsWithStorageLevel(sparkStorageLevel)
+    val params = propsWithStorageLevel(properties.getString("storageLevel", Input.StorageDefaultValue))
     createDistributedStream(ssc, getKeys(params), params, messageHandler)
   }
 

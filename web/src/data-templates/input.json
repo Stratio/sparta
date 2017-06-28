@@ -322,6 +322,57 @@
         "qa": "fragment-details-rabbitmq-key-serializer"
       },
       {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
+      },
+      {
         "propertyId": "rabbitmqProperties",
         "propertyName": "_RABBITMQ_PROPERTIES_",
         "propertyType": "list",
@@ -447,6 +498,57 @@
             "width": 4,
             "required": false,
             "qa": "fragment-details-rabbitmq-distributedRoutingKeys"
+          }
+        ]
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
           }
         ]
       },
@@ -648,6 +750,57 @@
             }
           ]
         ]
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       }
     ]
   },
@@ -679,6 +832,57 @@
         "required": true,
         "tooltip": "Socket port",
         "qa": "fragment-details-socket-port"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       }
     ]
   },
@@ -740,6 +944,57 @@
         "required": false,
         "tooltip": "Allows to search tweets based on the words specified here. If none is introduced, the search will be based over global trending topics.",
         "qa": "fragment-details-twitter-termsOfSearch"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       }
     ]
   },
@@ -761,6 +1016,57 @@
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-websocket-url"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       }
     ]
   },
@@ -802,6 +1108,57 @@
         "required": true,
         "tooltip": "Input type is related to the user class extended by SDK",
         "qa": "custom-input-modelType"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": false,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       },
       {
         "propertyId": "inputOptions",

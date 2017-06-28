@@ -41,7 +41,7 @@
                     data-timeout=10000>
     </c-animated-msg>
 
-    <ul br-ba-container="c-grid">
+    <ul br-ba-container="c-grid" class="br-ba-container-margin">
       <li class="c-grid-item" data-ng-repeat="output in filteredoutputsData  = (outputs.outputsData |
 			 filter:{'element':{'type':outputs.filters.element.type || undefined}}:true | filter:{ 'name': outputs.filters.name})" br-ba-item="{index:$index, total:filteredoutputsData.length}">
         <header class="title">

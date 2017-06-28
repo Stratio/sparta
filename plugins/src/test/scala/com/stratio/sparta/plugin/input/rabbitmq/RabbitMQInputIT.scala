@@ -104,7 +104,7 @@ class RabbitMQInputIT extends RabbitIntegrationSpec {
         "queueName" -> queueName)
 
       val input = new RabbitMQInput(props)
-      val distributedStream = input.initStream(ssc.get, DefaultStorageLevel)
+      val distributedStream = input.initStream(ssc.get)
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 
       // Fires each time the configured window has passed.

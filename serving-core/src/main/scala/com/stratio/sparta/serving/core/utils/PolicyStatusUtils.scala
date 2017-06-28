@@ -16,11 +16,12 @@
 
 package com.stratio.sparta.serving.core.utils
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
@@ -29,17 +30,17 @@ import org.json4s.jackson.Serialization._
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
-trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
+trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
 
   val curatorFramework: CuratorFramework
 
   /** Functions used inside the StatusActor **/
 
-  def clearLastError(id: String): Try[Option[PolicyStatusModel]] = {
+  def clearLastError(id: String): Try[Option[WorkflowStatusModel]] = {
     Try {
       val statusPath = s"${AppConstant.ContextPath}/$id"
       if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-        val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+        val actualStatus = read[WorkflowStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = actualStatus.copy(lastError = None)
         log.info(s"Clearing last error for context: ${actualStatus.id}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
@@ -49,11 +50,11 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
   }
 
   //scalastyle:off
-  def updateStatus(policyStatus: PolicyStatusModel): Try[PolicyStatusModel] = {
+  def updateStatus(policyStatus: WorkflowStatusModel): Try[WorkflowStatusModel] = {
     Try {
       val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
       if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-        val actualStatus = read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+        val actualStatus = read[WorkflowStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = policyStatus.copy(
           status = if (policyStatus.status == PolicyStatusEnum.NotDefined) actualStatus.status
           else policyStatus.status,
@@ -84,6 +85,8 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
           s"\t--->\t${newStatus.submissionId.getOrElse("undefined")}" +
           s"\n\tSubmission Status:\t${actualStatus.submissionStatus.getOrElse("undefined")}" +
           s"\t--->\t${newStatus.submissionStatus.getOrElse("undefined")}" +
+          s"\n\tKill Url:\t${actualStatus.killUrl.getOrElse("undefined")}" +
+          s"\t--->\t${newStatus.killUrl.getOrElse("undefined")}" +
           s"\n\tMarathon Id:\t${actualStatus.marathonId.getOrElse("undefined")}" +
           s"\t--->\t${newStatus.marathonId.getOrElse("undefined")}" +
           s"\n\tLast Error:\t${actualStatus.lastError.getOrElse("undefined")}" +
@@ -103,7 +106,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
 
   //scalastyle:on
 
-  def createStatus(policyStatus: PolicyStatusModel): Try[PolicyStatusModel] = {
+  def createStatus(policyStatus: WorkflowStatusModel): Try[WorkflowStatusModel] = {
     val statusPath = s"${AppConstant.ContextPath}/${policyStatus.id}"
     if (CuratorFactoryHolder.existsPath(statusPath)) {
       updateStatus(policyStatus)
@@ -116,25 +119,25 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
     }
   }
 
-  def findAllStatuses(): Try[Seq[PolicyStatusModel]] =
+  def findAllStatuses(): Try[Seq[WorkflowStatusModel]] =
     Try {
       val contextPath = s"${AppConstant.ContextPath}"
       if (CuratorFactoryHolder.existsPath(contextPath)) {
         val children = curatorFramework.getChildren.forPath(contextPath)
         val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[PolicyStatusModel](new String(
+          read[WorkflowStatusModel](new String(
             curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")
           ))
         )
         policiesStatus
-      } else Seq.empty[PolicyStatusModel]
+      } else Seq.empty[WorkflowStatusModel]
     }
 
-  def findStatusById(id: String): Try[PolicyStatusModel] =
+  def findStatusById(id: String): Try[WorkflowStatusModel] =
     Try {
       val statusPath = s"${AppConstant.ContextPath}/$id"
       if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined)
-        read[PolicyStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
+        read[WorkflowStatusModel](new String(curatorFramework.getData.forPath(statusPath)))
       else throw new ServingCoreException(
         ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id $id.")))
     }
@@ -146,7 +149,7 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
       if (CuratorFactoryHolder.existsPath(contextPath)) {
         val children = curatorFramework.getChildren.forPath(contextPath)
         val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[PolicyStatusModel](new String(curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")))
+          read[WorkflowStatusModel](new String(curatorFramework.getData.forPath(s"${AppConstant.ContextPath}/$element")))
         )
 
         policiesStatus.foreach(policyStatus => {
@@ -176,14 +179,14 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
    * @param id       of the policy.
    * @param callback with a function that will be executed.
    */
-  def addListener(id: String, callback: (PolicyStatusModel, NodeCache) => Unit): Unit = {
+  def addListener(id: String, callback: (WorkflowStatusModel, NodeCache) => Unit): Unit = {
     val contextPath = s"${AppConstant.ContextPath}/$id"
     val nodeCache: NodeCache = new NodeCache(curatorFramework, contextPath)
     nodeCache.getListenable.addListener(new NodeCacheListener {
       override def nodeChanged(): Unit = {
         Try(new String(nodeCache.getCurrentData.getData)) match {
           case Success(value) =>
-            callback(read[PolicyStatusModel](value), nodeCache)
+            callback(read[WorkflowStatusModel](value), nodeCache)
           case Failure(e) =>
             log.error(s"NodeCache value: ${nodeCache.getCurrentData}", e)
         }
@@ -205,8 +208,8 @@ trait PolicyStatusUtils extends SpartaSerializer with PolicyConfigUtils {
         false
     }
 
-  def isAvailableToRun(policyModel: PolicyModel): Boolean =
-    (isExecutionType(policyModel, AppConstant.ConfigLocal), isAnyPolicyStarted) match {
+  def isAvailableToRun(workflowModel: WorkflowModel): Boolean =
+    (workflowModel.settings.global.executionMode == AppConstant.ConfigLocal, isAnyPolicyStarted) match {
       case (false, _) =>
         true
       case (true, false) =>

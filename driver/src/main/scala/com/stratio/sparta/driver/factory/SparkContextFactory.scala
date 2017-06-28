@@ -20,7 +20,8 @@ import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.utils.AggregationTime
-import org.apache.spark.sql.SparkSession
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -29,18 +30,40 @@ import scala.util.{Failure, Success, Try}
 object SparkContextFactory extends SLF4JLogging {
 
   private var sc: Option[SparkContext] = None
-  private var sparkSession: Option[SparkSession] = None
+  private var xdSession: Option[XDSession] = None
   private var ssc: Option[StreamingContext] = None
   private var sqlInitialSentences: Seq[String] = Seq.empty[String]
 
-  def sparkSessionInstance: SparkSession =
+  def xdSessionInstance: XDSession = {
     synchronized {
-      sparkSession.getOrElse {
-        if (sc.isDefined) sparkSession = Option(SparkSession.builder().config(sc.get.getConf).getOrCreate())
-        sqlInitialSentences.foreach(sentence => if (sentence.nonEmpty) sparkSession.get.sql(sentence))
-        sparkSession.get
+      xdSession.getOrElse {
+        val referenceFile = Try {
+          val confPath = SpartaConfig.getDetailConfig.get.getString("crossdata.reference")
+          new File(confPath)
+        } match {
+          case Success(file) =>
+            log.info(s"Loading Crossdata configuration from file ${file.getAbsolutePath}")
+            file
+          case Failure(e) =>
+            val refFile = "/reference.conf"
+            log.warn(s"Error loading Crossdata configuration file.", e)
+            log.info(s"Loading Crossdata configuration from resource file $refFile")
+            new File(getClass.getResource("/reference.conf").getPath)
+        }
+        if (sc.isDefined) xdSession = Option(XDSession.builder()
+          .config(referenceFile)
+          .config(sc.get.getConf)
+          .create("dummyUser"))
+        sqlInitialSentences.foreach { sentence =>
+          if (sentence.nonEmpty && (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT")))
+            xdSession.get.sql(sentence)
+          else log.warn("Initial query not supported, only available CREATE ... and IMPORT ...")
+        }
+        xdSession.get
       }
     }
+  }
+
 
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
   Option[StreamingContext] = {
@@ -69,7 +92,7 @@ object SparkContextFactory extends SLF4JLogging {
           sparkContext.stop()
           log.info("Stopped SparkContext with name: " + sparkContext.appName)
         } finally {
-          sparkSession = None
+          xdSession = None
           sqlInitialSentences = Seq.empty[String]
           ssc = None
           sc = None
@@ -104,7 +127,7 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
   private[driver] def instantiateClusterContext(specificConfig: Map[String, String],
-                                               files: Seq[String]): SparkContext = {
+                                                files: Seq[String]): SparkContext = {
     sc = Some(SparkContext.getOrCreate(configToSparkConf(specificConfig)))
     files.foreach(f => {
       log.info(s"Adding jar $f to cluster Spark context")

@@ -33,8 +33,8 @@ object CubeWriterHelper extends SLF4JLogging {
       toRow(cube, dimensionValuesTime, measuresValues)
     }.foreachRDD(rdd => {
       if (!rdd.isEmpty()) {
-        val sparkSession = SparkContextFactory.sparkSessionInstance
-        val cubeDf = sparkSession.createDataFrame(rdd, cube.schema)
+        val xdSession = SparkContextFactory.xdSessionInstance
+        val cubeDf = xdSession.createDataFrame(rdd, cube.schema)
         val extraOptions = Map(Output.TableNameKey -> cube.name)
         val cubeAutoCalculatedFieldsDf = WriterHelper.write(cubeDf, cube.writerOptions, extraOptions, outputs)
 

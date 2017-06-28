@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.models
 
 import org.json4s.native.Serialization._
+import spray.http.StatusCodes
 
 /**
  * An ErrorDto represents an error that will be sent as response to the frontend.
@@ -54,6 +55,9 @@ object ErrorModel extends SpartaSerializer {
   val UnauthorizedAction = "403"
   val UserNotFound = "501"
   val CodeUnknown = "666"
+  val CrossdataService = 550
+  StatusCodes.registerCustom(ErrorModel.CrossdataService, "Errors in Crossdata Context")
+
 
   val ValidationError_There_is_at_least_one_cube_without_name = "4000"
   val ValidationError_There_is_at_least_one_cube_without_dimensions = "4001"

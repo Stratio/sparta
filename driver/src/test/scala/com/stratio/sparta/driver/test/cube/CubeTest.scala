@@ -63,7 +63,8 @@ class CubeTest extends TestSuiteBase {
       TypeOp.Timestamp,
       Option(expiringDataConfig),
       Seq.empty[Trigger],
-      WriterOptions()
+      WriterOptions(),
+      true
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)
@@ -140,7 +141,8 @@ class CubeTest extends TestSuiteBase {
       TypeOp.Timestamp,
       expiringDataConfig = None,
       Seq.empty[Trigger],
-      WriterOptions()
+      WriterOptions(),
+      true
     )
 
     testOperation(getInput, cube.aggregate, getOutput, PreserverOrder)

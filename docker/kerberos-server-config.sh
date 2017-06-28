@@ -16,7 +16,7 @@ echo "export SPARTA_PRINCIPAL_NAME=${SPARTA_PRINCIPAL_NAME}" >> ${VARIABLES}
 echo "Setting configuration options needed for securized Zookeeper"
 
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
-export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/sparta.keytab
+export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/$TENANT_NAME.keytab
 echo "" >> ${VARIABLES}
 echo "export SPARTA_KEYTAB_PATH=${SPARTA_KEYTAB_PATH}" >> ${VARIABLES}
 

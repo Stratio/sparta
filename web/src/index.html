@@ -17,7 +17,7 @@
 
 <div id="stratio-base">
     <header class="stratio-base-header" ui-view="header"  data-ng-class="headerClass"></header>
-    <div id="base-content-wrapper" data-ng-class="containerClass" ui-view="content"></div>
+    <div id="base-content-wrapper" data-ng-class="{containerClass: containerClass, subHeaderShow : subHeaderShow}" ui-view="content"></div>
     <div ui-view="footer" class="c-footer"></div>
 </div>
 
@@ -38,6 +38,7 @@
 <!-- Controllers -------------------------------- -->
 <script src="scripts/controllers/inputs.js"></script>
 <script src="scripts/controllers/outputs.js"></script>
+<script src="scripts/controllers/crossdata.js"></script>
 <script src="scripts/controllers/policy-list.js"></script>
 <script src="scripts/controllers/resources.js"></script>
 <script src="scripts/controllers/executions-list.js"></script>
@@ -91,8 +92,10 @@
 <script src="scripts/directives/c-step-directive.js"></script>
 <script src="scripts/directives/c-step-progress-bar-directive.js"></script>
 <script src="scripts/directives/c-horizontal-tabs-directive.js"></script>
+<script src="scripts/directives/c-form-group-directive.js"></script>
 <script src="scripts/directives/c-route-button-directive.js"></script>
 <script src="scripts/directives/c-array-min-length.js"></script>
+<script src="scripts/directives/c-row-directive.js"></script>
 <script src="scripts/directives/c-slider-directive.js"></script>
 <script src="scripts/directives/c-icon-label-directive.js"></script>
 <script src="scripts/directives/c-input-file-reader.js"></script>

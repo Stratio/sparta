@@ -21,7 +21,8 @@ import com.stratio.sparta.driver.stage.{LogError, ParserStage}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.{OutputFieldsModel, PolicyModel, TransformationModel, TransformationsModel}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel, TransformationsModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
@@ -35,14 +36,13 @@ import org.scalatest.{FlatSpec, ShouldMatchers}
 @RunWith(classOf[JUnitRunner])
 class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
-  case class TestStage(policy: PolicyModel) extends ParserStage with LogError
+  case class TestStage(workflow: WorkflowModel) extends ParserStage with LogError
 
   lazy val ReflectionUtils = new ReflectionUtils
 
 
-  def mockPolicy: PolicyModel = {
-    val policy = mock[PolicyModel]
-    when(policy.storageLevel).thenReturn(Some("StorageLevel"))
+  def mockPolicy: WorkflowModel = {
+    val policy = mock[WorkflowModel]
     when(policy.id).thenReturn(Some("id"))
     policy
   }

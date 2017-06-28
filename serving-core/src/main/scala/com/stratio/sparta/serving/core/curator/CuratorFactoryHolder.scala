@@ -47,6 +47,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
         var sessionTimeout = AppConstant.DefaultZKSessionTimeout
         var retryAttempts = AppConstant.DefaultZKRetryAttemps
         var retryInterval = AppConstant.DefaultZKRetryInterval
+        var pathZookeeper = AppConstant.DefaultZKPath
 
         Try(config.foreach(zkConfig => {
           defaultConnectionString = getStringConfigValue(zkConfig, AppConstant.ZKConnection)
@@ -54,6 +55,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
           sessionTimeout = getIntConfigValue(zkConfig, AppConstant.ZKSessionTimeout)
           retryAttempts = getIntConfigValue(zkConfig, AppConstant.ZKRetryAttemps)
           retryInterval = getIntConfigValue(zkConfig, AppConstant.ZKRetryInterval)
+          pathZookeeper = getStringConfigValue(zkConfig, AppConstant.DefaultZKPath)
         }))
 
         Try {
@@ -62,6 +64,7 @@ object CuratorFactoryHolder extends SLF4JLogging {
             .connectString(defaultConnectionString)
             .connectionTimeoutMs(connectionTimeout)
             .sessionTimeoutMs(sessionTimeout)
+            //.namespace(pathZookeeper)
             .retryPolicy(new ExponentialBackoffRetry(retryInterval, retryAttempts)
             ).build())
 

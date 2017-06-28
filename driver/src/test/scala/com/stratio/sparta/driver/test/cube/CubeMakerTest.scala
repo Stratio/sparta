@@ -48,14 +48,11 @@ class CubeMakerTest extends TestSuiteBase {
    */
   test("DataCube extracts dimensions from events") {
 
-    val checkpointTimeAvailability = 600000
     val checkpointGranularity = "minute"
-    val timeDimensionName = "minute"
     val millis = AggregationTime.truncateDate(DateTime.now, checkpointGranularity)
     val sqlTimestamp = new Timestamp(millis)
     val name = "cubeName"
     val operator = new CountOperator("count", StructType(Seq(StructField("count", LongType, true))), Map())
-    val multiplexer = false
     val defaultDimension = new DefaultField
     val timeField = new DateTimeField
     val dimension = Dimension("dim1", "eventKey", "identity", defaultDimension)
@@ -72,7 +69,8 @@ class CubeMakerTest extends TestSuiteBase {
       TypeOp.Timestamp,
       expiringDataConfig = None,
       Seq.empty[Trigger],
-      WriterOptions()
+      WriterOptions(),
+      true
     )
     val dataCube = new CubeOperations(cube)
 

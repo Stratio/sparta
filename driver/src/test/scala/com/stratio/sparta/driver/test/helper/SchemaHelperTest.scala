@@ -25,9 +25,10 @@ import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.policy.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.policy.writer.WriterModel
-import com.stratio.sparta.serving.core.models.policy.{CheckpointModel, OutputFieldsModel, PolicyElementModel, TransformationModel}
+import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
+import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel}
+import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowElementModel
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -61,9 +62,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       DimensionModel("minute", "field3", DimensionType.TimestampName, DimensionType.TimestampName, Option("10m"))
     val dimensionId = DimensionModel("id", "field2", DimensionType.IdentityName, DimensionType.DefaultDimensionClass)
     val operator1Model = OperatorModel("Count", "op1", Map())
-    val output1Model = PolicyElementModel("outputName", "MongoDb", Map())
-    val checkpointModel = CheckpointModel("minute", checkpointGranularity, None, 10000)
-    val noCheckpointModel = CheckpointModel("none", checkpointGranularity, None, 10000)
+    val output1Model = WorkflowElementModel("outputName", "MongoDb", Map())
     val writerModelId = WriterModel(Seq("outputName"), None, Seq())
     val writerModelTimeDate = WriterModel(Seq("outputName"), Option("date"), Seq())
     val checkpointAvailable = 60000

@@ -43,6 +43,7 @@
       
 
       return TemplateFactory.getPolicyTemplate().then(function (template) {
+        setSettingsCategories(template.advancedSettings);
         PolicyModelFactory.setTemplate(template);
         vm.currentPolicy = PolicyModelFactory.getCurrentPolicy();
         vm.policy = vm.currentPolicy;
@@ -50,6 +51,19 @@
         vm.helpLink = template.helpLinks[0];
 
       });
+    }
+
+    function setSettingsCategories(advancedSettings){
+      var categories = [];
+      angular.forEach(advancedSettings, function(settings){
+        categories.push({
+          text: "_SETTINGS_" + settings.name.toString().toUpperCase() + "_",
+          isDisabled: false,
+          name: settings.name
+        });
+      });
+      vm.categories = categories;
+      vm.selectedCategory = categories[0].name;
     }
 
     function validateForm(next, step) {
@@ -73,7 +87,18 @@
         });
       }
       else {
-        /*Focus on the first invalid input*/
+        var error = false;
+        angular.forEach(vm.categories, function(category){
+          vm.form[category.name].$setSubmitted();
+          if(vm.form[category.name].$invalid){
+              vm.selectedCategory = category.name;
+              error = true;
+          };
+        });
+
+        if(!error){
+           vm.selectedCategory = vm.categories[0].name;
+        }
         document.querySelector('input.ng-invalid').focus();
       }
     }

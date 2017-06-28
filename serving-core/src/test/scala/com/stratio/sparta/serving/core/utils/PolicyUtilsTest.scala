@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
@@ -26,16 +26,16 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
 
   val utils = spy(this)
   val basePath = "/samplePath"
-  val aggModel: PolicyModel = mock[PolicyModel]
+  val aggModel: WorkflowModel = mock[WorkflowModel]
 
   "PolicyUtils.policyWithId" should {
     "return a policy with random UUID when there is no set id yet" in {
-      val policy: PolicyModel = utils.policyWithId(getPolicyModel(None))
+      val policy: WorkflowModel = utils.policyWithId(getWorkflowModel(None))
       policy.id shouldNot be(None)
     }
 
     "return a policy with the same id when there is set id" in {
-      val policy: PolicyModel = utils.policyWithId(getPolicyModel(name = "TEST"))
+      val policy: WorkflowModel = utils.policyWithId(getWorkflowModel(name = "TEST"))
       policy.id should be(Some("id"))
       policy.name should be("test")
     }
@@ -43,7 +43,7 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
 
   "PolicyUtils.populatePolicyWithRandomUUID" should {
     "return a policy copy with random UUID" in {
-      utils.populatePolicyWithRandomUUID(getPolicyModel(id = None)).id shouldNot be(None)
+      utils.populatePolicyWithRandomUUID(getWorkflowModel(id = None)).id shouldNot be(None)
     }
   }
 
@@ -53,13 +53,13 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         .when(utils)
         .existsPath
       doReturn(Seq(
-        getPolicyModel(id = Some("existingID")),
-        getPolicyModel(id = Some("id#2")),
-        getPolicyModel(id = Some("id#3"))))
+        getWorkflowModel(id = Some("existingID")),
+        getWorkflowModel(id = Some("id#2")),
+        getWorkflowModel(id = Some("id#3"))))
         .when(utils)
         .findAllPolicies(withFragments = false)
       utils.existsPolicyByNameId(name = "myName", id = Some("existingID")).get should be(
-        getPolicyModel(id = Some("existingID")))
+        getWorkflowModel(id = Some("existingID")))
     }
 
     "return an existing policy with not defined id but existing name from zookeeper" in {
@@ -67,13 +67,13 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         .when(utils)
         .existsPath
       doReturn(Seq(
-        getPolicyModel(id = Some("id#1"), name = "myname"),
-        getPolicyModel(id = Some("id#2")),
-        getPolicyModel(id = Some("id#3"))))
+        getWorkflowModel(id = Some("id#1"), name = "myname"),
+        getWorkflowModel(id = Some("id#2")),
+        getWorkflowModel(id = Some("id#3"))))
         .when(utils)
         .findAllPolicies(withFragments = false)
 
-      val actualPolicy: PolicyModel = utils.existsPolicyByNameId(name = "MYNAME", id = None).get
+      val actualPolicy: WorkflowModel = utils.existsPolicyByNameId(name = "MYNAME", id = None).get
 
       actualPolicy.name should be("myname")
       actualPolicy.id.get should be("id#1")
@@ -84,9 +84,9 @@ class PolicyUtilsTest extends BaseUtilsTest with PolicyUtils {
         .when(utils)
         .existsPath
       doReturn(Seq(
-        getPolicyModel(id = Some("id#1"), name = "myname"),
-        getPolicyModel(id = Some("id#2")),
-        getPolicyModel(id = Some("id#3"))))
+        getWorkflowModel(id = Some("id#1"), name = "myname"),
+        getWorkflowModel(id = Some("id#2")),
+        getWorkflowModel(id = Some("id#3"))))
         .when(utils)
         .findAllPolicies(withFragments = true)
 

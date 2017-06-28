@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.KeeperException.NoNodeException

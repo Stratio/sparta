@@ -35,6 +35,7 @@ class JsonParser(order: Integer,
   extends Parser(order, inputField, outputFields, schema, properties) {
 
   val queriesModel = properties.getPropertiesQueries("queries")
+  val supportNullValues = Try(properties.getString("supportNullValues").toBoolean).getOrElse(true)
 
   //scalastyle:off
   override def parse(row: Row): Seq[Row] = {
@@ -42,30 +43,32 @@ class JsonParser(order: Integer,
     val newData = Try {
       inputValue match {
         case Some(value) =>
-          val valuesParsed = value match {
-          case valueCast: Array[Byte] => JsonParser.jsonParse(new Predef.String(valueCast), queriesModel, whenErrorDo)
-          case valueCast: String => JsonParser.jsonParse(valueCast, queriesModel, whenErrorDo)
-          case _ => JsonParser.jsonParse(value.toString, queriesModel, whenErrorDo)
-        }
-
-          outputFields.map { outputField =>
-            val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
-            outputSchemaValid match {
-              case Some(outSchema) =>
-                valuesParsed.get(outSchema.name) match {
-                  case Some(valueParsed) if valueParsed != null =>
-                    parseToOutputType(outSchema, valueParsed)
-                  case _ =>
-                    returnWhenError(new IllegalStateException(
-                      s"The values parsed don't contain the schema field: ${outSchema.name}"))
-                }
-              case None =>
-                returnWhenError(new IllegalStateException(
-                  s"Impossible to parse outputField: $outputField in the schema"))
+          if(value.toString.nonEmpty) {
+            val valuesParsed = value match {
+              case valueCast: Array[Byte] => JsonParser.jsonParse(new Predef.String(valueCast), queriesModel, whenErrorDo)
+              case valueCast: String => JsonParser.jsonParse(valueCast, queriesModel, whenErrorDo)
+              case _ => JsonParser.jsonParse(value.toString, queriesModel, whenErrorDo)
             }
-          }
+
+            outputFields.map { outputField =>
+              val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
+              outputSchemaValid match {
+                case Some(outSchema) =>
+                  valuesParsed.get(outSchema.name) match {
+                    case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
+                      parseToOutputType(outSchema, valueParsed)
+                    case _ =>
+                      returnWhenError(new IllegalStateException(
+                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
+                  }
+                case None =>
+                  returnWhenError(new IllegalStateException(
+                    s"Impossible to parse outputField: $outputField in the schema"))
+              }
+            }
+          } else returnWhenError(new IllegalStateException(s"The input value is empty"))
         case None =>
-          returnWhenError(new IllegalStateException(s"The input value is null or empty"))
+          returnWhenError(new IllegalStateException(s"The input value is null"))
       }
     }
 

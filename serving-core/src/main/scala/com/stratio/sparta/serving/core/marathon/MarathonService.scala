@@ -27,8 +27,8 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PhaseEnum, PolicyErrorModel, PolicyModel, PolicyStatusModel}
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
@@ -37,6 +37,7 @@ import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -46,12 +47,12 @@ import scala.util.{Properties, Try}
 //scalastyle:off
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
-                      policyModel: Option[PolicyModel],
+                      policyModel: Option[WorkflowModel],
                       sparkSubmitRequest: Option[SubmitRequest]) extends OauthTokenUtils with PolicyStatusUtils {
 
   def this(context: ActorContext,
            curatorFramework: CuratorFramework,
-           policyModel: PolicyModel,
+           policyModel: WorkflowModel,
            sparkSubmitRequest: SubmitRequest) =
     this(context, curatorFramework, Option(policyModel), Option(sparkSubmitRequest))
 
@@ -87,68 +88,16 @@ class MarathonService(context: ActorContext,
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
 
-  /* Environment variables to Marathon Application */
-
-  val AppTypeEnv = "SPARTA_APP_TYPE"
-  val MesosNativeJavaLibraryEnv = "MESOS_NATIVE_JAVA_LIBRARY"
-  val LdLibraryEnv = "LD_LIBRARY_PATH"
-  val AppMainEnv = "SPARTA_MARATHON_MAIN_CLASS"
-  val AppJarEnv = "SPARTA_MARATHON_JAR"
-  val VaultEnableEnv = "VAULT_ENABLE"
-  val VaultHostEnv = "VAULT_HOST"
-  val VaultTokenEnv = "VAULT_TOKEN"
-  val PolicyIdEnv = "SPARTA_POLICY_ID"
-  val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
-  val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
-  val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
-  val AppHeapMinimunSizeEnv = "MARATHON_APP_HEAP_MINIMUM_SIZE"
-  val SparkHomeEnv = "SPARK_HOME"
-  val HadoopUserNameEnv = "HADOOP_USER_NAME"
-  val HdfsUserNameEnv = "HADOOP_USER_NAME"
-  val HdfsConfFromUriEnv = "HADOOP_CONF_FROM_URI"
-  val CoreSiteFromUriEnv = "CORE_SITE_FROM_URI"
-  val HdfsConfFromDfsEnv = "HADOOP_CONF_FROM_DFS"
-  val HdfsConfFromDfsNotSecuredEnv = "HADOOP_CONF_FROM_DFS_NOT_SECURED"
-  val DefaultFsEnv = "HADOOP_FS_DEFAULT_NAME"
-  val DefaultHdfsConfUriEnv = "HADOOP_CONF_URI"
-  val HadoopConfDirEnv = "HADOOP_CONF_DIR"
-  val ServiceLogLevelEnv = "SERVICE_LOG_LEVEL"
-  val SpartaLogLevelEnv = "SPARTA_LOG_LEVEL"
-  val SparkLogLevelEnv = "SPARK_LOG_LEVEL"
-  val ZookeeperLogLevelEnv = "ZOOKEEPER_LOG_LEVEL"
-  val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
-  val ParquetLogLevelEnv = "PARQUET_LOG_LEVEL"
-  val AvroLogLevelEnv = "AVRO_LOG_LEVEL"
-  val NettyLogLevelEnv = "NETTY_LOG_LEVEL"
-  val DcosServiceName = "DCOS_SERVICE_NAME"
-  val Constraints = "MESOS_CONSTRAINTS"
-  val HdfsRpcProtectionEnv = "HADOOP_RPC_PROTECTION"
-  val HdfsSecurityAuthEnv = "HADOOP_SECURITY_AUTH"
-  val HdfsEncryptDataEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER"
-  val HdfsTokenUseIpEnv = "HADOOP_SECURITY_TOKEN_USE_IP"
-  val HdfsKerberosPrincipalEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL"
-  val HdfsKerberosPrincipalPatternEnv = "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN"
-  val HdfsEncryptDataTransferEnv = "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES"
-  val HdfsEncryptDataBitLengthEnv = "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH"
-  val SparkUserEnv = "SPARK_USER"
-  val SecurityTlsEnv = "SECURITY_TLS_ENABLE"
-  val SecurityTrustoreEnv = "SECURITY_TRUSTSTORE_ENABLE"
-  val SecurityKerberosEnv = "SECURITY_KRB_ENABLE"
-  val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
-  val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
-  val SecuritySparkKafkaEnv = "SPARK_SECURITY_KAFKA_ENABLE"
-  val SecuritySparkHdfsEnv = "SPARK_SECURITY_HDFS_CONF_URI"
-
   /* Lazy variables */
 
-  lazy val marathonConfig: Config = SpartaConfig.getClusterConfig(Option(ConfigMarathon)).get
+  lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig.get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
   lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
     s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}")
 
   /* PUBLIC METHODS */
 
-  def launch(detailExecMode: String): Unit = {
+  def launch(): Unit = {
     assert(policyModel.isDefined && sparkSubmitRequest.isDefined, "Is mandatory specify one policy and the request")
     val createApp = addRequirements(getMarathonAppFromFile, policyModel.get, sparkSubmitRequest.get)
     for {
@@ -157,22 +106,22 @@ class MarathonService(context: ActorContext,
       case response: UpServiceFails =>
         val information = s"Error when launching Sparta Marathon App to Marathon API with id: ${response.appInfo.id}"
         log.error(information)
-        updateStatus(PolicyStatusModel(
+        updateStatus(WorkflowStatusModel(
           id = policyModel.get.id.get,
           status = Failed,
           statusInfo = Option(information),
           marathonId = Option(createApp.id),
-          lastError = Option(PolicyErrorModel(information, PhaseEnum.Execution, response.msg))))
+          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, response.msg))))
         log.error(s"Service ${response.appInfo.id} can't be deployed: ${response.msg}")
       case response: UpServiceResponse =>
         val information = s"Sparta Marathon App launched correctly to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
-        updateStatus(PolicyStatusModel(id = policyModel.get.id.get, status = Uploaded,
+        updateStatus(WorkflowStatusModel(id = policyModel.get.id.get, status = Uploaded,
           marathonId = Option(createApp.id), statusInfo = Option(information)))
       case _ =>
         val information = "Unrecognized message received from Marathon API"
         log.warn(information)
-        updateStatus(PolicyStatusModel(id = policyModel.get.id.get, status = NotDefined,
+        updateStatus(WorkflowStatusModel(id = policyModel.get.id.get, status = NotDefined,
           statusInfo = Option(information)))
     }
   }
@@ -226,77 +175,6 @@ class MarathonService(context: ActorContext,
     } else None
   }
 
-  private def envSparkSecurityHdfs(sparkConfigurations: Map[String, String]): Option[String] =
-    sparkConfigurations.get("spark.mesos.driverEnv.SPARK_SECURITY_HDFS_CONF_URI")
-
-  private def envSparkHome: Option[String] = Properties.envOrNone(SparkHomeEnv)
-
-  private def envConstraint: Option[String] = Properties.envOrNone(Constraints)
-
-  private def envVaultEnable: Option[String] = Properties.envOrNone(VaultEnableEnv)
-
-  private def envVaultHost: Option[String] = Properties.envOrNone(VaultHostEnv)
-
-  private def envVaultToken: Option[String] = Properties.envOrNone(VaultTokenEnv)
-
-  private def envHadoopUserName: Option[String] = Properties.envOrNone(HadoopUserNameEnv)
-
-  private def envHdfsConfFromUri: Option[String] = Properties.envOrNone(HdfsConfFromUriEnv)
-
-  private def envCoreSiteFromUri: Option[String] = Properties.envOrNone(CoreSiteFromUriEnv)
-
-  private def envHdfsConfFromDfs: Option[String] = Properties.envOrNone(HdfsConfFromDfsEnv)
-
-  private def envHdfsConfFromDfsNotSecured: Option[String] = Properties.envOrNone(HdfsConfFromDfsNotSecuredEnv)
-
-  private def envDefaultFs: Option[String] = Properties.envOrNone(DefaultFsEnv)
-
-  private def envHdfsRpcProtection: Option[String] = Properties.envOrNone(HdfsRpcProtectionEnv)
-
-  private def envHdfsSecurityAuth: Option[String] = Properties.envOrNone(HdfsSecurityAuthEnv)
-
-  private def envHdfsEncryptData: Option[String] = Properties.envOrNone(HdfsEncryptDataEnv)
-
-  private def envHdfsTokenUseIp: Option[String] = Properties.envOrNone(HdfsTokenUseIpEnv)
-
-  private def envHdfsKerberosPrincipal: Option[String] = Properties.envOrNone(HdfsKerberosPrincipalEnv)
-
-  private def envHdfsKerberosPrincipalPattern: Option[String] = Properties.envOrNone(HdfsKerberosPrincipalPatternEnv)
-
-  private def envHdfsEncryptDataTransfer: Option[String] = Properties.envOrNone(HdfsEncryptDataTransferEnv)
-
-  private def envHdfsEncryptDataBitLength: Option[String] = Properties.envOrNone(HdfsEncryptDataBitLengthEnv)
-
-  private def envDefaultHdfsConfUri: Option[String] = Properties.envOrNone(DefaultHdfsConfUriEnv)
-
-  private def envHadoopConfDir: Option[String] = Properties.envOrNone(HadoopConfDirEnv)
-
-  private def envServiceLogLevel: Option[String] = Properties.envOrNone(ServiceLogLevelEnv)
-
-  private def envSpartaLogLevel: Option[String] = Properties.envOrNone(SpartaLogLevelEnv)
-
-  private def envSparkLogLevel: Option[String] = Properties.envOrNone(SparkLogLevelEnv)
-
-  private def envHadoopLogLevel: Option[String] = Properties.envOrNone(HadoopLogLevelEnv)
-
-  private def envZookeeperLogLevel: Option[String] = Properties.envOrNone(ZookeeperLogLevelEnv)
-
-  private def envParquetLogLevel: Option[String] = Properties.envOrNone(ParquetLogLevelEnv)
-
-  private def envAvroLogLevel: Option[String] = Properties.envOrNone(AvroLogLevelEnv)
-
-  private def envNettyLogLevel: Option[String] = Properties.envOrNone(NettyLogLevelEnv)
-
-  private def envTls: Option[String] = Properties.envOrNone(SecurityTlsEnv)
-
-  private def envTrustore: Option[String] = Properties.envOrNone(SecurityTrustoreEnv)
-
-  private def envKerberos: Option[String] = Properties.envOrNone(SecurityKerberosEnv)
-
-  private def envOauth2: Option[String] = Properties.envOrNone(SecurityOauth2Env)
-
-  private def envMesos: Option[String] = Properties.envOrNone(SecurityMesosEnv)
-
   private def getMarathonAppFromFile: CreateApp = {
     val templateFile = Try(marathonConfig.getString("template.file")).toOption.getOrElse(DefaultMarathonTemplateFile)
     val fileContent = Source.fromFile(templateFile).mkString
@@ -318,9 +196,9 @@ class MarathonService(context: ActorContext,
     case _ => memory.toInt
   }).getOrElse(DefaultMemory)
 
-  private def addRequirements(app: CreateApp, policyModel: PolicyModel, submitRequest: SubmitRequest): CreateApp = {
-    val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble + 1d).getOrElse(app.cpus)
-    val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt(_) + 1024)
+  private def addRequirements(app: CreateApp, policyModel: WorkflowModel, submitRequest: SubmitRequest): CreateApp = {
+    val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble).getOrElse(app.cpus)
+    val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt)
       .getOrElse(app.mem)
     val envFromSubmit = submitRequest.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
@@ -342,11 +220,13 @@ class MarathonService(context: ActorContext,
       else Some((k, v))
     }
     val javaCertificatesVolume = {
-      if (envVaultEnable.isDefined && envVaultHost.isDefined && envVaultToken.isDefined)
+      if (Properties.envOrNone(VaultEnableEnv).isDefined &&
+        Properties.envOrNone(VaultHostEnv).isDefined &&
+        Properties.envOrNone(VaultTokenEnv).isDefined)
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
-    val newDockerContainerInfo = mesosNativeLibrary match {
+    val newDockerContainerInfo = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(
           image = spartaDockerImage,
@@ -385,7 +265,7 @@ class MarathonService(context: ActorContext,
     )
   }
 
-  private def substitutionProperties(policyModel: PolicyModel,
+  private def substitutionProperties(workflowModel: WorkflowModel,
                                      submitRequest: SubmitRequest,
                                      memory: Int): Map[String, String] =
     Map(
@@ -396,46 +276,52 @@ class MarathonService(context: ActorContext,
       AppJarEnv -> marathonJar,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
-      PolicyIdEnv -> policyModel.id,
-      VaultEnableEnv -> envVaultEnable,
-      VaultHostEnv -> envVaultHost,
-      VaultTokenEnv -> envVaultToken,
+      PolicyIdEnv -> workflowModel.id,
+      VaultEnableEnv -> Properties.envOrNone(VaultEnableEnv),
+      VaultHostEnv -> Properties.envOrNone(VaultHostEnv),
+      VaultTokenEnv -> Properties.envOrNone(VaultTokenEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
-      SparkHomeEnv -> envSparkHome,
-      HadoopUserNameEnv -> envHadoopUserName,
-      HdfsUserNameEnv -> envHadoopUserName,
-      HdfsConfFromUriEnv -> envHdfsConfFromUri,
-      CoreSiteFromUriEnv -> envCoreSiteFromUri,
-      HdfsConfFromDfsEnv -> envHdfsConfFromDfs,
-      HdfsConfFromDfsNotSecuredEnv -> envHdfsConfFromDfsNotSecured,
-      DefaultFsEnv -> envDefaultFs,
-      DefaultHdfsConfUriEnv -> envDefaultHdfsConfUri,
-      HadoopConfDirEnv -> envHadoopConfDir,
-      ServiceLogLevelEnv -> envServiceLogLevel,
-      SpartaLogLevelEnv -> envSpartaLogLevel,
-      SparkLogLevelEnv -> envSparkLogLevel,
-      HadoopLogLevelEnv -> envHadoopLogLevel,
-      ZookeeperLogLevelEnv -> envZookeeperLogLevel,
-      ParquetLogLevelEnv -> envParquetLogLevel,
-      AvroLogLevelEnv -> envAvroLogLevel,
-      NettyLogLevelEnv -> envNettyLogLevel,
-      HdfsRpcProtectionEnv -> envHdfsRpcProtection,
-      HdfsSecurityAuthEnv -> envHdfsSecurityAuth,
-      HdfsEncryptDataEnv -> envHdfsEncryptData,
-      HdfsTokenUseIpEnv -> envHdfsTokenUseIp,
-      HdfsKerberosPrincipalEnv -> envHdfsKerberosPrincipal,
-      HdfsKerberosPrincipalPatternEnv -> envHdfsKerberosPrincipalPattern,
-      HdfsEncryptDataTransferEnv -> envHdfsEncryptDataTransfer,
-      HdfsEncryptDataBitLengthEnv -> envHdfsEncryptDataBitLength,
-      SecurityTlsEnv -> envTls,
-      SecurityTrustoreEnv -> envTrustore,
-      SecurityKerberosEnv -> envKerberos,
-      SecurityOauth2Env -> envOauth2,
-      SecurityMesosEnv -> envMesos,
+      SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
+      HadoopUserNameEnv -> Properties.envOrNone(HadoopUserNameEnv),
+      HdfsConfFromUriEnv -> Properties.envOrNone(HdfsConfFromUriEnv),
+      CoreSiteFromUriEnv -> Properties.envOrNone(CoreSiteFromUriEnv),
+      HdfsConfFromDfsEnv -> Properties.envOrNone(HdfsConfFromDfsEnv),
+      HdfsConfFromDfsNotSecuredEnv -> Properties.envOrNone(HdfsConfFromDfsNotSecuredEnv),
+      DefaultFsEnv -> Properties.envOrNone(DefaultFsEnv),
+      DefaultHdfsConfUriEnv -> Properties.envOrNone(DefaultHdfsConfUriEnv),
+      HadoopConfDirEnv -> Properties.envOrNone(HadoopConfDirEnv),
+      ServiceLogLevelEnv -> Properties.envOrNone(ServiceLogLevelEnv),
+      SpartaLogLevelEnv -> Properties.envOrNone(SpartaLogLevelEnv),
+      SparkLogLevelEnv -> Properties.envOrNone(SparkLogLevelEnv),
+      HadoopLogLevelEnv -> Properties.envOrNone(HadoopLogLevelEnv),
+      ZookeeperLogLevelEnv -> Properties.envOrNone(ZookeeperLogLevelEnv),
+      ParquetLogLevelEnv -> Properties.envOrNone(ParquetLogLevelEnv),
+      AvroLogLevelEnv -> Properties.envOrNone(AvroLogLevelEnv),
+      NettyLogLevelEnv -> Properties.envOrNone(NettyLogLevelEnv),
+      HdfsRpcProtectionEnv -> Properties.envOrNone(HdfsRpcProtectionEnv),
+      HdfsSecurityAuthEnv -> Properties.envOrNone(HdfsSecurityAuthEnv),
+      HdfsEncryptDataEnv -> Properties.envOrNone(HdfsEncryptDataEnv),
+      HdfsTokenUseIpEnv -> Properties.envOrNone(HdfsTokenUseIpEnv),
+      HdfsKerberosPrincipalEnv -> Properties.envOrNone(HdfsKerberosPrincipalEnv),
+      HdfsKerberosPrincipalPatternEnv -> Properties.envOrNone(HdfsKerberosPrincipalPatternEnv),
+      HdfsEncryptDataTransferEnv -> Properties.envOrNone(HdfsEncryptDataTransferEnv),
+      HdfsEncryptDataBitLengthEnv -> Properties.envOrNone(HdfsEncryptDataBitLengthEnv),
+      SecurityTlsEnv -> Properties.envOrNone(SecurityTlsEnv),
+      SecurityTrustoreEnv -> Properties.envOrNone(SecurityTrustoreEnv),
+      SecurityKerberosEnv -> Properties.envOrNone(SecurityKerberosEnv),
+      SecurityOauth2Env -> Properties.envOrNone(SecurityOauth2Env),
+      SecurityMesosEnv -> Properties.envOrNone(SecurityMesosEnv),
       SecuritySparkKafkaEnv -> envSparkSecurityKafka(submitRequest.sparkConfigurations),
-      SecuritySparkHdfsEnv -> envSparkSecurityHdfs(submitRequest.sparkConfigurations),
+      SecuritySparkHdfsEnv -> submitRequest.sparkConfigurations.get("spark.mesos.driverEnv.SPARK_SECURITY_HDFS_CONF_URI"),
       DcosServiceName -> Option(ServiceName),
-      SparkUserEnv -> policyModel.sparkUser
+      SparkUserEnv -> workflowModel.settings.sparkSettings.sparkUser,
+      CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
+      CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),
+      CrossdataCoreCatalogZookeeperConnectionString -> Properties.envOrNone(CrossdataCoreCatalogZookeeperConnectionString),
+      CrossdataCoreCatalogZookeeperConnectionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperConnectionTimeout),
+      CrossdataCoreCatalogZookeeperSessionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperSessionTimeout),
+      CrossdataCoreCatalogZookeeperRetryAttempts -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryAttempts),
+      CrossdataCoreCatalogZookeeperRetryInterval -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryInterval)
     ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
 }

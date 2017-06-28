@@ -18,7 +18,11 @@ mkdir -p /etc/sds/sparta/security
 # Main execution
 
 ## Init
+if [ -v MARATHON_APP_LABEL_DCOS_SERVICE_NAME ] && [ ${#MARATHON_APP_LABEL_DCOS_SERVICE_NAME} != 0 ]; then
+export TENANT_NAME=${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}
+else
 export TENANT_NAME='sparta'   # MARATHON_APP_ID without slash
+fi
 #Setup tenant_normalized for access kms_utils
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"

@@ -19,26 +19,26 @@ package com.stratio.sparta.serving.core.utils
 import java.io.File
 import java.util.Calendar
 
-import com.stratio.sparta.serving.core.config.SpartaConfig
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
 import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
 
-trait CheckpointUtils extends PolicyConfigUtils {
+trait CheckpointUtils extends SLF4JLogging {
 
   /* PUBLIC METHODS */
 
-  def deleteFromLocal(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy, checkTime = false)
+  def deleteFromLocal(workflow: WorkflowModel): Unit = {
+    val checkpointDirectory = checkpointPath(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     FileUtils.deleteDirectory(new File(checkpointDirectory))
   }
 
-  def deleteFromHDFS(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy, checkTime = false)
+  def deleteFromHDFS(workflow: WorkflowModel): Unit = {
+    val checkpointDirectory = checkpointPath(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     HdfsUtils().delete(checkpointDirectory)
   }
@@ -49,37 +49,33 @@ trait CheckpointUtils extends PolicyConfigUtils {
       case None => false
     }
 
-  def deleteCheckpointPath(policy: PolicyModel): Unit =
+  def deleteCheckpointPath(workflow: WorkflowModel): Unit =
     Try {
-      if (isExecutionType(policy, AppConstant.ConfigLocal)) deleteFromLocal(policy)
-      else deleteFromHDFS(policy)
+      if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
+        deleteFromLocal(workflow)
+      else deleteFromHDFS(workflow)
     } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(policy, checkTime = false)}")
+      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(workflow, checkTime = false)}")
       case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
     }
 
-  def createLocalCheckpointPath(policy: PolicyModel): Unit = {
-    if (isExecutionType(policy, AppConstant.ConfigLocal))
+  def createLocalCheckpointPath(workflow: WorkflowModel): Unit = {
+    if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
       Try {
-        createFromLocal(policy)
+        createFromLocal(workflow)
       } match {
-        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(policy, checkTime = false)}")
+        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(workflow, checkTime = false)}")
         case Failure(ex) => log.error("Cannot create checkpoint folder", ex)
       }
   }
 
-  def checkpointPath(policy: PolicyModel, checkTime: Boolean = true): String = {
-    val path = policy.checkpointPath.map(path => cleanCheckpointPath(path))
-      .getOrElse(checkpointPathFromProperties(policy))
+  def checkpointPath(workflow: WorkflowModel, checkTime: Boolean = true): String = {
+    val path = cleanCheckpointPath(workflow.settings.checkpointSettings.checkpointPath)
 
-    if(checkTime && addTimeToCheckpointPath(policy))
-      s"$path/${policy.name}/${Calendar.getInstance().getTime.getTime}"
-    else s"$path/${policy.name}"
+    if (checkTime && workflow.settings.checkpointSettings.addTimeToCheckpointPath)
+      s"$path/${workflow.name}/${Calendar.getInstance().getTime.getTime}"
+    else s"$path/${workflow.name}"
   }
-
-  def autoDeleteCheckpointPath(policy: PolicyModel): Boolean =
-    policy.autoDeleteCheckpoint.getOrElse(autoDeleteCheckpointPathFromProperties())
-
 
   /* PRIVATE METHODS */
 
@@ -91,38 +87,8 @@ trait CheckpointUtils extends PolicyConfigUtils {
     path.replace(hdfsPrefix, "")
   }
 
-  private def checkpointPathFromProperties(policy: PolicyModel): String =
-    (for {
-      config <- SpartaConfig.getDetailConfig
-      checkpointPath <- Try(cleanCheckpointPath(config.getString(ConfigCheckpointPath))).toOption
-    } yield checkpointPath).getOrElse(generateDefaultCheckpointPath(policy))
-
-  private def autoDeleteCheckpointPathFromProperties(): Boolean =
-    Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAutoDeleteCheckpoint))
-      .getOrElse(DefaultAutoDeleteCheckpoint)
-
-  private def addTimeToCheckpointPath(policy: PolicyModel): Boolean =
-    policy.addTimeToCheckpointPath.getOrElse(addTimeToCheckpointPathFromProperties())
-
-  private def addTimeToCheckpointPathFromProperties(): Boolean =
-    Try(SpartaConfig.getDetailConfig.get.getBoolean(ConfigAddTimeToCheckpointPath))
-      .getOrElse(DefaultAddTimeToCheckpointPath)
-
-  private def generateDefaultCheckpointPath(policy: PolicyModel): String =
-    executionMode(policy) match {
-      case mode if mode == ConfigMesos =>
-        DefaultCheckpointPathClusterMode +
-          Try(SpartaConfig.getHdfsConfig.get.getString(HadoopUserName))
-            .getOrElse(DefaultHdfsUser) +
-          DefaultHdfsUser
-      case ConfigLocal =>
-        DefaultCheckpointPathLocalMode
-      case _ =>
-        throw new RuntimeException("Error getting execution mode")
-    }
-
-  private def createFromLocal(policy: PolicyModel): Unit = {
-    val checkpointDirectory = checkpointPath(policy)
+  private def createFromLocal(workflow: WorkflowModel): Unit = {
+    val checkpointDirectory = checkpointPath(workflow)
     log.info(s"Creating checkpoint directory: $checkpointDirectory")
     FileUtils.forceMkdir(new File(checkpointDirectory))
   }

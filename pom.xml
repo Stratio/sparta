@@ -104,6 +104,7 @@
         <gosec.version>0.8.0</gosec.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
+        <crossdata.version>2.2.0</crossdata.version>
     </properties>
 
     <dependencyManagement>
@@ -202,6 +203,21 @@
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
                         <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.crossdata</groupId>
+                <artifactId>crossdata-core_2.11</artifactId>
+                <version>${crossdata.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.stratio.spark</groupId>
+                        <artifactId>spark-core_${scala.binary.version}</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

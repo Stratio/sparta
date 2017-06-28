@@ -59,7 +59,7 @@
       "propertyName": "_NAME_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-name",
+      "qa": "workflow-name",
       "col": 5
     },
     {
@@ -67,380 +67,698 @@
       "propertyName": "_DESCRIPTION_",
       "propertyType": "text",
       "required": true,
-      "qa": "policy-description",
+      "qa": "workflow-description",
       "col": 7
     }
   ],
-  "advancedSettings": [{
-      "propertyId": "driverUri",
-      "propertyName": "_DRIVER_URI_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Path to the driver jar file (hdfs, http or local URIs).",
-      "qa": "policy-driver-uri"
-    },
+  "advancedSettings": [
     {
-      "propertyId": "executionMode",
-      "propertyName": "_EXECUTION_MODE_",
-      "width": 6,
-      "position": "right",
-      "required": false,
-      "propertyType": "select",
-      "regexp": "local|mesos|marathon",
-      "values": [{
-          "label": "Local",
-          "value": "local"
+      "name" : "global",
+      "listCompressed": true,
+      "properties": [
+        {
+          "propertyId": "executionMode",
+          "propertyName": "_EXECUTION_MODE_",
+          "required": true,
+          "propertyType": "select",
+          "width": 4,
+          "default": "marathon",
+          "values": [{
+            "label": "Local",
+            "value": "local"
+          },
+            {
+              "label": "Mesos",
+              "value": "mesos"
+            },
+            {
+              "label": "Marathon",
+              "value": "marathon"
+            }
+          ],
+          "tooltip": "Execution mode when the workflow is launched, if nothing is selected Sparta will use the values in the configuration file",
+          "qa": "workflow-execution-mode"
         },
         {
-          "label": "Mesos",
-          "value": "mesos"
-        },
-        {
-          "label": "Marathon",
-          "value": "marathon"
-        }
-      ],
-      "tooltip": "Execution mode when the policy is launched, if nothing is selected Sparta will use the values in the configuration file.",
-      "qa": "policy-execution-mode"
-    },
-    {
-      "propertyId": "streamTemporalTable",
-      "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "text",
-      "default": "stream",
-      "required": false,
-      "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
-      "qa": "policy-temporal-table-name"
-    },
-    {
-      "propertyId": "storageLevel",
-      "propertyName": "_STORAGELEVEL_",
-      "propertyType": "select",
-      "required": true,
-      "default": "MEMORY_ONLY_SER",
-      "width": 6,
-      "position": "right",
-      "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
-      "qa": "policy-storage-level",
-      "values": [{
-          "label": "DISK_ONLY",
-          "value": "DISK_ONLY"
-        },
-        {
-          "label": "DISK_ONLY_2",
-          "value": "DISK_ONLY_2"
-        },
-        {
-          "label": "MEMORY_ONLY",
-          "value": "MEMORY_ONLY"
-        },
-        {
-          "label": "MEMORY_ONLY_2",
-          "value": "MEMORY_ONLY_2"
-        },
-        {
-          "label": "MEMORY_ONLY_SER",
-          "value": "MEMORY_ONLY_SER"
-        },
-        {
-          "label": "MEMORY_ONLY_SER_2",
-          "value": "MEMORY_ONLY_SER_2"
-        },
-        {
-          "label": "MEMORY_AND_DISK",
-          "value": "MEMORY_AND_DISK"
-        },
-        {
-          "label": "MEMORY_AND_DISK_2",
-          "value": "MEMORY_AND_DISK_2"
-        },
-        {
-          "label": "MEMORY_AND_DISK_SER",
-          "value": "MEMORY_AND_DISK_SER"
-        },
-        {
-          "label": "MEMORY_AND_DISK_SER_2",
-          "value": "MEMORY_AND_DISK_SER_2"
-        }
-      ]
-    },
-    {
-      "propertyId": "sparkStreamingWindowNumber",
-      "propertyName": "_SPARK_STREAMING_WINDOW_",
-      "propertyType": "number",
-      "default": 6,
-      "width": 6,
-      "position": "left",
-      "tooltip": "Streaming window assigned to Spark Streaming.",
-      "required": true,
-      "qa": "policy-spark-streaming-window-sparkStreamingWindowNumber"
-    },
-    {
-      "propertyId": "sparkStreamingWindowTime",
-      "propertyName": "_WHITE_SPACE_",
-      "propertyType": "select",
-      "width": 6,
-      "position": "right",
-      "qa": "policy-spark-streaming-window-sparkStreamingWindowTime",
-      "default": "s",
-      "required": true,
-      "values": [{
-          "label": "Milliseconds",
-          "value": "ms"
-        },
-        {
-          "label": "Seconds",
-          "value": "s"
-        },
-        {
-          "label": "Minutes",
-          "value": "m"
-        },
-        {
-          "label": "Hours",
-          "value": "h"
-        },
-        {
-          "label": "Days",
-          "value": "d"
-        },
-        {
-          "label": "Week(s)",
-          "value": "w"
-        }
-      ]
-    },
-    {
-      "propertyId": "rememberNumber",
-      "propertyName": "_POLICY_REMEMBER_FIELD_",
-      "propertyType": "number",
-      "width": 6,
-      "position": "left",
-      "tooltip": "Maximum time a certain query will be executed before being aborted.",
-      "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
-      "qa": "policy-remember-number"
-    },
-    {
-      "propertyId": "rememberTime",
-      "propertyName": "_WHITE_SPACE_",
-      "propertyType": "select",
-      "width": 6,
-      "position": "right",
-      "qa": "policy-remember-time",
-      "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
-      "values": [{
-          "label": "Milliseconds",
-          "value": "ms"
-        },
-        {
-          "label": "Seconds",
-          "value": "s"
-        },
-        {
-          "label": "Minutes",
-          "value": "m"
-        },
-        {
-          "label": "Hours",
-          "value": "h"
-        },
-        {
-          "label": "Days",
-          "value": "d"
-        },
-        {
-          "label": "Week(s)",
-          "value": "w"
-        }
-      ]
-    },
-    {
-      "propertyId": "monitoringLink",
-      "propertyName": "_MONITORING_LINK_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "User defined URI to monitoring policies when is launched in the polices view ",
-      "qa": "monitoring-link"
-    },
-    {
-      "propertyId": "checkpointPath",
-      "propertyName": "_CHECKPOINT_PATH_",
-      "width": 6,
-      "position": "right",
-      "propertyType": "text",
-      "required": false,
-      "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn.",
-      "qa": "checkpoint-path"
-    },
-    {
-      "propertyId": "sparkUser",
-      "propertyName": "_SPARK_USER_",
-      "propertyType": "text",
-      "width": 6,
-      "position": "left",
-      "default": "sparta",
-      "tooltip": "Set the spark user in Mesos deployments.",
-      "qa": "policy-spark-user"
-    },
-    {
-      "propertyId": "stopGracefully",
-      "propertyName": "_STOP_GRACEFULLY_",
-      "propertyType": "boolean",
-      "width": 6,
-      "position": "right",
-      "tooltip": "Stop gracefully the spark streaming context when running in cluster mode. Overrides the value in the configuration file.",
-      "qa": "policy-stop-gracefully"
-    },
-    {
-      "propertyId": "autoDeleteCheckpoint",
-      "propertyName": "_AUTO_DELETE_CHECKPOINT_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "boolean",
-      "required": false,
-      "default": true,
-      "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file.",
-      "qa": "auto-delete-checkpoint"
-    },
-    {
-      "propertyId": "addTimeToCheckpointPath",
-      "propertyName": "_ADD_TIME_TO_CHECKPOINT_",
-      "width": 6,
-      "position": "right",
-      "propertyType": "boolean",
-      "required": false,
-      "tooltip": "Add the current time to checkpoint path. Be careful if you need HA in your streaming process.",
-      "qa": "auto-delete-checkpoint"
-    },
-    {
-      "propertyId": "sparkKerberos",
-      "propertyName": "_SPARK_KERBEROS_ENABLE_",
-      "width": 6,
-      "position": "left",
-      "propertyType": "boolean",
-      "required": false,
-      "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available.",
-      "qa": "auto-spark-kerberos"
-    },
-    {
-      "propertyId": "sparkConf",
-      "propertyName": "_SPARK_CONF_",
-      "propertyType": "list",
-      "default": "",
-      "required": false,
-      "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
-      "qa": "policy-spark-conf",
-      "fields": [{
-          "propertyId": "sparkConfKey",
-          "propertyName": "_SPARK_CONF_KEY_",
-          "position": "left",
+          "propertyId": "streamTemporalTable",
+          "propertyName": "_TEMPORAL_TABLE_TRANSFORMATIONS_",
           "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "tooltip": "Spark configuration property with the structure spark.xxx",
-          "qa": "policy-sparkConfKey"
+          "width": 4,
+          "default": "stream",
+          "required": true,
+          "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
+          "qa": "workflow-temporal-table-name"
         },
         {
-          "propertyId": "sparkConfValue",
-          "propertyName": "_SPARK_CONF_VALUE_",
-          "position": "right",
+          "propertyId": "driverUri",
+          "propertyName": "_DRIVER_URI_",
           "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "qa": "policy-sparkConfValue"
+          "width": 4,
+          "default": "/opt/sds/sparta/driver/sparta-driver.jar",
+          "required": true,
+          "tooltip": "Path to the driver jar file (hdfs, http or local URIs)",
+          "qa": "workflow-driver-uri"
+        },
+        {
+          "propertyId": "monitoringLink",
+          "propertyName": "_MONITORING_LINK_",
+          "width": 4,
+          "propertyType": "text",
+          "tooltip": "User defined URI to monitoring policies when is launched in the polices view ",
+          "qa": "monitoring-link"
+        },
+        {
+          "propertyId": "userPluginsJars",
+          "propertyName": "_USER_PLUGINS_JARS_",
+          "propertyType": "list",
+          "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
+          "qa": "workflow-user-plugins-jars",
+          "fields": [{
+            "propertyId": "jarPath",
+            "propertyName": "_JAR_PATH",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "workflow-jar-path"
+          }]
+        },
+        {
+          "propertyId": "initSqlSentences",
+          "propertyName": "_SQL_SENTENCES_",
+          "propertyType": "list",
+          "tooltip": "SQL sentences that will be executed when the workflow starts. It's useful when the user needs to registry temporal/master tables from external datasources. Once launched it's possible to mix them inside the triggers",
+          "qa": "workflow-sql-sentences",
+          "fields": [{
+            "propertyId": "sentence",
+            "propertyName": "_SQL_SENTENCE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "tooltip": "SQL sentence",
+            "qa": "workflow-sql-sentence"
+          }]
         }
       ]
     },
     {
-      "propertyId": "sparkSubmitArguments",
-      "propertyName": "_SPARK_SUBMIT_ARGUMENTS_",
-      "propertyType": "list",
-      "default": "",
-      "required": false,
-      "tooltip": "Spark submit arguments added when the policy is executed on a Spark cluster. Values set here will override the property file options",
-      "qa": "policy-spark-submit-argument",
-      "fields": [{
-          "propertyId": "submitArgument",
-          "propertyName": "_SPARK_SUBMIT_ARGUMENT_",
-          "position": "left",
+      "name" : "checkpointSettings",
+      "properties": [
+        {
+          "propertyId": "checkpointPath",
+          "propertyName": "_CHECKPOINT_PATH_",
           "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "tooltip": "Spark submit argument with the structure --xxx",
-          "qa": "policy-spark-submit-argument-key"
+          "width": 6,
+          "default": "sparta/checkpoint",
+          "required": true,
+          "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn",
+          "qa": "checkpoint-path"
         },
         {
-          "propertyId": "submitValue",
-          "propertyName": "_SPARK_SUBMIT_ARGUMENT_VALUE_",
-          "position": "right",
-          "propertyType": "text",
-          "regexp": "",
-          "default": "",
-          "hidden": false,
-          "required": false,
-          "qa": "policy-spark-submit-argument-value"
+          "propertyId": "autoDeleteCheckpoint",
+          "propertyName": "_AUTO_DELETE_CHECKPOINT_",
+          "propertyType": "boolean",
+          "width": "auto",
+          "newRow": true,
+          "required": true,
+          "default": true,
+          "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file",
+          "qa": "workflow-delete-checkpoint"
+        },
+        {
+          "propertyId": "addTimeToCheckpointPath",
+          "propertyName": "_ADD_TIME_TO_CHECKPOINT_",
+          "width": "auto",
+          "propertyType": "boolean",
+          "default": false,
+          "tooltip": "Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
+          "qa": "workflow-delete-checkpoint"
         }
       ]
     },
     {
-      "propertyId": "initSqlSentences",
-      "propertyName": "_SQL_SENTENCES_",
-      "propertyType": "list",
-      "default": "",
-      "required": false,
-      "tooltip": "SQL sentences that will be executed when the policy starts. It's useful when the user needs to registry temporal/master tables from external datasources. Once launched it's possible to mix them inside the triggers",
-      "qa": "policy-sql-sentences",
-      "fields": [{
-        "propertyId": "sentence",
-        "propertyName": "_SQL_SENTENCE_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "hidden": false,
-        "required": false,
-        "tooltip": "SQL sentence",
-        "qa": "policy-sql-sentence"
-      }]
+      "name" : "streamingSettings",
+      "properties": [
+        {
+          "propertyId": "sparkStreamingWindowNumber",
+          "propertyName": "_SPARK_STREAMING_WINDOW_",
+          "propertyType": "number",
+          "default": 6,
+          "width": 3,
+          "tooltip": "Streaming window assigned to Spark Streaming.",
+          "required": true,
+          "qa": "workflow-spark-streaming-window-sparkStreamingWindowNumber"
+        },
+        {
+          "propertyId": "sparkStreamingWindowTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "qa": "workflow-spark-streaming-window-sparkStreamingWindowTime",
+          "default": "s",
+          "width": 3,
+          "required": true,
+          "values": [{
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            },
+            {
+              "label": "Week(s)",
+              "value": "w"
+            }
+          ]
+        },
+        {
+          "propertyId": "rememberNumber",
+          "propertyName": "_POLICY_REMEMBER_FIELD_",
+          "propertyType": "number",
+          "newRow": true,
+          "width": 3,
+          "tooltip": "Maximum time a certain query will be executed before being aborted",
+          "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
+          "qa": "workflow-remember-number"
+        },
+        {
+          "propertyId": "rememberTime",
+          "propertyName": "_WHITE_SPACE_",
+          "propertyType": "select",
+          "width": 3,
+          "qa": "workflow-remember-time",
+          "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
+          "values": [{
+            "label": "Milliseconds",
+            "value": "ms"
+          },
+            {
+              "label": "Seconds",
+              "value": "s"
+            },
+            {
+              "label": "Minutes",
+              "value": "m"
+            },
+            {
+              "label": "Hours",
+              "value": "h"
+            },
+            {
+              "label": "Days",
+              "value": "d"
+            },
+            {
+              "label": "Week(s)",
+              "value": "w"
+            }
+          ]
+        }
+      ]
+
     },
     {
-      "propertyId": "userPluginsJars",
-      "propertyName": "_USER_PLUGINS_JARS_",
-      "propertyType": "list",
-      "default": "",
-      "required": false,
-      "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
-      "qa": "policy-user-plugins-jars",
-      "fields": [{
-        "propertyId": "jarPath",
-        "propertyName": "_JAR_PATH",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "",
-        "hidden": false,
-        "required": false,
-        "qa": "policy-jar-path"
-      }]
+      "name" : "sparkSettings",
+      "properties": [
+        {
+          "propertyId": "master",
+          "width": 4,
+          "propertyName": "_SPARK_MASTER_",
+          "propertyType": "text",
+          "default": "mesos://leader.mesos:5050",
+          "tooltip": "Set the spark master. In Marathon deployments: mesos://leader.mesos:5050 . Local deployments:local[*] . Dispatcher deployments: dispatcherURI:7077",
+          "qa": "workflow-spark-user"
+        },
+        {
+          "propertyId": "sparkHome",
+          "propertyName": "_SPARK_HOME_",
+          "propertyType": "text",
+          "width": 4,
+          "default": "/opt/spark/dist",
+          "tooltip": "Set the spark home in Mesos deployments",
+          "qa": "workflow-spark-home"
+        },
+        {
+          "propertyId": "killUrl",
+          "propertyName": "_SPARK_KILL_URL_",
+          "width": 4,
+          "propertyType": "text",
+          "tooltip": "Set the spark home in Mesos deployments",
+          "qa": "workflow-spark-home"
+        },
+        {
+          "propertyId": "sparkUser",
+          "propertyName": "_SPARK_USER_",
+          "propertyType": "text",
+          "width": 4,
+          "tooltip": "Set the spark user in Mesos deployments",
+          "qa": "workflow-spark-user"
+        },
+        {
+          "propertyId": "sparkKerberos",
+          "propertyName": "_SPARK_KERBEROS_ENABLE_",
+          "propertyType": "boolean",
+          "newRow": true,
+          "width": "auto",
+          "default": false,
+          "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available",
+          "qa": "workflow-spark-kerberos"
+        },
+        {
+          "name": "sparkConf",
+          "properties": [
+             {
+              "propertyId": "userSparkConf",
+              "propertyName": "_SPARK_CONF_",
+              "propertyType": "list",
+              "required": false,
+              "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
+              "qa": "workflow-spark-conf",
+              "fields": [{
+                "propertyId": "sparkConfKey",
+                "propertyName": "_SPARK_CONF_KEY_",
+                "position": "left",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "hidden": false,
+                "required": false,
+                "tooltip": "Spark configuration property with the structure spark.xxx",
+                "qa": "workflow-sparkConfKey"
+              },
+                {
+                  "propertyId": "sparkConfValue",
+                  "propertyName": "_SPARK_CONF_VALUE_",
+                  "position": "right",
+                  "propertyType": "text",
+                  "regexp": "",
+                  "default": "",
+                  "hidden": false,
+                  "required": false,
+                  "qa": "workflow-sparkConfValue"
+                }
+              ]
+            },
+            {
+              "propertyId": "stopGracefulTimeout",
+              "propertyName": "_SPARK_STOP_GRACEFUL_TIMEOUT_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Turn this down to prevent long blocking at shutdown",
+              "qa": "workflow-spark-stopGracefulTimeout"
+            },
+            {
+              "propertyId": "serializer",
+              "propertyName": "_SPARK_SERIALIZER_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Use other serializer than default Java Serializer",
+              "qa": "workflow-spark-serializer"
+            },
+            {
+              "propertyId": "executorURI",
+              "propertyName": "_SPARK_EXECUTOR_URI_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "If the user want to use one Spark compilation",
+              "qa": "workflow-spark-executorURI"
+            },
+            {
+              "propertyId": "coarse",
+              "propertyName": "_SPARK_COARSE_",
+              "propertyType": "boolean",
+              "newRow": true,
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "Coarse mode is recommended in Streaming Applications over Mesos Clusters. If is assinged false is used the Spark fine grained mode",
+              "qa": "workflow-spark-coarse"
+            },
+            {
+              "propertyId": "parquetBinaryAsString",
+              "propertyName": "_SPARK_PARQUET_BINARY_STRING_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "Parquet prevention errors",
+              "qa": "workflow-spark-parquetBinaryAsString"
+            },
+            {
+              "propertyId": "stopGracefully",
+              "propertyName": "_SPARK_STOP_GRACEFULLY_",
+              "propertyType": "boolean",
+              "required": true,
+              "width": "auto",
+              "default": true,
+              "tooltip": "Stop gracefully the streaming contexts when shutdown the spark applications",
+              "qa": "workflow-spark-stopGracefully"
+            },
+            {
+              "name": "sparkResourcesConf",
+              "listCompressed": true,
+              "properties": [
+                {
+                  "propertyId": "coresMax",
+                  "propertyName": "_SPARK_CORES_MAX_",
+                  "propertyType": "text",
+                  "default": "2",
+                  "width": 4,
+                  "tooltip": "Total cores by executors",
+                  "qa": "workflow-spark-coresMax"
+                },
+                {
+                  "propertyId": "executorMemory",
+                  "propertyName": "_SPARK_EXECUTOR_MEMORY_",
+                  "propertyType": "text",
+                  "default": "1G",
+                  "width": 4,
+                  "tooltip": "Memory by executor",
+                  "qa": "workflow-spark-executorMemory"
+                },
+                {
+                  "propertyId": "executorCores",
+                  "propertyName": "_SPARK_EXECUTOR_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "1",
+                  "tooltip": "Cores by executors",
+                  "qa": "workflow-spark-executorCores"
+                },
+                {
+                  "propertyId": "driverMemory",
+                  "propertyName": "_SPARK_DRIVER_MEMORY_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "1G",
+                  "tooltip": "Memory assigned to Spark Driver",
+                  "qa": "workflow-spark-driverMemory"
+                },
+                {
+                  "propertyId": "driverCores",
+                  "propertyName": "_SPARK_DRIVER_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "1",
+                  "tooltip": "Cores assigned to Spark Driver",
+                  "qa": "workflow-spark-driverCores"
+                },
+                {
+                  "propertyId": "mesosExtraCores",
+                  "propertyName": "_SPARK_EXTRA_CORES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Extra amount of cpus to request per task",
+                  "qa": "workflow-spark-mesosExtraCores"
+                },
+                {
+                  "propertyId": "localityWait",
+                  "propertyName": "_SPARK_LOCALITY_WAIT_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "10s",
+                  "tooltip": "How long to wait to launch a data-local task before giving up and launching it on a less-local node",
+                  "qa": "workflow-spark-localityWait"
+                },
+                {
+                  "propertyId": "taskMaxFailures",
+                  "propertyName": "_SPARK_TASK_MAX_FAILURES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "8",
+                  "tooltip": "Number of failures of any particular task before giving up on the job",
+                  "qa": "workflow-spark-taskMaxFailures"
+                },
+                {
+                  "propertyId": "blockInterval",
+                  "propertyName": "_SPARK_BLOCK_INTERVAL_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "200ms",
+                  "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark",
+                  "qa": "workflow-spark-blockInterval"
+                },
+                {
+                  "propertyId": "concurrentJobs",
+                  "propertyName": "_SPARK_CONCURRENT_JOBS_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Running concurrent jobs brings down the overall processing time and scheduling delay even if a batch takes processing time slightly more than batch interval. By default the number of concurrent jobs is 1 which means at a time only 1 job will be active and till its not finished,other jobs will be queued up even if the resources are available and idle",
+                  "qa": "workflow-spark-concurrentJobs"
+                }
+              ]
+            },
+            {
+              "name": "sparkDockerConf",
+              "listCompressed": true,
+              "properties": [
+                {
+                  "propertyId": "executorDockerImage",
+                  "propertyName": "_SPARK_DOCKER_IMAGE_",
+                  "propertyType": "text",
+                  "width": 6,
+                  "default": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+                  "tooltip": "Run over Mesos Clusters with Docker containers",
+                  "qa": "workflow-spark-executorDockerImage"
+                },
+                {
+                  "propertyId": "executorDockerVolumes",
+                  "propertyName": "_SPARK_DOCKER_VOLUMES_",
+                  "propertyType": "text",
+                  "width": 6,
+                  "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+                  "tooltip": "Mount volumes from host machine in the executor docker container",
+                  "qa": "workflow-spark-executorDockerVolumes"
+                },
+                {
+                  "propertyId": "executorForcePullImage",
+                  "propertyName": "_SPARK_DOCKER_FORCE_PULL_IMAGE_",
+                  "propertyType": "boolean",
+                  "default": false,
+                  "width": "auto",
+                  "newRow": true,
+                  "tooltip": "Force pull image for each execution",
+                  "qa": "workflow-spark-executorForcePullImage"
+                }
+              ]
+            },
+            {
+              "name": "sparkMesosConf",
+              "listCompressed": true,
+              "properties": [
+                {
+                  "propertyId": "mesosNativeJavaLibrary",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_NATIVE_LIBRARY_",
+                  "propertyType": "text",
+                  "default": "/opt/mesosphere/lib/libmesos.so",
+                  "tooltip": "Mesos native library location",
+                  "qa": "workflow-spark-mesosNativeJavaLibrary"
+                },
+                {
+                  "propertyId": "mesosExecutorHome",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_EXECUTOR_HOME_",
+                  "propertyType": "text",
+                  "default": "/opt/spark/dist",
+                  "tooltip": "If Spark in Mesos Slaves are installed in a different path than spark submit installation",
+                  "qa": "workflow-spark-mesosExecutorHome"
+                },
+                {
+                  "propertyId": "mesosHDFSConfURI",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_HDFS_CONF_URI_",
+                  "propertyType": "text",
+                  "tooltip": "Download HDFS conf in stratio spark fork",
+                  "qa": "workflow-spark-mesosHDFSConfURI"
+                },
+                {
+                  "propertyId": "mesosPrincipal",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_PRINCIPAL_",
+                  "propertyType": "text",
+                  "tooltip": "Principal name used when run Sparta over Mesos securized",
+                  "qa": "workflow-spark-mesosPrincipal"
+                },
+                {
+                  "propertyId": "mesosSecret",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_SECRET_",
+                  "propertyType": "text",
+                  "tooltip": "Secret password used when run Sparta over Mesos securized",
+                  "qa": "workflow-spark-mesosSecret"
+                },
+                {
+                  "propertyId": "mesosRole",
+                  "width": 4,
+                  "propertyName": "_SPARK_MESOS_ROLE_",
+                  "propertyType": "text",
+                  "tooltip": "Role assigned to spark jobs when run Sparta over Mesos securized",
+                  "qa": "workflow-spark-mesosRole"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "submitArguments",
+          "listCompressed": true,
+          "properties": [
+            {
+              "propertyId": "userArguments",
+              "propertyName": "_SPARK_SUBMIT_ARGUMENTS_",
+              "propertyType": "list",
+              "required": false,
+              "tooltip": "Spark submit arguments added when the workflow is executed on a Spark cluster. Values set here will override the property file options",
+              "qa": "workflow-spark-submit-argument",
+              "fields": [{
+                "propertyId": "submitArgument",
+                "propertyName": "_SPARK_SUBMIT_ARGUMENT_",
+                "position": "left",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "hidden": false,
+                "required": false,
+                "tooltip": "Spark submit argument with the structure --xxx",
+                "qa": "workflow-spark-submit-argument-key"
+              },
+                {
+                  "propertyId": "submitValue",
+                  "propertyName": "_SPARK_SUBMIT_ARGUMENT_VALUE_",
+                  "position": "right",
+                  "propertyType": "text",
+                  "regexp": "",
+                  "default": "",
+                  "hidden": false,
+                  "required": false,
+                  "qa": "workflow-spark-submit-argument-value"
+                }
+              ]
+            },
+            {
+              "propertyId": "deployMode",
+              "propertyName": "_SPARK_DEPLOY_MODE_",
+              "propertyType": "select",
+              "width": 4,
+              "values": [
+                {
+                  "label": "Client",
+                  "value": "client"
+                },
+                {
+                  "label": "Cluster",
+                  "value": "cluster"
+                }
+              ],
+              "default": "client",
+              "tooltip": "Set the spark deploy mode in cluster executions",
+              "qa": "workflow-spark-deploy-mode"
+            },
+
+            {
+              "propertyId": "jars",
+              "propertyName": "_SPARK_JARS_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Comma-separated list of local jars to include on the driver and executor classpaths",
+              "qa": "workflow-spark-jars"
+            },
+            {
+              "propertyId": "propertiesFile",
+              "propertyName": "_SPARK_PROPERTIES_FILE_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Path to a file from which to load extra properties. If notspecified, this will look for conf/spark-defaults.conf",
+              "qa": "workflow-spark-propertiesFile"
+            },
+            {
+              "propertyId": "packages",
+              "propertyName": "_SPARK_PACKAGES_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Comma-separated list of maven coordinates of jars to include on the driver and executor classpaths. Will search the local maven repo, then maven central and any additional remote repositories given by --repositories. The format for the coordinates should be groupId:artifactId:version",
+              "qa": "workflow-spark-packages"
+            },
+            {
+              "propertyId": "excludePackages",
+              "propertyName": "_SPARK_EXCLUDE_PACKAGES_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Comma-separated list of groupId:artifactId, to exclude while resolving the dependencies provided in --packages to avoid dependency conflicts",
+              "qa": "workflow-spark-excludePackages"
+            },
+            {
+              "propertyId": "repositories",
+              "propertyName": "_SPARK_REPOSITORIES_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Comma-separated list of additional remote repositories to search for the maven coordinates given with --packages",
+              "qa": "workflow-spark-repositories"
+            },
+            {
+              "propertyId": "proxyUser",
+              "propertyName": "_SPARK_PROXY_USER_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "User to impersonate when submitting the application. This argument does not work with --principal / --keytab",
+              "qa": "workflow-spark-proxyUser"
+            },
+            {
+              "propertyId": "driverJavaOptions",
+              "propertyName": "_SPARK_DRIVER_JAVA_OPTIONS_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Extra Java options to pass to the driver",
+              "qa": "workflow-spark-driverJavaOptions"
+            },
+            {
+              "propertyId": "driverLibraryPath",
+              "propertyName": "_SPARK_DRIVER_LIBRARY_PATH_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Extra library path entries to pass to the driver",
+              "qa": "workflow-spark-driverLibraryPath"
+            },
+            {
+              "propertyId": "driverClassPath",
+              "propertyName": "_SPARK_DRIVER_CLASS_PATH_",
+              "propertyType": "text",
+              "width": 4,
+              "tooltip": "Extra class path entries to pass to the driver. Note that jars added with --jars are automatically included in the classpath",
+              "qa": "workflow-spark-driverClassPath"
+            },
+            {
+              "propertyId": "supervise",
+              "propertyName": "_SPARK_SUPERVISE_",
+              "propertyType": "boolean",
+              "newRow": true,
+              "width": "auto",
+              "default": false,
+              "tooltip": "Restarts the driver on failure. Supervised mode available in mesos executions with Spark dispatcher",
+              "qa": "workflow-spark-supervise"
+            }
+          ]
+        }
+      ]
     }
   ],
   "helpLinks": [
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Create+and+Submit+Policy",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Inputs",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Transformations",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Raw+data",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Triggers",
-    "https://stratio.atlassian.net/wiki/display/SPARTA1x1x2/Cubes"
   ],
   "model": {
     "outputs": {
@@ -502,10 +820,7 @@
         ]
       }
     },
-    "types": [{
-        "iconName": "ingestion",
-        "name": "Ingestion"
-      },
+    "types": [
       {
         "iconName": "filter",
         "name": "Filter"
@@ -527,8 +842,16 @@
         "name": "Morphlines"
       },
       {
+        "iconName": "facets",
+        "name": "Explode"
+      },
+      {
         "iconName": "datetime",
         "name": "DateTime"
+      },
+      {
+        "iconName": "split",
+        "name": "Split"
       },
       {
         "iconName": "globe",
@@ -572,57 +895,51 @@
         "value": "timestamp"
       },
       {
-        "label": "Array Double",
+        "label": "Array(Double)",
         "value": "arraydouble"
       },
       {
-        "label": "Array String",
+        "label": "Array(String)",
         "value": "arraystring"
+      },
+      {
+        "label": "Array(Map(String, String))",
+        "value": "arraymapstringstring"
+      },
+      {
+        "label": "Map(String, Long)",
+        "value": "mapstringlong"
+      },
+      {
+        "label": "Map(String, Double)",
+        "value": "mapstringdouble"
+      },
+      {
+        "label": "Map(String, Integer)",
+        "value": "mapstringint"
+      },
+      {
+        "label": "Map(String, String)",
+        "value": "mapstringstring"
       }
     ],
     "defaultInput": {
       "label": "_attachment_body",
       "value": "_attachment_body"
     },
-    "Ingestion": {
-      "properties": [{
-          "propertyId": "whenError",
-          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 6,
-          "default": "Error",
-          "required": true,
-          "qa": "policy-transformation-ingestion-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "_REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
-          "default": false,
-          "required": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-xml-removeInputField"
-        }
-      ]
-    },
     "Json": {
-      "properties": [{
+      "properties": [
+        {
+          "propertyId": "supportNullValues",
+          "propertyName": "_SUPPORT_NULL_VALUES_",
+          "propertyType": "boolean",
+          "position": "left",
+          "width": 3,
+          "default": true,
+          "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
+          "qa": "workflow-transformation-json-supportNullValues"
+        },
+        {
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
@@ -640,21 +957,19 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-json-whenError"
+          "qa": "workflow-transformation-json-whenError"
         },
         {
           "propertyId": "removeInputField",
           "propertyName": "_REMOVE_INPUT_FIELD_",
           "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
+          "width": 3,
           "default": false,
-          "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-json-removeInputField"
+          "qa": "workflow-transformation-json-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -670,7 +985,18 @@
       }
     },
     "Csv": {
-      "properties": [{
+      "properties": [
+        {
+          "propertyId": "delimiter",
+          "propertyName": "_CSV_DELIMITER_",
+          "propertyType": "text",
+          "position": "left",
+          "width": 3,
+          "default": ",",
+          "required": false,
+          "qa": "workflow-transformation-csv-delimiter"
+        },
+        {
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",
@@ -688,31 +1014,20 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-csv-whenError"
+          "qa": "workflow-transformation-csv-whenError"
         },
-        {
-          "propertyId": "delimiter",
-          "propertyName": "_CSV_DELIMITER_",
-          "propertyType": "text",
-          "position": "left",
-          "width": 6,
-          "default": ",",
-          "required": false,
-          "qa": "policy-transformation-csv-delimiter"
-        },
+
         {
           "propertyId": "removeInputField",
           "propertyName": "_REMOVE_INPUT_FIELD_",
           "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
+          "width": 3,
           "default": false,
-          "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-json-removeInputField"
+          "qa": "workflow-transformation-json-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -724,6 +1039,41 @@
           }
         ]
       }
+    },
+    "Explode": {
+      "properties": [{
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [{
+            "label": "Error",
+            "value": "Error"
+          },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
+          "width": 3,
+          "default": "Error",
+          "position": "left",
+          "required": true,
+          "qa": "workflow-transformation-explode-whenError"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "width": 3,
+          "default": false,
+          "tooltip": "If checked, the input field will be removed and won't be available in the following transformations.",
+          "qa": "workflow-transformation-explode-removeInputField"
+        }
+      ]
     },
     "Filter": {
       "properties": [{
@@ -744,10 +1094,10 @@
           }
         ],
         "position": "left",
-        "width": 6,
+        "width": 3,
         "default": "Error",
         "required": true,
-        "qa": "policy-transformation-filter-whenError"
+        "qa": "workflow-transformation-filter-whenError"
       }],
       "defaultConfiguration": {
         "tooltip": "A previously defined transformation is required in order to define filtering rules over a given field.",
@@ -783,21 +1133,19 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-xml-whenError"
+          "qa": "workflow-transformation-xml-whenError"
         },
         {
           "propertyId": "removeInputField",
           "propertyName": "_REMOVE_INPUT_FIELD_",
           "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
+          "width": 3,
           "default": false,
-          "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-xml-removeInputField"
+          "qa": "workflow-transformation-xml-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -831,21 +1179,20 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-morphline-whenError"
+          "qa": "workflow-transformation-morphline-whenError"
         },
         {
           "propertyId": "removeInputField",
           "propertyName": "_REMOVE_INPUT_FIELD_",
           "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
+          "width": 3,
           "default": false,
           "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-morphlines-removeInputField"
+          "qa": "workflow-transformation-morphlines-removeInputField"
         }
       ],
       "defaultConfiguration": {
@@ -870,11 +1217,51 @@
       }
     },
     "DateTime": {
-      "properties": [{
-          "propertyId": "inputFormat",
-          "propertyName": "_INPUT_FORMAT_",
+      "properties": [
+        {
+          "propertyId": "formatFrom",
+          "propertyName": "_FORMAT_FROM_",
           "propertyType": "select",
-          "qa": "policy-model-dateTime-inputFormat",
+          "width": 3,
+          "qa": "workflow-model-dateTime-formatFrom",
+          "values": [{
+            "label": "Auto Generated",
+            "value": "AUTOGENERATED"
+          },
+            {
+              "label": "Standard",
+              "value": "STANDARD"
+            },
+            {
+              "label": "User",
+              "value": "USER"
+            }
+            ],
+          "default": "AUTOGENERATED",
+          "required": true
+        },
+        {
+          "propertyId": "userFormat",
+          "propertyName": "_USER_FORMAT_",
+          "propertyType": "text",
+          "width": 3,
+          "required": false,
+          "visible": [
+            [
+              {
+                "propertyId": "formatFrom",
+                "value": "USER"
+              }
+            ]
+          ],
+          "qa": "workflow-cube-dimension-dateTime-userFormat"
+        },
+        {
+          "propertyId": "standardFormat",
+          "propertyName": "_STANDARD_FORMAT_",
+          "propertyType": "select",
+          "width": 3,
+          "qa": "workflow-model-dateTime-standardFormat",
           "values": [{
               "label": "Unix",
               "value": "unix"
@@ -886,10 +1273,6 @@
             {
               "label": "yyyy-MM-dd HH:mm:ss",
               "value": "hive"
-            },
-            {
-              "label": "Auto generated",
-              "value": "autoGenerated"
             },
             {
               "label": "yyyyMMdd",
@@ -996,25 +1379,32 @@
               "value": "weekDateTimeNoMillis"
             }
           ],
-          "default": "unixMillis",
-          "required": true
+          "visible": [
+            [
+              {
+                "propertyId": "formatFrom",
+                "value": "STANDARD"
+              }
+            ]
+          ],
+          "required": false
         },
         {
           "propertyId": "granularityNumber",
           "propertyName": "_GRANULARITY_",
           "propertyType": "text",
+          "width": 3,
           "position": "left",
           "required": false,
-          "qa": "policy-cube-dimension-dateTime-granularityNumber"
+          "qa": "workflow-cube-dimension-dateTime-granularityNumber"
         },
         {
           "propertyId": "granularityTime",
           "propertyName": "_WHITE_SPACE_",
           "propertyType": "select",
-          "width": 6,
-          "position": "right",
+          "width": 3,
           "required": false,
-          "qa": "policy-cube-dimension-dateTime-granularityTime",
+          "qa": "workflow-cube-dimension-dateTime-granularityTime",
           "values": [{
               "label": "Millisecond(s)",
               "value": "ms"
@@ -1091,23 +1481,137 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-datetime-whenError"
+          "qa": "workflow-transformation-datetime-whenError"
         },
         {
           "propertyId": "removeInputField",
           "propertyName": "_REMOVE_INPUT_FIELD_",
           "propertyType": "boolean",
-          "position": "left",
-          "width": 6,
+          "width": 3,
           "default": false,
-          "required": false,
           "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "policy-transformation-datetime-removeInputField"
+          "qa": "workflow-transformation-datetime-removeInputField"
         }
       ]
+    },
+    "Split": {
+      "properties": [{
+        "propertyId": "splitMethod",
+        "propertyName": "_SPLIT_METHOD_",
+        "propertyType": "select",
+        "width": 3,
+        "qa": "workflow-transformation-split-splitMethod",
+        "values": [{
+          "label": "_BYINDEX_",
+          "value": "BYINDEX"
+        },
+          {
+            "label": "_BYREGEX_",
+            "value": "BYREGEX"
+          },
+          {
+            "label": "_BYCHAR_",
+            "value": "BYCHAR"
+          }
+        ],
+        "default": "BYINDEX",
+        "required": true
+      },
+        {
+          "propertyId": "byRegexPattern",
+          "propertyName": "_BYREGEX_PATTERN_",
+          "propertyType": "text",
+          "width": 3,
+          "required": false,
+          "tooltip": "Insert the regular expression that should be used to split the field (e.g. [.])",
+          "visible": [
+            [{
+              "propertyId": "splitMethod",
+              "value": "BYREGEX"
+            }]
+          ],
+          "qa": "workflow-transformation-split-byRegexPattern"
+        },
+        {
+          "propertyId": "byCharPattern",
+          "propertyName": "_BYCHAR_PATTERN_",
+          "propertyType": "text",
+          "width": 3,
+          "required": false,
+          "tooltip": "Insert the character that should be used to split the field (e.g. \\t, |, $)",
+          "visible": [
+            [{
+              "propertyId": "splitMethod",
+              "value": "BYCHAR"
+            }]
+          ],
+          "qa": "workflow-transformation-split-byCharPattern"
+        },
+        {
+          "propertyId": "byIndexPattern",
+          "propertyName": "_BYINDEX_PATTERN_",
+          "propertyType": "text",
+          "width": 3,
+          "required": false,
+          "tooltip": "Insert the comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
+          "visible": [
+            [{
+              "propertyId": "splitMethod",
+              "value": "BYINDEX"
+            }]
+          ],
+          "qa": "workflow-transformation-split-byIndexPattern"
+        },
+        {
+          "propertyId": "excludeIndexes",
+          "propertyName": "_EXCLUDE_INDEXES_",
+          "propertyType": "boolean",
+          "width": 3,
+          "default": false,
+          "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded",
+          "visible": [
+            [{
+              "propertyId": "splitMethod",
+              "value": "BYINDEX"
+            }]
+          ],
+          "qa": "policy-transformation-split-excludeIndexes"
+        },
+        {
+          "propertyId": "removeInputField",
+          "propertyName": "_REMOVE_INPUT_FIELD_",
+          "propertyType": "boolean",
+          "width": 3,
+          "default": false,
+          "tooltip": "If checked, the input field will be removed and won't be available in the following transformations.",
+          "qa": "workflow-transformation-split-removeInputField"
+        },
+        {
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [{
+            "label": "Error",
+            "value": "Error"
+          },
+            {
+              "label": "Discard",
+              "value": "Discard"
+            },
+            {
+              "label": "Null",
+              "value": "Null"
+            }
+          ],
+          "position": "left",
+          "width": 3,
+          "default": "Error",
+          "required": true,
+          "qa": "workflow-transformation-split-whenError"
+        }]
     },
     "Geo": {
       "properties": [{
@@ -1115,30 +1619,29 @@
           "propertyName": "_LATITUDE_",
           "propertyType": "text",
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "lat",
           "required": true,
-          "qa": "policy-transformation-geo-latitude"
+          "qa": "workflow-transformation-geo-latitude"
         },
         {
           "propertyId": "longitude",
           "propertyName": "_LONGITUDE_",
           "propertyType": "text",
-          "position": "right",
-          "width": 6,
+          "width": 3,
           "default": "long",
           "required": true,
-          "qa": "policy-transformation-geo-longitude"
+          "qa": "workflow-transformation-geo-longitude"
         },
         {
           "propertyId": "delimiter",
           "propertyName": "_GEO_DELIMITER_",
           "propertyType": "text",
-          "position": "left",
-          "width": 6,
+          "newRow": true,
+          "width": 3,
           "default": "--",
           "required": true,
-          "qa": "policy-transformation-geo-delimiter"
+          "qa": "workflow-transformation-geo-delimiter"
         },
         {
           "propertyId": "whenError",
@@ -1158,10 +1661,10 @@
             }
           ],
           "position": "left",
-          "width": 6,
+          "width": 3,
           "default": "Error",
           "required": true,
-          "qa": "policy-transformation-geo-whenError"
+          "qa": "workflow-transformation-geo-whenError"
         }
       ],
       "outputFieldTypes": [{
@@ -1175,7 +1678,7 @@
           "propertyName": "_MODEL_TYPE_",
           "propertyType": "text",
           "default": "Custom",
-          "width": 4,
+          "width": 6,
           "required": true,
           "tooltip": "Transformation type is related to the user class extended by SDK",
           "qa": "custom-transformation-modelType"
@@ -1297,7 +1800,7 @@
         "position": "left",
         "tooltip": "Sets the value used to group by the incoming data. Only valid if the metric chosen is  between Millisecon(s) and Day(s).",
         "required": false,
-        "qa": "policy-cube-dimension-dateTime-precisionNumber"
+        "qa": "workflow-cube-dimension-dateTime-precisionNumber"
       },
       {
         "propertyId": "precisionTime",
@@ -1305,7 +1808,7 @@
         "propertyType": "select",
         "width": 6,
         "position": "right",
-        "qa": "policy-cube-dimension-dateTime-precisionTime",
+        "qa": "workflow-cube-dimension-dateTime-precisionTime",
         "default": "minute",
         "required": true,
         "values": [{
@@ -1371,7 +1874,7 @@
         "propertyName": "_IS_TIME_DIMENSION_",
         "propertyType": "boolean",
         "required": false,
-        "qa": "policy-cube-dimension-dateTime-isTimeDimension"
+        "qa": "workflow-cube-dimension-dateTime-isTimeDimension"
       },
       {
         "propertyId": "computeLastNumber",
@@ -1381,7 +1884,7 @@
         "position": "left",
         "default": 10,
         "required": true,
-        "qa": "policy-cube-dimension-dateTime-computeLastNumber",
+        "qa": "workflow-cube-dimension-dateTime-computeLastNumber",
         "visible": [
           [{
             "propertyId": "isTimeDimension",
@@ -1396,7 +1899,7 @@
         "width": 6,
         "position": "right",
         "tooltip": "Sets the time window for aggregation operations.",
-        "qa": "policy-cube-dimension-dateTime-computeLastTime",
+        "qa": "workflow-cube-dimension-dateTime-computeLastTime",
         "default": "m",
         "required": true,
         "values": [{
@@ -1432,7 +1935,8 @@
         ]
       }
     ],
-    "properties": [{
+    "properties": [
+      {
       "propertyId": "name",
       "propertyName": "_NAME_",
       "propertyType": "text",
@@ -1456,7 +1960,24 @@
         "update",
         "where"
       ]
-    }],
+    },
+      {
+        "propertyId": "avoidNullvalues",
+        "propertyName": "_AVOID_NULL_VALUES_",
+        "propertyType": "boolean",
+        "required": true,
+        "default": true,
+        "qa": "workflow-cube-avoidNullvalues"
+      },
+      {
+        "propertyId": "rememberPartitioner",
+        "propertyName": "_REMEMBER_PARTITIONER_",
+        "propertyType": "boolean",
+        "required": true,
+        "default": true,
+        "qa": "workflow-cube-rememberPartitioner"
+      }
+    ],
     "writer": {
       "properties": [{
           "propertyId": "tableName",

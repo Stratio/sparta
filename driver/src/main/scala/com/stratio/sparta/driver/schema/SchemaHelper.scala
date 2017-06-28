@@ -22,8 +22,8 @@ import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.models.policy.TransformationModel
-import com.stratio.sparta.serving.core.models.policy.cube.CubeModel
+import com.stratio.sparta.serving.core.models.workflow.cube.CubeModel
+import com.stratio.sparta.serving.core.models.workflow.transformations.TransformationModel
 import org.apache.spark.sql.types.{StructType, _}
 
 import scala.util.Try
@@ -45,11 +45,14 @@ object SchemaHelper {
     TypeOp.Date -> DateType,
     TypeOp.DateTime -> TimestampType,
     TypeOp.Timestamp -> TimestampType,
+    TypeOp.String -> StringType,
     TypeOp.ArrayDouble -> ArrayType(DoubleType),
     TypeOp.ArrayString -> ArrayType(StringType),
-    TypeOp.String -> StringType,
+    TypeOp.ArrayMapStringString -> ArrayType(MapType(StringType, StringType)),
     TypeOp.MapStringLong -> MapType(StringType, LongType),
-    TypeOp.MapStringDouble -> MapType(StringType, DoubleType, valueContainsNull = false))
+    TypeOp.MapStringInt -> MapType(StringType, IntegerType),
+    TypeOp.MapStringString -> MapType(StringType, StringType),
+    TypeOp.MapStringDouble -> MapType(StringType, DoubleType))
   private val mapStringSparkTypes = Map(
     "long" -> LongType,
     "double" -> DoubleType,
@@ -63,6 +66,11 @@ object SchemaHelper {
     "string" -> StringType,
     "arraydouble" -> ArrayType(DoubleType),
     "arraystring" -> ArrayType(StringType),
+    "arraymapstringstring" -> ArrayType(MapType(StringType, StringType)),
+    "mapstringlong" -> MapType(StringType, LongType),
+    "mapstringdouble" -> MapType(StringType, DoubleType),
+    "mapstringint" -> MapType(StringType, IntegerType),
+    "mapstringstring" -> MapType(StringType, StringType),
     "text" -> StringType)
 
   private[driver] val DefaultTimeStampTypeString = "timestamp"
@@ -78,11 +86,15 @@ object SchemaHelper {
     BooleanType -> TypeOp.Boolean,
     DateType -> TypeOp.Date,
     TimestampType -> TypeOp.Timestamp,
+    StringType -> TypeOp.String,
     ArrayType(DoubleType) -> TypeOp.ArrayDouble,
     ArrayType(StringType) -> TypeOp.ArrayString,
-    StringType -> TypeOp.String,
+    ArrayType(MapType(StringType, StringType)) -> TypeOp.ArrayMapStringString,
     MapType(StringType, LongType) -> TypeOp.MapStringLong,
-    MapType(StringType, DoubleType, valueContainsNull = false) -> TypeOp.MapStringDouble)
+    MapType(StringType, DoubleType) -> TypeOp.MapStringDouble,
+    MapType(StringType, IntegerType) -> TypeOp.MapStringInt,
+    MapType(StringType, StringType) -> TypeOp.MapStringString
+  )
 
   def getSchemasFromTransformations(transformationsModel: Seq[TransformationModel],
                                     initSchema: Map[String, StructType]): Map[String, StructType] =

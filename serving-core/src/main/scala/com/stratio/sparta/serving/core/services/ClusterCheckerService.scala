@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.services
 
 import akka.actor.{ActorContext, ActorRef}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, PolicyStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
 import org.apache.curator.framework.CuratorFramework
 
@@ -26,19 +26,19 @@ import scala.util.{Failure, Success}
 
 class ClusterCheckerService(val curatorFramework: CuratorFramework) extends PolicyStatusUtils {
 
-  def checkPolicyStatus(policy: PolicyModel, launcherActor: ActorRef, akkaContext: ActorContext): Unit = {
+  def checkPolicyStatus(policy: WorkflowModel, launcherActor: ActorRef, akkaContext: ActorContext): Unit = {
     findStatusById(policy.id.get) match {
       case Success(policyStatus) =>
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Uploaded ||
           policyStatus.status == Stopping || policyStatus.status == NotStarted) {
           val information = s"The checker detects that the policy not start/stop correctly"
           log.error(information)
-          updateStatus(PolicyStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
+          updateStatus(WorkflowStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
           akkaContext.stop(launcherActor)
         } else {
           val information = s"The checker detects that the policy start/stop correctly"
           log.info(information)
-          updateStatus(PolicyStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
+          updateStatus(WorkflowStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
         }
       case Failure(exception) =>
         log.error(s"Error when extract policy status in scheduler task.", exception)

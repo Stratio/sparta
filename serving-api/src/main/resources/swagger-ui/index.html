@@ -24,8 +24,16 @@
 
   <script type="text/javascript">
     $(function () {
+      var routeAux = window.location.href.split(window.location.host)[1].split("/");
+      var route = "";
+      if(routeAux.length > 2){
+      route = "/" + routeAux[1] + "/api-docs";
+      }else {
+      route = "/api-docs";
+      }
+
       window.swaggerUi = new SwaggerUi({
-      url: "/sparta/api-docs",
+      url: route,
       dom_id: "swagger-ui-container",
       supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
       onComplete: function(swaggerApi, swaggerUi){

@@ -103,6 +103,7 @@ angular
         templateUrl: 'views/executions.html'
       })
       .state('dashboard.resources', {
+        subHeaderShow: true,
         abstract: true,
         controller: 'ResourcesCtrl',
         controllerAs: 'resources',
@@ -110,22 +111,32 @@ angular
         templateUrl: 'views/resources.html'
       })
       .state('dashboard.resources.plugins', {
+        subHeaderShow: true,
         url: '/plugins',
         controller: 'PluginsListCtrl',
         controllerAs: 'plugins',
         templateUrl: 'views/plugins.html'
       })
       .state('dashboard.resources.drivers', {
+        subHeaderShow: true,
         url: '/drivers',
         controller: 'DriversListCtrl',
         controllerAs: 'drivers',
         templateUrl: 'views/drivers.html'
       })
       .state('dashboard.resources.settings', {
+        subHeaderShow: 'showSubHeader',
         url: '/backups',
         controller: 'GeneralSettingsCtrl',
         controllerAs: 'settings',
         templateUrl: 'views/settings.html'
+      })
+      .state('dashboard.resources.crossdata', {
+        subHeaderShow: 'showSubHeader',
+        url: '/crossdata',
+        controller: 'CrossdataCtrl',
+        controllerAs: 'crossdata',
+        templateUrl: 'views/crossdata.html'
       })
       /******* POLICY WIZARD *******/
       .state('wizard', {
@@ -178,6 +189,23 @@ angular
   .run(['$rootScope', function ($rootScope) {
     $rootScope.$on('$stateChangeSuccess', function (event, toState) {
       $rootScope.headerClass = toState.headerClass;
+      $rootScope.subHeaderShow = toState.subHeaderShow;
       $rootScope.containerClass = toState.containerClass;
     });
+  }])
+
+  .controller('dashboardController',['$scope', function($scope) {
+    $scope.resourcesList = [{
+      title: '_MENU_DASHBOARD_PLUGINS_',
+      route: 'dashboard.resources.plugins'
+    }, {
+      title: '_MENU_DASHBOARD_DRIVERS_',
+      route: 'dashboard.resources.drivers'
+    },{
+      title: '_MENU_DASHBOARD_BACKUPS_',
+      route: 'dashboard.resources.settings'
+    },{
+      title: '_MENU_DASHBOARD_CROSSDATA_',
+      route: 'dashboard.resources.crossdata'
+    }];
   }]);

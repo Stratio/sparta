@@ -1,8 +1,10 @@
 <div class="c-col c-col--6 c-col--right-margin">
   <form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
-            class="c-col c-col--12 c-col--vertical-top c-col--right-margin c-form-group--with-gutter"
+              class="c-col c-col--vertical-top c-col--right-margin c-form-group--with-gutter"
+              data-ng-class="{'c-col--{{item.width}}': item.width}"
             data-ng-form-id="{{item.propertyId}}"
             data-field="item"
+            data-c-new-row="{{item.newRow}}"
             data-modal="true"
             data-list-compressed="true"
             data-model="vm.model.configuration"

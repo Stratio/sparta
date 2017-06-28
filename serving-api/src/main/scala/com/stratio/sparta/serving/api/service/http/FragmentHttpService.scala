@@ -26,8 +26,8 @@ import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyElementModel, PolicyModel, ResponsePolicy}
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel, ResponseWorkflow}
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
@@ -473,16 +473,16 @@ trait FragmentHttpService extends BaseHttpService with OauthClient {
     }
   }
 
-  protected def updatePoliciesWithUpdatedFragments(policies: Seq[PolicyModel], user: Option[LoggedUser]): Unit =
+  protected def updatePoliciesWithUpdatedFragments(policies: Seq[WorkflowModel], user: Option[LoggedUser]): Unit =
     policies.foreach(policy => {
       val policyActor = actors(AkkaConstant.PolicyActorName)
       for {
       responsePolicies <- (policyActor ? PolicyActor
-        .Update(policy.copy(input = None, outputs = Seq.empty[PolicyElementModel]), user))
-          .mapTo[Either[ResponsePolicy,UnauthorizedResponse]]
+        .Update(policy.copy(input = None, outputs = Seq.empty[WorkflowElementModel]), user))
+          .mapTo[Either[ResponseWorkflow,UnauthorizedResponse]]
       } yield responsePolicies match {
-        case Left(ResponsePolicy(Failure(exception))) => throw exception
-        case Left(ResponsePolicy(Success(policies))) => policies
+        case Left(ResponseWorkflow(Failure(exception))) => throw exception
+        case Left(ResponseWorkflow(Success(policies))) => policies
         case Right(UnauthorizedResponse(exception)) => throw exception
         case _ => throw new RuntimeException("Unexpected behaviour in policies")
       }

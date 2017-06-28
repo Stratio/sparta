@@ -26,8 +26,8 @@ export CONFIG_FILE=$SERVER_PROPERTIES/reference.conf
 export WORK_DIR=/tmp/$NAME
 
 # Heap Size (defaults to 256m min, 1g max)
-export SPARTA_HEAP_SIZE=-Xmx2048m
-export SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
+export SPARTA_HEAP_SIZE=-Xmx1024m
+export SPARTA_HEAP_MINIMUM_SIZE=-Xms512m
 
 # Additional Java OPTS
 export SPARTA_OPTS="$SPARTA_HEAP_MINIMUM_SIZE $SPARTA_HEAP_SIZE"

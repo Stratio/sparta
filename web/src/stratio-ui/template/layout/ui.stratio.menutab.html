@@ -1,19 +1,20 @@
 <div>
-<div class="menu-element"
-	ng-if="visible == 'true'"
-	id="menu-element-{{title | translate | lowercase}}"
-	ng-class="{selected: $state.includes(route)}">
+	<div class="menu-element"
+		ng-if="visible == 'true'"
+		id="menu-element-{{title | translate | lowercase}}"
+		ng-class="{selected: $state.includes(route)}">
 
-	<a href ui-sref="{{sref}}">
-		<span class="ico {{icon}}"></span>
-		<span class="title">{{title | translate}}</span>
-		<span class="label" ng-if="label && !isNaN(label) && label > 0">
-			{{label}}
-		</span>
-	</a>
-
+		<a href ui-sref="{{sref}}">
+			<span class="ico {{icon}}"></span>
+			<span class="title">{{title | translate}}</span>
+			<span class="label" ng-if="label && !isNaN(label) && label > 0">
+				{{label}}
+			</span>
+		</a>
+		<ul class="submenu-element" data-ng-if="$state.includes(route) && subMenu">
+			<li data-ng-repeat="section in subMenu" ng-class="{'active' : $state.includes(section.route)}" ui-sref="{{section.route}}"> 
+				{{section.title | translate}}
+			</li>
+		</ul>
+	</div>
 </div>
-	<div ng-transclude>
-
-	</div>
-	</div>

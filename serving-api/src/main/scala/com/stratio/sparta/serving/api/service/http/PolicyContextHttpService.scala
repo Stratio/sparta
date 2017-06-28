@@ -28,8 +28,8 @@ import com.stratio.sparta.serving.core.helpers.FragmentsHelper
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.policy._
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.models.workflow.fragment.{FragmentElementModel, FragmentType}
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
@@ -45,7 +45,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds all policy contexts",
     notes = "Returns a policies list",
     httpMethod = "GET",
-    response = classOf[Try[Seq[PolicyStatusModel]]],
+    response = classOf[Try[Seq[WorkflowStatusModel]]],
     responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -57,7 +57,7 @@ trait PolicyContextHttpService extends BaseHttpService {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             policiesStatuses <- (statusActor ? FindAll(user))
-              .mapTo[Either[Try[Seq[PolicyStatusModel]], UnauthorizedResponse]]
+              .mapTo[Either[Try[Seq[WorkflowStatusModel]], UnauthorizedResponse]]
           } yield policiesStatuses match {
             case Left(Failure(exception)) => throw exception
             case Left(Success(statuses)) => statuses
@@ -72,7 +72,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds a policy context from its id.",
     notes = "Find a policy context from its id.",
     httpMethod = "GET",
-    response = classOf[PolicyStatusModel])
+    response = classOf[WorkflowStatusModel])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
@@ -172,7 +172,7 @@ trait PolicyContextHttpService extends BaseHttpService {
   def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PolicyContextPath) {
       put {
-        entity(as[PolicyStatusModel]) { policyStatus =>
+        entity(as[WorkflowStatusModel]) { policyStatus =>
           complete {
             val statusActor = actors(AkkaConstant.StatusActorName)
             for {

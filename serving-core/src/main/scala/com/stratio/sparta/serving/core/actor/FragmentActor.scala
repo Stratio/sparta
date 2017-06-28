@@ -21,8 +21,8 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.FragmentActor._
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.ErrorModel
-import com.stratio.sparta.serving.core.models.policy.{PolicyModel, ResponsePolicy}
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, ResponseWorkflow}
+import com.stratio.sparta.serving.core.models.workflow.fragment.{FragmentElementModel, FragmentType}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, FragmentUtils}
 import org.apache.curator.framework.CuratorFramework
 import spray.httpx.Json4sJacksonSupport
@@ -147,10 +147,10 @@ class FragmentActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
   }
 
 
-  def policyWithFragments(policyModel: PolicyModel, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponsePolicy(Try(getPolicyWithFragments(policyModel)))
+  def policyWithFragments(policyModel: WorkflowModel, user: Option[LoggedUser]): Unit = {
+    def callback() = ResponseWorkflow(Try(getPolicyWithFragments(policyModel)))
 
-    securityActionAuthorizer[ResponsePolicy](secManagerOpt,
+    securityActionAuthorizer[ResponseWorkflow](secManagerOpt,
       user,
       Map(FragmentType.InputValue -> View, FragmentType.OutputValue -> View),
       callback
@@ -168,7 +168,7 @@ class FragmentActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
 
 object FragmentActor {
 
-  case class PolicyWithFragments(policy: PolicyModel, user: Option[LoggedUser])
+  case class PolicyWithFragments(policy: WorkflowModel, user: Option[LoggedUser])
 
   case class CreateFragment(fragment: FragmentElementModel, user: Option[LoggedUser])
 

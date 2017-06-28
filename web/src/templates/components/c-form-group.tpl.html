@@ -1,0 +1,68 @@
+<div data-ng-class="{'c-form-group--list-compressed': category.listCompressed}">
+    <form class="c-form" name="{{::category.name}}" novalidate>
+        <div class="c-form-gutter"
+            data-ng-repeat="properties in ::category.properties"
+            data-ng-class="{'c-col c-col--{{::properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{::properties.position}} c-col--vertical-top': properties.position}"
+            data-c-new-row="{{properties.newRow}}">
+
+            <form-field
+                data-ng-if="::!properties.name"
+                data-ng-form-id="{{properties.propertyId}}"
+                data-field="properties"
+                data-model="model[category.name]"
+                data-form="form[category.name]"
+                data-st-name="dataSource{{properties.propertyId}}Form"
+                data-list-compressed = "true"
+                data-modal="true"
+                data-qa="{{properties.qa}}">
+            </form-field>
+
+            <div data-ng-if="::properties.name">
+
+                <h2 class="subcategory">{{::getCategoryName(properties.name) | translate}}</h2>
+                <div data-ng-class="{'c-form-group--list-compressed': properties.listCompressed}">
+                    <div data-ng-repeat="properties2 in ::properties.properties"
+                        data-ng-class="{'c-form-gutter': !properties2.name, 'c-col c-col--{{properties2.width}}': properties2.width, 'c-form-gutter c-form-gutter__{{properties2.position}} c-col--vertical-top': properties2.position}"
+                        data-c-new-row="{{properties2.newRow}}">
+                        <form-field
+                            data-ng-if="::!properties2.name"
+                            data-ng-form-id="{{properties2.propertyId}}"
+                            data-field="properties2"
+                            data-model="model[category.name][properties.name]"
+                            data-form="form[category.name]"
+                            data-st-name="dataSource{{properties2.propertyId}}Form"
+                            data-list-compressed = "true"
+                            data-modal="true"
+                            data-qa="{{properties2.qa}}">
+                        </form-field>
+                        <div data-ng-if="properties2.name">
+
+                            <h3 class="subcategory2">{{::getCategoryName(properties2.name) | translate}}</h3>
+                            <div data-ng-class="{'c-form-group--list-compressed': properties2.listCompressed}">
+                                <div class="c-form-gutter"
+                                    data-ng-repeat="properties3 in ::properties2.properties"
+                                    data-ng-class="{'c-col c-col--{{properties3.width}}': properties3.width, 'c-form-gutter c-form-gutter__{{properties3.position}} c-col--vertical-top': properties3.position}"
+                                    data-c-new-row="{{properties3.newRow}}">
+                                    <form-field
+                                        data-ng-if="::!properties3.name"
+                                        data-ng-form-id="{{properties3.propertyId}}"
+                                        data-field="properties3"
+                                        data-model="model[category.name][properties.name][properties2.name]"
+                                        data-form="form[category.name]"
+                                        data-st-name="dataSource{{properties3.propertyId}}Form"
+                                        data-list-compressed = "true"
+                                        data-modal="true"
+                                        data-qa="{{properties3.qa}}">
+                                    </form-field>
+                                    <div data-ng-if="::properties3.name">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

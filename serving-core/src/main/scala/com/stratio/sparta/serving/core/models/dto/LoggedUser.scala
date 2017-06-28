@@ -56,6 +56,7 @@ object LoggedUser extends SLF4JLogging{
   private def getArrayValues(tag:String)(implicit jsonNode: JsonNode): Seq[String] = {
     Option(jsonNode.findValue(tag)) match {
       case Some(roles: ArrayNode) => roles.asScala.map(x => x.asText()).toSeq
+      case Some(_) => Seq.empty[String]
       case None => Seq.empty[String]
     }
   }

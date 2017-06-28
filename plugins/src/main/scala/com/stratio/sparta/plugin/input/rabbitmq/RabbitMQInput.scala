@@ -25,13 +25,14 @@ import org.apache.spark.sql.Row
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 class RabbitMQInput(properties: Map[String, JSerializable])
   extends Input(properties) with RabbitMQGenericProps {
 
-  def initStream(ssc: StreamingContext, sparkStorageLevel: String): DStream[Row] = {
+  def initStream(ssc: StreamingContext): DStream[Row] = {
     val messageHandler = MessageHandler(properties).handler
-    val params = propsWithStorageLevel(sparkStorageLevel)
+    val params = propsWithStorageLevel(properties.getString("storageLevel", Input.StorageDefaultValue))
     createStream(ssc, params, messageHandler)
   }
 

@@ -16,14 +16,14 @@
 
 package com.stratio.sparta.serving.core.helpers
 
-import com.stratio.sparta.serving.core.models.policy.PolicyModel
-import com.stratio.sparta.serving.core.models.policy.fragment.FragmentType.`type`
-import com.stratio.sparta.serving.core.models.policy.fragment.{FragmentElementModel, FragmentType}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentType.`type`
+import com.stratio.sparta.serving.core.models.workflow.fragment.{FragmentElementModel, FragmentType}
 
 
 object FragmentsHelper {
 
-  def populateFragmentFromPolicy(policy: PolicyModel, fragmentType: `type`): Seq[FragmentElementModel] =
+  def populateFragmentFromPolicy(policy: WorkflowModel, fragmentType: `type`): Seq[FragmentElementModel] =
     fragmentType match {
       case FragmentType.input =>
         policy.input match {

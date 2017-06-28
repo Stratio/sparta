@@ -16,8 +16,6 @@
 
 package com.stratio.sparta.serving.core.helpers
 
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.typesafe.config.ConfigFactory
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -31,32 +29,12 @@ class ResourceManagerLinkIT extends FlatSpec with ShouldMatchers with Matchers {
 
   it should "return local Spark UI link" in {
     val localhostName = java.net.InetAddress.getLocalHost().getHostName()
-    val config = ConfigFactory.parseString(
-      """
-        |sparta{
-        |  config {
-        |    executionMode = local
-        |  }
-        |}
-      """.stripMargin)
-    SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("local", None, false) should be(Some(s"http://${localhostName}:${sparkUIPort}"))
+    ResourceManagerLinkHelper.getLink("local", "local[*]", None, false) should be(Some
+    (s"http://${localhostName}:${sparkUIPort}"))
   }
 
   it should "return Mesos UI link" in {
-    val config = ConfigFactory.parseString(
-      """
-        |sparta{
-        |  config {
-        |    executionMode = mesos
-        |  }
-        |
-        |  mesos {
-        |    master = "mesos://127.0.0.1:7077"
-        |  }
-        |}
-      """.stripMargin)
-    SpartaConfig.initMainConfig(Option(config))
-    ResourceManagerLinkHelper.getLink("mesos", None, false) should be(Some(s"http://$localhost:$mesosPort"))
+    ResourceManagerLinkHelper.getLink("mesos", "mesos://127.0.0.1:7077", None, false) should be(
+      Some(s"http://$localhost:$mesosPort"))
   }
 }
