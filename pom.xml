@@ -104,7 +104,7 @@
         <gosec.version>0.8.0</gosec.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.2.0</crossdata.version>
+        <crossdata.version>2.2.2</crossdata.version>
     </properties>
 
     <dependencyManagement>
