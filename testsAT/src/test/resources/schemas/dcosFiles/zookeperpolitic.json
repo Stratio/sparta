@@ -1,0 +1,74 @@
+{
+  "id": "sparta",
+  "name": "zk_sparta",
+  "users": [
+    {
+      "id": "sparta",
+      "name": "sparta",
+      "email": "sparta@stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "zookeeper",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "zookeeperstable"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "zkNode",
+              "name": "/",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "zkNode",
+              "name": "/stratio/sparta",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "zkNode",
+              "name": "/stratio",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

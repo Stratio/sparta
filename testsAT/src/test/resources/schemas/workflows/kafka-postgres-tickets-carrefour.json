@@ -1,9 +1,77 @@
 {
-  "id": "0ff849a8-d968-42ab-b7c0-4dad35dbc647",
-  "storageLevel": "MEMORY_AND_DISK_SER_2",
+  "id": "51843479-5223-4572-9e59-2022bb12a59e",
   "name": "kafka-postgres-tickets-carrefour",
   "description": "Read carrefour tickets from khermes generator",
-  "sparkStreamingWindow": "2s",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "streamTemporalTable": "stream",
+      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "userPluginsJars": [
+        {
+          "jarPath": ""
+        }
+      ],
+      "initSqlSentences": [
+        {
+          "sentence": ""
+        }
+      ]
+    },
+    "checkpointSettings": {
+      "checkpointPath": "sparta/checkpoint",
+      "autoDeleteCheckpoint": true,
+      "addTimeToCheckpointPath": false
+    },
+    "streamingSettings": {
+      "window": "6s"
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": false,
+      "sparkHome": "/opt/spark/dist",
+      "submitArguments": {
+        "userArguments": [
+          {
+            "submitArgument": "",
+            "submitValue": ""
+          }
+        ],
+        "deployMode": "client",
+        "supervise": false
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "localityWait": "10",
+          "taskMaxFailures": "8",
+          "blockInterval": "200ms"
+        },
+        "sparkDockerConf": {
+          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorForcePullImage": false
+        },
+        "sparkMesosConf": {
+          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
+          "mesosExecutorHome": "/opt/spark/dist"
+        },
+        "userSparkConf": [
+          {
+            "sparkConfKey": "",
+            "sparkConfValue": ""
+          }
+        ],
+        "coarse": true,
+        "stopGracefully": true,
+        "parquetBinaryAsString": true
+      }
+    }
+  },
   "transformations": {
     "transformationsPipe": [
       {
@@ -73,6 +141,8 @@
           }
         ],
         "configuration": {
+          "removeInputField": true,
+          "whenError": "Error",
           "queries": [
             {
               "field": "id",
@@ -134,9 +204,7 @@
               "field": "netAmount",
               "query": "$.header.netAmount"
             }
-          ],
-          "whenError": "Error",
-          "removeInputField": true
+          ]
         }
       },
       {
@@ -236,7 +304,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     },
     {
       "name": "operatormetrics",
@@ -278,7 +346,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     },
     {
       "name": "clientmetrics",
@@ -320,7 +388,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     }
   ],
   "input": {
@@ -340,16 +408,16 @@
       "group.id": "",
       "bootstrap.servers": [
         {
-          "host": "broker-0.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "9419",
+          "host": "broker-0.confluent-kafka-sec.mesos"
         },
         {
-          "host": "broker-1.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "9792",
+          "host": "broker-1.confluent-kafka-sec.mesos"
         },
         {
-          "host": "broker-2.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "10038",
+          "host": "broker-2.confluent-kafka-sec.mesos"
         }
       ],
       "enable.auto.commit": false,
@@ -370,7 +438,7 @@
       "name": "postgres",
       "type": "Postgres",
       "configuration": {
-        "url": "jdbc:postgresql://10.200.0.151:1026/postgres?user=postgres",
+        "url": "jdbc:postgresql://10.200.0.54:1029/postgres?user=postgres",
         "batchsize": "1000",
         "encoding": "UTF8",
         "driver": "",
@@ -378,8 +446,8 @@
         "newLineSubstitution": " ",
         "saveOptions": [
           {
-            "saveOptionsKey": "",
-            "saveOptionsValue": ""
+            "saveOptionsValue": "",
+            "saveOptionsKey": ""
           }
         ],
         "numPartitions": "",
@@ -387,30 +455,5 @@
       }
     }
   ],
-  "fragments": [],
-  "userPluginsJars": [
-    {
-      "jarPath": ""
-    }
-  ],
-  "sparkConf": [
-    {
-      "sparkConfKey": "",
-      "sparkConfValue": ""
-    }
-  ],
-  "sparkSubmitArguments": [
-    {
-      "submitArgument": "",
-      "submitValue": ""
-    }
-  ],
-  "initSqlSentences": [
-    {
-      "sentence": ""
-    }
-  ],
-  "autoDeleteCheckpoint": true,
-  "streamTemporalTable": "stream",
-  "sparkUser": "sparta"
+  "fragments": []
 }

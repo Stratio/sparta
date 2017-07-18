@@ -1,0 +1,107 @@
+{
+  "id": "",
+  "cmd": null,
+  "args": null,
+  "user": null,
+  "env": {
+    "POSTGRES_TYPE": "postgresql",
+    "POSTGRES_MESOS_PRINCIPAL": "",
+    "DISABLE_DYNAMIC_RESERVATION": "",
+    "DISABLE_ZOOKEEPER_SEC": "",
+    "POSTGRES_MESOS_ROLE": "",
+    "REALM": "",
+    "POSTGRES_ZOOKEEPER": "",
+    "POSTGRES_CPU": "",
+    "KADMIN_HOST": "",
+    "VAULT_TOKEN": "",
+    "POSTGRES_MESOS_MASTER": "",
+    "POSTGRES_DATA_DISK_TYPE": "ROOT",
+    "POSTGRES_DATA_DISK": "256",
+    "POSTGRES_MEMORY": "512",
+    "POSTGRES_INSTANCES": "1",
+    "TENANT_NAME": "",
+    "VAULT_PORT": "",
+    "ENABLE_MESOS_SEC": "",
+    "VAULT_HOSTS": "",
+    "KDC_HOST": "",
+    "POSTGRES_DOCKER_IMAGE": "",
+    "POSTGRES_SERVICE_NAME": "",
+    "ENABLE_MARATHON_SEC": "",
+    "POSTGRES_DOCKER_IMAGE_FORCE_PULL": "true",
+    "POSTGRES_LAUNCH_RETRIES" : "5",
+    "POSTGRES_RETRY_DELAY_SECONDS" : "5",
+    "POSTGRES_EXTRA_CONFIG": "",
+    "POSTGRES_INDEX_DISK": "256",
+    "POSTGRES_INDEX_DISK_TYPE": "ROOT",
+    "ENABLE_POSTGRES_MD5_SECURITY": "true",
+    "ENABLE_HIGH_AVAILABILITY": "true"
+  },
+  "instances": 1,
+  "cpus": 1,
+  "mem": 1024,
+  "disk": 0,
+  "gpus": 0,
+  "executor": null,
+  "fetch": null,
+  "storeUrls": null,
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "docker": {
+      "image": "",
+      "forcePullImage": true,
+      "privileged": false,
+      "network": "HOST"
+    }
+  },
+  "healthChecks": null,
+  "readinessChecks": null,
+  "dependencies": null,
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 0,
+    "maximumOverCapacity": 0
+  },
+  "ipAddress": null,
+  "labels": {
+    "DCOS_PACKAGE_RELEASE": "0",
+    "DCOS_PACKAGE_SOURCE": "",
+    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiMi4wIiwibmFtZSI6IlN0cmF0aW8tQ29tbXVuaXR5LVBvc3RncmVzIiwidmVyc2lvbiI6InN0dWItdW5pdmVyc2UiLCJtYWludGFpbmVyIjoicG9zdGdyZXMtYmlnZGF0YUBzdGF0aW8uY29tIiwiZGVzY3JpcHRpb24iOiJTdHJhdGlvIFBvc3RncmVzIENvbW11bml0eSIsInRhZ3MiOlsic3RyYXRpbyIsImZyYW1ld29yayIsInBvc3RncmVzcWwiXSwic2VsZWN0ZWQiOnRydWUsInNjbSI6Imh0dHBzOi8vZ2l0aHViLmNvbS9wb3N0Z3Jlcy9wb3N0Z3JlcyIsIndlYnNpdGUiOiJodHRwczovL2dpdGh1Yi5jb20vcG9zdGdyZXMvcG9zdGdyZXMiLCJmcmFtZXdvcmsiOnRydWUsInBvc3RJbnN0YWxsTm90ZXMiOiJFbmpveSEhISEiLCJpbWFnZXMiOnsiaWNvbi1zbWFsbCI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyIsImljb24tbWVkaXVtIjoiaHR0cDovL2Fzc2V0cy5zdHJhdGlvLmNvbS9sb2dvcy9sb2dvX3N0cmF0aW9fdW5pdmVyc2UucG5nIiwiaWNvbi1sYXJnZSI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyJ9fQ==",
+    "DCOS_PACKAGE_REGISTRY_VERSION": "2.0",
+    "DCOS_PACKAGE_FRAMEWORK_NAME": "",
+    "DCOS_PACKAGE_VERSION": "stub-universe",
+    "DCOS_PACKAGE_NAME": "Stratio-Community-Postgres",
+    "MARATHON_SINGLE_INSTANCE_APP": "true",
+    "DCOS_PACKAGE_IS_FRAMEWORK": "true"
+  },
+  "residency": null,
+  "secrets": null,
+  "taskKillGracePeriodSeconds": null,
+  "portDefinitions": [
+    {
+      "protocol": "tcp",
+      "port": 0,
+      "name": "api"
+    }
+  ],
+  "requirePorts": true,
+  "constraints": [
+    [
+      "label",
+      "CLUSTER",
+      "all"
+    ]
+  ],
+  "acceptedResourceRoles": [
+    "slave_public"
+  ],
+  "healthChecks": [{
+    "protocol": "HTTP",
+    "path": "/v1/service/health",
+    "gracePeriodSeconds": 300,
+    "intervalSeconds": 60,
+    "timeoutSeconds": 20,
+    "maxConsecutiveFailures": 3,
+    "ignoreHttp1xx": false
+  }]
+}

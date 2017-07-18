@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/AppGenerateWorkflowinDcos_KafkatoPostgres.feature"
+        "src/test/resources/features/automated/dcos/Gosec_AddzookeperPolitic.feature"
 
 })
-public class ISAppGenerateWorkflowinDcos_KafkatoPostgres extends BaseTest {
+public class ISGosec_AddzookeperPolitic extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,7 +35,7 @@ public class ISAppGenerateWorkflowinDcos_KafkatoPostgres extends BaseTest {
 
     }
 
-    public ISAppGenerateWorkflowinDcos_KafkatoPostgres() {this.browser = browser;
+    public ISGosec_AddzookeperPolitic() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})

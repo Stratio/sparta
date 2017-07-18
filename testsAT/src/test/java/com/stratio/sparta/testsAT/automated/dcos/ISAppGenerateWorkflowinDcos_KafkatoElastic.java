@@ -38,7 +38,7 @@ public class ISAppGenerateWorkflowinDcos_KafkatoElastic extends BaseTest {
     public ISAppGenerateWorkflowinDcos_KafkatoElastic() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"web"})
+    @Test(enabled = true, groups = {"dcos"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

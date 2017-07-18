@@ -1,54 +1,56 @@
 
 @rest
-Feature: [SPARTA][DCOS]Generate workflow in DCOS Kafka to Elastic
+Feature: [SPARTA][DCOS]Validate workflow in DCOS Kafka to Elastic
 
   Background: Setup DCOS-CLI
-    #Start SSH with DCOS-CLI
 
-  Scenario: Add Sparta app and Execute Workflow
+  Scenario: Execute and validate  Workflow Kafka to Elastic
     #************************
     # ADD SPARTA APLICATION**
     #************************
-    Given I open a ssh connection to '${DCOS_IP}' with user 'root' and password 'stratio'
     #get token
+    Given I open a ssh connection to '${DCOS_IP}' with user 'root' and password 'stratio'
     Then I run ' cat /etc/sds/gosec-sso/cas/cas-vault.properties |grep token | cut -f 2 -d :' in the ssh connection and save the value in environment variable 'vaultToken'
     #get vault ip url
     And I run 'cat /etc/sds/gosec-sso/cas/cas-vault.properties |grep address | cut -f 3 -d / | cut -f 1 -d :' in the ssh connection and save the value in environment variable 'vaultIP'
     #get vault port url
     And I run 'cat /etc/sds/gosec-sso/cas/cas-vault.properties |grep address | cut -f 3 -d / | cut -f 2 -d :' in the ssh connection and save the value in environment variable 'vaultport'
 
+    #Connect to dcos cli
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
+
     Given I create file 'SpartaSecurityInstalation.json' based on 'schemas/dcosFiles/spartaSecurelywithoutMarathon.json' as 'json' with:
       |   $.container.docker.image                           |  UPDATE     | ${SPARTA_DOCKER_IMAGE}           | n/a    |
       |   $.container.docker.forcePullImage                  |  REPLACE    | ${FORCEPULLIMAGE}                |boolean |
       |   $.env.SPARTA_ZOOKEEPER_CONNECTION_STRING           |  UPDATE     | ${ZK_URL}                        |n/a |
-      |   $.env.VAULT_TOKEN                                  |  UPDATE     | !{vaultToken}                   |n/a |
+      |   $.env.VAULT_TOKEN                                  |  UPDATE     | !{vaultToken}                    |n/a |
       |   $.env.MARATHON_TIKI_TAKKA_MARATHON_URI             |  UPDATE     | ${MARATHON_TIKI_TAKKA}           |n/a |
       |   $.env.SPARTA_DOCKER_IMAGE                          |  UPDATE     | ${SPARTA_DOCKER_IMAGE}           |n/a |
-      |   $.env.VAULT_HOSTS                                  |  UPDATE     | !{vaultIP}                     | n/a |
-      |   $.env.VAULT_PORT                                   |  UPDATE     | !{vaultport}                     |n/a |
-
+      |   $.env.VAULT_HOSTS                                  |  UPDATE     | !{vaultIP}                       | n/a |
+      |   $.env.HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN        |  UPDATE     | ${HADOOP_PATTERN}                |n/a |
+      |   $.env.HADOOP_NAMENODE_KRB_PRINCIPAL                |  UPDATE     | ${HADOOP_PRINCIPAL}              |n/a |
+      |   $.env.HADOOP_FS_DEFAULT_NAME                       |  UPDATE     | ${HADOOP_DEFAULT_NAME}          |n/a |
 
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/SpartaSecurityInstalation.json' through a ssh connection to '/dcos'
     #Start image from JSON
-    #And I run 'dcos marathon app add /dcos/SpartaSecurityInstalation.json' in the ssh connection
-    #Check Sparta is Running
+    And I run 'dcos marathon app add /dcos/SpartaSecurityInstalation.json' in the ssh connection
     And in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-workflow-server.sparta | grep R | wc -l' contains '1'
     #Find task-id if from DCOS-CLI
     And in less than '400' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta/sparta-workflow-server | grep sparta-workflow-server | awk '{print $2}'' contains 'True'
+    #Add Sparta in dcos
     And I run 'dcos marathon task list /sparta/sparta/sparta-workflow-server | awk '{print $5}' | grep sparta-workflow-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
-    #Find Aplication ip
-    #And I run 'dcos marathon task list /sparta/sparta/sparta-workflow-server | grep -v APP | awk '{print $4}' in the ssh connection and save the value in environment variable 'spartaIP'
+    #Find Aplication IP
     And I run 'dcos marathon task list /sparta/sparta/sparta-workflow-server | awk '{print $4}'| awk 'NR ==2'' in the ssh connection and save the value in environment variable 'spartaIP'
     Then  I run 'echo !{spartaIP}' in the ssh connection
 
     #********************************
     # GENERATE AND EXECUTE WORKFLOW**
     #********************************
+
     Given I securely send requests to '!{spartaIP}:10148'
-   #include workflow
-    Given I send a 'POST' request to '/policy' based on 'schemas/workflows/kafka-elastic-tickets-carrefour.json' as   'json' with:
+    #include workflow
+    Given I send a 'POST' request to '/policy' based on 'schemas/workflows/kafka-elastic-tickets.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -58,8 +60,14 @@ Feature: [SPARTA][DCOS]Generate workflow in DCOS Kafka to Elastic
     When I send a 'GET' request to '/policy/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     #verify the generation of  workflow in dcos
-    And in less than '400' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta/workflows/!{nameWorkflow} | wc -l' contains '2'
-
+    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta/workflows/!{nameWorkflow} | wc -l' contains '2'
+    #Verify datas in elastic
+    Given I send requests to '${ELASTICIP}:${ELASTICPORT}'
+    Then in less than '400' seconds, checking each '20' seconds, I send a 'POST' request to '/${TABLEELASTIC}/_count?pretty' so that the response contains '"count" : ${TOTALDATA},'
+    #clean values
+    Given I send requests to '${ELASTICIP}:${ELASTICPORT}'
+    And   I send a 'DELETE' request to '/triggertickets?pretty'
+    Then the service response status must be '200'
 
     #*******************************
     #    *DELETE APP AND WORKFLOW***
@@ -73,7 +81,6 @@ Feature: [SPARTA][DCOS]Generate workflow in DCOS Kafka to Elastic
 
 
 # Example of execution with mvn :
-#   mvn verify -DSPARTANAME='sparta' -DDCOS_IP='10.200.0.21' -DMARATHON_TIKI_TAKKA='http://10.200.0.21:8080' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.2 -DSPARTA_DOCKER_IMAGE=stratio/sparta:1.6.1 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppValidateWorkflowinDcos_KafkatoPostgres -DlogLevel=DEBUG -Dmaven.failsafe.debu
-#  mvn verify -DPORTELASTIC='31504'  -DTOTALDATA='20' -DSPARTANAME='sparta' -DDCOS_IP='10.200.0.21' -DMARATHON_TIKI_TAKKA='http://10.200.0.21:8080' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.2 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:1.6.1 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppValidateWorkflowinDcos_KafkatoElastic -DlogLevel=DEBUG -Dmaven.failsafe.debu
+#  mvn verify -DHADOOP_DEFAULT_NAME='hdfs://10.200.1.5:8020' -DTABLEELASTIC='triggertickets' -DHADOOP_PRINCIPAL='hdfs/10.200.1.5@PERFORMANCE.STRATIO.COM' -DHADOOP_PATTERN='hdfs/*@PERFORMANCE.STRATIO.COM' -DELASTICIP=10.200.0.58 -DELASTICPORT='31504'  -DTOTALDATA='101' -DSPARTANAME='sparta' -DDCOS_IP='10.200.0.238' -DMARATHON_TIKI_TAKKA='http://10.200.0.21:8080' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.2 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:1.6.1 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppValidateWorkflowinDcos_KafkatoElastic -DlogLevel=DEBUG -Dmaven.failsafe.debu
 
 

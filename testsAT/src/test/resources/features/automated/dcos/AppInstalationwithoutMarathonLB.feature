@@ -15,9 +15,9 @@ Feature: [SPARTA][DCOS]Instalation sparta without security without MarathonLB
       |   $.env.VAULT_TOKEN                                  |  UPDATE     | ${VAULT_TOKEN}                    |n/a |
 
     #Copy DEPLOY JSON to DCOS-CLI
-    When I outbound copy 'target/test-classes/spartaSecurelywithoutMarathon.json' through a ssh connection to '/dcos'
+    When I outbound copy 'target/test-classes/SpartaSecurityInstalation.json' through a ssh connection to '/dcos'
     #Start image from JSON
-    And I run 'dcos marathon app add /dcos/spartaSecurelywithoutMarathon.json' in the ssh connection
+    And I run 'dcos marathon app add /dcos/SpartaSecurityInstalation.json' in the ssh connection
     #Check Sparta is Running
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-auto | grep R | wc -l' contains '1'
     #Find task-id if from DCOS-CLI

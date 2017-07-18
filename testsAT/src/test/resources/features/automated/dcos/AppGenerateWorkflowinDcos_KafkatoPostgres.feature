@@ -16,25 +16,26 @@ Feature: [SPARTA][DCOS]Generate and Execute workflow in DCOS without marathonLB
       |   $.env.VAULT_HOST                                   |  UPDATE     | ${VAULT_HOST}                    |n/a |
       |   $.env.VAULT_TOKEN                                  |  UPDATE     | ${VAULT_TOKEN}                    |n/a |
 
+
     #Copy DEPLOY JSON to DCOS-CLI
-    When I outbound copy 'target/test-classes/spartaSecurelywithoutMarathon.json' through a ssh connection to '/dcos'
+    When I outbound copy 'target/test-classes/SpartaSecurityInstalation.json' through a ssh connection to '/dcos'
     #Start image from JSON
-    And I run 'dcos marathon app add /dcos/spartaSecurelywithoutMarathon.json' in the ssh connection
+    Then I run 'dcos marathon app add /dcos/SpartaSecurityInstalation.json' in the ssh connection
     #Check Sparta is Running
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-auto | grep R | wc -l' contains '1'
+    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-workflow-server.sparta | grep R | wc -l' contains '1'
     #Find task-id if from DCOS-CLI
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-auto | grep sparta-auto | awk '{print $2}'' contains 'True'
-    And I run 'dcos marathon task list /sparta/sparta-auto | awk '{print $5}' | grep sparta-auto' in the ssh connection and save the value in environment variable 'spartaTaskId'
+    And in less than '400' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta/sparta-workflow-server | grep sparta-workflow-server | awk '{print $2}'' contains 'True'
+    And I run 'dcos marathon task list /sparta/sparta/sparta-workflow-server | awk '{print $5}' | grep sparta-workflow-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
     #Find Aplication ip
-    And I run 'dcos marathon task list /sparta/sparta-auto | awk '{print $4}'| grep 10' in the ssh connection and save the value in environment variable 'spartaIP'
-    And  I run 'echo !{spartaIP}' in the ssh connection
+    When I run 'dcos marathon task list /sparta/sparta/sparta-workflow-server | awk '{print $4}'| awk 'NR ==2'' in the ssh connection and save the value in environment variable 'spartaIP'
+    Then  I run 'echo !{spartaIP}' in the ssh connection
 
     #********************************
     # GENERATE AND EXECUTE WORKFLOW**
     #********************************
     Given I securely send requests to '!{spartaIP}:10148'
     #include workflow
-    Given I send a 'POST' request to '/policy' based on 'schemas/workflows/kafka-kafka-tickets-carrefour.json' as 'json' with:
+    Given I send a 'POST' request to '/policy' based on 'schemas/workflows/kafka-postgres-tickets-carrefour.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -58,4 +59,4 @@ Feature: [SPARTA][DCOS]Generate and Execute workflow in DCOS without marathonLB
 
 
 # Example of execution with mvn :
-#  mvn verify -DVAULT_TOKEN='22423ddf-d12e-4a3a-fd49-871f06a0c35e' -DVAULT_HOST='https://vault.service.paas.labs.stratio.com:8200' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.3 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:1.6.0 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppGenerateWorkflowinDcos_KafkatoPostgres -DlogLevel=DEBUG -Dmaven.failsafe.debu
+#  mvn verify -DVAULT_TOKEN='22423ddf-d12e-4a3a-fd49-871f06a0c35e' -DVAULT_HOST='https://vault.service.paas.labs.stratio.com:8200' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.3 -DSPARTA_DOCKER_IMAGE=qa.stratio.com:8443/stratio/sparta:1.6.2-RC1-SNAPSHOTPR36 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppGenerateWorkflowinDcos_KafkatoPostgres -DlogLevel=DEBUG -Dmaven.failsafe.debu

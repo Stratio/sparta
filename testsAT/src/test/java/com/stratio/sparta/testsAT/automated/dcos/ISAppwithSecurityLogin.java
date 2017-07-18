@@ -35,7 +35,7 @@ public class ISAppwithSecurityLogin extends BaseTest {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"web"})
+    @Test(enabled = true, groups = {"dcos"})
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

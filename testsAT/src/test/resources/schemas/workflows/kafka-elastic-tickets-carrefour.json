@@ -1,9 +1,78 @@
 {
-  "id": "fa82cf7f-ffdc-41cc-b6bd-5453fc998b2a",
-  "storageLevel": "MEMORY_AND_DISK_SER_2",
+  "id": "3ec49c20-5b0d-47bb-9fa0-ea0d9e659a12",
   "name": "kafka-elastic-tickets-carrefour",
   "description": "Read carrefour tickets from khermes generator",
-  "sparkStreamingWindow": "2s",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "streamTemporalTable": "stream",
+      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "userPluginsJars": [
+        {
+          "jarPath": ""
+        }
+      ],
+      "initSqlSentences": [
+        {
+          "sentence": ""
+        }
+      ]
+    },
+    "checkpointSettings": {
+      "checkpointPath": "sparta/checkpoint",
+      "autoDeleteCheckpoint": true,
+      "addTimeToCheckpointPath": false
+    },
+    "streamingSettings": {
+      "window": "6s"
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": false,
+      "sparkHome": "/opt/spark/dist",
+      "sparkUser": "root",
+      "submitArguments": {
+        "userArguments": [
+          {
+            "submitArgument": "",
+            "submitValue": ""
+          }
+        ],
+        "deployMode": "client",
+        "supervise": false
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "localityWait": "10",
+          "taskMaxFailures": "8",
+          "blockInterval": "200ms"
+        },
+        "sparkDockerConf": {
+          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorForcePullImage": false
+        },
+        "sparkMesosConf": {
+          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
+          "mesosExecutorHome": "/opt/spark/dist"
+        },
+        "userSparkConf": [
+          {
+            "sparkConfKey": "",
+            "sparkConfValue": ""
+          }
+        ],
+        "coarse": true,
+        "stopGracefully": true,
+        "parquetBinaryAsString": true
+      }
+    }
+  },
   "transformations": {
     "transformationsPipe": [
       {
@@ -236,7 +305,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     },
     {
       "name": "operatormetrics",
@@ -278,7 +347,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     },
     {
       "name": "clientmetrics",
@@ -320,7 +389,7 @@
         "saveMode": "Upsert"
       },
       "triggers": [],
-      "avoidNullValues": true
+      "configuration": {}
     }
   ],
   "input": {
@@ -340,16 +409,16 @@
       "group.id": "",
       "bootstrap.servers": [
         {
-          "host": "broker-0.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "9606",
+          "host": "broker-0.confluent-kafka-sec.mesos"
         },
         {
-          "host": "broker-1.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "9525",
+          "host": "broker-1.confluent-kafka-sec.mesos"
         },
         {
-          "host": "broker-2.confluent-kafka-sec.mesos",
-          "port": "10038"
+          "port": "9726",
+          "host": "broker-2.confluent-kafka-sec.mesos"
         }
       ],
       "enable.auto.commit": false,
@@ -372,45 +441,20 @@
       "configuration": {
         "nodes": [
           {
-            "node": "localhost",
-            "httpPort": "9200"
+            "node": "coordinator-0-node.elasticsearchstratio.mesos",
+            "httpPort": "31504"
           }
         ],
         "clusterName": "elasticsearch",
         "indexMapping": "sparta",
         "saveOptions": [
           {
-            "saveOptionsKey": "",
-            "saveOptionsValue": ""
+            "saveOptionsKey": "es.index.auto.create",
+            "saveOptionsValue": "true"
           }
         ]
       }
     }
   ],
-  "fragments": [],
-  "userPluginsJars": [
-    {
-      "jarPath": ""
-    }
-  ],
-  "sparkConf": [
-    {
-      "sparkConfKey": "",
-      "sparkConfValue": ""
-    }
-  ],
-  "sparkSubmitArguments": [
-    {
-      "submitArgument": "",
-      "submitValue": ""
-    }
-  ],
-  "initSqlSentences": [
-    {
-      "sentence": ""
-    }
-  ],
-  "autoDeleteCheckpoint": true,
-  "streamTemporalTable": "stream",
-  "sparkUser": "sparta"
+  "fragments": []
 }

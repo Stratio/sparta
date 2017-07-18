@@ -22,25 +22,14 @@ import cucumber.api.CucumberOptions;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+@CucumberOptions(features = { "src/test/resources/features/automated/dcos/InstallPostgres.feature" })
+public class ISInstallPostgres extends BaseTest {
 
-@CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/AppGenerateWorkflowinDcos_KafkatoPostgres.feature"
-
-})
-public class ISAppGenerateWorkflowinDcos_KafkatoPostgres extends BaseTest {
-
-    @BeforeClass(groups = {"sparta_eos"})
-    public void setUp() {
-        ThreadProperty.set("Driver", "inst");
-
-    }
-
-    public ISAppGenerateWorkflowinDcos_KafkatoPostgres() {this.browser = browser;
+    public ISInstallPostgres() {
     }
 
     @Test(enabled = true, groups = {"dcos"})
-    public void AppWithoutSecurityTest() throws Exception {
+    public void installation() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
 }

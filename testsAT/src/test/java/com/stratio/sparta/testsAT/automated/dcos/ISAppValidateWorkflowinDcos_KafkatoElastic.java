@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/AppGenerateWorkflowinDcos_KafkatoPostgres.feature"
+        "src/test/resources/features/automated/dcos/AppValidateWorkflowinDcos_KafkatoElastic.feature"
 
 })
-public class ISAppGenerateWorkflowinDcos_KafkatoPostgres extends BaseTest {
+public class ISAppValidateWorkflowinDcos_KafkatoElastic extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,7 +35,7 @@ public class ISAppGenerateWorkflowinDcos_KafkatoPostgres extends BaseTest {
 
     }
 
-    public ISAppGenerateWorkflowinDcos_KafkatoPostgres() {this.browser = browser;
+    public ISAppValidateWorkflowinDcos_KafkatoElastic() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})
