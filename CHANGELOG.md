@@ -2,7 +2,8 @@
 
 ## 1.7.0 (upcoming)
 
-* Pending changelog
+* Update Spark Image
+* Dyplon upgrade 0.10.3
 
 ## 1.6.3 (July 13, 2017)
 
