@@ -71,13 +71,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     if (enabledSecurity) {
       secured { userAuth =>
         val user: Option[LoggedUser] = userAuth
-        user match {
-          case Some(parsedUser) =>
-            authorize(parsedUser.isAuthorized(enabledSecurity)) {
-              webRoutes
-            }
-          case None => complete(Unauthorized)
-        }
+        webRoutes
       }
     } else webRoutes
   }
@@ -86,13 +80,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     if (enabledSecurity) {
       authorized { userAuth =>
         val user: Option[LoggedUser] = userAuth
-        user match {
-          case Some(parsedUser) =>
-            authorize(parsedUser.isAuthorized(enabledSecurity)) {
-              allServiceRoutes(Some(parsedUser))
-            }
-          case None => complete(Unauthorized)
-        }
+        allServiceRoutes(user)
       }
     } else allServiceRoutes(None)
   }
@@ -217,13 +205,13 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
 
   private val serviceInfoService = new InfoServiceHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = actorsMap(AkkaConstant.MetadataActorName)
+    override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context
   }
 
   private val crossdataService = new CrossdataHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
-    override val supervisor: ActorRef = null
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.CrossdataActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

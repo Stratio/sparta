@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.output.parquet
 
 import com.github.nscala_time.time.Imports._
+import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.{SparkConf, SparkContext}
 import org.junit.runner.RunWith
@@ -27,20 +28,8 @@ import org.scalatest.junit.JUnitRunner
 import scala.reflect.io.File
 
 @RunWith(classOf[JUnitRunner])
-class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAll {
+class ParquetOutputIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
   self: FlatSpec =>
-
-  @transient var sc: SparkContext = _
-
-  override def beforeAll {
-    Logger.getRootLogger.setLevel(Level.ERROR)
-    sc = ParquetOutputIT.getNewLocalSparkContext(1, "test")
-  }
-
-  override def afterAll {
-    sc.stop()
-    System.clearProperty("spark.driver.port")
-  }
 
   trait CommonValues {
 
@@ -59,14 +48,14 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   trait WithEventData extends CommonValues {
 
     val properties = Map("path" -> tmpPath)
-    val output = new ParquetOutput("parquet-test", properties)
+    val output = new ParquetOutput("parquet-test", sparkSession, properties)
   }
 
   trait WithoutGranularity extends CommonValues {
 
     val datePattern = "yyyy/MM/dd"
     val properties = Map("path" -> tmpPath, "datePattern" -> datePattern)
-    val output = new ParquetOutput("parquet-test", properties)
+    val output = new ParquetOutput("parquet-test", sparkSession, properties)
     val expectedPath = "/0"
   }
 
@@ -80,7 +69,7 @@ class ParquetOutputIT extends FlatSpec with ShouldMatchers with BeforeAndAfterAl
   }
 
   it should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new ParquetOutput("parquet-test", Map())
+    an[Exception] should be thrownBy new ParquetOutput("parquet-test", sparkSession, Map())
   }
 }
 

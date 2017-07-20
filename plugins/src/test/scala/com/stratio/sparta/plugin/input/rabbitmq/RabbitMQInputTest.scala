@@ -15,22 +15,27 @@
  */
 package com.stratio.sparta.plugin.input.rabbitmq
 
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class RabbitMQInputTest extends WordSpec with Matchers {
+class RabbitMQInputTest extends WordSpec with Matchers with MockitoSugar{
 
   val DefaultStorageLevel = "MEMORY_AND_DISK_SER_2"
   val customKey = "inputOptions"
   val customPropertyKey = "inputOptionsKey"
   val customPropertyValue = "inputOptionsValue"
+  val sparkSession = mock[XDSession]
+  val ssc = mock[StreamingContext]
 
   "RabbitMQInput " should {
 
     "Add storage level to properties" in {
-      val input = new RabbitMQInput(Map.empty[String, String])
+      val input = new RabbitMQInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
       val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("storageLevel", DefaultStorageLevel)
       result should have size 1
@@ -40,7 +45,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
       val props = Map(
         "host" -> "host",
         "queue" -> "queue")
-      val input = new RabbitMQInput(props)
+      val input = new RabbitMQInput("rabbitmq", ssc, sparkSession, props)
       val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host")
       result should contain("queue", "queue")
@@ -62,7 +67,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
           |]
         """.stripMargin
       val props = Map(customKey -> rabbitmqProperties)
-      val input = new RabbitMQInput(props)
+      val input = new RabbitMQInput("rabbitmq", ssc, sparkSession, props)
       val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host1")
       result should contain("queue", "queue1")
@@ -79,7 +84,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
         """.stripMargin
       val props = Map(customKey -> rabbitmqProperties)
       the[IllegalStateException] thrownBy {
-        new RabbitMQInput(props)
+        new RabbitMQInput("rabbitmq", ssc, sparkSession, props)
       } should have message "The field inputOptionsValue is mandatory"
 
     }
@@ -93,7 +98,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
         """.stripMargin
       val props = Map(customKey -> rabbitmqProperties)
       the[IllegalStateException] thrownBy {
-        new RabbitMQInput(props)
+        new RabbitMQInput("rabbitmq", ssc, sparkSession, props)
       } should have message "The field inputOptionsKey is mandatory"
     }
 
@@ -116,7 +121,7 @@ class RabbitMQInputTest extends WordSpec with Matchers {
         "queue" -> "queue",
         customKey -> rabbitmqProperties
       )
-      val input = new RabbitMQInput(props)
+      val input = new RabbitMQInput("rabbitmq", ssc, sparkSession, props)
       val result = input.propsWithStorageLevel(DefaultStorageLevel)
       result should contain("host", "host")
       result should contain("queue", "queue")

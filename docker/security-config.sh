@@ -5,12 +5,18 @@ function _log_sparta_sec() {
     echo "[SPARTA-SECURITY] $message"
 }
 
-_log_sparta_sec "Setup vault hosts"
-export VAULT_HOSTS=($VAULT_HOST)
-
 _log_sparta_sec "Loading kms-utils ... "
 source /kms_utils.sh
 _log_sparta_sec "Loaded kms-utils"
+
+if [ "$USE_DYNAMIC_AUTHENTICATION" = "true" ]; then
+    _log_sparta_sec "Dynamic authentication enabled. Obtaining token from Vault"
+    login
+    if [ $? != 0 ]; then
+        _log_sparta_sec "ERROR" "login using dynamic authentication failed!"
+        exit 1
+    fi
+fi
 
 #Ensure security folder is created
 mkdir -p /etc/sds/sparta/security
@@ -58,7 +64,6 @@ fi
 if [ -v SECURITY_KRB_ENABLE ] && [ ${#SECURITY_KRB_ENABLE} != 0 ] && [ $SECURITY_KRB_ENABLE == "true" ]; then
   _log_sparta_sec "Configuring kerberos ..."
   source /kerberos-server-config.sh
-  _log_sparta_sec "Configuring kerberos Ok"
 fi
 
 #######################################################

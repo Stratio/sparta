@@ -18,7 +18,7 @@ function _log_sparta_entrypoint() {
 
  ## Vault and secrets (configured if enabled)
  ###################################################
- if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_HOST ] && [ ${#VAULT_HOST} != 0 ]; then
+ if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_HOSTS ] && [ ${#VAULT_HOSTS} != 0 ]; then
      _log_sparta_entrypoint "Executing Sparta security script ... "
      source /security-config.sh $1
      _log_sparta_entrypoint "Sparta security script executed correctly"

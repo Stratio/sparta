@@ -72,6 +72,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       spartaWorkflow.cleanUp()
     } match {
       case Success(_) =>
+        SparkContextFactory.destroySparkContext()
         val information = s"Sparta local job stopped correctly"
         log.info(information)
         updateStatus(WorkflowStatusModel(

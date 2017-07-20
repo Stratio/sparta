@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 
 import scala.util.Try
 import scalaj.http._
@@ -31,7 +32,11 @@ import scalaj.http._
   * @param name
   * @param properties
   */
-class HttpOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class HttpOutput(
+                  name: String,
+                  sparkSession: XDSession,
+                  properties: Map[String, JSerializable]
+                ) extends Output(name, sparkSession, properties) {
 
   val MaxReadTimeout = 5000
   val MaxConnTimeout = 1000

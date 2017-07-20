@@ -465,7 +465,7 @@
                   "propertyName": "_SPARK_DRIVER_MEMORY_",
                   "propertyType": "text",
                   "width": 4,
-                  "default": "1G",
+                  "default": "2G",
                   "tooltip": "Memory assigned to Spark Driver",
                   "qa": "workflow-spark-driverMemory"
                 },
@@ -532,7 +532,7 @@
                   "propertyName": "_SPARK_DOCKER_IMAGE_",
                   "propertyType": "text",
                   "width": 6,
-                  "default": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+                  "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
                   "tooltip": "Run over Mesos Clusters with Docker containers",
                   "qa": "workflow-spark-executorDockerImage"
                 },

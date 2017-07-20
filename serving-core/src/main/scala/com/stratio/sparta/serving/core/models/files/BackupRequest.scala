@@ -16,5 +16,4 @@
 
 package com.stratio.sparta.serving.core.models.files
 
-
 case class BackupRequest(fileName: String, deleteAllBefore: Boolean = false)

@@ -22,12 +22,17 @@ import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
 import com.databricks.spark.avro._
+import org.apache.spark.sql.crossdata.XDSession
 
 
 /**
   * This output save as avro file the information.
   */
-class AvroOutput(name: String, properties: Map[String, Serializable]) extends Output(name, properties) {
+class AvroOutput(
+                  name: String,
+                  sparkSession: XDSession,
+                  properties: Map[String, Serializable]
+                ) extends Output(name, sparkSession, properties) {
 
   val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")

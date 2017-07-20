@@ -15,6 +15,7 @@
  */
 package com.stratio.sparta.plugin.output.elasticsearch
 
+import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -22,14 +23,14 @@ import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
+class ElasticSearchOutputTest extends TemporalSparkContext with ShouldMatchers {
 
   trait BaseValues {
 
     final val localPort = 9200
     final val remotePort = 9300
     val output = getInstance()
-    val outputMultipleNodes = new ElasticSearchOutput("ES-out",
+    val outputMultipleNodes = new ElasticSearchOutput("ES-out", sparkSession,
       Map("nodes" ->
         new JsoneyString(
           s"""[{"node":"host-a","tcpPort":"$remotePort","httpPort":"$localPort"},{"node":"host-b",
@@ -38,7 +39,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
 
     def getInstance(host: String = "localhost", httpPort: Int = localPort, tcpPort: Int = remotePort)
     : ElasticSearchOutput =
-      new ElasticSearchOutput("ES-out",
+      new ElasticSearchOutput("ES-out", sparkSession,
         Map("nodes" -> new JsoneyString( s"""[{"node":"$host","httpPort":"$httpPort","tcpPort":"$tcpPort"}]"""),
           "clusterName" -> "elasticsearch"))
   }
@@ -61,7 +62,7 @@ class ElasticSearchOutputTest extends FlatSpec with ShouldMatchers {
       """[{"node":"localhost","httpPort":"9200","tcpPort":"9300"}]""".stripMargin),
       "dateType" -> "long",
       "clusterName" -> "elasticsearch")
-    override val output = new ElasticSearchOutput("ES-out", properties)
+    override val output = new ElasticSearchOutput("ES-out", sparkSession, properties)
     val dateField = StructField("timestamp", TimestampType, false)
     val expectedDateField = StructField("timestamp", LongType, false)
     val stringField = StructField("string", StringType)

@@ -22,6 +22,7 @@ import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
@@ -50,7 +51,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
   def initializeSubmitRequest(workflow: WorkflowModel): Unit = {
     Try {
       val sparkSubmitService = new SparkSubmitService(workflow)
-      log.info(s"Initializing options to submit the Marathon application associated to policy: ${workflow.name}")
+      log.info(s"Initializing options to submit the Workflow App associated to workflow: ${workflow.name}")
       val detailConfig = SpartaConfig.getDetailConfig.getOrElse {
         val message = "Impossible to extract Detail Configuration"
         log.error(message)
@@ -73,22 +74,23 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
       )
 
-      createRequest(submitRequest).getOrElse(throw new Exception("Unable to create a submit request in persistence"))
+      createRequest(submitRequest).getOrElse(throw new Exception("Unable to create a submit request in Zookeeper"))
 
       new MarathonService(context, curatorFramework, workflow, submitRequest)
     } match {
       case Failure(exception) =>
-        val information = s"Error 0 initializing Sparta Marathon App options"
+        val information = s"Error initializing Workflow App"
         log.error(information, exception)
         updateStatus(WorkflowStatusModel(id = workflow.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(marathonApp) =>
-        val information = "Sparta Marathon App configuration initialized correctly"
+        val information = "Workflow App configuration initialized correctly"
         log.info(information)
         updateStatus(WorkflowStatusModel(id = workflow.id.get, status = NotStarted,
-          statusInfo = Option(information), lastExecutionMode = Option(workflow.settings.global.executionMode)))
+          marathonId = Option(WorkflowHelper.getMarathonId(workflow)), statusInfo = Option(information),
+          lastExecutionMode = Option(workflow.settings.global.executionMode)))
         marathonApp.launch()
         addMarathonContextListener(workflow.id.get, workflow.name, context, Option(self))
         checkersPolicyStatus += scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(

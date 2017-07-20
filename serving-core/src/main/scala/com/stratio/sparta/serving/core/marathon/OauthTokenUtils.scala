@@ -34,48 +34,92 @@ trait OauthTokenUtils extends SLF4JLogging {
   lazy val clientId = ConfigComponent.getString(clientIdField).getOrElse(throw new Exception("clientId not defined"))
   lazy val redirectUri = ConfigComponent.getString(redirectUriField)
     .getOrElse(throw new Exception("redirectUri not defined"))
+  val maxRetries = 3
+  val dcosAuthCookieName = "dcos-acs-auth-cookie"
 
-  def getToken: HttpCookie = Try {
-
-    // First request (AUTHORIZE)
-    val authRequest = s"$ssoUri/oauth2.0/authorize?redirect_uri=$redirectUri&client_id=$clientId"
-    log.debug(s"1. Request to : $authRequest")
-    val authResponse = Http(authRequest).asString
-    val JSESSIONIDCookie = getCookie(authResponse)
-
-    // Second request (Redirect to LOGIN)
-    val redirectToLogin = extractRedirectUri(authResponse)
-    log.debug(s"2. Redirect to : $redirectToLogin with JSESSIONID cookie")
-    val postFormUri = Http(redirectToLogin).cookies(JSESSIONIDCookie).asString
-    val (lt, execution) = extractLTAndExecution(postFormUri.body)
-
-    // Third request (POST)
-    val loginPostUri = s"$ssoUri/login?service=$ssoUri/oauth2.0/callbackAuthorize"
-    log.debug(s"3. Request to $loginPostUri with JSESSIONID cookie")
-    val loginResponse = Http(loginPostUri)
-      .cookies(JSESSIONIDCookie)
-      .postForm(createLoginForm(lt, execution))
-      .asString
-
-    val CASPRIVACY_AND_TGC_COOKIES = getCookie(loginResponse)
-
-    // Fourth request (Redirect from POST)
-    val callbackUri = extractRedirectUri(loginResponse)
-    log.debug(s"4. Redirect to : $callbackUri with JSESSIONID, CASPRIVACY and TGC cookies")
-    val ticketResponse = Http(callbackUri).cookies(CASPRIVACY_AND_TGC_COOKIES union JSESSIONIDCookie).asString
-
-    // Fifth request (Redirect with Ticket)
-    val clientRedirectUri = extractRedirectUri(ticketResponse)
-    log.debug(s"5. Redirect to : $clientRedirectUri with JSESSIONID, CASPRIVACY and TGC cookies")
-    val tokenResponse =
-      Http(clientRedirectUri).cookies(CASPRIVACY_AND_TGC_COOKIES union JSESSIONIDCookie).asString
-
-    getCookie(tokenResponse)
-  } match {
-    case Success(Seq(tokenCookie)) => tokenCookie
-    case Failure(ex: Throwable) => throw new Exception(s"Error trying to recover the Oauth token: ${ex.getMessage}")
-    case _ => throw new Exception(s"Error trying to recover the Oauth token: token not found in last response")
+  def getToken: HttpCookie = {
+      currentToken match {
+      case Some(t) if !t.hasExpired => t
+      case _ => Try(retryGetToken(1)(retrieveTokenFromSSO)) match {
+        case Success(token) =>
+          currentToken = Option(token)
+          token
+        case Failure(ex: Throwable) =>
+          throw new Exception(s"ERROR: ${ex.getMessage}. For further information, please consult the application log")
+      }
+    }
   }
+
+  var currentToken: Option[HttpCookie] = None
+
+  def retryGetToken(numberCurrentRetries: Int)(getTokenFn: => Try[Seq[HttpCookie]]): HttpCookie =
+    if(numberCurrentRetries <= maxRetries){
+      retrieveTokenFromSSO match {
+        case Success(tokenCookie: Seq[HttpCookie]) => {
+          val dcosCookie = tokenCookie.filter(cookie =>
+            cookie.getName.equalsIgnoreCase(dcosAuthCookieName))
+          if (dcosCookie.nonEmpty) {
+            log.info(s"""Marathon Token "$dcosAuthCookieName" correctly retrieved """ +
+              s"at retry attempt n. $numberCurrentRetries")
+            dcosCookie.head
+          }
+          else {
+            log.info(s"Retry attempt n. $numberCurrentRetries :" +
+              s"Error trying to recover the Oauth token: cookie $dcosAuthCookieName not found")
+            retryGetToken(numberCurrentRetries + 1)(getTokenFn)
+          }
+        }
+        case Failure(ex: Throwable) =>
+          log.info(s"Retry attempt n. $numberCurrentRetries :" +
+            s" Error trying to recover Oauth token: ${ex.getMessage}")
+          retryGetToken(numberCurrentRetries + 1)(getTokenFn)
+        case _ =>
+          log.info(s"Retry attempt n. $numberCurrentRetries :" +
+            s" Token not found in last response")
+          retryGetToken(numberCurrentRetries + 1)(getTokenFn)
+      }
+    } else {
+      throw new Exception(s"It was not possible to recover the Oauth token " +
+        s"$dcosAuthCookieName after $maxRetries retries")
+    }
+
+    def retrieveTokenFromSSO: Try[Seq[HttpCookie]] =
+      Try {
+      // First request (AUTHORIZE)
+      val authRequest = s"$ssoUri/oauth2.0/authorize?redirect_uri=$redirectUri&client_id=$clientId"
+      log.debug(s"1. Request to : $authRequest")
+      val authResponse = Http(authRequest).asString
+      val JSESSIONIDCookie = getCookie(authResponse)
+
+      // Second request (Redirect to LOGIN)
+      val redirectToLogin = extractRedirectUri(authResponse)
+      log.debug(s"2. Redirect to : $redirectToLogin with JSESSIONID cookie")
+      val postFormUri = Http(redirectToLogin).cookies(JSESSIONIDCookie).asString
+      val (lt, execution) = extractLTAndExecution(postFormUri.body)
+
+      // Third request (POST)
+      val loginPostUri = s"$ssoUri/login?service=$ssoUri/oauth2.0/callbackAuthorize"
+      log.debug(s"3. Request to $loginPostUri with JSESSIONID cookie")
+      val loginResponse = Http(loginPostUri)
+        .cookies(JSESSIONIDCookie)
+        .postForm(createLoginForm(lt, execution))
+        .asString
+
+      val CASPRIVACY_AND_TGC_COOKIES = getCookie(loginResponse)
+
+      // Fourth request (Redirect from POST)
+      val callbackUri = extractRedirectUri(loginResponse)
+      log.debug(s"4. Redirect to : $callbackUri with JSESSIONID, CASPRIVACY and TGC cookies")
+      val ticketResponse = Http(callbackUri).cookies(CASPRIVACY_AND_TGC_COOKIES union JSESSIONIDCookie).asString
+
+      // Fifth request (Redirect with Ticket)
+      val clientRedirectUri = extractRedirectUri(ticketResponse)
+      log.debug(s"5. Redirect to : $clientRedirectUri with JSESSIONID, CASPRIVACY and TGC cookies")
+      val tokenResponse =
+        Http(clientRedirectUri).cookies(CASPRIVACY_AND_TGC_COOKIES union JSESSIONIDCookie).asString
+
+      getCookie(tokenResponse)
+    }
 
   def extractRedirectUri(response: HttpResponse[String]): String =
     response.headers.get("Location").get.head

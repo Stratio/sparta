@@ -16,20 +16,26 @@
 
 package com.stratio.sparta.plugin.input.rabbitmq
 
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.rabbitmq.models.ExchangeAndRouting
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class RabbitMQDistributedInputTest extends WordSpec with Matchers {
+class RabbitMQDistributedInputTest extends WordSpec with Matchers with MockitoSugar {
 
   import RabbitMQDistributedInput._
+
+  val sparkSession = mock[XDSession]
+  val ssc = mock[StreamingContext]
 
   "RabbitMQDistributedInput " should {
 
     "Generate correct RabbitMQDistributedKey for empty input" in {
-      val input = new RabbitMQDistributedInput(Map.empty[String, String])
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
       val result = input.getKey(Map.empty[String, String], Map.empty[String, String])
       result.connectionParams should contain(HostPropertyKey, HostDefaultValue)
       result.connectionParams should have size 1
@@ -38,7 +44,7 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
     }
 
     "Generate correct RabbitMQDistributedKey for blank input" in {
-      val input = new RabbitMQDistributedInput(Map.empty[String, String])
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
 
       val params = Map(
         ExchangeNamePropertyKey -> "",
@@ -54,7 +60,7 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
     }
 
     "Generate correct RabbitMQDistributedKey for real input" in {
-      val input = new RabbitMQDistributedInput(Map.empty[String, String])
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
 
       val params = Map(
         ExchangeNamePropertyKey -> " exchange",
@@ -70,7 +76,7 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
     }
 
     "Generate correct RabbitMQDistributedKey for missing properties " in {
-      val input = new RabbitMQDistributedInput(Map.empty[String, String])
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
 
       val params = Map(
         RoutingKeysPropertyKey -> "routing"
@@ -84,7 +90,7 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
     }
 
     "Generate correct queue for missing properties " in {
-      val input = new RabbitMQDistributedInput(Map.empty[String, String])
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, Map.empty[String, String])
 
       val params = Map(
         RoutingKeysPropertyKey -> "routing"
@@ -116,7 +122,7 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
         """.stripMargin
 
       val props = Map(DistributedPropertyKey -> distributedProperties)
-      val input = new RabbitMQDistributedInput(props)
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, props)
       val result = input.getKeys(props)
       result should have size 2
       val first = result.head
@@ -142,13 +148,13 @@ class RabbitMQDistributedInputTest extends WordSpec with Matchers {
     }
     "Get 0 keys for empty string distributedProperties " in {
       val props = Map(DistributedPropertyKey -> "")
-      val input = new RabbitMQDistributedInput(props)
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, props)
       val result = input.getKeys(props)
       result should have size 0
     }
     "Get 0 keys for empty map" in {
       val props = Map.empty[String, String]
-      val input = new RabbitMQDistributedInput(props)
+      val input = new RabbitMQDistributedInput("rabbitmq", ssc, sparkSession, props)
       val result = input.getKeys(props)
       result should have size 0
     }

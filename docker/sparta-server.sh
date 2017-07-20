@@ -15,6 +15,7 @@ _log_sparta_server "Loading Sparta server functions ... "
 
  _log_sparta_server "Loading Sparta Spark options ... "
  initSpark
+ initLocalSparkIp
  _log_sparta_server "Loaded Sparta Spark options"
 
  _log_sparta_server "Initializing Sparta Hdfs options ... "

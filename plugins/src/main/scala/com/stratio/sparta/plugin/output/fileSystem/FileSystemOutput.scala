@@ -22,6 +22,7 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.functions._
 
 /**
@@ -31,7 +32,11 @@ import org.apache.spark.sql.functions._
  * @param name
  * @param properties
  */
-class FileSystemOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class FileSystemOutput(
+                        name: String,
+                        sparkSession: XDSession,
+                        properties: Map[String, JSerializable]
+                      ) extends Output(name, sparkSession, properties) {
 
   val FieldName = "extractedData"
   val path = properties.getString("path", None).notBlank

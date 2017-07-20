@@ -17,23 +17,29 @@ package com.stratio.sparta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
-class TwitterJsonInputTest extends WordSpec {
+class TwitterJsonInputTest extends WordSpec with MockitoSugar{
+
+  val sparkSession = mock[XDSession]
+  val ssc = mock[StreamingContext]
 
   "A TwitterInput" should {
 
     "fail without parameters" in {
       intercept[IllegalStateException] {
-        new TwitterJsonInput(Map())
+        new TwitterJsonInput("twitter", ssc, sparkSession, Map())
       }
     }
     "fail with bad arguments argument" in {
       intercept[IllegalStateException] {
-        new TwitterJsonInput(Map("hostname" -> "localhost", "port" -> "BADPORT")
+        new TwitterJsonInput("twitter", ssc, sparkSession, Map("hostname" -> "localhost", "port" -> "BADPORT")
           .mapValues(_.asInstanceOf[JSerializable]))
       }
     }

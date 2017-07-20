@@ -28,20 +28,26 @@ import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.common.utils.Bytes
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
 
 import scala.util.Try
 
-class KafkaInput(properties: Map[String, JSerializable]) extends Input(properties) with KafkaBase with SLF4JLogging {
+class KafkaInput(
+                  name: String,
+                  ssc: StreamingContext,
+                  sparkSession: XDSession,
+                  properties: Map[String, JSerializable]
+                ) extends Input(name, ssc, sparkSession, properties) with KafkaBase with SLF4JLogging {
 
   val KeyDeserializer = "key.deserializer"
   val ValueDeserializer = "value.deserializer"
 
   //scalastyle:off
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
     val groupId = getGroupId("group.id")
     val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
@@ -175,12 +181,16 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
   }
 
   def securityOptions(sparkConf: SparkConf): Map[String, AnyRef] = {
-    if (sparkConf.contains("spark.secret.kafka.security.protocol")) {
-      sparkConf.getAll.flatMap { case (key, value) =>
-        if (key.startsWith("spark.secret.kafka.")) {
-          Option((key.split("spark.secret.kafka.").tail.head.toLowerCase, value))
-        } else None
-      }.toMap
+    val prefixKafka = "spark.ssl.kafka."
+    if (sparkConf.getOption(prefixKafka + "enabled").isDefined && sparkConf.get(prefixKafka + "enabled") == "true") {
+      val configKafka = sparkConf.getAllWithPrefix(prefixKafka).toMap
+
+      Map("security.protocol" -> "SSL",
+        "ssl.key.password" -> configKafka("keyPassword"),
+        "ssl.keystore.location" -> configKafka("keyStore"),
+        "ssl.keystore.password"-> configKafka("keyStorePassword"),
+        "ssl.truststore.location"-> configKafka("trustStore"),
+        "ssl.truststore.password"-> configKafka("trustStorePassword"))
     } else Map.empty[String, AnyRef]
   }
 }
@@ -188,6 +198,6 @@ class KafkaInput(properties: Map[String, JSerializable]) extends Input(propertie
 object KafkaInput {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.kafkaSparkSubmitSecurityConf(configuration)
+    SecurityHelper.kafkaSecurityConf(configuration)
   }
 }

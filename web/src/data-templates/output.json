@@ -1,5 +1,42 @@
 [
   {
+    "name": "Crossdata",
+    "modelType": "Crossdata",
+    "description": {
+      "short": "Crossdata output use Crossdata catalog to save the data into persistent tables.",
+      "long": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Crossdata"
+    },
+    "properties": [
+      {
+        "propertyId": "tlsEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "default": false,
+        "qa": "fragment-details-postgres-tls"
+      },
+      {
+        "propertyId": "caName",
+        "propertyName": "_CA_NAME_",
+        "propertyType": "text",
+        "width": 6,
+        "visible": [
+          [
+            {
+              "propertyId": "tlsEnable",
+              "value": true
+            }
+          ]
+        ],
+        "default": "",
+        "required": false,
+        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
+        "qa": "fragment-details-postgres-ca-name"
+      }
+    ]
+  },
+  {
     "name": "Cassandra",
     "modelType": "Cassandra",
     "description": {
@@ -543,16 +580,62 @@
         "qa": "fragment-details-jdbc-driver"
       },
       {
-        "propertyId": "numPartitions",
-        "propertyName": "_JDBC_NUM_PARTITIONS_",
-        "propertyType": "text",
-        "regexp": "",
+        "propertyId": "isolationLevel",
+        "propertyName": "_ISOLATION_LEVEL_",
+        "propertyType": "select",
         "width": 6,
-        "align": "left",
+        "values": [
+          {
+            "label": "None",
+            "value": "NONE"
+          },
+          {
+            "label": "Read Uncommitted",
+            "value": "READ_UNCOMMITTED"
+          },
+          {
+            "label": "Read Committed",
+            "value": "READ_COMMITTED"
+          },
+          {
+            "label": "Repeatable Read",
+            "value": "REPEATABLE_READ"
+          },
+          {
+            "label": "Serializable",
+            "value": "SERIALIZABLE"
+          }
+        ],
+        "default": "READ_UNCOMMITTED",
+        "required": true,
+        "tooltip": "Sets the isolation level when save data in the database",
+        "qa": "fragment-postgres-isolation-level"
+      },
+      {
+        "propertyId": "tlsEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "default": false,
+        "qa": "fragment-details-postgres-tls"
+      },
+      {
+        "propertyId": "caName",
+        "propertyName": "_CA_NAME_",
+        "propertyType": "text",
+        "width": 6,
+        "visible": [
+          [
+            {
+              "propertyId": "tlsEnable",
+              "value": true
+            }
+          ]
+        ],
         "default": "",
         "required": false,
-        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
-        "qa": "fragment-details-jdbc-driver"
+        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
+        "qa": "fragment-details-postgres-ca-name"
       },
       {
         "propertyId": "saveOptions",
@@ -608,11 +691,107 @@
         "qa": "fragment-details-postgres-url"
       },
       {
+        "propertyId": "driver",
+        "propertyName": "_JDBC_DRIVER_",
+        "propertyType": "text",
+        "regexp": "",
+        "width": 6,
+        "default": "",
+        "required": false,
+        "tooltip": "Driver class, this property has priority to URL",
+        "qa": "fragment-details-jdbc-driver"
+      },
+      {
+        "propertyId": "isolationLevel",
+        "propertyName": "_ISOLATION_LEVEL_",
+        "propertyType": "select",
+        "width": 6,
+        "values": [
+          {
+            "label": "None",
+            "value": "NONE"
+          },
+          {
+            "label": "Read Uncommitted",
+            "value": "READ_UNCOMMITTED"
+          },
+          {
+            "label": "Read Committed",
+            "value": "READ_COMMITTED"
+          },
+          {
+            "label": "Repeatable Read",
+            "value": "REPEATABLE_READ"
+          },
+          {
+            "label": "Serializable",
+            "value": "SERIALIZABLE"
+          }
+        ],
+        "default": "READ_UNCOMMITTED",
+        "required": true,
+        "tooltip": "Sets the isolation level when save data in the database",
+        "qa": "fragment-postgres-isolation-level"
+      },
+      {
+        "propertyId": "tlsEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+        "default": false,
+        "qa": "fragment-details-postgres-tls"
+      },
+      {
+        "propertyId": "caName",
+        "propertyName": "_CA_NAME_",
+        "propertyType": "text",
+        "width": 6,
+        "visible": [
+          [
+            {
+              "propertyId": "tlsEnable",
+              "value": true
+            }
+          ]
+        ],
+        "default": "",
+        "required": false,
+        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
+        "qa": "fragment-details-postgres-ca-name"
+      },
+      {
+        "propertyId": "postgresSaveMode",
+        "propertyName": "_POSTGRES_SAVE_MODE_",
+        "propertyType": "select",
+        "width": 6,
+        "values": [
+          {
+            "label": "Statement",
+            "value": "STATEMENT"
+          },
+          {
+            "label": "Copy In",
+            "value": "COPYIN"
+          }
+        ],
+        "default": "STATEMENT",
+        "required": true,
+        "tooltip": "Sets whether the output should be written with copy in implementation or statement implementation",
+        "qa": "fragment-postgres-save-mode"
+      },
+      {
         "propertyId": "delimiter",
         "propertyName": "_POSTGRES_DELIMITER_",
         "propertyType": "text",
         "width": 6,
-        "align": "right",
+        "visible": [
+          [
+            {
+              "propertyId": "postgresSaveMode",
+              "value": "COPYIN"
+            }
+          ]
+        ],
         "default": "\t",
         "required": false,
         "tooltip": "Delimiter character used when transform to CSV, it's necessary that the events not contains the character",
@@ -623,8 +802,15 @@
         "propertyName": "_POSTGRES_NEW_LINE_SUBSTITUTION_",
         "propertyType": "text",
         "width": 6,
-        "align": "left",
         "default": " ",
+        "visible": [
+          [
+            {
+              "propertyId": "postgresSaveMode",
+              "value": "COPYIN"
+            }
+          ]
+        ],
         "required": false,
         "tooltip": "Character used to substitute the new line character in the events",
         "qa": "fragment-details-postgres-new-line-substitution"
@@ -635,22 +821,18 @@
         "propertyType": "text",
         "regexp": "",
         "width": 6,
-        "align": "right",
         "default": "UTF8",
+        "visible": [
+          [
+            {
+              "propertyId": "postgresSaveMode",
+              "value": "COPYIN"
+            }
+          ]
+        ],
         "required": false,
         "tooltip": "Charset encoding to use during saving",
         "qa": "fragment-details-postgres-encoding"
-      },
-      {
-        "propertyId": "bufferSize",
-        "propertyName": "_POSTGRES_BUFFER_SIZE_",
-        "propertyType": "text",
-        "width": 6,
-        "align": "left",
-        "default": "65536",
-        "required": false,
-        "tooltip": "Number of characters to buffer and push over network to server at once on insert mode",
-        "qa": "fragment-details-postgres-buffer-size"
       },
       {
         "propertyId": "batchsize",
@@ -658,35 +840,18 @@
         "propertyType": "text",
         "regexp": "",
         "width": 6,
-        "align": "right",
+        "visible": [
+          [
+            {
+              "propertyId": "postgresSaveMode",
+              "value": "STATEMENT"
+            }
+          ]
+        ],
         "default": "1000",
         "required": false,
         "tooltip": "Number of upsert statements that are sent to Database on each partition",
         "qa": "fragment-details-jdbc-batch-size"
-      },
-      {
-        "propertyId": "driver",
-        "propertyName": "_JDBC_DRIVER_",
-        "propertyType": "text",
-        "regexp": "",
-        "width": 6,
-        "align": "left",
-        "default": "",
-        "required": false,
-        "tooltip": "Driver class, this property has priority to URL",
-        "qa": "fragment-details-jdbc-driver"
-      },
-      {
-        "propertyId": "numPartitions",
-        "propertyName": "_JDBC_NUM_PARTITIONS_",
-        "propertyType": "text",
-        "regexp": "",
-        "width": 6,
-        "align": "right",
-        "default": "",
-        "required": false,
-        "tooltip": "Number of partitions, defaults to SparkContext.defaultParallelism when unset",
-        "qa": "fragment-details-jdbc-driver"
       },
       {
         "propertyId": "saveOptions",
@@ -873,11 +1038,45 @@
         "qa": "fragment-details-kafka-security-auth"
       },
       {
+        "propertyId": "vaultTLSEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
+        "default": false,
+        "qa": "fragment-details-kafka-tls"
+      },
+      {
+        "propertyId": "vaultRole",
+        "propertyName": "_KAFKA_VAULT_ROLE_",
+        "propertyType": "text",
+        "tooltip": "Example: sparta-job",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultRole"
+      },
+      {
         "propertyId": "vaultCertPath",
         "propertyName": "_KAFKA_CERT_PATH_",
         "propertyType": "text",
-        "tooltip": "Example: /v1/userland/certificates/spark",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
         "required": false,
         "qa": "fragment-details-kafka-vaultCertPath"
       },
@@ -885,8 +1084,16 @@
         "propertyId": "vaultCertPassPath",
         "propertyName": "_KAFKA_CERT_PASS_PATH_",
         "propertyType": "text",
-        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
         "required": false,
         "qa": "fragment-details-kafka-vaultCertPassPath"
       },
@@ -894,11 +1101,55 @@
         "propertyId": "vaultKeyPassPath",
         "propertyName": "_KAFKA_KEY_PASS_PATH_",
         "propertyType": "text",
-        "tooltip": "Example: /v1/userland/passwords/spark/keystore",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
         "regexp": "",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
         "required": false,
         "qa": "fragment-details-kafka-vaultKeyPassPath"
+      },
+      {
+        "propertyId": "vaultTrustStorePath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
+      },
+      {
+        "propertyId": "vaultTrustStorePassPath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
       },
       {
         "propertyId": "ssl.truststore.location",
@@ -906,6 +1157,14 @@
         "propertyType": "text",
         "default": "",
         "required": false,
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
         "tooltip": "Example: /some-directory/kafka.client.truststore.jks",
         "qa": "fragment-details-kafka-truststore-location"
       },
@@ -915,6 +1174,14 @@
         "propertyType": "text",
         "default": "",
         "required": false,
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
         "qa": "fragment-details-kafka-batch-truststore-password"
       },
       {
@@ -922,6 +1189,14 @@
         "propertyName": "_SSL_KEYSTORE_LOCATION_",
         "propertyType": "text",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
         "required": false,
         "tooltip": "Example: /some-directory/kafka.client.keystore.jks",
         "qa": "fragment-details-kafka-keystore-location"
@@ -931,6 +1206,14 @@
         "propertyName": "_SSL_KEYSTORE_PASSWORD_",
         "propertyType": "text",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
         "required": false,
         "qa": "fragment-details-kafka-keystore-password"
       },
@@ -939,6 +1222,14 @@
         "propertyName": "_SSL_KEY_PASSWORD_",
         "propertyType": "text",
         "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
         "required": false,
         "qa": "fragment-details-kafka-key-password"
       },

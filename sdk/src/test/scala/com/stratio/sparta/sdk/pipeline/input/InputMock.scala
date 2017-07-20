@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.input
 
 import java.io.{Serializable => JSerializable}
 
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-class InputMock(properties: Map[String, JSerializable]) extends Input(properties) {
+class InputMock(
+                 name: String,
+                 @transient private[sparta] override val ssc: StreamingContext,
+                 @transient private[sparta] override val sparkSession: XDSession,
+                 properties: Map[String, JSerializable]
+               ) extends Input(name, ssc, sparkSession, properties) {
 
-  override def initStream(ssc: StreamingContext): DStream[Row] = ???
+  override def initStream: DStream[Row] = ???
 }

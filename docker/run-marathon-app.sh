@@ -41,7 +41,7 @@ fi
 
 _log_sparta_run_marathon "Running Marathon app with java command: $JAVACMD"
 _log_sparta_run_marathon "Running Marathon app with java options: $SPARTA_MARATHON_OPTIONS"
-_log_sparta_run_marathon "Running Marathon app with arguments: policyId -> $SPARTA_POLICY_ID & zookeeperConfig -> $SPARTA_ZOOKEEPER_CONFIG & detailConfig -> $SPARTA_DETAIL_CONFIG"
+_log_sparta_run_marathon "Running Marathon app with arguments: policyId -> $SPARTA_WORKFLOW_ID & zookeeperConfig -> $SPARTA_ZOOKEEPER_CONFIG & detailConfig -> $SPARTA_DETAIL_CONFIG"
 
 exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -classpath "$CLASSPATH" \
@@ -51,4 +51,4 @@ exec "$JAVACMD" $SPARTA_MARATHON_OPTIONS \
   -Dapp.home="$SPARTA_HOME" \
   -Dbasedir="$SPARTA_HOME" \
   "$SPARTA_MARATHON_MAIN_CLASS" \
-  "$SPARTA_POLICY_ID" "$SPARTA_ZOOKEEPER_CONFIG" "$SPARTA_DETAIL_CONFIG"
+  "$SPARTA_WORKFLOW_ID" "$SPARTA_ZOOKEEPER_CONFIG" "$SPARTA_DETAIL_CONFIG"

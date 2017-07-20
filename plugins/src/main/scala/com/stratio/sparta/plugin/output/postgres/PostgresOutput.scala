@@ -17,13 +17,14 @@
 package com.stratio.sparta.plugin.output.postgres
 
 import java.io.{InputStream, Serializable => JSerializable}
-import java.util.Properties
 
+import com.stratio.sparta.plugin.helper.{SecurityHelper, VaultHelper}
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
@@ -33,15 +34,20 @@ import org.postgresql.core.BaseConnection
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
-class PostgresOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class PostgresOutput(
+                      name: String,
+                      sparkSession: XDSession,
+                      properties: Map[String, JSerializable]
+                    ) extends Output(name, sparkSession, properties) {
 
   require(properties.getString("url", None).isDefined, "Postgres url must be provided")
 
   val url = properties.getString("url")
-  val bufferSize = properties.getString("bufferSize", "65536").toInt
   val delimiter = properties.getString("delimiter", "\t")
   val newLineSubstitution = properties.getString("newLineSubstitution", " ")
   val encoding = properties.getString("encoding", "UTF8")
+  val postgresSaveMode = PostgresSaveMode.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
+  val tlsEnable = Try(properties.getBoolean("tlsEnable")).getOrElse(false)
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
@@ -50,40 +56,50 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(url,
+    val urlWithSSL = if (tlsEnable) {
+      s"$url&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8"
+    } else url
+    val connectionProperties = new JDBCOptions(urlWithSSL,
       tableName,
       propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
     )
 
     Try {
-      if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
+      if (sparkSaveMode == SaveMode.Overwrite)
+        SpartaJdbcUtils.dropTable(urlWithSSL, connectionProperties, tableName, name)
 
-      SpartaJdbcUtils.tableExists(url, connectionProperties, tableName, dataFrame.schema)
+      synchronized {
+        SpartaJdbcUtils.tableExists(urlWithSSL, connectionProperties, tableName, dataFrame.schema, name)
+      }
     } match {
       case Success(tableExists) =>
-        if (tableExists)
+        if (tableExists) {
           if (saveMode == SaveModeEnum.Upsert) {
             val updateFields = getPrimaryKeyOptions(options) match {
               case Some(pk) => pk.split(",").toSeq
               case None => dataFrame.schema.fields.filter(stField =>
                 stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).toSeq
             }
-            SpartaJdbcUtils.upsertTable(dataFrame, url, tableName, connectionProperties, updateFields)
+            SpartaJdbcUtils.upsertTable(dataFrame, urlWithSSL, tableName, connectionProperties, updateFields, name)
           } else {
-            dataFrame.foreachPartition { rows =>
-              val conn = getConnection(connectionProperties)
-              val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
+            if (postgresSaveMode == PostgresSaveMode.COPYIN) {
+              dataFrame.foreachPartition { rows =>
+                val conn = getConnection(connectionProperties, name)
+                val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
-              cm.copyIn(
-                s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter')""",
-                rowsToInputStream(rows)
-              )
+                cm.copyIn(
+                  s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter')""",
+                  rowsToInputStream(rows)
+                )
+              }
+            } else {
+              SpartaJdbcUtils.saveTable(dataFrame, urlWithSSL, tableName, connectionProperties, name)
             }
           }
-        else log.warn(s"Table not created in Postgres: $tableName")
+        } else log.warn(s"Table not created in Postgres: $tableName")
       case Failure(e) =>
-        closeConnection()
-        log.error(s"Error creating/dropping table $tableName")
+        closeConnection(name)
+        log.error(s"Error creating/dropping table $tableName", e)
     }
   }
 
@@ -101,6 +117,13 @@ class PostgresOutput(name: String, properties: Map[String, JSerializable]) exten
 
   override def cleanUp(options: Map[String, String]): Unit = {
     log.info(s"Closing connections in Postgres Output: $name")
-    closeConnection()
+    closeConnection(name)
+  }
+}
+
+object PostgresOutput {
+
+  def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    SecurityHelper.dataSourceSecurityConf(configuration)
   }
 }

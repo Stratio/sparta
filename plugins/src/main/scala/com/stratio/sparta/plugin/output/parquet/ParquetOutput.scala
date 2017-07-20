@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 
 /**
  * This output save as parquet file the information.
@@ -28,7 +29,11 @@ import org.apache.spark.sql._
  * @param name
  * @param properties
  */
-class ParquetOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class ParquetOutput(
+                     name: String,
+                     sparkSession: XDSession,
+                     properties: Map[String, JSerializable]
+                   ) extends Output(name, sparkSession, properties) {
 
   val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")

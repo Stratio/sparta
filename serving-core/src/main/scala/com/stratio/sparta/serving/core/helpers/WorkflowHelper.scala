@@ -20,10 +20,12 @@ import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.workflow.WorkflowElementModel
+import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 
 import scala.collection.JavaConversions._
+import scala.util.Properties
 
 object WorkflowHelper extends SLF4JLogging {
 
@@ -45,6 +47,12 @@ object WorkflowHelper extends SLF4JLogging {
           Seq.empty[(String, String)]
       }
     }).toMap
+  }
+
+  def getMarathonId(workflowModel: WorkflowModel) : String = {
+    val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
+
+    s"sparta/$inputServiceName/workflows/${workflowModel.name}"
   }
 
 }

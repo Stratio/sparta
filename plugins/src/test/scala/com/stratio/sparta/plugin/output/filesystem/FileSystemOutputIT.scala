@@ -38,7 +38,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
   val fields = StructType(StructField("name", StringType, false) ::
     StructField("age", IntegerType, false) ::
     StructField("year", IntegerType, true) :: Nil)
-  val fsm = new FileSystemOutput("key", properties)
+  val fsm = new FileSystemOutput("key", sparkSession, properties)
 
 
   "An object of type FileSystemOutput " should "have the same values as the properties Map" in {
@@ -68,7 +68,7 @@ class FileSystemOutputIT extends TemporalSparkContext with Matchers {
     fileExists(fsm.path.get) should equal(false)
   }
 
-  val fsm2 = new FileSystemOutput("key", properties.updated("outputFormat", "json")
+  val fsm2 = new FileSystemOutput("key", sparkSession, properties.updated("outputFormat", "json")
     .updated("path", parentFile + "/testJson"))
 
   "Given another DataFrame, a directory" should "be created with the data inside in JSON format" in {

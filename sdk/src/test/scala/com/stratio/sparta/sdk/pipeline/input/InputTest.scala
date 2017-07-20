@@ -15,16 +15,22 @@
  */
 package com.stratio.sparta.sdk.pipeline.input
 
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class InputTest extends WordSpec with Matchers {
+class InputTest extends WordSpec with Matchers with MockitoSugar {
+
+  val sparkSession = mock[XDSession]
+  val ssc = mock[StreamingContext]
 
   "Input" should {
-    val input = new InputMock(Map("storageLevel" -> "DISK_ONLY"))
+    val input = new InputMock("input", ssc, sparkSession, Map("storageLevel" -> "DISK_ONLY"))
     val expected = StorageLevel.DISK_ONLY
     val result = input.storageLevel
 

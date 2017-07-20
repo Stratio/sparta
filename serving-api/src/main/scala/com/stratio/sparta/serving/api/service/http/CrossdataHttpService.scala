@@ -18,26 +18,24 @@ package com.stratio.sparta.serving.api.service.http
 
 import javax.ws.rs.Path
 
+import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.services.CrossdataService
+import com.stratio.sparta.serving.api.exception.CrossdataServiceException
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.wordnik.swagger.annotations._
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import spray.routing._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 @Api(value = HttpConstant.CrossdataPath, description = "Operations about Sparta status.")
 trait CrossdataHttpService extends BaseHttpService {
 
-  val crossdataService = new CrossdataService
-
-  override def routes(user: Option[LoggedUser] = None): Route = listDatabases(user) ~ executeQuery(user) ~
-    listTables(user) ~ showTable(user) ~ listAllTables(user)
+  override def routes(user: Option[LoggedUser] = None): Route = findAllDatabases(user) ~ executeQuery(user) ~
+    findTables(user) ~ describeTable(user) ~ findAllTables(user)
 
   @Path("/databases")
   @ApiOperation(value = "List Crossdata databases",
@@ -46,10 +44,12 @@ trait CrossdataHttpService extends BaseHttpService {
     response = classOf[Database],
     responseContainer = "List")
   @ApiResponses(Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
-  def listDatabases(user: Option[LoggedUser]): Route = {
+  def findAllDatabases(user: Option[LoggedUser]): Route = {
     path(HttpConstant.CrossdataPath / "databases") {
       get { context =>
-        crossdataService.listDatabases() match {
+        for {
+          response <- (supervisor ? FindAllDatabases(user)).mapTo[Try[Array[Database]]]
+        } yield response match {
           case Success(databases) =>
             context.complete(databases)
           case Failure(e) =>
@@ -67,10 +67,12 @@ trait CrossdataHttpService extends BaseHttpService {
     response = classOf[Table],
     responseContainer = "List")
   @ApiResponses(Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
-  def listAllTables(user: Option[LoggedUser]): Route = {
+  def findAllTables(user: Option[LoggedUser]): Route = {
     path(HttpConstant.CrossdataPath / "tables") {
       get { context =>
-        crossdataService.listAllTables match {
+        for {
+          response <- (supervisor ? FindAllTables(user)).mapTo[Try[Array[Table]]]
+        } yield response match {
           case Success(tables) =>
             context.complete(tables)
           case Failure(e) =>
@@ -95,16 +97,20 @@ trait CrossdataHttpService extends BaseHttpService {
       paramType = "body")
   ))
   @ApiResponses(Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
-  def listTables(user: Option[LoggedUser]): Route = {
+  def findTables(user: Option[LoggedUser]): Route = {
     path(HttpConstant.CrossdataPath / "tables") {
       post {
-        entity(as[TablesRequest]) { tableRequest =>
-          crossdataService.listTables(tableRequest.dbName.notBlank, tableRequest.temporary) match {
-            case Success(tables) =>
-              complete(tables)
-            case Failure(e) =>
-              complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-                s"Impossible to list tables in Crossdata Context. Error: ${e.getLocalizedMessage}"))
+        entity(as[TablesRequest]) { tablesRequest =>
+          complete {
+            for {
+              response <- (supervisor ? FindTables(tablesRequest, user)).mapTo[Try[Array[Table]]]
+            } yield response match {
+              case (Success(tables)) =>
+                tables
+              case (Failure(e)) =>
+                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
+                  s"Impossible to list tables in Crossdata Context. Error: ${e.getLocalizedMessage}")))
+            }
           }
         }
       }
@@ -125,18 +131,21 @@ trait CrossdataHttpService extends BaseHttpService {
       paramType = "body")
   ))
   @ApiResponses(Array(new ApiResponse(code = HttpConstant.NotFound, message = HttpConstant.NotFoundMessage)))
-  def showTable(user: Option[LoggedUser]): Route = {
+  def describeTable(user: Option[LoggedUser]): Route = {
     path(HttpConstant.CrossdataPath / "tables" / "info") {
       post {
         entity(as[TableInfoRequest]) { tableInfoRequest =>
-          crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
-          match {
-            case Success(columns) =>
-              complete(columns)
-            case Failure(e) =>
-              complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-                s"Impossible to list columns in Crossdata Context associated to table: ${tableInfoRequest.tableName}." +
-                  s" Error: ${e.getLocalizedMessage}"))
+          complete {
+            for {
+              response <- (supervisor ? DescribeTable(tableInfoRequest, user)).mapTo[Try[Array[Column]]]
+            } yield response match {
+              case (Success(columns)) =>
+                columns
+              case (Failure(e)) =>
+                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
+                  s"Impossible to list columns in Crossdata Context associated to table:" +
+                    s" ${tableInfoRequest.tableName}. Error: ${e.getLocalizedMessage}")))
+            }
           }
         }
       }
@@ -147,7 +156,7 @@ trait CrossdataHttpService extends BaseHttpService {
   @ApiOperation(value = "Execute one query in Crossdata",
     notes = "Query executor in crossdata, useful to register tables in the catalog",
     httpMethod = "POST",
-    response = classOf[Row],
+    response = classOf[Array[Map[String, Any]]],
     responseContainer = "List")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "query",
@@ -160,12 +169,16 @@ trait CrossdataHttpService extends BaseHttpService {
     path(HttpConstant.CrossdataPath / "queries") {
       post {
         entity(as[QueryRequest]) { queryRequest =>
-          crossdataService.executeQuery(queryRequest.query) match {
-            case Success(rows) =>
-              complete(rows)
-            case Failure(e) =>
-              complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-                s"Impossible to execute query in Crossdata Context. Error: ${e.getLocalizedMessage}"))
+          complete {
+            for {
+              response <- (supervisor ? ExecuteQuery(queryRequest, user)).mapTo[Try[Array[Map[String, Any]]]]
+            } yield response match {
+              case (Success(rows)) =>
+                rows
+              case (Failure(e)) =>
+                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
+                  s"Impossible to execute query in Crossdata Context. Error: ${e.getLocalizedMessage}")))
+            }
           }
         }
       }

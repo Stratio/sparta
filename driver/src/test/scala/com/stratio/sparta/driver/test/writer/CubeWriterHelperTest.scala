@@ -24,16 +24,20 @@ import com.stratio.sparta.sdk.pipeline.aggregation.cube._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
-class CubeWriterTest extends FlatSpec with ShouldMatchers {
+class CubeWriterHelperTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
-  "CubeWriterTest" should "return a row with values and timeDimension" in
+  val sparkSession = mock[XDSession]
+
+  "CubeWriterHelper" should "return a row with values and timeDimension" in
     new CommonValues {
       val schema = StructType(Array(
         StructField("dim1", StringType, false),
@@ -44,13 +48,13 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
         Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger], WriterOptions(), true)
 
       val writerOptions = WriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName", Map())
+      val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesT, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", 1L, "value")))
     }
 
-  "CubeWriterTest" should "return a row with values without timeDimension" in
+  "CubeWriterHelper" should "return a row with values without timeDimension" in
     new CommonValues {
       val schema = StructType(Array(
         StructField("dim1", StringType, false),
@@ -59,13 +63,13 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp, None,
         Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName", Map())
+      val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", "value")))
     }
 
-  "CubeWriterTest" should "return a row with values with noTime" in
+  "CubeWriterHelper" should "return a row with values with noTime" in
     new CommonValues {
       val schema = StructType(Array(
         StructField("dim1", StringType, false),
@@ -74,13 +78,13 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
         None, Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName", Map())
+      val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", "value")))
     }
 
-  "CubeWriterTest" should "return a row with values with time" in
+  "CubeWriterHelper" should "return a row with values with time" in
     new CommonValues {
       val schema = StructType(Array(
         StructField("dim1", StringType, false),
@@ -89,7 +93,7 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
         None, Seq.empty[Trigger], WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
-      val output = new OutputMock("outputName", Map())
+      val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesT, measures)
 
       res should be(Row.fromSeq(Seq("value1", "value2", 1L, "value")))
@@ -111,8 +115,8 @@ class CubeWriterTest extends FlatSpec with ShouldMatchers {
     }
   }
 
-  class OutputMock(keyName: String, properties: Map[String, JSerializable])
-    extends Output(keyName, properties) {
+  class OutputMock(keyName: String, sparkSession: XDSession, properties: Map[String, JSerializable])
+    extends Output(keyName, sparkSession, properties) {
 
     override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
   }

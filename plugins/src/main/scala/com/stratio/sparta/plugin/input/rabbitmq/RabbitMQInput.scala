@@ -19,18 +19,24 @@ package com.stratio.sparta.plugin.input.rabbitmq
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.input.rabbitmq.handler.MessageHandler
 import com.stratio.sparta.sdk.pipeline.input.Input
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.rabbitmq.RabbitMQUtils._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.sql.crossdata.XDSession
 
-class RabbitMQInput(properties: Map[String, JSerializable])
-  extends Input(properties) with RabbitMQGenericProps {
+class RabbitMQInput(
+                     name: String,
+                     ssc: StreamingContext,
+                     sparkSession: XDSession,
+                     properties: Map[String, JSerializable]
+                   ) extends Input(name, ssc, sparkSession, properties) with SLF4JLogging with RabbitMQGenericProps {
 
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
     val messageHandler = MessageHandler(properties).handler
     val params = propsWithStorageLevel(properties.getString("storageLevel", Input.StorageDefaultValue))
     createStream(ssc, params, messageHandler)

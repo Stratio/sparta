@@ -45,19 +45,19 @@ object MarathonDriver extends PluginsFilesUtils {
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
       initSpartaConfig(zookeeperConf, detailConf)
       val curatorInstance = CuratorFactoryHolder.getInstance()
-      val system = ActorSystem(policyId)
+      val system = ActorSystem("WorkflowJob")
       val marathonAppActor =
         system.actorOf(Props(new MarathonAppActor(curatorInstance)), AkkaConstant.MarathonAppActorName)
 
       marathonAppActor ! StartApp(policyId)
     } match {
       case Success(_) =>
-        log.info("Initiated Marathon App environment")
+        log.info("Initiated Workflow App environment")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
       case Failure(exception) =>
-        log.error(s"Error initiating Marathon App environment: ${exception.getLocalizedMessage}", exception)
+        log.error(s"Error initiating Workflow App environment: ${exception.getLocalizedMessage}", exception)
         throw exception
     }
   }

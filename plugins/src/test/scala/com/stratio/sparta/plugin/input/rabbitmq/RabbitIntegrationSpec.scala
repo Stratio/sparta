@@ -19,6 +19,7 @@ import akka.actor.ActorSystem
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.scalatest.concurrent.TimeLimitedTests
@@ -33,7 +34,6 @@ import scala.util.Try
 abstract class RabbitIntegrationSpec extends WordSpec with Matchers with SLF4JLogging with TimeLimitedTests
   with BeforeAndAfter with BeforeAndAfterAll {
   private lazy val config = ConfigFactory.load()
-
 
   implicit val system = ActorSystem("ActorRabbitMQSystem")
   implicit val timeout = Timeout(10 seconds)
@@ -64,10 +64,12 @@ abstract class RabbitIntegrationSpec extends WordSpec with Matchers with SLF4JLo
   val RabbitConnectionURI = s"amqp://$userName:$password@$hosts/%2F"
   var sc: Option[SparkContext] = None
   var ssc: Option[StreamingContext] = None
+  var sparkSession: Option[XDSession] = None
 
   def initSpark(): Unit = {
     sc = Some(new SparkContext(conf))
     ssc = Some(new StreamingContext(sc.get, Seconds(1)))
+    sparkSession = Some(XDSession.builder().config(conf).create("dummyUser"))
   }
 
   def stopSpark(): Unit = {

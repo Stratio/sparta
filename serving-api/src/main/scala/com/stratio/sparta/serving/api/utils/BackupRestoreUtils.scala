@@ -20,6 +20,7 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import kafka.utils.ZkUtils
 import org.I0Itec.zkclient.exception.ZkNoNodeException
@@ -165,11 +166,13 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
       }
 
       val fullPath = (zkPath + path).replace("//", "/")
+      val reg = "(/stratio/sparta/sparta.*?(?=/))".r
+      val restorePath = reg.replaceAllIn(fullPath, AppConstant.BaseZKPath)
 
-      if (client.exists(fullPath)) client.setAcl(fullPath, acls)
-      else client.createPersistent(fullPath, true, acls)
+      if (client.exists(restorePath)) client.setAcl(restorePath, acls)
+      else client.createPersistent(restorePath, true, acls)
 
-      client.writeData(fullPath, content)
+      client.writeData(restorePath, content)
     }
 
   // Deserialize json file in a collection of Maps.

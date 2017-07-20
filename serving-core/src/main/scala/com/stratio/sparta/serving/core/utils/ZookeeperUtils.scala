@@ -23,11 +23,12 @@ import scala.util.{Failure, Properties, Success, Try}
 
 trait ZookeeperUtils {
 
-  def retrievePathFromEnvOrConf: Option[String] = Properties.envOrNone("SPARTA_ZOOKEEPER_PATH") match {
+  def retrievePathFromEnv: Option[String] = Properties.envOrNone("SPARTA_ZOOKEEPER_PATH") match {
     case Some(path) if path.nonEmpty => Option(path)
-    case Some(_) => retrieveFromConf
-    case None => retrieveFromConf
+    case Some(_) => None
+    case None => None
   }
+
 
   def retrieveFromConf: Option[String] = Try(SpartaConfig.getZookeeperConfig.get.getString("storagePath")) match {
     case Success(confPath) if confPath.nonEmpty => Option(confPath)

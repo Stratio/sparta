@@ -15,37 +15,46 @@
  */
 package com.stratio.sparta.driver.stage
 
+import java.io.Serializable
+
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 trait InputStage extends BaseStage {
   this: ErrorPersistor =>
 
-  def inputStreamStage(ssc: StreamingContext, input: Input): DStream[Row] = {
-    val errorMessage = s"Something gone wrong creating the input stream for: ${workflow.input.get.name}."
-    val okMessage = s"Stream for Input: ${workflow.input.get.name} created correctly."
+  def inputStreamStage(input: Input): DStream[Row] = {
+    val errorMessage = s"Something went wrong while creating the input stream for: ${workflow.input.get.name}"
+    val okMessage = s"Stream for Input: ${workflow.input.get.name} created correctly"
 
     generalTransformation(PhaseEnum.InputStream, okMessage, errorMessage) {
-      input.initStream(ssc)
+      input.initStream
     }
   }
 
-  def createInput(ssc: StreamingContext, refUtils: ReflectionUtils): Input = {
-    val errorMessage = s"Something gone wrong creating the input: ${workflow.input.get.name}." +
-      s" Please re-check the policy."
-    val okMessage = s"Input: ${workflow.input.get.name} created correctly."
+  def createInput(ssc: StreamingContext, sparkSession: XDSession, refUtils: ReflectionUtils): Input = {
+    val errorMessage = s"Something went wrong while creating the input: ${workflow.input.get.name}." +
+      s" Please re-check the policy"
+    val okMessage = s"Input: ${workflow.input.get.name} created correctly"
 
     generalTransformation(PhaseEnum.Input, okMessage, errorMessage) {
       require(workflow.input.isDefined, "You need at least one input in your policy")
       val classType =
         workflow.input.get.configuration.getOrElse(AppConstant.CustomTypeKey, workflow.input.get.`type`).toString
       refUtils.tryToInstantiate[Input](classType + Input.ClassSuffix, (c) =>
-        refUtils.instantiateParameterizable[Input](c, workflow.input.get.configuration))
+        c.getDeclaredConstructor(
+          classOf[String],
+          classOf[StreamingContext],
+          classOf[XDSession],
+          classOf[Map[String, Serializable]])
+          .newInstance(workflow.input.get.name, ssc, sparkSession, workflow.input.get.configuration)
+          .asInstanceOf[Input])
     }
   }
 

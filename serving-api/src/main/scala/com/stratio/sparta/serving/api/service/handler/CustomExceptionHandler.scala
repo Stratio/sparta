@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.handler
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.api.exception.CrossdataServiceException
 import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.json4s.jackson.Serialization._
@@ -28,15 +30,23 @@ import spray.util.LoggingContext
  * This exception handler will be used by all our services to return a [ErrorModel] that will be used by the frontend.
  */
 object CustomExceptionHandler extends MiscDirectives
-with RouteDirectives
-with RespondWithDirectives
-with SLF4JLogging
-with SpartaSerializer {
+  with RouteDirectives
+  with RespondWithDirectives
+  with SLF4JLogging
+  with SpartaSerializer {
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler = {
     ExceptionHandler {
+      case exception: CrossdataServiceException =>
+        requestUri { _ =>
+          log.error(exception.getLocalizedMessage)
+          val error = ErrorModel.toErrorModel(exception.getLocalizedMessage)
+          respondWithMediaType(MediaTypes.`application/json`) {
+            complete(ErrorModel.CrossdataService, write(error))
+          }
+        }
       case exception: ServingCoreException =>
-        requestUri { uri =>
+        requestUri { _ =>
           log.error(exception.getLocalizedMessage)
           val error = ErrorModel.toErrorModel(exception.getLocalizedMessage)
           respondWithMediaType(MediaTypes.`application/json`) {
@@ -44,7 +54,7 @@ with SpartaSerializer {
           }
         }
       case exception: Throwable =>
-        requestUri { uri =>
+        requestUri { _ =>
           log.error(exception.getLocalizedMessage, exception)
           complete((StatusCodes.InternalServerError, write(
             new ErrorModel(ErrorModel.CodeUnknown, Option(exception.getLocalizedMessage).getOrElse("unknown"))

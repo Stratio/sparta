@@ -134,8 +134,8 @@ class RabbitMQDistributedInputIT extends RabbitIntegrationSpec {
 
       val props = Map(DistributedPropertyKey -> distributedProperties)
 
-      val input = new RabbitMQDistributedInput(props)
-      val distributedStream = input.initStream(ssc.get)
+      val input = new RabbitMQDistributedInput("crossdata", ssc.get, sparkSession.get,props)
+      val distributedStream = input.initStream
       val totalEvents = sc.get.longAccumulator("Number of events received")
 
       // Fires each time the configured window has passed.

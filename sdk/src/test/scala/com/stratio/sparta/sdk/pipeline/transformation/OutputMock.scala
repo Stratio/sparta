@@ -19,9 +19,13 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.crossdata.XDSession
 
-class OutputMock(name: String, properties: Map[String, JSerializable])
-  extends Output(name, properties) {
+class OutputMock(
+                  name: String,
+                  sparkSession: XDSession,
+                  properties: Map[String, JSerializable]
+                ) extends Output(name, sparkSession, properties) {
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {}
 }

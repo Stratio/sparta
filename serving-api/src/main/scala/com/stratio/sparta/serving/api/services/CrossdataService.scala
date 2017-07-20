@@ -23,17 +23,12 @@ import com.stratio.sparta.serving.core.models.SpartaSerializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.crossdata.XDSession
+import CrossdataService._
 
 import scala.util.Try
 
 class CrossdataService() extends SpartaSerializer with SLF4JLogging {
 
-  private val reference = getClass.getResource("/reference.conf").getPath
-  private val sparkConf = new SparkConf().setMaster("local[*]").setAppName("Crossdata-API")
-  private val crossdataSession = XDSession.builder()
-    .config(new File(reference))
-    .config(sparkConf)
-    .create("dummyUser")
   private val MaxQueryResults = 300
 
   def listTables(dbName: Option[String], temporary: Boolean): Try[Array[Table]] =
@@ -81,4 +76,18 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
       upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE") ||
       upperQuery.startsWith("IMPORT")
   }
+}
+
+object CrossdataService {
+
+  private lazy val reference = getClass.getResource("/reference.conf").getPath
+  private lazy val sparkConf = new SparkConf()
+    .setMaster("local[*]")
+    .setAppName("Crossdata-API")
+    .set("spark.ui.port", "4045")
+
+  lazy val crossdataSession = XDSession.builder()
+    .config(new File(reference))
+    .config(sparkConf)
+    .create("dummyUser")
 }

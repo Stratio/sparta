@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.output
 
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionTypeMock, DimensionValue, DimensionValuesTime}
 import com.stratio.sparta.sdk.pipeline.transformation.OutputMock
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
 
 @RunWith(classOf[JUnitRunner])
-class OutputTest extends WordSpec with Matchers {
+class OutputTest extends WordSpec with Matchers with MockitoSugar {
 
   trait CommonValues {
+
     val timeDimension = "minute"
     val tableName = "table"
     val timestamp = 1L
     val defaultDimension = new DimensionTypeMock(Map())
+    val sparkSession = mock[XDSession]
     val dimensionValuesT = DimensionValuesTime("testCube", Seq(
       DimensionValue(Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(Dimension("dim2", "eventKey", "identity", defaultDimension), "value2"),
@@ -38,9 +43,9 @@ class OutputTest extends WordSpec with Matchers {
       DimensionValue(Dimension("dim1", "eventKey", "identity", defaultDimension), "value1"),
       DimensionValue(Dimension("minute", "eventKey", "identity", defaultDimension), 1L)))
     val outputName = "outputName"
-    val output = new OutputMock(outputName, Map())
-    val outputOperation = new OutputMock(outputName, Map())
-    val outputProps = new OutputMock(outputName, Map())
+    val output = new OutputMock(outputName, sparkSession, Map())
+    val outputOperation = new OutputMock(outputName, sparkSession, Map())
+    val outputProps = new OutputMock(outputName, sparkSession, Map())
   }
 
   "Output" should {

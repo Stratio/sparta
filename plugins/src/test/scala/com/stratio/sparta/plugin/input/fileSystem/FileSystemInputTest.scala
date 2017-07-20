@@ -30,10 +30,10 @@ class FileSystemInputTest extends TemporalSparkContext with Matchers {
 
 
   val properties = Map(("directory", "file://" + parentFile))
-  val input = new FileSystemInput(properties)
+  val input = new FileSystemInput("filesystem", ssc, sparkSession, properties)
 
   "Events counted" should " the same as files created" in {
-    val dstream= input.initStream(ssc)
+    val dstream= input.initStream
     val totalEvents = ssc.sparkContext.accumulator(0L)
 
     dstream.print()

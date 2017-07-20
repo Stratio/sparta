@@ -25,8 +25,9 @@ import akka.util.Timeout
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.helpers.InfoHelper
+import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
@@ -47,7 +48,7 @@ import scala.util.{Properties, Try}
 //scalastyle:off
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
-                      policyModel: Option[WorkflowModel],
+                      workflowModel: Option[WorkflowModel],
                       sparkSubmitRequest: Option[SubmitRequest]) extends OauthTokenUtils with PolicyStatusUtils {
 
   def this(context: ActorContext,
@@ -76,17 +77,31 @@ class MarathonService(context: ActorContext,
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
   val HostMesosLib = s"$HostMesosNativeLibPath"
   val HostMesosNativeLib = s"$HostMesosNativeLibPath/libmesos.so"
-  val ServiceName = policyModel.fold("") { policy => s"sparta/workflows/${policy.name}" }
+  val ServiceName = workflowModel.fold("") { workflow =>
+    WorkflowHelper.getMarathonId(workflow)
+  }
   val DefaultMemory = 1024
   val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
-  val DefaultGracePeriodSeconds = 180
+  val DefaultGracePeriodSeconds = 240
   val DefaultIntervalSeconds = 60
   val DefaultTimeoutSeconds = 20
   val DefaultMaxConsecutiveFailures = 3
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
+  val DefaultSparkUIPort = 4040
+
+  lazy val calicoEnabled: Boolean = {
+    val calicoEnv = Properties.envOrNone(CalicoEnableEnv)
+    if (calicoEnv.isDefined && calicoEnv.get.equals("true")) true else false
+  }
+
+  lazy val useDynamicAuthentication = Try {
+    scala.util.Properties.envOrElse(DynamicAuthEnv, "false").toBoolean
+  }.getOrElse(false)
+
+  val portSpark = DefaultSparkUIPort
 
   /* Lazy variables */
 
@@ -98,35 +113,34 @@ class MarathonService(context: ActorContext,
   /* PUBLIC METHODS */
 
   def launch(): Unit = {
-    assert(policyModel.isDefined && sparkSubmitRequest.isDefined, "Is mandatory specify one policy and the request")
-    val createApp = addRequirements(getMarathonAppFromFile, policyModel.get, sparkSubmitRequest.get)
+    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "Is mandatory specify one policy and the request")
+    val createApp = addRequirements(getMarathonAppFromFile, workflowModel.get, sparkSubmitRequest.get)
     for {
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
-        val information = s"Error when launching Sparta Marathon App to Marathon API with id: ${response.appInfo.id}"
+        val information = s"Error launching Workflow App to Marathon API with id: ${response.appInfo.id}"
         log.error(information)
         updateStatus(WorkflowStatusModel(
-          id = policyModel.get.id.get,
+          id = workflowModel.get.id.get,
           status = Failed,
           statusInfo = Option(information),
-          marathonId = Option(createApp.id),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, response.msg))))
         log.error(s"Service ${response.appInfo.id} can't be deployed: ${response.msg}")
       case response: UpServiceResponse =>
-        val information = s"Sparta Marathon App launched correctly to Marathon API with id: ${response.appInfo.id}"
+        val information = s"Workflow App launched correctly to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
-        updateStatus(WorkflowStatusModel(id = policyModel.get.id.get, status = Uploaded,
-          marathonId = Option(createApp.id), statusInfo = Option(information)))
+        updateStatus(WorkflowStatusModel(id = workflowModel.get.id.get, status = Uploaded,
+          statusInfo = Option(information)))
       case _ =>
         val information = "Unrecognized message received from Marathon API"
         log.warn(information)
-        updateStatus(WorkflowStatusModel(id = policyModel.get.id.get, status = NotDefined,
+        updateStatus(WorkflowStatusModel(id = workflowModel.get.id.get, status = NotDefined,
           statusInfo = Option(information)))
     }
   }
 
-  def kill(containerId: String): Unit = upAndDownActor ! DownServiceRequest(ContainerId(containerId))
+  def kill(containerId: String): Unit = upAndDownActor ! DownServiceRequest(ContainerId(containerId), Try(getToken).toOption)
 
   /* PRIVATE METHODS */
 
@@ -139,6 +153,10 @@ class MarathonService(context: ActorContext,
     case Some(_) => None
     case None => Option(HostMesosLib)
   }
+
+  private def getVaultToken: Option[String] =
+    if (!useDynamicAuthentication) Properties.envOrNone(VaultTokenEnv)
+    else None
 
   private def mesosphereLibPath: String =
     Try(marathonConfig.getString("mesosphere.lib")).toOption.getOrElse(HostMesosNativeLibPath)
@@ -167,14 +185,6 @@ class MarathonService(context: ActorContext,
   private def privileged: Boolean =
     Try(marathonConfig.getString("docker.privileged").toBoolean).getOrElse(DefaultPrivileged)
 
-  private def envSparkSecurityKafka(sparkConfigurations: Map[String, String]): Option[String] = {
-    if (sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_CERT_PASS_PATH") &&
-      sparkConfigurations.contains("spark.mesos.driverEnv.SPARK_SECURITY_KAFKA_VAULT_KEY_PASS_PATH")) {
-      Option("true")
-    } else None
-  }
-
   private def getMarathonAppFromFile: CreateApp = {
     val templateFile = Try(marathonConfig.getString("template.file")).toOption.getOrElse(DefaultMarathonTemplateFile)
     val fileContent = Source.fromFile(templateFile).mkString
@@ -202,30 +212,28 @@ class MarathonService(context: ActorContext,
       .getOrElse(app.mem)
     val envFromSubmit = submitRequest.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
-        Option((key.split("spark.mesos.driverEnv.").tail.head, value))
+        Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
       } else None
     }
-
-    val subProperties = substitutionProperties(policyModel, submitRequest, newMem)
-    val newEnv = app.env.map { properties =>
-      properties.flatMap { case (k, v) =>
-        if (v == "???")
-          subProperties.get(k).map(vParsed => (k, vParsed))
-        else Some((k, v))
-      } ++ envFromSubmit
-    }.orElse(Option(envFromSubmit))
-    val newLabels = app.labels.flatMap { case (k, v) =>
-      if (v == "???")
-        subProperties.get(k).map(vParsed => (k, vParsed))
-      else Some((k, v))
+    val (dynamicAuthEnv, newSecrets) = {
+      val appRoleName = Properties.envOrNone(AppRoleNameEnv)
+      if (useDynamicAuthentication && appRoleName.isDefined) {
+        log.info("Adding dynamic authentication parameters to marathon application")
+        (Map(AppRoleEnv -> JsObject(Map("secret" -> JsString("role")))), Map("role" -> Map("source" -> appRoleName.get)))
+      } else (Map.empty[String, JsString], Map.empty[String, Map[String, String]])
     }
+    val newEnv = Option(envProperties(policyModel, submitRequest, newMem) ++ envFromSubmit ++ dynamicAuthEnv)
     val javaCertificatesVolume = {
       if (Properties.envOrNone(VaultEnableEnv).isDefined &&
-        Properties.envOrNone(VaultHostEnv).isDefined &&
+        Properties.envOrNone(VaultHostsEnv).isDefined &&
         Properties.envOrNone(VaultTokenEnv).isDefined)
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
+
+    val newPortMappings = if (calicoEnabled) Option(Seq(PortMapping(portSpark, portSpark, Option(0),
+      protocol = Option("tcp"), labels = Option(Map("name"-> "sparkui"))))) else None
+    val networkType = if (calicoEnabled) Option("USER") else app.container.docker.network
     val newDockerContainerInfo = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(
@@ -233,17 +241,22 @@ class MarathonService(context: ActorContext,
           volumes = Option(javaCertificatesVolume),
           parameters = Option(getKrb5ConfVolume),
           forcePullImage = Option(forcePullImage),
+          network = networkType,
+          portMappings = newPortMappings,
           privileged = Option(privileged)
         ))
-      case None => ContainerInfo(app.container.docker.copy(
-        volumes = Option(Seq(
-          Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-          Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
-        image = spartaDockerImage,
-        parameters = Option(getKrb5ConfVolume),
-        forcePullImage = Option(forcePullImage),
-        privileged = Option(privileged)
-      ))
+      case None =>
+        ContainerInfo(app.container.docker.copy(
+          volumes = Option(Seq(
+            Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
+            Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
+          image = spartaDockerImage,
+          parameters = Option(getKrb5ConfVolume),
+          forcePullImage = Option(forcePullImage),
+          network = networkType,
+          portMappings = newPortMappings,
+          privileged = Option(privileged)
+        ))
     }
     val newHealthChecks = Option(Seq(HealthCheck(
       protocol = "TCP",
@@ -254,20 +267,31 @@ class MarathonService(context: ActorContext,
       maxConsecutiveFailures = maxConsecutiveFailures
     )))
 
+    val newConstraints = Properties.envOrNone(Constraints).map(constraint =>
+      Seq(Seq("label", "CLUSTER", constraint)))
+
+    val newIpAddress = if (calicoEnabled) Option(IpAddress(networkName = Option(Properties.envOrElse(CalicoNetworkEnv, "stratio"))))
+    else None
+
+    val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
+
     app.copy(
       id = ServiceName,
       cpus = newCpus,
       mem = newMem,
       env = newEnv,
-      labels = newLabels,
       container = newDockerContainerInfo,
-      healthChecks = newHealthChecks
+      healthChecks = newHealthChecks,
+      secrets = newSecrets,
+      portDefinitions = newPortDefinitions,
+      ipAddress = newIpAddress,
+      constraints = newConstraints
     )
   }
 
-  private def substitutionProperties(workflowModel: WorkflowModel,
-                                     submitRequest: SubmitRequest,
-                                     memory: Int): Map[String, String] =
+  private def envProperties(workflowModel: WorkflowModel,
+                            submitRequest: SubmitRequest,
+                            memory: Int): Map[String, JsString] =
     Map(
       AppMainEnv -> Option(AppMainClass),
       AppTypeEnv -> Option(MarathonApp),
@@ -276,10 +300,12 @@ class MarathonService(context: ActorContext,
       AppJarEnv -> marathonJar,
       ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
-      PolicyIdEnv -> workflowModel.id,
+      WorkflowIdEnv -> workflowModel.id,
       VaultEnableEnv -> Properties.envOrNone(VaultEnableEnv),
-      VaultHostEnv -> Properties.envOrNone(VaultHostEnv),
-      VaultTokenEnv -> Properties.envOrNone(VaultTokenEnv),
+      VaultHostsEnv -> Properties.envOrNone(VaultHostsEnv),
+      VaultPortEnv -> Properties.envOrNone(VaultPortEnv),
+      VaultTokenEnv -> getVaultToken,
+      DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
       AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
@@ -312,9 +338,8 @@ class MarathonService(context: ActorContext,
       SecurityKerberosEnv -> Properties.envOrNone(SecurityKerberosEnv),
       SecurityOauth2Env -> Properties.envOrNone(SecurityOauth2Env),
       SecurityMesosEnv -> Properties.envOrNone(SecurityMesosEnv),
-      SecuritySparkKafkaEnv -> envSparkSecurityKafka(submitRequest.sparkConfigurations),
-      SecuritySparkHdfsEnv -> submitRequest.sparkConfigurations.get("spark.mesos.driverEnv.SPARK_SECURITY_HDFS_CONF_URI"),
-      DcosServiceName -> Option(ServiceName),
+      DcosServiceName -> Properties.envOrNone(DcosServiceName),
+      CalicoNetworkEnv -> Properties.envOrNone(CalicoNetworkEnv),
       SparkUserEnv -> workflowModel.settings.sparkSettings.sparkUser,
       CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
       CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),
@@ -323,5 +348,5 @@ class MarathonService(context: ActorContext,
       CrossdataCoreCatalogZookeeperSessionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperSessionTimeout),
       CrossdataCoreCatalogZookeeperRetryAttempts -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryAttempts),
       CrossdataCoreCatalogZookeeperRetryInterval -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryInterval)
-    ).flatMap { case (k, v) => v.map(value => Option(k -> value)) }.flatten.toMap
+    ).flatMap { case (k, v) => v.map(value => Option(k -> JsString(value))) }.flatten.toMap
 }

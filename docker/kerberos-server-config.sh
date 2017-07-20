@@ -43,4 +43,12 @@ sed -i "s#<__KEYTAB__>#$SPARTA_KEYTAB_PATH#" $SPARTA_JAAS_FILE\
    && echo "[JAAS_CONF] ZK keytab configured as $SPARTA_KEYTAB_PATH" \
    || echo "[JAAS_CONF-ERROR] ZK keytab was NOT configured"
 
-echo "Kerberos to use against securized Zookeeper: OK"
+## Testing if the keytab can generate valid tickets
+kinit -kt $SPARTA_KEYTAB_PATH $SPARTA_PRINCIPAL_NAME
+if [ $? -eq 0 ]; then
+    _log_sparta_sec "Keytab for $SPARTA_PRINCIPAL_NAME: validated"
+    _log_sparta_sec "Configuring kerberos: OK"
+else
+    _log_sparta_sec "The retrieved keytab could not be validated: it is likely that Sparta will run into some errors with kerberized services"
+    _log_sparta_sec "Configuring kerberos: WARNING!"
+fi

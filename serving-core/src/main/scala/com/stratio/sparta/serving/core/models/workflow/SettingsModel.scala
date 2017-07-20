@@ -71,7 +71,7 @@ case class SparkResourcesConf(coresMax: Option[String] = Option("2"),
                               executorMemory: Option[String] = Option("1G"),
                               executorCores: Option[String] = Option("1"),
                               driverCores: Option[String] = Option("1"),
-                              driverMemory: Option[String] = Option("1G"),
+                              driverMemory: Option[String] = Option("2G"),
                               mesosExtraCores: Option[String] = None,
                               localityWait: Option[String] = Option("10"),
                               taskMaxFailures: Option[String] = Option("8"),
@@ -79,7 +79,7 @@ case class SparkResourcesConf(coresMax: Option[String] = Option("2"),
                               concurrentJobs: Option[String] = None)
 
 case class SparkDockerConf(executorDockerImage: Option[String] =
-                           Option("qa.stratio.com/stratio/spark-krb-calico:2.1.0"),
+                           Option("qa.stratio.com/stratio/stratio-spark:2.1.0.1"),
                            executorDockerVolumes: Option[String] =
                            Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
                              "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro"),

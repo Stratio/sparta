@@ -21,10 +21,14 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, Row, SaveMode}
 
-abstract class Output(val name: String, properties: Map[String, JSerializable])
+abstract class Output(
+                       val name: String,
+                       @transient private[sparta] val sparkSession: XDSession,
+                       properties: Map[String, JSerializable])
   extends Parameterizable(properties) with SLF4JLogging with CustomProperties {
 
   val customKey = "saveOptions"

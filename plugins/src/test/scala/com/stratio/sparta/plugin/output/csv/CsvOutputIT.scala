@@ -37,7 +37,6 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
-    val xdSession = XDSession.builder().config(sc.getConf).create("dummyUser")
     val schema = StructType(Seq(
       StructField("name", StringType),
       StructField("age", IntegerType),
@@ -45,7 +44,7 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
     ))
 
     val data =
-      xdSession.createDataFrame(sc.parallelize(Seq(
+      sparkSession.createDataFrame(sc.parallelize(Seq(
         Row("Kevin", Random.nextInt, Timestamp.from(Instant.now).getTime),
         Row("Kira", Random.nextInt, Timestamp.from(Instant.now).getTime),
         Row("Ariadne", Random.nextInt, Timestamp.from(Instant.now).getTime)
@@ -54,21 +53,21 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new CsvOutput("csv-test", properties)
+    val output = new CsvOutput("csv-test", sparkSession, properties)
   }
 
 
   "CsvOutput" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new CsvOutput("csv-test", Map.empty)
+    an[Exception] should be thrownBy new CsvOutput("csv-test", sparkSession, Map.empty)
   }
 
   it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new CsvOutput("csv-test", Map("path" -> "    "))
+    an[Exception] should be thrownBy new CsvOutput("csv-test", sparkSession, Map("path" -> "    "))
   }
 
   it should "save a dataframe " in new WithEventData {
     output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
-    val read = xdSession.read.csv(s"$tmpPath/person.csv")
+    val read = sparkSession.read.csv(s"$tmpPath/person.csv")
     read.count should be(3)
     read should be eq data
     File(tmpPath).deleteRecursively

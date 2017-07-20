@@ -20,6 +20,7 @@ import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.driver.stage._
 import com.stratio.sparta.sdk.pipeline.input.Input
+import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.workflow._
@@ -34,17 +35,17 @@ class SpartaWorkflow(val workflow: WorkflowModel, val curatorFramework: CuratorF
   clearError()
 
   private val ReflectionUtils = WorkflowHelper.ReflectionUtils
-  private val outputs = outputStage(ReflectionUtils)
+  private var outputs : Option[Seq[Output]] = None
   private var input: Option[Input] = None
 
   def setup(): Unit = {
     input.foreach(input => input.setUp())
-    outputs.foreach(output => output.setUp())
+    outputs.foreach(outputs => outputs.foreach(_.setUp()))
   }
 
   def cleanUp(): Unit = {
     input.foreach(input => input.cleanUp())
-    outputs.foreach(output => output.cleanUp())
+    outputs.foreach(outputs => outputs.foreach(_.cleanUp()))
   }
 
   def streamingStages(): StreamingContext = {
@@ -56,21 +57,24 @@ class SpartaWorkflow(val workflow: WorkflowModel, val curatorFramework: CuratorF
       checkpointPolicyPath,
       workflow.settings.streamingSettings.remember
     )
+    val sparkSession = xdSessionInstance
     if(input.isEmpty)
-      input = Option(createInput(ssc.get, ReflectionUtils))
-    val inputDStream = inputStreamStage(ssc.get, input.get)
+      input = Option(createInput(ssc.get, sparkSession, ReflectionUtils))
+    if(outputs.isEmpty)
+      outputs = Option(outputStage(ReflectionUtils, sparkSession))
+    val inputDStream = inputStreamStage(input.get)
 
-    saveRawData(workflow.rawData, inputDStream, outputs)
+    saveRawData(workflow.rawData, inputDStream, outputs.get)
 
     workflow.transformations.foreach { transformationsModel =>
       val parserSchemas = SchemaHelper.getSchemasFromTransformations(
         transformationsModel.transformationsPipe, Input.InitSchema)
       val (parsers, writerOptions) = parserStage(ReflectionUtils, parserSchemas)
       val parsedData = ParserStage.applyParsers(
-        inputDStream, parsers, parserSchemas.values.last, outputs, writerOptions)
+        inputDStream, parsers, parserSchemas.values.last, outputs.get, writerOptions)
 
-      triggersStreamStage(parserSchemas.values.last, parsedData, outputs, window)
-      cubesStreamStage(ReflectionUtils, parserSchemas.values.last, parsedData, outputs)
+      triggersStreamStage(parserSchemas.values.last, parsedData, outputs.get, window)
+      cubesStreamStage(ReflectionUtils, parserSchemas.values.last, parsedData, outputs.get)
     }
 
     ssc.get

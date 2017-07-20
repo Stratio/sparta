@@ -29,11 +29,15 @@ import org.apache.kafka.clients.producer.ProducerConfig._
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 
 import scala.collection.mutable
 
-class KafkaOutput(name: String, properties: Map[String, JSerializable])
-  extends Output(name, properties) with KafkaBase with CustomProperties {
+class KafkaOutput(
+                   name: String,
+                   sparkSession: XDSession,
+                   properties: Map[String, JSerializable]
+                 ) extends Output(name, sparkSession, properties) with KafkaBase with CustomProperties {
 
   val DefaultKafkaSerializer = classOf[StringSerializer].getName
   val DefaultAck = "0"
@@ -150,7 +154,7 @@ object KafkaOutput {
   }
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.kafkaSparkSubmitSecurityConf(configuration)
+    SecurityHelper.kafkaSecurityConf(configuration)
   }
 }
 

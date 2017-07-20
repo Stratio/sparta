@@ -1,5 +1,14 @@
 #!/bin/bash
 
+function initLocalSparkIp() {
+
+    echo "" >> ${VARIABLES}
+    echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${VARIABLES}
+    echo "" >> ${SYSTEM_VARIABLES}
+    echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${SYSTEM_VARIABLES}
+
+}
+
 function initJavaOptions() {
 
  if [[ ! -v SPARTA_HEAP_SIZE ]]; then
@@ -134,10 +143,13 @@ function zookeeperOptions() {
  fi
  sed -i "s|.*sparta.zookeeper.connectionString.*|sparta.zookeeper.connectionString = \""${SPARTA_ZOOKEEPER_CONNECTION_STRING}"\"|" ${SPARTA_CONF_FILE}
 
-if [ ! -v SPARTA_ZOOKEEPER_PATH ] || [ -v SPARTA_ZOOKEEPER_PATH ] && [ ${#SPARTA_ZOOKEEPER_PATH} == 0 ]; then
-    SPARTA_ZOOKEEPER_PATH="/stratio/sparta"
-fi
- sed -i "s|.*sparta.zookeeper.storagePath.*|sparta.zookeeper.storagePath = \""${SPARTA_ZOOKEEPER_PATH}"\"|" ${SPARTA_CONF_FILE}
+ if [ -v SPARTA_ZOOKEEPER_PATH ] && [ ${#SPARTA_ZOOKEEPER_PATH} != 0 ]; then
+  sed -i "s|.*sparta.zookeeper.storagePath.*|sparta.zookeeper.storagePath = \""${SPARTA_ZOOKEEPER_PATH}"\"|" ${SPARTA_CONF_FILE}
+ fi
+
+ if [ ! -v SPARTA_ZOOKEEPER_PATH ] && [ -v MARATHON_APP_LABEL_DCOS_SERVICE_NAME ] && [ ${#MARATHON_APP_LABEL_DCOS_SERVICE_NAME} != 0 ]; then
+   sed -i "s|.*sparta.zookeeper.storagePath.*|sparta.zookeeper.storagePath = \"/stratio/sparta/"${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}"\"|" ${SPARTA_CONF_FILE}
+ fi
 
  if [[ ! -v SPARTA_ZOOKEEPER_CONNECTION_TIMEOUT ]]; then
    SPARTA_ZOOKEEPER_CONNECTION_TIMEOUT=15000
@@ -255,7 +267,7 @@ function marathonOptions() {
  fi
 
  if [ -v MARATHON_SSO_PASSWORD ] && [ ${#MARATHON_SSO_PASSWORD} != 0 ]; then
-   sed -i "s|.*sparta.marathon.sso.username.*|sparta.marathon.sso.username = \""${MARATHON_SSO_PASSWORD}"\"|" ${SPARTA_CONF_FILE}
+   sed -i "s|.*sparta.marathon.sso.password.*|sparta.marathon.sso.password = \""${MARATHON_SSO_PASSWORD}"\"|" ${SPARTA_CONF_FILE}
  fi
 
  if [ -v MARATHON_SSO_CLIENT_ID ] && [ ${#MARATHON_SSO_CLIENT_ID} != 0 ]; then

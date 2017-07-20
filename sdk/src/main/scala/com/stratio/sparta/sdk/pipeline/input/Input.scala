@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.sdk.pipeline.input
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.{CustomProperties, Parameterizable}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-
-abstract class Input(properties: Map[String, JSerializable]) extends Parameterizable(properties) with CustomProperties {
+abstract class Input(
+                      name: String,
+                      @transient private[sparta] val ssc: StreamingContext,
+                      @transient private[sparta] val sparkSession: XDSession,
+                      properties: Map[String, JSerializable]
+                    ) extends Parameterizable(properties) with CustomProperties {
 
   val customKey = "inputOptions"
   val customPropertyKey = "inputOptionsKey"
@@ -37,7 +43,7 @@ abstract class Input(properties: Map[String, JSerializable]) extends Parameteriz
 
   def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
-  def initStream(ssc: StreamingContext): DStream[Row]
+  def initStream: DStream[Row]
 
   def storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", Input.StorageDefaultValue)

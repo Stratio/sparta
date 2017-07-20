@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.driver.test.stage
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.testkit.{TestKit, TestProbe}
+import akka.actor.ActorSystem
+import akka.testkit.TestKit
 import com.stratio.sparta.driver.stage.{InputStage, LogError, ZooKeeperError}
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.actor.StatusActor.Update
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowElementModel, WorkflowModel, WorkflowStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
@@ -38,11 +38,12 @@ import org.scalatest.{FlatSpecLike, ShouldMatchers}
 
 @RunWith(classOf[JUnitRunner])
 class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
-    with FlatSpecLike with ShouldMatchers with MockitoSugar {
+  with FlatSpecLike with ShouldMatchers with MockitoSugar {
 
   case class TestInput(workflow: WorkflowModel) extends InputStage with LogError
 
-  case class TestInputZK(workflow: WorkflowModel, curatorFramework: CuratorFramework) extends InputStage with ZooKeeperError
+  case class TestInputZK(workflow: WorkflowModel, curatorFramework: CuratorFramework)
+    extends InputStage with ZooKeeperError
 
   def mockPolicy: WorkflowModel = {
     val policy = mock[WorkflowModel]
@@ -56,13 +57,14 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val myInputClass = mock[Input]
+    val sparkSession = mock[XDSession]
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(myInputClass)
 
-    val result = TestInput(policy).createInput(ssc, reflection)
+    val result = TestInput(policy).createInput(ssc, sparkSession, reflection)
 
     verify(reflection).tryToInstantiate(mockEq("InputInput"), any())
     result should be(myInputClass)
@@ -72,6 +74,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     val policy = mockPolicy
     val input = mock[WorkflowElementModel]
     val ssc = mock[StreamingContext]
+    val sparkSession = mock[XDSession]
     val reflection = mock[ReflectionUtils]
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
@@ -79,8 +82,8 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).createInput(ssc, reflection)
-    } should have message "Something gone wrong creating the input: input. Please re-check the policy."
+      TestInput(policy).createInput(ssc, sparkSession, reflection)
+    } should have message "Something went wrong while creating the input: input. Please re-check the policy"
   }
 
   "inputStage" should "Fail when reflectionUtils don't behave correctly" in {
@@ -89,6 +92,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     val ssc = mock[StreamingContext]
     val reflection = mock[ReflectionUtils]
     val output = mock[Output]
+    val sparkSession = mock[XDSession]
 
     when(policy.input).thenReturn(Some(input))
     when(input.name).thenReturn("input")
@@ -96,16 +100,13 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(output)
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).createInput(ssc, reflection)
-    } should have message "Something gone wrong creating the input: input. Please re-check the policy."
-
-
+      TestInput(policy).createInput(ssc, sparkSession, reflection)
+    } should have message "Something went wrong while creating the input: input. Please re-check the policy"
   }
 
   "inputStreamStage" should "Generate a inputStream" in {
     val policy = mockPolicy
     val input = mock[WorkflowElementModel]
-    val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
     val row = mock[DStream[Row]]
     val reflection = mock[ReflectionUtils]
@@ -114,18 +115,17 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.initStream(ssc)).thenReturn(row)
+    when(inputClass.initStream).thenReturn(row)
 
-    val result = TestInput(policy).inputStreamStage(ssc, inputClass)
+    val result = TestInput(policy).inputStreamStage(inputClass)
 
-    verify(inputClass).initStream(ssc)
+    verify(inputClass).initStream
     result should be(row)
   }
 
   "inputStreamStage" should "Fail gracefully with bad input" in {
     val policy = mockPolicy
     val input = mock[WorkflowElementModel]
-    val ssc = mock[StreamingContext]
     val inputClass = mock[Input]
     val reflection = mock[ReflectionUtils]
     when(policy.input).thenReturn(Some(input))
@@ -133,14 +133,12 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
     when(input.`type`).thenReturn("Input")
     when(input.configuration).thenReturn(Map.empty[String, JsoneyString])
     when(reflection.tryToInstantiate(mockEq("InputInput"), any())).thenReturn(inputClass)
-    when(inputClass.initStream(ssc)).thenThrow(new RuntimeException("Fake"))
+    when(inputClass.initStream).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestInput(policy).inputStreamStage(ssc, inputClass)
-    } should have message "Something gone wrong creating the input stream for: input."
+      TestInput(policy).inputStreamStage(inputClass)
+    } should have message "Something went wrong while creating the input stream for: input"
 
-    verify(inputClass).initStream(ssc)
-
+    verify(inputClass).initStream
   }
-
 }

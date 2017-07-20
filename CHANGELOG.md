@@ -4,6 +4,25 @@
 
 * Pending changelog
 
+## 1.6.3 (July 13, 2017)
+
+* Fix missing kms-utils file
+
+## 1.6.2 (July 12, 2017)
+
+* Crossdata intput
+* Crossdata output
+* Network segmentation integration
+* Dynamic Authentication integration
+* Mesos securized integration
+
+## 1.6.1 (June 28, 2017)
+
+* Crossdata integration in streaming jobs
+* Crossdata API and UI
+* Multi-tenant support 
+* Refactor configurations, available in workflow level
+
 ## 1.6.0 (June 13, 2017)
 
 * **Authorization system with Stratio GoSec Dyplon**

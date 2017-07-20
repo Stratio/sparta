@@ -5,10 +5,6 @@ function _log_sparta_marathon() {
     echo "[SPARTA-MARATHON] $message"
 }
 
- _log_sparta_marathon "Loading Sparta and system variables ... "
- loadVariables
- _log_sparta_marathon "Loaded Sparta and system variables"
-
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
  cp ${SPARTA_MARATHON_CONF_FILE} ${SPARTA_CONF_FILE}
 
@@ -23,12 +19,17 @@ function _log_sparta_marathon() {
  _log_sparta_marathon "Loading Sparta Spark options ... "
  initSpark
  initSparkEnvOptions
+ initClusterSparkIp
  initSparkDefaultsOptions
  _log_sparta_marathon "Loaded Sparta Spark options"
 
  _log_sparta_marathon "Loading Sparta Hdfs options ... "
  initHdfs
  _log_sparta_marathon "Loaded Sparta Hdfs options"
+
+ _log_sparta_marathon "Loading Sparta and system variables ... "
+ loadVariables
+ _log_sparta_marathon "Loaded Sparta and system variables"
 
  _log_sparta_marathon "Loading Sparta Log options ... "
  logLevelOptions

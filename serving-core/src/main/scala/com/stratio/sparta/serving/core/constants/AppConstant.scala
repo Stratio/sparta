@@ -93,13 +93,13 @@ object AppConstant extends ZookeeperUtils {
 
   //Zookeeper paths
   val instanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
-  lazy val BaseZKPath: String = (retrievePathFromEnvOrConf, instanceName) match {
-    case (Some(path), _ ) if checkIfValidPath(path) => path
-    case (Some(_), Some(instance) )=> s"/stratio/sparta/$instance"
-    case (Some(path), None )=> path
-    case (None, Some(instance)) => s"/stratio/sparta/$instance"
-    case (None, None) => DefaultZKPath
+  lazy val BaseZKPath: String = (retrievePathFromEnv, instanceName, retrieveFromConf) match {
+    case (Some(path), _, _ ) if checkIfValidPath(path) => path
+    case (_, Some(instance), _)=> s"/stratio/sparta/$instance"
+    case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath
+    case _ => DefaultZKPath
   }
+
   lazy val PoliciesBasePath = s"$BaseZKPath/policies"
   lazy val ContextPath = s"$BaseZKPath/contexts"
   lazy val ExecutionsPath = s"$BaseZKPath/executions"

@@ -21,23 +21,27 @@ import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowElementModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
+import org.apache.spark.sql.crossdata.XDSession
 
 trait OutputStage extends BaseStage {
   this: ErrorPersistor =>
 
-  def outputStage(refUtils: ReflectionUtils): Seq[Output] =
-    workflow.outputs.map(o => createOutput(o, refUtils))
+  def outputStage(refUtils: ReflectionUtils, sparkSession: XDSession): Seq[Output] =
+    workflow.outputs.map(o => createOutput(o, refUtils, sparkSession))
 
-  private[driver] def createOutput(model: WorkflowElementModel, refUtils: ReflectionUtils): Output = {
-    val errorMessage = s"Something gone wrong creating the output: ${model.name}. Please re-check the policy."
+  private[driver] def createOutput(model: WorkflowElementModel,
+                                   refUtils: ReflectionUtils,
+                                   sparkSession: XDSession): Output = {
+    val errorMessage = s"Something went wrong while creating the output: ${model.name}. Please re-check the policy"
     val okMessage = s"Output: ${model.name} created correctly."
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {
       val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
       refUtils.tryToInstantiate[Output](classType + Output.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
+          classOf[XDSession],
           classOf[Map[String, Serializable]])
-          .newInstance(model.name, model.configuration)
+          .newInstance(model.name, sparkSession, model.configuration)
           .asInstanceOf[Output])
     }
   }

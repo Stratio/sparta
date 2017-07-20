@@ -33,9 +33,9 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
   with PolicyStatusUtils with FragmentUtils with RequestUtils with PolicyUtils {
 
   def receive: PartialFunction[Any, Unit] = {
-    case StartApp(policyId) => doStartApp(policyId)
+    case StartApp(workflowId) => doStartApp(workflowId)
     case StopApp => preStopActions()
-    case _ => log.info("Unrecognized message in Marathon App Actor")
+    case _ => log.info("Unrecognized message in Workflow App Actor")
   }
 
   def preStopActions(): Unit = {
@@ -45,64 +45,66 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
   }
 
   //scalastyle:off
-  def doStartApp(policyId: String): Unit = {
+  def doStartApp(workflowId: String): Unit = {
     Try {
-      log.debug(s"Obtaining status by id: $policyId")
-      findStatusById(policyId) match {
+      log.debug(s"Obtaining status by id: $workflowId")
+      findStatusById(workflowId) match {
         case Success(status) =>
           log.debug(s"Obtained status: ${status.status}")
           if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
             status.status != Finished) {
-            log.debug(s"Obtaining policy with fragments by id: $policyId")
-            val policy = getPolicyWithFragments(getPolicyById(policyId))
-            log.debug(s"Obtained policy: ${policy.toString}")
-            log.debug(s"Closing checker by id: $policyId and name: ${policy.name}")
-            closeChecker(policy.id.get, policy.name)
-            log.debug(s"Obtaining request by id: $policyId")
-            findRequestById(policyId) match {
+            log.debug(s"Obtaining workflow with fragments by id: $workflowId")
+            val workflow = getPolicyWithFragments(getPolicyById(workflowId))
+            log.debug(s"Obtained workflow: ${workflow.toString}")
+            log.debug(s"Closing checker by id: $workflowId and name: ${workflow.name}")
+            closeChecker(workflow.id.get, workflow.name)
+            log.debug(s"Obtaining request by id: $workflowId")
+            findRequestById(workflowId) match {
               case Success(submitRequest) =>
                 log.debug(s"Starting request: ${submitRequest.toString}")
                 val clusterLauncherActor =
                   context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
-                clusterLauncherActor ! StartWithRequest(policy, submitRequest)
+                clusterLauncherActor ! StartWithRequest(workflow, submitRequest)
               case Failure(exception) => throw exception
             }
           } else {
-            log.info(s"Marathon App launched by marathon with incorrect state, the job is not executed, finish them")
+            val information = s"Workflow App launched by Marathon with incorrect state, the job is not executed"
+            log.warn(information)
             preStopActions()
+            updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Option(information),
+              lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, ""))))
           }
         case Failure(e) => throw e
       }
     } match {
       case Success(_) =>
-        log.info(s"StartApp in Marathon App finished without errors")
+        log.info(s"StartApp in Workflow App executed without errors")
       case Failure(exception) =>
-        val information = s"Error submitting job with Marathon App"
+        val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
-        updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Option(information),
-          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))))
         preStopActions()
+        updateStatus(WorkflowStatusModel(id = workflowId, status = Failed, statusInfo = Option(information),
+          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))))
     }
   }
 
   //scalastyle:on
 
-  def closeChecker(policyId: String, policyName: String): Unit = {
-    log.info(s"Listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+  def closeChecker(workflowId: String, workflowName: String): Unit = {
+    log.info(s"Listener added to $workflowName with id: $workflowId")
+    addListener(workflowId, (workflowStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status == Stopped || policyStatus.status == Failed) {
+        if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
           try {
-            val information = s"Executing pre-close actions in Marathon App ..."
+            val information = s"Executing pre-close actions in Workflow App ..."
             log.info(information)
-            updateStatus(WorkflowStatusModel(id = policyId, status = NotDefined, statusInfo = Some(information)))
             preStopActions()
           } finally {
             Try(nodeCache.close()) match {
               case Success(_) =>
-                log.info("Node cache to Marathon App Listener closed correctly")
+                log.info("Node cache to Workflow App Listener closed correctly")
               case Failure(e) =>
-                log.error(s"Node Cache to Marathon App is not closed correctly", e)
+                log.error(s"Node Cache to Workflow App is not closed correctly", e)
             }
           }
         }
@@ -113,7 +115,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
 
 object MarathonAppActor {
 
-  case class StartApp(policyId: String)
+  case class StartApp(workflowId: String)
 
   case object StopApp
 

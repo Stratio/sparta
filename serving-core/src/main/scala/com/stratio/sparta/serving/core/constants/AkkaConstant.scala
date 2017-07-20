@@ -36,8 +36,10 @@ object AkkaConstant {
   val UpDownMarathonActor = "upDownMarathonActor"
   val ConfigActorName = "configurationActor"
   val MetadataActorName = "metadataActor"
+  val CrossdataActorName = "crossdataActor"
 
-  val DefaultTimeout = 15
+  val DefaultTimeout = 9
+  val DefaultInstances = 3
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")
 }

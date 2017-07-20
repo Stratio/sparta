@@ -18,21 +18,28 @@ package com.stratio.sparta.plugin.input.flume
 import java.io.Serializable
 import java.net.InetSocketAddress
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.flume.FlumeUtils
 
-class FlumeInput(properties: Map[String, Serializable]) extends Input(properties) {
+class FlumeInput(
+                  name: String,
+                  ssc: StreamingContext,
+                  sparkSession: XDSession,
+                  properties: Map[String, Serializable]
+                ) extends Input(name, ssc, sparkSession, properties) with SLF4JLogging {
 
   val DEFAULT_FLUME_PORT = 11999
   val DEFAULT_ENABLE_DECOMPRESSION = false
   val DEFAULT_MAXBATCHSIZE = 1000
   val DEFAULT_PARALLELISM = 5
 
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
 
     if (properties.getString("type").equalsIgnoreCase("pull")) {
       FlumeUtils.createPollingStream(

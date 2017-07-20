@@ -24,8 +24,9 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFilesResponse}
+import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile, SpartaFilesResponse}
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http._
@@ -57,12 +58,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- supervisor ? BuildBackup
+            response <- (supervisor ? BuildBackup(user))
+              .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
           } yield response match {
-            case SpartaFilesResponse(Success(filesUris)) => filesUris
-            case SpartaFilesResponse(Failure(exception)) => throw exception
-            case BackupResponse(Failure(exception)) => throw exception
-            case BackupResponse(Success(_)) => throw new ServingCoreException("Backup build not completed")
+            case Left(SpartaFilesResponse(Success(filesUris))) => filesUris
+            case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in backups")
           }
         }
       }
@@ -86,10 +88,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
         entity(as[BackupRequest]) { backupRequest =>
           complete {
             for {
-              response <- (supervisor ? ExecuteBackup(backupRequest)).mapTo[BackupResponse]
+              response <- (supervisor ? ExecuteBackup(backupRequest, user))
+                .mapTo[Either[BackupResponse, UnauthorizedResponse]]
             } yield response match {
-              case BackupResponse(Success(_)) => StatusCodes.OK
-              case BackupResponse(Failure(exception)) => throw exception
+              case Left(BackupResponse(Success(_))) => StatusCodes.OK
+              case Left(BackupResponse(Failure(exception))) => throw exception
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in backups")
             }
           }
         }
@@ -114,10 +119,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
         entity(as[MultipartFormData]) { form =>
           complete {
             for {
-              response <- (supervisor ? UploadBackups(form.fields)).mapTo[SpartaFilesResponse]
+              response <- (supervisor ? UploadBackups(form.fields, user))
+                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
             } yield response match {
-              case SpartaFilesResponse(Success(newFilesUris)) => newFilesUris
-              case SpartaFilesResponse(Failure(exception)) => throw exception
+              case Left(SpartaFilesResponse(Success(newFilesUris))) => newFilesUris
+              case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+              case Right(UnauthorizedResponse(exception)) => throw exception
+              case _ => throw new RuntimeException("Unexpected behaviour in backups")
             }
           }
         }
@@ -157,10 +165,14 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
       get {
         complete {
           for {
-            response <- (supervisor ? ListBackups).mapTo[SpartaFilesResponse]
+            response <- (supervisor ? ListBackups(user))
+              .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
           } yield response match {
-            case SpartaFilesResponse(Success(filesUris)) => filesUris
-            case SpartaFilesResponse(Failure(exception)) => throw exception
+            case Left(SpartaFilesResponse(Success(filesUris))) => filesUris
+            case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in backups")
+
           }
         }
       }
@@ -179,10 +191,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteBackups).mapTo[BackupResponse]
+            response <- (supervisor ? DeleteBackups(user))
+              .mapTo[Either[BackupResponse, UnauthorizedResponse]]
           } yield response match {
-            case BackupResponse(Success(_)) => StatusCodes.OK
-            case BackupResponse(Failure(exception)) => throw exception
+            case Left(BackupResponse(Success(_))) => StatusCodes.OK
+            case Left(BackupResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in backups")
           }
         }
       }
@@ -208,10 +223,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteBackup(file)).mapTo[BackupResponse]
+            response <- (supervisor ? DeleteBackup(file, user))
+              .mapTo[Either[BackupResponse, UnauthorizedResponse]]
           } yield response match {
-            case BackupResponse(Success(_)) => StatusCodes.OK
-            case BackupResponse(Failure(exception)) => throw exception
+            case Left(BackupResponse(Success(_))) => StatusCodes.OK
+            case Left(BackupResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in backups")
           }
         }
       }
@@ -231,10 +249,13 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            response <- (supervisor ? CleanMetadata).mapTo[BackupResponse]
+            response <- (supervisor ? CleanMetadata(user))
+              .mapTo[Either[BackupResponse, UnauthorizedResponse]]
           } yield response match {
-            case BackupResponse(Success(_)) => StatusCodes.OK
-            case BackupResponse(Failure(exception)) => throw exception
+            case Left(BackupResponse(Success(_))) => StatusCodes.OK
+            case Left(BackupResponse(Failure(exception))) => throw exception
+            case Right(UnauthorizedResponse(exception)) => throw exception
+            case _ => throw new RuntimeException("Unexpected behaviour in backups")
           }
         }
       }

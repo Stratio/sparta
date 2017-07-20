@@ -22,8 +22,13 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 
-class CassandraOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class CassandraOutput(
+                       name: String,
+                       sparkSession: XDSession,
+                       properties: Map[String, JSerializable]
+                     ) extends Output(name, sparkSession, properties) {
 
   val MaxTableNameLength = 48
 

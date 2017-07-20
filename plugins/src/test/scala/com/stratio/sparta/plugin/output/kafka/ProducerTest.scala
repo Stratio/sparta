@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.output.kafka
 import java.io.Serializable
 import java.util.Properties
 
+import com.stratio.sparta.plugin.TemporalSparkContext
 import org.apache.log4j.Logger
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -27,9 +28,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.util._
 
 @RunWith(classOf[JUnitRunner])
-class ProducerTest extends FlatSpec with Matchers {
-
-  val log = Logger.getRootLogger
+class ProducerTest extends TemporalSparkContext with Matchers {
 
   val mandatoryOptions: Map[String, Serializable] = Map(
     "bootstrap.servers" -> """[{"host":"localhost","port":"9092"}]""",
@@ -54,19 +53,19 @@ class ProducerTest extends FlatSpec with Matchers {
   )
 
   "getProducerKey" should "concatenate topic with broker list" in {
-    val kafkatest = new KafkaOutput("kafka", validProperties)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, validProperties)
 
     kafkatest.getProducerConnectionKey shouldBe "localhost:9092,localhost2:90922"
   }
 
   "getProducerKey" should "return default connection" in {
-    val kafkatest = new KafkaOutput("kafka", noValidProperties)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, noValidProperties)
 
     kafkatest.getProducerConnectionKey shouldBe "localhost:9092"
   }
 
   "extractOptions" should "extract mandatory options" in {
-    val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, mandatoryOptions)
 
     val options = kafkatest.mandatoryOptions
     options.size shouldBe 5
@@ -79,7 +78,7 @@ class ProducerTest extends FlatSpec with Matchers {
 
   "extractOptions" should "extract default mandatory options when map is empty" in {
 
-    val kafkatest = new KafkaOutput("kafka", Map.empty)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, Map.empty)
 
     val options = kafkatest.mandatoryOptions
     options.size shouldBe 5
@@ -91,7 +90,7 @@ class ProducerTest extends FlatSpec with Matchers {
   }
 
   "extractOptions" should "create a correct properties file" in {
-    val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, mandatoryOptions)
 
     val options: Properties = kafkatest.createProducerProps(Map.empty)
     options.size shouldBe 5
@@ -103,7 +102,7 @@ class ProducerTest extends FlatSpec with Matchers {
   }
 
   "createProducer" should "return a valid KafkaProducer" in {
-    val kafkatest = new KafkaOutput("kafka", mandatoryOptions)
+    val kafkatest = new KafkaOutput("kafka", sparkSession, mandatoryOptions)
 
     val options = kafkatest.createProducerProps(Map.empty)
     val createProducer = Try(KafkaOutput.getProducer("key", options))

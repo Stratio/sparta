@@ -76,8 +76,8 @@ trait TriggerStage extends BaseStage {
           trigger.writer.saveMode,
           trigger.writer.tableName,
           getAutoCalculatedFields(trigger.writer.autoCalculatedFields),
-          trigger.writer.primaryKey,
-          trigger.writer.partitionBy
+          trigger.writer.partitionBy,
+          trigger.writer.primaryKey
         ),
         trigger.configuration)
     }

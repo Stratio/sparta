@@ -54,16 +54,16 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new AvroOutput("avro-test", properties)
+    val output = new AvroOutput("avro-test", sparkSession, properties)
   }
 
 
   "AvroOutput" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", Map.empty)
+    an[Exception] should be thrownBy new AvroOutput("avro-test", sparkSession, Map.empty)
   }
 
   it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", Map("path" -> "    "))
+    an[Exception] should be thrownBy new AvroOutput("avro-test", sparkSession, Map("path" -> "    "))
   }
 
   it should "save a dataframe " in new WithEventData {

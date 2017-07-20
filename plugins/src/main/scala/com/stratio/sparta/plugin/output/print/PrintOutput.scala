@@ -21,11 +21,15 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 
 import scala.util.Try
 
-class PrintOutput(name: String, properties: Map[String, JSerializable])
-  extends Output(name, properties) {
+class PrintOutput(
+                   name: String,
+                   sparkSession: XDSession,
+                   properties: Map[String, JSerializable]
+                 ) extends Output(name, sparkSession, properties) {
 
   val printData = Try(properties.getBoolean("printData")).getOrElse(false)
   val printSchema = Try(properties.getBoolean("printSchema")).getOrElse(false)

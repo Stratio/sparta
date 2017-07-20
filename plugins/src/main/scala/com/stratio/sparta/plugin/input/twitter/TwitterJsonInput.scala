@@ -17,10 +17,12 @@ package com.stratio.sparta.plugin.input.twitter
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.google.gson.Gson
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -32,7 +34,12 @@ import scala.util.{Failure, Success, Try}
 /**
  * Connects to Twitter's stream and generates stream events.
  */
-class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(properties) {
+class TwitterJsonInput(
+                        name: String,
+                        ssc: StreamingContext,
+                        sparkSession: XDSession,
+                        properties: Map[String, JSerializable]
+                      ) extends Input(name, ssc, sparkSession, properties) with SLF4JLogging {
 
   System.setProperty("twitter4j.oauth.consumerKey", properties.getString("consumerKey"))
   System.setProperty("twitter4j.oauth.consumerSecret", properties.getString("consumerSecret"))
@@ -50,7 +57,7 @@ class TwitterJsonInput(properties: Map[String, JSerializable]) extends Input(pro
   }
   val search = terms.getOrElse(trends.toSeq)
 
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
     TwitterUtils.createStream(ssc, None, search, storageLevel)
       .map(stream => {
         val gson = new Gson()

@@ -17,25 +17,33 @@ package com.stratio.sparta.plugin.input.socket
 
 import java.io.{Serializable => JSerializable}
 
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
-class SocketInputTest extends WordSpec {
+class SocketInputTest extends WordSpec with MockitoSugar{
+
+  val sparkSession = mock[XDSession]
+  val ssc = mock[StreamingContext]
 
   "A SocketInput" should {
     "instantiate successfully with parameters" in {
-      new SocketInput(Map("hostname" -> "localhost", "port" -> 9999).mapValues(_.asInstanceOf[JSerializable]))
+      new SocketInput("socket", ssc, sparkSession,
+        Map("hostname" -> "localhost", "port" -> 9999).mapValues(_.asInstanceOf[JSerializable]))
     }
     "fail without parameters" in {
       intercept[IllegalStateException] {
-        new SocketInput(Map())
+        new SocketInput("socket", ssc, sparkSession, Map())
       }
     }
     "fail with bad port argument" in {
       intercept[IllegalStateException] {
-        new SocketInput(Map("hostname" -> "localhost", "port" -> "BADPORT").mapValues(_.asInstanceOf[JSerializable]))
+        new SocketInput("socket", ssc, sparkSession, Map("hostname" -> "localhost", "port" -> "BADPORT")
+          .mapValues(_.asInstanceOf[JSerializable]))
       }
     }
   }

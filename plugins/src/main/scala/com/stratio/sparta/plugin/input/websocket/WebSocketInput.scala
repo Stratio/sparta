@@ -17,15 +17,22 @@ package com.stratio.sparta.plugin.input.websocket
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-class WebSocketInput(properties: Map[String, JSerializable]) extends Input(properties) {
+class WebSocketInput(
+                      name: String,
+                      ssc: StreamingContext,
+                      sparkSession: XDSession,
+                      properties: Map[String, JSerializable]
+                    ) extends Input(name, ssc, sparkSession, properties) with SLF4JLogging {
 
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
     ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel))
       .map(data => Row(data))
   }

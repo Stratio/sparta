@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.input.socket
 
 import java.io.{Serializable => JSerializable}
 
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
+class SocketInput(
+                   name: String,
+                   ssc: StreamingContext,
+                   sparkSession: XDSession,
+                   properties: Map[String, JSerializable]
+                 ) extends Input(name, ssc, sparkSession, properties) with SLF4JLogging {
 
-class SocketInput(properties: Map[String, JSerializable]) extends Input(properties) {
+  private val hostname: String = properties.getString("hostname")
+  private val port: Int = properties.getInt("port")
 
-  private val hostname : String = properties.getString("hostname")
-  private val port : Int = properties.getInt("port")
-
-  def initStream(ssc: StreamingContext): DStream[Row] = {
+  def initStream: DStream[Row] = {
     ssc.socketTextStream(hostname, port, storageLevel).map(data => Row(data))
   }
 }

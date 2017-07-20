@@ -17,13 +17,14 @@
 package com.stratio.sparta.plugin.output.jdbc
 
 import java.io.{Serializable => JSerializable}
-import java.util.Properties
 
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql._
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.execution.datasources.jdbc.JDBCOptions
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
@@ -31,13 +32,18 @@ import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import scala.collection.JavaConversions._
 import scala.util.{Failure, Success, Try}
 
-class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class JdbcOutput(
+                  name: String,
+                  sparkSession: XDSession,
+                  properties: Map[String, JSerializable]
+                ) extends Output(name, sparkSession, properties) {
 
   require(properties.getString("url", None).isDefined, "url must be provided")
 
   val url = properties.getString("url")
+  val tlsEnable = Try(properties.getBoolean("tlsEnable")).getOrElse(false)
 
-  override def supportedSaveModes : Seq[SpartaSaveMode] =
+  override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   //scalastyle:off
@@ -45,15 +51,21 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val connectionProperties = new JDBCOptions(url,
+    val urlWithSSL = if (tlsEnable) {
+      s"$url&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8"
+    } else url
+    val connectionProperties = new JDBCOptions(urlWithSSL,
       tableName,
       propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
     )
 
     Try {
-      if (sparkSaveMode == SaveMode.Overwrite) SpartaJdbcUtils.dropTable(url, connectionProperties, tableName)
+      if (sparkSaveMode == SaveMode.Overwrite)
+        SpartaJdbcUtils.dropTable(urlWithSSL, connectionProperties, tableName, name)
 
-      SpartaJdbcUtils.tableExists(url, connectionProperties, tableName, dataFrame.schema)
+      synchronized {
+        SpartaJdbcUtils.tableExists(urlWithSSL, connectionProperties, tableName, dataFrame.schema, name)
+      }
     } match {
       case Success(tableExists) =>
         if (tableExists) {
@@ -63,24 +75,31 @@ class JdbcOutput(name: String, properties: Map[String, JSerializable]) extends O
               case None => dataFrame.schema.fields.filter(stField =>
                 stField.metadata.contains(Output.PrimaryKeyMetadataKey)).map(_.name).toSeq
             }
-            SpartaJdbcUtils.upsertTable(dataFrame, url, tableName, connectionProperties, updateFields)
+            SpartaJdbcUtils.upsertTable(dataFrame, urlWithSSL, tableName, connectionProperties, updateFields, name)
           }
 
           if (saveMode == SaveModeEnum.Ignore) return
 
-          if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists.")
+          if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
 
           if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
-            SpartaJdbcUtils.saveTable(dataFrame, url, tableName, connectionProperties)
-        } else log.warn(s"Table not created in Postgres: $tableName")
+            SpartaJdbcUtils.saveTable(dataFrame, urlWithSSL, tableName, connectionProperties, name)
+        } else log.warn(s"Table not created: $tableName")
       case Failure(e) =>
-        closeConnection()
-        log.error(s"Error creating/dropping table $tableName")
+        closeConnection(name)
+        log.error(s"Error creating/dropping table $tableName", e)
     }
   }
 
   override def cleanUp(options: Map[String, String]): Unit = {
     log.info(s"Closing connections in JDBC Output: $name")
-    closeConnection()
+    closeConnection(name)
+  }
+}
+
+object JdbcOutput {
+
+  def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    SecurityHelper.dataSourceSecurityConf(configuration)
   }
 }

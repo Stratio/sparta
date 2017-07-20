@@ -23,9 +23,14 @@ import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 
-class MongoDbOutput(name: String, properties: Map[String, JSerializable]) extends Output(name, properties) {
+class MongoDbOutput(
+                     name: String,
+                     sparkSession: XDSession,
+                     properties: Map[String, JSerializable]
+                   ) extends Output(name, sparkSession, properties) {
 
   val DefaultHost = "localhost"
   val DefaultPort = "27017"

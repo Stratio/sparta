@@ -46,18 +46,18 @@ object SparkContextFactory extends SLF4JLogging {
             file
           case Failure(e) =>
             val refFile = "/reference.conf"
-            log.warn(s"Error loading Crossdata configuration file.", e)
-            log.info(s"Loading Crossdata configuration from resource file $refFile")
+            log.warn(s"Error loading Crossdata configuration file")
+            log.info(s"Loading Crossdata configuration from resource file $refFile ...")
             new File(getClass.getResource("/reference.conf").getPath)
         }
         if (sc.isDefined) xdSession = Option(XDSession.builder()
           .config(referenceFile)
           .config(sc.get.getConf)
           .create("dummyUser"))
-        sqlInitialSentences.foreach { sentence =>
-          if (sentence.nonEmpty && (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT")))
+        sqlInitialSentences.filter(_.nonEmpty).foreach { sentence =>
+          if (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT"))
             xdSession.get.sql(sentence)
-          else log.warn("Initial query not supported, only available CREATE ... and IMPORT ...")
+          else log.warn(s"Initial query ($sentence) not supported, only available CREATE ... and IMPORT ...")
         }
         xdSession.get
       }
@@ -80,7 +80,6 @@ object SparkContextFactory extends SLF4JLogging {
     synchronized {
       sc.getOrElse(instantiateSparkContext(specificConfig, jars))
     }
-
 
   def destroySparkContext(destroyStreamingContext: Boolean = true): Unit = {
     if (destroyStreamingContext) destroySparkStreamingContext()
@@ -161,5 +160,4 @@ object SparkContextFactory extends SLF4JLogging {
       }
     }
   }
-
 }

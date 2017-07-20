@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.workflow.{WorkflowElementModel, WorkflowModel}
 import com.stratio.sparta.serving.core.utils.ReflectionUtils
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.junit.runner.RunWith
 import org.mockito.Matchers.{any, eq => mockEq}
@@ -43,9 +44,10 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Generate an empty list with no policies" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
+    val xDSession = mock[XDSession]
     when(policy.outputs).thenReturn(Seq.empty)
 
-    val result = TestStage(policy).outputStage(reflection)
+    val result = TestStage(policy).outputStage(reflection, xDSession)
 
     result should be(List.empty)
   }
@@ -55,10 +57,11 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val reflection = mock[ReflectionUtils]
     val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     val outputClass = mock[Output]
+    val xDSession = mock[XDSession]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
 
-    val result = TestStage(policy).outputStage(reflection)
+    val result = TestStage(policy).outputStage(reflection, xDSession)
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     result should be(List(outputClass))
   }
@@ -66,13 +69,14 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
   "OutputStage" should "Fail gracefully with bad input" in {
     val policy = mockPolicy
     val reflection = mock[ReflectionUtils]
+    val xDSession = mock[XDSession]
     val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(any(), any())).thenThrow(new RuntimeException("Fake"))
 
     the[IllegalArgumentException] thrownBy {
-      TestStage(policy).outputStage(reflection)
-    } should have message "Something gone wrong creating the output: output. Please re-check the policy."
+      TestStage(policy).outputStage(reflection, xDSession)
+    } should have message "Something went wrong while creating the output: output. Please re-check the policy"
   }
 
 
@@ -81,12 +85,13 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val reflection = mock[ReflectionUtils]
     val outputs = Seq(WorkflowElementModel("output", "Output", Map.empty))
     val myInputClass = mock[Input]
+    val xDSession = mock[XDSession]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(any(), any())).thenReturn(myInputClass)
 
     the[IllegalArgumentException] thrownBy {
-      TestStage(policy).outputStage(reflection)
-    } should have message "Something gone wrong creating the output: output. Please re-check the policy."
+      TestStage(policy).outputStage(reflection, xDSession)
+    } should have message "Something went wrong while creating the output: output. Please re-check the policy"
   }
 
   "OutputStage" should "Generate a list of output for multiple Outputs " in {
@@ -97,11 +102,12 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
       WorkflowElementModel("output", "OtherOutput", Map.empty)
     )
     val outputClass = mock[Output]
+    val xDSession = mock[XDSession]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
     when(reflection.tryToInstantiate(mockEq("OtherOutputOutput"), any())).thenReturn(outputClass)
 
-    val result = TestStage(policy).outputStage(reflection)
+    val result = TestStage(policy).outputStage(reflection, xDSession)
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     verify(reflection).tryToInstantiate(mockEq("OtherOutputOutput"), any())
     result should be(List(outputClass, outputClass))
@@ -114,17 +120,18 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
     val secondOutput = WorkflowElementModel("outputOne", "OtherOutput", Map.empty)
     val outputs = Seq(firstOutput, secondOutput)
     val outputClass = mock[Output]
+    val xDSession = mock[XDSession]
     when(policy.outputs).thenReturn(outputs)
     when(reflection.tryToInstantiate(mockEq("OutputOutput"), any())).thenReturn(outputClass)
     when(reflection.tryToInstantiate(mockEq("OtherOutputOutput"), any())).thenReturn(outputClass)
 
     val spyResult = spy(TestStage(policy))
-    val result = spyResult.outputStage(reflection)
+    val result = spyResult.outputStage(reflection, xDSession)
 
     verify(reflection).tryToInstantiate(mockEq("OutputOutput"), any())
     verify(reflection).tryToInstantiate(mockEq("OtherOutputOutput"), any())
-    verify(spyResult).createOutput(firstOutput, reflection)
-    verify(spyResult).createOutput(secondOutput, reflection)
+    verify(spyResult).createOutput(firstOutput, reflection, xDSession)
+    verify(spyResult).createOutput(secondOutput, reflection, xDSession)
     result should be(List(outputClass, outputClass))
   }
 

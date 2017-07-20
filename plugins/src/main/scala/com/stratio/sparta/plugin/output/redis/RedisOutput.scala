@@ -21,6 +21,7 @@ import com.stratio.sparta.plugin.output.redis.dao.AbstractRedisDAO
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row}
 
@@ -31,8 +32,11 @@ import org.apache.spark.sql.{DataFrame, Row}
  *
  * @author anistal
  */
-class RedisOutput(name: String, properties: Map[String, Serializable])
-  extends Output(name, properties) with AbstractRedisDAO with Serializable {
+class RedisOutput(
+                   name: String,
+                   sparkSession: XDSession,
+                   properties: Map[String, Serializable]
+                 ) extends Output(name, sparkSession, properties) with AbstractRedisDAO with Serializable {
 
   override val hostname = properties.getString("hostname", DefaultRedisHostname)
   override val port = properties.getString("port", DefaultRedisPort).toInt
