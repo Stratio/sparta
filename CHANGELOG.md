@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 (upcoming)
+
+* Pending changelog
+
 ## 1.7.0 (upcoming)
 
 * Update Spark Image
