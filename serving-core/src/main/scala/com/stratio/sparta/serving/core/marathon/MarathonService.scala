@@ -232,7 +232,7 @@ class MarathonService(context: ActorContext,
     }
 
     val newPortMappings = if (calicoEnabled) Option(Seq(PortMapping(portSpark, portSpark, Option(0),
-      protocol = Option("tcp"), labels = Option(Map("name"-> "sparkui"))))) else None
+      protocol = Option("tcp")))) else None
     val networkType = if (calicoEnabled) Option("USER") else app.container.docker.network
     val newDockerContainerInfo = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
       case Some(_) =>
