@@ -48,7 +48,7 @@ class CsvParser(order: Integer,
                 case valueCast: String => valueCast
                 case _ => value.toString
               }
-            }.split(fieldsSeparator)
+            }.split(fieldsSeparator, -1)
 
             if (valuesSplitted.length == fieldsModel.fields.length) {
               val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplitted).toMap
