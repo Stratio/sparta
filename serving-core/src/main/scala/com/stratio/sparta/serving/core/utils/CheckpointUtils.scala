@@ -56,7 +56,7 @@ trait CheckpointUtils extends SLF4JLogging {
       else deleteFromHDFS(workflow)
     } match {
       case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(workflow, checkTime = false)}")
-      case Failure(ex) => log.error("Cannot delete checkpoint folder", ex)
+      case Failure(ex) => log.error("Unable to delete checkpoint folder", ex)
     }
 
   def createLocalCheckpointPath(workflow: WorkflowModel): Unit = {
@@ -65,7 +65,7 @@ trait CheckpointUtils extends SLF4JLogging {
         createFromLocal(workflow)
       } match {
         case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(workflow, checkTime = false)}")
-        case Failure(ex) => log.error("Cannot create checkpoint folder", ex)
+        case Failure(ex) => log.error("Unable to create checkpoint folder", ex)
       }
   }
 
@@ -83,7 +83,7 @@ trait CheckpointUtils extends SLF4JLogging {
     val hdfsPrefix = "hdfs://"
 
     if (path.startsWith(hdfsPrefix))
-      log.info(s"The path starts with $hdfsPrefix and is not valid, it is replaced with empty value")
+      log.info(s"The path starts with $hdfsPrefix and is not valid, it was replaced with an empty value")
     path.replace(hdfsPrefix, "")
   }
 

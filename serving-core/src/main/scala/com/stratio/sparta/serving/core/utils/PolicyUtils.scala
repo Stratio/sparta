@@ -82,7 +82,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
     if (searchPolicy.isDefined) {
       throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
-          s"Policy with name ${policy.name} exists. The actual policy name is: ${searchPolicy.get.name}")
+          s"Workflow with name ${policy.name} exists. The actual workflow name is: ${searchPolicy.get.name}")
       ))
     }
     val policySaved = writePolicy(policyWithId(policy))
@@ -100,7 +100,7 @@ trait PolicyUtils extends PolicyStatusUtils with CheckpointUtils with FragmentUt
     if (searchPolicy.isEmpty) {
       throw new ServingCoreException(ErrorModel.toString(
         new ErrorModel(ErrorModel.CodeExistsPolicyWithName,
-          s"Policy with name ${policy.name} not exists.")
+          s"Workflow with name ${policy.name} does not exist")
       ))
     } else {
       val policySaved = doUpdatePolicy(policyWithId(policy))

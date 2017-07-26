@@ -40,13 +40,13 @@ trait CubeStage extends BaseStage with TriggerStage {
                        inputData: DStream[Row],
                        outputs: Seq[Output]): Unit = {
     val cubes = cubeStage(refUtils, initSchema)
-    val errorMessage = s"Something gone wrong executing the cubes stream for: ${workflow.input.get.name}."
-    val okMessage = s"Cubes executed correctly."
+    val errorMessage = s"An error was encountered while executing the cubes stream for: ${workflow.input.get.name}."
+    val okMessage = s"Cubes executed successfully"
     generalTransformation(PhaseEnum.CubeStream, okMessage, errorMessage) {
       val dataCube = CubeMaker(cubes).setUp(inputData)
       dataCube.foreach { case (cubeName, aggregatedData) =>
         val cubeWriter = cubes.find(cube => cube.name == cubeName)
-          .getOrElse(throw new Exception("Is mandatory one cube in the cube writer"))
+          .getOrElse(throw new Exception("It is mandatory to have at least one cube in the cube writer"))
         CubeWriterHelper.writeCube(cubeWriter, outputs, aggregatedData)
       }
     }
@@ -59,7 +59,8 @@ trait CubeStage extends BaseStage with TriggerStage {
                                  refUtils: ReflectionUtils,
                                  initSchema: StructType): Cube = {
     val okMessage = s"Cube: ${cubeModel.name} created correctly."
-    val errorMessage = s"Something gone wrong creating the cube: ${cubeModel.name}. Please re-check the policy."
+    val errorMessage = s"An error was encountered while creating the cube: ${cubeModel.name}. " +
+      s"Please re-check the policy."
     generalTransformation(PhaseEnum.Cube, okMessage, errorMessage) {
       val name = cubeModel.name
       val dimensions = cubeModel.dimensions.map(dimensionDto => {
@@ -105,8 +106,9 @@ trait CubeStage extends BaseStage with TriggerStage {
   private[driver] def createOperator(model: OperatorModel,
                                      refUtils: ReflectionUtils,
                                      initSchema: StructType): Operator = {
-    val okMessage = s"Operator: ${model.`type`} created correctly."
-    val errorMessage = s"Something gone wrong creating the operator: ${model.`type`}. Please re-check the policy."
+    val okMessage = s"Operator: ${model.`type`} successfully created."
+    val errorMessage = s"An error was encountered while creating the operator: ${model.`type`}. " +
+      s"Please re-check the policy."
     generalTransformation(PhaseEnum.Operator, okMessage, errorMessage) {
       refUtils.tryToInstantiate[Operator](model.`type` + Operator.ClassSuffix, (c) =>
         c.getDeclaredConstructor(

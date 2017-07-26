@@ -12,8 +12,10 @@ function make_directory() {
 function generate_core-site-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
+  CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
   wget "${HADOOP_CONF_URI}/conf"
   cp conf "${CORE_SITE}"
+  cp conf "${CORE_SITE_CLASSPATH}"
   rm -f conf
   sed -i "s|0.0.0.0|${HADOOP_FS_DEFAULT_NAME}|" ${CORE_SITE}
 
@@ -32,11 +34,15 @@ function generate_core-site-from-uri() {
 function generate_hdfs-conf-from-uri() {
   make_directory $HADOOP_CONF_DIR "HADOOP"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
+  CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
   HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
+  HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
   wget "${HADOOP_CONF_URI}/core-site.xml"
   wget "${HADOOP_CONF_URI}/hdfs-site.xml"
   cp core-site.xml "${CORE_SITE}"
+  cp core-site.xml "${CORE_SITE_CLASSPATH}"
   cp hdfs-site.xml "${HDFS_SITE}"
+  cp hdfs-site.xml "${HDFS_SITE_CLASSPATH}"
   rm -f core-site.xml
   rm -f hdfs-site.xml
 
@@ -160,6 +166,12 @@ sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_D
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
+    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
+    CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
+    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
+    HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
+    cp "${CORE_SITE}" "${CORE_SITE_CLASSPATH}"
+    cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
   else
     echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
     exit 1
@@ -219,6 +231,12 @@ sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/co
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
+    CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
+    CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
+    HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
+    HDFS_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/hdfs-site.xml"
+    cp "${CORE_SITE}" "${CORE_SITE_CLASSPATH}"
+    cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
   else
     echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured was NOT configured"
     exit 1

@@ -84,4 +84,5 @@ object MarathonConstant {
   val MesosSecretEnv = "SPARK_MESOS_SECRET"
   val MesosRoleEnv = "SPARK_MESOS_ROLE"
   val DynamicAuthEnv = "USE_DYNAMIC_AUTHENTICATION"
+  val SpartaZookeeperPathEnv= "SPARTA_ZOOKEEPER_PATH"
 }

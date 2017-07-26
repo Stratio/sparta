@@ -47,18 +47,18 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
   //scalastyle:off
   def doStartApp(workflowId: String): Unit = {
     Try {
-      log.debug(s"Obtaining status by id: $workflowId")
+      log.debug(s"Obtaining status with workflow id: $workflowId")
       findStatusById(workflowId) match {
         case Success(status) =>
           log.debug(s"Obtained status: ${status.status}")
           if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
             status.status != Finished) {
-            log.debug(s"Obtaining workflow with fragments by id: $workflowId")
+            log.debug(s"Obtaining workflow and related fragments with id: $workflowId")
             val workflow = getPolicyWithFragments(getPolicyById(workflowId))
             log.debug(s"Obtained workflow: ${workflow.toString}")
-            log.debug(s"Closing checker by id: $workflowId and name: ${workflow.name}")
+            log.debug(s"Closing checker with id: $workflowId and name: ${workflow.name}")
             closeChecker(workflow.id.get, workflow.name)
-            log.debug(s"Obtaining request by id: $workflowId")
+            log.debug(s"Obtaining request with workflow id: $workflowId")
             findRequestById(workflowId) match {
               case Success(submitRequest) =>
                 log.debug(s"Starting request: ${submitRequest.toString}")
@@ -68,7 +68,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
               case Failure(exception) => throw exception
             }
           } else {
-            val information = s"Workflow App launched by Marathon with incorrect state, the job is not executed"
+            val information = s"Workflow App launched by Marathon with incorrect state, the job was not executed"
             log.warn(information)
             preStopActions()
             updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Option(information),
@@ -102,9 +102,9 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
           } finally {
             Try(nodeCache.close()) match {
               case Success(_) =>
-                log.info("Node cache to Workflow App Listener closed correctly")
+                log.info("Workflow App Listener node cache closed correctly")
               case Failure(e) =>
-                log.error(s"Node Cache to Workflow App is not closed correctly", e)
+                log.error(s"Workflow App node cache not properly closed", e)
             }
           }
         }

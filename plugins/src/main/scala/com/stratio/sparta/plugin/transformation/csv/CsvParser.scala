@@ -68,7 +68,8 @@ class CsvParser(order: Integer,
                       s"Impossible to parse outputField: $outputField in the schema"))
                 }
               }
-            } else returnWhenError(new IllegalStateException(s"The values splitted are greater or lower than the properties fields"))
+            } else returnWhenError(new IllegalStateException(s"The number of values splitted does not match the number of " +
+              s"fields defined in the schema"))
           } else returnWhenError(new IllegalStateException(s"The input value is empty"))
         case None =>
           returnWhenError(new IllegalStateException(s"The input value is null"))

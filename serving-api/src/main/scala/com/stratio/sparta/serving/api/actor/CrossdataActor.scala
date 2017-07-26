@@ -19,14 +19,24 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.security.{Describe, Execute, SpartaSecurityManager, View}
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.services.CrossdataService
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 
-class CrossdataActor extends Actor with SLF4JLogging {
+import scala.util.Try
+
+class CrossdataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+  with SLF4JLogging
+  with ActionUserAuthorize{
 
   lazy val crossdataService = new CrossdataService
+  val ResourceType = "catalog"
+
+  lazy val hdfsUtils = Try(HdfsUtils()).toOption
 
   override def receive: Receive = {
     case FindAllDatabases(user) => findAllDatabases(user)
@@ -37,20 +47,65 @@ class CrossdataActor extends Actor with SLF4JLogging {
     case _ => log.info("Unrecognized message in CrossdataActor")
   }
 
-  def findAllDatabases(user: Option[LoggedUser]): Unit =
-    sender ! crossdataService.listDatabases()
+  def findAllDatabases(user: Option[LoggedUser]): Unit = {
+    def callback() = crossdataService.listDatabases()
 
-  def findAllTables(user: Option[LoggedUser]): Unit =
-    sender ! crossdataService.listAllTables
+    hdfsUtils match {
+      case Some(utils) =>
+        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
+      case None =>
+        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+    }
+  }
 
-  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit =
-    sender ! crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
 
-  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit =
-    sender ! crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
+  def findAllTables(user: Option[LoggedUser]): Unit = {
+    def callback() = crossdataService.listAllTables
 
-  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit =
-    sender ! crossdataService.executeQuery(queryRequest.query)
+    hdfsUtils match {
+      case Some(utils) =>
+        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
+      case None =>
+        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+    }
+  }
+
+  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = {
+    def callback() = crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
+
+    hdfsUtils match {
+      case Some(utils) =>
+        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
+      case None =>
+        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+    }
+  }
+
+
+  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = {
+    def callback() = crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
+
+    hdfsUtils match {
+      case Some(utils) =>
+        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Describe), callback))
+      case None =>
+        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Describe), callback)
+    }
+  }
+
+
+
+  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = {
+    def callback() = crossdataService.executeQuery(queryRequest.query)
+
+    hdfsUtils match {
+      case Some(utils) =>
+        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Execute), callback))
+      case None =>
+        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Execute), callback)
+    }
+  }
+
 }
 
 object CrossdataActor {

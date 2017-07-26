@@ -34,7 +34,7 @@ trait LauncherActorUtils extends PolicyStatusUtils {
 
   def launch(workflow: WorkflowModel, context: ActorContext): WorkflowModel = {
     if (isAvailableToRun(workflow)) {
-      log.info("Streaming Context Available, launching policy ... ")
+      log.info("Streaming Context available, launching policy ... ")
       val actorName = cleanActorName(s"$contextLauncherActorPrefix-${workflow.name}")
       val policyActor = context.children.find(children => children.path.name == actorName)
 

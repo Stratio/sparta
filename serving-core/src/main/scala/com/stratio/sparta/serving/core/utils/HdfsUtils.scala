@@ -36,17 +36,32 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
 
   def reLogin(): Unit = ugiOption.foreach(ugi => ugi.checkTGTAndReloginFromKeytab())
 
+  def runFunction(function: ⇒ Unit): Unit = {
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Unit]() {
+          override def run(): Unit = {
+            log.debug(s"Executing function with HDFS security")
+            function
+          }
+        })
+      case None =>
+        log.debug(s"Executing function without HDFS security")
+        function
+    }
+  }
+
   def getFiles(path: String): Array[FileStatus] = {
     ugiOption match {
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[Array[FileStatus]]() {
           override def run(): Array[FileStatus] = {
-            log.debug(s"Listing Hdfs status for path with security: $path")
+            log.debug(s"Listing Hdfs statuses with security: $path")
             dfs.listStatus(new Path(path))
           }
         })
       case None =>
-        log.debug(s"Listing Hdfs status for path without security: $path")
+        log.debug(s"Listing Hdfs statuses without security: $path")
         dfs.listStatus(new Path(path))
     }
   }
@@ -56,12 +71,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
           override def run(): FSDataInputStream = {
-            log.debug(s"Getting Hdfs file with security: $filename")
+            log.debug(s"Getting Hdfs with security: $filename")
             dfs.open(new Path(filename))
           }
         })
       case None =>
-        log.debug(s"Getting Hdfs file without security: $filename")
+        log.debug(s"Getting Hdfs without security: $filename")
         dfs.open(new Path(filename))
     }
   }
@@ -71,12 +86,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
           override def run(): Boolean = {
-            log.debug(s"Deleting Hdfs path with security: $path")
+            log.debug(s"Deleting Hdfs with security: $path")
             dfs.delete(new Path(path), true)
           }
         })
       case None =>
-        log.debug(s"Deleting Hdfs path without security: $path")
+        log.debug(s"Deleting Hdfs without security: $path")
         dfs.delete(new Path(path), true)
     }
   }
@@ -87,12 +102,12 @@ case class HdfsUtils(dfs: FileSystem, userName: String, ugiOption: Option[UserGr
       case Some(ugi) =>
         ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
           override def run(): FSDataOutputStream = {
-            log.debug(s"Creating Hdfs file with security: Path $path and destination path $destPath")
+            log.debug(s"Creating Hdfs file with security in path: $path and destination path: $destPath")
             dfs.create(new Path(s"$destPath${file.getName}"))
           }
         })
       case None =>
-        log.debug(s"Creating Hdfs file without security: Path $path and destination path $destPath")
+        log.debug(s"Creating Hdfs file without security in path: $path and destination path: $destPath")
         dfs.create(new Path(s"$destPath${file.getName}"))
     }
 
@@ -115,7 +130,7 @@ object HdfsUtils extends SLF4JLogging {
       val reloadKeyTabTime = Try(hdfsConfig.get.getString(AppConstant.ReloadKeyTabTime)).toOption
         .flatMap(x => if (x == "") None else Some(x)).getOrElse(AppConstant.DefaultReloadKeyTabTime)
 
-      log.info(s"Initializing reload keyTab task with time: $reloadKeyTabTime")
+      log.info(s"Initializing keyTab reload task with time: $reloadKeyTabTime")
 
       AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
         AggregationTime.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
@@ -134,7 +149,7 @@ object HdfsUtils extends SLF4JLogging {
 
     Option(System.getenv(AppConstant.SystemHadoopConfDir)) match {
       case Some(confDir) =>
-        log.info(s"The Hadoop configuration is read from directory files in the path $confDir")
+        log.info(s"The Hadoop configuration was read from directory files located at: $confDir")
       case None =>
         hdfsConfig.foreach { config =>
           val master = Try(config.getString(AppConstant.HdfsMaster)).getOrElse(HdfsDefaultMaster)
@@ -143,7 +158,7 @@ object HdfsUtils extends SLF4JLogging {
 
           conf.set(DefaultFSProperty, hdfsPath)
 
-          log.info(s"The Hadoop configuration is assigned with $DefaultFSProperty with value: $hdfsPath")
+          log.info(s"The Hadoop configuration was assigned with $DefaultFSProperty and located at: $hdfsPath")
         }
     }
     conf
@@ -181,7 +196,7 @@ object HdfsUtils extends SLF4JLogging {
   private def getUGI(principalName: String, keyTabPath: String, conf: Configuration): UserGroupInformation = {
     log.info("Setting configuration for Hadoop Kerberized connection")
     UserGroupInformation.setConfiguration(conf)
-    log.info(s"Login User with principal name: $principalName and keyTab: $keyTabPath")
+    log.info(s"Login user with principal name: $principalName and keyTab: $keyTabPath")
     val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keyTabPath)
     UserGroupInformation.setLoginUser(ugi)
 
@@ -204,7 +219,9 @@ object HdfsUtils extends SLF4JLogging {
           conf.addResource(hdfsCoreSite)
         } match {
           case Success(_) => log.info(s"Resource ${AppConstant.CoreSite} added correctly")
-          case Failure(e) => log.error(s"Resource ${AppConstant.CoreSite} not added. Error: ${e.getLocalizedMessage}")
+          case Failure(e) =>
+            log.error(s"Resource ${AppConstant.CoreSite} not added. Error: ${e.getLocalizedMessage}")
+            throw e
         }
 
         Try {
@@ -214,7 +231,9 @@ object HdfsUtils extends SLF4JLogging {
           conf.addResource(hdfsHDFSSite)
         } match {
           case Success(_) => log.info(s"Resource ${AppConstant.HDFSSite} added correctly")
-          case Failure(e) => log.error(s"Resource ${AppConstant.HDFSSite} not added. Error: ${e.getLocalizedMessage}")
+          case Failure(e) =>
+            log.error(s"Resource ${AppConstant.HDFSSite} not added. Error: ${e.getLocalizedMessage}")
+            throw e
         }
       }
     )

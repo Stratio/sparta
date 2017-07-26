@@ -78,7 +78,7 @@ trait KafkaBase {
     )
 
     if (topicsModel.topics.isEmpty)
-      throw new IllegalStateException(s"topics is mandatory")
+      throw new IllegalStateException(s"At least one topic must be defined")
     else topicsModel
   }
 }

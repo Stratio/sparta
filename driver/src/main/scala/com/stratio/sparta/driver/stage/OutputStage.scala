@@ -32,8 +32,8 @@ trait OutputStage extends BaseStage {
   private[driver] def createOutput(model: WorkflowElementModel,
                                    refUtils: ReflectionUtils,
                                    sparkSession: XDSession): Output = {
-    val errorMessage = s"Something went wrong while creating the output: ${model.name}. Please re-check the policy"
-    val okMessage = s"Output: ${model.name} created correctly."
+    val errorMessage = s"An error was encountered while creating the output: ${model.name}. Please re-check the policy"
+    val okMessage = s"Output: ${model.name} successfully created"
     generalTransformation(PhaseEnum.Output, okMessage, errorMessage) {
       val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
       refUtils.tryToInstantiate[Output](classType + Output.ClassSuffix, (c) =>

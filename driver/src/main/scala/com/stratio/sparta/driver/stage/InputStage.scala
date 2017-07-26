@@ -30,8 +30,8 @@ trait InputStage extends BaseStage {
   this: ErrorPersistor =>
 
   def inputStreamStage(input: Input): DStream[Row] = {
-    val errorMessage = s"Something went wrong while creating the input stream for: ${workflow.input.get.name}"
-    val okMessage = s"Stream for Input: ${workflow.input.get.name} created correctly"
+    val errorMessage = s"An error was encountered while creating the input stream for: ${workflow.input.get.name}"
+    val okMessage = s"Stream for Input: ${workflow.input.get.name} successfully created"
 
     generalTransformation(PhaseEnum.InputStream, okMessage, errorMessage) {
       input.initStream
@@ -39,12 +39,12 @@ trait InputStage extends BaseStage {
   }
 
   def createInput(ssc: StreamingContext, sparkSession: XDSession, refUtils: ReflectionUtils): Input = {
-    val errorMessage = s"Something went wrong while creating the input: ${workflow.input.get.name}." +
+    val errorMessage = s"An error was encountered while creating the input: ${workflow.input.get.name}." +
       s" Please re-check the policy"
-    val okMessage = s"Input: ${workflow.input.get.name} created correctly"
+    val okMessage = s"Input: ${workflow.input.get.name} successfully created"
 
     generalTransformation(PhaseEnum.Input, okMessage, errorMessage) {
-      require(workflow.input.isDefined, "You need at least one input in your policy")
+      require(workflow.input.isDefined, "It is mandatory for a workflow to have an input assigned")
       val classType =
         workflow.input.get.configuration.getOrElse(AppConstant.CustomTypeKey, workflow.input.get.`type`).toString
       refUtils.tryToInstantiate[Input](classType + Input.ClassSuffix, (c) =>

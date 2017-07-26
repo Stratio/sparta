@@ -42,7 +42,7 @@ object SparkContextFactory extends SLF4JLogging {
           new File(confPath)
         } match {
           case Success(file) =>
-            log.info(s"Loading Crossdata configuration from file ${file.getAbsolutePath}")
+            log.info(s"Loading Crossdata configuration from file: ${file.getAbsolutePath}")
             file
           case Failure(e) =>
             val refFile = "/reference.conf"
@@ -57,7 +57,7 @@ object SparkContextFactory extends SLF4JLogging {
         sqlInitialSentences.filter(_.nonEmpty).foreach { sentence =>
           if (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT"))
             xdSession.get.sql(sentence)
-          else log.warn(s"Initial query ($sentence) not supported, only available CREATE ... and IMPORT ...")
+          else log.warn(s"Initial query ($sentence) not supported. Available operations: CREATE and IMPORT")
         }
         xdSession.get
       }
@@ -87,9 +87,9 @@ object SparkContextFactory extends SLF4JLogging {
     sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
       synchronized {
         try {
-          log.info("Stopping SparkContext with name: " + sparkContext.appName)
+          log.info("Stopping SparkContext named: " + sparkContext.appName)
           sparkContext.stop()
-          log.info("Stopped SparkContext with name: " + sparkContext.appName)
+          log.info("SparkContext named: " + sparkContext.appName + "stopped correctly")
         } finally {
           xdSession = None
           sqlInitialSentences = Seq.empty[String]
@@ -147,12 +147,12 @@ object SparkContextFactory extends SLF4JLogging {
     ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
       try {
         synchronized {
-          log.info(s"Stopping Streaming Context with name: ${streamingContext.sparkContext.appName}")
+          log.info(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
           Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
             case Success(_) =>
-              log.info("Streaming Context have been stopped")
+              log.info("Streaming Context has been stopped")
             case Failure(error) =>
-              log.error("Streaming Context is not been stopped correctly", error)
+              log.error("Streaming Context not properly stopped", error)
           }
         }
       } finally {

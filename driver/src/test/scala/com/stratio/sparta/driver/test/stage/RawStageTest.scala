@@ -99,7 +99,7 @@ class RawStageTest
 
     the[IllegalArgumentException] thrownBy {
       TestRawData(policy).rawDataStage()
-    } should have message "Something gone wrong saving the raw data. Please re-check the policy."
+    } should have message "An error was encountered while saving the raw data. Please re-check the policy."
   }
 
 }

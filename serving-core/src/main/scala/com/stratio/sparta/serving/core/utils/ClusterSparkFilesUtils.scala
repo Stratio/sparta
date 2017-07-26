@@ -46,7 +46,7 @@ case class ClusterSparkFilesUtils(policy: WorkflowModel, hdfs: HdfsUtils) extend
     val uploadedFilePath = if(isHadoopEnvironmentDefined) s"hdfs://$driverJarPathParsed${driverJar.getName}"
     else s"hdfs://$host:$port$driverJarPathParsed${driverJar.getName}"
 
-    log.info(s"Uploaded Sparta Driver jar to HDFS path: $uploadedFilePath")
+    log.info(s"Sparta Driver jar successfully uploaded to HDFS path: $uploadedFilePath")
 
     uploadedFilePath
   }

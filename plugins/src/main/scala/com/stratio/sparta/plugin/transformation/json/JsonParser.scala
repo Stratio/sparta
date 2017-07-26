@@ -59,7 +59,7 @@ class JsonParser(order: Integer,
                       parseToOutputType(outSchema, valueParsed)
                     case _ =>
                       returnWhenError(new IllegalStateException(
-                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
+                        s"None of the values parsed match the schema field: ${outSchema.name}"))
                   }
                 case None =>
                   returnWhenError(new IllegalStateException(

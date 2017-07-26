@@ -58,7 +58,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
     if (CuratorFactoryHolder.existsPath(fragmentLocation)) {
       read[FragmentElementModel](new String(curatorFramework.getData.forPath(fragmentLocation)))
     } else throw new ServingCoreException(ErrorModel.toString(
-      new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"Fragment type: $fragmentType and id: $id not exists")))
+      new ErrorModel(ErrorModel.CodeNotExistsFragmentWithId, s"Fragment type: $fragmentType and id: $id does not exist")))
   }
 
   def findFragmentByTypeAndName(fragmentType: String, name: String): Option[FragmentElementModel] =
@@ -114,7 +114,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
       if (CuratorFactoryHolder.existsPath(fragmentLocation))
         curatorFramework.delete().forPath(fragmentLocation)
       else throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-        ErrorModel.CodeNotExistsFragmentWithId, s"Fragment type: $fragmentType and id: $id not exists")))
+        ErrorModel.CodeNotExistsFragmentWithId, s"Fragment type: $fragmentType and id: $id does not exist")))
     } else {
       throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
         ErrorModel.CodeExistsFragmentWithName, s"Fragment without id: $name.")))
@@ -183,7 +183,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
                               inputs: Option[WorkflowElementModel]): WorkflowElementModel = {
 
     if (fragmentsInputs.isEmpty && inputs.isEmpty) {
-      throw new IllegalStateException("It is mandatory to define one input in the policy.")
+      throw new IllegalStateException("It is mandatory to define one input in the workflow")
     }
 
     if ((fragmentsInputs.size > 1) ||
@@ -192,7 +192,7 @@ trait FragmentUtils extends SLF4JLogging with SpartaSerializer {
           (fragmentsInputs.head.element.configuration.getOrElse(
             AppConstant.CustomTypeKey, fragmentsInputs.head.element.`type`) !=
             inputs.get.configuration.getOrElse(AppConstant.CustomTypeKey, inputs.get.`type`))))) {
-      throw new IllegalStateException("Only one input is allowed in the policy.")
+      throw new IllegalStateException("Only one input is allowed per workflow")
     }
 
     if (fragmentsInputs.isEmpty) inputs.get else fragmentsInputs.head.element.copy(name = fragmentsInputs.head.name)

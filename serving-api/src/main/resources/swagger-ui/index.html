@@ -24,13 +24,25 @@
 
   <script type="text/javascript">
     $(function () {
-      var routeAux = window.location.href.split(window.location.host)[1].split("/");
-      var route = "";
-      if(routeAux.length > 2){
-      route = "/" + routeAux[1] + "/api-docs";
-      }else {
-      route = "/api-docs";
+
+      function getRoute() {
+        var routeAux = window.location.href.split(window.location.host)[1].split("/");
+        var route = "";
+        if (routeAux.length > 2) {
+          for(var i=1; i<routeAux.length; i++){
+            if(i+1<routeAux.length){
+              route += "/" + routeAux[i];
+            }
+          }
+          return route + "/api-docs";
+
+        } else {
+          return "/api-docs";
+        }
       }
+
+      var route = getRoute();
+
 
       window.swaggerUi = new SwaggerUi({
       url: route,

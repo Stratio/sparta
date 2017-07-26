@@ -46,7 +46,7 @@ object SparkDriver extends PluginsFilesUtils {
       s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
       Properties.envOrNone(JaasConfEnv).foreach(jaasConf => {
-        log.info(s"Adding java security conf file: $jaasConf")
+        log.info(s"Adding java security configuration file: $jaasConf")
         System.setProperty("java.security.auth.login.config", jaasConf)
       })
       log.info(s"Arguments: ${args.mkString(", ")}")
@@ -72,7 +72,7 @@ object SparkDriver extends PluginsFilesUtils {
           override val curatorFramework: CuratorFramework = curatorInstance
         }
         val workflow = fragmentUtils.getPolicyWithFragments(policyUtils.getPolicyById(workflowId))
-        val startingInfo = s"Starting workflow in cluster"
+        val startingInfo = s"Launching workflow in cluster..."
         log.info(startingInfo)
         policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(curatorInstance)
@@ -83,7 +83,7 @@ object SparkDriver extends PluginsFilesUtils {
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
         spartaWorkflow.setup()
         ssc.start
-        val startedInfo = s"Started correctly application id: ${ssc.sparkContext.applicationId}"
+        val startedInfo = s"Application with id: ${ssc.sparkContext.applicationId} was properly launched"
         log.info(startedInfo)
         policyStatusUtils.updateStatus(WorkflowStatusModel(
           id = workflowId,
@@ -97,11 +97,11 @@ object SparkDriver extends PluginsFilesUtils {
         spartaWorkflow.cleanUp()
       } match {
         case Success(_) =>
-          val information = s"Stopped correctly Sparta cluster job"
+          val information = s"Sparta job in cluster was properly stopped"
           log.info(information)
           policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Some(information)))
         case Failure(exception) =>
-          val information = s"Error initiating Sparta cluster job"
+          val information = s"Error initiating Sparta job in cluster"
           log.error(information)
           policyStatusUtils.updateStatus(WorkflowStatusModel(
             id = workflowId,
@@ -113,7 +113,7 @@ object SparkDriver extends PluginsFilesUtils {
       }
     } match {
       case Success(_) =>
-        log.info("Finished correctly Sparta cluster job")
+        log.info("Sparta job in cluster successfully finished")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException

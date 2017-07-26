@@ -71,6 +71,7 @@ object SecurityManagerHelper {
       case "driver" => Resource(DriverResource, resource)
       case "checkpoint" => Resource(CheckpointResource, resource)
       case "backup" => Resource(BackupResource, resource)
+      case "catalog" => Resource(CatalogResource, resource)
     }
   }
 }

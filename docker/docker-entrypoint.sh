@@ -10,6 +10,7 @@ function _log_sparta_entrypoint() {
  NAME=sparta
  VARIABLES="/etc/default/$NAME-variables"
  SYSTEM_VARIABLES="/etc/profile"
+ SPARTA_CLASSPATH_DIR=/etc/sds/sparta
  SPARTA_CONF_FILE=/etc/sds/sparta/reference.conf
 
  _log_sparta_entrypoint "Loading Sparta common functions"

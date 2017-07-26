@@ -34,8 +34,8 @@ trait TriggerStage extends BaseStage {
                           outputs: Seq[Output],
                           window: Long): Unit = {
     val triggersStage = triggerStage(workflow.streamTriggers)
-    val errorMessage = s"Something gone wrong executing the triggers stream for: ${workflow.input.get.name}."
-    val okMessage = s"Triggers Stream executed correctly."
+    val errorMessage = s"An error was encountered while executing the triggers stream for: ${workflow.input.get.name}."
+    val okMessage = s"Triggers Stream successfully executed"
     generalTransformation(PhaseEnum.TriggerStream, okMessage, errorMessage) {
       triggersStage
         .groupBy(trigger => (trigger.overLast, trigger.computeEvery))
@@ -63,8 +63,9 @@ trait TriggerStage extends BaseStage {
     triggers.map(trigger => createTrigger(trigger))
 
   private[driver] def createTrigger(trigger: TriggerModel): Trigger = {
-    val okMessage = s"Trigger: ${trigger.name} created correctly."
-    val errorMessage = s"Something gone wrong creating the trigger: ${trigger.name}. Please re-check the policy."
+    val okMessage = s"Trigger: ${trigger.name} successfully created"
+    val errorMessage = s"An error was encountered while creating the trigger: ${trigger.name}. " +
+      s"Please re-check the policy."
     generalTransformation(PhaseEnum.Trigger, okMessage, errorMessage) {
       Trigger(
         trigger.name,

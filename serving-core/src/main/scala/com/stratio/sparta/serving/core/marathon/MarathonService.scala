@@ -113,22 +113,22 @@ class MarathonService(context: ActorContext,
   /* PUBLIC METHODS */
 
   def launch(): Unit = {
-    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "Is mandatory specify one policy and the request")
+    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "It is mandatory to specify a policy and a request")
     val createApp = addRequirements(getMarathonAppFromFile, workflowModel.get, sparkSubmitRequest.get)
     for {
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
-        val information = s"Error launching Workflow App to Marathon API with id: ${response.appInfo.id}"
+        val information = s"An error was encountered while launching the Workflow App in the Marathon API with id: ${response.appInfo.id}"
         log.error(information)
         updateStatus(WorkflowStatusModel(
           id = workflowModel.get.id.get,
           status = Failed,
           statusInfo = Option(information),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, response.msg))))
-        log.error(s"Service ${response.appInfo.id} can't be deployed: ${response.msg}")
+        log.error(s"Service ${response.appInfo.id} cannot be deployed: ${response.msg}")
       case response: UpServiceResponse =>
-        val information = s"Workflow App launched correctly to Marathon API with id: ${response.appInfo.id}"
+        val information = s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
         updateStatus(WorkflowStatusModel(id = workflowModel.get.id.get, status = Uploaded,
           statusInfo = Option(information)))
@@ -341,6 +341,7 @@ class MarathonService(context: ActorContext,
       DcosServiceName -> Properties.envOrNone(DcosServiceName),
       CalicoNetworkEnv -> Properties.envOrNone(CalicoNetworkEnv),
       SparkUserEnv -> workflowModel.settings.sparkSettings.sparkUser,
+      SpartaZookeeperPathEnv -> Option(BaseZKPath),
       CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
       CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),
       CrossdataCoreCatalogZookeeperConnectionString -> Properties.envOrNone(CrossdataCoreCatalogZookeeperConnectionString),

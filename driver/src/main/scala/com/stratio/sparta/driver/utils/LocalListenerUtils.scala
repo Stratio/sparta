@@ -37,9 +37,9 @@ trait LocalListenerUtils extends PolicyStatusUtils {
           } finally {
             Try(nodeCache.close()) match {
               case Success(_) =>
-                log.info("Node cache closed correctly")
+                log.info("Node cache correctly closed")
               case Failure(e) =>
-                log.error(s"The nodeCache in Zookeeper is not closed correctly", e)
+                log.error(s"The node cache in Zookeeper was noy  correctly closed", e)
             }
           }
         }
@@ -48,7 +48,7 @@ trait LocalListenerUtils extends PolicyStatusUtils {
   }
 
   private[driver] def closeContexts(policyId: String): Unit = {
-    val information = "The Context have been stopped correctly in the local listener"
+    val information = "The Context was successfully closed in the local listener"
     log.info(information)
     updateStatus(WorkflowStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
     destroySparkContext()

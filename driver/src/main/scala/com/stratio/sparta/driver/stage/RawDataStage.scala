@@ -34,20 +34,20 @@ trait RawDataStage extends BaseStage {
     }
 
   private[driver] def rawDataStage(): RawData = {
-    val errorMessage = s"Something gone wrong saving the raw data. Please re-check the policy."
-    val okMessage = s"RawData: created correctly."
+    val errorMessage = s"An error was encountered while saving the raw data. Please re-check the policy."
+    val okMessage = s"RawData successfully created"
 
     generalTransformation(PhaseEnum.RawData, okMessage, errorMessage) {
-      require(workflow.rawData.isDefined, "You need a raw data stage defined in your policy")
-      require(workflow.rawData.get.writer.tableName.isDefined, "You need a table name defined in your raw data stage")
+      require(workflow.rawData.isDefined, "A raw data stage is needed within the workflow")
+      require(workflow.rawData.get.writer.tableName.isDefined, "A table name is needed within the raw data stage")
 
       createRawData(workflow.rawData.get)
     }
   }
 
   private[driver] def createRawData(rawDataModel: RawDataModel): RawData = {
-    val okMessage = s"RawData created correctly."
-    val errorMessage = s"Something gone wrong creating the RawData. Please re-check the policy."
+    val okMessage = s"RawData stage successfully created"
+    val errorMessage = s"An error was encountered while creating the RawData stage. Please re-check the policy."
     generalTransformation(PhaseEnum.RawData, okMessage, errorMessage) {
       RawData(
         rawDataModel.dataField,

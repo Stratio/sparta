@@ -52,12 +52,13 @@ object MarathonDriver extends PluginsFilesUtils {
       marathonAppActor ! StartApp(policyId)
     } match {
       case Success(_) =>
-        log.info("Initiated Workflow App environment")
+        log.info("Workflow App environment started")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
       case Failure(exception) =>
-        log.error(s"Error initiating Workflow App environment: ${exception.getLocalizedMessage}", exception)
+        log.error(s"An error was encountered while starting the " +
+          s"Workflow App environment: ${exception.getLocalizedMessage}", exception)
         throw exception
     }
   }

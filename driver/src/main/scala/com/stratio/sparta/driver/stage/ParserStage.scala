@@ -50,11 +50,11 @@ trait ParserStage extends BaseStage {
                            refUtils: ReflectionUtils,
                            schemas: Map[String, StructType]): Parser = {
     val classType = model.configuration.getOrElse(AppConstant.CustomTypeKey, model.`type`).toString
-    val errorMessage = s"Something gone wrong creating the parser: $classType. Please re-check the policy."
-    val okMessage = s"Parser: $classType created correctly."
+    val errorMessage = s"An error was encountered while creating the parser: $classType. Please re-check the policy."
+    val okMessage = s"Parser: $classType successfully created"
     generalTransformation(PhaseEnum.Parser, okMessage, errorMessage) {
       val outputFieldsNames = model.outputFieldsTransformed.map(_.name)
-      val schema = schemas.getOrElse(model.order.toString, throw new Exception("Can not find transformation schema"))
+      val schema = schemas.getOrElse(model.order.toString, throw new Exception("Unable to find transformation schema"))
       refUtils.tryToInstantiate[Parser](classType + Parser.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[Integer],

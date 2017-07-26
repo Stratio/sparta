@@ -76,7 +76,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).outputStage(reflection, xDSession)
-    } should have message "Something went wrong while creating the output: output. Please re-check the policy"
+    } should have message "An error was encountered while creating the output: output. Please re-check the policy"
   }
 
 
@@ -91,7 +91,7 @@ class OutputStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).outputStage(reflection, xDSession)
-    } should have message "Something went wrong while creating the output: output. Please re-check the policy"
+    } should have message "An error was encountered while creating the output: output. Please re-check the policy"
   }
 
   "OutputStage" should "Generate a list of output for multiple Outputs " in {

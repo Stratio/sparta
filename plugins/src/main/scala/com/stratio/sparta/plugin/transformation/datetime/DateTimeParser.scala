@@ -99,9 +99,9 @@ class DateTimeParser(order: Integer,
             val formats = DateTimeParser.FormatMethods
             if (formats.contains(format))
               formats(format).invoke(None).asInstanceOf[DateTimeFormatter].parseDateTime(inputValue.toString)
-            else throw new IllegalStateException(s"The standard date format is not valid")
+            else throw new IllegalStateException(s"The specified date format is not valid")
           case None =>
-            throw new IllegalStateException(s"The standard date format is not valid")
+            throw new IllegalStateException(s"The specified date format is not valid")
         }
       case DateFormatEnum.USER =>
         UserFormat match {

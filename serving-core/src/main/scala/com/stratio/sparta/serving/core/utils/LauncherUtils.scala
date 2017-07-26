@@ -31,7 +31,8 @@ trait LauncherUtils extends SLF4JLogging{
         log.info(s"Workflow status model created or updated correctly: " +
           s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
       case Failure(e) =>
-        log.error(s"Workflow status model creation failure. Error: ${e.getLocalizedMessage}", e)
+        log.error(s"An error was encountered while creating the Workflow status model. " +
+          s"Error: ${e.getLocalizedMessage}", e)
     }
 
   def getZookeeperConfig: Config = SpartaConfig.getZookeeperConfig.getOrElse {

@@ -34,6 +34,7 @@
         itemTemplate: "=",
         onChangeOpenedElement: "&",
         itemQaTag: "@",
+        hideElementFromModel: "=",
         showNewItemPanel: "=",
         accordionStatus: "=",
         itemAttributeInHeader: "@",

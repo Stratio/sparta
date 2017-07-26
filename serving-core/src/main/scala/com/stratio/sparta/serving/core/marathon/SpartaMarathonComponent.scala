@@ -27,7 +27,7 @@ import SpartaMarathonComponent._
 trait SpartaMarathonComponent extends MarathonComponent {
 
   override lazy val uri = ConfigComponent.getString(SpartaMarathonComponent.uriField).getOrElse {
-    throw ConfigurationException("The marathon uri has not been set")
+    throw ConfigurationException("The marathon uri was not set")
   }
 
   override lazy val apiVersion = ConfigComponent.getString(versionField, defaultApiVersion)

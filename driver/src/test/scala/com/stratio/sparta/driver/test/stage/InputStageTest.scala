@@ -83,7 +83,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
     the[IllegalArgumentException] thrownBy {
       TestInput(policy).createInput(ssc, sparkSession, reflection)
-    } should have message "Something went wrong while creating the input: input. Please re-check the policy"
+    } should have message "An error was encountered while creating the input: input. Please re-check the policy"
   }
 
   "inputStage" should "Fail when reflectionUtils don't behave correctly" in {
@@ -101,7 +101,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
     the[IllegalArgumentException] thrownBy {
       TestInput(policy).createInput(ssc, sparkSession, reflection)
-    } should have message "Something went wrong while creating the input: input. Please re-check the policy"
+    } should have message "An error was encountered while creating the input: input. Please re-check the policy"
   }
 
   "inputStreamStage" should "Generate a inputStream" in {
@@ -137,7 +137,7 @@ class InputStageTest extends TestKit(ActorSystem("InputStageTest"))
 
     the[IllegalArgumentException] thrownBy {
       TestInput(policy).inputStreamStage(inputClass)
-    } should have message "Something went wrong while creating the input stream for: input"
+    } should have message "An error was encountered while creating the input stream for: input"
 
     verify(inputClass).initStream
   }

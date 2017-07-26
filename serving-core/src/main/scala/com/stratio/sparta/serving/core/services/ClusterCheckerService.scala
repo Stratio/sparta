@@ -31,17 +31,17 @@ class ClusterCheckerService(val curatorFramework: CuratorFramework) extends Poli
       case Success(policyStatus) =>
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Uploaded ||
           policyStatus.status == Stopping || policyStatus.status == NotStarted) {
-          val information = s"The checker detects that the workflow not start/stop correctly"
+          val information = s"CHECKER: the workflow did not start/stop correctly"
           log.error(information)
           updateStatus(WorkflowStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
           akkaContext.stop(launcherActor)
         } else {
-          val information = s"The checker detects that the workflow start/stop correctly"
+          val information = s"CHECKER: the workflow did not start/stop correctly"
           log.info(information)
           updateStatus(WorkflowStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
         }
       case Failure(exception) =>
-        log.error(s"Error when extract workflow status in scheduled task", exception)
+        log.error(s"Error when extracting workflow status in the scheduled task", exception)
     }
   }
 }

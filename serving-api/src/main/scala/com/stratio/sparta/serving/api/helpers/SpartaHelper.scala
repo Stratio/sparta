@@ -67,7 +67,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val metadataActor = system.actorOf(RoundRobinPool(DefaultInstances)
         .props(Props(new MetadataActor(secManager))), MetadataActorName)
       val crossdataActor = system.actorOf(RoundRobinPool(DefaultInstances)
-        .props(Props(new CrossdataActor())), CrossdataActorName)
+        .props(Props(new CrossdataActor(secManager))), CrossdataActorName)
       val actors = Map(
         StatusActorName -> statusActor,
         FragmentActorName -> fragmentActor,
@@ -85,7 +85,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")
       )
-      log.info("Sparta Actors System initiated correctly")
+      log.info("Sparta Actors System correctly initiated")
       statusActor ! AddClusterListeners
     } else log.info("Sparta Configuration is not defined")
   }

@@ -48,7 +48,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
 
   def initializeSubmitRequest(workflow: WorkflowModel): Unit = {
     Try {
-      log.info(s"Initializing cluster submit options from policy: ${workflow.name}")
+      log.info(s"Initializing cluster options submitted by policy: ${workflow.name}")
       val sparkSubmitService = new SparkSubmitService(workflow)
       val detailConfig = SpartaConfig.getDetailConfig.getOrElse {
         val message = "Impossible to extract Detail Configuration"
@@ -76,13 +76,13 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       createRequest(submitRequest)
     } match {
       case Failure(exception) =>
-        val information = s"Error when initializing the Sparta submit options"
+        val information = s"An error was encountered while initializing the Sparta submit options"
         log.error(information, exception)
         updateStatus(WorkflowStatusModel(id = workflow.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))))
         self ! PoisonPill
       case Success(Failure(exception)) =>
-        val information = s"Error when creating submit request in the persistence "
+        val information = s"An error was encountered while creating a submit request in the persistence"
         log.error(information, exception)
         updateStatus(WorkflowStatusModel(id = workflow.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
@@ -100,7 +100,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
 
   def launch(policy: WorkflowModel, submitRequest: SubmitRequest): Unit = {
     Try {
-      log.info(s"Launching Sparta Job with options ... \n\tPolicy name: ${policy.name}\n\t" +
+      log.info(s"Launching Sparta job with options ... \n\tPolicy name: ${policy.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\tDriver file: ${submitRequest.driverFile}\n\t" +
         s"Master: ${submitRequest.master}\n\tSpark submit arguments: ${submitRequest.submitArguments.mkString(",")}" +
         s"\n\tSpark configurations: ${submitRequest.sparkConfigurations.mkString(",")}\n\t" +
@@ -129,7 +129,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       sparkLauncher.startApplication(addSparkListener(policy))
     } match {
       case Failure(exception) =>
-        val information = s"Error when launching the Sparta cluster job"
+        val information = s"An error was encountered while launching the Sparta cluster job"
         log.error(information, exception)
         updateStatus(WorkflowStatusModel(id = policy.id.get, status = Failed, statusInfo = Option(information),
           lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))

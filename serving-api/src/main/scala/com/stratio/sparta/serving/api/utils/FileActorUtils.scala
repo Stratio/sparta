@@ -72,7 +72,7 @@ trait FileActorUtils extends SLF4JLogging {
     Try {
       files.flatMap { file =>
         val fileNameOption = file.filename.orElse(file.name.orElse {
-          log.warn(s"Is necessary one file name to upload files")
+          log.warn(s"It is necessary a name to upload the file")
           None
         })
         fileNameOption.flatMap { fileName =>
@@ -87,7 +87,7 @@ trait FileActorUtils extends SLF4JLogging {
                 None
             }
           } else {
-            log.warn(s"$fileName is Not a valid file name")
+            log.warn(s"$fileName is not a valid file name")
             None
           }
         }

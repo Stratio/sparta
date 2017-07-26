@@ -127,7 +127,7 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).parserStage(reflection, Map("1" -> outputScheme))
-    } should have message "Something gone wrong creating the parser: Test. Please re-check the policy."
+    } should have message "An error was encountered while creating the parser: Test. Please re-check the policy."
   }
 
   "ParserStage" should "Fail gracefully with bad input" in {
@@ -147,7 +147,7 @@ class ParserStageTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
     the[IllegalArgumentException] thrownBy {
       TestStage(policy).parserStage(reflection, Map("1" -> outputScheme))
-    } should have message "Something gone wrong creating the parser: Test. Please re-check the policy."
+    } should have message "An error was encountered while creating the parser: Test. Please re-check the policy."
   }
 
   it should "parse a event" in {

@@ -54,12 +54,12 @@ object WriterHelper extends SLF4JLogging {
           case Success(_) =>
             log.debug(s"Data stored in $outputTableName")
           case Failure(e) =>
-            log.error(s"Something goes wrong. Table: $outputTableName")
+            log.error(s"Something went wrong. Table: $outputTableName")
             log.error(s"Schema. ${autoCalculatedFieldsDf.schema}")
             log.error(s"Head element. ${autoCalculatedFieldsDf.head}")
             log.error(s"Error message : ${e.getMessage}")
         }
-        case None => log.error(s"The output added : $outputName not match in the outputs")
+        case None => log.error(s"The output added: $outputName did not match any defined output")
       })
     autoCalculatedFieldsDf
   }

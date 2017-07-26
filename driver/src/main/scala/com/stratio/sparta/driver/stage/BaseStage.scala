@@ -43,7 +43,7 @@ trait ZooKeeperError extends ErrorPersistor with PolicyStatusUtils {
 }
 
 trait LogError extends ErrorPersistor with SLF4JLogging {
-  def persistError(error: WorkflowErrorModel): Unit = log.error(s"This error was not saved to ZK : $error")
+  def persistError(error: WorkflowErrorModel): Unit = log.error(s"This error was not saved to ZK: $error")
 }
 
 trait BaseStage extends SLF4JLogging with StageUtils {

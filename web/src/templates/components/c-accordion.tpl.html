@@ -11,7 +11,8 @@
           <i class="c-accordion-header__open-mark c-icon c-icon--to-right icon-arrow2_right"
              data-qa="{{itemQaTag}}-arrow-{{$index + 1}}"></i>
         </uib-accordion-heading>
-        <ng-include src="itemTemplate" data-qa="{{itemQaTag}}-{{$index}}" ng-if="accordionStatus[$index]"></ng-include>
+        <ng-include src="itemTemplate" data-qa="{{itemQaTag}}-{{$index}}" 
+          data-ng-if="!hideElementFromModel || (hideElementFromModel && accordionStatus[$index])"></ng-include>
       </uib-accordion-group>
       <uib-accordion-group is-open=accordionStatus[accordionStatus.length-1] data-ng-if="showNewItemPanel"
                        class="c-accordion-item c-accordion-item--new panel-open c-accordion-item--new{{additionalModifierClass}}">

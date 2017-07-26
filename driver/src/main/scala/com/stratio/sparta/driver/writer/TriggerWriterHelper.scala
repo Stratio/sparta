@@ -55,11 +55,13 @@ object TriggerWriterHelper extends SLF4JLogging {
         val queryDf = Try(xdSession.sql(trigger.sql)) match {
           case Success(sqlResult) => sqlResult
           case Failure(exception: org.apache.spark.sql.AnalysisException) =>
-            log.warn("Warning running analysis in Catalyst in the query ${trigger.sql} in trigger ${trigger.name}",
+            log.warn(s"An error was encountered while running analysis in Catalyst, " +
+              s"query ${trigger.sql} in the trigger ${trigger.name}",
               exception.message)
             throw DriverException(exception.getMessage, exception)
           case Failure(exception) =>
-            log.warn(s"Warning running query (${trigger.sql}) in trigger ${trigger.name}", exception.getMessage)
+            log.warn(s"An error was encountered while running query (${trigger.sql}) " +
+              s"in trigger ${trigger.name}", exception.getMessage)
             throw DriverException(exception.getMessage, exception)
         }
         val extraOptions = Map(Output.TableNameKey -> trigger.name)
@@ -76,7 +78,7 @@ object TriggerWriterHelper extends SLF4JLogging {
       }
     } else {
       if (triggers.nonEmpty && !isCorrectTableName(inputTableName))
-        log.warn(s"Incorrect table name $inputTableName and the triggers could have errors and not have been " +
+        log.warn(s"Incorrect table name $inputTableName. The triggers could have errors and not have been " +
           s"executed")
     }
   }

@@ -100,7 +100,7 @@ trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
       } else createStatus(policyStatus)
         .getOrElse(throw new ServingCoreException(
           ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
-            s"Is not possible to create policy context with id ${policyStatus.id}."))))
+            s"Unable to create policy context with id ${policyStatus.id}."))))
     }
   }
 
@@ -158,7 +158,7 @@ trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
             log.info(s"Deleting context ${policyStatus.id} >")
             curatorFramework.delete().forPath(statusPath)
           } else throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id ${policyStatus.id}.")))
+            new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context found with id: ${policyStatus.id}.")))
         })
       }
     }
@@ -170,7 +170,7 @@ trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
         log.info(s">> Deleting context $id >")
         curatorFramework.delete().forPath(statusPath)
       } else throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context with id $id.")))
+        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No policy context found with id: $id.")))
     }
 
   /**
@@ -204,7 +204,7 @@ trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
           statuses.exists(_.status == PolicyStatusEnum.Starting) ||
           statuses.exists(_.status == PolicyStatusEnum.Launched)
       case Failure(e) =>
-        log.error("Error when find all policy statuses.", e)
+        log.error("An error was encountered while finding all the workflow statuses", e)
         false
     }
 
@@ -215,7 +215,7 @@ trait PolicyStatusUtils extends SpartaSerializer with SLF4JLogging {
       case (true, false) =>
         true
       case (true, true) =>
-        log.warn(s"One policy is already launched")
+        log.warn(s"A workflow is already launched")
         false
     }
 }

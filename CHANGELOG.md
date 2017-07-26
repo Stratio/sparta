@@ -4,6 +4,13 @@
 
 * Pending changelog
 
+## 1.7.1 (July 25, 2017)
+
+* Crossdata service integrated with HDFS securized
+* Crossdata service securized in Dyplon plugin
+* Updated log messages
+* Bugfix: Swagger UI
+
 ## 1.7.0 (July 21, 2017)
 
 * Update Spark Image

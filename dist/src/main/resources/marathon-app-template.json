@@ -22,15 +22,13 @@
     {
       "protocol": "TCP",
       "portIndex": 0,
-      "gracePeriodSeconds": 180,
+      "gracePeriodSeconds": 240,
       "intervalSeconds": 60,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3
     }
   ],
   "labels": {
-    "SPARTA_WORKFLOW_ID": "???",
-    "DCOS_SERVICE_NAME": "???",
     "DCOS_SERVICE_PORT_INDEX": "0",
     "DCOS_SERVICE_SCHEME": "http"
   },

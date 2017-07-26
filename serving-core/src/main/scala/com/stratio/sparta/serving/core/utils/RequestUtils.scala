@@ -53,7 +53,7 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
         request
       } else createRequest(request).getOrElse(throw new ServingCoreException(
         ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
-          s"Is not possible to create execution with id ${request.id}."))))
+          s"Unable to create execution with id ${request.id}."))))
     }
   }
 

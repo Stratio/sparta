@@ -40,7 +40,7 @@ class ExplodeParser(order: Integer,
             case valueCast: Seq[Map[String, _]] => valueCast
             case valueCast: Map[String, _] => Seq(valueCast)
             case _ => throw new RuntimeException(
-              s"The input value have incorrect type, Seq(Map()) or Map(). Value:${value.toString}")
+              s"The input value has incorrect type, Seq(Map()) or Map(). Value:${value.toString}")
           }
         }
         valueTyped.flatMap { valuesMap =>
@@ -54,7 +54,7 @@ class ExplodeParser(order: Integer,
                       parseToOutputType(outSchema, valueParsed)
                     case None =>
                       returnWhenError(new IllegalStateException(
-                        s"The values parsed don't contain the schema field: ${outSchema.name}"))
+                        s"None of the values parsed match the schema field: ${outSchema.name}"))
                   }
                 case None =>
                   returnWhenError(new IllegalStateException(
