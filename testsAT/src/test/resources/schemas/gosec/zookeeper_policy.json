@@ -1,11 +1,53 @@
 {
-  "id": "sparta",
-  "name": "zk_sparta",
+  "id": "sparta-zk",
+  "name": "sparta-zk",
   "users": [
+    {
+      "id": "sparta-fl",
+      "name": "sparta-fl",
+      "email": "sparta-fl@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-server1",
+      "name": "sparta-server1",
+      "email": "sparta-server1@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-jc",
+      "name": "sparta-jc",
+      "email": "sparta-jc@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    },
     {
       "id": "sparta",
       "name": "sparta",
-      "email": "sparta@stratio.com",
+      "email": "sparta@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-dg",
+      "name": "sparta-dg",
+      "email": "sparta-dg@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-tt",
+      "name": "sparta-tt",
+      "email": "sparta-tt@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "sparta-max",
+      "name": "sparta-max",
+      "email": "sparta-max@demo.stratio.com",
       "custom": false
     }
   ],
@@ -23,36 +65,6 @@
           "acls": [
             {
               "resourceType": "zkNode",
-              "name": "/",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Delete",
-                "Create",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "zkNode",
-              "name": "/stratio/sparta",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Delete",
-                "Create",
-                "Manage",
-                "Audit",
-                "ViewPolicies"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "zkNode",
               "name": "/stratio",
               "recursive": true,
               "actions": [
@@ -63,6 +75,30 @@
                 "Manage",
                 "Audit",
                 "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "zkNode",
+              "name": "/locks",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "zkNode",
+              "name": "/",
+              "recursive": false,
+              "actions": [
+                "Read"
               ],
               "allActions": []
             }
