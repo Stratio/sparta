@@ -95,7 +95,7 @@
     "OAUTH2_URL_ON_LOGIN_GO_TO": "/sparta",
     "SPARTA_PLUGIN_MGMT_PRINCIPAL": "gosec-management",
     "SPARK_MESOS_COARSE": "true",
-    "SPARK_MESOS_EXECUTOR_DOCKER_IMAGE": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+    "SPARK_MESOS_EXECUTOR_DOCKER_IMAGE": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
     "MARATHON_TIKI_TAKKA_MARATHON_URI": "http://10.200.0.46:8080",
     "SPARK_MESOS_EXECUTOR_MEMORY": "1G",
     "MAX_OPEN_FILES": "65535"
