@@ -4,6 +4,17 @@
 
 * Pending changelog
 
+## 1.7.2 (August 07, 2017)
+
+* Crossdata service options running over Mesos
+* Crossdata service integrated with Postgres securized with TLS
+* Crossdata table creation integrated with HDFS securized
+* Kafka offsets management in Kafka intput
+* Checkpointing configurable
+* Bugfixing: Application resources
+* Bugfixing: Mesos security in Spark jobs
+* Bugfixing: Spark user obtained from principal in Spark jobs
+
 ## 1.7.1 (July 25, 2017)
 
 * Crossdata service integrated with HDFS securized
