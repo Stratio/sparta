@@ -29,6 +29,7 @@ case class GlobalSettings(executionMode: String = "marathon",
                           initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence])
 
 case class CheckpointSettings(checkpointPath: String = "sparta/checkpoint",
+                              enableCheckpointing: Boolean = true,
                               autoDeleteCheckpoint: Boolean = true,
                               addTimeToCheckpointPath: Boolean = false)
 
@@ -73,7 +74,7 @@ case class SparkResourcesConf(coresMax: Option[String] = Option("2"),
                               driverCores: Option[String] = Option("1"),
                               driverMemory: Option[String] = Option("2G"),
                               mesosExtraCores: Option[String] = None,
-                              localityWait: Option[String] = Option("10"),
+                              localityWait: Option[String] = Option("0"),
                               taskMaxFailures: Option[String] = Option("8"),
                               blockInterval: Option[String] = Option("200ms"),
                               concurrentJobs: Option[String] = None)

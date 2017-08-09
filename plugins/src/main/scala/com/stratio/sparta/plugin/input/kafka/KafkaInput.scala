@@ -17,19 +17,20 @@
 package com.stratio.sparta.plugin.input.kafka
 
 import java.io.{Serializable => JSerializable}
-import java.lang.{Double, Long}
 import java.nio.ByteBuffer
+import java.{lang => jl}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.helper.{SecurityHelper, VaultHelper}
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.kafka.clients.consumer._
+import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.common.utils.Bytes
 import org.apache.spark.SparkConf
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
@@ -62,42 +63,43 @@ class KafkaInput(
     val autoOffset = getAutoOffset
     val enableAutoCommit = getAutoCommit
     val kafkaSecurityOptions = securityOptions(ssc.sparkContext.getConf)
+    val offsets = getOffsets
 
     val inputDStream = serializerProperty match {
       case "long" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, Long](ssc, locationStrategy, consumerStrategy)
       case "int" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, Int](ssc, locationStrategy, consumerStrategy)
       case "double" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, Double](ssc, locationStrategy, consumerStrategy)
       case "bytebuffer" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, ByteBuffer](ssc, locationStrategy, consumerStrategy)
       case "arraybyte" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, Array[Byte]](ssc, locationStrategy, consumerStrategy)
       case "bytes" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, Bytes](ssc, locationStrategy, consumerStrategy)
       case _ =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, String](topics, enableAutoCommit ++
           autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties)
+          kafkaSecurityOptions ++ getCustomProperties, offsets)
         KafkaUtils.createDirectStream[String, String](ssc, locationStrategy, consumerStrategy)
     }
 
@@ -119,11 +121,31 @@ class KafkaInput(
 
   //scalastyle:on
 
+  /** OFFSETS **/
+
+  def getOffsets: Map[TopicPartition, Long] = {
+    Try(properties.getMapFromJsoneyString("offsets"))
+      .getOrElse(Seq.empty[Map[String, String]])
+      .flatMap(offsetSequence => getOffset(offsetSequence)).toMap
+  }
+
+  def getOffset(fields: Map[String, String]): Option[(TopicPartition, Long)] = {
+    val topic = fields.get("topic").notBlank
+    val partition = Try(fields.getInt("partition")).toOption
+    val offsetValue = fields.get("offsetValue").notBlank.map(_.toLong)
+
+    (topic, partition, offsetValue) match {
+      case (Some(tp), Some(part), Some(off)) =>
+        Option((new TopicPartition(tp, part), off))
+      case _ => None
+    }
+  }
+
   /** SERIALIZERS **/
 
   def getSerializerByKey(serializerKey: String): Class[_ >: StringDeserializer with LongDeserializer
     with IntegerDeserializer with DoubleDeserializer with ByteArrayDeserializer with ByteBufferDeserializer
-    with BytesDeserializer <: Deserializer[_ >: String with Long with Integer with Double with
+    with BytesDeserializer <: Deserializer[_ >: String with jl.Long with Integer with jl.Double with
     Array[Byte] with ByteBuffer with Bytes]] =
     serializerKey match {
       case "string" => classOf[StringDeserializer]
@@ -188,9 +210,9 @@ class KafkaInput(
       Map("security.protocol" -> "SSL",
         "ssl.key.password" -> configKafka("keyPassword"),
         "ssl.keystore.location" -> configKafka("keyStore"),
-        "ssl.keystore.password"-> configKafka("keyStorePassword"),
-        "ssl.truststore.location"-> configKafka("trustStore"),
-        "ssl.truststore.password"-> configKafka("trustStorePassword"))
+        "ssl.keystore.password" -> configKafka("keyStorePassword"),
+        "ssl.truststore.location" -> configKafka("trustStore"),
+        "ssl.truststore.password" -> configKafka("trustStorePassword"))
     } else Map.empty[String, AnyRef]
   }
 }

@@ -50,7 +50,7 @@ class ReceiverLimitedIT extends TemporalDataSuite {
     })
 
     ssc.start() // Start the computation
-    ssc.awaitTerminationOrTimeout(15000L) // Wait for the computation to terminate
+    ssc.awaitTerminationOrTimeout(20000L) // Wait for the computation to terminate
 
     assert(totalEvents.value === totalRegisters.toLong)
   }

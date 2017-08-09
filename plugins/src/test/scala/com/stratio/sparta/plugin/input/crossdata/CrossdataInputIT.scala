@@ -44,7 +44,8 @@ class CrossdataInputIT extends TemporalSparkContext with Matchers {
     val datasourceParams = Map(
       "query" -> s"select * from $tableName",
       "offsetField" -> "idInt",
-      "outputFormat" -> "ROW"
+      "outputFormat" -> "ROW",
+      "rememberDuration" -> "20000"
     )
     val crossdataInput = new CrossdataInput("crossdata", ssc, sparkSession, datasourceParams)
     val inputStream = crossdataInput.initStream
@@ -59,7 +60,7 @@ class CrossdataInputIT extends TemporalSparkContext with Matchers {
         assert(streamingRegisters === registersString.reverse)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(15000L)
+    ssc.awaitTerminationOrTimeout(20000L)
 
     assert(totalEvents.value === totalRegisters.toLong)
   }

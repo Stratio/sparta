@@ -20,6 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils.log
+import org.apache.spark.security.VaultHelper._
 
 import scala.util.Try
 
@@ -61,7 +62,7 @@ object SecurityHelper {
             ("spark.secret.vault.protocol", "https")
           ) ++ {
             if (vaultToken.isDefined && !useDynamicAuthentication) {
-              val tempToken = VaultHelper.getTemporalToken(SecurityHelper.getVaultUri(host, port), vaultToken.get)
+              val tempToken = getTemporalToken(SecurityHelper.getVaultUri(host, port), vaultToken.get)
               Seq(
                  ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken),
                 //TODO check if it's necessary
@@ -97,6 +98,8 @@ object SecurityHelper {
       val vaultTrustStorePassPath = configuration.getString("vaultTrustStorePassPath", None).notBlank
       val vaultRole = configuration.getString("vaultRole", None).notBlank
 
+      token = vaultToken
+
       (vaultHost, vaultPort, vaultCertPath, vaultCertPassPath, vaultKeyPassPath, vaultTrustStorePath,
         vaultTrustStorePassPath) match {
         case (Some(host), Some(port), Some(certPath), Some(certPassPath), Some(keyPassPath),
@@ -130,11 +133,12 @@ object SecurityHelper {
           ) ++ {
             val vaultUri = getVaultUri(host, port)
             if (vaultToken.isDefined && !useDynamicAuthentication)
-              Seq(("spark.secret.vault.tempToken", VaultHelper.getTemporalToken(vaultUri, vaultToken.get)))
-            else if (vaultRole.isDefined && vaultRoleId.isDefined && vaultSecretId.isDefined && useDynamicAuthentication)
+              Seq(("spark.secret.vault.tempToken", getTemporalToken(vaultUri, vaultToken.get)))
+            else if (vaultRole.isDefined && useDynamicAuthentication &&
+              (vaultToken.isDefined || (vaultRoleId.isDefined && vaultSecretId.isDefined)))
               Seq(
-                ("spark.secret.roleID", VaultHelper.getRoleIdFromVault(vaultUri, vaultRole.get)),
-                ("spark.secret.secretID", VaultHelper.getSecretIdFromVault(vaultUri, vaultRole.get))
+                ("spark.secret.roleID", getRoleIdFromVault(vaultUri, vaultRole.get)),
+                ("spark.secret.secretID", getSecretIdFromVault(vaultUri, vaultRole.get))
               )
             else Seq.empty[(String, String)]
           }

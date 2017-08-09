@@ -17,19 +17,22 @@
 package com.stratio.sparta.serving.api.services
 
 import java.io.File
+import java.nio.file.{Files, Paths}
+import javax.xml.bind.DatatypeConverter
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.api.services.CrossdataService._
 import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 import org.apache.spark.SparkConf
+import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.crossdata.XDSession
-import CrossdataService._
 
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 class CrossdataService() extends SpartaSerializer with SLF4JLogging {
-
-  private val MaxQueryResults = 300
 
   def listTables(dbName: Option[String], temporary: Boolean): Try[Array[Table]] =
     Try {
@@ -61,7 +64,6 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
     Try {
       if (validateQuery(query))
         crossdataSession.sql(query)
-          .limit(MaxQueryResults)
           .collect()
           .map(row => row.schema.fields.zipWithIndex.map { case (field, index) => field.name -> row.get(index) }.toMap)
       else throw new IllegalArgumentException("Invalid query, the supported queries are: CREATE TABLE ... , " +
@@ -80,14 +82,49 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
 
 object CrossdataService {
 
-  private lazy val reference = getClass.getResource("/reference.conf").getPath
-  private lazy val sparkConf = new SparkConf()
-    .setMaster("local[*]")
-    .setAppName("Crossdata-API")
-    .set("spark.ui.port", "4045")
+  private def kerberosYarnDefaultVariables: Seq[(String, String)] = {
+    (HdfsUtils.getPrincipalName.notBlank, HdfsUtils.getKeyTabPath.notBlank) match {
+      case (Some(principal), Some(keyTabPath)) =>
+        val bytes = Files.readAllBytes(Paths.get(keyTabPath))
+        val keytabBase64 = DatatypeConverter.printBase64Binary(bytes)
+        val withKeytab = ("spark.mesos.kerberos.keytabBase64", keytabBase64)
+        val withManagerPpal = ("spark.hadoop.yarn.resourcemanager.principal", principal)
+        val withPpal = ("spark.yarn.principal", principal)
 
-  lazy val crossdataSession = XDSession.builder()
-    .config(new File(reference))
-    .config(sparkConf)
-    .create("dummyUser")
+        Seq(withKeytab, withPpal, withManagerPpal)
+      case _ =>
+        Seq.empty[(String, String)]
+    }
+  }
+
+  val crossdataSession = {
+    val reference = getClass.getResource("/reference.conf").getPath
+    val sparkConf = new SparkConf()
+      .setAll(kerberosYarnDefaultVariables)
+      .setAppName(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta") + "-crossdata")
+
+    if (Try(Properties.envOrElse("CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE", "false").toBoolean).getOrElse(false)) {
+      val vaultToken = sys.env.get("VAULT_TOKEN")
+      val vaultUrl = for {
+        protocol <- sys.env.get("VAULT_PROTOCOL")
+        host <- sys.env.get("VAULT_HOSTS")
+        port <- sys.env.get("VAULT_PORT")
+      } yield s"$protocol://$host:$port"
+
+      ConfigSecurity.prepareEnvironment(vaultToken, vaultUrl)
+    }
+
+    val xDSession = XDSession.builder()
+      .config(new File(reference))
+      .config(sparkConf)
+      .create(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta"))
+
+    val jdbcDrivers = new File("/jdbc-drivers")
+    if (jdbcDrivers.exists && jdbcDrivers.isDirectory)
+      jdbcDrivers.listFiles()
+        .filter(file => file.isFile && file.getName.endsWith("jar"))
+        .foreach(file => xDSession.sparkContext.addJar(file.getAbsolutePath))
+
+    xDSession
+  }
 }

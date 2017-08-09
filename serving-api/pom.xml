@@ -167,27 +167,16 @@
             <version>0.3.2</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-mesos_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.crossdata</groupId>
             <artifactId>crossdata-core_2.11</artifactId>
-            <version>${crossdata.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.stratio.spark</groupId>
-                    <artifactId>spark-core_${scala.binary.version}</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>

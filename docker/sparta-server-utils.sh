@@ -1,23 +1,46 @@
 #!/bin/bash
 
+function initDatastoreTls() {
+    if [ -v CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE ] && [ $CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE == "true" ]; then
+        source datastoretls-config.sh
+        echo "" >> ${VARIABLES}
+        echo "export VAULT_PROTOCOL=https" >> ${VARIABLES}
+        echo "" >> ${VARIABLES}
+        echo "" >> ${SYSTEM_VARIABLES}
+        echo "export VAULT_PROTOCOL=https" >> ${SYSTEM_VARIABLES}
+
+        if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_HOSTS ] && [ ${#VAULT_HOSTS} != 0 ]; then
+          echo "" >> ${VARIABLES}
+          echo "export VAULT_HOST=$VAULT_HOSTS" >> ${VARIABLES}
+          echo "" >> ${SYSTEM_VARIABLES}
+          echo "export VAULT_HOST=$VAULT_HOSTS" >> ${SYSTEM_VARIABLES}
+        fi
+    fi
+}
+
 function initLocalSparkIp() {
-
-    echo "" >> ${VARIABLES}
-    echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${VARIABLES}
-    echo "" >> ${SYSTEM_VARIABLES}
-    echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${SYSTEM_VARIABLES}
-
+    if ([ -v CROSSDATA_SERVER_CONFIG_SPARK_MASTER ] && [ $CROSSDATA_SERVER_CONFIG_SPARK_MASTER == "local[*]" ]) || [ ! -v LIBPROCESS_IP ] ; then
+        echo "" >> ${VARIABLES}
+        echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${VARIABLES}
+        echo "" >> ${SYSTEM_VARIABLES}
+        echo "export SPARK_LOCAL_IP=127.0.0.1" >> ${SYSTEM_VARIABLES}
+    elif [ -v LIBPROCESS_IP ] && [ ${#LIBPROCESS_IP} != 0 ]; then
+        echo "" >> ${VARIABLES}
+        echo "export SPARK_LOCAL_IP=$LIBPROCESS_IP" >> ${VARIABLES}
+        echo "" >> ${SYSTEM_VARIABLES}
+        echo "export SPARK_LOCAL_IP=$LIBPROCESS_IP" >> ${SYSTEM_VARIABLES}
+    fi
 }
 
 function initJavaOptions() {
 
  if [[ ! -v SPARTA_HEAP_SIZE ]]; then
-   SPARTA_HEAP_SIZE=-Xmx1024m
+   SPARTA_HEAP_SIZE=-Xmx2048m
  fi
  sed -i "s|export SPARTA_HEAP_SIZE.*|export SPARTA_HEAP_SIZE=${SPARTA_HEAP_SIZE}|" ${VARIABLES}
 
  if [[ ! -v SPARTA_HEAP_MINIMUM_SIZE ]]; then
-   SPARTA_HEAP_MINIMUM_SIZE=-Xms512m
+   SPARTA_HEAP_MINIMUM_SIZE=-Xms1024m
  fi
  sed -i "s|export SPARTA_HEAP_MINIMUM_SIZE.*|export SPARTA_HEAP_MINIMUM_SIZE=${SPARTA_HEAP_MINIMUM_SIZE}|" ${VARIABLES}
 

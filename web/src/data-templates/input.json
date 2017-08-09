@@ -326,6 +326,41 @@
         "qa": "fragment-details-kafka-vaultTrustStorePath"
       },
       {
+        "propertyId": "offsets",
+        "propertyName": "_OFFSETS_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-offsets",
+        "fields": [
+          {
+            "propertyId": "topic",
+            "propertyName": "_TOPIC_",
+            "propertyType": "text",
+            "width": 4,
+            "hidden": false,
+            "qa": "fragment-details-offsets-topic"
+          },
+          {
+            "propertyId": "partition",
+            "propertyName": "_PARTITION_",
+            "propertyType": "text",
+            "width": 4,
+            "hidden": false,
+            "qa": "fragment-details-offsets-partition"
+          },
+          {
+            "propertyId": "offsetValue",
+            "propertyName": "_OFFSET_VALUE_",
+            "propertyType": "text",
+            "width": 4,
+            "hidden": false,
+            "qa": "fragment-details-offsets-offsetValue"
+          }
+        ]
+      },
+      {
         "propertyId": "kafkaProperties",
         "propertyName": "_KAFKA_PROPERTIES_",
         "propertyType": "list",

@@ -38,7 +38,7 @@ object AkkaConstant {
   val MetadataActorName = "metadataActor"
   val CrossdataActorName = "crossdataActor"
 
-  val DefaultTimeout = 9
+  val DefaultTimeout = 19
   val DefaultInstances = 3
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")

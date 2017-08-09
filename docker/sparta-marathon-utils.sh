@@ -26,20 +26,6 @@ function initJavaOptions() {
  fi
 }
 
-function initSparkEnvOptions() {
-
-  if [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
-    HOST="$(hostname --all-ip-addresses|xargs)"
-    echo "Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
-    export LIBPROCESS_IP=$HOST
-  fi
-
- # if [ -v PORT_SPARKUI ] && [ ${#PORT_SPARKUI} != 0 ]; then
- #  sed -i "s|.*SPARK_MASTER_WEBUI_PORT.*|SPARK_MASTER_WEBUI_PORT=${PORT_SPARKUI}|" ${SPARK_ENV_FILE}
- # fi
-
-}
-
 function initSparkDefaultsOptions() {
 
   if [ -v PORT_SPARKUI ] && [ ${#PORT_SPARKUI} != 0 ]; then

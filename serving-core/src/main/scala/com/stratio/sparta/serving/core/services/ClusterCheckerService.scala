@@ -36,7 +36,7 @@ class ClusterCheckerService(val curatorFramework: CuratorFramework) extends Poli
           updateStatus(WorkflowStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
           akkaContext.stop(launcherActor)
         } else {
-          val information = s"CHECKER: the workflow did not start/stop correctly"
+          val information = s"CHECKER: the workflow started/stopped correctly"
           log.info(information)
           updateStatus(WorkflowStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
         }

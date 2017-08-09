@@ -18,20 +18,18 @@ package com.stratio.sparta.serving.core.utils
 
 import java.io.File
 
-import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
 import com.typesafe.config.Config
 
 import scala.collection.JavaConversions._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-
 import scala.util.{Properties, Try}
 
 class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
@@ -95,7 +93,7 @@ class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
     val submitArgs = getSparkSubmitArgs
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
-    (addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs))),
+    (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
       addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(addMesosSecurityConf(addPluginsFilesToConf(
         sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles)))))))
   }
@@ -193,40 +191,40 @@ class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
       case _ => sparkConfs
     }
 
-
   private[sparta] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] = {
 
     def getPrincipal: Option[String] =
-      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosPrincipal,
+      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosPrincipal.notBlank,
         Properties.envOrNone(MesosPrincipalEnv).notBlank) match {
-      case (Some(workflowPrincipal), _) => Option(workflowPrincipal)
-      case (None, Some(envPrincipal)) => Option(envPrincipal)
-      case _ => None
-    }
+        case (Some(workflowPrincipal), _) => Option(workflowPrincipal)
+        case (_, Some(envPrincipal)) => Option(envPrincipal)
+        case _ => None
+      }
 
     def getSecret: Option[String] =
-      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosSecret,
+      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosSecret.notBlank,
         Properties.envOrNone(MesosSecretEnv).notBlank) match {
-      case (Some(workflowSecret), _) => Option(workflowSecret)
-      case (None, Some(envSecret)) => Option(envSecret)
-      case _ => None
-    }
+        case (Some(workflowSecret), _) => Option(workflowSecret)
+        case (_, Some(envSecret)) => Option(envSecret)
+        case _ => None
+      }
 
     def getRole: Option[String] =
-    (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosRole,
-      Properties.envOrNone(MesosRoleEnv).notBlank) match {
-      case (Some(workflowRole), _) => Option(workflowRole)
-      case (None,Some(envRole)) => Option(envRole)
-      case _ => None
-    }
+      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosRole.notBlank,
+        Properties.envOrNone(MesosRoleEnv).notBlank) match {
+        case (Some(workflowRole), _) => Option(workflowRole)
+        case (_, Some(envRole)) => Option(envRole)
+        case _ => None
+      }
 
-    Map(
+    val mesosOptions = Map(
       SubmitMesosPrincipalConf -> getPrincipal,
       SubmitMesosSecretConf -> getSecret,
       SubmitMesosRoleConf -> getRole
-    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs
-  }
+    )
 
+    mesosOptions.flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs
+  }
 
   private[sparta] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val inputConfs = workflow.input.fold(Map.empty[String, String]) { input =>
@@ -315,4 +313,15 @@ class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
         if (value == "true") Some(SubmitSupervise -> "") else None
       else Some(argumentKey -> value)
     }
+
+  private[sparta] def addJdbcDrivers(submitArgs: Map[String, String]): Map[String, String] = {
+    val jdbcDrivers = new File("/jdbc-drivers")
+    if (jdbcDrivers.exists && jdbcDrivers.isDirectory) {
+      val jdbcFiles = jdbcDrivers.listFiles()
+        .filter(file => file.isFile && file.getName.endsWith("jar"))
+        .map(file => file.getAbsolutePath)
+      if (jdbcFiles.isEmpty) submitArgs
+      else Map(SubmitDriverClassPath -> jdbcFiles.mkString(":")) ++ submitArgs
+    } else submitArgs
+  }
 }

@@ -34,9 +34,11 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
   def localStreamingContext(workflow: WorkflowModel, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
     killLocalContextListener(workflow, workflow.name)
 
-    if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
-
-    createLocalCheckpointPath(workflow)
+    if (workflow.settings.checkpointSettings.enableCheckpointing) {
+      if (workflow.settings.checkpointSettings.autoDeleteCheckpoint)
+        deleteCheckpointPath(workflow)
+      createLocalCheckpointPath(workflow)
+    }
 
     val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
     val sparkSubmitService = new SparkSubmitService(workflow)
@@ -55,15 +57,23 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
   }
 
   def clusterStreamingContext(workflow: WorkflowModel, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
-    if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
-    val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
 
-    val ssc = StreamingContext.getOrCreate(checkpointPath(workflow), () => {
-      log.info(s"Nothing in checkpoint path: ${checkpointPath(workflow)}")
-      val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
-      sparkClusterContextInstance(outputsSparkConfig, files)
-      spartaWorkflow.streamingStages()
-    })
+    val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
+    val ssc = {
+      if (workflow.settings.checkpointSettings.enableCheckpointing) {
+        if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+        StreamingContext.getOrCreate(checkpointPath(workflow), () => {
+          log.info(s"Nothing in checkpoint path: ${checkpointPath(workflow)}")
+          val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
+          sparkClusterContextInstance(outputsSparkConfig, files)
+          spartaWorkflow.streamingStages()
+        })
+      } else {
+        val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
+        sparkClusterContextInstance(outputsSparkConfig, files)
+        spartaWorkflow.streamingStages()
+      }
+    }
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)

@@ -29,7 +29,7 @@
 
     <properties>
         <morphline.version>0.17.0</morphline.version>
-        <cassandra.spark.version>2.0.1</cassandra.spark.version>
+        <cassandra.spark.version>2.0.3</cassandra.spark.version>
         <breeze.version>0.11.1</breeze.version>
         <amqp-client.version>3.5.1</amqp-client.version>
         <geo.version>0.6.7</geo.version>
@@ -39,7 +39,6 @@
         <mongodb.spark.version>0.12.0</mongodb.spark.version>
         <elastic.spark.version>5.3.0</elastic.spark.version>
         <kafka.spark.version>2.1.0</kafka.spark.version>
-        <csv.spark.version>1.5.0</csv.spark.version>
         <avro.spark.version>3.2.0</avro.spark.version>
         <avro.version>1.7.6</avro.version>
         <rabbitmq.spark.version>0.5.1</rabbitmq.spark.version>
@@ -59,23 +58,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.stratio.crossdata</groupId>
-            <artifactId>crossdata-core_2.11</artifactId>
-            <version>${crossdata.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.stratio.spark</groupId>
-                    <artifactId>spark-core_${scala.binary.version}</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -96,6 +81,15 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.crossdata</groupId>
+            <artifactId>crossdata-core_2.11</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -238,7 +232,10 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.3-1104-jdbc4</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -251,6 +248,24 @@
         </dependency>
 
         <!--Test dependencies-->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>

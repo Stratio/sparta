@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.output.postgres
 
 import java.io.{InputStream, Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.helper.{SecurityHelper, VaultHelper}
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.SaveModeEnum.SpartaSaveMode
 import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}

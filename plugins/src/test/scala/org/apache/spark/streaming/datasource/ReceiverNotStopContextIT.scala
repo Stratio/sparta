@@ -45,7 +45,7 @@ class ReceiverNotStopContextIT extends TemporalDataSuite {
       totalEvents += rdd.count()
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(15000L)
+    ssc.awaitTerminationOrTimeout(20000L)
 
     assert(totalEvents.value === totalRegisters.toLong)
   }

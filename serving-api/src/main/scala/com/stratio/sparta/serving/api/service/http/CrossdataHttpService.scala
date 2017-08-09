@@ -40,8 +40,6 @@ trait CrossdataHttpService extends BaseHttpService {
   override def routes(user: Option[LoggedUser] = None): Route = findAllDatabases(user) ~ executeQuery(user) ~
     findTables(user) ~ describeTable(user) ~ findAllTables(user)
 
-  override implicit val timeout: Timeout = Timeout(15.seconds)
-
   @Path("/databases")
   @ApiOperation(value = "List Crossdata databases",
     notes = "Returns crosdata databases",

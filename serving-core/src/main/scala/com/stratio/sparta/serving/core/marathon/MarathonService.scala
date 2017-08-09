@@ -22,12 +22,13 @@ import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
 import akka.stream.{ActorMaterializer, ActorMaterializerSettings}
 import akka.util.Timeout
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.models.submit.SubmitRequest
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
 import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
@@ -38,7 +39,6 @@ import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -93,8 +93,9 @@ class MarathonService(context: ActorContext,
   val DefaultSparkUIPort = 4040
 
   lazy val calicoEnabled: Boolean = {
-    val calicoEnv = Properties.envOrNone(CalicoEnableEnv)
-    if (calicoEnv.isDefined && calicoEnv.get.equals("true")) true else false
+    val calicoEnabled = Properties.envOrNone(CalicoEnableEnv)
+    val calicoNetwork = Properties.envOrNone(CalicoNetworkEnv).notBlank
+    if (calicoEnabled.isDefined && calicoEnabled.get.equals("true") && calicoNetwork.isDefined) true else false
   }
 
   lazy val useDynamicAuthentication = Try {
@@ -270,7 +271,7 @@ class MarathonService(context: ActorContext,
     val newConstraints = Properties.envOrNone(Constraints).map(constraint =>
       Seq(Seq("label", "CLUSTER", constraint)))
 
-    val newIpAddress = if (calicoEnabled) Option(IpAddress(networkName = Option(Properties.envOrElse(CalicoNetworkEnv, "stratio"))))
+    val newIpAddress = if (calicoEnabled) Option(IpAddress(networkName = Properties.envOrNone(CalicoNetworkEnv)))
     else None
 
     val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
@@ -307,7 +308,6 @@ class MarathonService(context: ActorContext,
       VaultTokenEnv -> getVaultToken,
       DynamicAuthEnv -> Properties.envOrNone(DynamicAuthEnv),
       AppHeapSizeEnv -> Option(s"-Xmx${memory}m"),
-      AppHeapMinimunSizeEnv -> Option(s"-Xms${memory.toInt / 2}m"),
       SparkHomeEnv -> Properties.envOrNone(SparkHomeEnv),
       HadoopUserNameEnv -> Properties.envOrNone(HadoopUserNameEnv),
       HdfsConfFromUriEnv -> Properties.envOrNone(HdfsConfFromUriEnv),
@@ -340,7 +340,7 @@ class MarathonService(context: ActorContext,
       SecurityMesosEnv -> Properties.envOrNone(SecurityMesosEnv),
       DcosServiceName -> Properties.envOrNone(DcosServiceName),
       CalicoNetworkEnv -> Properties.envOrNone(CalicoNetworkEnv),
-      SparkUserEnv -> workflowModel.settings.sparkSettings.sparkUser,
+      CalicoEnableEnv -> Properties.envOrNone(CalicoEnableEnv),
       SpartaZookeeperPathEnv -> Option(BaseZKPath),
       CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
       CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),
@@ -349,5 +349,5 @@ class MarathonService(context: ActorContext,
       CrossdataCoreCatalogZookeeperSessionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperSessionTimeout),
       CrossdataCoreCatalogZookeeperRetryAttempts -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryAttempts),
       CrossdataCoreCatalogZookeeperRetryInterval -> Properties.envOrNone(CrossdataCoreCatalogZookeeperRetryInterval)
-    ).flatMap { case (k, v) => v.map(value => Option(k -> JsString(value))) }.flatten.toMap
+    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> JsString(value))) }.flatten.toMap
 }

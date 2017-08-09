@@ -48,7 +48,7 @@
           "executorCores": "1",
           "driverCores": "1",
           "driverMemory": "1G",
-          "localityWait": "10s",
+          "localityWait": "0",
           "taskMaxFailures": "8",
           "blockInterval": "200ms"
         },

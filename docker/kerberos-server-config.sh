@@ -34,7 +34,8 @@ Client {
 EOF
 
 export SPARTA_JAAS_FILE=/etc/sds/sparta/security/jaas.conf
-
+echo "" >> ${VARIABLES}
+echo "export SPARTA_JAAS_FILE=${SPARTA_JAAS_FILE}" >> ${VARIABLES}
 
 sed -i "s#<__PRINCIPAL__>#$SPARTA_PRINCIPAL_NAME#" $SPARTA_JAAS_FILE\
    && echo "[JAAS_CONF] ZK principal configured as $SPARTA_PRINCIPAL_NAME" \
@@ -44,7 +45,7 @@ sed -i "s#<__KEYTAB__>#$SPARTA_KEYTAB_PATH#" $SPARTA_JAAS_FILE\
    || echo "[JAAS_CONF-ERROR] ZK keytab was NOT configured"
 
 ## Testing if the keytab can generate valid tickets
-kinit -kt $SPARTA_KEYTAB_PATH $SPARTA_PRINCIPAL_NAME
+kinit -c /tmp/kb-cache -kt $SPARTA_KEYTAB_PATH $SPARTA_PRINCIPAL_NAME
 if [ $? -eq 0 ]; then
     _log_sparta_sec "Keytab for $SPARTA_PRINCIPAL_NAME: validated"
     _log_sparta_sec "Configuring kerberos: OK"

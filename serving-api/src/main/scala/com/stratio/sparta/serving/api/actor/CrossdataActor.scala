@@ -37,6 +37,7 @@ class CrossdataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends A
   val ResourceType = "catalog"
 
   lazy val hdfsUtils = Try(HdfsUtils()).toOption
+    .flatMap(utils => if(utils.ugiOption.isDefined) Option(utils) else None)
 
   override def receive: Receive = {
     case FindAllDatabases(user) => findAllDatabases(user)

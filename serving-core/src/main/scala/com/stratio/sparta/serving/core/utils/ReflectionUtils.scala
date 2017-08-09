@@ -51,31 +51,8 @@ class ReflectionUtils extends SLF4JLogging {
   def instantiateParameterizable[C](clazz: Class[_], properties: Map[String, Serializable]): C =
     clazz.getDeclaredConstructor(classOf[Map[String, Serializable]]).newInstance(properties).asInstanceOf[C]
 
-  def printClassPath(cl: ClassLoader): Unit = {
-    val urls = cl.asInstanceOf[URLClassLoader].getURLs()
-    urls.foreach(url => log.debug(url.getFile))
-  }
-
   lazy val getClasspathMap: Map[String, String] = {
     val reflections = new Reflections("com.stratio.sparta")
-
-    try {
-      log.debug("#######")
-      log.debug("####### SPARK MUTABLE_URL_CLASS_LOADER:")
-      log.debug(getClass.getClassLoader.toString)
-      printClassPath(getClass.getClassLoader)
-      log.debug("#######")
-      log.debug("####### APP_CLASS_LOADER / SYSTEM CLASSLOADER:")
-      log.debug(ClassLoader.getSystemClassLoader().toString)
-      printClassPath(ClassLoader.getSystemClassLoader())
-      log.debug("#######")
-      log.debug("####### EXTRA_CLASS_LOADER:")
-      log.debug(getClass.getClassLoader.getParent.getParent.toString)
-      printClassPath(getClass.getClassLoader.getParent.getParent)
-    } catch {
-      case e: Exception => //nothing
-    }
-
     val inputs = reflections.getSubTypesOf(classOf[Input]).toList
     val dimensionTypes = reflections.getSubTypesOf(classOf[DimensionType]).toList
     val operators = reflections.getSubTypesOf(classOf[Operator]).toList

@@ -15,12 +15,17 @@ _log_sparta_server "Loading Sparta server functions ... "
 
  _log_sparta_server "Loading Sparta Spark options ... "
  initSpark
+ initSparkEnvOptions
  initLocalSparkIp
  _log_sparta_server "Loaded Sparta Spark options"
 
  _log_sparta_server "Initializing Sparta Hdfs options ... "
  initHdfs
  _log_sparta_server "Initialized Sparta Hdfs options"
+
+ _log_sparta_server "Initializing Sparta datastoreTls options ... "
+ initDatastoreTls
+ _log_sparta_server "Initialized Sparta datastoreTls options"
 
  _log_sparta_server "Loading Sparta and system variables ... "
  loadVariables

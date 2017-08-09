@@ -26,7 +26,7 @@ import scala.util.Properties
  */
 object AppConstant extends ZookeeperUtils {
 
-  val version = "1.6.0"
+  val version = "1.7.2"
   val ConfigAppName = "sparta"
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
@@ -49,7 +49,7 @@ object AppConstant extends ZookeeperUtils {
   val DefaultDriverLocation = "provided"
   val PluginsPackageLocation = "pluginPackageLocation"
   val DefaultPluginsPackageLocation = "/opt/sds/sparta/plugins"
-  val DefaultFrontEndTimeout = 10000
+  val DefaultFrontEndTimeout = 20000
   val ConfigSecurity = "security"
   val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
   val DefaultAwaitPolicyChangeStatus = "360s"
@@ -82,7 +82,7 @@ object AppConstant extends ZookeeperUtils {
   val ZKConnection = "connectionString"
   val DefaultZKConnection = "127.0.0.1:2181"
   val ZKConnectionTimeout = "connectionTimeout"
-  val DefaultZKConnectionTimeout = 15000
+  val DefaultZKConnectionTimeout = 19000
   val ZKSessionTimeout = "sessionTimeout"
   val DefaultZKSessionTimeout = 60000
   val ZKRetryAttemps = "retryAttempts"

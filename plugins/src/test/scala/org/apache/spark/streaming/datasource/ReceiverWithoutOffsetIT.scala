@@ -37,6 +37,8 @@ class ReceiverWithoutOffsetIT extends TemporalDataSuite {
       s"select * from $tableName",
       initialStatements = Seq.empty[String]
     )
+    log.info(s" EVENTS COUNT : \t ${rdd.count()}")
+
     val distributedStream = DatasourceUtils.createStream(ssc, inputSentences, datasourceParams)
 
     distributedStream.start()
@@ -49,9 +51,9 @@ class ReceiverWithoutOffsetIT extends TemporalDataSuite {
         assert(streamingEvents === totalRegisters.toLong)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(20000L)
 
-    assert(totalEvents.value === totalRegisters.toLong * 10)
+    assert(totalEvents.value >= totalRegisters.toLong * 20)
   }
 }
 

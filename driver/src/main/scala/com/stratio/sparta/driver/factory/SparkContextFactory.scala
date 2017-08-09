@@ -25,7 +25,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 object SparkContextFactory extends SLF4JLogging {
 
@@ -53,7 +53,7 @@ object SparkContextFactory extends SLF4JLogging {
         if (sc.isDefined) xdSession = Option(XDSession.builder()
           .config(referenceFile)
           .config(sc.get.getConf)
-          .create("dummyUser"))
+          .create(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "dummyUser")))
         sqlInitialSentences.filter(_.nonEmpty).foreach { sentence =>
           if (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT"))
             xdSession.get.sql(sentence)
@@ -65,7 +65,7 @@ object SparkContextFactory extends SLF4JLogging {
   }
 
 
-  def sparkStreamingInstance(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
+  def sparkStreamingInstance(batchDuration: Duration, checkpointDir: Option[String], remember: Option[String]):
   Option[StreamingContext] = {
     synchronized {
       ssc match {
@@ -104,10 +104,13 @@ object SparkContextFactory extends SLF4JLogging {
 
   private[driver] def setSparkStreamingContext(createdContext: StreamingContext): Unit = ssc = Option(createdContext)
 
-  private[driver] def getNewStreamingContext(batchDuration: Duration, checkpointDir: String, remember: Option[String]):
-  StreamingContext = {
+  private[driver] def getNewStreamingContext(
+                                              batchDuration: Duration,
+                                              checkpointDir: Option[String],
+                                              remember: Option[String]
+                                            ): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
-    ssc.checkpoint(checkpointDir)
+    checkpointDir.foreach(ssc.checkpoint)
     remember.foreach(value => ssc.remember(Duration(AggregationTime.parseValueToMilliSeconds(value))))
     ssc
   }

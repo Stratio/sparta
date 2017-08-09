@@ -1,7 +1,9 @@
 {
+  "_ENABLE_CHECKPOINT_": "Enable",
   "_QUERY_": "Query",
   "_OFFSET_FILED_": "Offset field",
   "_OFFSET_OPERATOR_": "Offset operator",
+  "_OFFSETS_": "Offsets",
   "_OFFSET_VALUE_": "Offset value",
   "_OFFSET_LOCATION_": "Offset location",
   "_ZOOKEEPER_CONNECTION_": "Zookeeper connection",
@@ -72,7 +74,7 @@
   "_ACCESS_TOKEN_": "Access token",
   "_TOKEN_SECRET_": "Token secret",
   "_TERMS_OF_SEARCH_": "Search terms",
-  "_PARTITION_": "Partitions",
+  "_PARTITION_": "Partition",
   "_CONTACT_POINT_": "Contact point",
   "_KEYSPACE_": "Keyspace",
   "_CLUSTER_": "Cluster name",

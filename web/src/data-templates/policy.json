@@ -168,24 +168,24 @@
       "name" : "checkpointSettings",
       "properties": [
         {
-          "propertyId": "checkpointPath",
-          "propertyName": "_CHECKPOINT_PATH_",
-          "propertyType": "text",
-          "width": 6,
-          "default": "sparta/checkpoint",
+          "propertyId": "enableCheckpointing",
+          "propertyName": "_ENABLE_CHECKPOINT_",
+          "propertyType": "boolean",
+          "width": "auto",
+          "newRow": true,
           "required": true,
-          "tooltip": "Checkpoint path in HDFS used when launching policies in cluster mode over SparkStandAlone, Mesos or Yarn",
-          "qa": "checkpoint-path"
+          "default": true,
+          "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",
+          "qa": "workflow-enable-checkpoint"
         },
         {
           "propertyId": "autoDeleteCheckpoint",
           "propertyName": "_AUTO_DELETE_CHECKPOINT_",
           "propertyType": "boolean",
           "width": "auto",
-          "newRow": true,
           "required": true,
           "default": true,
-          "tooltip": "Auto delete checkpoint path in HDFS when running policies. Overrides the value in the configuration file",
+          "tooltip": "Only it is used when is enabled the checkpointing. Auto delete checkpoint path in HDFS when running policies",
           "qa": "workflow-delete-checkpoint"
         },
         {
@@ -193,9 +193,21 @@
           "propertyName": "_ADD_TIME_TO_CHECKPOINT_",
           "width": "auto",
           "propertyType": "boolean",
+          "required": true,
           "default": false,
-          "tooltip": "Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
+          "tooltip": "Only it is used when is enabled the checkpointing. Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
           "qa": "workflow-delete-checkpoint"
+        },
+        {
+          "propertyId": "checkpointPath",
+          "propertyName": "_CHECKPOINT_PATH_",
+          "propertyType": "text",
+          "width": 6,
+          "default": "sparta/checkpoint",
+          "newRow": true,
+          "required": false,
+          "tooltip": "Only it is used when is enabled the checkpointing. When is selected Mesos or Marathon the checkpoint path indicates one path in HDFS (sparta/checkpoint), when is selected  Local the checkpoint path indicate one local path in the machine (/tmp/sparta/checkpoint)",
+          "qa": "checkpoint-path"
         }
       ]
     },
@@ -437,7 +449,7 @@
                   "propertyId": "coresMax",
                   "propertyName": "_SPARK_CORES_MAX_",
                   "propertyType": "text",
-                  "default": "2",
+                  "default": "1",
                   "width": 4,
                   "tooltip": "Total cores by executors",
                   "qa": "workflow-spark-coresMax"
@@ -465,7 +477,7 @@
                   "propertyName": "_SPARK_DRIVER_MEMORY_",
                   "propertyType": "text",
                   "width": 4,
-                  "default": "2G",
+                  "default": "1G",
                   "tooltip": "Memory assigned to Spark Driver",
                   "qa": "workflow-spark-driverMemory"
                 },
@@ -491,7 +503,7 @@
                   "propertyName": "_SPARK_LOCALITY_WAIT_",
                   "propertyType": "text",
                   "width": 4,
-                  "default": "10s",
+                  "default": "0",
                   "tooltip": "How long to wait to launch a data-local task before giving up and launching it on a less-local node",
                   "qa": "workflow-spark-localityWait"
                 },

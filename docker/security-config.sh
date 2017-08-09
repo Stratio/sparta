@@ -16,6 +16,35 @@ if [ "$USE_DYNAMIC_AUTHENTICATION" = "true" ]; then
         _log_sparta_sec "ERROR" "login using dynamic authentication failed!"
         exit 1
     fi
+
+#   TODO prevent error in Spark
+#    if [ -v VAULT_ROLE_ID ]; then
+#      echo "" >> ${VARIABLES}
+#      echo "unset VAULT_ROLE_ID" >> ${VARIABLES}
+#      echo "" >> ${SYSTEM_VARIABLES}
+#      echo "unset VAULT_ROLE_ID" >> ${SYSTEM_VARIABLES}
+#    fi
+#
+#    if [ -v VAULT_SECRET_ID ]; then
+#      echo "unset VAULT_SECRET_ID" >> ${VARIABLES}
+#      echo "" >> ${VAULT_SECRET_ID}
+#      echo "unset VAULT_ROLE_ID" >> ${SYSTEM_VARIABLES}
+#    fi
+
+fi
+
+if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_TOKEN ] && [ ${#VAULT_TOKEN} != 0 ]; then
+  echo "" >> ${VARIABLES}
+  echo "export VAULT_TOKEN=$VAULT_TOKEN" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export VAULT_TOKEN=$VAULT_TOKEN" >> ${SYSTEM_VARIABLES}
+
+# TODO check if generate errors in Spark
+# echo "" >> ${VARIABLES}
+# echo "export VAULT_TEMP_TOKEN=$VAULT_TOKEN" >> ${VARIABLES}
+# echo "" >> ${SYSTEM_VARIABLES}
+# echo "export VAULT_TEMP_TOKEN=$VAULT_TOKEN" >> ${SYSTEM_VARIABLES}
+
 fi
 
 #Ensure security folder is created

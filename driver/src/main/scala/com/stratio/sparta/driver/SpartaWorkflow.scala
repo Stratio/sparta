@@ -51,10 +51,14 @@ class SpartaWorkflow(val workflow: WorkflowModel, val curatorFramework: CuratorF
   def streamingStages(): StreamingContext = {
     clearError()
 
-    val checkpointPolicyPath = checkpointPath(workflow)
+    val workflowCheckpointPath = {
+      if(workflow.settings.checkpointSettings.enableCheckpointing)
+        Option(checkpointPath(workflow))
+      else None
+    }
     val window = AggregationTime.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
     val ssc = sparkStreamingInstance(Duration(window),
-      checkpointPolicyPath,
+      workflowCheckpointPath,
       workflow.settings.streamingSettings.remember
     )
     val sparkSession = xdSessionInstance

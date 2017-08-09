@@ -34,7 +34,7 @@ private[datasource] trait TemporalDataSuite extends DatasourceSuite
   val tableName = "tableName"
   val datasourceParams = Map(
     StorageLevelKey -> "MEMORY_ONLY",
-    RememberDuration -> "15000"
+    RememberDuration -> "20000"
   )
   val schema = new StructType(Array(
     StructField("id", StringType, nullable = true),
