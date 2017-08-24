@@ -1,0 +1,22 @@
+[command]
+\ncreate twirl-template
+\n[name]
+\n<twirl-template-name>
+\n[content]
+\n@import com.stratio.khermes.helpers.faker.Faker
+\n@(faker: Faker)
+\n@defining(faker.TicketsCarrefour.generateTicket) { case (randomTicket) => {
+\n    "id": "@(randomTicket.id)",
+\n    "clientId": "@(randomTicket.clientId)",
+\n    "date": "@(randomTicket.date)",
+\n    "mallNumber": "@(randomTicket.mallNumber)",
+\n    "shaOne": "@(randomTicket.shaOne)",
+\n    "clubCardNumber": "@(randomTicket.clubCardNumber)",
+\n    "items": [@(randomTicket.items)],
+\n    "header": @(randomTicket.header),
+\n    "vatItems": [@(randomTicket.vatItems)],
+\n    "lines": [@(randomTicket.lines)],
+\n    "concepts": [@(randomTicket.concepts)],
+\n    "numberAuxiliaryData": "@(randomTicket.numberAuxiliaryData)",
+\n    "auxiliaryData": "@(randomTicket.auxiliaryData)"
+\n}}

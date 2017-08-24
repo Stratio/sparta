@@ -1,0 +1,18 @@
+[command]
+\ncreate generator-config
+\n[name]
+\n<generator-config-name>
+\n[content]
+\nkhermes {
+\n  templates-path = "/tmp/khermes/templates"
+\n  topic = "khermes"
+\n  template-name = "khermestemplate"
+\n  i18n = "ALL"
+\n  timeout-rules {
+\n    number-of-events: 10
+\n    duration: 5 seconds
+\n  }
+\n  stop-rules {
+\n    number-of-events: 1000
+\n  }
+\n}

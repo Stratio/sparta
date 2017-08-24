@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos;
+package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/AppValidateWokflowinDcos_KafkatoPostgres.feature"
+        "src/test/resources/features/automated/dcos/executions/AppWithoutSecurity.feature"
 
 })
-public class ISAppValidateWorkflowinDcos_KafkatoPostgres extends BaseTest {
+public class ISAppWithoutSecurity extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,7 +35,7 @@ public class ISAppValidateWorkflowinDcos_KafkatoPostgres extends BaseTest {
 
     }
 
-    public ISAppValidateWorkflowinDcos_KafkatoPostgres() {this.browser = browser;
+    public ISAppWithoutSecurity() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})

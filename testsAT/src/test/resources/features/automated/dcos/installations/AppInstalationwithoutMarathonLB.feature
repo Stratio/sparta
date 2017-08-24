@@ -28,7 +28,7 @@ Feature: [SPARTA][DCOS]Instalation sparta without security without MarathonLB
 
     When I send a 'DELETE' request to '/policy/!{previousWorkflowID}'
     Then the service response status must be '200'
-
+  @ignore @manual
   Scenario: Remove workflow Sparta
     When  I run 'dcos marathon app remove /sparta/sparta-auto' in the ssh connection
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-auto | grep R | wc -l' contains '0'

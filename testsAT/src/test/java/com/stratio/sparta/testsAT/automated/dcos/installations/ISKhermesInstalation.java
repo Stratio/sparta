@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos;
+package com.stratio.sparta.testsAT.automated.dcos.installations;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/AppGenerateWorkflowinDcos_KafkatoElastic.feature"
+        "src/test/resources/features/automated/dcos/installations/KhermesInstalation.feature"
 
 })
-public class ISAppGenerateWorkflowinDcos_KafkatoElastic extends BaseTest {
+public class ISKhermesInstalation extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,7 +35,7 @@ public class ISAppGenerateWorkflowinDcos_KafkatoElastic extends BaseTest {
 
     }
 
-    public ISAppGenerateWorkflowinDcos_KafkatoElastic() {this.browser = browser;
+    public ISKhermesInstalation() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})

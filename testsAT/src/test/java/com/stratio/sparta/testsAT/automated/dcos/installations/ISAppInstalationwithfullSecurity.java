@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos;
+package com.stratio.sparta.testsAT.automated.dcos.installations;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
@@ -22,14 +22,25 @@ import cucumber.api.CucumberOptions;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = { "src/test/resources/features/automated/dcos/InstallPostgres.feature" })
-public class ISInstallPostgres extends BaseTest {
 
-    public ISInstallPostgres() {
+@CucumberOptions(features = {
+        "src/test/resources/features/automated/dcos/installations/AppInstalationwithfullSecurity.feature"
+
+})
+public class ISAppInstalationwithfullSecurity extends BaseTest {
+
+    @BeforeClass(groups = {"sparta_eos"})
+    public void setUp() {
+        ThreadProperty.set("Driver", "inst");
+
+    }
+
+    public ISAppInstalationwithfullSecurity() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})
-    public void installation() throws Exception {
+    public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

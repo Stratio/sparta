@@ -1,0 +1,22 @@
+[command]
+\ncreate twirl-template
+\n[name]
+\n<twirl-template-name>
+\n[content]
+\n@import scala.util.Random
+\n@import com.stratio.khermes.helpers.faker.generators.Positive
+\n@import com.stratio.khermes.helpers.faker.Faker
+\n@(faker: Faker)
+\n@defining(faker.TicketsStratio.generateTicket) { case (randomTicket) => {
+\n    "id": "@(randomTicket.id)",
+\n    "idSale": "@(randomTicket.idSale)",
+\n    "dateFlat": @(randomTicket.dateFlat),
+\n    "date": "@(randomTicket.date)",
+\n    "cashier": "@(randomTicket.cashier)",
+\n    "clientId": "@(randomTicket.clientId)",
+\n    "clientName": "@(randomTicket.clientName)",
+\n    "storeId": "@(faker.Number.number(3,Positive))",
+\n    "totalSale": @(randomTicket.totalSale),
+\n    "lines": [@(randomTicket.lines)],
+\n    "pays": [@(randomTicket.pays)]
+\n}}

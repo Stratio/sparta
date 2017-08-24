@@ -1,0 +1,17 @@
+[command]
+\ncreate kafka-config
+\n[name]
+\n<kafka-config-name>
+\n[content]
+\nkafka {
+\n    bootstrap.servers = "<bootstrap-servers>"
+\n    key.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+\n    value.serializer = "org.apache.kafka.common.serialization.StringSerializer"
+\n    ssl.keystore.location=/vault_secrets/kafka-keystore.jks
+\n    ssl.keystore.password=<keystore-password>
+\n    ssl.key.password=<key-password>
+\n    ssl.truststore.location=/vault_secrets/kafka-truststore.jks
+\n    ssl.truststore.password=<truststore-password>
+\n    ssl.client.auth=required
+\n    security.protocol=SSL
+\n}

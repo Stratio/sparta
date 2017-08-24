@@ -1,0 +1,13 @@
+[command]
+\nstart
+\n[twirl-template]
+\n<twirl-template-name>
+\n[kafka-config]
+\n<kafka-config-name>
+\n[generator-config]
+\n<generator-config-name>
+\n[avro-config]
+\n
+\n[node-ids]
+\n<node-id>
+

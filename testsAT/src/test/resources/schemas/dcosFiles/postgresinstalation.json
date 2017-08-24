@@ -1,40 +1,47 @@
 {
-  "id": "",
+  "id": "/postgressec",
+  "volumes": null,
   "cmd": null,
   "args": null,
   "user": null,
   "env": {
-    "POSTGRES_TYPE": "postgresql",
-    "POSTGRES_MESOS_PRINCIPAL": "",
-    "DISABLE_DYNAMIC_RESERVATION": "",
-    "DISABLE_ZOOKEEPER_SEC": "",
-    "POSTGRES_MESOS_ROLE": "",
-    "REALM": "",
-    "POSTGRES_ZOOKEEPER": "",
-    "POSTGRES_CPU": "",
-    "KADMIN_HOST": "",
-    "VAULT_TOKEN": "",
-    "POSTGRES_MESOS_MASTER": "",
-    "POSTGRES_DATA_DISK_TYPE": "ROOT",
-    "POSTGRES_DATA_DISK": "256",
-    "POSTGRES_MEMORY": "512",
-    "POSTGRES_INSTANCES": "1",
-    "TENANT_NAME": "",
-    "VAULT_PORT": "",
-    "ENABLE_MESOS_SEC": "",
-    "VAULT_HOSTS": "",
-    "KDC_HOST": "",
-    "POSTGRES_DOCKER_IMAGE": "",
-    "POSTGRES_SERVICE_NAME": "",
-    "ENABLE_MARATHON_SEC": "",
-    "POSTGRES_DOCKER_IMAGE_FORCE_PULL": "true",
-    "POSTGRES_LAUNCH_RETRIES" : "5",
-    "POSTGRES_RETRY_DELAY_SECONDS" : "5",
-    "POSTGRES_EXTRA_CONFIG": "",
+    "ENABLE_POSTGRES_CERT_SECURITY": "true",
+    "POSTGRES_SERVICE_USER": "serviceuser",
+    "DISABLE_ZOOKEEPER_SEC": "true",
+    "FRAMEWORK_MESOS_MASTER": "master.mesos:2181",
+    "CONSUL_ADDRESS": "leader.mesos",
+    "POSTGRES_MESOS_ROLE": "postgressec",
+    "POSTGRES_ZOOKEEPER": "master.mesos:2181",
+    "ISOLATION_NETWORK_NAME": "psql",
+    "POSTGRES_CPU": "1",
     "POSTGRES_INDEX_DISK": "256",
+    "DNS_DOMAIN": "paas.labs.stratio.com",
+    "POSTGRES_DATA_DISK_TYPE": "ROOT",
+    "ENABLE_HIGH_AVAILABILITY": "true",
+    "POSTGRES_DATA_DISK": "256",
+    "POSTGRES_MEMORY": "1024",
+    "POSTGRES_INSTANCES": "1",
+    "TENANT_NAME": "postgressec",
+    "VAULT_PORT": "8200",
+    "FRAMEWORK_TYPE": "postgresql",
+    "ENABLE_MESOS_SEC": "true",
+    "FRAMEWORK_MESOS_PRINCIPAL": "postgres",
+    "POSTGRES_CERT_AUTH_CA_NAME": "stratio",
+    "approle": {
+      "secret": "role"
+    },
+    "POSTGRES_WAL_DISK_TYPE": "ROOT",
+    "POSTGRES_RETRY_DELAY_SECONDS": "5",
+    "VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
+    "POSTGRES_WAL_DISK": "256",
+    "ZONES_NUMBER": "1",
+    "POSTGRES_LAUNCH_RETRIES": "5",
+    "ZONE_TAG": "availability-zone",
+    "POSTGRES_DOCKER_IMAGE": "qa.stratio.com/stratio/postgresql-community:0.11.0",
+    "POSTGRES_SERVICE_NAME": "postgressec",
+    "ENABLE_MARATHON_SEC": "true",
     "POSTGRES_INDEX_DISK_TYPE": "ROOT",
-    "ENABLE_POSTGRES_MD5_SECURITY": "true",
-    "ENABLE_HIGH_AVAILABILITY": "true"
+    "POSTGRES_DOCKER_IMAGE_FORCE_PULL": "true"
   },
   "instances": 1,
   "cpus": 1,
@@ -42,6 +49,7 @@
   "disk": 0,
   "gpus": 0,
   "executor": null,
+  "constraints": null,
   "fetch": null,
   "storeUrls": null,
   "backoffSeconds": 1,
@@ -49,59 +57,59 @@
   "maxLaunchDelaySeconds": 3600,
   "container": {
     "docker": {
-      "image": "",
+      "image": "qa.stratio.com/stratio/postgres-bigdata-framework:0.19.2",
       "forcePullImage": true,
       "privileged": false,
-      "network": "HOST"
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp",
+          "name": "api",
+          "servicePort": 10101
+        }
+      ],
+      "network": "USER"
     }
   },
-  "healthChecks": null,
+  "healthChecks": [
+    {
+      "protocol": "HTTP",
+      "path": "/v1/service/health",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "ignoreHttp1xx": false
+    }
+  ],
   "readinessChecks": null,
   "dependencies": null,
   "upgradeStrategy": {
     "minimumHealthCapacity": 0,
     "maximumOverCapacity": 0
   },
-  "ipAddress": null,
   "labels": {
     "DCOS_PACKAGE_RELEASE": "0",
-    "DCOS_PACKAGE_SOURCE": "",
-    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiMi4wIiwibmFtZSI6IlN0cmF0aW8tQ29tbXVuaXR5LVBvc3RncmVzIiwidmVyc2lvbiI6InN0dWItdW5pdmVyc2UiLCJtYWludGFpbmVyIjoicG9zdGdyZXMtYmlnZGF0YUBzdGF0aW8uY29tIiwiZGVzY3JpcHRpb24iOiJTdHJhdGlvIFBvc3RncmVzIENvbW11bml0eSIsInRhZ3MiOlsic3RyYXRpbyIsImZyYW1ld29yayIsInBvc3RncmVzcWwiXSwic2VsZWN0ZWQiOnRydWUsInNjbSI6Imh0dHBzOi8vZ2l0aHViLmNvbS9wb3N0Z3Jlcy9wb3N0Z3JlcyIsIndlYnNpdGUiOiJodHRwczovL2dpdGh1Yi5jb20vcG9zdGdyZXMvcG9zdGdyZXMiLCJmcmFtZXdvcmsiOnRydWUsInBvc3RJbnN0YWxsTm90ZXMiOiJFbmpveSEhISEiLCJpbWFnZXMiOnsiaWNvbi1zbWFsbCI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyIsImljb24tbWVkaXVtIjoiaHR0cDovL2Fzc2V0cy5zdHJhdGlvLmNvbS9sb2dvcy9sb2dvX3N0cmF0aW9fdW5pdmVyc2UucG5nIiwiaWNvbi1sYXJnZSI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyJ9fQ==",
+    "DCOS_SERVICE_SCHEME": "http",
     "DCOS_PACKAGE_REGISTRY_VERSION": "2.0",
-    "DCOS_PACKAGE_FRAMEWORK_NAME": "",
-    "DCOS_PACKAGE_VERSION": "stub-universe",
+    "DCOS_SERVICE_NAME": "postgressec",
+    "DCOS_PACKAGE_FRAMEWORK_NAME": "postgressec",
+    "DCOS_SERVICE_PORT_INDEX": "0",
+    "DCOS_PACKAGE_VERSION": "0.19.2",
+    "DCOS_MIGRATION_API_PATH": "/v1/plan",
     "DCOS_PACKAGE_NAME": "Stratio-Community-Postgres",
     "MARATHON_SINGLE_INSTANCE_APP": "true",
-    "DCOS_PACKAGE_IS_FRAMEWORK": "true"
+    "DCOS_PACKAGE_IS_FRAMEWORK": "true",
+    "DCOS_MIGRATION_API_VERSION": "v1"
+  },
+  "acceptedResourceRoles": null,
+  "ipAddress": {
+    "networkName": "psql"
   },
   "residency": null,
-  "secrets": null,
-  "taskKillGracePeriodSeconds": null,
-  "portDefinitions": [
-    {
-      "protocol": "tcp",
-      "port": 0,
-      "name": "api"
+  "secrets": {
+    "role": {
+      "source": "postgres"
     }
-  ],
-  "requirePorts": true,
-  "constraints": [
-    [
-      "label",
-      "CLUSTER",
-      "all"
-    ]
-  ],
-  "acceptedResourceRoles": [
-    "slave_public"
-  ],
-  "healthChecks": [{
-    "protocol": "HTTP",
-    "path": "/v1/service/health",
-    "gracePeriodSeconds": 300,
-    "intervalSeconds": 60,
-    "timeoutSeconds": 20,
-    "maxConsecutiveFailures": 3,
-    "ignoreHttp1xx": false
-  }]
+  },
+  "taskKillGracePeriodSeconds": null
 }

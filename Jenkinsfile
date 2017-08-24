@@ -46,4 +46,18 @@ hose {
         }, failFast: config.FAILFAST)
 
     }
+
+    INSTALLSERVICES = [
+       ['CHROME': [
+       'image': 'stratio/selenium-chrome:48',
+           'volumes': [
+         '/dev/shm:/dev/shm'],
+           'env': [
+         'SELENIUM_GRID=selenium.cd','ID=%%JUID']]]
+
+    ]
+
+    INSTALL = { config ->
+        doAT(conf: config, groups: ['streaming'])
+     }
 }

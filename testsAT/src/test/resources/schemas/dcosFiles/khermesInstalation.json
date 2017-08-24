@@ -1,0 +1,84 @@
+{
+  "volumes": null,
+  "id": "/khermes",
+  "cmd": "./docker-entrypoint.sh",
+  "args": null,
+  "user": null,
+  "env": {
+    "SEED": "true",
+    "VAULT_ROLE_ID": "",
+    "VAULT_TOKEN": "f9c1fb97-5cee-10fe-3054-acb93f94df07",
+    "SEED_PORT": "",
+    "SEED_IP": "",
+    "VAULT_SECRET_ID": "",
+    "VAULT_PORT": "8200",
+    "KAFKA_BROKER_INSTANCE_NAME": "broker-0-confluent-kafka-sec",
+    "DOWNLOAD_KAFKA_SECRETS": "true",
+    "KAFKA_BROKER_PRINCIPAL": "broker-0-confluent-kafka-sec",
+    "DCOS": "true",
+    "VAULT_HOSTS": "10.200.0.28",
+    "PORT0": "2551"
+  },
+  "instances": 1,
+  "cpus": 1,
+  "mem": 1024,
+  "disk": 0,
+  "gpus": 0,
+  "executor": null,
+  "constraints": [
+    [
+      "hostname",
+      "UNIQUE"
+    ]
+  ],
+  "fetch": null,
+  "storeUrls": null,
+  "backoffSeconds": 1,
+  "backoffFactor": 1.15,
+  "maxLaunchDelaySeconds": 3600,
+  "container": {
+    "docker": {
+      "image": "aalfonso/khermes:0.2.0-SNAPSHOT",
+      "forcePullImage": false,
+      "privileged": false,
+      "parameters": [
+        {
+          "key": "hostname",
+          "value": "khermes"
+        },
+        {
+          "key": "publish",
+          "value": "2551:2551"
+        }
+      ],
+      "network": "HOST"
+    }
+  },
+  "healthChecks": null,
+  "readinessChecks": null,
+  "dependencies": null,
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 1,
+    "maximumOverCapacity": 1
+  },
+  "labels": {
+    "DCOS_PACKAGE_RELEASE": "2",
+    "DCOS_PACKAGE_SOURCE": "http://172.19.1.245:8080/repo",
+    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiMi4wIiwibmFtZSI6ImtoZXJtZXMiLCJ2ZXJzaW9uIjoiMC40LjAiLCJtYWludGFpbmVyIjoicGFhc0BzdHJhdGlvLmNvbSIsImRlc2NyaXB0aW9uIjoiQSBkaXN0cmlidXRlZCBmYWtlIGRhdGEgZ2VuZXJhdG9yIGJhc2VkIGluIEFra2EuIiwidGFncyI6WyJraGVybWVzIl0sInNlbGVjdGVkIjp0cnVlLCJmcmFtZXdvcmsiOmZhbHNlLCJwb3N0SW5zdGFsbE5vdGVzIjoiU3RyYXRpbyBLaGVybWVzIGhhcyBiZWVuIHN1Y2Nlc3NmdWxseSBpbnN0YWxsZWQhIiwicG9zdFVuaW5zdGFsbE5vdGVzIjoiU3RyYXRpbyBLaGVybWVzIGhhcyBiZWVuIHN1Y2Nlc3NmdWxseSB1bmluc3RhbGxlZCEiLCJpbWFnZXMiOnsiaWNvbi1zbWFsbCI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyIsImljb24tbWVkaXVtIjoiaHR0cDovL2Fzc2V0cy5zdHJhdGlvLmNvbS9sb2dvcy9sb2dvX3N0cmF0aW9fdW5pdmVyc2UucG5nIiwiaWNvbi1sYXJnZSI6Imh0dHA6Ly9hc3NldHMuc3RyYXRpby5jb20vbG9nb3MvbG9nb19zdHJhdGlvX3VuaXZlcnNlLnBuZyJ9fQ==",
+    "DCOS_PACKAGE_REGISTRY_VERSION": "2.0",
+    "DCOS_PACKAGE_VERSION": "0.4.0",
+    "DCOS_PACKAGE_NAME": "khermes",
+    "DCOS_PACKAGE_IS_FRAMEWORK": "false"
+  },
+  "acceptedResourceRoles": null,
+  "residency": null,
+  "secrets": null,
+  "taskKillGracePeriodSeconds": null,
+  "portDefinitions": [
+    {
+      "protocol": "tcp",
+      "port": 2551
+    }
+  ],
+  "requirePorts": true
+}
