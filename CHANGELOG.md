@@ -4,6 +4,12 @@
 
 * Pending changelog
 
+## 1.7.3 (August 18, 2017)
+
+* Marathon SSO secrets
+* Bugfix: deployment with vault token
+* Bugfix: Spark UI enabled by default with the port 4040 into Crossdata Service
+
 ## 1.7.2 (August 07, 2017)
 
 * Crossdata service options running over Mesos

@@ -121,3 +121,12 @@ if [ -v SECURITY_MESOS_ENABLE ] && [ ${#SECURITY_MESOS_ENABLE} != 0 ] && [ $SECU
  source mesos-security.sh
  _log_sparta_sec "Configuring Mesos Security Ok"
 fi
+
+#######################################################
+## MarathonSecurity config set MARATHON_SSO_USERNAME and MARATHON_SSO_PASSWORD
+#######################################################
+if [ -v SECURITY_MARATHON_ENABLED ] && [ ${#SECURITY_MARATHON_ENABLED} != 0 ] && [ $SECURITY_MARATHON_ENABLED == "true" ]; then
+ _log_sparta_sec "Configuring Marathon Security ..."
+ source marathon-sso-security.sh
+ _log_sparta_sec "Configuring Marathon Security Ok"
+fi

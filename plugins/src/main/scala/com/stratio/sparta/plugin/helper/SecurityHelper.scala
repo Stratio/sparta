@@ -64,10 +64,8 @@ object SecurityHelper {
             if (vaultToken.isDefined && !useDynamicAuthentication) {
               val tempToken = getTemporalToken(SecurityHelper.getVaultUri(host, port), vaultToken.get)
               Seq(
-                 ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken),
-                //TODO check if it's necessary
-                //("spark.executorEnv.VAULT_TEMP_TOKEN", tempToken),
-                ("spark.secret.vault.tempToken", tempToken)
+                ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken)
+                //("spark.secret.vault.tempToken", tempToken)
               )
             } else Seq.empty[(String, String)]
           }
@@ -132,9 +130,13 @@ object SecurityHelper {
             ("spark.secret.vault.protocol", "https")
           ) ++ {
             val vaultUri = getVaultUri(host, port)
-            if (vaultToken.isDefined && !useDynamicAuthentication)
-              Seq(("spark.secret.vault.tempToken", getTemporalToken(vaultUri, vaultToken.get)))
-            else if (vaultRole.isDefined && useDynamicAuthentication &&
+            if (vaultToken.isDefined && !useDynamicAuthentication) {
+              val tempToken = getTemporalToken(vaultUri, vaultToken.get)
+              Seq(
+                ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken)
+                //("spark.secret.vault.tempToken", tempToken)
+              )
+            } else if (vaultRole.isDefined && useDynamicAuthentication &&
               (vaultToken.isDefined || (vaultRoleId.isDefined && vaultSecretId.isDefined)))
               Seq(
                 ("spark.secret.roleID", getRoleIdFromVault(vaultUri, vaultRole.get)),

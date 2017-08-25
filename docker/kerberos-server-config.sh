@@ -17,7 +17,6 @@ echo "Setting configuration options needed for securized Zookeeper"
 
 ##In sparta keytab is expected in SPARTA_KEYTAB_PATH
 export SPARTA_KEYTAB_PATH=/etc/sds/sparta/security/$TENANT_NAME.keytab
-echo "" >> ${VARIABLES}
 echo "export SPARTA_KEYTAB_PATH=${SPARTA_KEYTAB_PATH}" >> ${VARIABLES}
 
 ## Creating a jaas.conf that must be used to connect to Zookeeper if Zookeeper is securized
@@ -34,7 +33,6 @@ Client {
 EOF
 
 export SPARTA_JAAS_FILE=/etc/sds/sparta/security/jaas.conf
-echo "" >> ${VARIABLES}
 echo "export SPARTA_JAAS_FILE=${SPARTA_JAAS_FILE}" >> ${VARIABLES}
 
 sed -i "s#<__PRINCIPAL__>#$SPARTA_PRINCIPAL_NAME#" $SPARTA_JAAS_FILE\

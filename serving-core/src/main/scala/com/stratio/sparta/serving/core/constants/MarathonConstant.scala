@@ -66,6 +66,7 @@ object MarathonConstant {
   val SecurityKerberosEnv = "SECURITY_KRB_ENABLE"
   val SecurityOauth2Env = "SECURITY_OAUTH2_ENABLE"
   val SecurityMesosEnv = "SECURITY_MESOS_ENABLE"
+  val SecurityMarathonEnv = "SECURITY_MARATHON_ENABLE"
   val CrossdataCoreCatalogClass = "CROSSDATA_CORE_CATALOG_CLASS"
   val CrossdataCoreCatalogPrefix = "CROSSDATA_CORE_CATALOG_PREFIX"
   val CrossdataCoreCatalogZookeeperConnectionString = "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONSTRING"

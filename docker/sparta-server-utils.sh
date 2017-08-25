@@ -213,7 +213,7 @@ function configOptions() {
  sed -i "s|.*sparta.config.backupsLocation.*|sparta.config.backupsLocation = \""${SPARTA_BACKUP_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_AWAIT_POLICY_CHANGE_STATUS ]]; then
-   SPARTA_AWAIT_POLICY_CHANGE_STATUS=180s
+   SPARTA_AWAIT_POLICY_CHANGE_STATUS=320s
  fi
  sed -i "s|.*sparta.config.awaitPolicyChangeStatus.*|sparta.config.awaitPolicyChangeStatus = ${SPARTA_AWAIT_POLICY_CHANGE_STATUS}|" ${SPARTA_CONF_FILE}
 
@@ -262,7 +262,7 @@ function marathonOptions() {
  sed -i "s|.*sparta.marathon.docker.privileged.*|sparta.marathon.docker.privileged = ${SPARTA_MARATHON_PRIVILEGED}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_MARATHON_GRACEPERIODS_SECONDS ]]; then
-   SPARTA_MARATHON_GRACEPERIODS_SECONDS=180
+   SPARTA_MARATHON_GRACEPERIODS_SECONDS=240
  fi
  sed -i "s|.*sparta.marathon.gracePeriodSeconds.*|sparta.marathon.gracePeriodSeconds = ${SPARTA_MARATHON_GRACEPERIODS_SECONDS}|" ${SPARTA_CONF_FILE}
 
