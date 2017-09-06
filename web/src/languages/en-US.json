@@ -1,4 +1,10 @@
 {
+  "_EVENT_TYPE_": "Event type",
+  "_MAX_NUMBER_": "Max number",
+  "_EVENT_": "Event",
+  "_RECEIVER_TYPE_": "Receiver type",
+  "_NUMBER_EVENTS_": "Number of events",
+  "_SPARK_DATASTORE_TLS_ENABLE_": "DataStore TLS",
   "_ENABLE_CHECKPOINT_": "Enable",
   "_QUERY_": "Query",
   "_OFFSET_FILED_": "Offset field",

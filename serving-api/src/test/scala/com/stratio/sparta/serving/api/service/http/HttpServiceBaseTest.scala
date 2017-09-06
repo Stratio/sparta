@@ -80,7 +80,7 @@ trait HttpServiceBaseTest extends WordSpec
       GlobalSettings(),
       CheckpointSettings("test/test"),
       StreamingSettings(),
-      SparkSettings("local[*]", false, Option("/opt/spark/dist"), None, None, SubmitArguments(),
+      SparkSettings("local[*]", false, false, Option("/opt/spark/dist"), None, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
     val workflow = Workflow(

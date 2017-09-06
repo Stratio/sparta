@@ -20,6 +20,7 @@ import com.stratio.sparta.plugin.workflow.input.kafka.models.TopicsModel
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import java.io.{Serializable => JSerializable}
+import org.apache.spark.SparkConf
 import org.json4s.jackson.Serialization._
 import org.json4s.{DefaultFormats, Formats}
 
@@ -79,5 +80,39 @@ trait KafkaBase {
     if (topicsModel.topics.isEmpty)
       throw new IllegalStateException(s"At least one topic must be defined")
     else topicsModel
+  }
+
+  def securityOptions(sparkConf: Map[String, String]): Map[String, AnyRef] = {
+    val prefixKafka = "spark.ssl.kafka."
+    if (sparkConf.get(prefixKafka + "enabled").isDefined && sparkConf(prefixKafka + "enabled") == "true") {
+      val configKafka = sparkConf.flatMap { case(key, value) =>
+        if(key.startsWith(prefixKafka))
+          Option(key.replace(prefixKafka, "") -> value)
+        else None
+      }
+
+      Map("security.protocol" -> "SSL",
+        "ssl.key.password" -> configKafka("keyPassword"),
+        "ssl.keystore.location" -> configKafka("keyStore"),
+        "ssl.keystore.password" -> configKafka("keyStorePassword"),
+        "ssl.truststore.location" -> configKafka("trustStore"),
+        "ssl.truststore.password" -> configKafka("trustStorePassword"))
+    } else {
+      Map("nofunciona" -> "true")
+    }
+  }
+
+  def securityOptions(sparkConf: SparkConf): Map[String, AnyRef] = {
+    val prefixKafka = "spark.ssl.kafka."
+    if (sparkConf.getOption(prefixKafka + "enabled").isDefined && sparkConf.get(prefixKafka + "enabled") == "true") {
+      val configKafka = sparkConf.getAllWithPrefix(prefixKafka).toMap
+
+      Map("security.protocol" -> "SSL",
+        "ssl.key.password" -> configKafka("keyPassword"),
+        "ssl.keystore.location" -> configKafka("keyStore"),
+        "ssl.keystore.password" -> configKafka("keyStorePassword"),
+        "ssl.truststore.location" -> configKafka("trustStore"),
+        "ssl.truststore.password" -> configKafka("trustStorePassword"))
+    } else Map.empty[String, AnyRef]
   }
 }

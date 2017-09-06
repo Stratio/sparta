@@ -38,6 +38,7 @@ case class StreamingSettings(window: String = "6s",
 
 case class SparkSettings(master: String = "mesos://leader.mesos:5050",
                          sparkKerberos: Boolean = false,
+                         sparkDataStoreTls: Boolean = false,
                          sparkHome: Option[String] = Option("/opt/spark/dist"),
                          killUrl: Option[String] = None,
                          sparkUser: Option[String] = None,

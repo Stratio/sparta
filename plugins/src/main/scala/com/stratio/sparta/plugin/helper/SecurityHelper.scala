@@ -39,23 +39,22 @@ object SecurityHelper {
       val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
         .notBlank
         .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
-      val caName = configuration.getString("caName", None).notBlank
 
-      (vaultHost, vaultPort, caName, appName) match {
-        case (Some(host), Some(port), Some(ca), Some(name)) =>
+      (vaultHost, vaultPort, appName) match {
+        case (Some(host), Some(port), Some(name)) =>
           Seq(
             ("spark.mesos.driverEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
             ("spark.mesos.driverEnv.VAULT_HOST", host),
             ("spark.mesos.driverEnv.VAULT_PORT", port),
             ("spark.mesos.driverEnv.VAULT_PROTOCOL", "https"),
             ("spark.mesos.driverEnv.APP_NAME", name),
-            ("spark.mesos.driverEnv.CA_NAME", ca),
+            ("spark.mesos.driverEnv.CA_NAME", "ca"),
             ("spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
             ("spark.executorEnv.VAULT_HOST", host),
             ("spark.executorEnv.VAULT_PORT", port),
             ("spark.executorEnv.VAULT_PROTOCOL", "https"),
             ("spark.executorEnv.APP_NAME", name),
-            ("spark.executorEnv.CA_NAME", ca),
+            ("spark.executorEnv.CA_NAME", "ca"),
             ("spark.secret.vault.host", host),
             ("spark.secret.vault.hosts", host),
             ("spark.secret.vault.port", port),

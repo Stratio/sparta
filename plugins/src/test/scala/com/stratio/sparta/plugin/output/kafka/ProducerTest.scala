@@ -92,7 +92,8 @@ class ProducerTest extends TemporalSparkContext with Matchers {
   "extractOptions" should "create a correct properties file" in {
     val kafkatest = new KafkaOutput("kafka", sparkSession, mandatoryOptions)
 
-    val options: Properties = kafkatest.createProducerProps(Map.empty)
+    val options: Properties = KafkaOutput.createProducerProps(kafkatest.properties,
+      kafkatest.mandatoryOptions ++ kafkatest.getCustomProperties )
     options.size shouldBe 5
     options.get("bootstrap.servers") shouldBe "localhost:9092"
     options.get("key.serializer") shouldBe "org.apache.kafka.common.serialization.StringSerializer"
@@ -104,8 +105,10 @@ class ProducerTest extends TemporalSparkContext with Matchers {
   "createProducer" should "return a valid KafkaProducer" in {
     val kafkatest = new KafkaOutput("kafka", sparkSession, mandatoryOptions)
 
-    val options = kafkatest.createProducerProps(Map.empty)
-    val createProducer = Try(KafkaOutput.getProducer("key", options))
+    val securityProperties: Map[String, AnyRef] = Map.empty
+    val options: Map[String, String] = Map.empty
+    val createProducer = Try(KafkaOutput.getProducer("key", kafkatest.properties, securityProperties,
+      kafkatest.mandatoryOptions ++ kafkatest.getCustomProperties))
 
     createProducer match {
       case Success(some) => log.info("Test OK!")

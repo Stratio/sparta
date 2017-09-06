@@ -67,16 +67,16 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
           .collect()
           .map(row => row.schema.fields.zipWithIndex.map { case (field, index) => field.name -> row.get(index) }.toMap)
       else throw new IllegalArgumentException("Invalid query, the supported queries are: CREATE TABLE ... , " +
-        "CREATE TEMPORARY TABLE ..., DROP TEMPORARY TABLE ..., IMPORT TABLES ..., SELECT ..., IMPORT TABLES ...," +
-        "CREATE EXTERNAL TABLE ..., SHOW ..., DESCRIBE ... and IMPORT ...")
+        "CREATE TEMPORARY TABLE ..., DROP TABLE ..., TRUNCATE TABLE...,IMPORT TABLES ..., SELECT ..., " +
+        "IMPORT TABLES ...," + "CREATE EXTERNAL TABLE ..., SHOW ..., DESCRIBE ... and IMPORT ...")
     }
 
   private def validateQuery(query: String): Boolean = {
     val upperQuery = query.toUpperCase
 
-    upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP TEMPORARY TABLE") ||
+    upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP") ||  upperQuery.startsWith("TRUNCATE") ||
       upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE") ||
-      upperQuery.startsWith("IMPORT")
+      upperQuery.startsWith("IMPORT") || upperQuery.startsWith("ALTER")
   }
 }
 

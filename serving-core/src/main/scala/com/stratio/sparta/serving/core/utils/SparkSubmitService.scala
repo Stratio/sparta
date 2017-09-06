@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.utils
 
 import java.io.File
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
@@ -27,6 +28,7 @@ import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.typesafe.config.Config
+import org.apache.spark.security.VaultHelper._
 
 import scala.collection.JavaConversions._
 import scala.util.{Properties, Try}
@@ -93,8 +95,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
     (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
-      addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(addMesosSecurityConf(addPluginsFilesToConf(
-        sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles)))))))
+      addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(addMesosSecurityConf(
+        addPluginsFilesToConf(sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles))))))))
   }
 
   def userPluginsJars: Seq[String] = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.trim)
@@ -111,6 +113,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory,
       SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
+      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
       SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
       SubmitBlockIntervalConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.blockInterval,
       SubmitConcurrentJobsConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.concurrentJobs,
@@ -229,6 +232,58 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val sparkConfsReflection = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
 
     sparkConfs ++ sparkConfsReflection
+  }
+
+  private[sparta] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+    val tlsEnable = workflow.settings.sparkSettings.sparkDataStoreTls
+    val tlsOptions = {
+      if (tlsEnable) {
+        val useDynamicAuthentication = Try {
+          scala.util.Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
+        }.getOrElse(false)
+        val vaultHost = scala.util.Properties.envOrNone("VAULT_HOSTS").notBlank
+        val vaultPort = scala.util.Properties.envOrNone("VAULT_PORT").notBlank
+        val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN").notBlank
+        val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+          .notBlank
+          .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
+
+        (vaultHost, vaultPort, appName) match {
+          case (Some(host), Some(port), Some(name)) =>
+            Seq(
+              ("spark.mesos.driverEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
+              ("spark.mesos.driverEnv.VAULT_HOST", host),
+              ("spark.mesos.driverEnv.VAULT_PORT", port),
+              ("spark.mesos.driverEnv.VAULT_PROTOCOL", "https"),
+              ("spark.mesos.driverEnv.APP_NAME", name),
+              ("spark.mesos.driverEnv.CA_NAME", "ca"),
+              ("spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
+              ("spark.executorEnv.VAULT_HOST", host),
+              ("spark.executorEnv.VAULT_PORT", port),
+              ("spark.executorEnv.VAULT_PROTOCOL", "https"),
+              ("spark.executorEnv.APP_NAME", name),
+              ("spark.executorEnv.CA_NAME", "ca"),
+              ("spark.secret.vault.host", host),
+              ("spark.secret.vault.hosts", host),
+              ("spark.secret.vault.port", port),
+              ("spark.secret.vault.protocol", "https")
+            ) ++ {
+              if (vaultToken.isDefined && !useDynamicAuthentication) {
+                val tempToken = getTemporalToken(s"https://$host:$port", vaultToken.get)
+                Seq(
+                  ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken)
+                  //("spark.secret.vault.tempToken", tempToken)
+                )
+              } else Seq.empty[(String, String)]
+            }
+          case _ =>
+            log.warn("TLS is enabled but the properties are wrong")
+            Seq.empty[(String, String)]
+        }
+      } else Seq.empty[(String, String)]
+    }.toMap
+
+    sparkConfs ++ tlsOptions
   }
 
   private[sparta] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] = {

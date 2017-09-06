@@ -15,24 +15,6 @@
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
-      },
-      {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "width": 6,
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
       }
     ]
   },
@@ -620,24 +602,6 @@
         "qa": "fragment-details-postgres-tls"
       },
       {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "width": 6,
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
-      },
-      {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",
         "propertyType": "list",
@@ -740,24 +704,6 @@
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
-      },
-      {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "width": 6,
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
       },
       {
         "propertyId": "postgresSaveMode",

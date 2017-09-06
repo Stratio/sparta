@@ -204,20 +204,6 @@ class KafkaInputStep(
 
     Map(partitionStrategyKey -> strategy)
   }
-
-  def securityOptions(sparkConf: SparkConf): Map[String, AnyRef] = {
-    val prefixKafka = "spark.ssl.kafka."
-    if (sparkConf.getOption(prefixKafka + "enabled").isDefined && sparkConf.get(prefixKafka + "enabled") == "true") {
-      val configKafka = sparkConf.getAllWithPrefix(prefixKafka).toMap
-
-      Map("security.protocol" -> "SSL",
-        "ssl.key.password" -> configKafka("keyPassword"),
-        "ssl.keystore.location" -> configKafka("keyStore"),
-        "ssl.keystore.password" -> configKafka("keyStorePassword"),
-        "ssl.truststore.location" -> configKafka("trustStore"),
-        "ssl.truststore.password" -> configKafka("trustStorePassword"))
-    } else Map.empty[String, AnyRef]
-  }
 }
 
 object KafkaInputStep {

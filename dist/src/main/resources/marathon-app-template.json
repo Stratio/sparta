@@ -20,12 +20,14 @@
   "env": {},
   "healthChecks": [
     {
-      "protocol": "TCP",
+      "protocol": "HTTP",
+      "path":"/environment",
       "portIndex": 0,
       "gracePeriodSeconds": 240,
       "intervalSeconds": 60,
-      "timeoutSeconds": 20,
-      "maxConsecutiveFailures": 3
+      "timeoutSeconds": 30,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx" : false
     }
   ],
   "labels": {

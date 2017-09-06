@@ -86,7 +86,7 @@ class MarathonService(context: ActorContext,
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
   val DefaultGracePeriodSeconds = 240
   val DefaultIntervalSeconds = 60
-  val DefaultTimeoutSeconds = 20
+  val DefaultTimeoutSeconds = 30
   val DefaultMaxConsecutiveFailures = 3
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
@@ -260,12 +260,14 @@ class MarathonService(context: ActorContext,
         ))
     }
     val newHealthChecks = Option(Seq(HealthCheck(
-      protocol = "TCP",
+      protocol = "HTTP",
+      path = Option("/environment"),
       portIndex = Option(0),
       gracePeriodSeconds = gracePeriodSeconds,
       intervalSeconds = intervalSeconds,
       timeoutSeconds = timeoutSeconds,
-      maxConsecutiveFailures = maxConsecutiveFailures
+      maxConsecutiveFailures = maxConsecutiveFailures,
+      ignoreHttp1xx = Option(false)
     )))
 
     val newConstraints = Properties.envOrNone(Constraints).map(constraint =>

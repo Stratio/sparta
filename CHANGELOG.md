@@ -4,6 +4,12 @@
 
 * Pending changelog
 
+## 1.7.4 (September 06, 2017)
+
+* Added TLS option to spark settings in workflow
+* Change TCP to HTTP heartbeat in Marathon applications
+* Bugfix: Kafka output running with SSL security
+
 ## 1.7.3 (August 18, 2017)
 
 * Marathon SSO secrets

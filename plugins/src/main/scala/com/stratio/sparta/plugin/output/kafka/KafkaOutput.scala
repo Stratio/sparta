@@ -51,71 +51,36 @@ class KafkaOutput(
   val outputFormat = OutputFormatEnum.withName(properties.getString("format", "json").toUpperCase)
   val rowSeparator = properties.getString("rowSeparator", ",")
   val securityProtocol = properties.getString("security.protocol", "PLAINTEXT")
+  val sparkConf = sparkSession.conf.getAll
+  val securityOpts = securityOptions(sparkConf)
 
   override def supportedSaveModes: Seq[SaveModeEnum.Value] = Seq(SaveModeEnum.Append)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    val tableName = getTableNameFromOptions(options)
-    val kafkaSecurityProperties = {
-      if (securityProtocol == "SSL") getKafkaSecurityProperties(dataFrame.sparkSession.conf.getAll)
-      else Map.empty[String, String]
-    }
-
-    log.debug(s"Kafka security options included in Spark Context: $kafkaSecurityProperties")
-
     validateSaveMode(saveMode)
 
+    val tableName = getTableNameFromOptions(options)
+
     outputFormat match {
-      case OutputFormatEnum.ROW => dataFrame.rdd.foreachPartition(messages =>
-        messages.foreach(message => send(tableName, message.mkString(rowSeparator), kafkaSecurityProperties)))
+      case OutputFormatEnum.ROW => dataFrame.rdd.foreachPartition { messages =>
+        messages.foreach(message => send(tableName, message.mkString(rowSeparator), securityOpts))
+      }
       case _ => dataFrame.toJSON.foreachPartition { messages =>
-        messages.foreach(message => send(tableName, message, kafkaSecurityProperties))
+        messages.foreach(message => send(tableName, message, securityOpts))
       }
     }
   }
 
-  def send(topic: String, message: String, securityProperties: Map[String, String]): Unit = {
+  def send(topic: String, message: String, securityProperties: Map[String, AnyRef]): Unit = {
     val record = new ProducerRecord[String, String](topic, message)
-    KafkaOutput.getProducer(getProducerConnectionKey, createProducerProps(securityProperties)).send(record)
+    KafkaOutput.getProducer(getProducerConnectionKey, properties,
+      securityProperties, mandatoryOptions ++ getCustomProperties).send(record)
   }
-
-  private[kafka] def getKafkaSecurityProperties(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs.flatMap { case (key, value) =>
-      if (key.contains("spark.secret.kafka") && value.nonEmpty)
-        Option((key.replace("spark.secret.kafka.", "").toLowerCase(), value))
-      else None
-    }
 
   private[kafka] def getProducerConnectionKey: String =
     getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort)
       .getOrElse(BOOTSTRAP_SERVERS_CONFIG, throw new Exception("Invalid metadata broker list"))
 
-  private[kafka] def createProducerProps(securityProperties: Map[String, String]): Properties = {
-    val props = new Properties()
-    properties.filter(_._1 != customKey).foreach { case (key, value) =>
-      if (value.toString.nonEmpty) props.put(key, value.toString)
-    }
-    securityProperties.foreach { case (key, value) =>
-      if (value.nonEmpty) {
-        props.remove(key)
-        props.put(key, value)
-      }
-    }
-    mandatoryOptions.foreach { case (key, value) =>
-      if (value.nonEmpty) {
-        props.remove(key)
-        props.put(key, value)
-      }
-    }
-    getCustomProperties.foreach { case (key, value) =>
-      if (value.nonEmpty) {
-        props.remove(key)
-        props.put(key, value)
-      }
-    }
-
-    props
-  }
 
   private[kafka] def mandatoryOptions: Map[String, String] =
     getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort) ++
@@ -136,25 +101,43 @@ object KafkaOutput {
 
   private val producers: mutable.Map[String, KafkaProducer[String, String]] = mutable.Map.empty
 
-  def getProducer(producerKey: String, properties: Properties): KafkaProducer[String, String] = {
-    getInstance(producerKey, properties)
+  def getProducer(producerKey: String,
+                  properties: Map[String, JSerializable],
+                  securityOptions: Map[String, AnyRef],
+                  additionalProperties: Map[String, String]): KafkaProducer[String, String] =
+    getInstance(producerKey, securityOptions, properties, additionalProperties)
+
+
+  def createProducerProps(properties: Map[String, JSerializable],
+                          calculatedProperties: Map[String, String]): Properties = {
+    val props = new Properties()
+    properties.foreach { case (key, value) =>
+      if (value.toString.nonEmpty) props.put(key, value.toString)
+    }
+    calculatedProperties.foreach { case (key, value) =>
+      if (value.nonEmpty) {
+        props.remove(key)
+        props.put(key, value)
+      }
+    }
+
+    props
   }
 
-  def closeProducers(): Unit = {
-    producers.values.foreach(producer => producer.close())
-  }
+  def closeProducers(): Unit = producers.values.foreach(producer => producer.close())
 
-  private[kafka] def getInstance(key: String, properties: Properties): KafkaProducer[String, String] = {
+  private[kafka] def getInstance(key: String,
+                                 securityOptions: Map[String, AnyRef],
+                                 properties: Map[String, JSerializable],
+                                 additionalProperties: Map[String, String]): KafkaProducer[String, String] =
     producers.getOrElse(key, {
-      log.info(s"Creating Kafka Producer with properties:\t$properties")
-      val producer = new KafkaProducer[String, String](properties)
+      val propertiesProducer= createProducerProps(properties,
+        additionalProperties ++ securityOptions.mapValues(_.toString))
+      log.info(s"Creating Kafka Producer with properties:\t$propertiesProducer")
+      val producer = new KafkaProducer[String, String](propertiesProducer)
       producers.put(key, producer)
       producer
     })
-  }
 
-  def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.kafkaSecurityConf(configuration)
-  }
 }
 

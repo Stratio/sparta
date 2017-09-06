@@ -686,24 +686,6 @@
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
-      },
-      {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "width": 6,
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
       }
     ]
   },
@@ -1523,6 +1505,155 @@
         "required": true,
         "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
         "qa": "fragment-details-filesystem-url"
+      }
+    ]
+  },
+  {
+    "name": "Test",
+    "modelType": "Test",
+    "description": {
+      "short": "A test input, useful for test deployments.",
+      "long": "",
+      "learnMore": ""
+    },
+    "properties": [
+      {
+        "propertyId": "eventType",
+        "propertyName": "_EVENT_TYPE_",
+        "propertyType": "select",
+        "default": "STRING",
+        "required": true,
+        "values": [
+          {
+            "label": "String",
+            "value": "STRING"
+          },
+          {
+            "label": "Random number",
+            "value": "RANDOM_NUMBER"
+          }
+        ],
+        "tooltip": "Type of events generated: random number using the max integer specified or one string event",
+        "qa": "fragment-details-test-eventType"
+      },
+      {
+        "propertyId": "event",
+        "propertyName": "_EVENT_",
+        "propertyType": "text",
+        "visible": [
+          [
+            {
+              "propertyId": "eventType",
+              "value": "STRING"
+            }
+          ]
+        ],
+        "required": true,
+        "tooltip": "Event that will be generated on each window",
+        "qa": "fragment-details-test-event"
+      },
+      {
+        "propertyId": "maxNumber",
+        "propertyName": "_MAX_NUMBER_",
+        "propertyType": "text",
+        "required": true,
+        "visible": [
+          [
+            {
+              "propertyId": "eventType",
+              "value": "RANDOM_NUMBER"
+            }
+          ]
+        ],
+        "tooltip": "Max Number for the random events generated",
+        "qa": "fragment-details-test-maxNumber"
+      },
+      {
+        "propertyId": "receiverType",
+        "propertyName": "_RECEIVER_TYPE_",
+        "propertyType": "select",
+        "default": "LIMITED",
+        "required": true,
+        "values": [
+          {
+            "label": "Limited",
+            "value": "LIMITED"
+          },
+          {
+            "label": "Unlimited",
+            "value": "UNLIMITED"
+          }
+        ],
+        "tooltip": "Type of receiver: limited or unlimited. Unlimited generate events all the window time, and unlimited generate the number of events specified by the user",
+        "qa": "fragment-details-test-receiverType"
+      },
+      {
+        "propertyId": "numEvents",
+        "propertyName": "_NUMBER_EVENTS_",
+        "propertyType": "text",
+        "required": true,
+        "visible": [
+          [
+            {
+              "propertyId": "receiverType",
+              "value": "LIMITED"
+            }
+          ]
+        ],
+        "tooltip": "Number of events generated on each window",
+        "qa": "fragment-details-test-numEvents"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [
+          {
+            "label": "DISK_ONLY",
+            "value": "DISK_ONLY"
+          },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
       }
     ]
   },

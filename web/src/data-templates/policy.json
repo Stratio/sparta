@@ -110,16 +110,6 @@
           "qa": "workflow-temporal-table-name"
         },
         {
-          "propertyId": "driverUri",
-          "propertyName": "_DRIVER_URI_",
-          "propertyType": "text",
-          "width": 4,
-          "default": "/opt/sds/sparta/driver/sparta-driver.jar",
-          "required": true,
-          "tooltip": "Path to the driver jar file (hdfs, http or local URIs)",
-          "qa": "workflow-driver-uri"
-        },
-        {
           "propertyId": "monitoringLink",
           "propertyName": "_MONITORING_LINK_",
           "width": 4,
@@ -350,6 +340,16 @@
           "default": false,
           "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available",
           "qa": "workflow-spark-kerberos"
+        },
+        {
+          "propertyId": "sparkDataStoreTls",
+          "propertyName": "_SPARK_DATASTORE_TLS_ENABLE_",
+          "propertyType": "boolean",
+          "newRow": false,
+          "width": "auto",
+          "default": false,
+          "tooltip": "Enable datastore with TLS integration and send options in the spark submits",
+          "qa": "workflow-spark-datastore-tls"
         },
         {
           "name": "sparkConf",
