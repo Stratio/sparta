@@ -21,9 +21,10 @@ import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.wordnik.swagger.annotations._
 import org.apache.curator.framework.CuratorFramework
+import spray.http.StatusCodes
 import spray.routing._
 
-@Api(value = HttpConstant.AppStatus, description = "Operations about Sparta status.")
+@Api(value = HttpConstant.AppStatus, description = "Sparta service status")
 trait AppStatusHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = checkStatus
@@ -47,7 +48,7 @@ trait AppStatusHttpService extends BaseHttpService {
               new ErrorModel(ErrorModel.CodeUnknown, s"Zk isn't connected at" +
                 s" ${curatorInstance.getZookeeperClient.getCurrentConnectionString}.")
             ))
-          else "OK"
+          else StatusCodes.OK
         }
       }
     }

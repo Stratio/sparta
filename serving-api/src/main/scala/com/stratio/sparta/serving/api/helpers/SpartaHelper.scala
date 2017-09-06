@@ -24,7 +24,7 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor.{FragmentActor, RequestActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{TemplateActor, RequestActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -50,9 +50,9 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val statusActor = system.actorOf(RoundRobinPool(DefaultInstances)
         .props(Props(new StatusActor(curatorFramework, secManager))), StatusActorName)
       val fragmentActor = system.actorOf(RoundRobinPool(DefaultInstances)
-        .props(Props(new FragmentActor(curatorFramework, secManager))), FragmentActorName)
+        .props(Props(new TemplateActor(curatorFramework, secManager))), TemplateActorName)
       val policyActor = system.actorOf(RoundRobinPool(DefaultInstances)
-        .props(Props(new PolicyActor(curatorFramework, statusActor, secManager))), PolicyActorName)
+        .props(Props(new WorkflowActor(curatorFramework, statusActor, secManager))), WorkflowActorName)
       val executionActor = system.actorOf(RoundRobinPool(DefaultInstances)
         .props(Props(new RequestActor(curatorFramework, secManager))), ExecutionActorName)
       val scService = StreamingContextService(curatorFramework)
@@ -70,8 +70,8 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         .props(Props(new CrossdataActor(secManager))), CrossdataActorName)
       val actors = Map(
         StatusActorName -> statusActor,
-        FragmentActorName -> fragmentActor,
-        PolicyActorName -> policyActor,
+        TemplateActorName -> fragmentActor,
+        WorkflowActorName -> policyActor,
         LauncherActorName -> launcherActor,
         PluginActorName -> pluginActor,
         DriverActorName -> driverActor,

@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.plugin.input.kafka.KafkaBase
+import com.stratio.sparta.plugin.workflow.input.kafka.KafkaBase
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.CustomProperties

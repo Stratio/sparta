@@ -34,7 +34,7 @@ import spray.routing.Route
 
 import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.PluginsPath, description = "Operations over plugins: now only to upload/download jars.")
+@Api(value = HttpConstant.PluginsPath, description = "Upload or download jars plugins")
 trait PluginsHttpService extends BaseHttpService with OauthClient {
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =

@@ -21,16 +21,16 @@ import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowStatusModel}
-import com.stratio.sparta.serving.core.utils.{FragmentUtils, PolicyStatusUtils, PolicyUtils, RequestUtils}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.utils.{WorkflowStatusUtils, RequestUtils, WorkflowUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
-  with PolicyStatusUtils with FragmentUtils with RequestUtils with PolicyUtils {
+  with WorkflowStatusUtils with RequestUtils with WorkflowUtils {
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(workflowId) => doStartApp(workflowId)
@@ -53,8 +53,8 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
           log.debug(s"Obtained status: ${status.status}")
           if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
             status.status != Finished) {
-            log.debug(s"Obtaining workflow and related fragments with id: $workflowId")
-            val workflow = getPolicyWithFragments(getPolicyById(workflowId))
+            log.debug(s"Obtaining workflow by id: $workflowId")
+            val workflow = getWorkflowById(workflowId)
             log.debug(s"Obtained workflow: ${workflow.toString}")
             log.debug(s"Closing checker with id: $workflowId and name: ${workflow.name}")
             closeChecker(workflow.id.get, workflow.name)
@@ -71,8 +71,8 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
             val information = s"Workflow App launched by Marathon with incorrect state, the job was not executed"
             log.warn(information)
             preStopActions()
-            updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Option(information),
-              lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, ""))))
+            updateStatus(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Option(information),
+              lastError = Option(WorkflowError(information, PhaseEnum.Execution, ""))))
           }
         case Failure(e) => throw e
       }
@@ -83,8 +83,8 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
         preStopActions()
-        updateStatus(WorkflowStatusModel(id = workflowId, status = Failed, statusInfo = Option(information),
-          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))))
+        updateStatus(WorkflowStatus(id = workflowId, status = Failed, statusInfo = Option(information),
+          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))))
     }
   }
 
@@ -92,7 +92,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
 
   def closeChecker(workflowId: String, workflowName: String): Unit = {
     log.info(s"Listener added to $workflowName with id: $workflowId")
-    addListener(workflowId, (workflowStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+    addListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
           try {

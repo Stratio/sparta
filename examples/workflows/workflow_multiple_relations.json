@@ -1,0 +1,283 @@
+{
+  "name": "workflow_multiple_relations",
+  "description": "Workflow with two input sockets, json, multiple unions and print",
+  "settings": {
+    "global": {
+      "executionMode": "local",
+      "streamTemporalTable": "stream",
+      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
+      "userPluginsJars": [{
+        "jarPath": ""
+      }],
+      "initSqlSentences": [{
+        "sentence": ""
+      }]
+    },
+    "checkpointSettings": {
+      "checkpointPath": "sparta/checkpoint",
+      "autoDeleteCheckpoint": true,
+      "addTimeToCheckpointPath": false
+    },
+    "streamingSettings": {
+      "window": "6s"
+    },
+    "sparkSettings": {
+      "master": "local[*]",
+      "sparkKerberos": false,
+      "sparkHome": "/opt/spark/dist",
+      "submitArguments": {
+        "userArguments": [{
+          "submitArgument": "",
+          "submitValue": ""
+        }],
+        "deployMode": "client",
+        "supervise": false
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "2",
+          "executorMemory": "1G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "1G",
+          "localityWait": "0",
+          "taskMaxFailures": "8",
+          "blockInterval": "200ms"
+        },
+        "sparkDockerConf": {
+          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorForcePullImage": false
+        },
+        "sparkMesosConf": {
+          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
+          "mesosExecutorHome": "/opt/spark/dist"
+        },
+        "userSparkConf": [{
+          "sparkConfKey": "",
+          "sparkConfValue": ""
+        }],
+        "coarse": true,
+        "stopGracefully": true,
+        "parquetBinaryAsString": true
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "socket",
+        "type": "WebSocketInputStep",
+        "outputFields": [{
+          "name": "raw",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "inputsocket"
+        },
+        "configuration": {
+          "url": "ws://stream.meetup.com/2/rsvps"
+        }
+      },
+      {
+        "name": "socket1",
+        "type": "WebSocketInputStep",
+        "outputFields": [{
+          "name": "raw",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "inputsocket1"
+        },
+        "configuration": {
+          "url": "ws://stream.meetup.com/2/rsvps"
+        }
+      },
+      {
+        "type": "UnionTransformStep",
+        "name": "union1",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "union1"
+        },
+        "configuration": {
+          "whenError": "Error"
+        }
+      },
+      {
+        "type": "JsonTransformStep",
+        "name": "jsonparser2",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "jsonparser2"
+        },
+        "configuration": {
+          "queries": [{
+            "field": "response",
+            "query": "$.response"
+          }],
+          "inputField": "raw",
+          "whenError": "Error",
+          "supportNullValues": true
+        }
+      },
+      {
+        "type": "JsonTransformStep",
+        "name": "jsonparser",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "jsonparser"
+        },
+        "configuration": {
+          "queries": [{
+            "field": "response",
+            "query": "$.response"
+          }],
+          "inputField": "raw",
+          "whenError": "Error",
+          "supportNullValues": true
+        }
+      },
+      {
+        "type": "UnionTransformStep",
+        "name": "union",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "union"
+        },
+        "configuration": {
+          "whenError": "Error"
+        }
+      },
+      {
+        "type": "UnionTransformStep",
+        "name": "union2",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "union2"
+        },
+        "configuration": {
+          "whenError": "Error"
+        }
+      },
+      {
+        "type": "UnionTransformStep",
+        "name": "union3",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "union3"
+        },
+        "configuration": {
+          "whenError": "Error"
+        }
+      },
+      {
+        "type": "UnionTransformStep",
+        "name": "union4",
+        "outputFields": [{
+          "name": "response",
+          "type": "string"
+        }],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": "union4"
+        },
+        "configuration": {
+          "whenError": "Error"
+        }
+      },
+      {
+        "name": "print",
+        "type": "PrintOutputStep",
+        "outputFields": [],
+        "writer": {
+          "autoCalculatedFields": [],
+          "saveMode": "Append",
+          "tableName": ""
+        },
+        "configuration": {
+          "printData": true,
+          "printSchema": true,
+          "logLevel": "warn"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "origin": "socket",
+        "destination": "jsonparser"
+      },
+      {
+        "origin": "jsonparser",
+        "destination": "union"
+      },
+      {
+        "origin": "socket1",
+        "destination": "jsonparser2"
+      },
+      {
+        "origin": "jsonparser",
+        "destination": "union1"
+      },
+      {
+        "origin": "union",
+        "destination": "union2"
+      },
+      {
+        "origin": "union1",
+        "destination": "union2"
+      },
+      {
+        "origin": "jsonparser2",
+        "destination": "union3"
+      },
+      {
+        "origin": "union3",
+        "destination": "union4"
+      },
+      {
+        "origin": "union2",
+        "destination": "union4"
+      },
+      {
+        "origin": "union4",
+        "destination": "print"
+      }
+    ]
+  }
+}

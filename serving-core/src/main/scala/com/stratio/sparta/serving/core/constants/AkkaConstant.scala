@@ -16,15 +16,11 @@
 
 package com.stratio.sparta.serving.core.constants
 
-/**
- * Akka constants with Akka's actor paths.
- *
- * @author anistal
- */
+
 object AkkaConstant {
 
-  val FragmentActorName = "fragmentActor"
-  val PolicyActorName = "policyActor"
+  val TemplateActorName = "templateActor"
+  val WorkflowActorName = "workflowActor"
   val ExecutionActorName = "executionActor"
   val ClusterLauncherActorName = "clusterLauncherActor"
   val LauncherActorName = "launcherActor"

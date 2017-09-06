@@ -6,7 +6,7 @@
 # eval $(weave env)
  
 zookeeper:
-  image: qa.stratio.com:5000/stratio/zookeeper:3.4.6
+  image: qa.stratio.com:8443/stratio/zookeeper:3.4.6
   container_name: zookeeper
   ports:
     - "2181:2181"
@@ -18,7 +18,7 @@ waitzk:
       - zookeeper
  
 cassandra-lucene-index:
-  image: qa.stratio.com:5000/stratio/cassandra-lucene-index:2.2.4.0
+  image: qa.stratio.com:8443/stratio/cassandra-lucene-index:2.2.4.0
   container_name: cassandra
   ports:
     - "9042:9042"
@@ -35,7 +35,7 @@ waitcass:
     - cassandra-lucene-index
  
 sparta:
-  image: qa.stratio.com:5000/stratio/sparta:0.11.0
+  image: qa.stratio.com:8443/stratio/sparta:1.7.2
   container_name: sparta
   ports:
     - "9090:9090"

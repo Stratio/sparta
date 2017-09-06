@@ -21,9 +21,9 @@ import java.io.File
 import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.driver.utils.LocalListenerUtils
-import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils, SparkSubmitService}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.streaming.StreamingContext
@@ -31,7 +31,7 @@ import org.apache.spark.streaming.StreamingContext
 case class StreamingContextService(curatorFramework: CuratorFramework)
   extends SchedulerUtils with CheckpointUtils with LocalListenerUtils {
 
-  def localStreamingContext(workflow: WorkflowModel, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
+  def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
     killLocalContextListener(workflow, workflow.name)
 
     if (workflow.settings.checkpointSettings.enableCheckpointing) {
@@ -40,11 +40,11 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
       createLocalCheckpointPath(workflow)
     }
 
-    val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
+    val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
-    sparkStandAloneContextInstance(sparkConfig ++ outputsSparkConfig, files)
+    sparkStandAloneContextInstance(sparkConfig ++ stepsSparkConfig, files)
 
     val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
     val ssc = spartaWorkflow.streamingStages()
@@ -56,7 +56,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
     (spartaWorkflow, ssc)
   }
 
-  def clusterStreamingContext(workflow: WorkflowModel, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
+  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
 
     val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
     val ssc = {
@@ -64,13 +64,13 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
         if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
         StreamingContext.getOrCreate(checkpointPath(workflow), () => {
           log.info(s"Nothing in checkpoint path: ${checkpointPath(workflow)}")
-          val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
-          sparkClusterContextInstance(outputsSparkConfig, files)
+          val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+          sparkClusterContextInstance(stepsSparkConfig, files)
           spartaWorkflow.streamingStages()
         })
       } else {
-        val outputsSparkConfig = getSparkConfsReflec(workflow.outputs, Output.SparkConfMethod, Output.ClassSuffix)
-        sparkClusterContextInstance(outputsSparkConfig, files)
+        val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+        sparkClusterContextInstance(stepsSparkConfig, files)
         spartaWorkflow.streamingStages()
       }
     }

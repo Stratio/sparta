@@ -26,7 +26,7 @@ import scala.util.Properties
  */
 object AppConstant extends ZookeeperUtils {
 
-  val version = "1.7.2"
+  val version = "1.8.0-SNAPSHOT"
   val ConfigAppName = "sparta"
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
@@ -93,18 +93,18 @@ object AppConstant extends ZookeeperUtils {
 
   //Zookeeper paths
   val instanceName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
-  lazy val BaseZKPath: String = (retrievePathFromEnv, instanceName, retrieveFromConf) match {
+  lazy val BaseZkPath: String = (retrievePathFromEnv, instanceName, retrieveFromConf) match {
     case (Some(path), _, _ ) if checkIfValidPath(path) => path
     case (_, Some(instance), _)=> s"/stratio/sparta/$instance"
     case (_, _, Some(confPath)) if checkIfValidPath(confPath) => confPath
     case _ => DefaultZKPath
   }
 
-  lazy val PoliciesBasePath = s"$BaseZKPath/policies"
-  lazy val ContextPath = s"$BaseZKPath/contexts"
-  lazy val ExecutionsPath = s"$BaseZKPath/executions"
-  lazy val FragmentsPath = s"$BaseZKPath/fragments"
-  lazy val ErrorsZkPath = s"$BaseZKPath/error"
+  lazy val WorkflowsZkPath = s"$BaseZkPath/workflows"
+  lazy val WorkflowStatusesZkPath = s"$BaseZkPath/workflowStatuses"
+  lazy val WorkflowExecutionsZkPath = s"$BaseZkPath/workflowExecutions"
+  lazy val TemplatesZkPath = s"$BaseZkPath/templates"
+  lazy val ErrorsZkPath = s"$BaseZkPath/error"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)

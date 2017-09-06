@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.test.cube
 import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
-import com.stratio.sparta.driver.step.{Cube, CubeOperations, Trigger}
+import com.stratio.sparta.driver.step.{Cube, CubeOperations}
 import com.stratio.sparta.driver.writer.WriterOptions
 import com.stratio.sparta.plugin.default.DefaultField
 import com.stratio.sparta.plugin.cube.field.datetime.DateTimeField
@@ -68,7 +68,6 @@ class CubeMakerTest extends TestSuiteBase {
       initSchema,
       TypeOp.Timestamp,
       expiringDataConfig = None,
-      Seq.empty[Trigger],
       WriterOptions(),
       true
     )

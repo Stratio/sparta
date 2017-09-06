@@ -23,16 +23,16 @@ import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
-import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
+import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.utils.WorkflowStatusUtils
 
-trait LauncherActorUtils extends PolicyStatusUtils {
+trait LauncherActorUtils extends WorkflowStatusUtils {
 
   val contextLauncherActorPrefix = "contextLauncherActor"
 
   val streamingContextService: StreamingContextService
 
-  def launch(workflow: WorkflowModel, context: ActorContext): WorkflowModel = {
+  def launch(workflow: Workflow, context: ActorContext): Workflow = {
     if (isAvailableToRun(workflow)) {
       log.info("Streaming Context available, launching policy ... ")
       val actorName = cleanActorName(s"$contextLauncherActorPrefix-${workflow.name}")

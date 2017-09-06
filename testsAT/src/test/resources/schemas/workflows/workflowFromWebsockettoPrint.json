@@ -61,7 +61,6 @@
       "tableName": "test"
     }
   },
-  "streamTriggers": [],
   "cubes": [],
   "input": {
     "name": "ws",

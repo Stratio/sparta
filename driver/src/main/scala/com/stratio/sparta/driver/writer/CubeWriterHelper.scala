@@ -28,20 +28,11 @@ import org.apache.spark.streaming.dstream.DStream
 
 object CubeWriterHelper extends SLF4JLogging {
 
-  def writeCube(cube: Cube, outputs: Seq[Output], stream: DStream[(DimensionValuesTime, MeasuresValues)]): Unit = {
+  def writeCube(cube: Cube, outputs: Seq[Output], stream: DStream[(DimensionValuesTime, MeasuresValues)])
+  : DStream[Row] =
     stream.map { case (dimensionValuesTime, measuresValues) =>
       toRow(cube, dimensionValuesTime, measuresValues)
-    }.foreachRDD(rdd => {
-      if (!rdd.isEmpty()) {
-        val xdSession = SparkContextFactory.xdSessionInstance
-        val cubeDf = xdSession.createDataFrame(rdd, cube.schema)
-        val extraOptions = Map(Output.TableNameKey -> cube.name)
-        val cubeAutoCalculatedFieldsDf = WriterHelper.write(cubeDf, cube.writerOptions, extraOptions, outputs)
-
-        TriggerWriterHelper.writeTriggers(cubeAutoCalculatedFieldsDf, cube.triggers, cube.name, outputs)
-      } else log.debug("Empty event received")
-    })
-  }
+    }
 
   private[driver] def toRow(cube: Cube, dimensionValuesT: DimensionValuesTime, measures: MeasuresValues): Row = {
     val measuresSorted = measuresValuesSorted(measures.values)

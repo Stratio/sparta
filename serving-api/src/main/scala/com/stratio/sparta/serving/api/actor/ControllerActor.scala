@@ -86,8 +86,8 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   }
 
   private def allServiceRoutes(user: Option[LoggedUser]): Route = {
-    serviceRoutes.fragmentRoute(user) ~ serviceRoutes.policyContextRoute(user) ~
-      serviceRoutes.executionRoute(user) ~ serviceRoutes.policyRoute(user) ~ serviceRoutes.appStatusRoute ~
+    serviceRoutes.templateRoute(user) ~ serviceRoutes.workflowContextRoute(user) ~
+      serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
       serviceRoutes.crossdataRoute(user)
@@ -115,11 +115,11 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
 class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, curatorFramework: CuratorFramework) {
 
-  def fragmentRoute(user: Option[LoggedUser]): Route = fragmentService.routes(user)
+  def templateRoute(user: Option[LoggedUser]): Route = templateService.routes(user)
 
-  def policyRoute(user: Option[LoggedUser]): Route = policyService.routes(user)
+  def workflowRoute(user: Option[LoggedUser]): Route = workflowService.routes(user)
 
-  def policyContextRoute(user: Option[LoggedUser]): Route = policyContextService.routes(user)
+  def workflowContextRoute(user: Option[LoggedUser]): Route = workflowContextService.routes(user)
 
   def executionRoute(user: Option[LoggedUser]): Route = executionService.routes(user)
 
@@ -148,19 +148,19 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     else None
   }
 
-  private val fragmentService = new FragmentHttpService {
+  private val templateService = new TemplateHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.FragmentActorName)
+    override val supervisor = actorsMap(AkkaConstant.TemplateActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 
-  private val policyService = new PolicyHttpService {
+  private val workflowService = new WorkflowHttpService {
     implicit val actors = actorsMap
-    override val supervisor = actorsMap(AkkaConstant.PolicyActorName)
+    override val supervisor = actorsMap(AkkaConstant.WorkflowActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 
-  private val policyContextService = new PolicyContextHttpService {
+  private val workflowContextService = new WorkflowStatusHttpService {
     implicit val actors = actorsMap
     override val supervisor = actorsMap(AkkaConstant.LauncherActorName)
     override val actorRefFactory: ActorRefFactory = context
@@ -203,7 +203,7 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
     override val actorRefFactory: ActorRefFactory = context
   }
 
-  private val serviceInfoService = new InfoServiceHttpService {
+  private val serviceInfoService = new AppInfoHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = context.self
     override val actorRefFactory: ActorRefFactory = context

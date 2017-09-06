@@ -17,18 +17,18 @@
 package com.stratio.sparta.driver.utils
 
 import com.stratio.sparta.driver.factory.SparkContextFactory._
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.utils.WorkflowStatusUtils
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
-trait LocalListenerUtils extends PolicyStatusUtils {
+trait LocalListenerUtils extends WorkflowStatusUtils {
 
-  def killLocalContextListener(policy: WorkflowModel, name: String): Unit = {
+  def killLocalContextListener(policy: Workflow, name: String): Unit = {
     log.info(s"Listener added to ${policy.name} with id: ${policy.id.get}")
-    addListener(policy.id.get, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+    addListener(policy.id.get, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopping) {
           try {
@@ -50,7 +50,7 @@ trait LocalListenerUtils extends PolicyStatusUtils {
   private[driver] def closeContexts(policyId: String): Unit = {
     val information = "The Context was successfully closed in the local listener"
     log.info(information)
-    updateStatus(WorkflowStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+    updateStatus(WorkflowStatus(id = policyId, status = Stopped, statusInfo = Some(information)))
     destroySparkContext()
   }
 }

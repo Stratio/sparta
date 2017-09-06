@@ -19,9 +19,9 @@ package com.stratio.sparta.serving.core.utils
 import akka.actor.{ActorContext, ActorRef}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.marathon.MarathonService
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, Workflow, WorkflowStatus}
 import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
@@ -31,15 +31,15 @@ import org.json4s.jackson.Serialization._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-trait ClusterListenerUtils extends PolicyStatusUtils {
+trait ClusterListenerUtils extends WorkflowStatusUtils {
 
   /** Spark Launcher functions **/
 
-  def addSparkListener(policy: WorkflowModel): SparkAppHandle.Listener =
+  def addSparkListener(policy: Workflow): SparkAppHandle.Listener =
     new SparkAppHandle.Listener() {
       override def stateChanged(handle: SparkAppHandle): Unit = {
         log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        updateStatus(WorkflowStatusModel(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
+        updateStatus(WorkflowStatus(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
       }
 
       override def infoChanged(handle: SparkAppHandle): Unit = {
@@ -50,7 +50,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
   /** Sparta Listener functions for PolicyStatus **/
 
   //scalastyle:off
-  def addClusterListeners(workflowStatuses: Try[Seq[WorkflowStatusModel]], context: ActorContext): Unit = {
+  def addClusterListeners(workflowStatuses: Try[Seq[WorkflowStatus]], context: ActorContext): Unit = {
     workflowStatuses match {
       case Success(statuses) =>
         statuses.foreach(workflowStatus =>
@@ -78,7 +78,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                                  akkaContext: ActorContext,
                                  launcherActor: Option[ActorRef] = None): Unit = {
     log.info(s"Marathon context listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopped || policyStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
@@ -94,12 +94,12 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                     val information = s"Sparta cluster job correctly finished in Marathon API"
                     val newStatus = if (policyStatus.status == Failed) NotDefined else Finished
                     log.info(information)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = newStatus, statusInfo = Some(information)))
+                    updateStatus(WorkflowStatus(id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Failure(e) =>
                     val error = "An error was encountered while sending a stop message to Marathon API"
                     log.error(error, e)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Some(error),
-                      lastError = Option(WorkflowErrorModel(error, PhaseEnum.Execution, e.toString))
+                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(error),
+                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
                     ))
                 }
               case None =>
@@ -125,7 +125,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                                 launcherActor: Option[ActorRef] = None,
                                 akkaContext: Option[ActorContext] = None): Unit = {
     log.info(s"Cluster context listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopping || policyStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
@@ -143,18 +143,18 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                     val information = s"Sparta cluster job killed correctly  with Spark API"
                     val newStatus = if (policyStatus.status == Failed) NotDefined else Killed
                     log.info(information)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = newStatus, statusInfo = Some(information)))
+                    updateStatus(WorkflowStatus(id = policyId, status = newStatus, statusInfo = Some(information)))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response: $submissionResponse")
                     val information = s"Error while stopping task"
                     log.info(information)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Some(information),
-                      lastError = submissionResponse.message.map(error => WorkflowErrorModel(information, PhaseEnum.Execution, error))))
+                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(information),
+                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Execution, error))))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
                     log.error(error, e)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Some(error),
-                      lastError = Option(WorkflowErrorModel(error, PhaseEnum.Execution, e.toString))
+                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(error),
+                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
                     ))
                 }
               case None =>
@@ -180,7 +180,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                                launcherActor: ActorRef,
                                akkaContext: ActorContext): Unit = {
     log.info(s"Client context Listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatusModel, nodeCache: NodeCache) => {
+    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (policyStatus.status == Stopping || policyStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
@@ -194,7 +194,7 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                   case Success(_) =>
                     val information = s"Sparta cluster job correctly stopped with Spark Handler"
                     log.info(information)
-                    updateStatus(WorkflowStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+                    updateStatus(WorkflowStatus(id = policyId, status = Stopped, statusInfo = Some(information)))
                   case Failure(e: Exception) =>
                     val error = s"An error was encountered while stopping Sparta cluster job with Spark Handler, killing it ..."
                     log.warn(error, e)
@@ -202,19 +202,19 @@ trait ClusterListenerUtils extends PolicyStatusUtils {
                       case Success(_) =>
                         val information = s"Sparta cluster job killed with Spark Handler"
                         log.info(information)
-                        updateStatus(WorkflowStatusModel(id = policyId, status = Stopped, statusInfo = Some(information)))
+                        updateStatus(WorkflowStatus(id = policyId, status = Stopped, statusInfo = Some(information)))
                       case Failure(e: Exception) =>
                         val error = s"Problems encountered while killing Sparta cluster job with Spark Handler"
                         log.info(error)
-                        updateStatus(WorkflowStatusModel(
+                        updateStatus(WorkflowStatus(
                           id = policyId, status = Stopped, statusInfo = Some(error),
-                          lastError = Option(WorkflowErrorModel(error, PhaseEnum.Execution, e.toString))))
+                          lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))))
                     }
                 }
               case None =>
                 val information = s"The Sparta System does not have a submission id associated to policy $policyName"
                 log.info(information)
-                updateStatus(WorkflowStatusModel(id = policyId, status = Failed, statusInfo = Some(information)))
+                updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(information)))
             }
           } finally {
             Try(nodeCache.close()) match {

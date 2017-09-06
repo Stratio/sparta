@@ -34,7 +34,7 @@ import scala.concurrent.duration._
 
 import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.CrossdataPath, description = "Operations about Sparta status.")
+@Api(value = HttpConstant.CrossdataPath, description = "Operations over CrossData catalog")
 trait CrossdataHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAllDatabases(user) ~ executeQuery(user) ~

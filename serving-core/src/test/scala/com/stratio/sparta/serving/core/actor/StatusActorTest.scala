@@ -25,8 +25,8 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -60,7 +60,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
-  val status = WorkflowStatusModel("existingID", PolicyStatusEnum.Launched)
+  val status = WorkflowStatus("existingID", WorkflowStatusEnum.Launched)
   val statusRaw =
     """
       |{
@@ -76,14 +76,14 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(new Stat)
       // scalastyle:off null
 
       when(curatorFramework.getData)
         .thenReturn(getDataBuilder)
       when(curatorFramework.getData
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(statusRaw.getBytes)
 
       actor ! StatusActor.FindById(id, rootUser)
@@ -99,14 +99,14 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(new Stat)
       // scalastyle:off null
 
       when(curatorFramework.delete())
         .thenReturn(deleteBuilder)
       when(curatorFramework.delete()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(null)
 
       actor ! StatusActor.DeleteStatus(id, rootUser)
@@ -123,7 +123,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(null)
 
      actor ! StatusActor.DeleteStatus(id, rootUser)
@@ -139,13 +139,13 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(new Stat())
 
       when(curatorFramework.delete())
         .thenReturn(deleteBuilder)
       when(curatorFramework.delete()
-        .forPath(s"${AppConstant.ContextPath}/$id"))
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenThrow(new RuntimeException())
       actor ! StatusActor.DeleteStatus(id, rootUser)
 

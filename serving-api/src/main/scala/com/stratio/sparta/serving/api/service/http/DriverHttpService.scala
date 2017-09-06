@@ -34,7 +34,7 @@ import spray.routing.Route
 
 import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.DriverPath, description = "Operations over plugins: now only to upload/download jars")
+@Api(value = HttpConstant.DriverPath, description = "Upload or download driver jars")
 trait DriverHttpService extends BaseHttpService with OauthClient {
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =

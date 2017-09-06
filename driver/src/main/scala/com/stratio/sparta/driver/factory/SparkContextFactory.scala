@@ -46,7 +46,7 @@ object SparkContextFactory extends SLF4JLogging {
             file
           case Failure(e) =>
             val refFile = "/reference.conf"
-            log.warn(s"Error loading Crossdata configuration file")
+            log.warn(s"Error loading Crossdata configuration file.", e)
             log.info(s"Loading Crossdata configuration from resource file $refFile ...")
             new File(getClass.getResource("/reference.conf").getPath)
         }

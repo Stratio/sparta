@@ -19,15 +19,9 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
-import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
-import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.workflow.fragment.FragmentElementModel
-import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel, TransformationsModel}
-import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import spray.testkit.ScalatestRouteTest
@@ -72,36 +66,16 @@ trait HttpServiceBaseTest extends WordSpec
 
   // XXX Protected methods.
 
-  protected def getFragmentModel(id: Option[String]): FragmentElementModel =
-    FragmentElementModel(id, "input", "name", "description", "shortDescription",
-      WorkflowElementModel("name", "input", Map()))
+  protected def getFragmentModel(id: Option[String]): TemplateElement =
+    TemplateElement(id, "input", "name", "description", Map())
 
-  protected def getFragmentModel(): FragmentElementModel =
+  protected def getFragmentModel(): TemplateElement =
     getFragmentModel(None)
 
-  protected def getPolicyStatusModel(): WorkflowStatusModel =
-    new WorkflowStatusModel("id", PolicyStatusEnum.Launched)
+  protected def getWorkflowStatusModel(): WorkflowStatus =
+    WorkflowStatus("id", WorkflowStatusEnum.Launched)
 
-  protected def getPolicyModel(): WorkflowModel = {
-    val rawData = None
-    val outputFieldModel1 = OutputFieldsModel("out1")
-    val outputFieldModel2 = OutputFieldsModel("out2")
-
-    val transformations = Option(TransformationsModel(
-      Seq(TransformationModel("Morphlines", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2), Map
-      ()))))
-    val dimensionModel = Seq(DimensionModel(
-      "dimensionName",
-      "field1",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass,
-      configuration = Some(Map()))
-    )
-    val writerModel = WriterModel(Seq("mongo"))
-    val operators = Seq(OperatorModel("Count", "countoperator", Map()))
-    val cubes = Seq(CubeModel("cube1", dimensionModel, operators, writerModel))
-    val outputs = Seq(WorkflowElementModel("mongo", "MongoDb", Map()))
-    val input = Some(WorkflowElementModel("kafka", "Kafka", Map()))
+  protected def getWorkflowModel(): Workflow = {
     val settingsModel = SettingsModel(
       GlobalSettings(),
       CheckpointSettings("test/test"),
@@ -109,21 +83,15 @@ trait HttpServiceBaseTest extends WordSpec
       SparkSettings("local[*]", false, Option("/opt/spark/dist"), None, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
-    val policy = WorkflowModel(
+    val workflow = Workflow(
       id = Option("id"),
       settings = settingsModel,
-      name = "testpolicy",
+      name = "testworkflow",
       description = "whatever",
-      rawData = rawData,
-      transformations = transformations,
-      streamTriggers = Seq(),
-      cubes = cubes,
-      input = input,
-      outputs = outputs,
-      fragments = Seq()
+      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
     )
 
-    policy
+    workflow
   }
 
   /**

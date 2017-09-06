@@ -23,14 +23,14 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.wordnik.swagger.annotations._
 import spray.http.{HttpResponse, StatusCodes}
 import spray.routing._
 
 import scala.util.{Failure, Success, Try}
 
-@Api(value = HttpConstant.ExecutionsPath, description = "Operations about executions.", position = 0)
+@Api(value = HttpConstant.ExecutionsPath, description = "Operations over workflow executions", position = 0)
 trait ExecutionHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
@@ -39,7 +39,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds all executions",
     notes = "Returns an executions list",
     httpMethod = "GET",
-    response = classOf[Seq[SubmitRequest]],
+    response = classOf[Seq[WorkflowExecution]],
     responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -50,7 +50,7 @@ trait ExecutionHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? FindAll(user))
-              .mapTo[Either[Try[Seq[SubmitRequest]], UnauthorizedResponse]]
+              .mapTo[Either[Try[Seq[WorkflowExecution]], UnauthorizedResponse]]
           } yield response match {
             case Left(Failure(exception)) => throw exception
             case Left(Success(executions)) => executions
@@ -65,7 +65,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds an execution by its id",
     notes = "Find a execution by its id",
     httpMethod = "GET",
-    response = classOf[SubmitRequest])
+    response = classOf[WorkflowExecution])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
       value = "id of the policy",
@@ -83,7 +83,7 @@ trait ExecutionHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? FindById(id, user))
-              .mapTo[Either[Try[SubmitRequest], UnauthorizedResponse]]
+              .mapTo[Either[Try[WorkflowExecution], UnauthorizedResponse]]
           } yield response match {
             case Left(Failure(exception)) => throw exception
             case Left(Success(request)) => request
@@ -153,7 +153,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiOperation(value = "Updates an execution.",
     notes = "Updates an execution.",
     httpMethod = "PUT",
-    response = classOf[SubmitRequest]
+    response = classOf[WorkflowExecution]
   )
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "execution",
@@ -168,11 +168,11 @@ trait ExecutionHttpService extends BaseHttpService {
   def update(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       put {
-        entity(as[SubmitRequest]) { request =>
+        entity(as[WorkflowExecution]) { request =>
           complete {
             for {
               response <- (supervisor ? Update(request, user))
-                .mapTo[Either[Try[SubmitRequest],UnauthorizedResponse]]
+                .mapTo[Either[Try[WorkflowExecution],UnauthorizedResponse]]
             } yield response match {
               case Left(Success(status)) => HttpResponse(StatusCodes.Created)
               case Left(Failure(ex)) =>
@@ -193,7 +193,7 @@ trait ExecutionHttpService extends BaseHttpService {
   @ApiOperation(value = "Creates a execution",
     notes = "Returns the execution result",
     httpMethod = "POST",
-    response = classOf[SubmitRequest])
+    response = classOf[WorkflowExecution])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "execution",
       value = "execution json",
@@ -206,11 +206,11 @@ trait ExecutionHttpService extends BaseHttpService {
   def create(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       post {
-        entity(as[SubmitRequest]) { request =>
+        entity(as[WorkflowExecution]) { request =>
           complete {
             for {
               response <- (supervisor ? CreateExecution(request, user))
-                .mapTo[Either[Try[SubmitRequest],UnauthorizedResponse]]
+                .mapTo[Either[Try[WorkflowExecution],UnauthorizedResponse]]
             } yield {
               response match {
                 case Left(Success(requestCreated)) => requestCreated
@@ -218,7 +218,7 @@ trait ExecutionHttpService extends BaseHttpService {
                   val message = "Unable to create execution"
                   log.error(message, ex)
                   throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingPolicy, message)
+                    ErrorModel(ErrorModel.CodeErrorCreatingWorkflow, message)
                   ))
                 case Right(UnauthorizedResponse(exception)) => throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in executions")

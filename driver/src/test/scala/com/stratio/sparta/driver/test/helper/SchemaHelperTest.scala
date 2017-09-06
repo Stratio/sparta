@@ -21,14 +21,9 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.driver.schema.SchemaHelper
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.{Dimension, DimensionType, Precision}
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
-import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel}
-import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
-import com.stratio.sparta.serving.core.models.workflow.WorkflowElementModel
+import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel, WriterModel}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -62,22 +57,11 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       DimensionModel("minute", "field3", DimensionType.TimestampName, DimensionType.TimestampName, Option("10m"))
     val dimensionId = DimensionModel("id", "field2", DimensionType.IdentityName, DimensionType.DefaultDimensionClass)
     val operator1Model = OperatorModel("Count", "op1", Map())
-    val output1Model = WorkflowElementModel("outputName", "MongoDb", Map())
-    val writerModelId = WriterModel(Seq("outputName"), None, Seq())
-    val writerModelTimeDate = WriterModel(Seq("outputName"), Option("date"), Seq())
+    val writerModelId = WriterModel(Seq("outputName"), None)
+    val writerModelTimeDate = WriterModel(Seq("outputName"), Option("date"))
     val checkpointAvailable = 60000
     val checkpointGranularity = "minute"
     val cubeName = "cubeTest"
-
-    val outputFieldModel1 = OutputFieldsModel("field1", Some("long"))
-    val outputFieldModel2 = OutputFieldsModel("field2", Some("int"))
-    val outputFieldModel3 = OutputFieldsModel("field3", Some("fake"))
-    val outputFieldModel4 = OutputFieldsModel("field4", Some("string"))
-    val transformationModel1 =
-      TransformationModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2))
-
-    val transformationModel2 = TransformationModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
-      outputFieldModel4))
     val writerModel = WriterModel(Seq("outputName"))
   }
 
@@ -127,64 +111,6 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
       val res = SchemaHelper.getCubeSchema(cubeModel, operators, dimensions)
 
       res should be(cubeSchema)
-    }
-
-  it should "return a map with the name of the transformation and the schema" in
-    new CommonValues {
-      val transformationsModel = Seq(transformationModel1, transformationModel2)
-
-      val res = SchemaHelper.getSchemasFromTransformations(transformationsModel, Map())
-
-      val expected = Map(
-        "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
-        "1" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType),
-          StructField("field3", StringType), StructField("field4", StringType)))
-      )
-
-      res should be(expected)
-    }
-
-  it should "return a map with the name of the transformation and the schema with the raw" in
-    new CommonValues {
-      val transformationsModel = Seq(transformationModel1, transformationModel2)
-
-      val res = SchemaHelper.getSchemasFromTransformations(transformationsModel, Input.InitSchema)
-
-      val expected = Map(
-        Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
-        "0" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
-          StructField("field1", LongType),
-          StructField("field2", IntegerType))
-        ),
-        "1" -> StructType(Seq(StructField(Input.RawDataKey, StringType),
-          StructField("field1", LongType), StructField("field2", IntegerType),
-          StructField("field3", StringType), StructField("field4", StringType)))
-      )
-
-      res should be(expected)
-    }
-
-  it should "return a schema without the raw" in
-    new CommonValues {
-
-      val transformationNoRaw1 =
-        TransformationModel("Parser", 0, Some(Input.RawDataKey), Seq(outputFieldModel1, outputFieldModel2),
-          Map("removeInputField" -> JsoneyString.apply("true")))
-      val transformationNoRaw2 = TransformationModel("Parser", 1, Some("field1"), Seq(outputFieldModel3,
-        outputFieldModel4), Map("removeInputField" -> JsoneyString.apply("true")))
-
-      val transformationsModel = Seq(transformationNoRaw1, transformationNoRaw2)
-
-      val schemaWithoutRaw = SchemaHelper.getSchemasFromTransformations(transformationsModel, Input.InitSchema)
-
-      val expected = Map(
-        Input.RawDataKey -> StructType(Seq(StructField(Input.RawDataKey, StringType))),
-        "0" -> StructType(Seq(StructField("field1", LongType), StructField("field2", IntegerType))),
-        "1" -> StructType(Seq(StructField("field2", IntegerType), StructField("field3", StringType),
-          StructField("field4", StringType)))
-      )
-
-      schemaWithoutRaw should be(expected)
     }
 
   it should "return the spark date field " in new CommonValues {

@@ -17,28 +17,28 @@
 package com.stratio.sparta.serving.core.services
 
 import akka.actor.{ActorContext, ActorRef}
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{WorkflowModel, WorkflowStatusModel}
-import com.stratio.sparta.serving.core.utils.PolicyStatusUtils
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.utils.WorkflowStatusUtils
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success}
 
-class ClusterCheckerService(val curatorFramework: CuratorFramework) extends PolicyStatusUtils {
+class ClusterCheckerService(val curatorFramework: CuratorFramework) extends WorkflowStatusUtils {
 
-  def checkPolicyStatus(policy: WorkflowModel, launcherActor: ActorRef, akkaContext: ActorContext): Unit = {
+  def checkPolicyStatus(policy: Workflow, launcherActor: ActorRef, akkaContext: ActorContext): Unit = {
     findStatusById(policy.id.get) match {
       case Success(policyStatus) =>
         if (policyStatus.status == Launched || policyStatus.status == Starting || policyStatus.status == Uploaded ||
           policyStatus.status == Stopping || policyStatus.status == NotStarted) {
           val information = s"CHECKER: the workflow did not start/stop correctly"
           log.error(information)
-          updateStatus(WorkflowStatusModel(id = policy.id.get, status = Failed, statusInfo = Some(information)))
+          updateStatus(WorkflowStatus(id = policy.id.get, status = Failed, statusInfo = Some(information)))
           akkaContext.stop(launcherActor)
         } else {
           val information = s"CHECKER: the workflow started/stopped correctly"
           log.info(information)
-          updateStatus(WorkflowStatusModel(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
+          updateStatus(WorkflowStatus(id = policy.id.get, status = NotDefined, statusInfo = Some(information)))
         }
       case Failure(exception) =>
         log.error(s"Error when extracting workflow status in the scheduled task", exception)

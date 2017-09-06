@@ -45,7 +45,6 @@ case class Cube(name: String,
                 schema: StructType,
                 dateType: TypeOp.Value = TypeOp.Timestamp,
                 expiringDataConfig: Option[ExpiringData] = None,
-                triggers: Seq[Trigger],
                 writerOptions: WriterOptions,
                 rememberPartitioner : Boolean) extends SLF4JLogging {
 

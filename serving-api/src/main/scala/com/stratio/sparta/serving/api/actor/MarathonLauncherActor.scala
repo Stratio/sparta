@@ -24,9 +24,8 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.marathon.MarathonService
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowExecution, Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.ClusterCheckerService
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
@@ -35,20 +34,20 @@ import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
   with LauncherUtils with SchedulerUtils with ClusterListenerUtils
-  with PolicyStatusUtils with RequestUtils {
+  with WorkflowStatusUtils with RequestUtils {
 
   private val clusterCheckerService = new ClusterCheckerService(curatorFramework)
   private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(workflow: WorkflowModel) => initializeSubmitRequest(workflow)
+    case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
     case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
   override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
 
-  def initializeSubmitRequest(workflow: WorkflowModel): Unit = {
+  def initializeSubmitRequest(workflow: Workflow): Unit = {
     Try {
       val sparkSubmitService = new SparkSubmitService(workflow)
       log.info(s"Initializing options to submit the Workflow App associated to workflow: ${workflow.name}")
@@ -62,7 +61,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
       val pluginsFiles = sparkSubmitService.userPluginsJars
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
-      val submitRequest = SubmitRequest(
+      val submitRequest = WorkflowExecution(
         workflow.id.get,
         SpartaDriverClass,
         driverFile,
@@ -81,14 +80,14 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
         log.error(information, exception)
-        updateStatus(WorkflowStatusModel(id = workflow.id.get, status = Failed, statusInfo = Option(information),
-          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
+        updateStatus(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Option(information),
+          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
         log.info(information)
-        updateStatus(WorkflowStatusModel(id = workflow.id.get, status = NotStarted,
+        updateStatus(WorkflowStatus(id = workflow.id.get, status = NotStarted,
           marathonId = Option(WorkflowHelper.getMarathonId(workflow)), statusInfo = Option(information),
           lastExecutionMode = Option(workflow.settings.global.executionMode)))
         marathonApp.launch()

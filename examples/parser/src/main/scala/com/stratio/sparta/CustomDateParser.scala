@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.transformation.json
+package com.stratio.sparta.plugin.workflow.transformation.json
 
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._

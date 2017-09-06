@@ -18,7 +18,7 @@ package com.stratio.sparta.driver.test.writer
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.driver.step.{Cube, Trigger}
+import com.stratio.sparta.driver.step.Cube
 import com.stratio.sparta.driver.writer.{CubeWriterHelper, WriterOptions}
 import com.stratio.sparta.sdk.pipeline.aggregation.cube._
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
@@ -45,7 +45,7 @@ class CubeWriterHelperTest extends FlatSpec with ShouldMatchers with MockitoSuga
         StructField(checkpointGranularity, TimestampType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), Seq.empty[Trigger], WriterOptions(), true)
+        Option(ExpiringData("minute", checkpointGranularity, "100000ms")), WriterOptions(), true)
 
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", sparkSession, Map())
@@ -60,8 +60,8 @@ class CubeWriterHelperTest extends FlatSpec with ShouldMatchers with MockitoSuga
         StructField("dim1", StringType, false),
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
-      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp, None,
-        Seq.empty[Trigger], WriterOptions(), true)
+      val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp, None
+        , WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
@@ -76,7 +76,7 @@ class CubeWriterHelperTest extends FlatSpec with ShouldMatchers with MockitoSuga
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        None, Seq.empty[Trigger], WriterOptions(), true)
+        None, WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesNoTime, measures)
@@ -91,7 +91,7 @@ class CubeWriterHelperTest extends FlatSpec with ShouldMatchers with MockitoSuga
         StructField("dim2", StringType, false),
         StructField("op1", LongType, true)))
       val cube = Cube(cubeName, Seq(dim1, dim2), Seq(op1), initSchema, schema, TypeOp.Timestamp,
-        None, Seq.empty[Trigger], WriterOptions(), true)
+        None, WriterOptions(), true)
       val writerOptions = WriterOptions(Seq("outputName"))
       val output = new OutputMock("outputName", sparkSession, Map())
       val res = CubeWriterHelper.toRow(cube, dimensionValuesT, measures)

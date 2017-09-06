@@ -45,22 +45,16 @@ private[plugin] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterA
   def ssc: StreamingContext = _ssc
   def sparkSession: XDSession = _sparkSession
 
-  override def beforeAll()  {
-    _sc = new SparkContext(conf)
-    _ssc = new StreamingContext(sc, Seconds(2))
-    _sparkSession =  XDSession.builder().config(_sc.getConf).create("dummyUser")
-  }
-
-  override def afterAll() : Unit = {
-    if(ssc != null){
-      ssc.stop(stopSparkContext =  false, stopGracefully = false)
+  after {
+    if (ssc != null) {
+      ssc.stop(stopSparkContext = false, stopGracefully = false)
       _ssc = null
     }
-    if (sc != null){
+    if (sc != null) {
       sc.stop()
       _sc = null
     }
-    if (sparkSession != null){
+    if (sparkSession != null) {
       sparkSession.stop()
       _sparkSession = null
     }
@@ -68,5 +62,11 @@ private[plugin] trait TemporalSparkContext extends FlatSpec with BeforeAndAfterA
     System.gc()
   }
 
+  before {
+    _sc = new SparkContext(conf)
+    _ssc = new StreamingContext(sc, Seconds(2))
+    _sparkSession =  XDSession.builder().config(_sc.getConf).create("dummyUser")
+    SparkSession.clearActiveSession()
+  }
 
 }

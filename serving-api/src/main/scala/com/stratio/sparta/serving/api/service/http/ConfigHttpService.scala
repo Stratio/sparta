@@ -26,7 +26,7 @@ import com.wordnik.swagger.annotations.{Api, ApiOperation, ApiResponse, ApiRespo
 import spray.routing.Route
 
 
-@Api(value = HttpConstant.ConfigPath, description = "Operations on Sparta Configuration")
+@Api(value = HttpConstant.ConfigPath, description = "Operations over Sparta Configuration")
 trait ConfigHttpService extends BaseHttpService with SpartaSerializer {
 
   override def routes(user: Option[LoggedUser] = None): Route = getAll(user)

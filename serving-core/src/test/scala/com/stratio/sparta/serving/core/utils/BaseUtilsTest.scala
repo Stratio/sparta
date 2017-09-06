@@ -18,14 +18,8 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.ActorSystem
 import akka.testkit._
-import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
-import com.stratio.sparta.sdk.pipeline.input.Input
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.workflow.cube.{CubeModel, DimensionModel, OperatorModel}
-import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.models.workflow.transformations.{OutputFieldsModel, TransformationModel, TransformationsModel}
-import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 import org.scalatest._
 import org.scalatest.mock.MockitoSugar
@@ -41,23 +35,8 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
   val interval = 60000
 
   protected def getWorkflowModel(id: Option[String] = Some("id"),
-                                 name: String = "testPolicy",
-                                 executionMode : String = "local"): WorkflowModel = {
-    val rawData = None
-    val outputFieldModel1 = OutputFieldsModel("out1")
-    val outputFieldModel2 = OutputFieldsModel("out2")
-
-    val transformations = Option(TransformationsModel(Seq(TransformationModel(
-      "Morphlines",
-      0,
-      Some(Input.RawDataKey),
-      Seq(outputFieldModel1, outputFieldModel2),
-      Map()))))
-    val dimensionModel = getDimensionModel
-    val operators = getOperators
-    val cubes = Seq(populateCube("cube1", outputFieldModel1, outputFieldModel2, dimensionModel, operators))
-    val outputs = Seq(WorkflowElementModel("mongo", "MongoDb", Map()))
-    val input = Some(WorkflowElementModel("kafka", "Kafka", Map()))
+                                 name: String = "testWorkflow",
+                                 executionMode : String = "local"): Workflow = {
     val settingsModel = SettingsModel(
       GlobalSettings(executionMode),
       CheckpointSettings(),
@@ -65,39 +44,13 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
       SparkSettings("local[*]", false, None, None, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
-    val policy = WorkflowModel(
+    val workflow = Workflow(
       id = id,
       settings = settingsModel,
       name = name,
       description = "whatever",
-      rawData = rawData,
-      transformations = transformations,
-      streamTriggers = Seq(),
-      cubes = cubes,
-      input = input,
-      outputs = outputs,
-      fragments = Seq()
+      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
     )
-    policy
-  }
-
-  def populateCube(name: String,
-                   outputFieldModel1: OutputFieldsModel,
-                   outputFieldModel2: OutputFieldsModel,
-                   dimensionModel: Seq[DimensionModel],
-                   operators: Seq[OperatorModel]): CubeModel =
-    CubeModel(name, dimensionModel, operators, WriterModel(Seq(outputFieldModel1.name, outputFieldModel2.name)), Seq())
-
-  def getOperators: Seq[OperatorModel] = {
-    Seq(OperatorModel("Count", "countoperator", Map()))
-  }
-
-  def getDimensionModel: Seq[DimensionModel] = {
-    Seq(DimensionModel(
-      "dimensionName",
-      "field1",
-      DimensionType.IdentityName,
-      DimensionType.DefaultDimensionClass)
-    )
+    workflow
   }
 }

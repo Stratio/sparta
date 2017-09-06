@@ -19,7 +19,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.core.actor.{FragmentActor, RequestActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{TemplateActor, RequestActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.DummySecurityClass
@@ -45,8 +45,8 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
   val executionActor = _system.actorOf(Props(new RequestActor(curatorFramework, secManager)))
   val streamingContextService = StreamingContextService(curatorFramework)
-  val fragmentActor = _system.actorOf(Props(new FragmentActor(curatorFramework, secManager)))
-  val policyActor = _system.actorOf(Props(new PolicyActor(curatorFramework, statusActor, secManager)))
+  val fragmentActor = _system.actorOf(Props(new TemplateActor(curatorFramework, secManager)))
+  val policyActor = _system.actorOf(Props(new WorkflowActor(curatorFramework, statusActor, secManager)))
   val sparkStreamingContextActor = _system.actorOf(
     Props(new LauncherActor(streamingContextService, curatorFramework, secManager)))
   val pluginActor = _system.actorOf(Props(new PluginActor(secManager)))
@@ -57,8 +57,8 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   implicit val actors = Map(
     AkkaConstant.StatusActorName -> statusActor,
-    AkkaConstant.FragmentActorName -> fragmentActor,
-    AkkaConstant.PolicyActorName -> policyActor,
+    AkkaConstant.TemplateActorName -> fragmentActor,
+    AkkaConstant.WorkflowActorName -> policyActor,
     AkkaConstant.LauncherActorName -> sparkStreamingContextActor,
     AkkaConstant.PluginActorName -> pluginActor,
     AkkaConstant.ExecutionActorName -> executionActor,

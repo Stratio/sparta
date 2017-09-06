@@ -20,7 +20,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
@@ -32,8 +32,8 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
 
   val curatorFramework: CuratorFramework
 
-  def createRequest(request: SubmitRequest): Try[SubmitRequest] = {
-    val requestPath = s"${AppConstant.ExecutionsPath}/${request.id}"
+  def createRequest(request: WorkflowExecution): Try[WorkflowExecution] = {
+    val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}/${request.id}"
     if (CuratorFactoryHolder.existsPath(requestPath)) {
       updateRequest(request)
     } else {
@@ -45,46 +45,46 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
     }
   }
 
-  def updateRequest(request: SubmitRequest): Try[SubmitRequest] = {
+  def updateRequest(request: WorkflowExecution): Try[WorkflowExecution] = {
     Try {
-      val requestPath = s"${AppConstant.ExecutionsPath}/${request.id}"
+      val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}/${request.id}"
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         curatorFramework.setData().forPath(requestPath, write(request).getBytes)
         request
       } else createRequest(request).getOrElse(throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId,
+        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId,
           s"Unable to create execution with id ${request.id}."))))
     }
   }
 
-  def findAllRequests(): Try[Seq[SubmitRequest]] =
+  def findAllRequests(): Try[Seq[WorkflowExecution]] =
     Try {
-      val requestPath = s"${AppConstant.ExecutionsPath}"
+      val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}"
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         val children = curatorFramework.getChildren.forPath(requestPath)
         val policiesRequest = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[SubmitRequest](new String(curatorFramework.getData.forPath(s"${AppConstant.ExecutionsPath}/$element")))
+          read[WorkflowExecution](new String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$element")))
         )
         policiesRequest
-      } else Seq.empty[SubmitRequest]
+      } else Seq.empty[WorkflowExecution]
     }
 
-  def findRequestById(id: String): Try[SubmitRequest] =
+  def findRequestById(id: String): Try[WorkflowExecution] =
     Try {
-      val requestPath = s"${AppConstant.ExecutionsPath}/$id"
+      val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(requestPath))
-        read[SubmitRequest](new String(curatorFramework.getData.forPath(requestPath)))
+        read[WorkflowExecution](new String(curatorFramework.getData.forPath(requestPath)))
       else throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No execution context with id $id")))
+        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No execution context with id $id")))
     }
 
   def deleteAllRequests(): Try[_] =
     Try {
-      val requestPath = s"${AppConstant.ExecutionsPath}"
+      val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}"
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         val children = curatorFramework.getChildren.forPath(requestPath)
         val policiesRequest = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[SubmitRequest](new String(curatorFramework.getData.forPath(s"${AppConstant.ExecutionsPath}/$element")))
+          read[WorkflowExecution](new String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$element")))
         )
 
         policiesRequest.foreach(request => deleteRequest(request.id))
@@ -93,11 +93,11 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
 
   def deleteRequest(id: String): Try[_] =
     Try {
-      val requestPath = s"${AppConstant.ExecutionsPath}/$id"
+      val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         log.info(s"Deleting execution with id $id")
         curatorFramework.delete().forPath(requestPath)
       } else throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsPolicyWithId, s"No execution with id $id")))
+        new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No execution with id $id")))
     }
 }

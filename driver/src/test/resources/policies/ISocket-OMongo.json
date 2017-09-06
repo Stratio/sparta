@@ -2,10 +2,6 @@
   "name": "ATSocketMongo",
   "sparkStreamingWindow": 2000,
   "checkpointPath": "checkpoint",
-  "rawData": {
-    "enabled": "false",
-    "path": "myTestParquetPath"
-  },
   "input": {
     "name": "in-socket",
     "type": "Socket",

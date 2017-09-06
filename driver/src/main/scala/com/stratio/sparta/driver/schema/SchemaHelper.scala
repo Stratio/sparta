@@ -21,20 +21,14 @@ import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.pipeline.schema.TypeOp._
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.models.workflow.cube.CubeModel
-import com.stratio.sparta.serving.core.models.workflow.transformations.TransformationModel
 import org.apache.spark.sql.types.{StructType, _}
-
-import scala.util.Try
 
 
 object SchemaHelper {
 
   private val Default_Precision = 10
   private val Default_Scale = 0
-  private val Nullable = true
-  private val NotNullable = false
   private val MetadataBuilder = new MetadataBuilder
   private val mapTypes = Map(
     TypeOp.Long -> LongType,
@@ -53,25 +47,6 @@ object SchemaHelper {
     TypeOp.MapStringInt -> MapType(StringType, IntegerType),
     TypeOp.MapStringString -> MapType(StringType, StringType),
     TypeOp.MapStringDouble -> MapType(StringType, DoubleType))
-  private val mapStringSparkTypes = Map(
-    "long" -> LongType,
-    "double" -> DoubleType,
-    "int" -> IntegerType,
-    "integer" -> IntegerType,
-    "bool" -> BooleanType,
-    "boolean" -> BooleanType,
-    "date" -> DateType,
-    "datetime" -> TimestampType,
-    "timestamp" -> TimestampType,
-    "string" -> StringType,
-    "arraydouble" -> ArrayType(DoubleType),
-    "arraystring" -> ArrayType(StringType),
-    "arraymapstringstring" -> ArrayType(MapType(StringType, StringType)),
-    "mapstringlong" -> MapType(StringType, LongType),
-    "mapstringdouble" -> MapType(StringType, DoubleType),
-    "mapstringint" -> MapType(StringType, IntegerType),
-    "mapstringstring" -> MapType(StringType, StringType),
-    "text" -> StringType)
 
   private[driver] val DefaultTimeStampTypeString = "timestamp"
   private[driver] val MeasureMetadata = MetadataBuilder.putBoolean(Output.MeasureMetadataKey, value = true).build()
@@ -95,10 +70,6 @@ object SchemaHelper {
     MapType(StringType, IntegerType) -> TypeOp.MapStringInt,
     MapType(StringType, StringType) -> TypeOp.MapStringString
   )
-
-  def getSchemasFromTransformations(transformationsModel: Seq[TransformationModel],
-                                    initSchema: Map[String, StructType]): Map[String, StructType] =
-    initSchema ++ searchSchemasFromParsers(transformationsModel.sortBy(_.order), initSchema)
 
   def getCubeSchema(cubeModel: CubeModel,
                     operators: Seq[Operator],
@@ -127,11 +98,6 @@ object SchemaHelper {
       case _ => None
     }
   }
-
-  def getStreamWriterPkFieldsMetadata(primaryKey: Option[String]): Seq[StructField] =
-    primaryKey.fold(Seq.empty[StructField]) { case fields =>
-      fields.split(",").map(field => Output.defaultStringField(field, NotNullable, PkMetadata))
-    }
 
   def getTimeTypeFromString(timeType: String): TypeOp =
     timeType.toLowerCase match {
@@ -170,36 +136,6 @@ object SchemaHelper {
     )
 
   private[driver] def rowTypeFromOption(optionType: TypeOp): DataType = mapTypes.getOrElse(optionType, StringType)
-
-
-  private[driver] def searchSchemasFromParsers(transformationsModel: Seq[TransformationModel],
-                                               schemas: Map[String, StructType]): Map[String, StructType] =
-    transformationsModel.headOption match {
-      case Some(transformationModel) =>
-        val schema = transformationModel.outputFieldsTransformed.map(outputField =>
-          outputField.name -> StructField(outputField.name,
-            mapStringSparkTypes.getOrElse(outputField.`type`.toLowerCase, StringType),
-            Nullable
-          )
-        )
-
-        val inputFields = schemas.values.flatMap(structType => structType.fields)
-        val fieldsFiltered = {
-          if (Try(transformationModel.configuration.getBoolean("removeInputField")).getOrElse(false) &&
-            transformationModel.inputField.isDefined)
-            inputFields.filter(stField => stField.name != transformationModel.inputField.get)
-          else inputFields
-        }
-
-        val fields = fieldsFiltered ++ schema.map(_._2)
-        val recursiveSchema = Map(transformationModel.order.toString -> StructType(fields.toSeq))
-
-        if (transformationsModel.size == 1)
-          schemas ++ recursiveSchema
-        else schemas ++ searchSchemasFromParsers(transformationsModel.drop(1), recursiveSchema)
-      case None =>
-        schemas
-    }
 
   private[driver] def filterDimensionsByTime(dimensions: Seq[Dimension],
                                              timeDimension: Option[String]): Seq[Dimension] =

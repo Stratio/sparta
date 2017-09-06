@@ -17,15 +17,13 @@
 package com.stratio.sparta.serving.core.actor
 
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
-
+import com.stratio.sparta.serving.core.models.workflow.{WorkflowExecution, Workflow}
 
 object LauncherActor {
 
-  case class Launch(policy: WorkflowModel, user: Option[LoggedUser])
+  case class Launch(policy: Workflow, user: Option[LoggedUser])
 
-  case class Start(policy: WorkflowModel)
+  case class Start(policy: Workflow)
 
-  case class StartWithRequest(policy: WorkflowModel, request: SubmitRequest)
+  case class StartWithRequest(policy: Workflow, request: WorkflowExecution)
 }

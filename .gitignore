@@ -50,6 +50,7 @@ examples/scripts/temp.json
 logs
 /default
 checkpoint
+spark-warehouse
 node
 node_modules
 bower_components

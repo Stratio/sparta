@@ -21,15 +21,15 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, ClusterListenerUtils, PolicyStatusUtils}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, ClusterListenerUtils, WorkflowStatusUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
 class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
-  with PolicyStatusUtils with ClusterListenerUtils with ActionUserAuthorize{
+  with WorkflowStatusUtils with ClusterListenerUtils with ActionUserAuthorize{
 
   val ResourceType = "context"
 
@@ -47,13 +47,13 @@ class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opti
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
 
-  def createStatus(policyStatus: WorkflowStatusModel, user: Option[LoggedUser]): Unit = {
+  def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseStatus(createStatus(policyStatus))
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
   }
 
-  def update(policyStatus: WorkflowStatusModel, user: Option[LoggedUser]): Unit = {
+  def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseStatus(updateStatus(policyStatus))
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
@@ -84,11 +84,11 @@ class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opti
 
 object StatusActor {
 
-  case class Update(policyStatus: WorkflowStatusModel, user: Option[LoggedUser])
+  case class Update(policyStatus: WorkflowStatus, user: Option[LoggedUser])
 
-  case class CreateStatus(policyStatus: WorkflowStatusModel, user: Option[LoggedUser])
+  case class CreateStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser])
 
-  case class AddListener(name: String, callback: (WorkflowStatusModel, NodeCache) => Unit)
+  case class AddListener(name: String, callback: (WorkflowStatus, NodeCache) => Unit)
 
   case class DeleteStatus(id: String, user: Option[LoggedUser])
 
@@ -98,7 +98,7 @@ object StatusActor {
 
   case class FindById(id: String, user: Option[LoggedUser])
 
-  case class ResponseStatus(policyStatus: Try[WorkflowStatusModel])
+  case class ResponseStatus(policyStatus: Try[WorkflowStatus])
 
   case class ResponseDelete(value: Try[_])
 

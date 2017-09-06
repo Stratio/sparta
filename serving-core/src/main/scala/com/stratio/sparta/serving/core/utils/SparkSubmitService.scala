@@ -18,21 +18,20 @@ package com.stratio.sparta.serving.core.utils
 
 import java.io.File
 
-import com.stratio.sparta.sdk.pipeline.input.Input
-import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.typesafe.config.Config
 
 import scala.collection.JavaConversions._
 import scala.util.{Properties, Try}
 
-class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
+class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   // Spark submit arguments supported
   val SubmitArguments = Seq(SubmitDeployMode, SubmitName, SubmitPropertiesFile, SubmitTotalExecutorCores,
@@ -227,12 +226,9 @@ class SparkSubmitService(workflow: WorkflowModel) extends ArgumentsUtils {
   }
 
   private[sparta] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
-    val inputConfs = workflow.input.fold(Map.empty[String, String]) { input =>
-      getSparkConfsReflec(Seq(input), Input.SparkSubmitConfigurationMethod, Input.ClassSuffix)
-    }
-    val outputsConfs = getSparkConfsReflec(workflow.outputs, Output.SparkSubmitConfMethod, Output.ClassSuffix)
+    val sparkConfsReflection = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
 
-    sparkConfs ++ inputConfs ++ outputsConfs
+    sparkConfs ++ sparkConfsReflection
   }
 
   private[sparta] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] = {

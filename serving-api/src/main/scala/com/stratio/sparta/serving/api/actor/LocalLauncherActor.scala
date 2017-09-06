@@ -23,23 +23,23 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowModel, WorkflowStatusModel}
-import com.stratio.sparta.serving.core.utils.{LauncherUtils, PolicyStatusUtils, SparkSubmitService}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.utils.{LauncherUtils, WorkflowStatusUtils, SparkSubmitService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
-  extends Actor with LauncherUtils with PolicyStatusUtils {
+  extends Actor with LauncherUtils with WorkflowStatusUtils {
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(policy: WorkflowModel) => doInitSpartaContext(policy)
+    case Start(policy: Workflow) => doInitSpartaContext(policy)
     case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 
-  private def doInitSpartaContext(workflow: WorkflowModel): Unit = {
+  private def doInitSpartaContext(workflow: Workflow): Unit = {
     val sparkSubmitService = new SparkSubmitService(workflow)
     val jars = sparkSubmitService.userPluginsFiles
 
@@ -47,9 +47,9 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     Try {
       val startingInfo = s"Starting a Sparta local job for the workflow"
       log.info(startingInfo)
-      updateStatus(WorkflowStatusModel(
+      updateStatus(WorkflowStatus(
         id = workflow.id.get,
-        status = PolicyStatusEnum.NotStarted,
+        status = WorkflowStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.ConfigLocal)
       ))
@@ -58,9 +58,9 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       ssc.start()
       val startedInformation = s"Sparta local job was started correctly"
       log.info(startedInformation)
-      updateStatus(WorkflowStatusModel(
+      updateStatus(WorkflowStatus(
         id = workflow.id.get,
-        status = PolicyStatusEnum.Started,
+        status = WorkflowStatusEnum.Started,
         statusInfo = Some(startedInformation),
         resourceManagerUrl = ResourceManagerLinkHelper.getLink(
           workflow.settings.global.executionMode,
@@ -75,17 +75,17 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         SparkContextFactory.destroySparkContext()
         val information = s"Sparta local job stopped correctly"
         log.info(information)
-        updateStatus(WorkflowStatusModel(
-          id = workflow.id.get, status = PolicyStatusEnum.Stopped, statusInfo = Some(information)))
+        updateStatus(WorkflowStatus(
+          id = workflow.id.get, status = WorkflowStatusEnum.Stopped, statusInfo = Some(information)))
         self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the Sparta local job"
         log.error(information, exception)
-        updateStatus(WorkflowStatusModel(
+        updateStatus(WorkflowStatus(
           id = workflow.id.get,
-          status = PolicyStatusEnum.Failed,
+          status = WorkflowStatusEnum.Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         SparkContextFactory.destroySparkContext()
         self ! PoisonPill

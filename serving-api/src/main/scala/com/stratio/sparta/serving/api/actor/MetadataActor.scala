@@ -89,7 +89,7 @@ class MetadataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Ac
     val format = DateTimeFormat.forPattern("yyyy-MM-dd-hh:mm:ss")
     val appInfo = InfoHelper.getAppInfo
     def callback () = Try {
-      dump(BaseZKPath, s"$targetDir/backup-${format.print(DateTime.now)}-${appInfo.pomVersion}.json")
+      dump(BaseZkPath, s"$targetDir/backup-${format.print(DateTime.now)}-${appInfo.pomVersion}.json")
     } match {
       case Success(_) =>
        SpartaFilesResponse(browseDirectory())
@@ -107,7 +107,7 @@ class MetadataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Ac
   }
 
   def cleanMetadata(user: Option[LoggedUser]): Unit = {
-    def callback() = BackupResponse(Try(cleanZk(BaseZKPath)))
+    def callback() = BackupResponse(Try(cleanZk(BaseZkPath)))
 
     securityActionAuthorizer[BackupResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }

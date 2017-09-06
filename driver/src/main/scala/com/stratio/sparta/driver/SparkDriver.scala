@@ -22,9 +22,9 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
-import com.stratio.sparta.serving.core.models.enumerators.PolicyStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowErrorModel, WorkflowStatusModel}
-import com.stratio.sparta.serving.core.utils.{FragmentUtils, PluginsFilesUtils, PolicyStatusUtils, PolicyUtils}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.utils.{TemplateUtils, PluginsFilesUtils, WorkflowStatusUtils, WorkflowUtils}
 import com.typesafe.config.ConfigFactory
 import org.apache.curator.framework.CuratorFramework
 
@@ -60,24 +60,21 @@ object SparkDriver extends PluginsFilesUtils {
       initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
       val curatorInstance = CuratorFactoryHolder.getInstance()
-      val policyStatusUtils = new PolicyStatusUtils {
+      val policyStatusUtils = new WorkflowStatusUtils {
         override val curatorFramework: CuratorFramework = curatorInstance
       }
       Try {
         addPluginsToClassPath(pluginsFiles)
-        val policyUtils = new PolicyUtils {
+        val policyUtils = new WorkflowUtils {
           override val curatorFramework: CuratorFramework = curatorInstance
         }
-        val fragmentUtils = new FragmentUtils {
-          override val curatorFramework: CuratorFramework = curatorInstance
-        }
-        val workflow = fragmentUtils.getPolicyWithFragments(policyUtils.getPolicyById(workflowId))
+        val workflow = policyUtils.getWorkflowById(workflowId)
         val startingInfo = s"Launching workflow in cluster..."
         log.info(startingInfo)
-        policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
+        policyStatusUtils.updateStatus(WorkflowStatus(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(curatorInstance)
         val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
-        policyStatusUtils.updateStatus(WorkflowStatusModel(
+        policyStatusUtils.updateStatus(WorkflowStatus(
           id = workflowId,
           status = NotDefined,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
@@ -85,7 +82,7 @@ object SparkDriver extends PluginsFilesUtils {
         ssc.start
         val startedInfo = s"Application with id: ${ssc.sparkContext.applicationId} was properly launched"
         log.info(startedInfo)
-        policyStatusUtils.updateStatus(WorkflowStatusModel(
+        policyStatusUtils.updateStatus(WorkflowStatus(
           id = workflowId,
           status = Started,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
@@ -99,15 +96,15 @@ object SparkDriver extends PluginsFilesUtils {
         case Success(_) =>
           val information = s"Sparta job in cluster was properly stopped"
           log.info(information)
-          policyStatusUtils.updateStatus(WorkflowStatusModel(id = workflowId, status = Stopped, statusInfo = Some(information)))
+          policyStatusUtils.updateStatus(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Some(information)))
         case Failure(exception) =>
           val information = s"Error initiating Sparta job in cluster"
           log.error(information)
-          policyStatusUtils.updateStatus(WorkflowStatusModel(
+          policyStatusUtils.updateStatus(WorkflowStatus(
             id = workflowId,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowErrorModel(information, PhaseEnum.Execution, exception.toString))
+            lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
           ))
           throw DriverException(information, exception)
       }

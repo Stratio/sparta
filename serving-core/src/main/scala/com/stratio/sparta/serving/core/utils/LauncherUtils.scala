@@ -18,14 +18,14 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusModel
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.typesafe.config.Config
 
 import scala.util.{Failure, Success, Try}
 
 trait LauncherUtils extends SLF4JLogging{
 
-  def loggingResponseWorkflowStatus(response: Try[WorkflowStatusModel]): Unit =
+  def loggingResponseWorkflowStatus(response: Try[WorkflowStatus]): Unit =
     response match {
       case Success(statusModel) =>
         log.info(s"Workflow status model created or updated correctly: " +

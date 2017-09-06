@@ -13,26 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.constants
 
 import scala.util.Properties
 
-object HttpConstant  {
-  final val SpartaRootPath = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME","sparta")
+object HttpConstant {
+
+  final val SpartaRootPath = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
   final val DriverPath = "driver"
   final val PluginsPath = "plugins"
-  final val FragmentPath = "fragment"
   final val TemplatePath = "template"
-  final val PolicyPath = "policy"
-  final val PolicyContextPath = "policyContext"
-  final val ExecutionsPath = "executions"
+  final val WorkflowsPath = "workflows"
+  final val WorkflowStatusesPath = "workflowStatuses"
+  final val ExecutionsPath = "workflowExecutions"
   final val SwaggerPath = "swagger"
-  final val ContextsPath = "contexts"
   final val ConfigPath = "config"
-  final val AppStatus= "status"
-  final val CrossdataPath= "crossdata"
+  final val AppStatus = "appStatus"
+  final val CrossdataPath = "crossdata"
   final val AppInfoPath = "appInfo"
-  final val MetadataPath= "metadata"
+  final val MetadataPath = "metadata"
   final val NotFound = 400
   final val NotFoundMessage = "Not Found"
 }

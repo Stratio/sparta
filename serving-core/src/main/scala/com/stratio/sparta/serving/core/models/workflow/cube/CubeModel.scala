@@ -16,8 +16,6 @@
 package com.stratio.sparta.serving.core.models.workflow.cube
 
 import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.serving.core.models.workflow.writer.WriterModel
-import com.stratio.sparta.serving.core.models.workflow.trigger.TriggerModel
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.util.Try
@@ -26,7 +24,6 @@ case class CubeModel(name: String,
                      dimensions: Seq[DimensionModel],
                      operators: Seq[OperatorModel],
                      writer: WriterModel,
-                     triggers: Seq[TriggerModel] = Seq.empty[TriggerModel],
                      configuration: Map[String, JsoneyString] = Map.empty
                     ) {
 

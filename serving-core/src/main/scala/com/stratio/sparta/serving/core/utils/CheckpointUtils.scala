@@ -22,7 +22,7 @@ import java.util.Calendar
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
@@ -31,13 +31,13 @@ trait CheckpointUtils extends SLF4JLogging {
 
   /* PUBLIC METHODS */
 
-  def deleteFromLocal(workflow: WorkflowModel): Unit = {
+  def deleteFromLocal(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPath(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     FileUtils.deleteDirectory(new File(checkpointDirectory))
   }
 
-  def deleteFromHDFS(workflow: WorkflowModel): Unit = {
+  def deleteFromHDFS(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPath(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     HdfsUtils().delete(checkpointDirectory)
@@ -49,7 +49,7 @@ trait CheckpointUtils extends SLF4JLogging {
       case None => false
     }
 
-  def deleteCheckpointPath(workflow: WorkflowModel): Unit =
+  def deleteCheckpointPath(workflow: Workflow): Unit =
     Try {
       if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
         deleteFromLocal(workflow)
@@ -59,7 +59,7 @@ trait CheckpointUtils extends SLF4JLogging {
       case Failure(ex) => log.error("Unable to delete checkpoint folder", ex)
     }
 
-  def createLocalCheckpointPath(workflow: WorkflowModel): Unit = {
+  def createLocalCheckpointPath(workflow: Workflow): Unit = {
     if (workflow.settings.global.executionMode == AppConstant.ConfigLocal)
       Try {
         createFromLocal(workflow)
@@ -69,7 +69,7 @@ trait CheckpointUtils extends SLF4JLogging {
       }
   }
 
-  def checkpointPath(workflow: WorkflowModel, checkTime: Boolean = true): String = {
+  def checkpointPath(workflow: Workflow, checkTime: Boolean = true): String = {
     val path = cleanCheckpointPath(workflow.settings.checkpointSettings.checkpointPath)
 
     if (checkTime && workflow.settings.checkpointSettings.addTimeToCheckpointPath)
@@ -87,7 +87,7 @@ trait CheckpointUtils extends SLF4JLogging {
     path.replace(hdfsPrefix, "")
   }
 
-  private def createFromLocal(workflow: WorkflowModel): Unit = {
+  private def createFromLocal(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPath(workflow)
     log.info(s"Creating checkpoint directory: $checkpointDirectory")
     FileUtils.forceMkdir(new File(checkpointDirectory))

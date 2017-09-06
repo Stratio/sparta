@@ -23,15 +23,15 @@ import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.api.utils.LauncherActorUtils
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServingCoreException
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, PolicyUtils}
+import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, WorkflowUtils}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
 class LauncherActor(val streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework,
                     val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with LauncherActorUtils with PolicyUtils with ActionUserAuthorize{
+  extends Actor with LauncherActorUtils with WorkflowUtils with ActionUserAuthorize{
 
   val ResourceType = "context"
 
@@ -50,9 +50,9 @@ class LauncherActor(val streamingContextService: StreamingContextService, val cu
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
-  def create(policy: WorkflowModel): Try[WorkflowModel] =
+  def create(policy: Workflow): Try[Workflow] =
     Try {
-      if (policy.id.isEmpty) createPolicy(policy)
+      if (policy.id.isEmpty) createWorkflow(policy)
       launch(policy, context)
     }
 }

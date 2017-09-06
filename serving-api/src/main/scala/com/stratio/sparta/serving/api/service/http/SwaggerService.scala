@@ -24,14 +24,14 @@ import scala.reflect.runtime.universe._
 trait SwaggerService extends SwaggerHttpService {
 
   override def apiTypes: Seq[Type] = Seq(
-    typeOf[FragmentHttpService],
-    typeOf[PolicyHttpService],
-    typeOf[PolicyContextHttpService],
+    typeOf[TemplateHttpService],
+    typeOf[WorkflowHttpService],
+    typeOf[WorkflowStatusHttpService],
     typeOf[PluginsHttpService],
     typeOf[DriverHttpService],
     typeOf[AppStatusHttpService],
     typeOf[ExecutionHttpService],
-    typeOf[InfoServiceHttpService],
+    typeOf[AppInfoHttpService],
     typeOf[ConfigHttpService],
     typeOf[CrossdataHttpService],
     typeOf[MetadataHttpService]
@@ -43,10 +43,10 @@ trait SwaggerService extends SwaggerHttpService {
   override def docsPath: String = "api-docs"
 
   override def apiInfo: Option[ApiInfo] = Some(ApiInfo(
-    "SpaRTA",
-    "A real time aggregation engine full spark based.",
+    "Sparta",
+    "A data pipelines build tool full Spark based.",
     "",
-    "Sparta@stratio.com",
+    "sparta@stratio.com",
     "Apache V2",
     "http://www.apache.org/licenses/LICENSE-2.0"
   ))

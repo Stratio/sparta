@@ -20,11 +20,11 @@ import java.io.File
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.models.workflow.WorkflowModel
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 
 import scala.util.Try
 
-case class ClusterSparkFilesUtils(policy: WorkflowModel, hdfs: HdfsUtils) extends CheckpointUtils {
+case class ClusterSparkFilesUtils(policy: Workflow, hdfs: HdfsUtils) extends CheckpointUtils {
 
   private val hdfsConfig = SpartaConfig.getHdfsConfig.get
   private val host = hdfsConfig.getString(AppConstant.HdfsMaster)

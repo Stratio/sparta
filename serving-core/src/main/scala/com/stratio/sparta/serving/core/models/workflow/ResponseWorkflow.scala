@@ -18,4 +18,4 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import scala.util.Try
 
-case class ResponseWorkflow(policy: Try[WorkflowModel])
+case class ResponseWorkflow(policy: Try[Workflow])

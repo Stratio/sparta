@@ -17,10 +17,10 @@
 package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
-import com.stratio.sparta.security.{Create, Edit,View,Delete, SpartaSecurityManager}
+import com.stratio.sparta.security.{Create, Delete, Edit, SpartaSecurityManager, View}
 import com.stratio.sparta.serving.core.actor.RequestActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.submit.SubmitRequest
+import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, RequestUtils}
 import org.apache.curator.framework.CuratorFramework
 
@@ -39,13 +39,13 @@ class RequestActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opt
     case _ => log.info("Unrecognized message in Policy Request Actor")
   }
 
-  def createExecution(request: SubmitRequest, user: Option[LoggedUser]): Unit = {
+  def createExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
     def callback() = createRequest(request)
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
   }
 
-  def updateExecution(request: SubmitRequest, user: Option[LoggedUser]): Unit = {
+  def updateExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
     def callback() = updateRequest(request)
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
@@ -74,9 +74,9 @@ class RequestActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opt
 
 object RequestActor {
 
-  case class Update(request: SubmitRequest, user: Option[LoggedUser])
+  case class Update(request: WorkflowExecution, user: Option[LoggedUser])
 
-  case class CreateExecution(request: SubmitRequest, user: Option[LoggedUser])
+  case class CreateExecution(request: WorkflowExecution, user: Option[LoggedUser])
 
   case class DeleteExecution(id: String, user: Option[LoggedUser])
 

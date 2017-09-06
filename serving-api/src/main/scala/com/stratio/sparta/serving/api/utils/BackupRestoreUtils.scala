@@ -167,7 +167,7 @@ trait BackupRestoreUtils extends SLF4JLogging with SpartaSerializer {
 
       val fullPath = (zkPath + path).replace("//", "/")
       val reg = "(/stratio/sparta/sparta.*?(?=/))".r
-      val restorePath = reg.replaceAllIn(fullPath, AppConstant.BaseZKPath)
+      val restorePath = reg.replaceAllIn(fullPath, AppConstant.BaseZkPath)
 
       if (client.exists(restorePath)) client.setAcl(restorePath, acls)
       else client.createPersistent(restorePath, true, acls)

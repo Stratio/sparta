@@ -17,7 +17,7 @@
 
 package com.stratio.sparta.driver.test.cube
 
-import com.stratio.sparta.driver.step.{Cube, Trigger}
+import com.stratio.sparta.driver.step.Cube
 import com.stratio.sparta.driver.writer.WriterOptions
 import com.stratio.sparta.plugin.cube.operator.count.CountOperator
 import com.stratio.sparta.plugin.cube.operator.sum.SumOperator
@@ -62,7 +62,6 @@ class CubeTest extends TestSuiteBase {
       initSchema,
       TypeOp.Timestamp,
       Option(expiringDataConfig),
-      Seq.empty[Trigger],
       WriterOptions(),
       true
     )
@@ -140,7 +139,6 @@ class CubeTest extends TestSuiteBase {
       initSchema,
       TypeOp.Timestamp,
       expiringDataConfig = None,
-      Seq.empty[Trigger],
       WriterOptions(),
       true
     )

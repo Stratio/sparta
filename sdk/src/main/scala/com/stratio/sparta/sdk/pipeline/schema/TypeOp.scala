@@ -23,6 +23,7 @@ import java.util.Date
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime._
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.json4s.JDecimal
 import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
@@ -284,6 +285,9 @@ object TypeOp extends Enumeration {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString
         }))
+    case value if value.isInstanceOf[Seq[GenericRowWithSchema]] =>
+      val valueRow = value.asInstanceOf[Seq[GenericRowWithSchema]]
+      valueRow.map(row => row.getValuesMap[String](row.schema.fieldNames))
     case value if value == null => null
     case _ => origValue.asInstanceOf[Seq[Map[String, String]]]
   }
@@ -301,6 +305,9 @@ object TypeOp extends Enumeration {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString
         })
+    case value if value.isInstanceOf[GenericRowWithSchema] =>
+      val valueRow = value.asInstanceOf[GenericRowWithSchema]
+      valueRow.getValuesMap[String](valueRow.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, String]]
   }
@@ -318,6 +325,9 @@ object TypeOp extends Enumeration {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString.toInt
         })
+    case value if value.isInstanceOf[GenericRowWithSchema] =>
+      val valueRow = value.asInstanceOf[GenericRowWithSchema]
+      valueRow.getValuesMap[Int](valueRow.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Int]]
   }
@@ -335,6 +345,9 @@ object TypeOp extends Enumeration {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString.toLong
         })
+    case value if value.isInstanceOf[GenericRowWithSchema] =>
+      val valueRow = value.asInstanceOf[GenericRowWithSchema]
+      valueRow.getValuesMap[Long](valueRow.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Long]]
   }
@@ -352,6 +365,9 @@ object TypeOp extends Enumeration {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString.toDouble
         })
+    case value if value.isInstanceOf[GenericRowWithSchema] =>
+      val valueRow = value.asInstanceOf[GenericRowWithSchema]
+      valueRow.getValuesMap[Double](valueRow.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Double]]
   }
