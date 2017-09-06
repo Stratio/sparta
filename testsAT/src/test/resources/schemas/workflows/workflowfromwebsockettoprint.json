@@ -1,7 +1,7 @@
 {
-  "id": "2793d6c2-d8a5-4993-ad44-47fb7ac9aeae",
-  "name": "kafka-postgres-tickets",
-  "description": "https://sso.paas.labs.stratio.com/",
+  "id": "b0fa49ee-eca4-42ba-97da-e539c68ebc15",
+  "name": "workflowfromwebsockettoprint",
+  "description": "workflowfromwebsockettoprint",
   "settings": {
     "global": {
       "executionMode": "marathon",
@@ -20,6 +20,7 @@
     },
     "checkpointSettings": {
       "checkpointPath": "sparta/checkpoint",
+      "enableCheckpointing": true,
       "autoDeleteCheckpoint": true,
       "addTimeToCheckpointPath": false
     },
@@ -30,7 +31,6 @@
       "master": "mesos://leader.mesos:5050",
       "sparkKerberos": false,
       "sparkHome": "/opt/spark/dist",
-      "sparkUser": "root",
       "submitArguments": {
         "userArguments": [
           {
@@ -43,7 +43,7 @@
       },
       "sparkConf": {
         "sparkResourcesConf": {
-          "coresMax": "2",
+          "coresMax": "1",
           "executorMemory": "1G",
           "executorCores": "1",
           "driverCores": "1",
@@ -81,23 +81,15 @@
         "inputField": "_attachment_body",
         "outputFields": [
           {
-            "name": "id",
-            "type": "string"
-          },
-          {
-            "name": "items",
+            "name": "response",
             "type": "string"
           }
         ],
         "configuration": {
           "queries": [
             {
-              "field": "id",
-              "query": "$.id"
-            },
-            {
-              "field": "items",
-              "query": "$.items"
+              "field": "response",
+              "query": "$.response"
             }
           ],
           "supportNullValues": true,
@@ -109,7 +101,7 @@
   },
   "streamTriggers": [
     {
-      "name": "triggertickets",
+      "name": "response",
       "sql": "select * from stream",
       "writer": {
         "outputs": [
@@ -128,89 +120,69 @@
       "name": "cube1",
       "dimensions": [
         {
-          "name": "items",
-          "field": "items",
+          "name": "response",
+          "field": "response",
           "precision": "identity",
           "type": "Default"
         }
       ],
       "operators": [
         {
-          "type": "FullText",
-          "name": "fulltext",
+          "type": "Count",
+          "name": "count",
           "configuration": {}
         }
       ],
       "writer": {
         "outputs": [
-          "postgres"
+          "print"
         ],
         "dateType": "timestamp",
         "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "tableName": "cubetickets"
+        "saveMode": "Upsert"
       },
       "triggers": [],
       "configuration": {}
     }
   ],
   "input": {
-    "name": "kafka-khermes",
-    "type": "Kafka",
+    "name": "websocket",
+    "type": "WebSocket",
     "configuration": {
-      "key.deserializer": "string",
-      "locationStrategy": "preferconsistent",
-      "vaultKeyPassPath": "/v1/userland/passwords/spark-1/keystore",
-      "topics": [
-        {
-          "topic": "khermes"
-        }
-      ],
-      "auto.offset.reset": "latest",
-      "partition.assignment.strategy": "range",
-      "group.id": "",
-      "bootstrap.servers": [
-        {
-          "port": "9205",
-          "host": "broker-1.confluent-kafka-sec.mesos"
-        },
-        {
-          "port": "9718",
-          "host": "broker-2.confluent-kafka-sec.mesos"
-        }
-      ],
-      "enable.auto.commit": false,
-      "vaultCertPath": "/v1/userland/certificates/spark-1",
-      "value.deserializer": "string",
-      "kafkaProperties": [
-        {
-          "kafkaPropertyKey": "",
-          "kafkaPropertyValue": ""
-        }
-      ],
-      "vaultCertPassPath": "/v1/userland/passwords/spark-1/keystore",
-      "storeOffsetInKafka": true
+      "url": "ws://stream.meetup.com/2/rsvps",
+      "storageLevel": "MEMORY_ONLY_SER"
     }
   },
   "outputs": [
     {
+      "name": "print",
+      "type": "Print",
+      "configuration": {
+        "printMetadata": false,
+        "printData": true,
+        "printSchema": true,
+        "logLevel": "warn"
+      }
+    },
+    {
       "name": "postgres",
       "type": "Postgres",
       "configuration": {
-        "url": "jdbc:postgresql://10.200.0.151:1026/postgres?user=postgres",
-        "batchsize": "1000",
-        "encoding": "UTF8",
+        "url": "jdbc:postgresql://pg_0001-postgressec.service.paas.labs.stratio.com:1027/postgres?user=sparta&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
+        "postgresSaveMode": "STATEMENT",
+        "batchsize": "",
+        "isolationLevel": "READ_UNCOMMITTED",
         "driver": "",
+        "caName": "ca",
         "bufferSize": "65536",
-        "newLineSubstitution": " ",
+        "tlsEnable": true,
         "saveOptions": [
           {
             "saveOptionsValue": "",
             "saveOptionsKey": ""
           }
         ],
-        "numPartitions": "",
-        "delimiter": "\t"
+        "numPartitions": ""
       }
     }
   ],

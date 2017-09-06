@@ -25,7 +25,7 @@ Feature: [SPARTA][DCOS]Validate workflow in DCOS Kafka to Postgres
       |   $.env.VAULT_HOSTS                                  |  UPDATE     | !{vaultIP}                       | n/a |
       |   $.env.HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN        |  UPDATE     | ${HADOOP_PATTERN}                |n/a |
       |   $.env.HADOOP_NAMENODE_KRB_PRINCIPAL                |  UPDATE     | ${HADOOP_PRINCIPAL}              |n/a |
-      |   $.env.HADOOP_FS_DEFAULT_NAME                       |  UPDATE     | ${HADOOP_DEFAULT_NAME}          |n/a |
+      |   $.env.HADOOP_FS_DEFAULT_NAME                       |  UPDATE     | ${HADOOP_DEFAULT_NAME}           |n/a |
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/SpartaSecurityInstalation.json' through a ssh connection to '/dcos'
     #Start image from JSON

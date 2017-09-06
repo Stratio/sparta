@@ -10,15 +10,18 @@
     "ZOOKEEPER_LOG_LEVEL": "OFF",
     "SPARTA_PLUGIN_LDAP_HOST": "ldap.integration.labs.stratio.com",
     "HDFS_SECURITY_ENABLED": "true",
+    "OAUTH2_SSL_AUTHORIZE": "https://megadev.labs.stratio.com:9005/sso/oauth2.0/authorize",
+    "OAUTH2_URL_PROFILE": "https://megadev.labs.stratio.com:9005/sso/oauth2.0/profile",
     "SPARTA_PLUGIN_CACHE_ENABLED": "false",
     "SPARTA_HEAP_MINIMUM_SIZE": "-Xms1024m",
     "SECURITY_MESOS_ENABLE": "true",
+    "SECURITY_MARATHON_ENABLE": "true",
     "SPARTA_MARATHON_INTERVAL_SECONDS": "60",
     "HADOOP_CONF_FROM_DFS": "true",
     "SPARTA_MARATHON_GRACEPERIODS_SECONDS": "180",
     "CROSSDATA_CORE_CATALOG_CLASS": "org.apache.spark.sql.crossdata.catalyst.catalog.persistent.zookeeper.ZookeeperCatalog",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONTIMEOUT": "15000",
-    "SPARTA_ZOOKEEPER_CONNECTION_STRING": "zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181",
+    "SPARTA_ZOOKEEPER_CONNECTION_STRING": "zk-0001-zkuserland.service.paas.labs.stratio.com:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181",
     "HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH": "128",
     "SPARTA_PLUGIN_LDAP_GROUP_DOMAIN": "ou=Groups,dc=stratio,dc=com",
     "CORE_SITE_FROM_URI": "false",
@@ -26,9 +29,9 @@
     "HADOOP_SECURITY_AUTH": "kerberos",
     "SPARTA_PLUGIN_ZK_CONNECT": "gosec1.node.paas.labs.stratio.com:2181,gosec2.node.paas.labs.stratio.com:2181,gosec3.node.paas.labs.stratio.com:2181",
     "SERVICE_LOG_LEVEL": "ERROR",
-    "HADOOP_FS_DEFAULT_NAME": "hdfs://192.168.0.235:8020",
+    "HADOOP_FS_DEFAULT_NAME": "hdfs://10.200.0.74:8020",
     "CROSSDATA_SERVER_SPARK_UI_ENABLED": "false",
-    "MARATHON_SSO_URI": "https://dphe.labs.stratio.com/sso",
+    "MARATHON_SSO_URI": "https://megadev.labs.stratio.com:9005/sso",
     "SPARTA_DOCKER_IMAGE": "qa.stratio.com/stratio/sparta:1.7.3",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_RETRYINTERVAL": "10000",
     "SECURITY_TRUSTSTORE_ENABLE": "true",
@@ -45,10 +48,10 @@
     "SPARTA_MARATHON_MESOSPHERE_PACKAGES": "/opt/mesosphere/packages",
     "CROSSDATA_SERVER_SPARK_EXECUTOR_CA_NAME": "ca",
     "HADOOP_DFS_ENCRYPT_DATA_TRANSFER": "true",
+    "SECURITY_MARATHON_ENABLED": "true",
     "FRONTEND_TIMEOUT": "10000",
     "CROSSDATA_SERVER_SPARK_EXECUTOR_APP_NAME": "sparta-server",
     "SPARTA_AWAIT_POLICY_CHANGE_STATUS": "360s",
-    "MARATHON_SSO_PASSWORD": "1234",
     "MARATHON_SSO_CLIENT_ID": "adminrouter_paas-master-1.node.paas.labs.stratio.com",
     "SPARTA_PLUGIN_KAFKA_TOPIC": "audit",
     "NETTY_LOG_LEVEL": "ERROR",
@@ -60,14 +63,15 @@
     "CROSSDATA_CORE_ENABLE_CATALOG": "true",
     "SECURITY_TLS_ENABLE": "true",
     "SPARTA_ZOOKEEPER_SESSION_TIMEOUT": "60000",
-    "HADOOP_NAMENODE_KRB_PRINCIPAL": "hdfs/192.168.0.235@PERFORMANCE.STRATIO.COM",
+    "HADOOP_NAMENODE_KRB_PRINCIPAL": "hdfs/10.200.0.74@DEMO.STRATIO.COM",
     "SPARTA_MARATHON_MESOSPHERE_LIB": "/opt/mesosphere/lib",
     "APPROLENAME": "open",
+    "CALICO_NETWORK": "stratio",
     "SECURITY_OAUTH2_ENABLE": "false",
-    "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONSTRING": "zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181",
+    "CROSSDATA_CORE_CATALOG_ZOOKEEPER_CONNECTIONSTRING": "zk-0001-zkuserland.service.paas.labs.stratio.com:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181",
     "VAULT_ENABLE": "true",
     "SPARTA_PLUGIN_INSTANCE": "sparta-server",
-    "MARATHON_SSO_REDIRECT_URI": "https://dphe.labs.stratio.com/acs/api/v1/auth/login",
+    "MARATHON_SSO_REDIRECT_URI": "https://megadev.labs.stratio.com/acs/api/v1/auth/login",
     "HADOOP_CONF_FROM_URI": "false",
     "VAULT_PORT": "8200",
     "SPARTA_ZOOKEEPER_PATH": "/stratio/sparta/sparta-server",
@@ -76,25 +80,24 @@
     "SPARTA_HEAP_SIZE": "-Xmx2048m",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_SESSIONTIMEOUT": "60000",
     "SPRAY_CAN_SERVER_SSL_ENCRYPTION": "true",
-    "SPARTA_LOG_LEVEL": "INFO",
-    "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN": "hdfs/*@PERFORMANCE.STRATIO.COM",
+    "SPARTA_LOG_LEVEL": "DEBUG",
+    "HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN": "hdfs/*@DEMO.STRATIO.COM",
     "SPARTA_ZOOKEEPER_RETRY_ATEMPTS": "5",
     "MARATHON_TIKI_TAKKA_MARATHON_API_VERSION": "v2",
     "SPARTA_PLUGIN_KAFKA_BOOTSTRAP": "gosec1.node.paas.labs.stratio.com:9092,gosec2.node.paas.labs.stratio.com:9092,gosec3.node.paas.labs.stratio.com:9092",
     "RUN_MODE": "production",
     "CROSSDATA_CORE_CATALOG_ZOOKEEPER_RETRYATTEMPTS": "5",
-    "CALICO_ENABLED": "false",
+    "CALICO_ENABLED": "true",
     "VAULT_HOSTS": "vault.service.paas.labs.stratio.com",
     "SPARTA_ZOOKEEPER_CONNECTION_TIMEOUT": "15000",
     "HADOOP_CONF_FROM_DFS_NOT_SECURED": "false",
     "USE_DYNAMIC_AUTHENTICATION": "true",
-    "MARATHON_SSO_USERNAME": "admin",
     "CROSSDATA_SERVER_CONFIG_SPARK_MASTER": "mesos://leader.mesos:5050",
     "HADOOP_RPC_PROTECTION": "authentication",
     "HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES": "AES/CTR/NoPadding",
     "SPARK_LOG_LEVEL": "INFO",
     "SPARTA_PLUGIN_MGMT_PRINCIPAL": "gosec-management",
-    "MARATHON_TIKI_TAKKA_MARATHON_URI": "https://dphe.labs.stratio.com/service/marathon/",
+    "MARATHON_TIKI_TAKKA_MARATHON_URI": "https://megadev.labs.stratio.com/service/marathon/",
     "APPROLE": {
       "secret": "role"
     },
@@ -115,7 +118,7 @@
   "container": {
     "docker": {
       "image": "qa.stratio.com/stratio/sparta:1.7.3",
-      "forcePullImage": false,
+      "forcePullImage": true,
       "privileged": false,
       "parameters": [
         {
@@ -123,7 +126,15 @@
           "value": "/etc/krb5.conf:/etc/krb5.conf:ro"
         }
       ],
-      "network": "HOST"
+      "portMappings": [
+        {
+          "containerPort": 9090,
+          "protocol": "tcp",
+          "name": "spartaapi",
+          "servicePort": 10112
+        }
+      ],
+      "network": "USER"
     }
   },
   "healthChecks": [
@@ -155,24 +166,20 @@
     "DCOS_PACKAGE_FRAMEWORK_NAME": "sparta-server",
     "DCOS_SERVICE_PORT_INDEX": "0",
     "HAPROXY_0_PATH": "/sparta-server",
-    "DCOS_PACKAGE_VERSION": "1.7.2",
+    "DCOS_PACKAGE_VERSION": "1.7.3",
     "DCOS_PACKAGE_NAME": "sparta",
-    "DCOS_PACKAGE_IS_FRAMEWORK": "false"
+    "DCOS_PACKAGE_IS_FRAMEWORK": "false",
+    "HAPROXY_0_VHOST": "sparta.megadev.labs.stratio.com"
   },
   "acceptedResourceRoles": null,
+  "ipAddress": {
+    "networkName": "stratio"
+  },
   "residency": null,
   "secrets": {
     "role": {
       "source": "open"
     }
   },
-  "taskKillGracePeriodSeconds": null,
-  "portDefinitions": [
-    {
-      "protocol": "tcp",
-      "port": 10120,
-      "name": "spartaapi"
-    }
-  ],
-  "requirePorts": false
+  "taskKillGracePeriodSeconds": null
 }

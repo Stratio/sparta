@@ -2,48 +2,7 @@
   "id": "sparta",
   "name": "sparta",
   "users": [
-    {
-      "id": "sparta-fl",
-      "name": "sparta-fl",
-      "email": "sparta-fl@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta-jc",
-      "name": "sparta-jc",
-      "email": "sparta-jc@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta-server",
-      "name": "sparta-server",
-      "email": "sparta-server@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta",
-      "name": "sparta",
-      "email": "sparta@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta-dg",
-      "name": "sparta-dg",
-      "email": "sparta-dg@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta-tt",
-      "name": "sparta-tt",
-      "email": "sparta-tt@demo.stratio.com",
-      "custom": false
-    },
-    {
-      "id": "sparta-max",
-      "name": "sparta-max",
-      "email": "sparta-max@demo.stratio.com",
-      "custom": false
-    }
+    "user"
   ],
   "groups": [],
   "services": [

@@ -10,10 +10,10 @@ Feature: [SPARTA][DCOS]Streaming screenshots for Sparta Workflow
     When I browse to '/streaming'
     Then '1' element exists with 'id:completed'
     And I take a snapshot
-    #Given '1' element exists with 'css:button[data-qa="modal-ok-button"]'
-    #When I click on the element on index '0'
 
-
+    When I browse to '/executors'
+    Then '1' element exists with 'id:active-executors'
+    And I take a snapshot
 
 # Example of execution with mvn :
 #  mvn verify -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.ISworkflowScreenShots -DWORKFLOW_URL=192.168.0.85 -DWORKFLOW_PORT=2158 -DFORCE_BROWSER=chrome_48iddiegotest -DSELENIUM_GRID=localhost:4444

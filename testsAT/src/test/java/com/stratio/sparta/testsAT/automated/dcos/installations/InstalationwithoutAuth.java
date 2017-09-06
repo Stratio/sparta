@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.stratio.sparta.testsAT.automated.dcos.installations;
+
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
 import com.stratio.qa.utils.ThreadProperty;
@@ -23,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/AppInstalationwithfullSecurity.feature"
+        "src/test/resources/features/automated/dcos/installations/InstalationwithoutAuth.feature"
 
 })
-public class ISAppInstalationwithfullSecurity extends BaseTest {
+public class InstalationwithoutAuth extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -34,10 +35,10 @@ public class ISAppInstalationwithfullSecurity extends BaseTest {
 
     }
 
-    public ISAppInstalationwithfullSecurity() {this.browser = browser;
+    public InstalationwithoutAuth() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"dcos_instalation"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

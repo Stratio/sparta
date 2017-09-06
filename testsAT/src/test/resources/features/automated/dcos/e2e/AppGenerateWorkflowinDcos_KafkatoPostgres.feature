@@ -54,8 +54,8 @@ Feature: [SPARTA][DCOS]Generate and Execute workflow in DCOS without marathonLB
     When I send a 'DELETE' request to '/policy/!{previousWorkflowID}'
     Then the service response status must be '200'
     #Remove Sparta
-    When  I run 'dcos marathon app remove /sparta/sparta-auto' in the ssh connection
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-auto | grep R | wc -l' contains '0'
+    When  I run 'dcos marathon app remove /sparta/sparta-server' in the ssh connection
+    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server | grep R | wc -l' contains '0'
 
 
 # Example of execution with mvn :

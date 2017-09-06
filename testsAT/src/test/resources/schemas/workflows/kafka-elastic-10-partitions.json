@@ -1,6 +1,6 @@
 {
-  "id": "f30076ea-5ad5-423b-9272-00c378ed6e76",
-  "name": "kafka-postgres-tickets-carrefour",
+  "id": "dfb10cb0-f2a3-4819-a467-0eee3d681494",
+  "name": "kafka-elastic-5partitions",
   "description": "Read carrefour tickets from khermes generator",
   "settings": {
     "global": {
@@ -44,9 +44,9 @@
       },
       "sparkConf": {
         "sparkResourcesConf": {
-          "coresMax": "1",
-          "executorMemory": "1G",
-          "executorCores": "1",
+          "coresMax": "10",
+          "executorMemory": "2G",
+          "executorCores": "2",
           "driverCores": "1",
           "driverMemory": "2G",
           "localityWait": "0",
@@ -56,7 +56,7 @@
         "sparkDockerConf": {
           "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
           "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
-          "executorForcePullImage": true
+          "executorForcePullImage": false
         },
         "sparkMesosConf": {
           "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
@@ -244,7 +244,7 @@
       "sql": "SELECT p.id, p.header.ticketNumber, p.header.netAmount, vatitemsexplode.vatitemsexplodeselection.share FROM stream p LATERAL VIEW EXPLODE(p.vatItems) vatitemsexplode as vatitemsexplodeselection WHERE  vatitemsexplode.vatitemsexplodeselection.share <> 21 AND vatitemsexplode.vatitemsexplodeselection.share <> 4 AND vatitemsexplode.vatitemsexplodeselection.share <> 10",
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "autoCalculatedFields": [],
         "saveMode": "Append"
@@ -258,7 +258,7 @@
       "sql": "SELECT p.id, p.header.ticketNumber, p.header.netAmount as ticketnetAmount, itemsexplode.itemsexplodeselection.description, itemsexplode.itemsexplodeselection.netAmount FROM stream p LATERAL VIEW EXPLODE(p.items) itemsexplode as itemsexplodeselection WHERE  itemsexplode.itemsexplodeselection.netAmount > 500",
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "autoCalculatedFields": [],
         "saveMode": "Append"
@@ -272,7 +272,7 @@
       "sql": "select id from stream",
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "autoCalculatedFields": [],
         "saveMode": "Append"
@@ -316,7 +316,7 @@
       ],
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "dateType": "timestamp",
         "autoCalculatedFields": [],
@@ -358,7 +358,7 @@
       ],
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "dateType": "timestamp",
         "autoCalculatedFields": [],
@@ -400,7 +400,7 @@
       ],
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "dateType": "timestamp",
         "autoCalculatedFields": [],
@@ -428,7 +428,7 @@
       ],
       "writer": {
         "outputs": [
-          "postgres"
+          "elastic"
         ],
         "dateType": "timestamp",
         "autoCalculatedFields": [],
@@ -439,7 +439,7 @@
     }
   ],
   "input": {
-    "name": "kafka-khermes-postgres",
+    "name": "kafka-5partitions",
     "type": "Kafka",
     "configuration": {
       "key.deserializer": "string",
@@ -447,7 +447,7 @@
       "vaultKeyPassPath": "/v1/userland/passwords/sparta-server/keystore",
       "topics": [
         {
-          "topic": "khermes"
+          "topic": "5partitions"
         }
       ],
       "auto.offset.reset": "latest",
@@ -462,19 +462,19 @@
           "offsetValue": ""
         }
       ],
-      "group.id": "postgres",
+      "group.id": "kafka5partition",
       "bootstrap.servers": [
         {
           "port": "9092",
-          "host": "broker-0001.kafka-sec-demo.mesos"
+          "host": "broker-0001.kafka-sec.mesos"
         },
         {
           "port": "9092",
-          "host": "broker-0002.kafka-sec-demo.mesos"
+          "host": "broker-0002.kafka-sec.mesos"
         },
         {
           "port": "9092",
-          "host": "broker-0003.kafka-sec-demo.mesos"
+          "host": "broker-0003.kafka-sec.mesos"
         }
       ],
       "enable.auto.commit": false,
@@ -482,8 +482,16 @@
       "value.deserializer": "string",
       "kafkaProperties": [
         {
-          "kafkaPropertyKey": "",
-          "kafkaPropertyValue": ""
+          "kafkaPropertyKey": "request.timeout.ms",
+          "kafkaPropertyValue": "5000"
+        },
+        {
+          "kafkaPropertyKey": "connections.max.idle.ms",
+          "kafkaPropertyValue": "20000"
+        },
+        {
+          "kafkaPropertyKey": "session.timeout.ms",
+          "kafkaPropertyValue": "10000"
         }
       ],
       "vaultCertPassPath": "/v1/userland/passwords/sparta-server/keystore",
@@ -493,24 +501,23 @@
   },
   "outputs": [
     {
-      "name": "postgres",
-      "type": "Postgres",
+      "name": "elastic",
+      "type": "ElasticSearch",
       "configuration": {
-        "url": "jdbc:postgresql://pg_0001-postgressec.service.paas.labs.stratio.com:1026/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
-        "postgresSaveMode": "STATEMENT",
-        "batchsize": "",
-        "isolationLevel": "READ_UNCOMMITTED",
-        "driver": "",
-        "caName": "ca",
-        "bufferSize": "65536",
-        "tlsEnable": true,
-        "saveOptions": [
+        "nodes": [
           {
-            "saveOptionsValue": "",
-            "saveOptionsKey": ""
+            "node": "coordinator-0-node.elasticsearchstratio.mesos",
+            "httpPort": "31504"
           }
         ],
-        "numPartitions": ""
+        "clusterName": "elasticsearch",
+        "indexMapping": "sparta",
+        "saveOptions": [
+          {
+            "saveOptionsKey": "es.index.auto.create",
+            "saveOptionsValue": "true"
+          }
+        ]
       }
     }
   ],

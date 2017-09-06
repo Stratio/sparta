@@ -21,11 +21,6 @@ Feature: [SPARTA][DCOS]Instalation sparta with full security with calico
       |   $ env.OAUTH2_URL_LOGOUT                                |  UPDATE     | !{OAUTH2_URL_LOGOUT}             |n/a |
       |   $ env.OAUTH2_URL_PROFILE                               |  UPDATE     | !{OAUTH2_URL_PROFILE}            |n/a |
       |   $ env.OAUTH2_SSL_AUTHORIZE                             |  UPDATE     | !{OAUTH2_SSL_AUTHORIZE}          |n/a |
-      |   $env.                             |  UPDATE     | !{HAPROXY_0_VHOST}               |n/a |
-      |   $.labels.HAPROXY_0_VHOST                               |  UPDATE     | !{HAPROXY_0_VHOST}               |n/a |
-      |   $.labels.HAPROXY_0_VHOST                               |  UPDATE     | !{HAPROXY_0_VHOST}               |n/a |
-      |   $.labels.HAPROXY_0_VHOST                               |  UPDATE     | !{HAPROXY_0_VHOST}               |n/a |
-      |   $.labels.HAPROXY_0_VHOST                               |  UPDATE     | !{HAPROXY_0_VHOST}               |n/a |
 
     #Copy DEPLOY JSON to DCOS-CLI
     When I outbound copy 'target/test-classes/SpartaSecurityInstalation.json' through a ssh connection to '/dcos'

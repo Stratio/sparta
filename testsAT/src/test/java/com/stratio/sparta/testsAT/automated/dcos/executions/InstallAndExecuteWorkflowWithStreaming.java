@@ -13,33 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos.installations;
+package com.stratio.sparta.testsAT.automated.dcos.executions;
+
 import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
-import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/AppInstalationwithfullSecurity.feature"
+        "src/test/resources/features/automated/dcos/executions/InstallAndExecuteWorkflowWithStreaming.feature"
 
 })
-public class ISAppInstalationwithfullSecurity extends BaseTest {
 
-    @BeforeClass(groups = {"sparta_eos"})
-    public void setUp() {
-        ThreadProperty.set("Driver", "inst");
-
+public class InstallAndExecuteWorkflowWithStreaming extends BaseTest  {
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public InstallAndExecuteWorkflowWithStreaming(String browser) {
+        this.browser = browser;
     }
 
-    public ISAppInstalationwithfullSecurity() {this.browser = browser;
-    }
-
-    @Test(enabled = true, groups = {"dcos"})
-    public void AppWithoutSecurityTest() throws Exception {
+    @Test(enabled = true, groups = {"dcos_execution"})
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
 }
