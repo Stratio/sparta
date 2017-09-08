@@ -42,7 +42,7 @@ with OperatorProcessMapAsAny with Associative {
   def associativity(values: Iterable[(String, Option[Any])]): Option[String] = {
     val newValues = extractValues(values, None).map(_.toString).mkString(Operator.SpaceSeparator)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues)))
+    Try(Option(castingToSchemaType(returnType, newValues)))
       .getOrElse(Some(Operator.EmptyString))
   }
 }

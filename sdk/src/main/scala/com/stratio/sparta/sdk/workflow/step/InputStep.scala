@@ -36,13 +36,17 @@ abstract class InputStep(
                           properties: Map[String, JSerializable]
                         ) extends Parameterizable(properties) with GraphStep {
 
-  val StorageDefaultValue = "MEMORY_ONLY"
-  val DefaultRawDataField = "raw"
-  val DefaultSchema: StructType = StructType(Seq(StructField(DefaultRawDataField, StringType)))
-  val storageLevel: StorageLevel = {
+  /* GLOBAL VARIABLES */
+
+  lazy val StorageDefaultValue = "MEMORY_ONLY"
+  lazy val DefaultRawDataField = "raw"
+  lazy val DefaultSchema: StructType = StructType(Seq(StructField(DefaultRawDataField, StringType)))
+  lazy val storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
     StorageLevel.fromString(storageLevel)
   }
+
+  /* METHODS TO IMPLEMENT */
 
   /**
    * Create and initialize stream using the Spark Streaming Context.
@@ -50,6 +54,8 @@ abstract class InputStep(
    * @return The DStream created with spark rows
    */
   def initStream(): DStream[Row]
+
+  /* METHODS IMPLEMENTED */
 
   def getOutputSchema: StructType = {
     if (outputFields.nonEmpty) {

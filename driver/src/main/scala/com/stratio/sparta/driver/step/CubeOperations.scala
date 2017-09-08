@@ -47,7 +47,7 @@ case class CubeOperations(cube: Cube) extends SLF4JLogging {
         dimension <- cube.dimensions
         value = row.get(cube.initSchema.fieldIndex(dimension.field))
         (precision, dimValue) = dimension.dimensionType.precisionValue(dimension.precisionKey, value)
-      } yield DimensionValue(dimension, TypeOp.transformValueByTypeOp(precision.typeOp, dimValue))
+      } yield DimensionValue(dimension, TypeOp.castingToSchemaType(precision.typeOp, dimValue))
 
       cube.expiringDataConfig match {
         case None =>

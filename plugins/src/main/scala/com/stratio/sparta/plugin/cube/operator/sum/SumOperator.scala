@@ -36,15 +36,15 @@ with OperatorProcessMapAsNumber with Associative {
 
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     Try(Option(getDistinctValues(values.flatten.map(value =>
-      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])).sum))
+      TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Double])).sum))
       .getOrElse(Some(Operator.Zero.toDouble))
   }
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Double] = {
     val newValues = extractValues(values, None)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.map(value =>
-      TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double]).sum)))
+    Try(Option(castingToSchemaType(returnType, newValues.map(value =>
+      TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Double]).sum)))
       .getOrElse(Some(Operator.Zero.toDouble))
   }
 }

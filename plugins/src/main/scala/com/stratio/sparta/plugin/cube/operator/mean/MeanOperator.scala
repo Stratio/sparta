@@ -33,7 +33,7 @@ class MeanOperator(name: String, val schema: StructType, properties: Map[String,
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val distinctValues = getDistinctValues(values.flatten)
     distinctValues.size match {
-      case (nz) if nz != 0 => Some(transformValueByTypeOp(returnType,
+      case (nz) if nz != 0 => Some(castingToSchemaType(returnType,
         distinctValues.map(_.asInstanceOf[Number].doubleValue()).sum / distinctValues.size))
       case _ => Some(Operator.Zero.toDouble)
     }

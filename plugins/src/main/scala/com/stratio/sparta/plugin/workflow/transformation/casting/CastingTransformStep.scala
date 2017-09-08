@@ -34,7 +34,7 @@ class CastingTransformStep(name: String,
                            properties: Map[String, JSerializable])
   extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) {
 
-  def transformFunction(inputStream: DStream[Row]): DStream[Row] = inputStream
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = inputStream
 
   override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
     applyHeadTransform(inputData)(transformFunction)

@@ -41,13 +41,13 @@ with OperatorProcessMapAsAny with Associative {
     Try(Option(values.flatten.flatMap(value => {
       value match {
         case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].map(_.toString)
-        case _ => Seq(TypeOp.transformValueByTypeOp(TypeOp.String, value).asInstanceOf[String])
+        case _ => Seq(TypeOp.castingToSchemaType(TypeOp.String, value).asInstanceOf[String])
       }
     }))).getOrElse(None)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val newValues = getDistinctValues(extractValues(values, None).asInstanceOf[Seq[Seq[String]]].flatten)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues))).getOrElse(Option(Seq()))
+    Try(Option(castingToSchemaType(returnType, newValues))).getOrElse(Option(Seq()))
   }
 }

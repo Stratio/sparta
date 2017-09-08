@@ -38,7 +38,7 @@ with OperatorProcessMapAsAny {
     val tupla = values.groupBy(x => x).mapValues(_.size)
     if (tupla.nonEmpty) {
       val max = tupla.values.max
-      Try(Some(transformValueByTypeOp(returnType, tupla.filter(_._2 == max).flatMap(tuple => tuple._1)))).get
+      Try(Some(castingToSchemaType(returnType, tupla.filter(_._2 == max).flatMap(tuple => tuple._1)))).get
     } else Some(List())
   }
 }

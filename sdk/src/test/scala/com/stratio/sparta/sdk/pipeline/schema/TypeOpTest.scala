@@ -28,103 +28,103 @@ class TypeOpTest extends WordSpec with Matchers {
   "TypeOp" should {
     "typeOperation String must be " in {
       val expected = "String"
-      val result = TypeOp.transformValueByTypeOp(TypeOp.String, "String")
+      val result = TypeOp.castingToSchemaType(TypeOp.String, "String")
       result should be(expected)
     }
 
     "typeOperation ArrayDouble from any must be " in {
       val expected = Seq(1d)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayDouble, Seq("1"))
+      val result = TypeOp.castingToSchemaType(TypeOp.ArrayDouble, Seq("1"))
       result should be(expected)
     }
 
     "typeOperation ArrayMapStringString from any must be " in {
       val expected = Seq(Map("key" -> "1"))
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayMapStringString, Seq(Map("key" -> 1)))
+      val result = TypeOp.castingToSchemaType(TypeOp.ArrayMapStringString, Seq(Map("key" -> 1)))
       result should be(expected)
     }
 
     "typeOperation ArrayDouble must be " in {
       val expected = Seq(1d)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayDouble, Seq(1d))
+      val result = TypeOp.castingToSchemaType(TypeOp.ArrayDouble, Seq(1d))
       result should be(expected)
     }
 
     "typeOperation ArrayString must be " in {
       val expected = Seq("String")
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayString, Seq("String"))
+      val result = TypeOp.castingToSchemaType(TypeOp.ArrayString, Seq("String"))
       result should be(expected)
     }
 
     "typeOperation ArrayString from any must be " in {
       val expected = Seq("1.0")
-      val result = TypeOp.transformValueByTypeOp(TypeOp.ArrayString, Seq(1d))
+      val result = TypeOp.castingToSchemaType(TypeOp.ArrayString, Seq(1d))
       result should be(expected)
     }
 
     "typeOperation MapStringString from any must be " in {
       val expected = Map("key" -> "1")
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringString, Map("key" -> 1))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringString, Map("key" -> 1))
       result should be(expected)
     }
 
     "typeOperation MapStringLong from any must be " in {
       val expected = Map("key" -> 1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("key" -> 1))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringLong, Map("key" -> 1))
       result should be(expected)
     }
 
     "typeOperation MapStringDouble from any must be " in {
       val expected = Map("key" -> 1d)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringDouble, Map("key" -> "1"))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringDouble, Map("key" -> "1"))
       result should be(expected)
     }
 
     "typeOperation MapStringInt from any must be " in {
       val expected = Map("key" -> 1)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringInt, Map("key" -> "1"))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringInt, Map("key" -> "1"))
       result should be(expected)
     }
 
     "typeOperation Timestamp must be " in {
       val expected = new Timestamp(1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.Timestamp, new Timestamp(1L))
+      val result = TypeOp.castingToSchemaType(TypeOp.Timestamp, new Timestamp(1L))
       result should be(expected)
     }
 
     "typeOperation Date must be " in {
       val expected = new Date(1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.Date, new Date(1L))
+      val result = TypeOp.castingToSchemaType(TypeOp.Date, new Date(1L))
       result should be(expected)
     }
 
     "typeOperation DateTime must be " in {
       val expected = new DateTime(1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.DateTime, new DateTime(1L))
+      val result = TypeOp.castingToSchemaType(TypeOp.DateTime, new DateTime(1L))
       result should be(expected)
     }
 
     "typeOperation MapStringLong must be " in {
       val expected = Map("a" -> 1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("a" -> "1"))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringLong, Map("a" -> "1"))
       result should be(expected)
     }
 
     "typeOperation MapStringLong from number must be " in {
       val expected = Map("a" -> 1L)
-      val result = TypeOp.transformValueByTypeOp(TypeOp.MapStringLong, Map("a" -> 1L))
+      val result = TypeOp.castingToSchemaType(TypeOp.MapStringLong, Map("a" -> 1L))
       result should be(expected)
     }
 
     "typeOperation Long must be " in {
       val expected = 1L
-      val result = TypeOp.transformValueByTypeOp(TypeOp.Long, 1L)
+      val result = TypeOp.castingToSchemaType(TypeOp.Long, 1L)
       result should be(expected)
     }
 
     "typeOperation Binary must be " in {
       val expected = "Binary"
-      val result = TypeOp.transformValueByTypeOp(TypeOp.Binary, "Binary")
+      val result = TypeOp.castingToSchemaType(TypeOp.Binary, "Binary")
       result should be(expected)
     }
 

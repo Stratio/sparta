@@ -41,7 +41,7 @@ class CheckpointTransformStep(name: String,
   lazy val interval: Option[Duration] = Try(properties.getString("interval", None)).getOrElse(None).map(time =>
     Milliseconds(AggregationTime.parseValueToMilliSeconds(time)))
 
-  def transformFunction(inputStream: DStream[Row]): DStream[Row] = {
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     interval match {
       case Some(time) => inputStream.checkpoint(time)
       case None => inputStream

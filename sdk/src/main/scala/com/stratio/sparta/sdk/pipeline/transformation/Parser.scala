@@ -70,7 +70,7 @@ abstract class Parser(order: Integer,
 
   def parseToOutputType(outSchema: StructField, inputValue: Any): Any =
     Try {
-      TypeOp.transformValueByTypeOp(outSchema.dataType, inputValue.asInstanceOf[Any])
+      TypeOp.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
     } match {
       case Success(result) => result
       case Failure(e) => returnWhenError(new IllegalStateException(

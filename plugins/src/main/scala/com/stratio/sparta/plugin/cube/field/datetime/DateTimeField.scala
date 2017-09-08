@@ -62,7 +62,7 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
       val precisionKey = precision(keyName)
       (precisionKey,
         getPrecision(
-          TypeOp.transformValueByTypeOp(TypeOp.DateTime, value).asInstanceOf[DateTime],
+          TypeOp.castingToSchemaType(TypeOp.DateTime, value).asInstanceOf[DateTime],
           precisionKey,
           properties
         ))
@@ -74,7 +74,7 @@ case class DateTimeField(props: Map[String, JSerializable], override val default
     }
 
   private def getPrecision(value: DateTime, precision: Precision, properties: Map[String, JSerializable]): Any = {
-    TypeOp.transformValueByTypeOp(precision.typeOp,
+    TypeOp.castingToSchemaType(precision.typeOp,
       AggregationTime.truncateDate(value, precision match {
         case t if t == TimestampPrecision => if (properties.contains(AggregationTime.GranularityPropertyName))
           properties.get(AggregationTime.GranularityPropertyName).get.toString

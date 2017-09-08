@@ -43,7 +43,7 @@ class WindowTransformStep(name: String,
   lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)).getOrElse(None).map(every =>
     Milliseconds(AggregationTime.parseValueToMilliSeconds(every)))
 
-  def transformFunction(inputStream: DStream[Row]): DStream[Row] = {
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     (overLast, computeEvery) match {
       case (Some(over), Some(every)) =>
         inputStream.window(over, every)

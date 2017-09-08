@@ -164,7 +164,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
     override def precisionValue(keyName: String, value: Any): (Precision, Any) = {
       val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
-      (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
+      (precision, TypeOp.castingToSchemaType(precision.typeOp, value))
     }
 
     override def precision(keyName: String): Precision =
@@ -181,7 +181,7 @@ class SchemaHelperTest extends FlatSpec with ShouldMatchers
 
     override def precisionValue(keyName: String, value: Any): (Precision, Any) = {
       val precision = DimensionType.getIdentity(getTypeOperation, defaultTypeOperation)
-      (precision, TypeOp.transformValueByTypeOp(precision.typeOp, value))
+      (precision, TypeOp.castingToSchemaType(precision.typeOp, value))
     }
 
     override def precision(keyName: String): Precision =

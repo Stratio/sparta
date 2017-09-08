@@ -167,7 +167,7 @@ object TypeOp extends Enumeration {
     }
   }
 
-  def transformValueByTypeOp[T](typeOp: TypeOp, origValue: T): T = {
+  def castingToSchemaType[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
       case TypeOp.String => checkStringType(origValue)
       case TypeOp.Double | TypeOp.Number => checkDoubleType(origValue)
@@ -211,7 +211,7 @@ object TypeOp extends Enumeration {
     }
   }
 
-  def transformValueByTypeOp[T](typeOp: DataType, origValue: T): T = {
+  def castingToSchemaType[T](typeOp: DataType, origValue: T): T = {
     typeOp match {
       case StringType => checkStringType(origValue)
       case DoubleType => checkDoubleType(origValue)

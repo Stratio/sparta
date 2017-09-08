@@ -31,13 +31,11 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
   "CrossdataInput " should "read all the records in one streaming batch" in {
     SparkSession.clearActiveSession()
     val schema = new StructType(Array(
-      StructField("id", StringType, nullable = true),
-      StructField("idInt", IntegerType, nullable = true)
+      StructField("id", IntegerType, nullable = true)
     ))
     val tableName = "tableName"
-    val totalRegisters = 10000
-    val registers = for (a <- 1 to totalRegisters) yield Row(a.toString, a)
-    val registersString = registers.map(value => Row(value.mkString(",")))
+    val totalRegisters = 1000
+    val registers = for (a <- 1 to totalRegisters) yield Row(a)
     val rdd = sc.parallelize(registers)
 
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
@@ -45,11 +43,10 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val datasourceParams = Map(
       "query" -> s"select * from $tableName",
-      "offsetField" -> "idInt",
-      "outputFormat" -> "ROW",
+      "offsetField" -> "id",
       "rememberDuration" -> "20000"
     )
-    val outputsFields = Seq(OutputFields("idInt", "string"))
+    val outputsFields = Seq(OutputFields("id", "int"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val crossdataInput = new CrossdataInputStep(
       "crossdata", outputsFields, outputOptions, ssc, sparkSession, datasourceParams)
@@ -62,7 +59,7 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty())
-        assert(streamingRegisters === registersString.reverse)
+        assert(streamingRegisters === registers.reverse)
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(20000L)

@@ -54,9 +54,9 @@ class CountOperator(name: String, val schema: StructType, properties: Map[String
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Long] = {
     val newValues = extractValues(values, None)
-      .map(value => TypeOp.transformValueByTypeOp(TypeOp.Long, value).asInstanceOf[Long]).sum
+      .map(value => TypeOp.castingToSchemaType(TypeOp.Long, value).asInstanceOf[Long]).sum
 
-    Try(Option(transformValueByTypeOp(returnType, newValues)))
+    Try(Option(castingToSchemaType(returnType, newValues)))
       .getOrElse(Option(Operator.Zero.toLong))
   }
 

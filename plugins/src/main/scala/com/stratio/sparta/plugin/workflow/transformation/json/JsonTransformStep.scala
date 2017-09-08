@@ -44,14 +44,11 @@ class JsonTransformStep(name: String,
   lazy val supportNullValues: Boolean = Try(properties.getString("supportNullValues").toBoolean).getOrElse(true)
   lazy val inputField: Option[String] = Try(properties.getString("inputField", None)).getOrElse(None)
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
-    inputData.headOption match {
-      case Some((streamSchema, streamData)) =>
-        streamData.flatMap(data => parse(data, streamSchema))
-      case None =>
-        ssc.queueStream(new mutable.Queue[RDD[Row]])
-    }
-  }
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
+    inputStream.flatMap(data => parse(data, inputSchema))
+
+  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
+    applyHeadTransform(inputData)(transformFunction)
 
   //scalastyle:off
   override def parse(row: Row, schemaName: String): Seq[Row] = {
@@ -79,11 +76,11 @@ class JsonTransformStep(name: String,
             outputSchema.map { outputField =>
               valuesParsed.get(outputField.name) match {
                 case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
-                  parseToOutputType(outputField, valueParsed)
+                  castingToOutputSchema(outputField, valueParsed)
                 case _ =>
                   Try(row.get(inputSchemas.head._2.fieldIndex(outputField.name))) match {
                     case Success(rowInputValue) =>
-                      parseToOutputType(outputField, rowInputValue)
+                      castingToOutputSchema(outputField, rowInputValue)
                     case Failure(e) =>
                       returnWhenError(new IllegalStateException(
                         s"Impossible to parse outputField: $outputField in the schema", e))

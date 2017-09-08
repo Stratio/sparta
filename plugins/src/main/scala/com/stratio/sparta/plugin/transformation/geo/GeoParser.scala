@@ -47,7 +47,7 @@ class GeoParser(
         val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
         outputSchemaValid match {
           case Some(outSchema) =>
-            TypeOp.transformValueByTypeOp(outSchema.dataType, geoValue)
+            TypeOp.castingToSchemaType(outSchema.dataType, geoValue)
           case None =>
             returnWhenError(
               throw new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema"))

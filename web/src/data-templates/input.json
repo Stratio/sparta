@@ -463,41 +463,6 @@
         ]
       },
       {
-        "propertyId": "outputFormat",
-        "propertyName": "_OUTPUT_FORMAT_",
-        "propertyType": "select",
-        "values": [
-          {
-            "label": "Json",
-            "value": "JSON"
-          },
-          {
-            "label": "Row",
-            "value": "ROW"
-          }
-        ],
-        "default": "JSON",
-        "required": true,
-        "tooltip": "Sets whether the output values should be written as Json or Row with one separator character.",
-        "qa": "fragment-details-crossdata-outputformat"
-      },
-      {
-        "propertyId": "rowSeparator",
-        "propertyName": "_KAFKA_ROW_SEPARATOR_",
-        "propertyType": "text",
-        "default": ",",
-        "visible": [
-          [
-            {
-              "propertyId": "outputFormat",
-              "value": "ROW"
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-crossdata-row-separator"
-      },
-      {
         "propertyId": "limitRecords",
         "propertyName": "_LIMIT_RECORDS_",
         "propertyType": "text",

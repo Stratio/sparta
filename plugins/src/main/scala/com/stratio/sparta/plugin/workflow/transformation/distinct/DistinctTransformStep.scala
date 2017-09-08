@@ -41,19 +41,18 @@ class DistinctTransformStep(name: String,
 
   lazy val partitions = Try(properties.getString("partitions").toInt).toOption
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
-    assert(inputData.size == 1, s"The distinct step $name must have one input, now have: ${inputData.keys}")
-
-    val (firstStep, firstStream) = inputData.head
-
-    firstStream.transform { rdd =>
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
+    inputStream.transform { rdd =>
       if (rdd.isEmpty())
         rdd
       else {
         val distinctRdd = partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
-        distinctRdd.flatMap(data => parse(data, firstStep))
+        distinctRdd.flatMap(data => parse(data, inputSchema))
       }
     }
   }
+
+  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
+    applyHeadTransform(inputData)(transformFunction)
 }
 

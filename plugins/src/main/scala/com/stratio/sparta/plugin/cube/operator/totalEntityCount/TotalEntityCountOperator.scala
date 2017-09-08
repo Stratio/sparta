@@ -39,15 +39,15 @@ class TotalEntityCountOperator(name: String,
     Try(Option(values.flatten.map(value => {
       value match {
         case value if value.isInstanceOf[Seq[_]] => getDistinctValues(value.asInstanceOf[Seq[_]]).size
-        case _ => TypeOp.transformValueByTypeOp(TypeOp.Int, value).asInstanceOf[Int]
+        case _ => TypeOp.castingToSchemaType(TypeOp.Int, value).asInstanceOf[Int]
       }
     }).sum)).getOrElse(Some_Empty)
 
   def associativity(values: Iterable[(String, Option[Any])]): Option[Int] = {
     val newValues =
-      extractValues(values, None).map(value => TypeOp.transformValueByTypeOp(TypeOp.Int, value).asInstanceOf[Int]).sum
+      extractValues(values, None).map(value => TypeOp.castingToSchemaType(TypeOp.Int, value).asInstanceOf[Int]).sum
 
-    Try(Option(transformValueByTypeOp(returnType, newValues)))
+    Try(Option(castingToSchemaType(returnType, newValues)))
       .getOrElse(Some_Empty)
   }
 }

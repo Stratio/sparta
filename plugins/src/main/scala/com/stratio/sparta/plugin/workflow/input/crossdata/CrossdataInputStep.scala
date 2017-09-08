@@ -58,8 +58,6 @@ class CrossdataInputStep(
   lazy val fromBeginning = Try(properties.getBoolean("fromBeginning")).toOption.getOrElse(false)
   lazy val forcedBeginning = Try(properties.getBoolean("forcedBeginning")).toOption
   lazy val limitRecords = Try(properties.getString("limitRecords", None).map(_.toLong)).getOrElse(None)
-  lazy val rowSeparator = properties.getString("rowSeparator", ",")
-  lazy val outputFormat = OutputFormatEnum.withName(properties.getString("outputFormat", "JSON").toUpperCase)
   lazy val stopContexts = Try(properties.getBoolean("stopContexts")).getOrElse(false)
   lazy val stopGracefully = Try(properties.getBoolean("stopGracefully")).getOrElse(true)
   lazy val zookeeperPath = Properties.envOrElse("SPARTA_ZOOKEEPER_PATH", "/stratio/sparta") + {
@@ -108,10 +106,13 @@ class CrossdataInputStep(
       }
     }))
 
-    DatasourceUtils.createStream(ssc, inputSentences, datasourceProperties, sparkSession).map { row =>
-      if (outputFormat == OutputFormatEnum.JSON)
-        Row(convertRowToJSON(row))
-      else Row(row.mkString(rowSeparator))
+    DatasourceUtils.createStream(ssc, inputSentences, datasourceProperties, sparkSession).transform { rdd =>
+      if(!rdd.isEmpty()) {
+        Option(rdd.first().schema).fold(rdd) { schema =>
+          if (compareToOutputSchema(schema)) rdd
+          else rdd.flatMap(row => parseWithSchema(row, schema))
+        }
+      } else rdd
     }
   }
 
@@ -125,11 +126,6 @@ class CrossdataInputStep(
           CrossdataInputStep.stopSparkContexts = true
       }
     }
-  }
-
-  private def convertRowToJSON(row: Row): String = {
-    val m = row.getValuesMap(row.schema.fieldNames)
-    JSONObject(m).toString()
   }
 }
 

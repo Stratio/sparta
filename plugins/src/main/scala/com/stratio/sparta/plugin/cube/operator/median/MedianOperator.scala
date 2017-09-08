@@ -37,7 +37,7 @@ with OperatorProcessMapAsNumber {
   override def processReduce(values: Iterable[Option[Any]]): Option[Double] = {
     val valuesFiltered = getDistinctValues(values.flatten)
     valuesFiltered.size match {
-      case (nz) if (nz != 0) => Some(transformValueByTypeOp(returnType,
+      case (nz) if (nz != 0) => Some(castingToSchemaType(returnType,
         median(DenseVector(valuesFiltered.map(_.asInstanceOf[Number].doubleValue()).toArray))))
       case _ => Some(Operator.Zero.toDouble)
     }

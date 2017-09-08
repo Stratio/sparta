@@ -35,9 +35,9 @@ import scala.collection.mutable
 class TransformStepIT extends TemporalSparkContext with Matchers {
 
   val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-  def passSameStream(generateDStream: DStream[Row]): DStream[Row] = generateDStream
+  def passSameStream(stepName: String, generateDStream: DStream[Row]): DStream[Row] = generateDStream
 
-  "TransformStep" should "applyHeadTransform return empty DStream with no input data" in {
+  "TransformStep" should "applyHeadTransform return exception with no input data" in {
     val name = "transform"
     val schema = StructType(Seq(
       StructField("inputField", StringType),
@@ -57,10 +57,8 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
       properties
     )
 
-    val result = transformStep.applyHeadTransform(Map.empty[String, DStream[Row]])(passSameStream)
-      .compute(new Time(0)).head.collect()
-    val expected = ssc.queueStream(new mutable.Queue[RDD[Row]]).compute(new Time(0)).head.collect()
-    result should be(expected)
+    an[AssertionError] should be thrownBy transformStep.applyHeadTransform(Map.empty[String, DStream[Row]])(passSameStream)
+
   }
 
   "TransformStep" should "applyHeadTransform return DStream with empty rdd" in {

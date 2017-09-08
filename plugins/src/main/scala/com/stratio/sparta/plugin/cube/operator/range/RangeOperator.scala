@@ -37,8 +37,8 @@ with OperatorProcessMapAsNumber {
     valuesFiltered.size match {
       case (nz) if nz != 0 =>
         val valuesConverted = valuesFiltered.map(value =>
-          TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])
-        Some(transformValueByTypeOp(returnType, valuesConverted.max - valuesConverted.min))
+          TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Double])
+        Some(castingToSchemaType(returnType, valuesConverted.max - valuesConverted.min))
       case _ => Some(Operator.Zero.toDouble)
     }
   }

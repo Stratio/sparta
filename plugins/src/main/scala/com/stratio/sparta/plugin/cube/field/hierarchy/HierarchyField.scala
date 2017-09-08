@@ -67,7 +67,7 @@ case class HierarchyField(props: Map[String, JSerializable], override val defaul
 
   override def precisionValue(keyName: String, value: Any): (Precision, JSerializable) = {
     val precisionKey = precision(keyName)
-      (precisionKey, TypeOp.transformValueByTypeOp(precisionKey.typeOp,
+      (precisionKey, TypeOp.castingToSchemaType(precisionKey.typeOp,
         getPrecision(value.asInstanceOf[String], precisionKey).asInstanceOf[JSerializable]))
   }
 

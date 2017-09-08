@@ -28,10 +28,10 @@ import scala.util.Try
 
 trait KafkaBase {
 
-  val DefaultHost = "localhost"
-  val DefaultBrokerPort = "9092"
-  val DefaultZkPort = "2181"
-  val DefaultZookeeperPath = ""
+  lazy val DefaultHost = "localhost"
+  lazy val DefaultBrokerPort = "9092"
+  lazy val DefaultZkPort = "2181"
+  lazy val DefaultZookeeperPath = ""
 
   val properties: Map[String, JSerializable]
 

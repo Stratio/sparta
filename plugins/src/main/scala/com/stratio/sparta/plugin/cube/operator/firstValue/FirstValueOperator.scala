@@ -42,6 +42,6 @@ with OperatorProcessMapAsAny with Associative {
     val firstValue = if(oldValues.nonEmpty) oldValues
     else extractValues(values, Option(Operator.NewValuesKey))
 
-    Try(Option(transformValueByTypeOp(returnType, firstValue.head))).getOrElse(None)
+    Try(Option(castingToSchemaType(returnType, firstValue.head))).getOrElse(None)
   }
 }

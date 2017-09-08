@@ -47,7 +47,7 @@ trait OperatorProcessMapAsNumber extends SLF4JLogging {
    *
    */
   def getNumberFromAny(value: Any): Number =
-    Try(TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Number]) match {
+    Try(TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Number]) match {
       case Success(number) => number
       case Failure(ex) => log.info(s"Impossible to parse as double number inside operator: ${value.toString}")
         throw new Exception(ex.getMessage)

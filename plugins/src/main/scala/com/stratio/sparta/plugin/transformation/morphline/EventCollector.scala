@@ -39,7 +39,7 @@ class EventCollector(outputFieldsSchema: Array[StructField]) extends Command {
           row = Row.fromSeq(outputFieldsSchema.map(field =>
             Option(record.getFirstValue(field.name)) match {
               case Some(value) =>
-                TypeOp.transformValueByTypeOp(field.dataType, value.asInstanceOf[Any])
+                TypeOp.castingToSchemaType(field.dataType, value.asInstanceOf[Any])
               case None =>
                 throw new IllegalStateException(s"Impossible to parse field: ${field.name}.")
             }

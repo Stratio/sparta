@@ -38,7 +38,7 @@ class MeanAssociativeOperator(name: String, val schema: StructType, properties: 
     Try(Option(getDistinctValues(values.flatten.flatMap(value => {
       value match {
         case value if value.isInstanceOf[Seq[Double]] => value.asInstanceOf[Seq[Double]]
-        case _ => List(TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])
+        case _ => List(TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Double])
       }
     })))).getOrElse(Some(Seq.empty[Double]))
   }
@@ -49,7 +49,7 @@ class MeanAssociativeOperator(name: String, val schema: StructType, properties: 
     val newValues =  extractValues(values, Option(Operator.NewValuesKey)).flatMap(value => {
       value match {
         case value if value.isInstanceOf[Seq[Double]] => value.asInstanceOf[Seq[Double]]
-        case _ => List(TypeOp.transformValueByTypeOp(TypeOp.Double, value).asInstanceOf[Double])
+        case _ => List(TypeOp.castingToSchemaType(TypeOp.Double, value).asInstanceOf[Double])
       }
     }).toList
 
@@ -63,7 +63,7 @@ class MeanAssociativeOperator(name: String, val schema: StructType, properties: 
       Map(SumKey -> calculatedSum, CountKey -> calculatedCount, MeanKey -> calculatedMean)
     } else oldValues.getOrElse(Map(SumKey -> 0d, CountKey -> 0d, MeanKey -> 0d))
 
-    Try(Option(TypeOp.transformValueByTypeOp(returnType, returnValues))).getOrElse(Option(Map.empty[String, Double]))
+    Try(Option(TypeOp.castingToSchemaType(returnType, returnValues))).getOrElse(Option(Map.empty[String, Double]))
   }
 
 }

@@ -40,6 +40,6 @@ with OperatorProcessMapAsAny with Associative {
   def associativity(values: Iterable[(String, Option[Any])]): Option[Any] = {
     val newValues = extractValues(values, None)
 
-    Try(Option(transformValueByTypeOp(returnType, newValues.min))).getOrElse(None)
+    Try(Option(castingToSchemaType(returnType, newValues.min))).getOrElse(None)
   }
 }

@@ -133,7 +133,7 @@ case class GeoHashField(props: Map[String, JSerializable], override val defaultT
 
   //scalastyle:off
   def getPrecision(lat: Double, long: Double, precision: Precision): Any =
-    TypeOp.transformValueByTypeOp(precision.typeOp, precision.id match {
+    TypeOp.castingToSchemaType(precision.typeOp, precision.id match {
       case Precision1Name => decodeHash(GeoHash.encodeHash(lat, long, 1))
       case Precision2Name => decodeHash(GeoHash.encodeHash(lat, long, 2))
       case Precision3Name => decodeHash(GeoHash.encodeHash(lat, long, 3))

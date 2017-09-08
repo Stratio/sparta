@@ -41,7 +41,7 @@ class PersistTransformStep(name: String,
   lazy val storageLevel: Option[StorageLevel] = properties.getString("storageLevel", None)
     .flatMap(level => Try(StorageLevel.fromString(level)).toOption)
 
-  def transformFunction(inputStream: DStream[Row]): DStream[Row] = {
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     storageLevel match {
       case Some(level) => inputStream.persist(level)
       case None => inputStream.persist()
