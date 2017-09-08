@@ -18,63 +18,65 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{Actor, _}
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.actor.StatusActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, ClusterListenerUtils, WorkflowStatusUtils}
+import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
 class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
-  with WorkflowStatusUtils with ClusterListenerUtils with ActionUserAuthorize{
+  with ActionUserAuthorize{
 
-  val ResourceType = "context"
+  private val ResourceType = "context"
+  private val statusService = new WorkflowStatusService(curatorFramework)
+  private val listenerService = new ListenerService(curatorFramework)
 
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
     case CreateStatus(policyStatus, user) => createStatus(policyStatus, user)
     case Update(policyStatus, user) => update(policyStatus, user)
-    case ClearLastError(id) => sender ! clearLastError(id)
+    case ClearLastError(id) => sender ! statusService.clearLastError(id)
     case FindAll(user) => findAll(user)
     case FindById(id, user) => findById(id, user)
     case DeleteAll(user) => deleteAll(user)
-    case AddListener(name, callback) => addListener(name, callback)
-    case AddClusterListeners => addClusterListeners(findAllStatuses(), context)
+    case AddListener(name, callback) => listenerService.addWorkflowStatusListener(name, callback)
+    case AddClusterListeners => listenerService.addClusterListeners(statusService.findAll(), context)
     case DeleteStatus(id, user) => deleteStatus(id, user)
     case _ => log.info("Unrecognized message in Policy Status Actor")
   }
 
   def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(createStatus(policyStatus))
+    def callback() = ResponseStatus(statusService.create(policyStatus))
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
   }
 
   def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(updateStatus(policyStatus))
+    def callback() = ResponseStatus(statusService.update(policyStatus))
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
   }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), findAllStatuses)
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), statusService.findAll)
 
 
   def findById(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(findStatusById(id))
+    def callback() = ResponseStatus(statusService.findById(id))
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
   }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseDelete(deleteAllStatuses())
+    def callback() = ResponseDelete(statusService.deleteAll())
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }
 
   def deleteStatus(id: String, user: Option[LoggedUser]): Unit = {
-   def callback () = ResponseDelete(deleteStatus(id))
+   def callback () = ResponseDelete(statusService.delete(id))
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }

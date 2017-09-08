@@ -215,7 +215,7 @@ function configOptions() {
  if [[ ! -v SPARTA_AWAIT_POLICY_CHANGE_STATUS ]]; then
    SPARTA_AWAIT_POLICY_CHANGE_STATUS=320s
  fi
- sed -i "s|.*sparta.config.awaitPolicyChangeStatus.*|sparta.config.awaitPolicyChangeStatus = ${SPARTA_AWAIT_POLICY_CHANGE_STATUS}|" ${SPARTA_CONF_FILE}
+ sed -i "s|.*sparta.config.awaitWorkflowChangeStatus.*|sparta.config.awaitWorkflowChangeStatus = ${SPARTA_AWAIT_POLICY_CHANGE_STATUS}|" ${SPARTA_CONF_FILE}
 
  if [[ -v FRONTEND_TIMEOUT ]] && [ ${#FRONTEND_TIMEOUT} != 0 ]; then
  sed -i "s|.*sparta.config.frontend.timeout.*|sparta.config.frontend.timeout = ${FRONTEND_TIMEOUT}|" ${SPARTA_CONF_FILE}

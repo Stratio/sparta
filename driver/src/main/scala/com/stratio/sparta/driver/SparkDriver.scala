@@ -16,21 +16,22 @@
 
 package com.stratio.sparta.driver
 
+import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.driver.helpers.PluginFilesHelper
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.{TemplateUtils, PluginsFilesUtils, WorkflowStatusUtils, WorkflowUtils}
+import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
-import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Properties, Success, Try}
 
-object SparkDriver extends PluginsFilesUtils {
+object SparkDriver extends SLF4JLogging {
 
   val NumberOfArguments = 5
   val DetailConfigIndex = 0
@@ -60,29 +61,26 @@ object SparkDriver extends PluginsFilesUtils {
       initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
       val curatorInstance = CuratorFactoryHolder.getInstance()
-      val policyStatusUtils = new WorkflowStatusUtils {
-        override val curatorFramework: CuratorFramework = curatorInstance
-      }
+      val statusService = new WorkflowStatusService(curatorInstance)
       Try {
-        addPluginsToClassPath(pluginsFiles)
-        val policyUtils = new WorkflowUtils {
-          override val curatorFramework: CuratorFramework = curatorInstance
-        }
-        val workflow = policyUtils.getWorkflowById(workflowId)
+        PluginFilesHelper.addPluginsToClassPath(pluginsFiles)
+        val workflowService = new WorkflowService(curatorInstance)
+        val workflow = workflowService.findById(workflowId)
         val startingInfo = s"Launching workflow in cluster..."
         log.info(startingInfo)
-        policyStatusUtils.updateStatus(WorkflowStatus(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
+        statusService.update(WorkflowStatus(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
         val streamingContextService = StreamingContextService(curatorInstance)
         val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
-        policyStatusUtils.updateStatus(WorkflowStatus(
+        statusService.update(WorkflowStatus(
           id = workflowId,
           status = NotDefined,
-          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))))
+          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))
+        ))
         spartaWorkflow.setup()
         ssc.start
         val startedInfo = s"Application with id: ${ssc.sparkContext.applicationId} was properly launched"
         log.info(startedInfo)
-        policyStatusUtils.updateStatus(WorkflowStatus(
+        statusService.update(WorkflowStatus(
           id = workflowId,
           status = Started,
           submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
@@ -96,11 +94,11 @@ object SparkDriver extends PluginsFilesUtils {
         case Success(_) =>
           val information = s"Sparta job in cluster was properly stopped"
           log.info(information)
-          policyStatusUtils.updateStatus(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Some(information)))
         case Failure(exception) =>
           val information = s"Error initiating Sparta job in cluster"
           log.error(information)
-          policyStatusUtils.updateStatus(WorkflowStatus(
+          statusService.update(WorkflowStatus(
             id = workflowId,
             status = Failed,
             statusInfo = Option(information),

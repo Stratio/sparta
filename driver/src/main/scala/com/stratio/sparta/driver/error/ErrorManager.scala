@@ -18,8 +18,8 @@ package com.stratio.sparta.driver.error
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.WorkflowStatusUtils
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -42,33 +42,34 @@ trait ErrorManager extends SLF4JLogging {
 
   def logAndCreateEx(code: PhaseEnum.Value,
                      exception: Throwable,
-                     policy: Workflow,
+                     workflow: Workflow,
                      message: String
                     ): RuntimeException = {
     val originalMsg = exception.getCause match {
       case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
       case _ => exception.toString
     }
-    val policyError = WorkflowError(message, code, originalMsg)
-    log.error("An error was detected : {}", policyError)
+    val workflowError = WorkflowError(message, code, originalMsg)
+    log.error("An error was detected : {}", workflowError)
     Try {
-      traceError(policyError)
+      traceError(workflowError)
     } recover {
-      case e => log.error(s"Error while persisting error: $policyError", e)
+      case e => log.error(s"Error while persisting error: $workflowError", e)
     }
     new RuntimeException(message, exception)
   }
 }
 
-trait ZooKeeperError extends ErrorManager with WorkflowStatusUtils {
+trait ZooKeeperError extends ErrorManager {
 
   val curatorFramework: CuratorFramework
+  val statusService = new WorkflowStatusService(curatorFramework)
 
   def traceError(error: WorkflowError): Unit =
-    updateStatus(WorkflowStatus(workflow.id.get, NotDefined, None, None, lastError = Some(error)))
+    statusService.update(WorkflowStatus(workflow.id.get, NotDefined, None, None, lastError = Some(error)))
 
   def clearError(): Unit =
-    clearLastError(workflow.id.get)
+    statusService.clearLastError(workflow.id.get)
 }
 
 trait LogError extends ErrorManager with SLF4JLogging {

@@ -22,39 +22,41 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowExecution, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.ClusterCheckerService
-import com.stratio.sparta.serving.core.utils.{ClusterListenerUtils, LauncherUtils, RequestUtils, SchedulerUtils, SparkSubmitService, WorkflowStatusUtils}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{ListenerService, LauncherService, SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.utils.{RequestUtils, SchedulerUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.launcher.SparkLauncher
 
 import scala.util.{Failure, Success, Try}
 
 class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
-  with SchedulerUtils with WorkflowStatusUtils
-  with ClusterListenerUtils with LauncherUtils with RequestUtils {
+  with SchedulerUtils with RequestUtils {
 
-  private val clusterCheckerService = new ClusterCheckerService(curatorFramework)
-  private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
+  private val statusService = new WorkflowStatusService(curatorFramework)
+  private val clusterListenerService = new ListenerService(curatorFramework)
+  private val launcherService = new LauncherService(curatorFramework)
+  private val checkersWorkflowStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
-    case StartWithRequest(policy: Workflow, submitRequest: WorkflowExecution) => launch(policy, submitRequest)
+    case StartWithRequest(workflow: Workflow, submitRequest: WorkflowExecution) => launch(workflow, submitRequest)
     case _ => log.info("Unrecognized message in Cluster Launcher Actor")
   }
 
-  override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
+  override def postStop(): Unit = checkersWorkflowStatus.foreach(_.cancel())
 
+  //scalastyle:off
   def initializeSubmitRequest(workflow: Workflow): Unit = {
     Try {
-      log.info(s"Initializing cluster options submitted by policy: ${workflow.name}")
+      log.info(s"Initializing cluster options submitted by workflow: ${workflow.name}")
       val sparkSubmitService = new SparkSubmitService(workflow)
       val detailConfig = SpartaConfig.getDetailConfig.getOrElse {
         val message = "Impossible to extract Detail Configuration"
         log.error(message)
         throw new RuntimeException(message)
       }
-      val zookeeperConfig = getZookeeperConfig
+      val zookeeperConfig = launcherService.getZookeeperConfig
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverFile = sparkSubmitService.extractDriverSubmit
       val pluginsFiles = sparkSubmitService.userPluginsJars
@@ -77,29 +79,40 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       case Failure(exception) =>
         val information = s"An error was encountered while initializing the Sparta submit options"
         log.error(information, exception)
-        updateStatus(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = Failed,
+          statusInfo = Option(information),
+          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+        ))
         self ! PoisonPill
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating a submit request in the persistence"
         log.error(information, exception)
-        updateStatus(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Option(information),
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = Failed,
+          statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(Success(submitRequestCreated)) =>
         val information = "Sparta submit options initialized correctly"
         log.info(information)
-        updateStatus(WorkflowStatus(id = workflow.id.get, status = NotStarted,
-          statusInfo = Option(information), lastExecutionMode = Option(submitRequestCreated.executionMode)))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = NotStarted,
+          statusInfo = Option(information),
+          lastExecutionMode = Option(submitRequestCreated.executionMode)
+        ))
 
         launch(workflow, submitRequestCreated)
     }
   }
 
-  def launch(policy: Workflow, submitRequest: WorkflowExecution): Unit = {
+  def launch(workflow: Workflow, submitRequest: WorkflowExecution): Unit = {
     Try {
-      log.info(s"Launching Sparta job with options ... \n\tPolicy name: ${policy.name}\n\t" +
+      log.info(s"Launching Sparta job with options ... \n\tWorkflow name: ${workflow.name}\n\t" +
         s"Main Class: $SpartaDriverClass\n\tDriver file: ${submitRequest.driverFile}\n\t" +
         s"Master: ${submitRequest.master}\n\tSpark submit arguments: ${submitRequest.submitArguments.mkString(",")}" +
         s"\n\tSpark configurations: ${submitRequest.sparkConfigurations.mkString(",")}\n\t" +
@@ -125,26 +138,45 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       //Redirect Log
       sparkLauncher.redirectError()
       // Launch SparkApp
-      sparkLauncher.startApplication(addSparkListener(policy))
+      sparkLauncher.startApplication(clusterListenerService.addSparkListener(workflow))
     } match {
       case Failure(exception) =>
         val information = s"An error was encountered while launching the Sparta cluster job"
         log.error(information, exception)
-        updateStatus(WorkflowStatus(id = policy.id.get, status = Failed, statusInfo = Option(information),
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = Failed,
+          statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(sparkHandler) =>
         val information = "Sparta cluster job launched correctly"
         log.info(information)
-        updateStatus(WorkflowStatus(id = policy.id.get, status = Launched,
-          submissionId = Option(sparkHandler.getAppId), submissionStatus = Option(sparkHandler.getState.name()),
-          statusInfo = Option(information)))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = Launched,
+          submissionId = Option(sparkHandler.getAppId),
+          submissionStatus = Option(sparkHandler.getState.name()),
+          statusInfo = Option(information)
+        ))
         if (submitRequest.executionMode.contains(ConfigMesos))
-          addClusterContextListener(policy.id.get, policy.name, submitRequest.killUrl, Option(self), Option(context))
-        else addClientContextListener(policy.id.get, policy.name, sparkHandler, self, context)
-        checkersPolicyStatus += scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(
-          clusterCheckerService.checkPolicyStatus(policy, self, context))
+          clusterListenerService.addClusterContextListener(
+            workflow.id.get,
+            workflow.name,
+            submitRequest.killUrl, 
+            Option(self),
+            Option(context)
+          )
+        else clusterListenerService.addClientContextListener(
+          workflow.id.get,
+          workflow.name,
+          sparkHandler,
+          self, 
+          context
+        )
+        checkersWorkflowStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
+          launcherService.checkWorkflowStatus(workflow, self, context))
     }
   }
 }

@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.services
 
-import java.io.File
-import java.io.{Serializable => JSerializable}
+import java.io.{File, Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
@@ -27,6 +26,7 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.utils.{ArgumentsUtils, ClusterSparkFilesUtils, HdfsUtils}
 import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
 

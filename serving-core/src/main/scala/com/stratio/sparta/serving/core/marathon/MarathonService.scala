@@ -29,9 +29,8 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowExecution, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.WorkflowStatusUtils
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
@@ -49,13 +48,13 @@ import scala.util.{Properties, Try}
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
                       workflowModel: Option[Workflow],
-                      sparkSubmitRequest: Option[WorkflowExecution]) extends OauthTokenUtils with WorkflowStatusUtils {
+                      sparkSubmitRequest: Option[WorkflowExecution]) extends OauthTokenUtils {
 
   def this(context: ActorContext,
            curatorFramework: CuratorFramework,
-           policyModel: Workflow,
+           workflowModel: Workflow,
            sparkSubmitRequest: WorkflowExecution) =
-    this(context, curatorFramework, Option(policyModel), Option(sparkSubmitRequest))
+    this(context, curatorFramework, Option(workflowModel), Option(sparkSubmitRequest))
 
   def this(context: ActorContext, curatorFramework: CuratorFramework) = this(context, curatorFramework, None, None)
 
@@ -66,6 +65,7 @@ class MarathonService(context: ActorContext,
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
 
   /* Constant variables */
+  private val statusService = new WorkflowStatusService(curatorFramework)
 
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
@@ -114,7 +114,7 @@ class MarathonService(context: ActorContext,
   /* PUBLIC METHODS */
 
   def launch(): Unit = {
-    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "It is mandatory to specify a policy and a request")
+    assert(workflowModel.isDefined && sparkSubmitRequest.isDefined, "It is mandatory to specify a workflow and a request")
     val createApp = addRequirements(getMarathonAppFromFile, workflowModel.get, sparkSubmitRequest.get)
     for {
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
@@ -122,7 +122,7 @@ class MarathonService(context: ActorContext,
       case response: UpServiceFails =>
         val information = s"An error was encountered while launching the Workflow App in the Marathon API with id: ${response.appInfo.id}"
         log.error(information)
-        updateStatus(WorkflowStatus(
+        statusService.update(WorkflowStatus(
           id = workflowModel.get.id.get,
           status = Failed,
           statusInfo = Option(information),
@@ -131,13 +131,19 @@ class MarathonService(context: ActorContext,
       case response: UpServiceResponse =>
         val information = s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}"
         log.info(information)
-        updateStatus(WorkflowStatus(id = workflowModel.get.id.get, status = Uploaded,
-          statusInfo = Option(information)))
+        statusService.update(WorkflowStatus(
+          id = workflowModel.get.id.get,
+          status = Uploaded,
+          statusInfo = Option(information)
+        ))
       case _ =>
         val information = "Unrecognized message received from Marathon API"
         log.warn(information)
-        updateStatus(WorkflowStatus(id = workflowModel.get.id.get, status = NotDefined,
-          statusInfo = Option(information)))
+        statusService.update(WorkflowStatus(
+          id = workflowModel.get.id.get,
+          status = NotDefined,
+          statusInfo = Option(information)
+        ))
     }
   }
 
@@ -207,7 +213,7 @@ class MarathonService(context: ActorContext,
     case _ => memory.toInt
   }).getOrElse(DefaultMemory)
 
-  private def addRequirements(app: CreateApp, policyModel: Workflow, submitRequest: WorkflowExecution): CreateApp = {
+  private def addRequirements(app: CreateApp, workflowModel: Workflow, submitRequest: WorkflowExecution): CreateApp = {
     val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble).getOrElse(app.cpus)
     val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt)
       .getOrElse(app.mem)
@@ -223,7 +229,7 @@ class MarathonService(context: ActorContext,
         (Map(AppRoleEnv -> JsObject(Map("secret" -> JsString("role")))), Map("role" -> Map("source" -> appRoleName.get)))
       } else (Map.empty[String, JsString], Map.empty[String, Map[String, String]])
     }
-    val newEnv = Option(envProperties(policyModel, submitRequest, newMem) ++ envFromSubmit ++ dynamicAuthEnv)
+    val newEnv = Option(envProperties(workflowModel, submitRequest, newMem) ++ envFromSubmit ++ dynamicAuthEnv)
     val javaCertificatesVolume = {
       if (Properties.envOrNone(VaultEnableEnv).isDefined &&
         Properties.envOrNone(VaultHostsEnv).isDefined &&

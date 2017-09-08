@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.services
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -30,30 +30,49 @@ import org.json4s.jackson.Serialization._
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
 
-trait WorkflowStatusUtils extends SpartaSerializer with SLF4JLogging {
+class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
-  val curatorFramework: CuratorFramework
-
-  /** Functions used inside the StatusActor **/
-
-  def clearLastError(id: String): Try[Option[WorkflowStatus]] = {
+  def findById(id: String): Try[WorkflowStatus] =
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
-      if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-        val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-        val newStatus = actualStatus.copy(lastError = None)
-        log.info(s"Clearing last error for context: ${actualStatus.id}")
-        curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
-        Some(newStatus)
-      } else None
+      if (CuratorFactoryHolder.existsPath(statusPath))
+        read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
+      else throw new ServingCoreException(
+        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status with id $id.")))
+    }
+
+  def findAll(): Try[Seq[WorkflowStatus]] =
+    Try {
+      val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
+      if (CuratorFactoryHolder.existsPath(statusPath)) {
+        val children = curatorFramework.getChildren.forPath(statusPath)
+        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
+          read[WorkflowStatus](new String(
+            curatorFramework.getData.forPath(s"${AppConstant.WorkflowStatusesZkPath}/$element")
+          ))
+        )
+        policiesStatus
+      } else Seq.empty[WorkflowStatus]
+    }
+
+  def create(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
+    val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
+    if (CuratorFactoryHolder.existsPath(statusPath)) {
+      update(workflowStatus)
+    } else {
+      Try {
+        log.info(s"Creating workflow status ${workflowStatus.id} to <${workflowStatus.status}>")
+        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatus).getBytes)
+        workflowStatus
+      }
     }
   }
 
   //scalastyle:off
-  def updateStatus(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
+  def update(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
-      if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
+      if (CuratorFactoryHolder.existsPath(statusPath)) {
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = workflowStatus.copy(
           status = if (workflowStatus.status == WorkflowStatusEnum.NotDefined) actualStatus.status
@@ -77,7 +96,7 @@ trait WorkflowStatusUtils extends SpartaSerializer with SLF4JLogging {
           resourceManagerUrl = if (workflowStatus.status == WorkflowStatusEnum.Started) workflowStatus.resourceManagerUrl
           else if (workflowStatus.status == WorkflowStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
         )
-        log.info(s"Updating context ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
+        log.info(s"Updating status ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
           s"\n\tStatus:\t${actualStatus.status}\t--->\t${newStatus.status}" +
           s"\n\tStatus Information:\t${actualStatus.statusInfo.getOrElse("undefined")}" +
           s"\t--->\t${newStatus.statusInfo.getOrElse("undefined")} " +
@@ -97,57 +116,30 @@ trait WorkflowStatusUtils extends SpartaSerializer with SLF4JLogging {
           s"\t--->\t${newStatus.resourceManagerUrl.getOrElse("undefined")}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         newStatus
-      } else createStatus(workflowStatus)
+      } else create(workflowStatus)
         .getOrElse(throw new ServingCoreException(
           ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId,
-            s"Unable to create workflow context with id ${workflowStatus.id}."))))
+            s"Unable to create workflow status with id ${workflowStatus.id}."))))
     }
   }
 
   //scalastyle:on
 
-  def createStatus(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
-    val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
-    if (CuratorFactoryHolder.existsPath(statusPath)) {
-      updateStatus(workflowStatus)
-    } else {
-      Try {
-        log.info(s"Creating workflow context ${workflowStatus.id} to <${workflowStatus.status}>")
-        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatus).getBytes)
-        workflowStatus
-      }
-    }
-  }
-
-  def findAllStatuses(): Try[Seq[WorkflowStatus]] =
-    Try {
-      val contextPath = s"${AppConstant.WorkflowStatusesZkPath}"
-      if (CuratorFactoryHolder.existsPath(contextPath)) {
-        val children = curatorFramework.getChildren.forPath(contextPath)
-        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[WorkflowStatus](new String(
-            curatorFramework.getData.forPath(s"${AppConstant.WorkflowStatusesZkPath}/$element")
-          ))
-        )
-        policiesStatus
-      } else Seq.empty[WorkflowStatus]
-    }
-
-  def findStatusById(id: String): Try[WorkflowStatus] =
+  def delete(id: String): Try[_] =
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
-      if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined)
-        read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-      else throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow context with id $id.")))
+      if (CuratorFactoryHolder.existsPath(statusPath)) {
+        log.info(s"Deleting status $id")
+        curatorFramework.delete().forPath(statusPath)
+      } else throw new ServingCoreException(ErrorModel.toString(
+        new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status found with id: $id.")))
     }
 
-  def deleteAllStatuses(): Try[_] =
+  def deleteAll(): Try[_] =
     Try {
-      val contextPath = s"${AppConstant.WorkflowStatusesZkPath}"
-
-      if (CuratorFactoryHolder.existsPath(contextPath)) {
-        val children = curatorFramework.getChildren.forPath(contextPath)
+      val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
+      if (CuratorFactoryHolder.existsPath(statusPath)) {
+        val children = curatorFramework.getChildren.forPath(statusPath)
         val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
           read[WorkflowStatus](new String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowStatusesZkPath}/$element")))
         )
@@ -155,50 +147,29 @@ trait WorkflowStatusUtils extends SpartaSerializer with SLF4JLogging {
         policiesStatus.foreach(workflowStatus => {
           val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
           if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-            log.info(s"Deleting context ${workflowStatus.id} >")
+            log.info(s"Deleting status ${workflowStatus.id} >")
             curatorFramework.delete().forPath(statusPath)
           } else throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow context found with id: ${workflowStatus.id}.")))
+            new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status found with id: ${workflowStatus.id}.")))
         })
       }
     }
 
-  def deleteStatus(id: String): Try[_] =
+  def clearLastError(id: String): Try[Option[WorkflowStatus]] = {
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
-      if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-        log.info(s">> Deleting context $id >")
-        curatorFramework.delete().forPath(statusPath)
-      } else throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow context found with id: $id.")))
+      if (CuratorFactoryHolder.existsPath(statusPath)) {
+        val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
+        val newStatus = actualStatus.copy(lastError = None)
+        log.info(s"Clearing last error for status: ${actualStatus.id}")
+        curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
+        Some(newStatus)
+      } else None
     }
-
-  /**
-   * Adds a listener to one workflow and executes the callback when it changed.
-   *
-   * @param id       of the workflow.
-   * @param callback with a function that will be executed.
-   */
-  def addListener(id: String, callback: (WorkflowStatus, NodeCache) => Unit): Unit = {
-    val contextPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
-    val nodeCache: NodeCache = new NodeCache(curatorFramework, contextPath)
-    nodeCache.getListenable.addListener(new NodeCacheListener {
-      override def nodeChanged(): Unit = {
-        Try(new String(nodeCache.getCurrentData.getData)) match {
-          case Success(value) =>
-            callback(read[WorkflowStatus](value), nodeCache)
-          case Failure(e) =>
-            log.error(s"NodeCache value: ${nodeCache.getCurrentData}", e)
-        }
-      }
-    })
-    nodeCache.start()
   }
 
-  /** Functions used out of StatusActor **/
-
-  def isAnyPolicyStarted: Boolean =
-    findAllStatuses() match {
+  private[sparta] def isAnyWorkflowStarted: Boolean =
+    findAll() match {
       case Success(statuses) =>
         statuses.exists(_.status == WorkflowStatusEnum.Started) ||
           statuses.exists(_.status == WorkflowStatusEnum.Starting) ||
@@ -208,8 +179,8 @@ trait WorkflowStatusUtils extends SpartaSerializer with SLF4JLogging {
         false
     }
 
-  def isAvailableToRun(workflowModel: Workflow): Boolean =
-    (workflowModel.settings.global.executionMode == AppConstant.ConfigLocal, isAnyPolicyStarted) match {
+  private[sparta] def isAvailableToRun(workflowModel: Workflow): Boolean =
+    (workflowModel.settings.global.executionMode == AppConstant.ConfigLocal, isAnyWorkflowStarted) match {
       case (false, _) =>
         true
       case (true, false) =>

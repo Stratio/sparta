@@ -17,6 +17,7 @@
 package com.stratio.sparta.driver
 
 import akka.actor.{ActorSystem, Props}
+import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
@@ -24,12 +25,11 @@ import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.utils.PluginsFilesUtils
 import com.typesafe.config.ConfigFactory
 
 import scala.util.{Failure, Success, Try}
 
-object MarathonDriver extends PluginsFilesUtils {
+object MarathonDriver extends SLF4JLogging {
 
   val NumberOfArguments = 3
   val PolicyIdIndex = 0

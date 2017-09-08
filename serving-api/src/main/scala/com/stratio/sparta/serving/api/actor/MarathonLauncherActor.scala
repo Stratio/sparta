@@ -25,23 +25,24 @@ import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowExecution, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.ClusterCheckerService
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{ListenerService, LauncherService, SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
-  with LauncherUtils with SchedulerUtils with ClusterListenerUtils
-  with WorkflowStatusUtils with RequestUtils {
+  with SchedulerUtils with RequestUtils {
 
-  private val clusterCheckerService = new ClusterCheckerService(curatorFramework)
+  private val statusService = new WorkflowStatusService(curatorFramework)
+  private val launcherService = new LauncherService(curatorFramework)
+  private val clusterListenerService = new ListenerService(curatorFramework)
   private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
-    case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
+    case ResponseStatus(status) => launcherService.loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
@@ -56,7 +57,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         log.error(message)
         throw new RuntimeException(message)
       }
-      val zookeeperConfig = getZookeeperConfig
+      val zookeeperConfig = launcherService.getZookeeperConfig
       val driverFile = sparkSubmitService.extractDriverSubmit
       val pluginsFiles = sparkSubmitService.userPluginsJars
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
@@ -80,20 +81,21 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
         log.error(information, exception)
-        updateStatus(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Option(information),
+        statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed,
+          statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
         log.info(information)
-        updateStatus(WorkflowStatus(id = workflow.id.get, status = NotStarted,
+        statusService.update(WorkflowStatus(id = workflow.id.get, status = NotStarted,
           marathonId = Option(WorkflowHelper.getMarathonId(workflow)), statusInfo = Option(information),
           lastExecutionMode = Option(workflow.settings.global.executionMode)))
         marathonApp.launch()
-        addMarathonContextListener(workflow.id.get, workflow.name, context, Option(self))
-        checkersPolicyStatus += scheduleOneTask(AwaitPolicyChangeStatus, DefaultAwaitPolicyChangeStatus)(
-          clusterCheckerService.checkPolicyStatus(workflow, self, context))
+        clusterListenerService.addMarathonContextListener(workflow.id.get, workflow.name, context, Option(self))
+        checkersPolicyStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
+          launcherService.checkWorkflowStatus(workflow, self, context))
     }
   }
 }

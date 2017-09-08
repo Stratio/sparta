@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.services
 
 import akka.actor.{ActorContext, ActorRef}
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.marathon.MarathonService
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, Workflow, WorkflowStatus}
-import org.apache.curator.framework.recipes.cache.NodeCache
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
+import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.spark.launcher.SparkAppHandle
@@ -31,15 +35,45 @@ import org.json4s.jackson.Serialization._
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
-trait ClusterListenerUtils extends WorkflowStatusUtils {
+class ListenerService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
+
+  private val statusService = new WorkflowStatusService(curatorFramework)
+
+
+  /**
+   * Adds a listener to one workflow and executes the callback when it changed.
+   *
+   * @param id       of the workflow.
+   * @param callback with a function that will be executed.
+   */
+  def addWorkflowStatusListener(id: String, callback: (WorkflowStatus, NodeCache) => Unit): Unit = {
+    val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
+    val nodeCache: NodeCache = new NodeCache(curatorFramework, statusPath)
+    nodeCache.getListenable.addListener(new NodeCacheListener {
+      override def nodeChanged(): Unit = {
+        Try(new String(nodeCache.getCurrentData.getData)) match {
+          case Success(value) =>
+            callback(read[WorkflowStatus](value), nodeCache)
+          case Failure(e) =>
+            log.error(s"NodeCache value: ${nodeCache.getCurrentData}", e)
+        }
+      }
+    })
+    nodeCache.start()
+  }
 
   /** Spark Launcher functions **/
 
-  def addSparkListener(policy: Workflow): SparkAppHandle.Listener =
+  def addSparkListener(workflow: Workflow): SparkAppHandle.Listener =
     new SparkAppHandle.Listener() {
       override def stateChanged(handle: SparkAppHandle): Unit = {
         log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        updateStatus(WorkflowStatus(policy.id.get, NotDefined, None, Try(handle.getState.name()).toOption))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = NotDefined,
+          submissionId = None,
+          submissionStatus = Try(handle.getState.name()).toOption
+        ))
       }
 
       override def infoChanged(handle: SparkAppHandle): Unit = {
@@ -47,7 +81,7 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
       }
     }
 
-  /** Sparta Listener functions for PolicyStatus **/
+  /** Sparta Listener functions for WorkflowStatus **/
 
   //scalastyle:off
   def addClusterListeners(workflowStatuses: Try[Seq[WorkflowStatus]], context: ActorContext): Unit = {
@@ -69,41 +103,48 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
             }
           }))
       case Failure(e) =>
-        log.error("An error was encounter while retrieving all the policy statuses. Impossible to add cluster listeners", e)
+        log.error("An error was encounter while retrieving all the workflow statuses. Impossible to add cluster listeners", e)
     }
   }
 
-  def addMarathonContextListener(policyId: String,
-                                 policyName: String,
+  def addMarathonContextListener(workflowId: String,
+                                 workflowName: String,
                                  akkaContext: ActorContext,
                                  launcherActor: Option[ActorRef] = None): Unit = {
-    log.info(s"Marathon context listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
+    log.info(s"Marathon context listener added to $workflowName with id: $workflowId")
+    addWorkflowStatusListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status == Stopped || policyStatus.status == Failed) {
+        if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
           try {
             val info = s"Finishing Sparta cluster job in Marathon API"
             log.info(info)
-            policyStatus.marathonId match {
+            workflowStatus.marathonId match {
               case Some(marathonId) =>
                 Try {
                   new MarathonService(akkaContext, curatorFramework).kill(marathonId)
                 } match {
                   case Success(_) =>
                     val information = s"Sparta cluster job correctly finished in Marathon API"
-                    val newStatus = if (policyStatus.status == Failed) NotDefined else Finished
+                    val newStatus = if (workflowStatus.status == Failed) NotDefined else Finished
                     log.info(information)
-                    updateStatus(WorkflowStatus(id = policyId, status = newStatus, statusInfo = Some(information)))
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = newStatus,
+                      statusInfo = Some(information)
+                    ))
                   case Failure(e) =>
                     val error = "An error was encountered while sending a stop message to Marathon API"
                     log.error(error, e)
-                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(error),
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = Failed,
+                      statusInfo = Some(error),
                       lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
                     ))
                 }
               case None =>
-                log.warn(s"The Sparta System does not have a Marathon id associated to policy: $policyName")
+                log.warn(s"The Sparta System does not have a Marathon id associated to workflow: $workflowName")
             }
           } finally {
             Try(nodeCache.close()) match {
@@ -119,18 +160,18 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
     })
   }
 
-  def addClusterContextListener(policyId: String,
-                                policyName: String,
+  def addClusterContextListener(workflowId: String,
+                                workflowName: String,
                                 killUrl: String,
                                 launcherActor: Option[ActorRef] = None,
                                 akkaContext: Option[ActorContext] = None): Unit = {
-    log.info(s"Cluster context listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
+    log.info(s"Cluster context listener added to $workflowName with id: $workflowId")
+    addWorkflowStatusListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status == Stopping || policyStatus.status == Failed) {
+        if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
           try {
-            policyStatus.submissionId match {
+            workflowStatus.submissionId match {
               case Some(submissionId) =>
                 Try {
                   log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $killUrl")
@@ -141,24 +182,35 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
                 } match {
                   case Success(submissionResponse) if submissionResponse.success =>
                     val information = s"Sparta cluster job killed correctly  with Spark API"
-                    val newStatus = if (policyStatus.status == Failed) NotDefined else Killed
+                    val newStatus = if (workflowStatus.status == Failed) NotDefined else Killed
                     log.info(information)
-                    updateStatus(WorkflowStatus(id = policyId, status = newStatus, statusInfo = Some(information)))
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = newStatus,
+                      statusInfo = Some(information)
+                    ))
                   case Success(submissionResponse) =>
                     log.debug(s"Failed response: $submissionResponse")
                     val information = s"Error while stopping task"
                     log.info(information)
-                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(information),
-                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Execution, error))))
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = Failed,
+                      statusInfo = Some(information),
+                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Execution, error))
+                    ))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
                     log.error(error, e)
-                    updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(error),
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = Failed,
+                      statusInfo = Some(error),
                       lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
                     ))
                 }
               case None =>
-                log.info(s"The Sparta System does not have a submission id associated to policy $policyName")
+                log.info(s"The Sparta System does not have a submission id associated to workflow $workflowName")
             }
           } finally {
             Try(nodeCache.close()) match {
@@ -174,27 +226,31 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
     })
   }
 
-  def addClientContextListener(policyId: String,
-                               policyName: String,
+  def addClientContextListener(workflowId: String,
+                               workflowName: String,
                                handler: SparkAppHandle,
                                launcherActor: ActorRef,
                                akkaContext: ActorContext): Unit = {
-    log.info(s"Client context Listener added to $policyName with id: $policyId")
-    addListener(policyId, (policyStatus: WorkflowStatus, nodeCache: NodeCache) => {
+    log.info(s"Client context Listener added to $workflowName with id: $workflowId")
+    addWorkflowStatusListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
-        if (policyStatus.status == Stopping || policyStatus.status == Failed) {
+        if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
           try {
-            policyStatus.submissionId match {
+            workflowStatus.submissionId match {
               case Some(_) =>
                 Try {
-                  log.info("Stopping submission policy with handler")
+                  log.info("Stopping submission workflow with handler")
                   handler.stop()
                 } match {
                   case Success(_) =>
                     val information = s"Sparta cluster job correctly stopped with Spark Handler"
                     log.info(information)
-                    updateStatus(WorkflowStatus(id = policyId, status = Stopped, statusInfo = Some(information)))
+                    statusService.update(WorkflowStatus(
+                      id = workflowId,
+                      status = Stopped,
+                      statusInfo = Some(information)
+                    ))
                   case Failure(e: Exception) =>
                     val error = s"An error was encountered while stopping Sparta cluster job with Spark Handler, killing it ..."
                     log.warn(error, e)
@@ -202,19 +258,29 @@ trait ClusterListenerUtils extends WorkflowStatusUtils {
                       case Success(_) =>
                         val information = s"Sparta cluster job killed with Spark Handler"
                         log.info(information)
-                        updateStatus(WorkflowStatus(id = policyId, status = Stopped, statusInfo = Some(information)))
+                        statusService.update(WorkflowStatus(
+                          id = workflowId,
+                          status = Stopped,
+                          statusInfo = Some(information)
+                        ))
                       case Failure(e: Exception) =>
                         val error = s"Problems encountered while killing Sparta cluster job with Spark Handler"
                         log.info(error)
-                        updateStatus(WorkflowStatus(
-                          id = policyId, status = Stopped, statusInfo = Some(error),
-                          lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))))
+                        statusService.update(WorkflowStatus(
+                          id = workflowId,
+                          status = Stopped,
+                          statusInfo = Some(error),
+                          lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                        ))
                     }
                 }
               case None =>
-                val information = s"The Sparta System does not have a submission id associated to policy $policyName"
+                val information = s"The Sparta System does not have a submission id associated to workflow $workflowName"
                 log.info(information)
-                updateStatus(WorkflowStatus(id = policyId, status = Failed, statusInfo = Some(information)))
+                statusService.update(WorkflowStatus(
+                  id = workflowId,
+                  status = Failed,
+                  statusInfo = Some(information)))
             }
           } finally {
             Try(nodeCache.close()) match {

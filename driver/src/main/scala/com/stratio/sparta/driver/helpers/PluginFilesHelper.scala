@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.driver.helpers
 
 import java.io.File
 import java.net.URL
@@ -22,9 +22,10 @@ import java.util.{Calendar, UUID}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.utils.HdfsUtils
 import org.apache.commons.io.FileUtils
 
-trait PluginsFilesUtils extends SLF4JLogging {
+object PluginFilesHelper extends SLF4JLogging {
 
   def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
     log.info(pluginsFiles.mkString(","))
@@ -36,13 +37,13 @@ trait PluginsFilesUtils extends SLF4JLogging {
     })
   }
 
-  private def addFromLocal(filePath: String): Unit = {
+  private[driver] def addFromLocal(filePath: String): Unit = {
     log.info(s"Getting file from local: $filePath")
     val file = new File(filePath.replace("file://", ""))
     JarsHelper.addToClasspath(file)
   }
 
-  private def addFromHdfs(fileHdfsPath: String): Unit = {
+  private[driver] def addFromHdfs(fileHdfsPath: String): Unit = {
     log.info(s"Getting file from HDFS: $fileHdfsPath")
     val inputStream = HdfsUtils().getFile(fileHdfsPath)
     val fileName = fileHdfsPath.split("/").last
@@ -53,7 +54,7 @@ trait PluginsFilesUtils extends SLF4JLogging {
     JarsHelper.addToClasspath(file)
   }
 
-  private def addFromHttp(fileURI: String): Unit = {
+  private[driver] def addFromHttp(fileURI: String): Unit = {
     log.info(s"Getting file from HTTP: $fileURI")
     val tempFile = File.createTempFile(s"sparta-plugin-${Calendar.getInstance().getTimeInMillis}", ".jar")
     val url = new URL(fileURI)

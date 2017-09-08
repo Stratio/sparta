@@ -23,14 +23,19 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.{WorkflowStatusUtils, RequestUtils, WorkflowUtils}
+import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.utils.RequestUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
 class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
-  with WorkflowStatusUtils with RequestUtils with WorkflowUtils {
+  with RequestUtils {
+
+  private val workflowService = new WorkflowService(curatorFramework)
+  private val statusService = new WorkflowStatusService(curatorFramework)
+  private val listenerService = new ListenerService(curatorFramework)
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(workflowId) => doStartApp(workflowId)
@@ -48,13 +53,13 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
   def doStartApp(workflowId: String): Unit = {
     Try {
       log.debug(s"Obtaining status with workflow id: $workflowId")
-      findStatusById(workflowId) match {
+      statusService.findById(workflowId) match {
         case Success(status) =>
           log.debug(s"Obtained status: ${status.status}")
           if (status.status != Stopped && status.status != Stopping && status.status != Failed &&
             status.status != Finished) {
             log.debug(s"Obtaining workflow by id: $workflowId")
-            val workflow = getWorkflowById(workflowId)
+            val workflow = workflowService.findById(workflowId)
             log.debug(s"Obtained workflow: ${workflow.toString}")
             log.debug(s"Closing checker with id: $workflowId and name: ${workflow.name}")
             closeChecker(workflow.id.get, workflow.name)
@@ -71,8 +76,12 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
             val information = s"Workflow App launched by Marathon with incorrect state, the job was not executed"
             log.warn(information)
             preStopActions()
-            updateStatus(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Option(information),
-              lastError = Option(WorkflowError(information, PhaseEnum.Execution, ""))))
+            statusService.update(WorkflowStatus(
+              id = workflowId,
+              status = Stopped,
+              statusInfo = Option(information),
+              lastError = Option(WorkflowError(information, PhaseEnum.Execution, ""))
+            ))
           }
         case Failure(e) => throw e
       }
@@ -83,8 +92,12 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
         val information = s"Error executing Spark Submit in Workflow App"
         log.error(information, exception)
         preStopActions()
-        updateStatus(WorkflowStatus(id = workflowId, status = Failed, statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))))
+        statusService.update(WorkflowStatus(
+          id = workflowId,
+          status = Failed,
+          statusInfo = Option(information),
+          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+        ))
     }
   }
 
@@ -92,7 +105,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
 
   def closeChecker(workflowId: String, workflowName: String): Unit = {
     log.info(s"Listener added to $workflowName with id: $workflowId")
-    addListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
+    listenerService.addWorkflowStatusListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
       synchronized {
         if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
           try {

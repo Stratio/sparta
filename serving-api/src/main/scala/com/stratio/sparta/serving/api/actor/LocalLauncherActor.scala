@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, PoisonPill}
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
@@ -24,21 +25,25 @@ import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.{LauncherUtils, WorkflowStatusUtils, SparkSubmitService}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{LauncherService, SparkSubmitService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
 class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
-  extends Actor with LauncherUtils with WorkflowStatusUtils {
+  extends Actor with SLF4JLogging {
+
+  private val statusService = new WorkflowStatusService(curatorFramework)
+  private val launcherService = new LauncherService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
-    case Start(policy: Workflow) => doInitSpartaContext(policy)
-    case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
+    case Start(workflow: Workflow) => doInitSpartaContext(workflow)
+    case ResponseStatus(status) => launcherService.loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 
+  //scalastyle:off
   private def doInitSpartaContext(workflow: Workflow): Unit = {
     val sparkSubmitService = new SparkSubmitService(workflow)
     val jars = sparkSubmitService.userPluginsFiles
@@ -47,7 +52,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     Try {
       val startingInfo = s"Starting a Sparta local job for the workflow"
       log.info(startingInfo)
-      updateStatus(WorkflowStatus(
+      statusService.update(WorkflowStatus(
         id = workflow.id.get,
         status = WorkflowStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
@@ -58,7 +63,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       ssc.start()
       val startedInformation = s"Sparta local job was started correctly"
       log.info(startedInformation)
-      updateStatus(WorkflowStatus(
+      statusService.update(WorkflowStatus(
         id = workflow.id.get,
         status = WorkflowStatusEnum.Started,
         statusInfo = Some(startedInformation),
@@ -75,13 +80,16 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         SparkContextFactory.destroySparkContext()
         val information = s"Sparta local job stopped correctly"
         log.info(information)
-        updateStatus(WorkflowStatus(
-          id = workflow.id.get, status = WorkflowStatusEnum.Stopped, statusInfo = Some(information)))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = WorkflowStatusEnum.Stopped,
+          statusInfo = Some(information)
+        ))
         self ! PoisonPill
       case Failure(exception) =>
         val information = s"Error initiating the Sparta local job"
         log.error(information, exception)
-        updateStatus(WorkflowStatus(
+        statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = WorkflowStatusEnum.Failed,
           statusInfo = Option(information),

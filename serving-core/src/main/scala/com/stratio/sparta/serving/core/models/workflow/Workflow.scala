@@ -17,9 +17,9 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 case class Workflow(
-                          id: Option[String] = None,
-                          name: String,
-                          description: String = "Default description",
-                          settings: SettingsModel,
-                          pipelineGraph: PipelineGraph
-                        )
+                     id: Option[String] = None,
+                     name: String,
+                     description: String = "Default description",
+                     settings: SettingsModel,
+                     pipelineGraph: PipelineGraph
+                   )

@@ -25,7 +25,8 @@ import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{ResponseWorkflow, TemplateElement, Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils, WorkflowUtils}
+import com.stratio.sparta.serving.core.services.WorkflowService
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 
@@ -33,7 +34,7 @@ import scala.util.{Failure, Success, Try}
 
 class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
                     val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with WorkflowUtils with CheckpointUtils with ActionUserAuthorize {
+  extends Actor with CheckpointUtils with ActionUserAuthorize {
 
   import WorkflowActor._
 
@@ -41,6 +42,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   val ResourcePol = "policy"
   val ResourceCP = "checkpoint"
   val ResourceContext = "context"
+  private val workflowService = new WorkflowService(curatorFramework)
 
   //scalastyle:off
   override def receive: Receive = {
@@ -63,7 +65,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   def findAll(user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflows(Try {
-      findAllWorkflows
+      workflowService.findAll
     }.recover {
       case _: NoNodeException => Seq.empty[Workflow]
     })
@@ -72,7 +74,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflows(Try(deleteAllWorkflows()).recover {
+    def callback() = ResponseWorkflows(Try(workflowService.deleteAll()).recover {
       case _: NoNodeException => throw new ServingCoreException(
         ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingWorkflow, s"Error deleting policies")))
     })
@@ -85,7 +87,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflows(
-      Try(findWorkflowsByTemplateType(fragmentType)).recover {
+      Try(workflowService.findByTemplateType(fragmentType)).recover {
         case _: NoNodeException => Seq.empty[Workflow]
       })
 
@@ -94,7 +96,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   def findByTemplateName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflows(
-      Try(findWorkflowsByTemplateName(fragmentType, name)).recover {
+      Try(workflowService.findByTemplateName(fragmentType, name)).recover {
         case _: NoNodeException => Seq.empty[Workflow]
       })
 
@@ -102,7 +104,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   }
 
   def find(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(getWorkflowById(id)).recover {
+    def callback() = ResponseWorkflow(Try(workflowService.findById(id)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow with id $id.")
@@ -113,13 +115,13 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   }
 
   def findByName(name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(findWorkflowByName(name)))
+    def callback() = ResponseWorkflow(Try(workflowService.findByName(name)))
 
     securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
   }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(createWorkflow(workflow)))
+    def callback() = ResponseWorkflow(Try(workflowService.create(workflow)))
 
     securityActionAuthorizer[ResponseWorkflow](secManagerOpt,
       user,
@@ -128,7 +130,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(updateWorkflow(workflow)).recover {
+    def callback() = ResponseWorkflow(Try(workflowService.update(workflow)).recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(
           new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow with name ${workflow.name}.")
@@ -140,7 +142,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   def delete(id: String, user: Option[LoggedUser]): Unit = {
     def callback() = Response(Try {
-      deleteWorkflow(id)
+      workflowService.delete(id)
     }.recover {
       case _: NoNodeException =>
         throw new ServingCoreException(ErrorModel.toString(

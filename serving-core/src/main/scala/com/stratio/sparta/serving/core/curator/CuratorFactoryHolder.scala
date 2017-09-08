@@ -96,11 +96,6 @@ object CuratorFactoryHolder extends SLF4JLogging {
     case None => false
   }
 
-  def deletePath(path: String): Boolean = curatorFramework match {
-    case Some(curator) => Option(curator.delete().deletingChildrenIfNeeded().forPath(path)).isDefined
-    case None => false
-  }
-
   /**
     * Tries to instantiate a configuration value depending of its type.
     * @param configKey with the name of the property instead of configuration file.

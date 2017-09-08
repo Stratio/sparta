@@ -51,8 +51,8 @@ object AppConstant extends ZookeeperUtils {
   val DefaultPluginsPackageLocation = "/opt/sds/sparta/plugins"
   val DefaultFrontEndTimeout = 20000
   val ConfigSecurity = "security"
-  val AwaitPolicyChangeStatus = "awaitPolicyChangeStatus"
-  val DefaultAwaitPolicyChangeStatus = "360s"
+  val AwaitWorkflowChangeStatus = "awaitWorkflowChangeStatus"
+  val DefaultAwaitWorkflowChangeStatus = "360s"
   val PreStopMarathonDelay = "preStopMarathonDelay"
   val DefaultPreStopMarathonDelay = "10s"
   val PreStopMarathonInterval = "preStopMarathonInterval"
