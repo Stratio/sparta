@@ -38,7 +38,7 @@ public class ISGosec_AddzookeperPolitic extends BaseTest {
     public ISGosec_AddzookeperPolitic() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"gosecPolitic"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

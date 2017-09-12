@@ -12,14 +12,14 @@ Feature: [SPARTA][DCOS] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${NAME_POLICY_ZK}  | n/a |
       |   $.users[0]              |  UPDATE    | ${USER}            | n/a |
     Then the service response status must be '201'
-
+  @manual @ignore
   Scenario: [SPARTA][Gosec]Add sparta policy to write in zookeper
     Given I send a 'POST' request to '${BASE_END_POINT}/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_SP}          | n/a |
       |   $.name                  |  UPDATE    | ${NAME_POLICY_SP}        | n/a |
       |   $.users[0]              |  UPDATE    | ${USER}                  | n/a |
     Then the service response status must be '201'
-
+  @manual @ignore
   Scenario: [SPARTA][Gosec]Add sparta policy to kafka
     Given I send a 'POST' request to '${BASE_END_POINT}/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_KAFKA         | n/a |

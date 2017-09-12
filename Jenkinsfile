@@ -46,18 +46,36 @@ hose {
         }, failFast: config.FAILFAST)
 
     }
-
+    INSTALLPARAMETERS = """
+            | -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta-workflow:%%VERSION
+            """
     INSTALLSERVICES = [
-       ['CHROME': [
-       'image': 'stratio/selenium-chrome:48',
-           'volumes': [
-         '/dev/shm:/dev/shm'],
-           'env': [
-         'SELENIUM_GRID=selenium.cd','ID=%%JUID']]]
+        ['CHROME': [
+            'image': 'stratio/selenium-chrome:48',
+            'volumes': ['/dev/shm:/dev/shm'],
+            'env': ['SELENIUM_GRID=selenium.cd','ID=%%JUID']
+            ]
+        ],
+        ['DCOSCLI': [
+                'image': 'stratio/dcos-cli:0.4.15',
+                'volumes': ['stratio/paasintegrationpem:0.1.0'],
+                'env': [
+                    'DCOS_IP=10.200.0.205',
+                    'SSL=true',
+                    'SSH=true',
+                    'TOKEN_AUTHENTICATION=true',
+                    'DCOS_USER=admin@demo.stratio.com',
+                    'DCOS_PASSWORD=stratiotest',
+                    'BOOTSTRAP_USER=operador',
+                    'PEM_FILE_PATH=/paascerts/PaasIntegration.pem'
+                    ],
+                'sleep':  10
+                ]
+        ]  
 
     ]
 
     INSTALL = { config ->
-        doAT(conf: config, groups: ['streaming'])
+        doAT(conf: config, groups: ['dcos_gosecPolitic','dcos_instalation','dcos_execution'])
      }
 }
