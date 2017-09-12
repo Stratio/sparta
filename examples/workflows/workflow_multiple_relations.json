@@ -68,42 +68,34 @@
       {
         "name": "socket",
         "type": "WebSocketInputStep",
-        "outputFields": [{
-          "name": "raw",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "inputsocket"
         },
         "configuration": {
-          "url": "ws://stream.meetup.com/2/rsvps"
+          "url": "ws://stream.meetup.com/2/rsvps",
+          "outputField": "raw",
+          "outputType": "string"
         }
       },
       {
         "name": "socket1",
         "type": "WebSocketInputStep",
-        "outputFields": [{
-          "name": "raw",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "inputsocket1"
         },
         "configuration": {
-          "url": "ws://stream.meetup.com/2/rsvps"
+          "url": "ws://stream.meetup.com/2/rsvps",
+          "outputField": "raw2",
+          "outputType": "string"
         }
       },
       {
         "type": "UnionTransformStep",
         "name": "union1",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -116,10 +108,6 @@
       {
         "type": "JsonTransformStep",
         "name": "jsonparser2",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -128,9 +116,10 @@
         "configuration": {
           "queries": [{
             "field": "response",
-            "query": "$.response"
+            "query": "$.response",
+            "type": "string"
           }],
-          "inputField": "raw",
+          "inputField": "raw2",
           "whenError": "Error",
           "supportNullValues": true
         }
@@ -138,10 +127,6 @@
       {
         "type": "JsonTransformStep",
         "name": "jsonparser",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -150,7 +135,8 @@
         "configuration": {
           "queries": [{
             "field": "response",
-            "query": "$.response"
+            "query": "$.response",
+            "type": "string"
           }],
           "inputField": "raw",
           "whenError": "Error",
@@ -160,10 +146,6 @@
       {
         "type": "UnionTransformStep",
         "name": "union",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -176,10 +158,6 @@
       {
         "type": "UnionTransformStep",
         "name": "union2",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -192,10 +170,6 @@
       {
         "type": "UnionTransformStep",
         "name": "union3",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -208,10 +182,6 @@
       {
         "type": "UnionTransformStep",
         "name": "union4",
-        "outputFields": [{
-          "name": "response",
-          "type": "string"
-        }],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -224,7 +194,6 @@
       {
         "name": "print",
         "type": "PrintOutputStep",
-        "outputFields": [],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",

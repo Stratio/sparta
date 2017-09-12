@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -33,20 +34,19 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers {
 
   "A TriggerTransformStep" should "make trigger over one DStream" in {
 
-    val inputStep1 = "step1"
     val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
-    val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)),Row.fromSeq(Seq("red", 12.2)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1),
+      new GenericRowWithSchema(Array("red", 12.2), schema1)
+    )
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val query = s"SELECT * FROM step1 ORDER BY step1.color"
     val result = new TriggerTransformStep(
       "dummy",
-      Map(inputStep1 -> schema1),
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,
@@ -73,30 +73,31 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers {
 
   "A TriggerTransformStep" should "make trigger over two DStreams" in {
 
-    val inputStep1 = "step1"
-    val inputStep2 = "step2"
     val schema1 = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val schema2 = StructType(Seq(StructField("color", StringType),
       StructField("company", StringType), StructField("name", StringType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType),
+      StructField("company", StringType), StructField("name", StringType), StructField("price", DoubleType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val dataQueue2 = new mutable.Queue[RDD[Row]]()
-    val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)),Row.fromSeq(Seq("red", 12.2)))
-    val data2 = Seq(Row.fromSeq(Seq("blue", "Stratio", "Stratio employee")),
-      Row.fromSeq(Seq("red", "Paradigma", "Paradigma employee")))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema1),
+      new GenericRowWithSchema(Array("red", 12.2), schema1)
+    )
+    val data2 = Seq(
+      new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee"), schema2),
+      new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee"), schema2)
+    )
     dataQueue1 += sc.parallelize(data1)
     dataQueue2 += sc.parallelize(data2)
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputsFields = Seq(OutputFields("color", "string"), OutputFields("company", "string"),
-      OutputFields("name", "string"), OutputFields("price", "double"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
     val result = new TriggerTransformStep(
       "dummy",
-      Map(inputStep1 -> schema1, inputStep2 -> schema2),
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,
@@ -111,8 +112,9 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers {
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty()) {
-        val queryData = Seq(Row.fromSeq(Seq("blue", "Stratio", "Stratio employee", 12.1)),
-          Row.fromSeq(Seq("red", "Paradigma", "Paradigma employee", 12.2)))
+        val queryData = Seq(
+          new GenericRowWithSchema(Array("blue", "Stratio", "Stratio employee", 12.1), schemaResult),
+          new GenericRowWithSchema(Array("red", "Paradigma", "Paradigma employee", 12.2), schemaResult))
         streamingRegisters.foreach(row => assert(queryData.contains(row)))
       }
     })

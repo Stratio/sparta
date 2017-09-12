@@ -30,13 +30,11 @@ import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 import scala.util.Try
 
 class WindowTransformStep(name: String,
-                          inputSchemas: Map[String, StructType],
-                          outputFields: Seq[OutputFields],
                           outputOptions: OutputOptions,
                           ssc: StreamingContext,
                           xDSession: XDSession,
                           properties: Map[String, JSerializable])
-  extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)).getOrElse(None).map(over =>
     Milliseconds(AggregationTime.parseValueToMilliSeconds(over)))

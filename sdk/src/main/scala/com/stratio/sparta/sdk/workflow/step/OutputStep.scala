@@ -43,18 +43,13 @@ abstract class OutputStep(
    * Generic write function that receive the stream data and pass to dataFrame, after this call the save function.
    *
    * @param inputData Input stream data to save
-   * @param inputSchema The schema of the data
    * @param outputOptions Options to save
    */
-  def writeTransform(
-                      inputData: DStream[Row],
-                      inputSchema: StructType,
-                      outputOptions: OutputOptions
-                    ): Unit = {
-
+  def writeTransform(inputData: DStream[Row], outputOptions: OutputOptions): Unit = {
     inputData.foreachRDD(rdd =>
       if (!rdd.isEmpty()) {
-        val dataFrame = xDSession.createDataFrame(rdd, inputSchema)
+        val schema = rdd.first().schema
+        val dataFrame = xDSession.createDataFrame(rdd, schema)
         val saveOptions = Map(TableNameKey -> outputOptions.tableName) ++
           outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
             Map(PartitionByKey -> partition)
@@ -85,12 +80,6 @@ abstract class OutputStep(
    * @param options Options to save the data (partitionBy, primaryKey ... )
    */
   def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
-
-  /**
-   * Create dummy schema. Not used now.
-   * @return Empty schema
-   */
-  def getOutputSchema: StructType = StructType.apply(Seq.empty[StructField])
 
   /** PRIVATE METHODS **/
 

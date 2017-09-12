@@ -47,7 +47,7 @@ class CrossdataInputStep(
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
                         )
-  extends InputStep(name, outputFields, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val query = properties.getString("query")
   lazy val offsetField = properties.getString("offsetField")
@@ -106,14 +106,7 @@ class CrossdataInputStep(
       }
     }))
 
-    DatasourceUtils.createStream(ssc, inputSentences, datasourceProperties, sparkSession).transform { rdd =>
-      if(!rdd.isEmpty()) {
-        Option(rdd.first().schema).fold(rdd) { schema =>
-          if (compareToOutputSchema(schema)) rdd
-          else rdd.flatMap(row => parseWithSchema(row, schema))
-        }
-      } else rdd
-    }
+    DatasourceUtils.createStream(ssc, inputSentences, datasourceProperties, sparkSession)
   }
 
   class StreamingListenerStop extends StreamingListener {

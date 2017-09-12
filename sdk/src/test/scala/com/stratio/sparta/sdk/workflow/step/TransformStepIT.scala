@@ -49,8 +49,6 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val outputsFields = Seq(OutputFields("inputField", "string"), OutputFields("price", "string"))
     val transformStep = new MockTransformStep(
       name,
-      inputSchemas,
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,
@@ -73,8 +71,6 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val outputsFields = Seq(OutputFields("inputField", "string"), OutputFields("price", "string"))
     val transformStep = new MockTransformStep(
       name,
-      inputSchemas,
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,
@@ -106,8 +102,6 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val outputsFields = Seq(OutputFields("inputField", "string"), OutputFields("price", "string"))
     val transformStep = new MockTransformStep(
       name,
-      inputSchemas,
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,

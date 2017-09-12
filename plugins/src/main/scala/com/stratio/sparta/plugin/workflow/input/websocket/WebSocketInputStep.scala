@@ -19,23 +19,28 @@ package com.stratio.sparta.plugin.workflow.input.websocket
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 class WebSocketInputStep(
                           name: String,
-                          outputFields: Seq[OutputFields],
                           outputOptions: OutputOptions,
                           ssc: StreamingContext,
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
-                        ) extends InputStep(name, outputFields, outputOptions, ssc, xDSession, properties) {
+                        ) extends InputStep(name, outputOptions, ssc, xDSession, properties) {
+
+  lazy val outputField = properties.getString("outputField", DefaultRawDataField)
+  lazy val outputType = SparkTypes(properties.getString("outputType", DefaultRawDataType).toLowerCase)
+  lazy val outputSchema = StructType(Seq(StructField(outputField, outputType)))
 
   def initStream(): DStream[Row] = {
     ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel))
-      .map(data => Row(data))
+      .map(data => new GenericRowWithSchema(Array(data), outputSchema))
   }
 }

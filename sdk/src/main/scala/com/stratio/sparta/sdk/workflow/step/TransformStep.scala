@@ -22,8 +22,10 @@ import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenError._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
 import org.apache.spark.streaming.StreamingContext
@@ -34,8 +36,6 @@ import scala.util.{Failure, Success, Try}
 
 abstract class TransformStep(
                               val name: String,
-                              val inputSchemas: Map[String, StructType],
-                              val outputFields: Seq[OutputFields],
                               val outputOptions: OutputOptions,
                               @transient private[sparta] val ssc: StreamingContext,
                               @transient private[sparta] val xDSession: XDSession,
@@ -44,7 +44,9 @@ abstract class TransformStep(
 
   /* GLOBAL VARIABLES */
 
-  lazy val addAllInputFields: Boolean = Try(propertiesWithCustom.getBoolean("addAllInputFields")).getOrElse(false)
+  lazy val whenErrorDo: WhenError = Try(WhenError.withName(propertiesWithCustom.getString("whenError")))
+    .getOrElse(WhenError.Error)
+
 
   /* METHODS TO IMPLEMENT */
 
@@ -57,48 +59,8 @@ abstract class TransformStep(
    */
   def transform(inputData: Map[String, DStream[Row]]): DStream[Row]
 
-  /* METHODS IMPLEMENTED */
 
-  /**
-   * Default parsing function to apply inside the transform function.
-   *
-   * By default make one casting of the input fields based on the output fields. It's mandatory that the input fields
-   * and the output fields have the same name.
-   *
-   * @param row        The data to parse
-   * @param schemaName The schema name of the data to search in the input schemas
-   * @return One or more rows that the parsing function generates
-   */
-  def parse(row: Row, schemaName: String): Seq[Row] = {
-    returnData(Try {
-      outputSchema.map { outputField =>
-        Try {
-          val inputSchema = inputSchemas
-            .getOrElse(schemaName, throw new IllegalStateException("Incorrect input schema name"))
-          val inputSchemaType = inputSchema.find(_.name == outputField.name)
-            .getOrElse(throw new IllegalStateException(
-              s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
-            .dataType
-          (inputSchema, inputSchemaType)
-        } match {
-          case Success((inputSchema, inputSchemaType)) =>
-            Try {
-              if (inputSchemaType == outputField.dataType)
-                row.get(inputSchema.fieldIndex(outputField.name))
-              else castingToOutputSchema(outputField, row.get(inputSchema.fieldIndex(outputField.name)))
-            } match {
-              case Success(dataRow) =>
-                dataRow
-              case Failure(e) =>
-                returnWhenError(new IllegalStateException(
-                  s"Impossible to find outputField: $outputField in the schema $inputSchema", e))
-            }
-          case Failure(e: Exception) =>
-            returnWhenError(e)
-        }
-      }
-    })
-  }
+  /* METHODS IMPLEMENTED */
 
   /**
    * Execute the transform function passed as parameter over the first data of the map.
@@ -112,42 +74,41 @@ abstract class TransformStep(
     assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head
-    val streamTransformed = generateDStream(firstStep, firstStream)
 
-    castingFields(firstStep, streamTransformed)
+    generateDStream(firstStep, firstStream)
   }
 
-  /**
-   * Compare input schema and output schema and apply the parsing function if it's necessary.
-   *
-   * @param schemaKey  The key associated to the schema input stream (the step name)
-   * @param streamData The stream data to casting
-   * @return The casted stream data
-   */
-  def castingFields(schemaKey: String, streamData: DStream[Row]): DStream[Row] =
-    if (compareToOutputSchema(inputSchemas(schemaKey)))
-      streamData
-    else streamData.flatMap(data => parse(data, schemaKey))
 
-  /**
-   * Calculate the output schema based to the output fields and the variable addAllInputFields.
-   *
-   * @return The calculated schema
-   */
-  def getOutputSchema: StructType = {
-    if (outputFields.nonEmpty) {
-      val newFields = outputFields.map { outputField =>
-        StructField(
-          name = outputField.name,
-          dataType = sparkTypes.getOrElse(outputField.`type`.toLowerCase, StringType),
-          nullable = true
-        )
+  //scalastyle:off
+  def returnWhenError(exception: Exception): Null =
+    whenErrorDo match {
+      case WhenError.Null => null
+      case _ => throw exception
+    }
+
+  //scalastyle:on
+
+  def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
+    Try {
+      TypeOp.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
+    } match {
+      case Success(result) => result
+      case Failure(e) => returnWhenError(new IllegalStateException(
+        s"Error casting to output type the value: ${inputValue.toString}", e))
+    }
+
+  def returnSeqData(newData: Try[_]): Seq[Row] =
+    newData match {
+      case Success(data: GenericRowWithSchema) => Seq(data)
+      case Success(_) => whenErrorDo match {
+        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
+        case _ => throw new IllegalStateException("Invalid new data in step")
       }
-      if (addAllInputFields)
-        StructType(inputSchemas.flatMap { case (_, schema) => schema.fields }.toSeq ++ newFields)
-      else StructType(newFields)
-    } else StructType(inputSchemas.flatMap { case (_, schema) => schema.fields }.toSeq)
-  }
+      case Failure(e) => whenErrorDo match {
+        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
+        case _ => throw e
+      }
+    }
 }
 
 object TransformStep {

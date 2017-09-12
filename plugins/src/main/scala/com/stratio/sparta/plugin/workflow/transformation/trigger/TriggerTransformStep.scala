@@ -20,25 +20,21 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
 class TriggerTransformStep(name: String,
-                           inputSchemas: Map[String, StructType],
-                           outputFields: Seq[OutputFields],
                            outputOptions: OutputOptions,
                            ssc: StreamingContext,
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val sql = Try(properties.getString("sql"))
     .getOrElse(throw new IllegalArgumentException("Is mandatory one sql query"))
@@ -56,8 +52,9 @@ class TriggerTransformStep(name: String,
       firstStream.transform { rdd =>
         if (rdd.isEmpty()) rdd
         else {
+          val schema = rdd.first().schema
           log.debug(s"Registering temporal table in Spark with name: $firstStep")
-          xDSession.createDataFrame(rdd, inputSchemas(firstStep)).createOrReplaceTempView(firstStep)
+          xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(firstStep)
 
           executeSQL
         }
@@ -73,10 +70,13 @@ class TriggerTransformStep(name: String,
       val transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
         case (rdd1, rdd2) =>
           log.debug(s"Registering temporal tables in Spark with names: $firstStep, $secondStep")
-          xDSession.createDataFrame(rdd1, inputSchemas(firstStep)).createOrReplaceTempView(firstStep)
-          xDSession.createDataFrame(rdd2, inputSchemas(secondStep)).createOrReplaceTempView(secondStep)
-
-          executeSQL
+          if (!rdd1.isEmpty() && !rdd2.isEmpty()){
+            val firstSchema = rdd1.first().schema
+            xDSession.createDataFrame(rdd1, firstSchema).createOrReplaceTempView(firstStep)
+            val secondSchema = rdd2.first().schema
+            xDSession.createDataFrame(rdd2, secondSchema).createOrReplaceTempView(secondStep)
+            executeSQL
+          } else rdd1
       }
 
       firstStream.transformWith(secondStream, transformFunc)
@@ -85,6 +85,7 @@ class TriggerTransformStep(name: String,
 
   def executeSQL: RDD[Row] = {
     log.debug(s"Executing query in Spark: $sql")
+
     val queryDf = Try(xDSession.sql(sql)) match {
       case Success(sqlResult) => sqlResult
       case Failure(exception: org.apache.spark.sql.AnalysisException) =>
@@ -96,10 +97,8 @@ class TriggerTransformStep(name: String,
         log.warn(info, exception)
         throw new RuntimeException(info, exception)
     }
-    val schemaDf = queryDf.schema
 
-    if (compareToOutputSchema(schemaDf)) queryDf.rdd
-    else queryDf.rdd.flatMap(row => parseWithSchema(row, schemaDf))
+    queryDf.rdd
   }
 
   def isCorrectTableName(tableName: String): Boolean =

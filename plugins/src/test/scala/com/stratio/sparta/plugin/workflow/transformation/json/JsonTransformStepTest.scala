@@ -23,7 +23,8 @@ import com.stratio.sparta.sdk.pipeline.transformation.WhenError
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
@@ -70,29 +71,29 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
   "A JsonTransformStep" should {
 
     "parse json string" in {
-      val input = Row(JSON)
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
 
       val result = new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
+        Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json", "addAllInputFields" -> false)
       ).parse(input, inputField)
       val expected = Seq(Row("red", 19.95))
 
@@ -100,25 +101,25 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "parse json with raw" in {
-      val input = Row(JSON)
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
 
       val result = new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
@@ -130,26 +131,25 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "not parse anything if the field does not match" in {
-      val input = Row(JSON)
-      val schema = StructType(Seq(StructField("wrongfield", StringType)))
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("wrong", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
 
-      an[IllegalStateException] should be thrownBy new JsonTransformStep(
+      an[IllegalArgumentException] should be thrownBy new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
@@ -158,25 +158,25 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
     }
 
     "not parse when input is wrong" in {
-      val input = Row("{}")
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array("{}"), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
 
       an[Exception] should be thrownBy new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
@@ -194,30 +194,31 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |  }
           |}""".stripMargin
 
-      val input = Row(JSON)
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
+
       val result = new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
       ).parse(input, inputField)
-      val expected = Seq(Row("red", null))
+      val expected = Seq(Row(JSON, "red", null))
 
       assertResult(expected)(result)
     }
@@ -231,30 +232,31 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |  }
           |}""".stripMargin
 
-      val input = Row(JSON)
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
+
       val result = new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
       ).parse(input, inputField)
-      val expected = Seq(Row("red", null))
+      val expected = Seq(Row(JSON, "red", null))
 
       assertResult(expected)(result)
     }
@@ -268,24 +270,25 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |  }
           |}""".stripMargin
 
-      val input = Row(JSON)
-      val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
       val queries =
         """[
           |{
           |   "field":"color",
-          |   "query":"$.store.bicycle.color"
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
           |},
           |{
           |   "field":"price",
-          |   "query":"$.store.bicycle.price"
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
           |}]
           | """.stripMargin
+
       an[PathNotFoundException] should be thrownBy new JsonTransformStep(
         "json",
-        Map(inputField -> schema),
-        outputsFields,
         outputOptions,
         null,
         null,

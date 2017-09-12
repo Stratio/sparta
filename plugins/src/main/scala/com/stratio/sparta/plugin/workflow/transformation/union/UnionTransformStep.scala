@@ -29,22 +29,20 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.collection.mutable
 
 class UnionTransformStep(name: String,
-                         inputSchemas: Map[String, StructType],
-                         outputFields: Seq[OutputFields],
                          outputOptions: OutputOptions,
                          ssc: StreamingContext,
                          xDSession: XDSession,
                          properties: Map[String, JSerializable])
-  extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
-    val castingStreams = inputData.map { case (schemaName, dStream) =>
-      castingFields(schemaName, dStream)
+    val streams = inputData.map { case (_, dStream) =>
+      dStream
     }.toSeq
 
-    castingStreams.size match {
-      case 1 => castingStreams.head
-      case x if x > 1 => ssc.union(castingStreams)
+    streams.size match {
+      case 1 => streams.head
+      case x if x > 1 => ssc.union(streams)
       case _ => ssc.queueStream(new mutable.Queue[RDD[Row]])
     }
   }

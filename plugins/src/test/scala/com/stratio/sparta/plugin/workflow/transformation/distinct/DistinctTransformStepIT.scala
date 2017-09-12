@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -33,20 +34,23 @@ class DistinctTransformStepIT extends TemporalSparkContext with Matchers {
 
   "A DistinctTransformStep" should "distinct events from input DStream" in {
 
-    val inputStep1 = "step1"
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
-    val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)), Row.fromSeq(Seq("red", 12.2)), Row.fromSeq(Seq("red", 12.2)))
-    val dataDistinct = Seq(Row.fromSeq(Seq("blue", 12.1)), Row.fromSeq(Seq("red", 12.2)))
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema),
+      new GenericRowWithSchema(Array("red", 12.2), schema),
+      new GenericRowWithSchema(Array("red", 12.2), schema)
+    )
+    val dataDistinct = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), schema),
+      new GenericRowWithSchema(Array("red", 12.2), schema)
+    )
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
-    val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val result = new DistinctTransformStep(
       "dummy",
-      Map(inputStep1 -> schema),
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,

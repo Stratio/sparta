@@ -30,13 +30,11 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.Try
 
 class PersistTransformStep(name: String,
-                           inputSchemas: Map[String, StructType],
-                           outputFields: Seq[OutputFields],
                            outputOptions: OutputOptions,
                            ssc: StreamingContext,
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val storageLevel: Option[StorageLevel] = properties.getString("storageLevel", None)
     .flatMap(level => Try(StorageLevel.fromString(level)).toOption)

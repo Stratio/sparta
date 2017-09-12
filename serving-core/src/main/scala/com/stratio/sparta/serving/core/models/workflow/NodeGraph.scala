@@ -22,7 +22,6 @@ import com.stratio.sparta.sdk.properties.JsoneyString
 case class NodeGraph(
                       name: String,
                       `type`: String,
-                      outputFields: Seq[OutputFieldGraph],
                       writer: WriterGraph,
                       configuration: Map[String, JsoneyString] = Map()
-                         )
+                    )

@@ -41,43 +41,10 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val properties = Map.empty[String, Serializable]
 
-    "Return outputSchema with outputFields" in {
-      val inputStep = new MockInputStep(
-        name,
-        outputsFields,
-        outputOptions,
-        ssc,
-        sparkSession,
-        properties
-      )
-      val result = inputStep.getOutputSchema
-      val expected = StructType(Seq(
-        StructField("color", StringType),
-        StructField("price", DoubleType)
-      ))
-      result should be(expected)
-    }
-
-    "Return outputSchema without outputFields" in {
-      val outputsFields = Seq.empty[OutputFields]
-      val inputStep = new MockInputStep(
-        name,
-        outputsFields,
-        outputOptions,
-        ssc,
-        sparkSession,
-        properties
-      )
-      val result = inputStep.getOutputSchema
-      val expected = inputStep.DefaultSchema
-      result should be(expected)
-    }
-
     "Return default storageLevel" in {
       val outputsFields = Seq.empty[OutputFields]
       val inputStep = new MockInputStep(
         name,
-        outputsFields,
         outputOptions,
         ssc,
         sparkSession,
@@ -93,7 +60,6 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
       val properties = Map("storageLevel" -> "MEMORY_AND_DISK")
       val inputStep = new MockInputStep(
         name,
-        outputsFields,
         outputOptions,
         ssc,
         sparkSession,

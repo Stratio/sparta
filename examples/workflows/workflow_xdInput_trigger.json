@@ -78,16 +78,6 @@
       {
         "name": "crossdata",
         "type": "CrossdataInputStep",
-        "outputFields": [
-          {
-            "name": "idproduct",
-            "type": "string"
-          },
-          {
-            "name": "id",
-            "type": "long"
-          }
-        ],
         "writer": {
           "saveMode": "Append",
           "tableName": "inputxd"
@@ -115,12 +105,6 @@
       {
         "name": "trigger1",
         "type": "TriggerTransformStep",
-        "outputFields": [
-          {
-            "name": "idproduct",
-            "type": "string"
-          }
-        ],
         "writer": {
           "saveMode": "Append",
           "tableName": "triggertable"
@@ -133,7 +117,6 @@
       {
         "name": "print",
         "type": "PrintOutputStep",
-        "outputFields": [],
         "writer": {
           "saveMode": "Append",
           "tableName": ""

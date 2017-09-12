@@ -29,7 +29,6 @@ import org.apache.spark.streaming.dstream.DStream
 
 abstract class InputStep(
                           val name: String,
-                          val outputFields: Seq[OutputFields],
                           val outputOptions: OutputOptions,
                           @transient private[sparta] val ssc: StreamingContext,
                           @transient private[sparta] val sparkSession: XDSession,
@@ -40,6 +39,7 @@ abstract class InputStep(
 
   lazy val StorageDefaultValue = "MEMORY_ONLY"
   lazy val DefaultRawDataField = "raw"
+  lazy val DefaultRawDataType = "string"
   lazy val DefaultSchema: StructType = StructType(Seq(StructField(DefaultRawDataField, StringType)))
   lazy val storageLevel: StorageLevel = {
     val storageLevel = properties.getString("storageLevel", StorageDefaultValue)
@@ -55,20 +55,6 @@ abstract class InputStep(
    */
   def initStream(): DStream[Row]
 
-  /* METHODS IMPLEMENTED */
-
-  def getOutputSchema: StructType = {
-    if (outputFields.nonEmpty) {
-      val newFields = outputFields.map { outputField =>
-        StructField(
-          name = outputField.name,
-          dataType = sparkTypes.getOrElse(outputField.`type`.toLowerCase, StringType),
-          nullable = true
-        )
-      }
-      StructType(newFields)
-    } else DefaultSchema
-  }
 }
 
 object InputStep {

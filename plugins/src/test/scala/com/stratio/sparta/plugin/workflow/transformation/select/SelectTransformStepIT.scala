@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.casting
-
-import java.io.{Serializable => JSerializable}
+package com.stratio.sparta.plugin.workflow.transformation.select
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -32,42 +30,33 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class CastingTransformStepIT extends TemporalSparkContext with Matchers {
+class SelectTransformStepIT extends TemporalSparkContext with Matchers {
 
-  "A CastingTransformStep" should "casting the input DStream" in {
+  "A SelectTransformStep" should "select fields of events from input DStream" in {
 
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
-    val schemaCasting = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val schemaResult = StructType(Seq(StructField("color", StringType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema),
+      new GenericRowWithSchema(Array("red", 12.2), schema),
       new GenericRowWithSchema(Array("red", 12.2), schema)
     )
-    val dataCasting = Seq(
-      new GenericRowWithSchema(Array("blue", "12.1"), schemaCasting),
-      new GenericRowWithSchema(Array("red", "12.2"), schemaCasting)
+    val dataDistinct = Seq(
+      new GenericRowWithSchema(Array("blue"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult),
+      new GenericRowWithSchema(Array("red"), schemaResult)
     )
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val fields =
-      """[
-        |{
-        |   "name":"color",
-        |   "type":"string"
-        |},
-        |{
-        |   "name":"price",
-        |   "type":"string"
-        |}]
-        | """.stripMargin
-    val result = new CastingTransformStep(
+    val result = new SelectTransformStep(
       "dummy",
       outputOptions,
       ssc,
       sparkSession,
-      Map("fields" -> fields.asInstanceOf[JSerializable])
+      Map("selectExp" -> "color")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -78,11 +67,12 @@ class CastingTransformStepIT extends TemporalSparkContext with Matchers {
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty())
-        streamingRegisters.foreach(row => assert(dataCasting.contains(row)))
+        streamingRegisters.foreach(row => assert(dataDistinct.contains(row)))
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(10000L)
 
-    assert(totalEvents.value === 2)
+    assert(totalEvents.value === 3)
+
   }
 }

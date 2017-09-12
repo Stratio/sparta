@@ -22,15 +22,16 @@ import java.{lang => jl}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputFields, OutputOptions}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
 import org.apache.kafka.common.utils.Bytes
-import org.apache.spark.SparkConf
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
@@ -39,16 +40,19 @@ import scala.util.Try
 
 class KafkaInputStep(
                       name: String,
-                      outputFields: Seq[OutputFields],
                       outputOptions: OutputOptions,
                       ssc: StreamingContext,
                       xDSession: XDSession,
                       properties: Map[String, JSerializable]
                     )
-  extends InputStep(name, outputFields, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
+  extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
   lazy val KeyDeserializer = "key.deserializer"
   lazy val ValueDeserializer = "value.deserializer"
+
+  lazy val outputField = properties.getString("outputField", DefaultRawDataField)
+  lazy val outputType = SparkTypes(properties.getString("outputType", DefaultRawDataType).toLowerCase)
+  lazy val outputSchema = StructType(Seq(StructField(outputField, outputType)))
 
   //scalastyle:off
   def initStream(): DStream[Row] = {
@@ -119,7 +123,7 @@ class KafkaInputStep(
       }
     }
 
-    inputDStream.map(data => Row(data.value()))
+    inputDStream.map(data => new GenericRowWithSchema(Array(data.value()), outputSchema))
   }
 
   //scalastyle:on

@@ -49,8 +49,6 @@ class IntersectionTransformStepIT extends TemporalSparkContext with Matchers {
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val result = new IntersectionTransformStep(
       "dummy",
-      Map(inputStep1 -> schema, inputStep2 -> schema),
-      outputsFields,
       outputOptions,
       ssc,
       sparkSession,

@@ -1,6 +1,6 @@
 {
-  "name": "socket_kafka_trigger_casting_checkpointing",
-  "description": "Workflow with socket, kafka, trigger from two steps, casting, checkpointing and print",
+  "name": "socket_kafka_trigger_checkpointing",
+  "description": "Workflow with socket, kafka, trigger from two steps, checkpointing and print",
   "settings": {
     "global": {
       "executionMode": "local",
@@ -76,36 +76,28 @@
       {
         "name": "socket",
         "type": "WebSocketInputStep",
-        "outputFields": [
-          {
-            "name": "raw",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "inputsocket"
         },
         "configuration": {
-          "url": "ws://stream.meetup.com/2/rsvps"
+          "url": "ws://stream.meetup.com/2/rsvps",
+          "outputField": "raw",
+          "outputType": "string"
         }
       },
       {
         "name": "kafka",
         "type": "KafkaInputStep",
-        "outputFields": [
-          {
-            "name": "raw",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "inputkafka"
         },
         "configuration": {
+          "outputField": "raw",
+          "outputType": "string",
           "key.deserializer": "string",
           "locationStrategy": "preferconsistent",
           "topics": [
@@ -138,16 +130,6 @@
       {
         "type": "TriggerTransformStep",
         "name": "trigger1",
-        "outputFields": [
-          {
-            "name": "raw2",
-            "type": "string"
-          },
-          {
-            "name": "raws",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -159,36 +141,8 @@
         }
       },
       {
-        "type": "CastingTransformStep",
-        "name": "casting1",
-        "outputFields": [
-          {
-            "name": "raw2",
-            "type": "string"
-          },
-          {
-            "name": "raws",
-            "type": "string"
-          }
-        ],
-        "writer": {
-          "autoCalculatedFields": [],
-          "saveMode": "Append",
-          "tableName": "castingtable"
-        },
-        "configuration": {
-          "whenError": "Error"
-        }
-      },
-      {
         "type": "CheckpointTransformStep",
         "name": "checkpoint1",
-        "outputFields": [
-          {
-            "name": "raw",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -202,7 +156,6 @@
       {
         "name": "print",
         "type": "PrintOutputStep",
-        "outputFields": [],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -230,10 +183,6 @@
       },
       {
         "origin": "trigger1",
-        "destination": "casting1"
-      },
-      {
-        "origin": "casting1",
         "destination": "print"
       }
     ]

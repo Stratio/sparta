@@ -31,7 +31,6 @@ import com.stratio.sparta.serving.core.utils.{CheckpointUtils, ClasspathUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
@@ -52,9 +51,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   private var steps = Seq.empty[GraphStep]
 
   /**
-   * Execute the setup function associated to all the steps. Previously is mandatory execute the streamingStages
-   * function because the steps variable is mutable and is initialized to empty value.
-   */
+    * Execute the setup function associated to all the steps. Previously is mandatory execute the streamingStages
+    * function because the steps variable is mutable and is initialized to empty value.
+    */
   def setup(): Unit = {
     val phaseEnum = PhaseEnum.Setup
     val errorMessage = s"An error was encountered while executing the setup steps."
@@ -66,9 +65,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   }
 
   /**
-   * Execute the cleanUp function associated to all the steps. Previously is mandatory execute the streamingStages
-   * function because the steps variable is mutable and is initialized to empty value.
-   */
+    * Execute the cleanUp function associated to all the steps. Previously is mandatory execute the streamingStages
+    * function because the steps variable is mutable and is initialized to empty value.
+    */
   def cleanUp(): Unit = {
     val phaseEnum = PhaseEnum.Cleanup
     val errorMessage = s"An error was encountered while executing the cleanup steps."
@@ -80,10 +79,10 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   }
 
   /**
-   * Initialize the Spark contexts, create the steps for setup and cleanup functions and execute the workflow.
-   *
-   * @return The streaming context created, is used by the desing pattern in the Spark Streaming Context creation
-   */
+    * Initialize the Spark contexts, create the steps for setup and cleanup functions and execute the workflow.
+    *
+    * @return The streaming context created, is used by the desing pattern in the Spark Streaming Context creation
+    */
   def streamingStages(): StreamingContext = {
     clearError()
 
@@ -108,7 +107,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
         case value if value.contains(InputStep.ClassSuffix) =>
           createInputStep(node)
         case value if value.contains(TransformStep.ClassSuffix) =>
-          createTransformStep(node, Map.empty[String, StructType])
+          createTransformStep(node)
         case value if value.contains(OutputStep.ClassSuffix) =>
           createOutputStep(node)
       }
@@ -120,15 +119,15 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   }
 
   /**
-   * Execute the workflow and use the context with the Spark contexts, this function create the graph associated with
-   * the workflow, in this graph the nodes are the steps and the edges are the relations.
-   *
-   * The function create all the nodes that they are implicated in the paths that ends in one output node. The
-   * creation is ordered from the beginning to the end because the input data and the schema in one node is the output
-   * data and the schema associated to the predecessor node.
-   *
-   * @param workflowContext The Spark Contexts used in the steps creation
-   */
+    * Execute the workflow and use the context with the Spark contexts, this function create the graph associated with
+    * the workflow, in this graph the nodes are the steps and the edges are the relations.
+    *
+    * The function create all the nodes that they are implicated in the paths that ends in one output node. The
+    * creation is ordered from the beginning to the end because the input data and the schema in one node is the output
+    * data and the schema associated to the predecessor node.
+    *
+    * @param workflowContext The Spark Contexts used in the steps creation
+    */
   private[driver] def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
     val edgesModel = workflow.pipelineGraph.edges
     val nodesModel = workflow.pipelineGraph.nodes
@@ -154,7 +153,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             inputs.find(_._1 == predecessor.name).foreach { case (_, input) =>
-              newOutput.writeTransform(input.data, input.step.getOutputSchema, input.step.outputOptions)
+              newOutput.writeTransform(input.data, input.step.outputOptions)
             }
           }
         }
@@ -165,7 +164,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             transformations.find(_._1 == predecessor.name).foreach { case (_, transform) =>
-              newOutput.writeTransform(transform.data, transform.step.getOutputSchema, transform.step.outputOptions)
+              newOutput.writeTransform(transform.data, transform.step.outputOptions)
             }
           }
         }
@@ -174,12 +173,12 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   }
 
   /**
-   * Create the step associated to the node passed as parameter.
-   *
-   * @param node The node of the graph
-   * @param workflowContext The Spark contexts are contained into this parameter
-   * @param graphContext The context contains the graph and the steps created
-   */
+    * Create the step associated to the node passed as parameter.
+    *
+    * @param node            The node of the graph
+    * @param workflowContext The Spark contexts are contained into this parameter
+    * @param graphContext    The context contains the graph and the steps created
+    */
   private[driver] def createStep(node: NodeGraph)
                                 (implicit workflowContext: WorkflowContext, graphContext: GraphContext): Unit =
     node.`type` match {
@@ -195,10 +194,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
         if (!graphContext.transformations.contains(node.name)) {
           val tPredecessors = findTransformPredecessors(node)
           val iPredecessors = findInputPredecessors(node)
-          val transform = createTransformStep(
-            node,
-            iPredecessors.mapValues(_.step.getOutputSchema).toMap ++ tPredecessors.mapValues(_.step.getOutputSchema)
-          )
+          val transform = createTransformStep(node)
           val data = transform.transform(iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
 
           graphContext.transformations += (transform.name -> TransformStepData(transform, data))
@@ -209,12 +205,12 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     }
 
   /**
-   * Find the input steps that are predecessors to the node passed as parameter.
-   *
-   * @param node The node to find predecessors
-   * @param context The context that contains the graph and the steps created
-   * @return The predecessors steps
-   */
+    * Find the input steps that are predecessors to the node passed as parameter.
+    *
+    * @param node    The node to find predecessors
+    * @param context The context that contains the graph and the steps created
+    * @return The predecessors steps
+    */
   private[driver] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext)
   : scala.collection.mutable.HashMap[String, InputStepData] =
     context.inputs.filter(input =>
@@ -224,12 +220,12 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
         .contains(input._1))
 
   /**
-   * Find the transform steps that are predecessors to the node passed as parameter.
-   *
-   * @param node The node to find predecessors
-   * @param context The context that contains the graph and the steps created
-   * @return The predecessors steps
-   */
+    * Find the transform steps that are predecessors to the node passed as parameter.
+    *
+    * @param node    The node to find predecessors
+    * @param context The context that contains the graph and the steps created
+    * @return The predecessors steps
+    */
   private[driver] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext)
   : scala.collection.mutable.HashMap[String, TransformStepData] =
     context.transformations.filter(transform =>
@@ -240,14 +236,13 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     )
 
   /**
-   * Create the Transform step and trace the error if appears.
-   *
-   * @param node The node to create as transform step
-   * @param inputSchemas The input schemas associated to the predecessors of the node
-   * @param workflowContext The Spark contexts are contained into this parameter
-   * @return The new transform step
-   */
-  private[driver] def createTransformStep(node: NodeGraph, inputSchemas: Map[String, StructType])
+    * Create the Transform step and trace the error if appears.
+    *
+    * @param node            The node to create as transform step
+    * @param workflowContext The Spark contexts are contained into this parameter
+    * @return The new transform step
+    */
+  private[driver] def createTransformStep(node: NodeGraph)
                                          (implicit workflowContext: WorkflowContext): TransformStep = {
     val phaseEnum = PhaseEnum.Transform
     val errorMessage = s"An error was encountered while creating transform step ${node.name}."
@@ -255,7 +250,6 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.`type`).toString
-      val outputFields = node.outputFields.map(field => OutputFields(field.name, field.`type`))
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.writer.tableName,
@@ -265,25 +259,23 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       workflowContext.classUtils.tryToInstantiate[TransformStep](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
-          classOf[Map[String, StructType]],
-          classOf[Seq[OutputFields]],
           classOf[OutputOptions],
           classOf[StreamingContext],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, inputSchemas, outputFields, outputOptions, workflowContext.ssc,
-          workflowContext.xDSession, node.configuration).asInstanceOf[TransformStep]
+        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
+          .asInstanceOf[TransformStep]
       )
     }
   }
 
   /**
-   * Create the Input step and trace the error if appears.
-   *
-   * @param node The node to create as input step
-   * @param workflowContext The Spark contexts are contained into this parameter
-   * @return The new input step
-   */
+    * Create the Input step and trace the error if appears.
+    *
+    * @param node            The node to create as input step
+    * @param workflowContext The Spark contexts are contained into this parameter
+    * @return The new input step
+    */
   private[driver] def createInputStep(node: NodeGraph)
                                      (implicit workflowContext: WorkflowContext): InputStep = {
     val phaseEnum = PhaseEnum.Input
@@ -292,7 +284,6 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.`type`).toString
-      val outputFields = node.outputFields.map(field => OutputFields(field.name, field.`type`))
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.writer.tableName,
@@ -302,24 +293,23 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       workflowContext.classUtils.tryToInstantiate[InputStep](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
-          classOf[Seq[OutputFields]],
           classOf[OutputOptions],
           classOf[StreamingContext],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputFields, outputOptions, workflowContext.ssc, workflowContext.xDSession,
-          node.configuration).asInstanceOf[InputStep]
+        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
+          .asInstanceOf[InputStep]
       )
     }
   }
 
   /**
-   * Create the Output step and trace the error if appears.
-   *
-   * @param node The node to create as Output step
-   * @param workflowContext The Spark contexts are contained into this parameter
-   * @return The new Output step
-   */
+    * Create the Output step and trace the error if appears.
+    *
+    * @param node            The node to create as Output step
+    * @param workflowContext The Spark contexts are contained into this parameter
+    * @return The new Output step
+    */
   private[driver] def createOutputStep(node: NodeGraph)
                                       (implicit workflowContext: WorkflowContext): OutputStep = {
     val phaseEnum = PhaseEnum.Output

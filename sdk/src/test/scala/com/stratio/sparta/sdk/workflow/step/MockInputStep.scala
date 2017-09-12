@@ -28,12 +28,11 @@ import scala.collection.mutable
 
 class MockInputStep(
                      name: String,
-                     outputFields: Seq[OutputFields],
                      outputOptions: OutputOptions,
                      ssc: StreamingContext,
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
-                   ) extends InputStep(name, outputFields, outputOptions, ssc, xDSession, properties) {
+                   ) extends InputStep(name, outputOptions, ssc, xDSession, properties) {
 
   def initStream(): DStream[Row] = ssc.queueStream(new mutable.Queue[RDD[Row]])
 

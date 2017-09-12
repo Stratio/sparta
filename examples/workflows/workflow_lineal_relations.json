@@ -76,18 +76,14 @@
       {
         "name": "kafka",
         "type": "KafkaInputStep",
-        "outputFields": [
-          {
-            "name": "raw",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "inputkafka"
         },
         "configuration": {
+          "outputField": "raw",
+          "outputType": "string",
           "key.deserializer": "string",
           "locationStrategy": "preferconsistent",
           "topics": [
@@ -120,12 +116,6 @@
       {
         "type": "TriggerTransformStep",
         "name": "trigger1",
-        "outputFields": [
-          {
-            "name": "raw2",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -139,30 +129,21 @@
       {
         "type": "CastingTransformStep",
         "name": "casting1",
-        "outputFields": [
-          {
-            "name": "raw2",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "castingtable"
         },
         "configuration": {
-          "whenError": "Error"
+          "whenError": "Error",
+          "fields": [
+            {"name": "raw2", "type": "string"}
+          ]
         }
       },
       {
         "type": "CheckpointTransformStep",
         "name": "checkpoint1",
-        "outputFields": [
-          {
-            "name": "raw",
-            "type": "string"
-          }
-        ],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -176,7 +157,6 @@
       {
         "name": "print",
         "type": "PrintOutputStep",
-        "outputFields": [],
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",

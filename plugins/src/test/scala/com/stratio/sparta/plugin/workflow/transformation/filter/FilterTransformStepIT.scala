@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.casting
-
-import java.io.{Serializable => JSerializable}
+package com.stratio.sparta.plugin.workflow.transformation.filter
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
@@ -32,42 +30,27 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class CastingTransformStepIT extends TemporalSparkContext with Matchers {
+class FilterTransformStepIT extends TemporalSparkContext with Matchers {
 
-  "A CastingTransformStep" should "casting the input DStream" in {
+  "A FilterTransformStep" should "filter events from input DStream" in {
 
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
-    val schemaCasting = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val data1 = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), schema),
+      new GenericRowWithSchema(Array("red", 12.2), schema),
       new GenericRowWithSchema(Array("red", 12.2), schema)
-    )
-    val dataCasting = Seq(
-      new GenericRowWithSchema(Array("blue", "12.1"), schemaCasting),
-      new GenericRowWithSchema(Array("red", "12.2"), schemaCasting)
     )
     dataQueue1 += sc.parallelize(data1)
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val fields =
-      """[
-        |{
-        |   "name":"color",
-        |   "type":"string"
-        |},
-        |{
-        |   "name":"price",
-        |   "type":"string"
-        |}]
-        | """.stripMargin
-    val result = new CastingTransformStep(
+    val result = new FilterTransformStep(
       "dummy",
       outputOptions,
       ssc,
       sparkSession,
-      Map("fields" -> fields.asInstanceOf[JSerializable])
+      Map("filterExp" -> "color = 'blue'")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -78,11 +61,12 @@ class CastingTransformStepIT extends TemporalSparkContext with Matchers {
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty())
-        streamingRegisters.foreach(row => assert(dataCasting.contains(row)))
+        streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(10000L)
 
-    assert(totalEvents.value === 2)
+    assert(totalEvents.value === 1)
+
   }
 }

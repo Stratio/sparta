@@ -18,24 +18,91 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
+import scala.util.{Failure, Success, Try}
+
 class CastingTransformStep(name: String,
-                           inputSchemas: Map[String, StructType],
-                           outputFields: Seq[OutputFields],
                            outputOptions: OutputOptions,
                            ssc: StreamingContext,
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, inputSchemas, outputFields, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = inputStream
+  lazy val fieldsModel = properties.getPropertiesFields("fields")
+  lazy val outputFieldsSchema: Option[StructType] = {
+    if (fieldsModel.fields.nonEmpty) {
+      Option(StructType(fieldsModel.fields.map { outputField =>
+        StructField(
+          name = outputField.name,
+          dataType = SparkTypes.getOrElse(outputField.`type`.getOrElse("string").toLowerCase, StringType),
+          nullable = true
+        )
+      }))
+    } else None
+  }
+
+  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
+    castingFields(inputStream)
 
   override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
     applyHeadTransform(inputData)(transformFunction)
+
+  /**
+    * Compare input schema and output schema and apply the casting function if it's necessary.
+    *
+    * @param streamData The stream data to casting
+    * @return The casted stream data
+    */
+  def castingFields(streamData: DStream[Row]): DStream[Row] =
+    streamData.flatMap { row =>
+      returnSeqData(Try {
+        val inputSchema = row.schema
+        (compareToOutputSchema(row.schema), outputFieldsSchema) match {
+          case (false, Some(outputSchema)) =>
+            val newValues = outputSchema.map { outputField =>
+              Try {
+                inputSchema.find(_.name == outputField.name)
+                  .getOrElse(throw new IllegalStateException(
+                    s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
+                  .dataType
+              } match {
+                case Success(inputSchemaType) =>
+                  Try {
+                    val rowValue = row.get(inputSchema.fieldIndex(outputField.name))
+                    if (inputSchemaType == outputField.dataType)
+                      rowValue
+                    else castingToOutputSchema(outputField, rowValue)
+                  } match {
+                    case Success(dataRow) =>
+                      dataRow
+                    case Failure(e) =>
+                      returnWhenError(new IllegalStateException(
+                        s"Impossible to find outputField: $outputField in the schema $inputSchema", e))
+                  }
+                case Failure(e: Exception) =>
+                  returnWhenError(e)
+              }
+            }
+            new GenericRowWithSchema(newValues.toArray, outputSchema)
+          case _ => row
+        }
+      })
+    }
+
+  /**
+    * Compare schema fields: InputSchema with outputSchema.
+    *
+    * @param inputSchema The input schema to compare
+    * @return If the schemas are equals
+    */
+  def compareToOutputSchema(inputSchema: StructType): Boolean =
+    outputFieldsSchema.isEmpty || (outputFieldsSchema.isDefined && inputSchema == outputFieldsSchema.get)
 }
