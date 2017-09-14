@@ -73,7 +73,7 @@ hose {
     INSTALLPARAMETERS = """
             | -DSTRATIO_SPARTA_VERSION=1.7.4
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
-            | -DCOS_SERVICE_NAME=sparta-server
+            | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
             | -DZK_URL=zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181
             | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
@@ -82,6 +82,7 @@ hose {
             | -DHDFS_REALM=DEMO.STRATIO.COM
             | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.1.0.1
             | -DROLE_SPARTA=open
+            | -DID_POLICY_ZK=zk_sparta
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
             """
     INSTALL = { config ->
