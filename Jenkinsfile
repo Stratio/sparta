@@ -46,9 +46,6 @@ hose {
         }, failFast: config.FAILFAST)
 
     }
-    INSTALLPARAMETERS = """
-            | -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta-workflow:%%VERSION
-            """
     INSTALLSERVICES = [
         ['CHROME': [
             'image': 'stratio/selenium-chrome:48',
@@ -72,10 +69,22 @@ hose {
                 'sleep':  10
                 ]
         ]  
-
     ]
-
+    INSTALLPARAMETERS = """
+            | -DSTRATIO_SPARTA_VERSION=1.7.4
+            | -DDOCKER_URL=qa.stratio.com/stratio/sparta
+            | -DCOS_SERVICE_NAME=sparta-server
+            | -DFORCEPULLIMAGE=false    
+            | -DZK_URL=zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181
+            | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
+            | -DHDFS_IP=10.200.0.74
+            | -DHDFS_PORT=8020
+            | -DHDFS_REALM=DEMO.STRATIO.COM
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.1.0.1
+            | -DROLE_SPARTA=open
+            | -DDCOS_CLI_HOST=%%DCOSCLI#0
+            """
     INSTALL = { config ->
-        doAT(conf: config, groups: ['dcos_gosecPolitic','dcos_instalation','dcos_execution'])
+        doAT(conf: config, groups: ['dcos_instalation'])
      }
 }

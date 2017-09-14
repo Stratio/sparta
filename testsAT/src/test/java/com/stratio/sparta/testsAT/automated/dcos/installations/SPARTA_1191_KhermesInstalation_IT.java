@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/KhermesInstalation.feature"
+        "src/test/resources/features/automated/dcos/installations/SPARTA_1191_KhermesInstalation_IT.feature"
 
 })
-public class ISKhermesInstalation extends BaseTest {
+public class SPARTA_1191_KhermesInstalation_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,7 +35,7 @@ public class ISKhermesInstalation extends BaseTest {
 
     }
 
-    public ISKhermesInstalation() {this.browser = browser;
+    public SPARTA_1191_KhermesInstalation_IT() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})

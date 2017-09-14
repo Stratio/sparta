@@ -16,24 +16,24 @@
 package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
-import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.testng.annotations.Factory;
+import com.stratio.qa.data.BrowsersDataProvider;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/executions/InstallAndExecuteWorkflowWithStreaming.feature"
+        "src/test/resources/features/automated/dcos/executions/SPARTA_1183_InstallAndExecuteWorkflow_IT.feature"
 
 })
 
-public class InstallAndExecuteWorkflowWithStreaming extends BaseTest  {
+public class SPARTA_1183_InstallAndExecuteWorkflow_IT extends BaseTest  {
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public InstallAndExecuteWorkflowWithStreaming(String browser) {
+    public SPARTA_1183_InstallAndExecuteWorkflow_IT(String browser) {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_execution"})
+    @Test(enabled = true, groups = {"dcos"})
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

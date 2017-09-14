@@ -1,11 +1,11 @@
 @rest
-Feature: [SPARTA][DCOS]Running sparta without security
+Feature: [SPARTA_1195]Running sparta without security
 
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
 
-  Scenario: [SPARTA][Scenario-1][01]Running sparta without security
+  Scenario: [SPARTA_1195][01]Running sparta without security
     Given I create file 'SpartaBasic.json' based on 'schemas/dcosFiles/spartaBasicInstalation.json' as 'json' with:
       |   $.container.docker.image                           |  UPDATE     | ${SPARTA_DOCKER_IMAGE}      | n/a    |
       |   $.container.docker.forcePullImage                  |  REPLACE    | ${FORCEPULLIMAGE}           |boolean |

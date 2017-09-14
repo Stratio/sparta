@@ -1,9 +1,9 @@
 @rest @web
-Feature: [SPARTA][DCOS]Install and Execute Workflow
+Feature: [SPARTA-1138]Install and Execute Workflow
   Background: conect to navigator
     Given I set sso token using host '${ENVIROMENT_URL}' with user '${USERNAME}' and password '${PASSWORD}'
     And I securely send requests to '${ENVIROMENT_URL}'
-  Scenario: [SPARTA][Executions][01] Install and execute workflow
+  Scenario: [SPARTA-1138][01] Install and execute workflow
     #include workflow
     Given I send a 'POST' request to '/service/sparta-server/policy' based on 'schemas/workflows/${WORKFLOW}.json' as 'json' with:
       | id | DELETE | N/A  |
@@ -15,6 +15,6 @@ Feature: [SPARTA][DCOS]Install and Execute Workflow
     Given I send a 'GET' request to '/service/sparta-server/policy/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     #verify the generation of  workflow in dcos
-  Scenario: Worklflow test in Dcos
+  Scenario: [SPARTA-1138][02] Worklflow test in Dcos
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'

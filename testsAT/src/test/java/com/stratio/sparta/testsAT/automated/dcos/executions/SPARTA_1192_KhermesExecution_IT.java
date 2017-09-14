@@ -14,27 +14,24 @@
  * limitations under the License.
  */
 package com.stratio.sparta.testsAT.automated.dcos.executions;
-
 import com.stratio.qa.cucumber.testng.CucumberRunner;
+//import com.stratio.tests.utils.BaseTest;
 import com.stratio.qa.utils.BaseTest;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 import org.testng.annotations.Factory;
 import com.stratio.qa.data.BrowsersDataProvider;
 
-@CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/executions/InstallAndExecuteWorkflow.feature"
+@CucumberOptions(features = { "src/test/resources/features/automated/dcos/executions/SPARTA_1192_KhermesExecution_IT.feature" })
+public class SPARTA_1192_KhermesExecution_IT extends BaseTest {
 
-})
-
-public class InstallAndExecuteWorkflow extends BaseTest  {
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public InstallAndExecuteWorkflow(String browser) {
+    public SPARTA_1192_KhermesExecution_IT(String browser) {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
-    public void AppWithSecurityES() throws Exception {
+    @Test(enabled = true, groups = {"execution"})
+    public void execution() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
 }

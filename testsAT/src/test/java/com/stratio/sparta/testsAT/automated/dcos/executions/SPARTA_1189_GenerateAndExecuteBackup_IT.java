@@ -16,20 +16,20 @@
 package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.Test;
 import org.testng.annotations.Factory;
-import com.stratio.qa.data.BrowsersDataProvider;
+import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/executions/AppwithSecurityLogin.feature"
+        "src/test/resources/features/automated/dcos/executions/SPARTA_1189_GenerateAndExecuteBackup_IT.feature"
 
 })
-public class ISAppWithSecurityLogin extends BaseTest {
 
+public class SPARTA_1189_GenerateAndExecuteBackup_IT extends BaseTest  {
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public ISAppWithSecurityLogin(String browser) {
+    public SPARTA_1189_GenerateAndExecuteBackup_IT(String browser) {
         this.browser = browser;
     }
 
@@ -37,7 +37,4 @@ public class ISAppWithSecurityLogin extends BaseTest {
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
-
-
 }

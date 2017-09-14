@@ -14,24 +14,30 @@
  * limitations under the License.
  */
 package com.stratio.sparta.testsAT.automated.dcos.executions;
+
 import com.stratio.qa.cucumber.testng.CucumberRunner;
-//import com.stratio.tests.utils.BaseTest;
+import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.Test;
 import org.testng.annotations.Factory;
-import com.stratio.qa.data.BrowsersDataProvider;
+import org.testng.annotations.Test;
 
-@CucumberOptions(features = { "src/test/resources/features/automated/dcos/executions/KhermesExecution" })
-public class ISKhermesExecution extends BaseTest {
+@CucumberOptions(features = {
+        "src/test/resources/features/automated/dcos/executions/SPARTA_1194_workflowScreenShots_IT.feature"
+
+})
+public class SPARTA_1194_workflowScreenShots_IT extends BaseTest {
 
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public ISKhermesExecution(String browser) {
+    public SPARTA_1194_workflowScreenShots_IT(String browser) {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"execution"})
-    public void execution() throws Exception {
+    @Test(enabled = true, groups = {"streaming"})
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
+
+
 }

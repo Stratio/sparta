@@ -1,10 +1,10 @@
 @rest @web
-Feature: [SPARTA][DCOS]Install Execute Workflow and see Streaming
+Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
   Background: conect to navigator
-    Given I set sso token using host '${ENVIROMENT_URL}' with user '${USERNAME}' and password '${PASSWORD}'
-    And I securely send requests to '${ENVIROMENT_URL}'
+    Given I set sso token using host '${GOSECMANAGEMENT_HOST}' with user '${USERNAME}' and password '${PASSWORD}'
+    And I securely send requests to '${GOSECMANAGEMENT_HOST}'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-  Scenario:Install and execute workflow
+  Scenario:[SPARTA_1196][01]Install and execute workflow
     #include workflow
     Given I send a 'POST' request to '/service/sparta-server/policy' based on 'schemas/workflows/${WORKFLOW}.json' as 'json' with:
       | id | DELETE | N/A  |
@@ -15,10 +15,10 @@ Feature: [SPARTA][DCOS]Install Execute Workflow and see Streaming
     Given I send a 'GET' request to '/service/sparta-server/policy/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     #verify the generation of  workflow in dcos
-  Scenario: Test workflow in Dcos
+  Scenario:[SPARTA_1196][02]Test workflow in Dcos
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'
     #And I run 'dcos marathon task list /sparta/sparta-server/sparta-server | awk '{print $5}' | grep sparta-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
-  Scenario: Streaming Workflow
+  Scenario:[SPARTA_1196][03] Generate report of Spark Streaming
     And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'
     #Now we give time to generate streaming process
     Then I wait '30' seconds

@@ -24,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/InstalationwithoutAuth.feature"
+        "src/test/resources/features/automated/dcos/executions/SPARTA_1195_AppWithoutSecurity_IT.feature"
 
 })
-public class InstalationwithoutAuth extends BaseTest {
+public class SPARTA_1195_AppWithoutSecurity_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,10 +35,10 @@ public class InstalationwithoutAuth extends BaseTest {
 
     }
 
-    public InstalationwithoutAuth() {this.browser = browser;
+    public SPARTA_1195_AppWithoutSecurity_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_instalation"})
+    @Test(enabled = true, groups = {"dcos"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
