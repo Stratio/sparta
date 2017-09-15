@@ -73,8 +73,8 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
   }
 
   "Input classSuffix must be corrected" in {
-    val expected = "InputStep"
-    val result = InputStep.ClassSuffix
+    val expected = "input"
+    val result = InputStep.StepType
     result should be(expected)
   }
 }

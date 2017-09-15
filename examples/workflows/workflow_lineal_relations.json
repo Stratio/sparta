@@ -75,7 +75,9 @@
     "nodes": [
       {
         "name": "kafka",
-        "type": "KafkaInputStep",
+        "stepType": "Input",
+        "className": "KafkaInputStep",
+        "classPrettyName": "Kafka",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -114,8 +116,10 @@
         }
       },
       {
-        "type": "TriggerTransformStep",
         "name": "trigger1",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStep",
+        "classPrettyName": "Trigger",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -127,8 +131,10 @@
         }
       },
       {
-        "type": "CastingTransformStep",
         "name": "casting1",
+        "stepType": "Transformation",
+        "className": "CastingTransformStep",
+        "classPrettyName": "Casting",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -142,8 +148,10 @@
         }
       },
       {
-        "type": "CheckpointTransformStep",
         "name": "checkpoint1",
+        "stepType": "Transformation",
+        "className": "CheckpointTransformStep",
+        "classPrettyName": "Checkpoint",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -156,7 +164,9 @@
       },
       {
         "name": "print",
-        "type": "PrintOutputStep",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",

@@ -21,7 +21,12 @@ import com.stratio.sparta.sdk.properties.JsoneyString
 
 case class NodeGraph(
                       name: String,
-                      `type`: String,
+                      stepType: String,
+                      className: String,
+                      classPrettyName: String,
                       writer: WriterGraph,
+                      description: Option[String] = None,
+                      createdFromTemplateId: Option[String] = None,
+                      uiConfiguration: Option[NodeUiConfiguration] = None,
                       configuration: Map[String, JsoneyString] = Map()
                     )

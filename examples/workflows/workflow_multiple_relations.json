@@ -67,7 +67,9 @@
     "nodes": [
       {
         "name": "socket",
-        "type": "WebSocketInputStep",
+        "stepType": "Input",
+        "className": "WebSocketInputStep",
+        "classPrettyName": "WebSocket",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -81,7 +83,9 @@
       },
       {
         "name": "socket1",
-        "type": "WebSocketInputStep",
+        "stepType": "Input",
+        "className": "WebSocketInputStep",
+        "classPrettyName": "WebSocket",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -94,8 +98,10 @@
         }
       },
       {
-        "type": "UnionTransformStep",
         "name": "union1",
+        "stepType": "Transformation",
+        "className": "UnionTransformStep",
+        "classPrettyName": "Union",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -106,8 +112,10 @@
         }
       },
       {
-        "type": "JsonTransformStep",
         "name": "jsonparser2",
+        "stepType": "Transformation",
+        "className": "JsonTransformStep",
+        "classPrettyName": "Json",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -125,8 +133,10 @@
         }
       },
       {
-        "type": "JsonTransformStep",
         "name": "jsonparser",
+        "stepType": "Transformation",
+        "className": "JsonTransformStep",
+        "classPrettyName": "Json",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -144,8 +154,10 @@
         }
       },
       {
-        "type": "UnionTransformStep",
         "name": "union",
+        "stepType": "Transformation",
+        "className": "UnionTransformStep",
+        "classPrettyName": "Union",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -156,8 +168,10 @@
         }
       },
       {
-        "type": "UnionTransformStep",
         "name": "union2",
+        "stepType": "Transformation",
+        "className": "UnionTransformStep",
+        "classPrettyName": "Union",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -168,8 +182,10 @@
         }
       },
       {
-        "type": "UnionTransformStep",
         "name": "union3",
+        "stepType": "Transformation",
+        "className": "UnionTransformStep",
+        "classPrettyName": "Union",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -180,8 +196,10 @@
         }
       },
       {
-        "type": "UnionTransformStep",
         "name": "union4",
+        "stepType": "Transformation",
+        "className": "UnionTransformStep",
+        "classPrettyName": "Union",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",
@@ -193,7 +211,9 @@
       },
       {
         "name": "print",
-        "type": "PrintOutputStep",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
         "writer": {
           "autoCalculatedFields": [],
           "saveMode": "Append",

@@ -23,6 +23,8 @@ case class TemplateElement(
                                  templateType: String,
                                  name: String,
                                  description: String,
+                                 className: String,
+                                 classPrettyName: String,
                                  configuration: Map[String, JsoneyString] = Map()
                                )
 

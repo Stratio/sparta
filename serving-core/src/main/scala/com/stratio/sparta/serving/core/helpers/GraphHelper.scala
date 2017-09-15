@@ -38,15 +38,15 @@ object GraphHelper extends SLF4JLogging {
 
   //scalastyle:off
   def getGraphOrdering(graph: Graph[NodeGraph, DiEdge]): graph.NodeOrdering =
-    graph.NodeOrdering((nodeX, nodeY) => (nodeX.`type`, nodeY.`type`) match {
-      case (x, _) if x.contains(InputStep.ClassSuffix) => 1
-      case (x, y) if !x.contains(InputStep.ClassSuffix) && y.contains(InputStep.ClassSuffix) => -1
-      case (x, y) if x.contains(TransformStep.ClassSuffix) && y.contains(TransformStep.ClassSuffix) =>
-        if (graph.get(nodeX).diPredecessors.forall(_.`type`.contains(InputStep.ClassSuffix))) 1
-        else if (graph.get(nodeY).diPredecessors.forall(_.`type`.contains(InputStep.ClassSuffix))) -1
+    graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
+      case (x, _) if x == InputStep.StepType => 1
+      case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
+      case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
+        if (graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) 1
+        else if (graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) -1
         else {
-          val xPredecessors = graph.get(nodeX).diPredecessors.count(_.`type`.contains(TransformStep.ClassSuffix))
-          val yPredecessors = graph.get(nodeY).diPredecessors.count(_.`type`.contains(TransformStep.ClassSuffix))
+          val xPredecessors = graph.get(nodeX).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
+          val yPredecessors = graph.get(nodeY).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
 
           xPredecessors.compare(yPredecessors) * -1
         }

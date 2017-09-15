@@ -67,7 +67,7 @@ trait HttpServiceBaseTest extends WordSpec
   // XXX Protected methods.
 
   protected def getFragmentModel(id: Option[String]): TemplateElement =
-    TemplateElement(id, "input", "name", "description", Map())
+    TemplateElement(id, "input", "name", "description", "TestInputStep", "Test", Map())
 
   protected def getFragmentModel(): TemplateElement =
     getFragmentModel(None)
@@ -76,7 +76,7 @@ trait HttpServiceBaseTest extends WordSpec
     WorkflowStatus("id", WorkflowStatusEnum.Launched)
 
   protected def getWorkflowModel(): Workflow = {
-    val settingsModel = SettingsModel(
+    val settingsModel = Settings(
       GlobalSettings(),
       CheckpointSettings("test/test"),
       StreamingSettings(),

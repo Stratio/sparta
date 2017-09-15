@@ -226,7 +226,7 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               throw exception
             case Left(ResponseWorkflows(Success(_))) =>
               for {
-                response <- (statusActor ? StatusActor.DeleteAll)
+                response <- (statusActor ? StatusActor.DeleteAll(user))
                   .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
               } yield response match {
                 case Left(ResponseDelete(Success(_))) => StatusCodes.OK

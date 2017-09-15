@@ -133,5 +133,5 @@ abstract class OutputStep(
 
 object OutputStep {
 
-  val ClassSuffix = "OutputStep"
+  val StepType = "output"
 }

@@ -37,7 +37,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
   protected def getWorkflowModel(id: Option[String] = Some("id"),
                                  name: String = "testWorkflow",
                                  executionMode : String = "local"): Workflow = {
-    val settingsModel = SettingsModel(
+    val settingsModel = Settings(
       GlobalSettings(executionMode),
       CheckpointSettings(),
       StreamingSettings(),

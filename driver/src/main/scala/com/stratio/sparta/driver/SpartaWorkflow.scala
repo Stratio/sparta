@@ -20,6 +20,7 @@ import java.io.Serializable
 
 import akka.util.Timeout
 import com.stratio.sparta.driver.error._
+import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.utils.AggregationTime
 import com.stratio.sparta.sdk.workflow.step._
@@ -103,13 +104,15 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
     // Create steps without relations, used in setUp and cleanUp functions
     steps = workflow.pipelineGraph.nodes.map { node =>
-      node.`type` match {
-        case value if value.contains(InputStep.ClassSuffix) =>
+      node.stepType.toLowerCase match {
+        case value if value == InputStep.StepType =>
           createInputStep(node)
-        case value if value.contains(TransformStep.ClassSuffix) =>
+        case value if value == TransformStep.StepType =>
           createTransformStep(node)
-        case value if value.contains(OutputStep.ClassSuffix) =>
+        case value if value == OutputStep.StepType =>
           createOutputStep(node)
+        case _ =>
+          throw new DriverException(s"Incorrect node step ${node.stepType}. Review the nodes in pipelineGraph")
       }
     }
 
@@ -140,13 +143,13 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
-    nodesModel.filter(_.`type`.contains(OutputStep.ClassSuffix)).foreach { outputNode =>
+    nodesModel.filter(_.stepType.toLowerCase == OutputStep.StepType).foreach { outputNode =>
       val newOutput = createOutputStep(outputNode)
       graph.get(outputNode).diPredecessors.foreach { predecessor =>
         predecessor.outerNodeTraverser(parameters).withOrdering(nodeOrdering)
           .toList.reverse.foreach(node => createStep(node))
 
-        if (predecessor.`type`.contains(InputStep.ClassSuffix)) {
+        if (predecessor.stepType.toLowerCase == InputStep.StepType) {
           val phaseEnum = PhaseEnum.Write
           val errorMessage = s"An error was encountered while writing input step ${predecessor.name}."
           val okMessage = s"Input step ${predecessor.name} written successfully."
@@ -157,7 +160,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
             }
           }
         }
-        if (predecessor.`type`.contains(TransformStep.ClassSuffix)) {
+        if (predecessor.stepType.toLowerCase == TransformStep.StepType) {
           val phaseEnum = PhaseEnum.Write
           val errorMessage = s"An error was encountered while writing transform step ${predecessor.name}."
           val okMessage = s"Transform step ${predecessor.name} written successfully."
@@ -181,8 +184,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     */
   private[driver] def createStep(node: NodeGraph)
                                 (implicit workflowContext: WorkflowContext, graphContext: GraphContext): Unit =
-    node.`type` match {
-      case value if value.contains(InputStep.ClassSuffix) =>
+    node.stepType.toLowerCase match {
+      case value if value == InputStep.StepType =>
         if (!graphContext.inputs.contains(node.name)) {
           val input = createInputStep(node)
           val data = input.initStream()
@@ -190,7 +193,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
 
           graphContext.inputs += (input.name -> inputStepData)
         }
-      case value if value.contains(TransformStep.ClassSuffix) =>
+      case value if value == TransformStep.StepType =>
         if (!graphContext.transformations.contains(node.name)) {
           val tPredecessors = findTransformPredecessors(node)
           val iPredecessors = findInputPredecessors(node)
@@ -200,8 +203,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
           graphContext.transformations += (transform.name -> TransformStepData(transform, data))
         }
       case _ =>
-        log.warn(s"Invalid node type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
-          s"\tWrong type: ${node.`type`}")
+        log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
+          s"\tWrong type: ${node.stepType}")
     }
 
   /**
@@ -215,7 +218,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   : scala.collection.mutable.HashMap[String, InputStepData] =
     context.inputs.filter(input =>
       context.graph.get(node).diPredecessors
-        .filter(_.`type`.contains(InputStep.ClassSuffix))
+        .filter(_.stepType.toLowerCase == InputStep.StepType)
         .map(_.name)
         .contains(input._1))
 
@@ -230,7 +233,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   : scala.collection.mutable.HashMap[String, TransformStepData] =
     context.transformations.filter(transform =>
       context.graph.get(node).diPredecessors
-        .filter(_.`type`.contains(TransformStep.ClassSuffix))
+        .filter(_.stepType.toLowerCase == TransformStep.StepType)
         .map(_.name)
         .contains(transform._1)
     )
@@ -249,7 +252,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     val okMessage = s"Transform step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.`type`).toString
+      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.writer.tableName,
@@ -283,7 +286,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     val okMessage = s"Input step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.`type`).toString
+      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
         node.writer.tableName,
@@ -317,7 +320,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     val okMessage = s"Output step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.`type`).toString
+      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       workflowContext.classUtils.tryToInstantiate[OutputStep](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],

@@ -59,6 +59,6 @@ abstract class InputStep(
 
 object InputStep {
 
-  val ClassSuffix = "InputStep"
+  val StepType = "input"
 
 }

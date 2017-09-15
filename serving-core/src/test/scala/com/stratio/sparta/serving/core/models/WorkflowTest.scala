@@ -25,7 +25,7 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class WorkflowTest extends WordSpec with Matchers with MockitoSugar {
 
-  val settingsModel = SettingsModel(
+  val settingsModel = Settings(
     GlobalSettings(),
     CheckpointSettings("test/test"),
     StreamingSettings(),

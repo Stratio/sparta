@@ -49,8 +49,8 @@ class OutputStepTest extends WordSpec with Matchers with MockitoSugar {
   }
 
   "Ouput classSuffix must be corrected" in {
-    val expected = "OutputStep"
-    val result = OutputStep.ClassSuffix
+    val expected = "output"
+    val result = OutputStep.StepType
     result should be(expected)
   }
 }

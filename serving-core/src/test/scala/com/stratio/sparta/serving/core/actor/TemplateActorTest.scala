@@ -59,6 +59,8 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
         |{
         |  "id": "id",
         |  "templateType": "input",
+        |  "className": "TestInputStep",
+        |  "classPrettyName": "Test",
         |  "name": "inputname",
         |  "description": "input description",
         |  "configuration": {}
@@ -69,6 +71,8 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
         |{
         |  "id": "id2",
         |  "templateType": "input",
+        |  "className": "TestInputStep",
+        |  "classPrettyName": "Test",
         |  "name": "inputname",
         |  "description": "input description",
         |  "configuration": {}
@@ -80,6 +84,8 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
         |{
         |  "id": "id3",
         |  "templateType": "output",
+        |  "className": "TestInputStep",
+        |  "classPrettyName": "Test",
         |  "name": "outputname",
         |  "description": "output description",
         |  "configuration": {}

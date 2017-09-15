@@ -110,7 +110,7 @@ trait WorkflowStatusHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            responseCode <- (statusActor ? DeleteAll)
+            responseCode <- (statusActor ? DeleteAll(user))
               .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
           } yield responseCode match {
             case Left(ResponseDelete(Failure(exception))) => throw exception

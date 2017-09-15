@@ -16,10 +16,10 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class SettingsModel(global: GlobalSettings,
-                         checkpointSettings: CheckpointSettings,
-                         streamingSettings: StreamingSettings,
-                         sparkSettings: SparkSettings)
+case class Settings(global: GlobalSettings,
+                    checkpointSettings: CheckpointSettings,
+                    streamingSettings: StreamingSettings,
+                    sparkSettings: SparkSettings)
 
 case class GlobalSettings(executionMode: String = "marathon",
                           streamTemporalTable: String = "stream",

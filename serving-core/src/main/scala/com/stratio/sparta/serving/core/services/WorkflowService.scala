@@ -46,10 +46,10 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
       new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithName, s"No workflow with name $name"))))
 
   def findByTemplateType(templateType: String): List[Workflow] =
-    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.`type` == templateType))
+    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.className == templateType))
 
   def findByTemplateName(templateType: String, name: String): List[Workflow] =
-    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.name == name && f.`type` == templateType))
+    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.name == name && f.className == templateType))
 
   def findAll: List[Workflow] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)

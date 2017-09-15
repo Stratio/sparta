@@ -77,7 +77,9 @@
     "nodes": [
       {
         "name": "crossdata",
-        "type": "CrossdataInputStep",
+        "stepType": "Input",
+        "className": "CrossdataInputStep",
+        "classPrettyName": "Crossdata",
         "writer": {
           "saveMode": "Append",
           "tableName": "inputxd"
@@ -104,7 +106,9 @@
       },
       {
         "name": "trigger1",
-        "type": "TriggerTransformStep",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStep",
+        "classPrettyName": "Trigger",
         "writer": {
           "saveMode": "Append",
           "tableName": "triggertable"
@@ -116,7 +120,9 @@
       },
       {
         "name": "print",
-        "type": "PrintOutputStep",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
         "writer": {
           "saveMode": "Append",
           "tableName": ""

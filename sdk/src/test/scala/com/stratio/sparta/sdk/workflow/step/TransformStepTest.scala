@@ -48,8 +48,8 @@ class TransformStepTest extends WordSpec with Matchers with MockitoSugar {
 
 
     "Transform classSuffix must be corrected" in {
-      val expected = "TransformStep"
-      val result = TransformStep.ClassSuffix
+      val expected = "transformation"
+      val result = TransformStep.StepType
       result should be(expected)
     }
   }

@@ -113,5 +113,5 @@ abstract class TransformStep(
 
 object TransformStep {
 
-  val ClassSuffix = "TransformStep"
+  val StepType = "transformation"
 }
