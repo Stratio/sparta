@@ -17,13 +17,54 @@ hose {
     DOCKERFILECOMMAND = 'WORKDIR / \n RUN apt-get update -y && apt-get install -y krb5-user libpam-krb5 libpam-ccreds auth-client-config curl wget php5-curl make jq vim && update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java && curl https://www.openssl.org/source/openssl-1.0.2l.tar.gz | tar xz && cd openssl-1.0.2l && sudo ./config && sudo make && sudo make install && sudo ln -sf /usr/local/ssl/bin/openssl /usr/bin/openssl && wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 && chmod +x jq-linux64 && mv jq-linux64 /usr/bin/jq'
 
     ITSERVICES = [
+            ['ZOOKEEPER': [
+              'image': 'jplock/zookeeper:3.5.2-alpha',
+              'sleep': 30,
+              'healthcheck': 2181
+              ]
+            ],
+            ['KAFKA': [
+              'image': 'confluent/kafka:0.10.0.0-cp1',
+              'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181', 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
+              ]
+            ],
+            ['HDFS': [
+              'image': 'stratio/hdfs:2.6.0',
+              'sleep': 30,
+              'healthcheck': 9000
+              ]
+            ],
+            ['POSTGRESQL':[
+              'image': 'postgresql:9.3',
+              'sleep': 60,
+              'healthcheck': 5432]
+            ],
             ['RABBITMQ': [
-               'image': 'rabbitmq:3-management'
-            ]],
-          ]
+              'image': 'rabbitmq:3-management',
+              'sleep': 30,
+              'healthcheck': 5672]
+            ],
+            ['ELASTIC': [
+              'image': 'elasticsearch/elasticsearch:5.4.1',
+              'sleep': 30,
+              'healthcheck': 9200,
+              'env': ['xpack.security.enabled=false',
+                      'http.host=%%OWNHOSTNAME',
+                      'transport.host=%%OWNHOSTNAME',
+                      'cluster.name=elasticsearch']
+              ]
+            ]
+    ]
 
-    ITPARAMETERS = "-Drabbitmq.hosts=%%RABBITMQ"
-
+    ITPARAMETERS = """
+      |    -Drabbitmq.hosts=%%RABBITMQ
+      |    -Dkafka.hosts=%%KAFKA:9092
+      |    -Dsparta.zookeeper.connectionString=%%ZOOKEEPER:2181
+      |    -Dsparta.hdfs.hdfsMaster=%%HDFS
+      |    -Dsparta.hdfs.hdfsPort=9000
+      |    -Dpostgresql.host=%%POSTGRESQL
+      |    -Des.host=%%ELASTIC:9200
+      | """
 
     DEV = { config ->
     
