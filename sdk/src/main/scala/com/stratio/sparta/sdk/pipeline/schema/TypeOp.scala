@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.sdk.pipeline.schema
 
+import java.nio.charset.Charset
 import java.sql.Timestamp
 import java.util
 import java.util.Date
@@ -24,25 +25,25 @@ import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.utils.AggregationTime._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types._
+import org.apache.spark.sql.types.{StructType, _}
 import org.json4s.JDecimal
 import org.json4s.JsonAST.{JBool, JDouble, JInt, JString}
 
-import collection.JavaConverters._
-import scala.util.Try
+import scala.collection.JavaConverters._
 
 //scalastyle:off
 object TypeOp extends Enumeration {
 
+  //TODO remove when refactor cubes
   type TypeOp = Value
-  val Number, BigDecimal, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp,
+  val Number, Long, Int, String, Double, Boolean, Binary, Date, DateTime, Timestamp,
   ArrayDouble, ArrayString, ArrayMapStringString,
   MapStringLong, MapStringInt, MapStringDouble, MapStringString,
-  Any = Value
+  RowWithSchema, Any = Value
 
+  //TODO remove when refactor cubes
   final val TypeOperationsNames = Map(
     "number" -> TypeOp.Number,
-    "bigdecimal" -> TypeOp.BigDecimal,
     "long" -> TypeOp.Long,
     "int" -> TypeOp.Int,
     "integer" -> TypeOp.Int,
@@ -64,216 +65,199 @@ object TypeOp extends Enumeration {
     "any" -> TypeOp.Any
   )
 
+  //TODO remove when refactor cubes
   def getTypeOperationByName(nameOperation: String, defaultTypeOperation: TypeOp): TypeOp =
     TypeOperationsNames.getOrElse(nameOperation.toLowerCase, defaultTypeOperation)
 
-  implicit object OrderingAny extends Ordering[Any] {
-
-    import math.Ordering
-
-    override def compare(x: Any, y: Any): Int = (x, y) match {
-      case (x: Int, y: Int) => Ordering[Int].compare(x, y)
-      case (x: Int, y: Double) => Ordering[Int].compare(x, y.toInt)
-      case (x: Int, y: Long) => Ordering[Int].compare(x, y.toInt)
-      case (x: Int, y: JInt) => Ordering[Int].compare(x, y.num.intValue())
-      case (x: Int, y: JDouble) => Ordering[Int].compare(x, y.num.intValue())
-      case (x: Int, y: JString) => Try(Ordering[Int].compare(x, y.s.toInt))
-        .getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: Double, y: Double) => Ordering[Double].compare(x, y)
-      case (x: Double, y: Long) => Ordering[Double].compare(x, y.toDouble)
-      case (x: Double, y: JDouble) => Ordering[Double].compare(x, y.num)
-      case (x: Double, y: JInt) => Ordering[Double].compare(x, y.num.doubleValue())
-      case (x: Double, y: JString) => Try(Ordering[Double].compare(x, y.s.toDouble))
-        .getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: Array[Byte], y: Array[Byte]) => Ordering[String].compare(new Predef.String(x), new Predef.String(y))
-      case (x: Array[Byte], y: JString) => Ordering[String].compare(new Predef.String(x), y.s)
-      case (x: Array[Byte], y: JInt) => Ordering[Int].compare(new Predef.String(x).toInt, y.num.intValue())
-      case (x: Array[Byte], y: JDouble) => Ordering[Double].compare(new Predef.String(x).toDouble, y.num.toDouble)
-      case (x: Array[Byte], y: JBool) => Ordering[Boolean].compare(new Predef.String(x).toBoolean, y.value)
-      case (x: Array[Byte], y: Int) => Ordering[Int].compare(new Predef.String(x).toInt, y)
-      case (x: Array[Byte], y: Long) => Ordering[Long].compare(new Predef.String(x).toLong, y)
-      case (x: Array[Byte], y: Double) => Ordering[Double].compare(new Predef.String(x).toDouble, y)
-      case (x: Array[Byte], y: Boolean) => Ordering[Boolean].compare(new Predef.String(x).toBoolean, y)
-      case (x: String, y: Array[Byte]) => Ordering[String].compare(x, new Predef.String(y))
-      case (x: String, y: String) => Ordering[String].compare(x, y)
-      case (x: String, y: JString) => Ordering[String].compare(x, y.s)
-      case (x: String, y: JInt) => Try(Ordering[Int].compare(x.toInt, y.num.intValue()))
-        .getOrElse(Ordering[String].compare(x, y.num.toString()))
-      case (x: String, y: JDouble) => Try(Ordering[Double].compare(x.toDouble, y.num.toDouble))
-        .getOrElse(Ordering[String].compare(x, y.num.toString))
-      case (x: String, y: Int) => Try(Ordering[Int].compare(x.toInt, y))
-        .getOrElse(Ordering[String].compare(x, y.toString))
-      case (x: String, y: Long) => Try(Ordering[Long].compare(x.toLong, y))
-        .getOrElse(Ordering[String].compare(x, y.toString))
-      case (x: String, y: Double) => Try(Ordering[Double].compare(x.toDouble, y))
-        .getOrElse(Ordering[String].compare(x, y.toString))
-      case (x: String, y: Boolean) => Try(Ordering[Boolean].compare(x.toBoolean, y))
-        .getOrElse(Ordering[String].compare(x, y.toString))
-      case (x: Long, y: Long) => Ordering[Long].compare(x, y)
-      case (x: Long, y: JInt) => Ordering[Long].compare(x, y.num.longValue())
-      case (x: Long, y: JDouble) => Ordering[Long].compare(x, y.num.longValue())
-      case (x: Long, y: JString) => Try(Ordering[Long].compare(x, y.s.toLong))
-        .getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: Boolean, y: Boolean) => Ordering[Boolean].compare(x, y)
-      case (x: Boolean, y: JBool) => Ordering[Boolean].compare(x, y.value)
-      case (x: Boolean, y: JString) => Try(Ordering[Boolean].compare(x, y.s.toBoolean))
-        .getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: Date, y: Date) => Ordering[Date].compare(x, y)
-      case (x: Date, y: Long) => Ordering[Long].compare(x.getTime, y)
-      case (x: Date, y: JInt) => Ordering[Long].compare(x.getTime, y.num.longValue())
-      case (x: Date, y: String) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
-        Ordering[Date].compare(x, dateParsed.date)
-      }.getOrElse(Ordering[String].compare(x.toString, y))
-      case (x: Date, y: Array[Byte]) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
-        Ordering[Date].compare(x, dateParsed.date)
-      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
-      case (x: Date, y: JString) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
-        Ordering[Date].compare(x, dateParsed.date)
-      }.getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: Timestamp, y: Timestamp) => Ordering[Long].compare(x.getTime, y.getTime)
-      case (x: Timestamp, y: Long) => Ordering[Long].compare(x.getTime, y)
-      case (x: Timestamp, y: JInt) => Ordering[Long].compare(x.getTime, y.num.longValue())
-      case (x: Timestamp, y: String) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
-        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
-      }.getOrElse(Ordering[String].compare(x.toString, y))
-      case (x: Timestamp, y: Array[Byte]) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
-        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
-      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
-      case (x: Timestamp, y: JString) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
-        Ordering[Long].compare(x.getTime, millisToTimeStamp(dateParsed.toDateTime.getMillis).getTime)
-      }.getOrElse(Ordering[String].compare(x.toString, y.s))
-      case (x: DateTime, y: DateTime) => Ordering[DateTime].compare(x, y)
-      case (x: DateTime, y: Long) => Ordering[DateTime].compare(x, new DateTime(y))
-      case (x: DateTime, y: JInt) => Ordering[DateTime].compare(x, new DateTime(y.num.longValue()))
-      case (x: DateTime, y: String) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y)
-        Ordering[DateTime].compare(x, dateParsed.toDateTime)
-      }.getOrElse(Ordering[String].compare(x.toString, y))
-      case (x: DateTime, y: Array[Byte]) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(new Predef.String(y))
-        Ordering[DateTime].compare(x, dateParsed.toDateTime)
-      }.getOrElse(Ordering[String].compare(x.toString, new Predef.String(y)))
-      case (x: DateTime, y: JString) => Try {
-        val dateParsed = com.github.nscala_time.time.StaticDateTime.parse(y.s)
-        Ordering[DateTime].compare(x, dateParsed.toDateTime)
-      }.getOrElse(Ordering[String].compare(x.toString, y.s))
-      case _ => throw new Exception(s"Incompatible types when comparing: ${x.toString} and ${y.toString}")
-    }
-  }
-
+  //TODO remove when refactor cubes
   def castingToSchemaType[T](typeOp: TypeOp, origValue: T): T = {
     typeOp match {
       case TypeOp.String => checkStringType(origValue)
       case TypeOp.Double | TypeOp.Number => checkDoubleType(origValue)
       case TypeOp.Int => checkIntType(origValue)
-      case TypeOp.ArrayDouble => checkArrayDoubleType(origValue)
-      case TypeOp.ArrayString => checkArrayStringType(origValue)
-      case TypeOp.ArrayMapStringString => checkArrayMapStringStringType(origValue)
+      case TypeOp.Long => checkLongType(origValue)
+      case TypeOp.Boolean => checkBooleanType(origValue)
       case TypeOp.Timestamp => checkTimestampType(origValue)
       case TypeOp.Date => checkDateType(origValue)
       case TypeOp.DateTime => checkDateTimeType(origValue)
-      case TypeOp.Long => checkLongType(origValue)
+      case TypeOp.ArrayDouble => checkArrayDoubleType(origValue)
+      case TypeOp.ArrayString => checkArrayStringType(origValue)
+      case TypeOp.ArrayMapStringString => checkArrayMapStringStringType(origValue)
       case TypeOp.MapStringLong => checkMapStringLongType(origValue)
       case TypeOp.MapStringDouble => checkMapStringDoubleType(origValue)
       case TypeOp.MapStringInt => checkMapStringIntType(origValue)
       case TypeOp.MapStringString => checkMapStringStringType(origValue)
-      case TypeOp.Boolean => checkBooleanType(origValue)
       case TypeOp.Any => origValue
       case _ => origValue
     }
   }
 
-  def transformAnyByTypeOp(typeOp: TypeOp, origValue: Any): Any = {
-    typeOp match {
-      case TypeOp.String => checkAnyStringType(origValue)
-      case TypeOp.Double | TypeOp.Number => checkAnyDoubleType(origValue)
-      case TypeOp.Int => checkAnyIntType(origValue)
-      case TypeOp.ArrayDouble => checkAnyArrayDoubleType(origValue)
-      case TypeOp.ArrayString => checkAnyArrayStringType(origValue)
-      case TypeOp.ArrayMapStringString => checkAnyArrayMapStringStringType(origValue)
-      case TypeOp.Timestamp => checkAnyTimestampType(origValue)
-      case TypeOp.Date => checkAnyDateType(origValue)
-      case TypeOp.DateTime => checkAnyDateTimeType(origValue)
-      case TypeOp.Long => checkAnyLongType(origValue)
-      case TypeOp.MapStringLong => checkAnyMapStringLongType(origValue)
-      case TypeOp.MapStringDouble => checkAnyMapStringDoubleType(origValue)
-      case TypeOp.MapStringInt => checkAnyMapStringIntType(origValue)
-      case TypeOp.MapStringString => checkAnyMapStringStringType(origValue)
-      case TypeOp.Boolean => checkAnyBooleanType(origValue)
-      case TypeOp.Any => origValue
-      case _ => origValue
-    }
-  }
+  /**
+   * TODO Refactor all functions names, change to privates and build tests
+   * check pattern matching without 'value if value.isInstanceOf[X]' and 'value : X'
+   * check if we can change [_, _] to [Any, Any]
+   */
 
-  def castingToSchemaType[T](typeOp: DataType, origValue: T): T = {
-    typeOp match {
-      case StringType => checkStringType(origValue)
-      case DoubleType => checkDoubleType(origValue)
+  def castingToSchemaType[T](dataTypeToCast: DataType, origValue: T): T = {
+    dataTypeToCast match {
       case IntegerType => checkIntType(origValue)
-      case TimestampType => checkTimestampType(origValue)
-      case DateType => checkDateType(origValue)
       case LongType => checkLongType(origValue)
+      case DoubleType => checkDoubleType(origValue)
+      case ByteType => checkByteType(origValue)
+      case ShortType => checkShortType(origValue)
+      case FloatType => checkFloatType(origValue)
+      case DateType => checkDateType(origValue)
+      case TimestampType => checkTimestampType(origValue)
+      case BinaryType => checkArrayByteType(origValue)
+      case StringType => checkStringType(origValue)
       case BooleanType => checkBooleanType(origValue)
-      case ArrayType(elemType, _) if elemType.isInstanceOf[DoubleType] =>
-        checkArrayDoubleType(origValue)
-      case ArrayType(elemType, _) if elemType.isInstanceOf[StringType] =>
-        checkArrayStringType(origValue)
-      case ArrayType(elemType, _) if elemType.isInstanceOf[MapType] =>
+      case ArrayType(_: DoubleType, _) => checkArrayDoubleType(origValue)
+      case ArrayType(_: StringType, _) => checkArrayStringType(origValue)
+      case ArrayType(_: LongType, _) => checkArrayLongType(origValue)
+      case ArrayType(_: IntegerType, _) => checkArrayIntType(origValue)
+      case ArrayType(elemType: MapType, _)
+        if elemType.keyType.isInstanceOf[StringType] & elemType.valueType.isInstanceOf[StringType] =>
         checkArrayMapStringStringType(origValue)
-      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[StringType] =>
-        checkMapStringStringType(origValue)
-      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[LongType] =>
-        checkMapStringLongType(origValue)
-      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[IntegerType] =>
-        checkMapStringIntType(origValue)
-      case MapType(keyType, valueType, _) if keyType.isInstanceOf[StringType] & valueType.isInstanceOf[DoubleType] =>
-        checkMapStringDoubleType(origValue)
+      case ArrayType(_: StructType, _) => checkArrayStructType(origValue)
+      case MapType(_: StringType, _: StringType, _) => checkMapStringStringType(origValue)
+      case MapType(_: StringType, _: LongType, _) => checkMapStringLongType(origValue)
+      case MapType(_: StringType, _: IntegerType, _) => checkMapStringIntType(origValue)
+      case MapType(_: StringType, _: DoubleType, _) => checkMapStringDoubleType(origValue)
+      case MapType(_: StringType, _: StructType, _) => checkMapStringStructType(origValue)
+      case _: StructType => checkStructType(origValue)
       case _ => origValue
     }
   }
 
-  private def checkArrayStringType[T](origValue: T): T = checkAnyArrayStringType(origValue).asInstanceOf[T]
+  /**
+   * Obtains the Spark SQL type based into the input value. The map types are passed to GenericRowWithSchema-StructType
+   *
+   * @param valueToCheck value to check
+   * @return The Spark type
+   */
+  def valueToSparkType(valueToCheck: Any): DataType =
+    valueToCheck match {
+      case _: Int => IntegerType
+      case _: Long => LongType
+      case _: Double => DoubleType
+      case _: Byte => ByteType
+      case _: Short => ShortType
+      case _: Float => FloatType
+      case _: java.sql.Timestamp => TimestampType
+      case _: java.sql.Date => DateType
+      case _: Date => DateType
+      case _: Array[Byte] => BinaryType
+      case _: String => StringType
+      case _: Boolean => BooleanType
+      case value: Seq[_] => arrayValuesToSparkType(value)
+      case value: Map[_, _] => mapValuesToStructType(value)
+      case value: GenericRowWithSchema => value.schema
+      case _ => StringType
+    }
 
-  private def checkAnyArrayStringType(origValue: Any): Any = origValue match {
+  /**
+   * Obtains the ArrayType associated to one array value
+   *
+   * @param valueToCheck The array value to check
+   * @return The ArrayType with the fields type
+   */
+  def arrayValuesToSparkType(valueToCheck: Seq[_]): ArrayType = {
+    valueToCheck.headOption match {
+      case Some(firstElement) => ArrayType(valueToSparkType(firstElement))
+      case None => ArrayType(StringType)
+    }
+  }
+
+  /**
+   * Obtains the StructType associated to one Map value
+   *
+   * @param valueToCheck The map value to check
+   * @return The StructType with the fields
+   */
+  def mapValuesToStructType(valueToCheck: Map[_, _]): StructType =
+    StructType(valueToCheck.map(value => StructField(value._1.toString, valueToSparkType(value._2))).toSeq)
+
+  /* PRIVATE METHODS */
+
+  /* STRUCT TYPE -> GENERIC ROW WITH SCHEMA */
+
+  def checkStructType[T](origValue: T): T = checkAnyStructType(origValue).asInstanceOf[T]
+
+  def checkAnyStructType(origValue: Any): Any = origValue match {
+    case value: util.Map[_, _] =>
+      val inputValue = value.asScala.toMap.mapValues(checkAnyStructType)
+      val schema = mapValuesToStructType(inputValue)
+
+      new GenericRowWithSchema(inputValue.values.toArray, schema)
+    case value: Map[_, _] =>
+      val inputValue = value.mapValues(checkAnyStructType)
+      val schema = mapValuesToStructType(inputValue)
+
+      new GenericRowWithSchema(inputValue.values.toArray, schema)
+    case value: GenericRowWithSchema => value
+    case value if value == null => null
+    case _ => origValue
+  }
+
+  /* ARRAY TYPES */
+
+  def checkArrayStructType[T](origValue: T): T = checkAnyArrayStructType(origValue).asInstanceOf[T]
+
+  def checkAnyArrayStructType(origValue: Any): Any = origValue match {
+    case value: util.List[util.Map[_, _]] => value.asScala.map(mapValues => checkAnyStructType(mapValues))
+    case value: Seq[Map[_, _]] => value.map(mapValues => checkAnyStructType(mapValues))
+    case value: Seq[GenericRowWithSchema] => value
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Seq[GenericRowWithSchema]]
+  }
+
+  def checkArrayStringType[T](origValue: T): T = checkAnyArrayStringType(origValue).asInstanceOf[T]
+
+  def checkAnyArrayStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value =>
-        if (value == null) null
-        else value.toString)
+      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString)
     case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value =>
-        if (value == null) null
-        else value.toString
-      )
+      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString)
     case value if value == null => null
     case _ => Seq(origValue.toString)
   }
 
-  private def checkArrayDoubleType[T](origValue: T): T = checkAnyArrayDoubleType(origValue).asInstanceOf[T]
+  def checkArrayIntType[T](origValue: T): T = checkAnyArrayIntType(origValue).asInstanceOf[T]
 
-  private def checkAnyArrayDoubleType(origValue: Any): Any = origValue match {
+  def checkAnyArrayIntType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value =>
-        if (value == null) null
-        else value.toString.toDouble)
+      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toInt)
     case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value =>
-        if (value == null) null
-        else value.toString.toDouble
-      )
+      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toInt)
+    case value if value == null => null
+    case _ => Seq(origValue.toString.toInt)
+  }
+
+  def checkArrayLongType[T](origValue: T): T = checkAnyArrayLongType(origValue).asInstanceOf[T]
+
+  def checkAnyArrayLongType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.List[_]] =>
+      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toLong)
+    case value if value.isInstanceOf[Seq[_]] =>
+      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toLong)
+    case value if value == null => null
+    case _ => Seq(origValue.toString.toLong)
+  }
+
+  def checkArrayDoubleType[T](origValue: T): T = checkAnyArrayDoubleType(origValue).asInstanceOf[T]
+
+  def checkAnyArrayDoubleType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[util.List[_]] =>
+      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toDouble)
+    case value if value.isInstanceOf[Seq[_]] =>
+      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toDouble)
     case value if value == null => null
     case _ => Seq(origValue.toString.toDouble)
   }
 
-  private def checkArrayMapStringStringType[T](origValue: T): T =
-    checkAnyArrayMapStringStringType(origValue).asInstanceOf[T]
+  def checkArrayMapStringStringType[T](origValue: T): T = checkAnyArrayMapStringStringType(origValue).asInstanceOf[T]
 
-  private def checkAnyArrayMapStringStringType(origValue: Any): Any = origValue match {
+  def checkAnyArrayMapStringStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.List[util.Map[_, _]]] =>
       value.asInstanceOf[util.List[util.Map[_, _]]].asScala
         .map(value => value.asScala.map(cast =>
@@ -292,9 +276,21 @@ object TypeOp extends Enumeration {
     case _ => origValue.asInstanceOf[Seq[Map[String, String]]]
   }
 
-  private def checkMapStringStringType[T](origValue: T): T = checkAnyMapStringStringType(origValue).asInstanceOf[T]
+  /* MAP TYPES */
 
-  private def checkAnyMapStringStringType(origValue: Any): Any = origValue match {
+  def checkMapStringStructType[T](origValue: T): T = checkAnyMapStringStructType(origValue).asInstanceOf[T]
+
+  def checkAnyMapStringStructType(origValue: Any): Any = origValue match {
+    case value: util.Map[_, util.Map[_, _]] => value.asScala.map(values => values._1.toString -> checkAnyStructType(values._2))
+    case value: Map[_, Map[_, _]] => value.map(values => values._1.toString -> checkAnyStructType(values._2))
+    case value: Map[_, GenericRowWithSchema] => value
+    case value if value == null => null
+    case _ => origValue.asInstanceOf[Map[String, GenericRowWithSchema]]
+  }
+
+  def checkMapStringStringType[T](origValue: T): T = checkAnyMapStringStringType(origValue).asInstanceOf[T]
+
+  def checkAnyMapStringStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.Map[_, _]] =>
       value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
         cast._1.toString -> {
@@ -312,9 +308,9 @@ object TypeOp extends Enumeration {
     case _ => origValue.asInstanceOf[Map[String, String]]
   }
 
-  private def checkMapStringIntType[T](origValue: T): T = checkAnyMapStringIntType(origValue).asInstanceOf[T]
+  def checkMapStringIntType[T](origValue: T): T = checkAnyMapStringIntType(origValue).asInstanceOf[T]
 
-  private def checkAnyMapStringIntType(origValue: Any): Any = origValue match {
+  def checkAnyMapStringIntType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.Map[_, _]] =>
       value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
         cast._1.toString -> {
@@ -332,9 +328,9 @@ object TypeOp extends Enumeration {
     case _ => origValue.asInstanceOf[Map[String, Int]]
   }
 
-  private def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
+  def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
 
-  private def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
+  def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.Map[_, _]] =>
       value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
         cast._1.toString -> {
@@ -352,9 +348,9 @@ object TypeOp extends Enumeration {
     case _ => origValue.asInstanceOf[Map[String, Long]]
   }
 
-  private def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
+  def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
 
-  private def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
+  def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[util.Map[_, _]] =>
       value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
         cast._1.toString -> {
@@ -372,9 +368,22 @@ object TypeOp extends Enumeration {
     case _ => origValue.asInstanceOf[Map[String, Double]]
   }
 
-  private def checkStringType[T](origValue: T): T = checkAnyStringType(origValue).asInstanceOf[T]
+  /* PRIMITIVE TYPES */
 
-  private def checkAnyStringType(origValue: Any): Any = origValue match {
+  def checkArrayByteType[T](origValue: T): T = checkAnyArrayByteType(origValue).asInstanceOf[T]
+
+  def checkAnyArrayByteType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[String] => value.asInstanceOf[String].getBytes(Charset.forName("UTF-8"))
+    case value if value.isInstanceOf[Array[Byte]] => value
+    case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s.getBytes(Charset.forName("UTF-8"))
+    case value if value.isInstanceOf[Seq[Any]] => value.asInstanceOf[Seq[Any]].mkString(Output.Separator).getBytes(Charset.forName("UTF-8"))
+    case value if value == null => null
+    case _ => origValue.toString.getBytes(Charset.forName("UTF-8"))
+  }
+
+  def checkStringType[T](origValue: T): T = checkAnyStringType(origValue).asInstanceOf[T]
+
+  def checkAnyStringType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[String] => value
     case value if value.isInstanceOf[Array[Byte]] => new Predef.String(value.asInstanceOf[Array[Byte]])
     case value if value.isInstanceOf[JString] => value.asInstanceOf[JString].s
@@ -383,9 +392,9 @@ object TypeOp extends Enumeration {
     case _ => origValue.toString
   }
 
-  private def checkTimestampType[T](origValue: T): T = checkAnyTimestampType(origValue).asInstanceOf[T]
+  def checkTimestampType[T](origValue: T): T = checkAnyTimestampType(origValue).asInstanceOf[T]
 
-  private def checkAnyTimestampType(origValue: Any): Any = origValue match {
+  def checkAnyTimestampType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Timestamp] => value
     case value if value.isInstanceOf[Date] => millisToTimeStamp(value.asInstanceOf[Date].getTime)
     case value if value.isInstanceOf[DateTime] => millisToTimeStamp(value.asInstanceOf[DateTime].getMillis)
@@ -396,9 +405,9 @@ object TypeOp extends Enumeration {
     case _ => millisToTimeStamp(origValue.toString.toLong)
   }
 
-  private def checkDateType[T](origValue: T): T = checkAnyDateType(origValue).asInstanceOf[T]
+  def checkDateType[T](origValue: T): T = checkAnyDateType(origValue).asInstanceOf[T]
 
-  private def checkAnyDateType(origValue: Any): Any = origValue match {
+  def checkAnyDateType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Date] => value
     case value if value.isInstanceOf[Timestamp] => new Date(value.asInstanceOf[Timestamp].getTime)
     case value if value.isInstanceOf[DateTime] => new Date(value.asInstanceOf[DateTime].getMillis)
@@ -409,9 +418,9 @@ object TypeOp extends Enumeration {
     case _ => new Date(origValue.toString.toLong)
   }
 
-  private def checkDateTimeType[T](origValue: T): T = checkAnyDateTimeType(origValue).asInstanceOf[T]
+  def checkDateTimeType[T](origValue: T): T = checkAnyDateTimeType(origValue).asInstanceOf[T]
 
-  private def checkAnyDateTimeType(origValue: Any): Any = origValue match {
+  def checkAnyDateTimeType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[DateTime] => value
     case value if value.isInstanceOf[Timestamp] => new DateTime(value.asInstanceOf[Timestamp].getTime)
     case value if value.isInstanceOf[Date] => new DateTime(value.asInstanceOf[Date].getTime)
@@ -422,9 +431,9 @@ object TypeOp extends Enumeration {
     case _ => new DateTime(origValue.toString)
   }
 
-  private def checkLongType[T](origValue: T): T = checkAnyLongType(origValue).asInstanceOf[T]
+  def checkLongType[T](origValue: T): T = checkAnyLongType(origValue).asInstanceOf[T]
 
-  private def checkAnyLongType(origValue: Any): Any = origValue match {
+  def checkAnyLongType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Long] => value
     case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.longValue()
     case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.longValue()
@@ -443,9 +452,9 @@ object TypeOp extends Enumeration {
     case _ => origValue.toString.toLong
   }
 
-  private def checkDoubleType[T](origValue: T): T = checkAnyDoubleType(origValue).asInstanceOf[T]
+  def checkDoubleType[T](origValue: T): T = checkAnyDoubleType(origValue).asInstanceOf[T]
 
-  private def checkAnyDoubleType(origValue: Any): Any = origValue match {
+  def checkAnyDoubleType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Double] => value
     case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num
     case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.doubleValue()
@@ -461,9 +470,45 @@ object TypeOp extends Enumeration {
     case _ => origValue.toString.toDouble
   }
 
-  private def checkIntType[T](origValue: T): T = checkAnyIntType(origValue).asInstanceOf[T]
+  def checkShortType[T](origValue: T): T = checkAnyShortType(origValue).asInstanceOf[T]
 
-  private def checkAnyIntType(origValue: Any): Any = origValue match {
+  def checkAnyShortType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[Short] => value
+    case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toShort
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.shortValue()
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.shortValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.shortValue()
+    case value if value.isInstanceOf[Int] => origValue.asInstanceOf[Int].toShort
+    case value if value.isInstanceOf[Float] => origValue.asInstanceOf[Float].toShort
+    case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toShort
+    case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].shortValue()
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toShort
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toShort
+    case value if value == null => null
+    case _ => origValue.toString.toShort
+  }
+
+  def checkFloatType[T](origValue: T): T = checkAnyFloatType(origValue).asInstanceOf[T]
+
+  def checkAnyFloatType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[Short] => origValue.asInstanceOf[Short].toFloat
+    case value if value.isInstanceOf[Double] => origValue.asInstanceOf[Double].toFloat
+    case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.floatValue()
+    case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.floatValue()
+    case value if value.isInstanceOf[JDecimal] => value.asInstanceOf[JDecimal].num.floatValue()
+    case value if value.isInstanceOf[Int] => origValue.asInstanceOf[Int].toFloat
+    case value if value.isInstanceOf[Float] => value
+    case value if value.isInstanceOf[Long] => origValue.asInstanceOf[Long].toFloat
+    case value if value.isInstanceOf[Number] => origValue.asInstanceOf[Number].floatValue()
+    case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toFloat
+    case value if value.isInstanceOf[Array[Byte]] => new Predef.String(origValue.asInstanceOf[Array[Byte]]).toFloat
+    case value if value == null => null
+    case _ => origValue.toString.toFloat
+  }
+
+  def checkIntType[T](origValue: T): T = checkAnyIntType(origValue).asInstanceOf[T]
+
+  def checkAnyIntType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Int] => value
     case value if value.isInstanceOf[JInt] => value.asInstanceOf[JInt].num.intValue()
     case value if value.isInstanceOf[JDouble] => value.asInstanceOf[JDouble].num.intValue()
@@ -479,9 +524,17 @@ object TypeOp extends Enumeration {
     case _ => origValue.toString.toInt
   }
 
-  private def checkBooleanType[T](origValue: T): T = checkAnyBooleanType(origValue).asInstanceOf[T]
+  def checkByteType[T](origValue: T): T = checkAnyByteType(origValue).asInstanceOf[T]
 
-  private def checkAnyBooleanType(origValue: Any): Any = origValue match {
+  def checkAnyByteType(origValue: Any): Any = origValue match {
+    case value if value.isInstanceOf[Byte] => value
+    case value if value == null => null
+    case _ => origValue.toString.toByte
+  }
+
+  def checkBooleanType[T](origValue: T): T = checkAnyBooleanType(origValue).asInstanceOf[T]
+
+  def checkAnyBooleanType(origValue: Any): Any = origValue match {
     case value if value.isInstanceOf[Boolean] => value
     case value if value.isInstanceOf[JBool] => value.asInstanceOf[JBool].value
     case value if value.isInstanceOf[JString] => origValue.asInstanceOf[JString].s.toBoolean

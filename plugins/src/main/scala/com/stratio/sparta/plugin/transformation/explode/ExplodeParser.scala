@@ -36,6 +36,7 @@ class ExplodeParser(order: Integer,
     inputValue match {
       case Some(value) =>
         val valueTyped = {
+          //TODO support GenericRowWithSchema, Seq(GenericRowWithSchema), etc ... when migrate to new workflow
           value match {
             case valueCast: Seq[Map[String, _]] => valueCast
             case valueCast: Map[String, _] => Seq(valueCast)

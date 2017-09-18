@@ -18,12 +18,13 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.workflow.transformation.casting.OutputFieldsFrom.OutputFieldsFrom
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -36,17 +37,30 @@ class CastingTransformStep(name: String,
                            properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
+  lazy val outputFieldsFrom = OutputFieldsFrom.withName(properties.getString("outputFieldsFrom", "FIELDS").toUpperCase)
+  lazy val fieldsString = properties.getString("fieldsString", None).notBlank
   lazy val fieldsModel = properties.getPropertiesFields("fields")
   lazy val outputFieldsSchema: Option[StructType] = {
-    if (fieldsModel.fields.nonEmpty) {
-      Option(StructType(fieldsModel.fields.map { outputField =>
-        StructField(
-          name = outputField.name,
-          dataType = SparkTypes.getOrElse(outputField.`type`.getOrElse("string").toLowerCase, StringType),
-          nullable = true
-        )
-      }))
-    } else None
+    outputFieldsFrom match {
+      case OutputFieldsFrom.FIELDS =>
+        if (fieldsModel.fields.nonEmpty) {
+          Option(StructType(fieldsModel.fields.map { outputField =>
+            val outputType = outputField.`type`.getOrElse("string")
+            StructField(
+              name = outputField.name,
+              dataType = SparkTypes.get(outputType) match {
+                case Some(sparkType) => sparkType
+                case None => schemaFromString(outputType)
+              },
+              nullable = outputField.nullable.getOrElse(true)
+            )
+          }))
+        } else None
+      case OutputFieldsFrom.STRING =>
+        Try(schemaFromString(fieldsString.get).asInstanceOf[StructType]).toOption
+      case _ =>
+        throw new IllegalArgumentException("It's mandatory to specify the fields format")
+    }
   }
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
@@ -105,4 +119,6 @@ class CastingTransformStep(name: String,
     */
   def compareToOutputSchema(inputSchema: StructType): Boolean =
     outputFieldsSchema.isEmpty || (outputFieldsSchema.isDefined && inputSchema == outputFieldsSchema.get)
+
+
 }

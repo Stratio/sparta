@@ -33,7 +33,6 @@ object SchemaHelper {
   private val mapTypes = Map(
     TypeOp.Long -> LongType,
     TypeOp.Double -> DoubleType,
-    TypeOp.BigDecimal -> DecimalType(Default_Precision, Default_Scale),
     TypeOp.Int -> IntegerType,
     TypeOp.Boolean -> BooleanType,
     TypeOp.Date -> DateType,
@@ -56,7 +55,6 @@ object SchemaHelper {
   private[driver] val mapSparkTypes: Map[DataType, TypeOp] = Map(
     LongType -> TypeOp.Long,
     DoubleType -> TypeOp.Double,
-    DecimalType(Default_Precision, Default_Scale) -> TypeOp.BigDecimal,
     IntegerType -> TypeOp.Int,
     BooleanType -> TypeOp.Boolean,
     DateType -> TypeOp.Date,

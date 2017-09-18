@@ -19,7 +19,10 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.Serializable
 
 import com.stratio.sparta.sdk.properties.CustomProperties
+import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.types.{IntegerType, _}
+
+import scala.util.Try
 
 trait GraphStep extends CustomProperties {
 
@@ -32,12 +35,9 @@ trait GraphStep extends CustomProperties {
   lazy val SparkTypes = Map(
     "long" -> LongType,
     "double" -> DoubleType,
-    "int" -> IntegerType,
     "integer" -> IntegerType,
-    "bool" -> BooleanType,
     "boolean" -> BooleanType,
     "date" -> DateType,
-    "datetime" -> TimestampType,
     "timestamp" -> TimestampType,
     "string" -> StringType,
     "arraydouble" -> ArrayType(DoubleType),
@@ -55,6 +55,12 @@ trait GraphStep extends CustomProperties {
   def setUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
   def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
+
+
+  /* METHODS TO IMPLEMENTED */
+
+  def schemaFromString(raw: String): DataType =
+    Try(DataType.fromJson(raw)).getOrElse(LegacyTypeStringParser.parse(raw))
 
 }
 

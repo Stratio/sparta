@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.plugin.workflow.transformation.casting
 
-package com.stratio.sparta.sdk.properties.models
+object OutputFieldsFrom extends Enumeration {
 
-case class PropertiesFieldModel(name: String, `type`: Option[String] = None, nullable: Option[Boolean] = None)
+  type OutputFieldsFrom = Value
+  val STRING, FIELDS = Value
+
+}
+

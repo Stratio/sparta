@@ -92,9 +92,13 @@ class JsonTransformStep(name: String,
 
   def getNewOutputSchema(inputSchema: StructType): Option[StructType] = {
     val outputFieldsSchema = queriesModel.queries.map { queryField =>
+      val outputType = queryField.`type`.getOrElse("string")
       StructField(
         name = queryField.field,
-        dataType = SparkTypes.getOrElse(queryField.`type`.getOrElse("string").toLowerCase, StringType),
+        dataType = SparkTypes.get(outputType) match {
+          case Some(sparkType) => sparkType
+          case None => schemaFromString(outputType)
+        },
         nullable = true
       )
     }

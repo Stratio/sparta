@@ -51,8 +51,12 @@ class KafkaInputStep(
   lazy val ValueDeserializer = "value.deserializer"
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
-  lazy val outputType = SparkTypes(properties.getString("outputType", DefaultRawDataType).toLowerCase)
-  lazy val outputSchema = StructType(Seq(StructField(outputField, outputType)))
+  lazy val outputType = properties.getString("outputType", DefaultRawDataType)
+  lazy val outputSparkType = SparkTypes.get(outputType) match {
+    case Some(sparkType) => sparkType
+    case None => schemaFromString(outputType)
+  }
+  lazy val outputSchema = StructType(Seq(StructField(outputField, outputSparkType)))
 
   //scalastyle:off
   def initStream(): DStream[Row] = {
