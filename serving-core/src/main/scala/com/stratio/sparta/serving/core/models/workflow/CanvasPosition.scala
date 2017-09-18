@@ -16,4 +16,4 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class UiSettings(position: Option[CanvasPosition] = None)
+case class CanvasPosition(x: Double, y: Double, k: Double)
