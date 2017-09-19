@@ -127,6 +127,7 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=zk_sparta
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
+            | -DSPARTA_JSON=spartainstalation_without_Calico.json
             """
     INSTALL = { config ->
         doAT(conf: config, groups: ['dcos_instalation'])
