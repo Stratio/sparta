@@ -23,7 +23,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.pipeline.aggregation.cube.DimensionType
 import com.stratio.sparta.sdk.pipeline.aggregation.operator.Operator
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import org.reflections.Reflections
 
 import scala.collection.JavaConversions._
@@ -38,12 +38,12 @@ class ClasspathUtils extends SLF4JLogging {
       block(clazz)
     } catch {
       case cnfe: ClassNotFoundException =>
-        throw ServingCoreException.create(
+        throw ServerException.create(
           "Class with name " + classAndPackage + " Cannot be found in the classpath.", cnfe)
       case ie: InstantiationException =>
-        throw ServingCoreException.create("Class with name " + classAndPackage + " cannot be instantiated", ie)
+        throw ServerException.create("Class with name " + classAndPackage + " cannot be instantiated", ie)
       case e: Exception =>
-        throw ServingCoreException.create("Generic error trying to instantiate " + classAndPackage, e)
+        throw ServerException.create("Generic error trying to instantiate " + classAndPackage, e)
     }
   }
 

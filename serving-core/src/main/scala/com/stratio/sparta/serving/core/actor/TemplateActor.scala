@@ -19,13 +19,15 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.Actor
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.TemplateActor._
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.{ServerException, ServerException$}
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, TemplateType}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, TemplateUtils}
 import org.apache.curator.framework.CuratorFramework
+import spray.http.StatusCodes
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
@@ -147,8 +149,13 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
   //PRIVATE METHODS
 
   private def errorTemplateNotFound(fragmentType: String, name: String): Nothing = {
-    throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-      ErrorModel.CodeNotExistsWorkflowWithName, s"No fragment of type $fragmentType with name $name")))
+    throw new ServerException(ErrorModel.toString(new ErrorModel(
+      StatusCodes.OK.intValue,
+      ErrorModel.TemplateServiceNotFound,
+      ErrorCodesMessages.getOrElse(ErrorModel.TemplateServiceNotFound, UnknownError),
+      Option(s"No fragment of type $fragmentType with name $name"),
+      None
+    )))
   }
 }
 

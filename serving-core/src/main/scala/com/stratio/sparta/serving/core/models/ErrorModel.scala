@@ -19,38 +19,54 @@ package com.stratio.sparta.serving.core.models
 import org.json4s.native.Serialization._
 import spray.http.StatusCodes
 
-/**
- * An ErrorDto represents an error that will be sent as response to the frontend.
- *
- * @param i18nCode          with the code of the error that will be translated.
- * @param message           that describes the exception.
- * @param stackTraceElement with the stackTrace of the exception.
- * @param params            with values that could be needed by the frontend.
- */
-case class ErrorModel(i18nCode: String,
-                      message: String,
-                      subErrorModels: Option[Seq[ErrorModel]] = None,
-                      stackTraceElement: Option[Seq[StackTraceElement]] = None,
-                      params: Option[Map[Any, Any]] = None) {}
+case class ErrorModel(
+                       statusCode: Int,
+                       errorCode: String,
+                       message: String,
+                       detailMessage: Option[String] = None,
+                       exception: Option[String] = None
+                     )
 
 object ErrorModel extends SpartaSerializer {
 
-  val CodeExistsTemplateWithName = "100"
-  val CodeNotExistsTemplateWithId = "101"
-  val CodeErrorDeletingAllTemplates = "105"
-  val CodeExistsWorkflowWithName = "200"
-  val CodeNotExistsWorkflowWithId = "201"
-  val CodeNotExistsWorkflowWithName = "202"
-  val CodeErrorCreatingWorkflow = "203"
-  val CodeErrorDeletingWorkflow = "204"
-  val CodeErrorUpdatingWorkflow = "205"
-  val CodeErrorUpdatingExecution = "206"
-  val UnauthorizedAction = "403"
-  val UserNotFound = "501"
-  val CodeUnknown = "666"
-  val CrossdataService = 550
-  StatusCodes.registerCustom(ErrorModel.CrossdataService, "Errors in CrossData Context")
+  /* Generic error messages */
+  val UnknownError = "Unknown error"
 
+  /* Unkown error */
+  val UnknownErrorCode = "560"
+
+  /* App Info Service */
+  val AppInfo = "561"
+
+  /* App Info Service */
+  val AppStatus = "562"
+
+  /* Authorization Service 550-559 */
+  val UserNotFound = "550"
+
+  /* Template Service 650-699 */
+  val TemplateServiceNotFound = "650"
+
+  /* Crossdata Service 600-649 */
+  val CrossdataServiceUnexpected = "600"
+  val CrossdataServiceListDatabases = "601"
+  val CrossdataServiceListTables = "602"
+  val CrossdataServiceListColumns = "603"
+  val CrossdataServiceExecuteQuery = "604"
+
+  /* Map with all error codes and messages */
+  val ErrorCodesMessages = Map(
+    UnknownErrorCode -> UnknownError,
+    StatusCodes.Unauthorized.toString() -> "Unauthorized action",
+    UserNotFound -> "User not found",
+    CrossdataServiceUnexpected -> "Unexpected behaviour in Crossdata catalog",
+    CrossdataServiceListDatabases -> "Impossible to list databases in Crossdata Context",
+    CrossdataServiceListTables -> "Impossible to list tables in Crossdata Context",
+    CrossdataServiceListColumns -> "Impossible to list columns in Crossdata Context",
+    TemplateServiceNotFound -> "No templates found",
+    AppInfo -> "Impossible to extract server information",
+    AppStatus -> "Zookeeper is not connected"
+  )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)
 

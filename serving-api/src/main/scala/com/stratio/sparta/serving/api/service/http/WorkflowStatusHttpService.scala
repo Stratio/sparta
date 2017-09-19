@@ -20,9 +20,7 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.StatusActor.{DeleteStatus, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
-import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.wordnik.swagger.annotations._
@@ -177,9 +175,8 @@ trait WorkflowStatusHttpService extends BaseHttpService {
               case Left(ResponseStatus(Success(status))) => HttpResponse(StatusCodes.Created)
               case Left(ResponseStatus(Failure(ex))) =>
                 log.error("Can't update workflow", ex)
-                throw new ServingCoreException(ErrorModel.toString(
-                  ErrorModel(ErrorModel.CodeErrorUpdatingWorkflow, "Can't update workflow")
-                ))
+                //TODO refactor to ServerException
+                throw new Exception("Can't update workflow")
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in status")
             }

@@ -19,9 +19,9 @@ package com.stratio.sparta.serving.core.utils
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import org.apache.curator.framework.CuratorFramework
 import org.json4s.jackson.Serialization._
 
@@ -51,9 +51,8 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         curatorFramework.setData().forPath(requestPath, write(request).getBytes)
         request
-      } else createRequest(request).getOrElse(throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId,
-          s"Unable to create execution with id ${request.id}."))))
+      } else createRequest(request)
+        .getOrElse(throw new ServerException(s"Unable to create execution with id ${request.id}."))
     }
   }
 
@@ -74,8 +73,7 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
       val requestPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(requestPath))
         read[WorkflowExecution](new String(curatorFramework.getData.forPath(requestPath)))
-      else throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No execution context with id $id")))
+      else throw new ServerException(s"No execution context with id $id")
     }
 
   def deleteAllRequests(): Try[_] =
@@ -97,7 +95,6 @@ trait RequestUtils extends SpartaSerializer with SLF4JLogging {
       if (CuratorFactoryHolder.existsPath(requestPath)) {
         log.info(s"Deleting execution with id $id")
         curatorFramework.delete().forPath(requestPath)
-      } else throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No execution with id $id")))
+      } else throw new ServerException(s"No execution with id $id")
     }
 }

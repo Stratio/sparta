@@ -19,12 +19,14 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.info.AppInfo
 import com.wordnik.swagger.annotations._
+import spray.http.StatusCodes
 import spray.routing._
 
 import scala.util.Try
@@ -44,9 +46,11 @@ trait AppInfoHttpService extends BaseHttpService {
       get {
         complete {
           Try(InfoHelper.getAppInfo).getOrElse(
-            throw new ServingCoreException(ErrorModel.toString(
-              new ErrorModel(ErrorModel.CodeUnknown, s"Imposible to extract server information")
-            ))
+            throw new ServerException(ErrorModel.toString(ErrorModel(
+              StatusCodes.InternalServerError.intValue,
+              ErrorModel.AppInfo,
+              ErrorCodesMessages.getOrElse(ErrorModel.AppInfo, UnknownError)
+            )))
           )
         }
       }

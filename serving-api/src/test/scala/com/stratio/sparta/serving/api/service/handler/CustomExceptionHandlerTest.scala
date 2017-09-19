@@ -25,7 +25,7 @@ import spray.routing.{Directives, HttpService, StandardRoute}
 import spray.testkit.ScalatestRouteTest
 import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 
 @RunWith(classOf[JUnitRunner])
@@ -44,18 +44,18 @@ with Json4sJacksonSupport with HttpService with SpartaSerializer {
   def route(throwable: Throwable): StandardRoute = complete(throw throwable)
 
   "CustomExceptionHandler" should {
-    "encapsulate a unknow error in an error model and response with a 500 code" in new MyTestRoute {
+    "encapsulate a unknow error in an error model and response with a 550 code" in new MyTestRoute {
       val exception = new MockException
       Get() ~> sealRoute(route) ~> check {
         status should be(StatusCodes.InternalServerError)
-        response.entity.asString should be(ErrorModel.toString(new ErrorModel("666", "unknown")))
+        response.entity.asString should be(ErrorModel.toString(new ErrorModel(500, "560", "Unknown error")))
       }
     }
-    "encapsulate a serving api error in an error model and response with a 400 code" in new MyTestRoute {
-      val exception = ServingCoreException.create(ErrorModel.toString(new ErrorModel("333", "testing exception")))
+    "encapsulate a serving api error in an error model and response with a 333 code" in new MyTestRoute {
+      val exception = ServerException.create(ErrorModel.toString(new ErrorModel(500, "333", "testing exception")))
       Get() ~> sealRoute(route) ~> check {
-        status should be(StatusCodes.NotFound)
-        response.entity.asString should be(ErrorModel.toString(new ErrorModel("333", "testing exception")))
+        status should be(StatusCodes.InternalServerError)
+        response.entity.asString should be(ErrorModel.toString(new ErrorModel(500, "333", "testing exception")))
       }
     }
   }

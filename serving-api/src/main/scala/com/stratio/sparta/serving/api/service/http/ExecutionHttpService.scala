@@ -19,7 +19,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.RequestActor._
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
@@ -178,9 +178,8 @@ trait ExecutionHttpService extends BaseHttpService {
               case Left(Failure(ex)) =>
                 val message = "Unable to update execution"
                 log.error(message, ex)
-                throw new ServingCoreException(ErrorModel.toString(
-                  ErrorModel(ErrorModel.CodeErrorUpdatingExecution, message)
-                ))
+                //TODO refactor to ServerException
+                throw new Exception(message)
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in executions")
             }
@@ -217,10 +216,10 @@ trait ExecutionHttpService extends BaseHttpService {
                 case Left(Failure(ex: Throwable)) =>
                   val message = "Unable to create execution"
                   log.error(message, ex)
-                  throw new ServingCoreException(ErrorModel.toString(
-                    ErrorModel(ErrorModel.CodeErrorCreatingWorkflow, message)
-                  ))
-                case Right(UnauthorizedResponse(exception)) => throw exception
+                  //TODO refactor to ServerException
+                  throw new Exception(message)
+                case Right(UnauthorizedResponse(exception)) =>
+                  throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in executions")
               }
             }

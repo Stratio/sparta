@@ -23,7 +23,7 @@ import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
@@ -42,7 +42,7 @@ class LauncherActor(val streamingContextService: StreamingContextService,
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy() {
-      case _: ServingCoreException => Escalate
+      case _: ServerException => Escalate
       case t =>
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
     }

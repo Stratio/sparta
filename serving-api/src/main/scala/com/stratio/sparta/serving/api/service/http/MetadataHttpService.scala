@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.api.actor.MetadataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException$
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile, SpartaFilesResponse}

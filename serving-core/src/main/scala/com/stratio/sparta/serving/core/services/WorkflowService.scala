@@ -21,7 +21,7 @@ import java.util.UUID
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
@@ -38,12 +38,10 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
   def findById(id: String): Workflow =
-    existsById(id).getOrElse(throw new ServingCoreException(ErrorModel.toString(
-      new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow with id $id"))))
+    existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
 
   def findByName(name: String): Workflow =
-    existsByName(name, None).getOrElse(throw new ServingCoreException(ErrorModel.toString(
-      new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithName, s"No workflow with name $name"))))
+    existsByName(name, None).getOrElse(throw new ServerException(s"No workflow with name $name"))
 
   def findByTemplateType(templateType: String): List[Workflow] =
     findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.className == templateType))
@@ -60,10 +58,8 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   def create(workflow: Workflow): Workflow = {
     val searchWorkflow = existsByName(workflow.name, workflow.id)
     if (searchWorkflow.isDefined) {
-      throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-        ErrorModel.CodeExistsWorkflowWithName,
-        s"Workflow with name ${workflow.name} exists. The actual workflow name is: ${searchWorkflow.get.name}"
-      )))
+      throw new ServerException(
+        s"Workflow with name ${workflow.name} exists. The actual workflow name is: ${searchWorkflow.get.name}")
     }
     val workflowId = addId(workflow)
     curatorFramework.create().creatingParentsIfNeeded().forPath(
@@ -80,10 +76,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   def update(workflow: Workflow): Workflow = {
     val searchWorkflow = existsByName(workflow.name, workflow.id)
     if (searchWorkflow.isEmpty) {
-      throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-        ErrorModel.CodeExistsWorkflowWithName,
-        s"Workflow with name ${workflow.name} does not exist"
-      )))
+      throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
     } else {
       val workflowId = addId(workflow)
       curatorFramework.setData().forPath(

@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel.{CrossdataServiceListDatabases, CrossdataServiceListTables, ErrorCodesMessages, UnknownError}
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import spray.http.StatusCodes
 import spray.httpx.Json4sJacksonSupport
+import spray.httpx.marshalling.ToResponseMarshaller
 import spray.routing._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 /**
  * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
@@ -42,4 +49,56 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
 
   def routes(user: Option[LoggedUser] = None): Route
 
+  def manageGetResponse[T](
+                            context: RequestContext,
+                            errorCodeToReturn: String,
+                            response: Either[Try[T], UnauthorizedResponse],
+                            genericError: ErrorModel
+                          )(implicit marshaller: ToResponseMarshaller[T]): Unit = {
+    response match {
+      case Left(Success(databases)) =>
+        context.complete(databases)
+      case Left(Failure(e)) =>
+        Try(ErrorModel.toErrorModel(e.getLocalizedMessage)) match {
+          case Success(error) =>
+            context.complete(error.statusCode, error)
+          case Failure(_) =>
+            context.complete(StatusCodes.InternalServerError, ErrorModel(
+              StatusCodes.InternalServerError.intValue,
+              errorCodeToReturn,
+              ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
+              None,
+              Option(e.getLocalizedMessage)
+            ))
+        }
+      case Right(UnauthorizedResponse(exception)) =>
+        val errorModel = ErrorModel.toErrorModel(exception.getLocalizedMessage)
+        context.complete(errorModel.statusCode, errorModel)
+      case _ =>
+        context.complete(genericError.statusCode, genericError)
+    }
+  }
+
+  def managePostResponse[T](
+                             errorCodeToReturn: String,
+                             response: Either[Try[T], UnauthorizedResponse],
+                             genericError: ErrorModel
+                           ): T = {
+    response match {
+      case Left((Success(tables))) =>
+        tables
+      case Left((Failure(e))) =>
+        throw new ServerException(ErrorModel.toString(ErrorModel(
+          StatusCodes.InternalServerError.intValue,
+          errorCodeToReturn,
+          ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
+          None,
+          Option(e.getLocalizedMessage)
+        )))
+      case Right(UnauthorizedResponse(exception)) =>
+        throw exception
+      case _ =>
+        throw new ServerException(ErrorModel.toString(genericError))
+    }
+  }
 }

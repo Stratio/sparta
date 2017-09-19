@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.api.service.http
 
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.wordnik.swagger.annotations._
 import org.apache.curator.framework.CuratorFramework
@@ -29,7 +31,7 @@ trait AppStatusHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = checkStatus
 
-  val curatorInstance : CuratorFramework
+  val curatorInstance: CuratorFramework
 
   @ApiOperation(value = "Checks Sparta status based on the Zookeeper connection",
     notes = "Returns Sparta status",
@@ -44,10 +46,11 @@ trait AppStatusHttpService extends BaseHttpService {
       get {
         complete {
           if (!curatorInstance.getZookeeperClient.getZooKeeper.getState.isConnected)
-            throw new ServingCoreException(ErrorModel.toString(
-              new ErrorModel(ErrorModel.CodeUnknown, s"Zk isn't connected at" +
-                s" ${curatorInstance.getZookeeperClient.getCurrentConnectionString}.")
-            ))
+            throw new ServerException(ErrorModel.toString(ErrorModel(
+              StatusCodes.InternalServerError.intValue,
+              AppStatus,
+              ErrorCodesMessages.getOrElse(AppStatus, UnknownError)
+            )))
           else StatusCodes.OK
         }
       }

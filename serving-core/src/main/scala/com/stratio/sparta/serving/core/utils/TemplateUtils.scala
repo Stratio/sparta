@@ -21,7 +21,7 @@ import java.util.UUID
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
@@ -52,10 +52,7 @@ trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
     val templateLocation = s"${templatePathType(templateType)}/$id"
     if (CuratorFactoryHolder.existsPath(templateLocation)) {
       read[TemplateElement](new String(curatorFramework.getData.forPath(templateLocation)))
-    } else throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-      ErrorModel.CodeNotExistsTemplateWithId,
-      s"Template type: $templateType and id: $id does not exist"
-    )))
+    } else throw new ServerException(s"Template type: $templateType and id: $id does not exist")
   }
 
   def findTemplateByTypeAndName(templateType: String, name: String): Option[TemplateElement] =
@@ -76,8 +73,7 @@ trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
     val templatesFound = findAllTemplates
     templatesFound.foreach(template => {
       val id = template.id.getOrElse {
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeErrorDeletingAllTemplates, s"Template without id: ${template.name}.")))
+        throw new ServerException(s"Template without id: ${template.name}.")
       }
       deleteTemplateByTypeAndId(template.templateType, id)
     })
@@ -91,8 +87,7 @@ trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
         s"${templatePathType(templateType)}/$element"))))
     templatesFound.foreach(template => {
       val id = template.id.getOrElse {
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeNotExistsTemplateWithId, s"Template without id: ${template.name}.")))
+        throw new ServerException(s"Template without id: ${template.name}.")
       }
       deleteTemplateByTypeAndId(templateType, id)
     })
@@ -110,11 +105,9 @@ trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
       val templateLocation = s"${templatePathType(templateType)}/$id"
       if (CuratorFactoryHolder.existsPath(templateLocation))
         curatorFramework.delete().forPath(templateLocation)
-      else throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-        ErrorModel.CodeNotExistsTemplateWithId, s"Template type: $templateType and id: $id does not exist")))
+      else throw new ServerException(s"Template type: $templateType and id: $id does not exist")
     } else {
-      throw new ServingCoreException(ErrorModel.toString(new ErrorModel(
-        ErrorModel.CodeExistsTemplateWithName, s"Template without id: $name.")))
+      throw new ServerException(s"Template without id: $name.")
     }
   }
 

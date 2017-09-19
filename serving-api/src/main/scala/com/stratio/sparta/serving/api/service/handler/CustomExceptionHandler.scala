@@ -17,14 +17,14 @@
 package com.stratio.sparta.serving.api.service.handler
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.api.exception.CrossdataServiceException
-import com.stratio.sparta.serving.core.exception.ServingCoreException
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.json4s.jackson.Serialization._
 import spray.http.{MediaTypes, StatusCodes}
 import spray.routing.ExceptionHandler
 import spray.routing.directives.{MiscDirectives, RespondWithDirectives, RouteDirectives}
 import spray.util.LoggingContext
+
+import scala.util.{Failure, Success, Try}
 
 /**
  * This exception handler will be used by all our services to return a [ErrorModel] that will be used by the frontend.
@@ -37,28 +37,24 @@ object CustomExceptionHandler extends MiscDirectives
 
   implicit def exceptionHandler(implicit logg: LoggingContext): ExceptionHandler = {
     ExceptionHandler {
-      case exception: CrossdataServiceException =>
-        requestUri { _ =>
-          log.error(exception.getLocalizedMessage)
-          val error = ErrorModel.toErrorModel(exception.getLocalizedMessage)
-          respondWithMediaType(MediaTypes.`application/json`) {
-            complete(ErrorModel.CrossdataService, write(error))
-          }
-        }
-      case exception: ServingCoreException =>
-        requestUri { _ =>
-          log.error(exception.getLocalizedMessage)
-          val error = ErrorModel.toErrorModel(exception.getLocalizedMessage)
-          respondWithMediaType(MediaTypes.`application/json`) {
-            complete(StatusCodes.NotFound, write(error))
-          }
-        }
       case exception: Throwable =>
         requestUri { _ =>
           log.error(exception.getLocalizedMessage, exception)
-          complete((StatusCodes.InternalServerError, write(
-            new ErrorModel(ErrorModel.CodeUnknown, Option(exception.getLocalizedMessage).getOrElse("unknown"))
-          )))
+          respondWithMediaType(MediaTypes.`application/json`) {
+            Try(ErrorModel.toErrorModel(exception.getLocalizedMessage)) match {
+              case Success(error) =>
+                complete(error.statusCode, write(error))
+              case Failure(_) =>
+                val error = new ErrorModel(
+                  StatusCodes.InternalServerError.intValue,
+                  ErrorModel.UnknownErrorCode,
+                  ErrorModel.UnknownError,
+                  None,
+                  Option(exception.getLocalizedMessage)
+                )
+                complete(StatusCodes.InternalServerError, write(error))
+            }
+          }
         }
     }
   }

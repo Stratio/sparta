@@ -19,30 +19,35 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.api.exception.CrossdataServiceException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.wordnik.swagger.annotations._
 import org.apache.spark.sql.catalog.{Column, Database, Table}
+import spray.http.StatusCodes
 import spray.routing._
-import scala.concurrent.duration._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
-@Api(value = HttpConstant.CrossdataPath, description = "Operations over CrossData catalog")
+@Api(value = HttpConstant.CrossdataPath, description = "Operations over Crossdata catalog")
 trait CrossdataHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route = findAllDatabases(user) ~ executeQuery(user) ~
     findTables(user) ~ describeTable(user) ~ findAllTables(user)
 
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    CrossdataServiceUnexpected,
+    ErrorCodesMessages.getOrElse(CrossdataServiceUnexpected, UnknownError)
+  )
+
   @Path("/databases")
   @ApiOperation(value = "List Crossdata databases",
-    notes = "Returns crosdata databases",
+    notes = "Returns Crosdata databases",
     httpMethod = "GET",
     response = classOf[Database],
     responseContainer = "List")
@@ -53,19 +58,7 @@ trait CrossdataHttpService extends BaseHttpService {
         for {
           response <- (supervisor ? FindAllDatabases(user))
             .mapTo[Either[Try[Array[Database]], UnauthorizedResponse]]
-        } yield response match {
-          case Left(Success(databases)) =>
-            context.complete(databases)
-          case Left(Failure(e)) =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-              s"Impossible to list databases in Crossdata Context. Error: ${e.getLocalizedMessage}"))
-          case Right(UnauthorizedResponse(exception)) =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-            s"Impossible to list databases in Crossdata Context. Error: ${exception.getLocalizedMessage}"))
-          case _ =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-              s"Unexpected behaviour in catalog"))
-        }
+        } yield manageGetResponse(context, CrossdataServiceListDatabases, response, genericError)
       }
     }
   }
@@ -83,19 +76,7 @@ trait CrossdataHttpService extends BaseHttpService {
         for {
           response <- (supervisor ? FindAllTables(user))
             .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
-        } yield response match {
-          case Left(Success(tables)) =>
-            context.complete(tables)
-          case Left(Failure(e)) =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-              s"Impossible to list all tables in Crossdata Context. Error: ${e.getLocalizedMessage}"))
-          case Right(UnauthorizedResponse(exception)) =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-              s"Impossible to list all tables in Crossdata Context. Error: ${exception.getLocalizedMessage}"))
-          case _ =>
-            context.complete(ErrorModel.CrossdataService, new ErrorModel(ErrorModel.CrossdataService.toString,
-              s"Unexpected behaviour in catalog"))
-        }
+        } yield manageGetResponse(context, CrossdataServiceListTables, response, genericError)
       }
     }
   }
@@ -122,19 +103,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? FindTables(tablesRequest, user))
                 .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
-            } yield response match {
-              case Left((Success(tables))) =>
-                tables
-              case Left((Failure(e))) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to list tables in Crossdata Context. Error: ${e.getLocalizedMessage}")))
-              case Right(UnauthorizedResponse(exception)) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to list tables in Crossdata Context. Error: ${exception.getLocalizedMessage}")))
-              case _ =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"IUnexpected behaviour in catalog.")))
-            }
+            } yield managePostResponse(CrossdataServiceListTables, response, genericError)
           }
         }
       }
@@ -163,21 +132,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? DescribeTable(tableInfoRequest, user))
                 .mapTo[Either[Try[Array[Column]], UnauthorizedResponse]]
-            } yield response match {
-              case Left((Success(columns))) =>
-                columns
-              case Left((Failure(e))) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to list columns in Crossdata Context associated to table:" +
-                    s" ${tableInfoRequest.tableName}. Error: ${e.getLocalizedMessage}")))
-              case Right(UnauthorizedResponse(exception)) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to list columns in Crossdata Context associated to table:" +
-                    s" ${tableInfoRequest.tableName}. Error: ${exception.getLocalizedMessage}")))
-              case _ =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"IUnexpected behaviour in catalog.")))
-            }
+            } yield managePostResponse(CrossdataServiceListColumns, response, genericError)
           }
         }
       }
@@ -205,19 +160,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? ExecuteQuery(queryRequest, user))
                 .mapTo[Either[Try[Array[Map[String, Any]]], UnauthorizedResponse]]
-            } yield response match {
-              case Left((Success(rows))) =>
-                rows
-              case Left((Failure(e))) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to execute query in Crossdata Context. Error: ${e.getLocalizedMessage}")))
-              case Right(UnauthorizedResponse(exception)) =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"Impossible to execute query in Crossdata Context. Error: ${exception.getLocalizedMessage}")))
-              case _ =>
-                throw new CrossdataServiceException(ErrorModel.toString(ErrorModel(ErrorModel.CrossdataService.toString,
-                  s"IUnexpected behaviour in catalog.")))
-            }
+            } yield managePostResponse(CrossdataServiceExecuteQuery, response, genericError)
           }
         }
       }

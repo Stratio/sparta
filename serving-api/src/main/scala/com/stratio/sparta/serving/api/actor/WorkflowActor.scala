@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.actor.TemplateActor.ResponseTemplate
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{ResponseWorkflow, TemplateElement, Workflow, WorkflowStatus}
@@ -75,8 +75,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflows(Try(workflowService.deleteAll()).recover {
-      case _: NoNodeException => throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeErrorDeletingWorkflow, s"Error deleting policies")))
+      case _: NoNodeException => throw new ServerException(s"Error deleting policies")
     })
 
     securityActionAuthorizer[ResponseWorkflows](secManagerOpt,
@@ -106,9 +105,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   def find(id: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflow(Try(workflowService.findById(id)).recover {
       case _: NoNodeException =>
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow with id $id.")
-        ))
+        throw new ServerException(s"No workflow with id $id.")
     })
 
     securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
@@ -132,9 +129,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflow(Try(workflowService.update(workflow)).recover {
       case _: NoNodeException =>
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow with name ${workflow.name}.")
-        ))
+        throw new ServerException(s"No workflow with name ${workflow.name}.")
     })
 
     securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> Edit), callback)
@@ -145,10 +140,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
       workflowService.delete(id)
     }.recover {
       case _: NoNodeException =>
-        throw new ServingCoreException(ErrorModel.toString(
-          new ErrorModel(ErrorModel.CodeNotExistsTemplateWithId,
-            s"No workflow with id $id.")
-        ))
+        throw new ServerException(s"No workflow with id $id.")
     })
 
     securityActionAuthorizer[Response](secManagerOpt,

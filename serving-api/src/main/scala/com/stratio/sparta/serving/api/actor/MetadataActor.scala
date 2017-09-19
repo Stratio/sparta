@@ -27,7 +27,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.{BackupRestoreUtils, FileActorUtils}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.InfoHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
@@ -52,7 +52,7 @@ class MetadataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Ac
 
   //The dir where the jars will be saved
   val zkConfig = Try(SpartaConfig.getZookeeperConfig.get)
-    .getOrElse(throw new ServingCoreException("Zookeeper configuration is mandatory"))
+    .getOrElse(throw new ServerException("Zookeeper configuration is mandatory"))
   override val uri = Try(zkConfig.getString("connectionString")).getOrElse(DefaultZKConnection)
   override val connectionTimeout = Try(zkConfig.getInt("connectionTimeout")).getOrElse(DefaultZKConnectionTimeout)
   override val sessionTimeout = Try(zkConfig.getInt("sessionTimeout")).getOrElse(DefaultZKSessionTimeout)

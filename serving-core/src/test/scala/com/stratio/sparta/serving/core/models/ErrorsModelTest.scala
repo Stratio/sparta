@@ -22,20 +22,21 @@ import org.scalatest.{Matchers, WordSpec}
 @RunWith(classOf[JUnitRunner])
 class ErrorsModelTest extends WordSpec with Matchers {
 
-  val error = new ErrorModel("100", "Error 100", None, None)
+  val error = new ErrorModel(100, "100", "Error 100", None, None)
 
   "ErrorModel" should {
 
     "toString method should return the number of the error and the error" in {
       val res = ErrorModel.toString(error)
-      res should be ("""{"i18nCode":"100","message":"Error 100"}""")
+      res should be ("""{"statusCode":100,"errorCode":"100","message":"Error 100"}""")
     }
 
     "toError method should return the number of the error and the error" in {
       val res = ErrorModel.toErrorModel(
         """
           |{
-          | "i18nCode": "100",
+          | "statusCode": 100,
+          | "errorCode": "100",
           | "message": "Error 100"
           |}
         """.stripMargin)

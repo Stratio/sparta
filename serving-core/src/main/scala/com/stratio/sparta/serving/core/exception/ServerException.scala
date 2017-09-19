@@ -15,11 +15,11 @@
  */
 package com.stratio.sparta.serving.core.exception
 
-case class ServingCoreException(msg: String) extends RuntimeException(msg)
+case class ServerException(msg: String) extends RuntimeException(msg)
 
-object ServingCoreException {
+object ServerException {
 
-  def create(msg: String): ServingCoreException = ServingCoreException(msg)
+  def create(msg: String): ServerException = ServerException(msg)
 
-  def create(msg: String, cause: Throwable): Throwable = ServingCoreException(msg).initCause(cause)
+  def create(msg: String, cause: Throwable): Throwable = ServerException(msg).initCause(cause)
 }

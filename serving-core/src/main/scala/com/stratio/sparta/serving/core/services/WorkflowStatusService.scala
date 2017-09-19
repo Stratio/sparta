@@ -19,7 +19,7 @@ package com.stratio.sparta.serving.core.services
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
@@ -37,8 +37,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(statusPath))
         read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-      else throw new ServingCoreException(
-        ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status with id $id.")))
+      else throw new ServerException(s"No workflow status with id $id.")
     }
 
   def findAll(): Try[Seq[WorkflowStatus]] =
@@ -117,9 +116,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         newStatus
       } else create(workflowStatus)
-        .getOrElse(throw new ServingCoreException(
-          ErrorModel.toString(new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId,
-            s"Unable to create workflow status with id ${workflowStatus.id}."))))
+        .getOrElse(throw new ServerException(s"Unable to create workflow status with id ${workflowStatus.id}."))
     }
   }
 
@@ -131,8 +128,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         log.info(s"Deleting status $id")
         curatorFramework.delete().forPath(statusPath)
-      } else throw new ServingCoreException(ErrorModel.toString(
-        new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status found with id: $id.")))
+      } else throw new ServerException(s"No workflow status found with id: $id.")
     }
 
   def deleteAll(): Try[_] =
@@ -149,8 +145,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
           if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
             log.info(s"Deleting status ${workflowStatus.id} >")
             curatorFramework.delete().forPath(statusPath)
-          } else throw new ServingCoreException(ErrorModel.toString(
-            new ErrorModel(ErrorModel.CodeNotExistsWorkflowWithId, s"No workflow status found with id: ${workflowStatus.id}.")))
+          } else throw new ServerException(s"No workflow status found with id: ${workflowStatus.id}.")
         })
       }
     }

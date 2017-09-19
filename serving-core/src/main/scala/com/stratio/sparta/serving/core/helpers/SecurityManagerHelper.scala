@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.helpers
 
 import com.stratio.gosec.dyplon.plugins.sparta.GoSecSpartaSecurityManager
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.config.SpartaConfig._
 import com.stratio.sparta.serving.core.constants.AppConstant._
-import com.stratio.sparta.serving.core.exception.ServingCoreException
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.typesafe.config.Config
+import spray.http.StatusCodes
 
 import scala.util.{Failure, Success, Try}
 
@@ -32,9 +35,9 @@ object SecurityManagerHelper {
       log.warn("Authorization is not enabled, configure a security manager if needed")
       None
     } else {
-          val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
-          secManager.start
-          Some(secManager)
+      val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]
+      secManager.start
+      Some(secManager)
     }
 
   def isSecurityManagerEnabled: Boolean = Try(getSecurityConfig.get.getBoolean("manager.enabled")) match {
@@ -50,22 +53,32 @@ object SecurityManagerHelper {
   def errorResponseAuthorization(userId: String, resource: String): UnauthorizedResponse = {
     val msg = s"Unauthorized action on resource: $resource. User $userId doesn't have enough permissions."
     log.warn(msg)
-    UnauthorizedResponse(ServingCoreException(ErrorModel.toString(ErrorModel(ErrorModel.UnauthorizedAction, msg))))
+    UnauthorizedResponse(ServerException(ErrorModel.toString(ErrorModel(
+      StatusCodes.Unauthorized.intValue,
+      StatusCodes.Unauthorized.intValue.toString,
+      ErrorCodesMessages.getOrElse(StatusCodes.Unauthorized.intValue.toString, UnknownError),
+      Option(msg)
+    ))))
   }
 
   def errorNoUserFound(actions: Seq[Action]): UnauthorizedResponse = {
     val msg = s"Authorization rejected for actions: $actions. No user was found."
     log.warn(msg)
-    UnauthorizedResponse(ServingCoreException(ErrorModel.toString(ErrorModel(ErrorModel.UserNotFound, msg))))
+    UnauthorizedResponse(ServerException(ErrorModel.toString(ErrorModel(
+      StatusCodes.InternalServerError.intValue,
+      UserNotFound,
+      ErrorCodesMessages.getOrElse(UserNotFound, UnknownError),
+      Option(msg)
+    ))))
   }
 
-  case class UnauthorizedResponse(exception : ServingCoreException)
+  case class UnauthorizedResponse(exception: ServerException)
 
-  implicit def resourceParser (resource : String) : Resource = {
+  implicit def resourceParser(resource: String): Resource = {
     resource match {
       case "input" => Resource(InputResource, resource)
-      case "output" => Resource(OutputResource,resource)
-      case "policy" => Resource(PolicyResource,resource)
+      case "output" => Resource(OutputResource, resource)
+      case "policy" => Resource(PolicyResource, resource)
       case "plugin" => Resource(PluginResource, resource)
       case "context" => Resource(ContextResource, resource)
       case "driver" => Resource(DriverResource, resource)
