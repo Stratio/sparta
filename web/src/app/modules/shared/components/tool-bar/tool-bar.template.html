@@ -1,0 +1,21 @@
+<section class="tool-bar">
+    <div class="container">
+        <div class="tools-content">
+            <div class="row">
+                <div class="col-sm-8 left-tools">
+                    <div class="breadcrumb-tool">
+                            <ng-content select="[breadcrumb]"></ng-content>
+                    </div>
+                    <div class="selection-tools">
+                            <ng-content select="[selection-tools]"></ng-content>
+                    </div>
+                </div>
+                <div class="col-sm-4 right-tools">
+                    <div class="general-tools">
+                        <ng-content select="[general-tools]"></ng-content>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

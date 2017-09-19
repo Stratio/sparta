@@ -1,0 +1,53 @@
+  {
+    "name": "FileSystem",
+    "modelType": "FileSystem",
+    "description": {
+      "short": "Saves the processed data to file into any storage service",
+      "long": "This output enables you to save the processed data in any HDFS-compatible storage service such as HDFS itself, Amazon S3, Azure or locally.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Filesystem"
+    },
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-filesystem-path"
+      },
+      {
+        "propertyId": "outputFormat",
+        "propertyName": "_OUTPUT_FORMAT_",
+        "propertyType": "select",
+        "regexp": "json|row",
+        "values": [
+          {
+            "label": "Json",
+            "value": "json"
+          },
+          {
+            "label": "Row",
+            "value": "row"
+          }
+        ],
+        "default": "json",
+        "required": true,
+        "tooltip": "Sets whether the output should be written as Json or plain text with just the row values.",
+        "qa": "fragment-details-filesystem-format"
+      },
+      {
+        "propertyId": "delimiter",
+        "propertyName": "_DELIMITER_",
+        "propertyType": "text",
+        "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
+        "maxLength": "1",
+        "default": ",",
+        "trim": false,
+        "required": false,
+        "qa": "fragment-details-filesystem-delimiter"
+      }
+    ]
+  }

@@ -1,0 +1,6 @@
+<section class="workflow-wizard">
+    <div class="wizard-content">
+        <wizard-editor></wizard-editor>
+    </div>
+    <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
+</section>

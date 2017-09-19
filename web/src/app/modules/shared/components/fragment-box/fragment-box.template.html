@@ -1,0 +1,16 @@
+<section class="fragment-box" [ngClass]="{'checked' : isChecked}">
+   <div class="fragment-box-header fragment-line">
+         
+      <st-checkbox class="selected-fragment" [value]="fragmentData" (change)="onChecked.emit($event)" [checked]="isChecked"></st-checkbox>
+      <span class="name">
+        <i [ngClass]="utilsService.getFragmentIcon(fragmentData.templateType)" class="fragment-icon"></i>
+        {{fragmentData.name}}
+        
+        </span>
+   </div>
+   <div class="fragment-box-body">
+      <span class="description">
+            {{fragmentData.description}}
+        </span>
+   </div>
+</section>

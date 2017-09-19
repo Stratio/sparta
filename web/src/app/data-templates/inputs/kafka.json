@@ -1,0 +1,362 @@
+  {
+    "name": "Kafka",
+    "modelType": "Kafka",
+    "description": {
+      "short": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
+      "long": "There is available in Sparta, a Kafka 0.10 version with security",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
+
+    },
+    "properties": [
+      {
+        "propertyId": "bootstrap.servers",
+        "propertyName": "_BOOTSTRAP_SERVERS_",
+        "propertyType": "list",
+        "width": 12,
+        "default": "",
+        "required": true,
+        "hidden": false,
+        "limit": 0,
+        "tooltip": "",
+        "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
+        "fields": [
+          {
+            "propertyId": "host",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "required": true,
+            "tooltip": "Server address.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-broker"
+          },
+          {
+            "propertyId": "port",
+            "propertyName": "_PORT_",
+            "propertyType": "text",
+            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+            "default": "9092",
+            "required": true,
+            "tooltip": "Server port.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-port"
+          }
+        ]
+      },
+      {
+        "propertyId": "group.id",
+        "propertyName": "_GROUP_ID_",
+        "propertyType": "text",
+        "default": "sparta",
+        "required": false,
+        "tooltip": "Identifies the consumer group this consumer belongs to.",
+        "qa": "fragment-details-stratio-kafkadirect-group-id"
+      },
+      {
+        "propertyId": "topics",
+        "propertyName": "_TOPICS_",
+        "propertyType": "list",
+        "width": 12,
+        "default": "",
+        "required": true,
+        "hidden": false,
+        "limit": 0,
+        "tooltip": "Kafka topic name. At least one is required.",
+        "qa": "fragment-details-stratio-kafkadirect-topics",
+        "fields": [
+          {
+            "propertyId": "topic",
+            "propertyName": "_TOPIC_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "required": true,
+            "tooltip": "Topic to connect.",
+            "hidden": false,
+            "qa": "fragment-details-stratio-kafkadirect-topic"
+          }
+        ]
+      },
+      {
+        "propertyId": "key.deserializer",
+        "propertyName": "_KEY_DESERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          }
+        ],
+        "default": "string",
+        "required": true,
+        "qa": "fragment-details-stratiokafkadirect-key-deserializer"
+      },
+      {
+        "propertyId": "value.deserializer",
+        "propertyName": "_VALUE_DESERIALIZER_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "String",
+            "value": "string"
+          },
+          {
+            "label": "Int",
+            "value": "int"
+          },
+          {
+            "label": "Long",
+            "value": "long"
+          },
+          {
+            "label": "Double",
+            "value": "double"
+          },
+          {
+            "label": "Bytes",
+            "value": "bytes"
+          },
+          {
+            "label": "Array Byte",
+            "value": "arraybyte"
+          },
+          {
+            "label": "Byte Buffer",
+            "value": "bytebuffer"
+          }
+        ],
+        "default": "string",
+        "required": true,
+        "qa": "fragment-details-stratiokafkadirect-value-deserializer"
+      },
+      {
+        "propertyId": "partition.assignment.strategy",
+        "propertyName": "_PARTITION_STRATEGY_",
+        "propertyType": "select",
+        "values": [
+          {
+            "label": "Range",
+            "value": "range"
+          },
+          {
+            "label": "Round Robin",
+            "value": "roundrobin"
+          }
+        ],
+        "default": "range",
+        "required": true,
+        "qa": "fragment-details-stratiokafkadirect-partition-assignment-strategy"
+      },
+      {
+        "propertyId": "locationStrategy",
+        "propertyName": "_LOCATION_STRATEGY_",
+        "propertyType": "select",
+        "tooltip" : "",
+        "values": [
+          {
+            "label": "Prefer Consistent",
+            "value": "preferconsistent"
+          },
+          {
+            "label": "Prefer Brokers",
+            "value": "preferbrokers"
+          }
+        ],
+        "default": "preferconsistent",
+        "tooltip": "PreferConsistent will distribute partitions evenly across available executors. If your executors are on the same hosts as your Kafka brokers, use PreferBrokers",
+        "required": true,
+        "qa": "fragment-details-stratiokafkadirect-locationStrategy"
+      },
+      {
+        "propertyId": "auto.offset.reset",
+        "propertyName": "_KAFKA_AUTO_OFFSET_",
+        "propertyType": "select",
+        "tooltip" : "Auto offset reset",
+        "values": [
+          {
+            "label": "Earliest",
+            "value": "earliest"
+          },
+          {
+            "label": "Latest",
+            "value": "latest"
+          }
+        ],
+        "default": "latest",
+        "required": true,
+        "tooltip": "earliest : automatically reset the offset to the earliest offset. latest : automatically reset the offset to the latest offset",
+        "qa": "fragment-details-stratiokafkadirect-auto-offset"
+      },
+      {
+        "propertyId": "enable.auto.commit",
+        "propertyName": "_KAFKA_ENABLE_AUTOCOMMIT_",
+        "propertyType": "boolean",
+        "tooltip": "If true the consumer's offset will be periodically committed in the background",
+        "default": false,
+        "qa": "fragment-details-kafka-enable-autocommit"
+      },
+      {
+        "propertyId": "storeOffsetInKafka",
+        "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
+        "propertyType": "boolean",
+        "tooltip": "It's mandatory to disable the auto commit",
+        "default": true,
+        "visible": [
+          [
+            {
+              "propertyId": "enable.auto.commit",
+              "value": false
+            }
+          ]
+        ],
+        "qa": "fragment-details-kafka-offset-in-kafka"
+      },
+      {
+        "propertyId": "vaultTLSEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
+        "default": false,
+        "qa": "fragment-details-kafka-tls"
+      },
+      {
+        "propertyId": "vaultRole",
+        "propertyName": "_KAFKA_VAULT_ROLE_",
+        "propertyType": "text",
+        "tooltip": "Example: sparta-job",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultRole"
+      },
+      {
+        "propertyId": "vaultCertPath",
+        "propertyName": "_KAFKA_CERT_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPath"
+      },
+      {
+        "propertyId": "vaultCertPassPath",
+        "propertyName": "_KAFKA_CERT_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPassPath"
+      },
+      {
+        "propertyId": "vaultKeyPassPath",
+        "propertyName": "_KAFKA_KEY_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultKeyPassPath"
+      },
+      {
+        "propertyId": "vaultTrustStorePath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
+      },
+      {
+        "propertyId": "vaultTrustStorePassPath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
+      },
+      {
+        "propertyId": "kafkaProperties",
+        "propertyName": "_KAFKA_PROPERTIES_",
+        "propertyType": "list",
+        "width": 12,
+        "default": "",
+        "required": false,
+        "tooltip": "Values set here will override the ones in the default configuration.",
+        "qa": "fragment-details-kafka-properties",
+        "fields": [
+          {
+            "propertyId": "kafkaPropertyKey",
+            "propertyName": "_KAFKA_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyKey"
+          },
+          {
+            "propertyId": "kafkaPropertyValue",
+            "propertyName": "_KAFKA_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyValue"
+          }
+        ]
+      }
+    ]
+  }

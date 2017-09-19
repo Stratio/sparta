@@ -1,0 +1,36 @@
+.menu-filters{
+    vertical-align: top;
+    display: inline-block;
+    border-right: 2px solid rgba(181, 181, 181, 1);
+    padding-bottom:8px;
+    padding-right: 4px;
+    margin-right: 7px;
+}
+
+.menu-actions {
+    vertical-align: top;
+    display:inline-block;
+    padding-bottom:8px;
+}
+
+.workflow-list{
+    flex: 1;
+}
+
+.workflow-table{
+    display: block;
+    margin-top:30px;
+}
+    
+.display-options, .search-filter{
+    padding-right: 8px;
+    vertical-align: top;
+    display:inline-block;
+}
+
+.workflow-detail-container{
+
+   
+    min-height: 100%;
+
+}

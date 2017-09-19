@@ -1,0 +1,27 @@
+.entity {
+    cursor: move;
+    &.active {
+        -webkit-filter: drop-shadow(0 1px 10px rgba(113,158,206,0.8));
+        filter: url(#drop-shadow);
+    }
+}
+.entity-name {
+   fill: #0f1b27;
+   font-family: "NunitoSans";
+   font-size: 14px;
+   font-weight: 300;
+   cursor: move;
+   letter-spacing: -0.6px;
+   user-select: none;
+}
+
+.entity-icon {
+    font-family: ico_stratio;
+    font-size:25px;
+    user-select: none;
+    cursor: move;
+}
+
+.output-point, .entry-point{
+    user-select: none;
+}

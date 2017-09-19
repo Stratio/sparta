@@ -3,8 +3,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.stratio.sparta</groupId>
         <artifactId>parent</artifactId>
+        <groupId>com.stratio.sparta</groupId>
         <version>1.8.0-SNAPSHOT</version>
     </parent>
 
@@ -13,9 +13,9 @@
     <name>Stratio Sparta Front</name>
 
     <properties>
-        <nodeVer>v0.12.2</nodeVer>
-        <npmVer>2.7.4</npmVer>
-        <nodeURL></nodeURL>
+        <nodeVer>v8.1.2</nodeVer>
+        <npmVer>3.8.8</npmVer>
+        <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
         <customnodeDownloadRoot></customnodeDownloadRoot>
         <customnpmDownloadRoot></customnpmDownloadRoot>
         <customnpmRegistryURL></customnpmRegistryURL>
@@ -23,7 +23,7 @@
 
     <build>
         <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
+        <testSourceDirectory>src</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -51,31 +51,30 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <npmRegistryURL>${customnpmRegistryURL}</npmRegistryURL>
-                            <arguments>install --production --no-optional</arguments>
-                            <skip.npm>${skip.npm}</skip.npm>
+                            <npmRegistryURL>http://sodio.stratio.com/repository/publicnpm/</npmRegistryURL>
+                            <arguments>install --loglevel=error --depth=0</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>grunt build</id>
+                        <id>webpack build</id>
                         <goals>
-                            <goal>grunt</goal>
+                            <goal>npm</goal>
                         </goals>
                         <phase>compile</phase>
                         <configuration>
-                            <arguments>build --no-color</arguments>
-                            <skip.grunt>${skip.grunt}</skip.grunt>
+                            <arguments>run-script build</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>karma test</id>
+                        <id>npm test</id>
                         <goals>
-                            <goal>karma</goal>
+                            <goal>npm</goal>
                         </goals>
                         <phase>test</phase>
-			<configuration>
+			            <configuration>
               		    <skip.karma>${skipUTs}</skip.karma>
-            		</configuration>
+                          <arguments>run-script test</arguments>
+            		    </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -122,13 +121,13 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>grunt-serve</id>
+                                <id>npm start</id>
                                 <goals>
-                                    <goal>grunt</goal>
+                                    <goal>npm</goal>
                                 </goals>
                                 <phase>generate-resources</phase>
                                 <configuration>
-                                    <arguments>serve</arguments>
+                                     <arguments>run-script start</arguments>
                                 </configuration>
                             </execution>
                         </executions>

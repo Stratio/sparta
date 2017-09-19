@@ -1,0 +1,103 @@
+  {
+    "name": "Http",
+    "modelType": "Http",
+    "description": {
+      "short": "Enables you to do POST requests to a certain URL",
+      "long": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with a parameter name or attached in the request body.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-HTTPPost"
+    },
+    "properties": [
+      {
+        "propertyId": "url",
+        "propertyName": "_URL_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-http-url"
+      },
+      {
+        "propertyId": "connTimeout",
+        "propertyName": "_CONN_TIMEOUT_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": 1000,
+        "required": false,
+        "tooltip": "Value for the connection timeout. Default to 1000ms.",
+        "qa": "fragment-details-http-output-conn-timeout"
+      },
+      {
+        "propertyId": "readTimeout",
+        "propertyName": "_READ_TIMEOUT_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": 5000,
+        "required": false,
+        "tooltip": "Value for the read timeout. Default to 5000ms.",
+        "qa": "fragment-details-http-output-read-timeout"
+      },
+      {
+        "propertyId": "outputFormat",
+        "propertyName": "_OUTPUT_FORMAT_",
+        "propertyType": "select",
+        "regexp": "json|row",
+        "values": [
+          {
+            "label": "Json",
+            "value": "json"
+          },
+          {
+            "label": "Row",
+            "value": "row"
+          }
+        ],
+        "default": "json",
+        "required": true,
+        "tooltip": "Sets whether the output should be given as Json or as a row of String values",
+        "qa": "fragment-details-http-output-format"
+      },
+      {
+        "propertyId": "delimiter",
+        "propertyName": "_DELIMITER_",
+        "propertyType": "text",
+        "tooltip": "Only eligible if Output Format is set to Row. Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
+        "maxLength": "1",
+        "default": ",",
+        "trim": false,
+        "required": false,
+        "qa": "fragment-details-http-delimiter"
+      },
+      {
+        "propertyId": "postType",
+        "propertyName": "_POST_TYPE_",
+        "propertyType": "select",
+        "regexp": "body|parameter",
+        "values": [
+          {
+            "label": "Body",
+            "value": "body"
+          },
+          {
+            "label": "Parameter",
+            "value": "parameter"
+          }
+        ],
+        "default": "body",
+        "required": true,
+        "tooltip": "Sets whether the data should be send in the body or as a named parameter in a form",
+        "qa": "fragment-details-http-post-type"
+      },
+      {
+        "propertyId": "parameterName",
+        "propertyName": "_PARAMETER_NAME_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": false,
+        "tooltip": "Valid only if Post Type is set to parameter. Value entered will be used a key name.",
+        "qa": "fragment-details-http-parameter-name"
+      }
+    ]
+  }

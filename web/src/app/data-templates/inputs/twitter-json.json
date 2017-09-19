@@ -1,0 +1,112 @@
+  {
+    "name": "TwitterJson",
+    "modelType": "TwitterJson",
+    "description": {
+      "short": "Reads events from Twitter stream and return the status in a json.",
+      "long": "http://twitter4j.org/en/index.html",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Twitter"
+    },
+    "properties": [
+      {
+        "propertyId": "consumerKey",
+        "propertyName": "_CONSUMER_KEY_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-twitter-consumerKey"
+      },
+      {
+        "propertyId": "consumerSecret",
+        "propertyName": "_CONSUMER_SECRET_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-twitter-consumerSecret"
+      },
+      {
+        "propertyId": "accessToken",
+        "propertyName": "_ACCESS_TOKEN_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-twitter-accessToken"
+      },
+      {
+        "propertyId": "accessTokenSecret",
+        "propertyName": "_TOKEN_SECRET_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-twitter-accessTokenSecret"
+      },
+      {
+        "propertyId": "termsOfSearch",
+        "propertyName": "_TERMS_OF_SEARCH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": false,
+        "tooltip": "Allows to search tweets based on the words specified here. If none is introduced, the search will be based over global trending topics.",
+        "qa": "fragment-details-twitter-termsOfSearch"
+      },
+      {
+        "propertyId": "storageLevel",
+        "propertyName": "_STORAGELEVEL_",
+        "propertyType": "select",
+        "required": true,
+        "default": "MEMORY_ONLY_SER",
+        "width": 6,
+        "tooltip": "Default Storage Level assigned to Spark Streaming batches.",
+        "qa": "policy-storage-level",
+        "values": [{
+          "label": "DISK_ONLY",
+          "value": "DISK_ONLY"
+        },
+          {
+            "label": "DISK_ONLY_2",
+            "value": "DISK_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY",
+            "value": "MEMORY_ONLY"
+          },
+          {
+            "label": "MEMORY_ONLY_2",
+            "value": "MEMORY_ONLY_2"
+          },
+          {
+            "label": "MEMORY_ONLY_SER",
+            "value": "MEMORY_ONLY_SER"
+          },
+          {
+            "label": "MEMORY_ONLY_SER_2",
+            "value": "MEMORY_ONLY_SER_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK",
+            "value": "MEMORY_AND_DISK"
+          },
+          {
+            "label": "MEMORY_AND_DISK_2",
+            "value": "MEMORY_AND_DISK_2"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER",
+            "value": "MEMORY_AND_DISK_SER"
+          },
+          {
+            "label": "MEMORY_AND_DISK_SER_2",
+            "value": "MEMORY_AND_DISK_SER_2"
+          }
+        ]
+      }
+    ]
+  }

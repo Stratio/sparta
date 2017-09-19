@@ -1,0 +1,8 @@
+<div class="message-notification">
+   <div class="notification-container">
+      <div [ngClass]="notification.type" *ngIf="notification && notification.message && notification.message.length">
+         <i class="icon icon-circle-cross"></i>
+         <span class="message">{{notification.message | translate}}</span>
+      </div>
+   </div>
+</div>

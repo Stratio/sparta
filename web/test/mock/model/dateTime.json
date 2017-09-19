@@ -1,9 +1,0 @@
-{
-  "type": "DateTime",
-  "outputFields":[{"name":"output1"}, {"name":"output2"}],
-  "configuration":{"fake attribute": "fake",
-    "granularityNumber" : "25",
-    "granularityTime" : "ms"},
-  "inputField": "fake inputField",
-  "order": 0
-}

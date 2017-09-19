@@ -1,0 +1,14 @@
+@import '~@stratio/egeo-ui-base/utils/colors';
+@import '~@stratio/egeo-ui-base/utils/grid';
+.main {
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+   width: 100%;
+   min-width: egeo-get-vmin() + rem;
+   box-shadow: 0px 0px 35px rgba(0, 0, 0, 0.21);
+   .content {
+      padding-top: 70px;
+   }
+}

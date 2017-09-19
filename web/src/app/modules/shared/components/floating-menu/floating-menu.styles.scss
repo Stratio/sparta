@@ -1,0 +1,25 @@
+:host {
+   display: inline-block;
+}
+
+.action-button {
+   position: relative;
+   display: inline-block;
+}
+
+.action-link {
+   cursor: pointer;
+   display: inline-block;
+   position: relative;
+}
+
+.menu-options {
+   position: absolute;
+   z-index: 10;
+   display: none;
+   top: 100%;
+   margin-left: 3px;
+   &.active {
+      display: block;
+   }
+}

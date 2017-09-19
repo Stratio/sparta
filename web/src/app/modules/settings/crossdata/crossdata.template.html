@@ -1,0 +1,20 @@
+<div>
+   <div #backupsModal qaTag="backup-modal"></div>
+   <div class="container">
+      <div class="row center">
+         <div class="col-xs-12">
+            <st-page-title preTitle="{{ 'GLOBAL.SETTINGS' | translate }}" title="{{ 'GLOBAL.CROSSDATA' | translate }}" qaTag="title">
+               <div class="menu-options">
+
+               </div>
+            </st-page-title>
+         </div>
+      </div>
+      <br>
+      <div>
+         <st-horizontal-tabs [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
+      </div>
+      <crossdata-tables *ngIf="activeMenuOption === 'CATALOG'"></crossdata-tables>
+      <crossdata-queries *ngIf="activeMenuOption === 'QUERIES'"></crossdata-queries>
+   </div>
+</div>

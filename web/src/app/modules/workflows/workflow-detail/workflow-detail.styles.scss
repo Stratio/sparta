@@ -1,0 +1,36 @@
+:host{
+    display:block;
+}
+
+h3 {
+   font-size: 28px;
+   font-weight: bold;
+   line-height: 1.25;
+   text-align: left;
+   color: #555555;
+}
+
+.not-selected {
+   text-align: center;
+   .workflow-detail-image {
+      width: 130px;
+   }
+}
+
+.title {
+   text-transform: uppercase;
+   font-size: 14px;
+   font-weight: 600;
+   line-height: 1.43;
+   margin-top:10px;
+   display: block;
+   color: #aab7c4;
+}
+
+.values {
+   display: block;
+}
+
+.status {
+   .notstarted {}
+}
