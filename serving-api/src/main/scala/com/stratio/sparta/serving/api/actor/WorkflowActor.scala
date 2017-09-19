@@ -73,17 +73,6 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
     securityActionAuthorizer[ResponseWorkflows](secManagerOpt, user, Map(ResourcePol -> View), callback)
   }
 
-  def deleteAll(user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflows(Try(workflowService.deleteAll()).recover {
-      case _: NoNodeException => throw new ServerException(s"Error deleting policies")
-    })
-
-    securityActionAuthorizer[ResponseWorkflows](secManagerOpt,
-      user,
-      Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete),
-      callback)
-  }
-
   def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit = {
     def callback() = ResponseWorkflows(
       Try(workflowService.findByTemplateType(fragmentType)).recover {
@@ -132,20 +121,24 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
         throw new ServerException(s"No workflow with name ${workflow.name}.")
     })
 
-    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> Edit), callback)
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourcePol -> Edit), callback)
   }
 
   def delete(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try {
-      workflowService.delete(id)
-    }.recover {
-      case _: NoNodeException =>
-        throw new ServerException(s"No workflow with id $id.")
-    })
+    def callback() = Response(workflowService.delete(id))
 
     securityActionAuthorizer[Response](secManagerOpt,
       user,
       Map(ResourcePol -> Delete, ResourceCP -> Delete),
+      callback)
+  }
+
+  def deleteAll(user: Option[LoggedUser]): Unit = {
+    def callback() = Response(workflowService.deleteAll())
+
+    securityActionAuthorizer[Response](secManagerOpt,
+      user,
+      Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete),
       callback)
   }
 

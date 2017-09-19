@@ -22,17 +22,18 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ListenerService, LauncherService, SparkSubmitService, WorkflowStatusService}
-import com.stratio.sparta.serving.core.utils.{RequestUtils, SchedulerUtils}
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services._
+import com.stratio.sparta.serving.core.utils.SchedulerUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.launcher.SparkLauncher
 
 import scala.util.{Failure, Success, Try}
 
 class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
-  with SchedulerUtils with RequestUtils {
+  with SchedulerUtils{
 
+  private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val clusterListenerService = new ListenerService(curatorFramework)
   private val launcherService = new LauncherService(curatorFramework)
@@ -62,7 +63,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       val pluginsFiles = sparkSubmitService.userPluginsJars
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
-      val submitRequest = WorkflowExecution(
+      val executionSubmit = WorkflowExecution(
         workflow.id.get,
         SpartaDriverClass,
         driverFile,
@@ -74,7 +75,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl),
         Option(sparkHome)
       )
-      createRequest(submitRequest)
+      executionService.create(executionSubmit)
     } match {
       case Failure(exception) =>
         val information = s"An error was encountered while initializing the Sparta submit options"
@@ -87,7 +88,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         ))
         self ! PoisonPill
       case Success(Failure(exception)) =>
-        val information = s"An error was encountered while creating a submit request in the persistence"
+        val information = s"An error was encountered while creating an execution submit in the persistence"
         log.error(information, exception)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,

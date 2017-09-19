@@ -137,7 +137,8 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val children = curatorFramework.getChildren.forPath(statusPath)
         val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[WorkflowStatus](new String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowStatusesZkPath}/$element")))
+          read[WorkflowStatus](new String(curatorFramework.getData.forPath(
+            s"${AppConstant.WorkflowStatusesZkPath}/$element")))
         )
 
         policiesStatus.foreach(workflowStatus => {

@@ -46,7 +46,8 @@ class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opti
     case AddListener(name, callback) => listenerService.addWorkflowStatusListener(name, callback)
     case AddClusterListeners => listenerService.addClusterListeners(statusService.findAll(), context)
     case DeleteStatus(id, user) => deleteStatus(id, user)
-    case _ => log.info("Unrecognized message in Policy Status Actor")
+
+    case _ => log.info("Unrecognized message in Status Actor")
   }
 
   def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
@@ -72,13 +73,13 @@ class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opti
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
     def callback() = ResponseDelete(statusService.deleteAll())
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
+    securityActionAuthorizer[ResponseDelete](secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }
 
   def deleteStatus(id: String, user: Option[LoggedUser]): Unit = {
    def callback () = ResponseDelete(statusService.delete(id))
 
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
+    securityActionAuthorizer[ResponseDelete](secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }
 
   //scalastyle:on cyclomatic.complexity

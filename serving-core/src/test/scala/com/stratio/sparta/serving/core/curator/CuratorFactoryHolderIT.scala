@@ -45,10 +45,10 @@ class CuratorFactoryHolderIT extends FlatSpec with Matchers with BeforeAndAfter 
       ConfigValueFactory.fromAnyRef(zkTestServer.getConnectString)))
 
     SpartaConfig.initMainConfig(clusterConfig)
-    val instance = CuratorFactoryHolder.getInstance()
-    Option(instance.checkExists().forPath("/test")) match {
+    //val instance = CuratorFactoryHolder.getInstance()
+    Option(CuratorFactoryHolder.getInstance().checkExists().forPath("/test")) match {
       case eb: ExistsBuilder =>
-        instance.delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
+        CuratorFactoryHolder.getInstance().delete().deletingChildrenIfNeeded().forPath(CuratorFactoryHolderIT.PathTestNode)
       case None =>
         log.debug("Test node not created. It is not necessary to delete it.")
     }

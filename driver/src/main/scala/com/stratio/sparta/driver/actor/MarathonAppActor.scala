@@ -17,25 +17,26 @@
 package com.stratio.sparta.driver.actor
 
 import akka.actor.{Actor, Props}
+import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowService, WorkflowStatusService}
-import com.stratio.sparta.serving.core.utils.RequestUtils
+import com.stratio.sparta.serving.core.services.{ExecutionService, ListenerService, WorkflowService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
-  with RequestUtils {
+class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor with SLF4JLogging{
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val listenerService = new ListenerService(curatorFramework)
+  private val executionService = new ExecutionService(curatorFramework)
+
 
   def receive: PartialFunction[Any, Unit] = {
     case StartApp(workflowId) => doStartApp(workflowId)
@@ -63,13 +64,13 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor
             log.debug(s"Obtained workflow: ${workflow.toString}")
             log.debug(s"Closing checker with id: $workflowId and name: ${workflow.name}")
             closeChecker(workflow.id.get, workflow.name)
-            log.debug(s"Obtaining request with workflow id: $workflowId")
-            findRequestById(workflowId) match {
-              case Success(submitRequest) =>
-                log.debug(s"Starting request: ${submitRequest.toString}")
+            log.debug(s"Obtaining execution with workflow id: $workflowId")
+            executionService.findById(workflowId) match {
+              case Success(executionSubmit) =>
+                log.debug(s"Starting execution: ${executionSubmit.toString}")
                 val clusterLauncherActor =
                   context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
-                clusterLauncherActor ! StartWithRequest(workflow, submitRequest)
+                clusterLauncherActor ! StartWithRequest(workflow, executionSubmit)
               case Failure(exception) => throw exception
             }
           } else {

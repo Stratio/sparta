@@ -25,16 +25,17 @@ import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ListenerService, LauncherService, SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
-  with SchedulerUtils with RequestUtils {
+  with SchedulerUtils{
 
+  private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val launcherService = new LauncherService(curatorFramework)
   private val clusterListenerService = new ListenerService(curatorFramework)
@@ -62,7 +63,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
       val pluginsFiles = sparkSubmitService.userPluginsJars
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
-      val submitRequest = WorkflowExecution(
+      val executionSubmit = WorkflowExecution(
         workflow.id.get,
         SpartaDriverClass,
         driverFile,
@@ -74,9 +75,10 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
       )
 
-      createRequest(submitRequest).getOrElse(throw new Exception("Unable to create a submit request in Zookeeper"))
+      executionService.create(executionSubmit).getOrElse(
+        throw new Exception("Unable to create an execution submit in Zookeeper"))
 
-      new MarathonService(context, curatorFramework, workflow, submitRequest)
+      new MarathonService(context, curatorFramework, workflow, executionSubmit)
     } match {
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"

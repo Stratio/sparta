@@ -57,12 +57,14 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
 
   def create(workflow: Workflow): Workflow = {
     val searchWorkflow = existsByName(workflow.name, workflow.id)
+
     if (searchWorkflow.isDefined) {
       throw new ServerException(
         s"Workflow with name ${workflow.name} exists. The actual workflow name is: ${searchWorkflow.get.name}")
     }
+
     val workflowId = addId(workflow)
-    curatorFramework.create().creatingParentsIfNeeded().forPath(
+    curatorFramework.create.creatingParentsIfNeeded.forPath(
       s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
     statusService.update(WorkflowStatus(
       id = workflowId.id.get,
@@ -75,6 +77,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
 
   def update(workflow: Workflow): Workflow = {
     val searchWorkflow = existsByName(workflow.name, workflow.id)
+
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
     } else {
@@ -91,15 +94,36 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     }
   }
 
-  def delete(id: String): Unit = {
-    curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
-    statusService.delete(id)
-  }
+  def delete(id: String): Try[_] =
+    Try {
+      val executionPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
-  def deleteAll(): List[Workflow] =
-    findAll.map { workflow =>
-      delete(workflow.id.get)
-      workflow
+      if(CuratorFactoryHolder.existsPath(executionPath)){
+        log.info(s"Deleting workflow with id: $id")
+        curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
+        statusService.delete(id)
+      } else throw new ServerException(s"No workflow with id $id")
+    }
+
+
+  def deleteAll(): Try[_] =
+    Try{
+      val executionPath = s"${AppConstant.WorkflowsZkPath}"
+
+      if(CuratorFactoryHolder.existsPath(executionPath)){
+        log.info(s"Deleting all existing workflows")
+        val children = curatorFramework.getChildren.forPath(executionPath)
+        val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
+          read[Workflow](new String(curatorFramework.getData.forPath(
+            s"${AppConstant.WorkflowsZkPath}/$workflow")))
+        )
+        workflows.foreach(workflow => {
+          val workflowPath = s"${AppConstant.WorkflowsZkPath}/${workflow.id.get}"
+          if(Option(curatorFramework.checkExists().forPath(workflowPath)).isDefined)
+            delete(workflow.id.get)
+          })
+
+      }
     }
 
   /** PRIVATE METHODS **/
@@ -108,7 +132,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.find { workflow =>
-          if (id.isDefined && workflow.id.isDefined) workflow.id.get == id.get else workflow.name == name.toLowerCase
+          if (id.isDefined && workflow.id.isDefined)
+            workflow.id.get == id.get
+          else workflow.name.toLowerCase == name.toLowerCase
         }
       } else None
     } match {

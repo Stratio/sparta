@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.services
 
 import java.util.UUID
 
@@ -29,77 +29,74 @@ import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
 
-trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
+class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLogging with SpartaSerializer {
 
-  val curatorFramework: CuratorFramework
-
-  def findAllTemplates: List[TemplateElement] = {
-    if (CuratorFactoryHolder.existsPath(TemplatesZkPath)) {
-      val children = curatorFramework.getChildren.forPath(TemplatesZkPath)
-      JavaConversions.asScalaBuffer(children).toList.flatMap(templateType => findTemplatesByType(templateType))
-    } else List.empty[TemplateElement]
-  }
-
-  def findTemplatesByType(templateType: String): List[TemplateElement] = {
+  def findByType(templateType: String): List[TemplateElement] = {
     val templateLocation = templatePathType(templateType)
+
     if (CuratorFactoryHolder.existsPath(templateLocation)) {
       val children = curatorFramework.getChildren.forPath(templateLocation)
-      JavaConversions.asScalaBuffer(children).toList.map(id => findTemplateByTypeAndId(templateType, id))
+      JavaConversions.asScalaBuffer(children).toList.map(id => findByTypeAndId(templateType, id))
     } else List.empty[TemplateElement]
   }
 
-  def findTemplateByTypeAndId(templateType: String, id: String): TemplateElement = {
+  def findByTypeAndId(templateType: String, id: String): TemplateElement = {
     val templateLocation = s"${templatePathType(templateType)}/$id"
+
     if (CuratorFactoryHolder.existsPath(templateLocation)) {
       read[TemplateElement](new String(curatorFramework.getData.forPath(templateLocation)))
     } else throw new ServerException(s"Template type: $templateType and id: $id does not exist")
   }
 
-  def findTemplateByTypeAndName(templateType: String, name: String): Option[TemplateElement] =
-    findTemplatesByType(templateType).find(template => template.name == name)
+  def findByTypeAndName(templateType: String, name: String): Option[TemplateElement] =
+    findByType(templateType).find(template => template.name == name)
 
-  def createTemplate(template: TemplateElement): TemplateElement =
-    findTemplateByTypeAndName(template.templateType, template.name.toLowerCase)
-      .getOrElse(createNewTemplate(template))
+  def findAll: List[TemplateElement] = {
+    if (CuratorFactoryHolder.existsPath(TemplatesZkPath)) {
+      val children = curatorFramework.getChildren.forPath(TemplatesZkPath)
+      JavaConversions.asScalaBuffer(children).toList.flatMap(templateType => findByType(templateType))
+    } else List.empty[TemplateElement]
+  }
 
-  def updateTemplate(template: TemplateElement): TemplateElement = {
+  def create(template: TemplateElement): TemplateElement =
+    findByTypeAndName(template.templateType, template.name.toLowerCase)
+      .getOrElse{
+        val newTemplate = template.copy(id = Option(UUID.randomUUID.toString), name = template.name.toLowerCase)
+        curatorFramework.create().creatingParentsIfNeeded().forPath(
+        s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
+        newTemplate
+      }
+
+  def update(template: TemplateElement): TemplateElement = {
     val newTemplate = template.copy(name = template.name.toLowerCase)
+
     curatorFramework.setData().forPath(
       s"${templatePathType(newTemplate.templateType)}/${template.id.get}", write(newTemplate).getBytes)
     newTemplate
   }
 
-  def deleteAllTemplates(): List[TemplateElement] = {
-    val templatesFound = findAllTemplates
-    templatesFound.foreach(template => {
-      val id = template.id.getOrElse {
-        throw new ServerException(s"Template without id: ${template.name}.")
-      }
-      deleteTemplateByTypeAndId(template.templateType, id)
-    })
-    templatesFound
-  }
-
-  def deleteTemplateByType(templateType: String): Unit = {
+  def deleteByType(templateType: String): Unit = {
     val children = curatorFramework.getChildren.forPath(templatePathType(templateType))
     val templatesFound = JavaConversions.asScalaBuffer(children).toList.map(element =>
       read[TemplateElement](new String(curatorFramework.getData.forPath(
         s"${templatePathType(templateType)}/$element"))))
+
     templatesFound.foreach(template => {
       val id = template.id.getOrElse {
         throw new ServerException(s"Template without id: ${template.name}.")
       }
-      deleteTemplateByTypeAndId(templateType, id)
+      deleteByTypeAndId(templateType, id)
     })
   }
 
-  def deleteTemplateByTypeAndId(templateType: String, id: String): Unit = {
+  def deleteByTypeAndId(templateType: String, id: String): Unit = {
     val templateLocation = s"${templatePathType(templateType)}/$id"
     if (CuratorFactoryHolder.existsPath(templateLocation)) curatorFramework.delete().forPath(templateLocation)
   }
 
-  def deleteTemplateByTypeAndName(templateType: String, name: String): Unit = {
-    val templateFound = findTemplateByTypeAndName(templateType, name)
+  def deleteByTypeAndName(templateType: String, name: String): Unit = {
+    val templateFound = findByTypeAndName(templateType, name)
+
     if (templateFound.isDefined && templateFound.get.id.isDefined) {
       val id = templateFound.get.id.get
       val templateLocation = s"${templatePathType(templateType)}/$id"
@@ -111,19 +108,18 @@ trait TemplateUtils extends SLF4JLogging with SpartaSerializer {
     }
   }
 
-  /* PRIVATE METHODS */
-
-  private def createNewTemplate(template: TemplateElement): TemplateElement = {
-    val newTemplate = template.copy(
-      id = Option(UUID.randomUUID.toString),
-      name = template.name.toLowerCase
-    )
-    curatorFramework.create().creatingParentsIfNeeded().forPath(
-      s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
-
-    newTemplate
+  def deleteAll(): List[TemplateElement] = {
+    val templatesFound = findAll
+    templatesFound.foreach(template => {
+      val id = template.id.getOrElse {
+        throw new ServerException(s"Template without id: ${template.name}.")
+      }
+      deleteByTypeAndId(template.templateType, id)
+    })
+    templatesFound
   }
 
+  /* PRIVATE METHODS */
   private def templatePathType(templateType: String): String = {
     templateType match {
       case "input" => s"$TemplatesZkPath/input"

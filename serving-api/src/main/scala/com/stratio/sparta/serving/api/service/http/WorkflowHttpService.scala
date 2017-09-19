@@ -220,11 +220,11 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
             workflows <- (supervisor ? DeleteAll(user))
-              .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
+              .mapTo[Either[Response, UnauthorizedResponse]]
           } yield workflows match {
-            case Left(ResponseWorkflows(Failure(exception))) =>
+            case Left(Response(Failure(exception))) =>
               throw exception
-            case Left(ResponseWorkflows(Success(_))) =>
+            case Left(Response(Success(_))) =>
               for {
                 response <- (statusActor ? StatusActor.DeleteAll(user))
                   .mapTo[Either[ResponseDelete, UnauthorizedResponse]]

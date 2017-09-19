@@ -24,7 +24,7 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor.{TemplateActor, RequestActor, StatusActor}
+import com.stratio.sparta.serving.core.actor.{TemplateActor, ExecutionActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -54,7 +54,7 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       val policyActor = system.actorOf(RoundRobinPool(DefaultInstances)
         .props(Props(new WorkflowActor(curatorFramework, statusActor, secManager))), WorkflowActorName)
       val executionActor = system.actorOf(RoundRobinPool(DefaultInstances)
-        .props(Props(new RequestActor(curatorFramework, secManager))), ExecutionActorName)
+        .props(Props(new ExecutionActor(curatorFramework, secManager))), ExecutionActorName)
       val scService = StreamingContextService(curatorFramework)
       val launcherActor = system.actorOf(RoundRobinPool(DefaultInstances)
         .props(Props(new LauncherActor(scService, curatorFramework, secManager))), LauncherActorName)

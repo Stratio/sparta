@@ -19,24 +19,25 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.Actor
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.TemplateActor._
-import com.stratio.sparta.serving.core.exception.{ServerException, ServerException$}
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, TemplateType}
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, TemplateUtils}
+import com.stratio.sparta.serving.core.services.TemplateService
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes
-import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
 class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with Json4sJacksonSupport with TemplateUtils with ActionUserAuthorize {
+  extends Actor with ActionUserAuthorize {
 
   //TODO change dyplon to new names: policy -> workflow
-  val PolicyResource = "policy"
+  private val templateService = new TemplateService(curatorFramework)
+  private val PolicyResource = "policy"
 
   //scalastyle:off
   override def receive: Receive = {
@@ -60,40 +61,40 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
       case (Some(secManager), Some(userLogged)) =>
         if (secManager.authorize(userLogged.id, TemplateType.InputValue, View) &&
           secManager.authorize(userLogged.id, TemplateType.OutputValue, View))
-          sender ! Left(ResponseTemplates(Try(findAllTemplates))) // [T]
+          sender ! Left(ResponseTemplates(Try(templateService.findAll))) // [T]
         else
           sender ! Right(errorResponseAuthorization(userLogged.id, PolicyResource))
       case (Some(_), None) => sender ! Right(errorNoUserFound(Seq(View)))
-      case (None, _) => sender ! Left(ResponseTemplates(Try(findAllTemplates)))
+      case (None, _) => sender ! Left(ResponseTemplates(Try(templateService.findAll)))
     }
 
   def findByType(fragmentType: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplates(Try(findTemplatesByType(fragmentType)))
+    def callback() = ResponseTemplates(Try(templateService.findByType(fragmentType)))
 
     securityActionAuthorizer[ResponseTemplates](secManagerOpt, user, Map(fragmentType -> View), callback)
   }
 
   def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(findTemplateByTypeAndId(fragmentType, id)))
+    def callback() = ResponseTemplate(Try(templateService.findByTypeAndId(fragmentType, id)))
 
     securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragmentType -> View), callback)
   }
 
   def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(findTemplateByTypeAndName(fragmentType, name)
+    def callback() = ResponseTemplate(Try(templateService.findByTypeAndName(fragmentType, name)
       .getOrElse(errorTemplateNotFound(fragmentType, name))))
 
     securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragmentType -> View), callback)
   }
 
   def create(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(createTemplate(fragment)))
+    def callback() = ResponseTemplate(Try(templateService.create(fragment)))
 
     securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragment.templateType -> Create), callback)
   }
 
   def update(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(updateTemplate(fragment)))
+    def callback() = Response(Try(templateService.update(fragment)))
 
     securityActionAuthorizer[Response](secManagerOpt,
       user,
@@ -110,15 +111,15 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
           secManager.authorize(userLogged.id, PolicyResource, View) &&
           secManager.authorize(userLogged.id, PolicyResource, Delete)
         )
-          sender ! Left(ResponseTemplates(Try(deleteAllTemplates())))
+          sender ! Left(ResponseTemplates(Try(templateService.deleteAll())))
         else
           sender ! Right(errorResponseAuthorization(userLogged.id, PolicyResource))
       case (Some(_), None) => sender ! Right(errorNoUserFound(Seq(Delete)))
-      case (None, _) => sender ! Left(ResponseTemplates(Try(deleteAllTemplates())))
+      case (None, _) => sender ! Left(ResponseTemplates(Try(templateService.deleteAll())))
     }
 
   def deleteByType(fragmentType: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(deleteTemplateByType(fragmentType)))
+    def callback() = Response(Try(templateService.deleteByType(fragmentType)))
 
     securityActionAuthorizer[Response](secManagerOpt,
       user,
@@ -128,7 +129,7 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
   }
 
   def deleteByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(deleteTemplateByTypeAndId(fragmentType, id)))
+    def callback() = Response(Try(templateService.deleteByTypeAndId(fragmentType, id)))
 
     securityActionAuthorizer[Response](secManagerOpt,
       user,
@@ -137,7 +138,7 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
   }
 
   def deleteByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(deleteTemplateByTypeAndName(fragmentType, name)))
+    def callback() = Response(Try(templateService.deleteByTypeAndName(fragmentType, name)))
 
     securityActionAuthorizer[Response](secManagerOpt,
       user,

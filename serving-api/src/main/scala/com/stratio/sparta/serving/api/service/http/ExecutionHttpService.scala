@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.RequestActor._
+import com.stratio.sparta.serving.core.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel

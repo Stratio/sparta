@@ -18,16 +18,19 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
 import com.stratio.sparta.security.{Create, Delete, Edit, SpartaSecurityManager, View}
-import com.stratio.sparta.serving.core.actor.RequestActor._
+import com.stratio.sparta.serving.core.actor.ExecutionActor._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
-import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, RequestUtils}
+import com.stratio.sparta.serving.core.services.ExecutionService
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
-class RequestActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with RequestUtils with ActionUserAuthorize{
+class ExecutionActor(val curatorFramework: CuratorFramework, val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with ActionUserAuthorize{
 
-  val ResourceType = "context"
+
+  private val executionService = new ExecutionService(curatorFramework)
+  private val ResourceType = "context"
 
   override def receive: Receive = {
     case CreateExecution(request, user) => createExecution(request, user)
@@ -36,43 +39,43 @@ class RequestActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opt
     case FindById(id, user) => findExecutionById(id, user)
     case DeleteAll(user) => deleteAllExecutions(user)
     case DeleteExecution(id, user) => deleteExecution(id, user)
-    case _ => log.info("Unrecognized message in Policy Request Actor")
+    case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
   def createExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
-    def callback() = createRequest(request)
+    def callback() = executionService.create(request)
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
   }
 
   def updateExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
-    def callback() = updateRequest(request)
+    def callback() = executionService.update(request)
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
   }
 
   def findAllExecutions(user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), findAllRequests)
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), executionService.findAll)
   }
 
   def findExecutionById(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = findRequestById(id)
+    def callback() = executionService.findById(id)
 
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
   }
 
   def deleteAllExecutions(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), deleteAllRequests)
+    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), executionService.deleteAll)
 
 
   def deleteExecution(id:String, user: Option[LoggedUser]): Unit = {
-    def callback() = deleteRequest(id)
+    def callback() = executionService.delete(id)
     securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
   }
 
 }
 
-object RequestActor {
+object ExecutionActor {
 
   case class Update(request: WorkflowExecution, user: Option[LoggedUser])
 

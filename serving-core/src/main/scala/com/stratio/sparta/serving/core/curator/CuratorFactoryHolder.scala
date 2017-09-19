@@ -35,6 +35,11 @@ object CuratorFactoryHolder extends SLF4JLogging {
   private var curatorFramework: Option[CuratorFramework] = None
   final val ZKConfigPrefix = AppConstant.ConfigZookeeper
 
+  def setInstance(curatorInstance: CuratorFramework) : Unit = {
+    resetInstance()
+    curatorFramework = Option(curatorInstance)
+  }
+
   /**
     * Gets a new instance of a CuratorFramework if it was not created before.
     * @return a singleton instance of CuratorFramework.
