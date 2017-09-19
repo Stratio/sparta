@@ -63,7 +63,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -249,7 +249,7 @@
 
         <!--Test dependencies-->
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>
