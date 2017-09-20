@@ -25,7 +25,10 @@ hose {
             ],
             ['KAFKA': [
               'image': 'confluent/kafka:0.10.0.0-cp1',
-              'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181', 'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
+              'sleep': 30,
+              'healthcheck': 9092,
+              'env': ['KAFKA_ZOOKEEPER_CONNECT=%%ZOOKEEPER:2181',
+                     'KAFKA_ADVERTISED_HOST_NAME=%%OWNHOSTNAME']
               ]
             ],
             ['HDFS': [
@@ -58,7 +61,7 @@ hose {
 
     ITPARAMETERS = """
       |    -Drabbitmq.hosts=%%RABBITMQ
-      |    -Dkafka.hosts=%%KAFKA:9092
+      |    -Dkafka.hosts=%%KAFKA
       |    -Dsparta.zookeeper.connectionString=%%ZOOKEEPER:2181
       |    -Dsparta.hdfs.hdfsMaster=%%HDFS
       |    -Dsparta.hdfs.hdfsPort=9000
