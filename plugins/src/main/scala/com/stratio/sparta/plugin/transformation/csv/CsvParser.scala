@@ -17,6 +17,7 @@
 package com.stratio.sparta.plugin.transformation.csv
 
 import java.io.{Serializable => JSerializable}
+import java.util.regex.Pattern
 
 import com.stratio.sparta.sdk.pipeline.transformation.Parser
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
@@ -34,6 +35,8 @@ class CsvParser(order: Integer,
 
   val fieldsModel = properties.getPropertiesFields("fields")
   val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
+  val splitLimit = Try(properties.getString("splitLimit").toInt).getOrElse(-1)
+  val delimiterType = DelimiterType.withName(properties.getString("delimiterType", "character").toUpperCase)
 
   //scalastyle:off
   override def parse(row: Row): Seq[Row] = {
@@ -42,16 +45,24 @@ class CsvParser(order: Integer,
       inputValue match {
         case Some(value) =>
           if (value.toString.nonEmpty) {
-            val valuesSplitted = {
-              value match {
+            val valuesSplit = {
+              val valueStr = value match {
                 case valueCast: Array[Byte] => new Predef.String(valueCast)
                 case valueCast: String => valueCast
                 case _ => value.toString
               }
-            }.split(fieldsSeparator, -1)
+              delimiterType match {
+                case DelimiterType.REGEX =>
+                  valueStr.split(Pattern.compile(fieldsSeparator).toString, splitLimit)
+                case DelimiterType.CHARACTER =>
+                  valueStr.split(Pattern.quote(fieldsSeparator), splitLimit)
+                case _ =>
+                  valueStr.split(fieldsSeparator, splitLimit)
+              }
+            }
 
-            if (valuesSplitted.length == fieldsModel.fields.length) {
-              val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplitted).toMap
+            if (valuesSplit.length == fieldsModel.fields.length) {
+              val valuesParsed = fieldsModel.fields.map(_.name).zip(valuesSplit).toMap
               outputFields.map { outputField =>
                 val outputSchemaValid = outputFieldsSchema.find(field => field.name == outputField)
                 outputSchemaValid match {

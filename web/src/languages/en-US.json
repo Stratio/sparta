@@ -1,4 +1,6 @@
 {
+  "_CSV_SPLIT_LIMIT_": "Split Limit",
+  "_CSV_DELIMITER_TYPE_": "Delimiter type",
   "_EVENT_TYPE_": "Event type",
   "_MAX_NUMBER_": "Max number",
   "_EVENT_": "Event",

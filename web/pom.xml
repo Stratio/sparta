@@ -13,9 +13,9 @@
     <name>Stratio Sparta Front</name>
 
     <properties>
-        <nodeVer>v0.12.2</nodeVer>
-        <npmVer>2.7.4</npmVer>
-        <nodeURL></nodeURL>
+      <nodeVer>v8.1.2</nodeVer>
+      <npmVer>3.8.8</npmVer>
+      <nodeURL>http://tools.stratio.com/buildtools</nodeURL>
         <customnodeDownloadRoot></customnodeDownloadRoot>
         <customnpmDownloadRoot></customnpmDownloadRoot>
         <customnpmRegistryURL></customnpmRegistryURL>

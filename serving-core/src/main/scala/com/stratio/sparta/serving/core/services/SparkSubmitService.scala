@@ -17,6 +17,10 @@
 package com.stratio.sparta.serving.core.services
 
 import java.io.{File, Serializable => JSerializable}
+import java.io.File
+import java.io.{Serializable => JSerializable}
+import java.nio.file.{Files, Paths}
+import javax.xml.bind.DatatypeConverter
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
@@ -66,8 +70,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   }
 
   /**
-   * Checks if we have a valid Spark home.
-   */
+    * Checks if we have a valid Spark home.
+    */
   def validateSparkHome: String = {
     val sparkHome = extractSparkHome.notBlank
     require(sparkHome.isDefined,
@@ -95,8 +99,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
     (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
-      addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(addMesosSecurityConf(
-        addPluginsFilesToConf(sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles))))))))
+      addKerberosConfs(addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(
+        addMesosSecurityConf(addPluginsFilesToConf(sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles)))))))))
   }
 
   def userPluginsJars: Seq[String] = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.trim)
@@ -234,6 +238,23 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     sparkConfs ++ sparkConfsReflection
   }
 
+  private[sparta] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+    (workflow.settings.sparkSettings.sparkKerberos,
+      HdfsUtils.getPrincipalName.notBlank,
+      HdfsUtils.getKeyTabPath.notBlank) match {
+      case (true, Some(principalName), Some(keyTabPath)) =>
+        val keyTabBase64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(keyTabPath)))
+        log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab configurations")
+        sparkConfs ++ Map(
+          "spark.hadoop.yarn.resourcemanager.principal" -> principalName,
+          "spark.yarn.principal" -> principalName,
+          "spark.mesos.kerberos.keytabBase64" -> keyTabBase64
+        )
+      case _ =>
+        sparkConfs
+    }
+  }
+
   private[sparta] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val tlsEnable = workflow.settings.sparkSettings.sparkDataStoreTls
     val tlsOptions = {
@@ -352,7 +373,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       HdfsUtils.getPrincipalName.notBlank,
       HdfsUtils.getKeyTabPath.notBlank) match {
       case (true, Some(principalName), Some(keyTabPath)) =>
-        log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments... \n\t")
+        log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments")
         submitArgs ++ Map(SubmitPrincipal -> principalName, SubmitKeyTab -> keyTabPath)
       case _ =>
         submitArgs

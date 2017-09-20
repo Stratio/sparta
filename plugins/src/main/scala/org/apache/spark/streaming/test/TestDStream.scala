@@ -23,7 +23,7 @@ import org.apache.spark.streaming.{StreamingContext, Time}
 
 import scala.reflect.ClassTag
 
-class TestDStream[T: ClassTag](_ssc: StreamingContext, rdd: RDD[T], numEvents: Option[Long] = None)
+class TestDStream[T: ClassTag](@transient _ssc: StreamingContext, rdd: RDD[T], numEvents: Option[Long] = None)
   extends InputDStream[T](_ssc) {
 
   require(rdd != null,
@@ -38,10 +38,9 @@ class TestDStream[T: ClassTag](_ssc: StreamingContext, rdd: RDD[T], numEvents: O
   }
 
   override def compute(validTime: Time): Option[RDD[T]] = {
-    val metadata = Map.empty[String, Any]
     val countEvents = numEvents.getOrElse(rdd.count())
 
-    _ssc.scheduler.inputInfoTracker.reportInfo(validTime, StreamInputInfo(id, countEvents, metadata))
+    _ssc.scheduler.inputInfoTracker.reportInfo(validTime, StreamInputInfo(id, countEvents))
     Some(rdd)
   }
 }

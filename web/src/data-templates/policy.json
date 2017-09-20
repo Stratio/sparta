@@ -1009,6 +1009,34 @@
           "qa": "workflow-transformation-csv-delimiter"
         },
         {
+          "propertyId": "delimiterType",
+          "propertyName": "_CSV_DELIMITER_TYPE_",
+          "propertyType": "select",
+          "values": [
+            {
+              "label": "Character",
+              "value": "CHARACTER"
+            },
+            {
+              "label": "Regex",
+              "value": "REGEX"
+            }
+          ],
+          "default": "CHARACTER",
+          "required": true,
+          "qa": "workflow-transformation-csv-delimiter-type"
+        },
+        {
+          "propertyId": "splitLimit",
+          "propertyName": "_CSV_SPLIT_LIMIT_",
+          "propertyType": "text",
+          "position": "left",
+          "width": 3,
+          "default": "-1",
+          "required": false,
+          "qa": "workflow-transformation-csv-delimiter"
+        },
+        {
           "propertyId": "whenError",
           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
           "propertyType": "select",

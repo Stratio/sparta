@@ -4,6 +4,15 @@
 
 * Pending changelog
 
+## 1.7.5 (September 20, 2017)
+
+* Sending events with a key to a partitioned topic via Kafka Producer (Output)
+* Csv parser delimiter options added
+* Kerberos configurations added to spark submit 
+* Fix kafka and avoid evaluation when writer options is empty
+* Added onFailure and onSuccess actions to be executed after an Output stage
+* Update Stratio Licence
+
 ## 1.7.4 (September 06, 2017)
 
 * Added TLS option to spark settings in workflow
