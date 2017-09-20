@@ -28,7 +28,6 @@
     <artifactId>plugins</artifactId>
 
     <properties>
-        <morphline.version>0.17.0</morphline.version>
         <cassandra.spark.version>2.0.3</cassandra.spark.version>
         <breeze.version>0.11.1</breeze.version>
         <amqp-client.version>3.5.1</amqp-client.version>
@@ -148,27 +147,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-avro</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-saxon</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-protobuf</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kitesdk</groupId>
-            <artifactId>kite-morphlines-json</artifactId>
-            <version>${morphline.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.github.nscala-time</groupId>
             <artifactId>nscala-time_${scala.binary.version}</artifactId>
@@ -246,6 +224,18 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+        </dependency>
 
         <!--Test dependencies-->
         <dependency>
@@ -287,18 +277,6 @@
             <artifactId>amqp-client_${scala.binary.version}</artifactId>
             <version>1.5</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-framework</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
         </dependency>
     </dependencies>
 </project>
