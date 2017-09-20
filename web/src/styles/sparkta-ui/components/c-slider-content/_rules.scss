@@ -1,0 +1,60 @@
+@mixin c-slider-content {
+  @include c-component;
+  overflow: hidden;
+  margin-top: $c-slider-content---margin-top;
+
+  &__backdrop{
+    background-color: $c-slider-content__backdrop---background-color;
+  }
+  &__button {
+    border-radius: $c-slider-content__button---border-radius;
+    width: $c-slider-content__button---width;
+    height: $c-slider-content__button---width;
+    line-height: $c-slider-content__button---line-height;
+    background: $c-slider-content__button---background;
+    border: $c-slider-content__button---border;
+    background: $c-slider-content__button---background;
+    text-align: $c-slider-content__button---text-align;
+    position: $c-slider-content__button---position;
+    font-size: $c-slider-content__button---font-size;
+    top: $c-slider-content__button---top;
+    color: $c-slider-content__button---color;
+    cursor: $c-slider-content__button---cursor;
+    margin:$c-slider-content__button---margin;
+    z-index:$c-slider-content__button---z-index;
+    display:block;
+  }
+
+  &--to-up {
+    background:$c-slider-content--to-up---border-background;
+    border-top: $c-slider-content--to-up---border-top;
+    width: $c-slider-content--to-up---width;
+    -webkit-box-shadow: $c-slider-content--to-up---shadow;
+    -moz-box-shadow: $c-slider-content--to-up---shadow;
+    box-shadow: $c-slider-content--to-up---shadow;
+    position: $c-slider-content--to-up---position;
+    left: $c-slider-content--to-up---left;
+  }
+
+  &.ng-enter,
+  &.ng-leave {
+    -webkit-transition: $c-slider-content---transition;
+    transition: $c-slider-content---transition;
+  }
+
+  &.ng-leave.ng-leave-active,
+  &.ng-move,
+  &.ng-enter {
+    max-height: 0px;
+  }
+
+  &.ng-leave,
+  &.ng-move.ng-move-active,
+  &.ng-enter.ng-enter-active {
+    max-height: $c-slider-content---max-height;
+  }
+}
+
+.c-slider-content {
+  @include c-slider-content;
+}

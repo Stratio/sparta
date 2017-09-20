@@ -1,0 +1,5 @@
+<div class="title" ng-if="title">
+    {{title}}
+</div>
+<div ng-if="hasTransclude" class="submenu-list {{submenuClass}}" ng-class="{'submenu-list--no-title': !title}" ng-transclude>
+</div>

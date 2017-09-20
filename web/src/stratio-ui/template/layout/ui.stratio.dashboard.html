@@ -1,0 +1,54 @@
+<div id="stratio-base"
+	ng-class="{
+		'expanded-primary': showPrimarySidebar,
+		'extended-auxiliar': showAuxiliarSidebar && auxiliarSidebar,
+		'has-auxiliar': auxiliarSidebar,
+		'fixed-dashboard': fixedDashboard,
+		'auxiliar-sticky': showAuxiliarSidebarSticky,
+		'menu-compact': menuCompact}">
+
+	<header class="stratio-base-header">
+
+		<div class="top">
+			<div class="block">
+				<st-user-menu></st-user-menu>
+			</div>
+			<div class="block">
+				<img src="stratio-ui/images/stratio-xs.png" alt="Stratio" class="logo">
+			</div>
+		</div>
+
+		<div class="main">
+			<div class="valign"></div>
+			<div class="menu-cont">
+				<div class="valign"></div>
+				<div class="logo-cont">
+					<img src="{{moduleLogo}}" alt="Stratio Sparta">
+				</div>
+				<div ng-transclude></div>
+			</div>
+			<div class="show-auxiliar-sidebar" ng-if="auxiliarSidebar" ng-click="toggleAuxiliarSidebar()">
+				<span class="pre-ico icon-thermometer"></span>
+				Global Status Panel
+				<span class="ico icon-view"></span>
+			</div>
+		 </div>
+
+	</header>
+
+	<aside id="base-primary-sidebar">
+		<div id="sub-menu" ui-view="menu" autoscroll="false"></div>
+	</aside>
+	<div id="base-content-wrapper">
+		<div class="show-primary-sidebar" ng-click="togglePrimarySidebar()">
+			<span class="ico icon-menu2"></span>
+		</div>
+		<div id="dashboard-main-content" class="clearfix">
+			<div id="body-content" ui-view="content" autoscroll="false"></div>
+		</div>
+	</div>
+	<div id="base-auxiliar-sidebar" ng-if="auxiliarSidebar">
+		<div ng-include="auxiliarSidebar" class="clearfix"></div>
+	</div>
+	<div class="overlay" ng-click="togglePrimarySidebar(false)"></div>
+</div>

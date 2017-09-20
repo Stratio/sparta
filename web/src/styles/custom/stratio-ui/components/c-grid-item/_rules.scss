@@ -1,0 +1,19 @@
+@mixin c-grid-item {
+	@include c-component;
+
+	&__info-icon {
+		color: $c-grid-item__info-icon---color;
+		display: inline-block;
+		margin: $c-grid-item__info-icon---margin;
+	}
+
+	&__desc {
+		font-size: $c-grid-item__desc---font-size;
+		letter-spacing: $c-grid-item__desc---letter-spacing;
+		line-height: $c-grid-item__desc---line-height;
+	}
+}
+
+.c-grid-item {
+	@include c-grid-item;
+}

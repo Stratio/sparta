@@ -1,0 +1,110 @@
+$item-background: #eef2f3;
+$item-name-background: #42b6e7;
+$item-name-height: 70px;
+
+.br-ba-container {
+    box-sizing: border-box;
+    list-style-type: none;
+    margin: 10px 0px 0px 0px;
+    padding: 0;
+    position: relative;
+    float: left;
+    width: 100%;
+}
+
+.clear{
+    clear:both;
+}
+
+
+
+.br-ba-item {
+    box-sizing: border-box;
+    left: 0;
+    position: absolute;
+    top: 0;
+    background-color: $item-background;
+
+    .title {
+        position: relative;
+        //float: left;
+        width: 100%;
+        box-sizing: border-box;
+        height: $item-name-height;
+        padding: 15px;
+        color: #fff;
+        background-color: $item-name-background;
+        text-transform: uppercase;
+        .name {
+            font-size: 25px;
+            position: absolute;
+            bottom: 10px;
+            width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .menu_actions {
+            position: absolute;
+            //bottom: 15px;
+            right: 0;
+            cursor: pointer;
+        }
+    }
+
+    .description {
+        position:  relative;
+        float: left;
+        margin: 15px;
+    }
+
+    .input_logo {
+        position: absolute;
+        bottom: 0px;
+        left: 15px;
+        margin-bottom: 20px;
+    }
+
+    .element_tooltip {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        color: #54b4e6;
+        cursor: pointer;
+    }
+}
+
+.br-ba-item {
+    -webkit-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+}
+
+.br-ba-item.ng-move,
+.br-ba-item.ng-enter,
+.br-ba-item.ng-leave {
+    -webkit-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+}
+
+.br-ba-item.ng-enter,
+.br-ba-item.ng-move,
+.br-ba-item.ng-leave.ng-leave-active {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+    opacity: 0;
+}
+
+.br-ba-item.ng-enter.ng-enter-active,
+.br-ba-item.ng-move.ng-move-active,
+.br-ba-item.ng-leave {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    opacity: 1;
+}
+
+.br-ba-item.ng-enter-stagger,
+.br-ba-item.ng-leave-stagger {
+    -webkit-transition-delay: 0.01s;
+    transition-delay: 0.01s;
+    -webkit-transition-duration: 0s;
+    transition-duration: 0s;
+}

@@ -1,0 +1,80 @@
+@mixin c-icon {
+  @include c-component;
+  @include is-clickable();
+  @include is-coloured($c-icon---colors);
+
+  & {
+    font-family: "ico_stratio";
+    vertical-align: middle;
+    display:inline;
+  }
+
+  &--in-input {
+    position: absolute;
+    top: $c-icon--in-input---top;
+    left: $c-icon--in-input---left;
+    color: $c-icon--in-input---color;
+  }
+
+  &--in-input-right {
+    position: absolute;
+    top: $c-icon--in-input---top;
+    right: $c-icon--in-input-right---right;
+    color: $c-icon--in-input---color;
+  }
+
+  &--in-label {
+    color: getColor(n5);
+    font-size: 14px;
+  }
+
+  &--center-element {
+    position: absolute;
+    right: 5px;
+    top: 12px;
+  }
+
+  &--list-compressed {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    color: getColor(n6);
+  }
+
+  &--to-top {
+    vertical-align: top;
+  }
+
+  &--to-baseline {
+    vertical-align: baseline;
+  }
+
+  &--circle-button {
+    height: $c-icon--circle-button---size;
+    width: $c-icon--circle-button---size;
+    text-align: center;
+    background-color: get-color(n3);
+    border-radius: $c-icon--circle-button---size;
+    font-size: 16px;
+    vertical-align: middle;
+    line-height: 35px;
+
+    &:hover {
+      background-color: get-color(a3);
+      color: white;
+    }
+  }
+
+
+  @include item-to-right();
+
+  @include font-sizes();
+}
+
+.c-icon {
+  @include c-icon;
+}
+
+.icon-custom:before {
+  content: "\e60a"
+}

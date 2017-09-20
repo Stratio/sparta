@@ -1,0 +1,80 @@
+@mixin c-textarea {
+	@include c-input;
+
+	font-family: 'Brandon Text';
+  font-size: 1rem;
+	background-color: $c-textarea--background-color;
+	color: $c-textarea--color;
+	border-top: $c-textarea--border-top;
+	border-left: $c-textarea--border-left;
+	border-right: $c-textarea--border-right;
+	border-bottom: $c-textarea--border-bottom;
+	min-height: $c-textarea--min-height;
+	width: $c-textarea--width;
+	resize: $c-textarea--resize;
+
+	&--high{
+		height:360px;
+		border:0;
+		font-size:15px;
+		padding: 10px;
+    background-color: #eff2f3;
+	}
+
+	&--sql-box textarea{
+		background-color: #eff2f3;
+	}
+
+	&::-moz-placeholder {
+		color: getColor(n7);
+		font-style: italic;
+	}
+
+  	&::-webkit-input-placeholder {
+  		color: getColor(n7);
+  		font-style: italic;
+  	}
+
+  	&:-ms-input-placeholder {
+  		color: getColor(n7);
+  		font-style: italic;
+  	}
+
+  	&:focus {
+		outline-width: 0;
+		border-bottom-color: getColor(n9);
+  	}
+
+	&--big {
+		min-height: $c-textarea--big--min-height;
+	}
+
+	&::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background-color: #cccccc;
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: #707070;
+      border-radius: 10px;
+    }
+
+  &--error{
+    border-color:$c-textarea--error--border-color ;
+  }
+  &--required:after {
+    content: ' *';
+  }
+
+  &--large {
+    height: 250px;
+  }
+}
+
+.c-textarea {
+	@include c-textarea;
+}

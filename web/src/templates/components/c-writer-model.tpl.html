@@ -1,0 +1,35 @@
+<section>
+  <form-field
+          data-ng-repeat="properties in template.properties"
+          class="c-col"
+          data-ng-class="{'c-col--{{properties.width}}': properties.width, 'c-form-gutter c-form-gutter__{{properties.position}} c-col--vertical-top': properties.position}"
+          data-ng-form-id="{{properties.propertyId}}"
+          data-field="properties"
+          data-model="model.writer"
+          data-form="form"
+          data-st-name="trigger{{properties.propertyName}}Form"
+          data-qa="{{properties.qa}}">
+  </form-field>
+  
+  <form-field-select data-form="form" data-st-name="trigger-outputs" data-model="selectedPolicyOutput"
+                     data-options="policyOutputList" data-field="label" data-label="{{'_OUTPUTS_' | translate}}"
+                     data-help="" data-qa="trigger-output-select"
+                     data-ng-click="addOutput()" data-is-error="outputsFORM.$invalid">
+  </form-field-select>
+
+  <ng-form name="outputsFORM" data-ng-hide="true">
+    <input type="number" ng-model="model.writer.outputs.length" min="1"/>
+  </ng-form>
+  <c-tag-list name="trigger-outputs" form-control-class="" data-tags="model.writer.outputs"
+              label-control-class="'c-label c-col'"
+              readonly="'true'"
+              data-enable-delete="true" data-qa="policy-trigger-output-list"
+              show-label="false"
+              data-required="false" data-min-length="0" data-form="vm.form">
+  </c-tag-list>
+  <c-auto-calculated-fields class="c-col"
+                            data-ng-class="{'c-col--12': width === 'lg', 'c-col--6': width === 'm'}"
+                            data-model="model.writer.autoCalculatedFields" form="vm.form">
+  </c-auto-calculated-fields>
+
+</section>

@@ -1,0 +1,74 @@
+@mixin c-panel {
+  @include c-component;
+  @include container-to-right();
+  @include container-to-bottom();
+
+  position: relative;
+
+  &--fix-overflow {
+    overflow: auto;
+  }
+
+  &--framed {
+    padding: $c-panel--framed---padding;
+    min-height: $c-panel--framed---min-height;
+  }
+
+  &--border-top {
+    border-top: 1px solid getColor(n5);
+  }
+
+  &--padding-top {
+    padding-top: 10px;
+  }
+
+
+  &--padding {
+    padding: 22px;
+  }
+
+  &--secondary {
+    background-color: get-color(n2);
+  }
+
+
+  &--license {
+    overflow: auto;
+    max-height: 300px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+    width: 620px;
+    float:right;
+    line-height: 16px;
+    padding: 10px;
+    padding-top: 0;
+    font-family: MONOSPACE;
+  }
+
+  &--x-small {
+    border: $c-panel--x-small---border;
+    display: inline-block;
+    border-radius: $c-panel--x-small---border-radius;
+    margin: $c-panel--x-small---margin;
+
+    &__container {
+      padding: $c-panel--x-small__container---padding;
+
+      &__title {
+        background-color: $c-panel--x-small__container-title---background-color;
+
+        .c-label {
+          color: $c-panel--x-small__container-title--c-label---color;
+        }
+      }
+    }
+  }
+
+  &__fit {
+    display: inline-block;
+  }
+}
+
+.c-panel {
+  @include c-panel;
+}

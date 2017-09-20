@@ -1,0 +1,23 @@
+@mixin c-auto-calculated-fields {
+  @include c-component;
+
+  &__form {
+    background-color: get-color(n1);
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+  &__form-title {
+    font-size:17px;
+    font-weight: 400;
+    color: get-color(n9);
+  }
+  &__info{
+    color: get-color(n8);
+    font-size: 14px;
+    padding: 6px 0;
+  }
+}
+
+.c-auto-calculated-fields {
+  @include c-auto-calculated-fields;
+}

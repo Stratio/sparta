@@ -1,0 +1,21 @@
+/*doc
+---
+title: o-wcag-hidden
+name: o-wcag-hidden
+category: objects
+---
+
+The o-wcag-hidden is a way to hide tags that can be readed by the
+screen readers. Is a recomendation of the W3C.
+
+```html_example
+To do
+```
+*/
+
+.o-wcag-hidden {
+	overflow: hidden;
+    display: block;
+    width: 0;
+    height: 0;
+}

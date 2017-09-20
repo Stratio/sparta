@@ -1,0 +1,6 @@
+<li class="c-step " data-ng-class="{ 'c-step--active': isSelected(),'c-step--visited': isVisited(), 'c-step--enabled': isEnabled(), 'c-step--alternative': isAlternative}">
+  <div class="c-step__box">
+    <span class="c-step__section-name"><i class="c-icon c-step__section-icon {{icon}}"></i>{{name | translate}}</span>
+    <hr class="c-step__progress-line" data-ng-class = "{'c-step__progress-line---enabled': isEnabled()}" data-ng-if="!isLastStep"/>
+  </div>
+</li>

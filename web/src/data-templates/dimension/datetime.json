@@ -1,0 +1,152 @@
+{
+  "properties": [
+    {
+      "propertyId": "precisionNumber",
+      "propertyName": "_PRECISION_",
+      "propertyType": "number",
+      "position": "left",
+      "width": 6,
+      "required": false,
+      "qa": "policy-dimension-precision-number"
+    },
+    {
+      "propertyId": "precisionTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "position": "left",
+      "width": 6,
+      "required": true,
+      "values":  [
+        {
+          "label": "Millisecond(s)",
+          "value": "ms"
+        },
+        {
+          "label": "Second(s)",
+          "value": "s"
+        },
+        {
+          "label": "Minute(s)",
+          "value": "m"
+        },
+        {
+          "label": "Hour(s)",
+          "value": "h"
+        },
+        {
+          "label": "Day(s)",
+          "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
+        },
+        {
+          "label": "Millisecond",
+          "value": "millisecond"
+        },
+        {
+          "label": "Second",
+          "value": "second"
+        },
+        {
+          "label": "Minute",
+          "value": "minute"
+        },
+        {
+          "label": "Hour",
+          "value": "hour"
+        },
+        {
+          "label": "Day",
+          "value": "day"
+        },
+        {
+          "label": "Week",
+          "value": "week"
+        },
+        {
+          "label": "Month",
+          "value": "month"
+        },
+        {
+          "label": "Year",
+          "value": "year"
+        }
+      ],
+      "qa": "policy-dimension-precision-time"
+    },
+    {
+      "propertyId": "isTimeDimension",
+      "propertyName": "_IS_TIME_DIMENSION_",
+      "propertyType": "boolean",
+      "position": "left",
+      "width": 12,
+      "required": false,
+      "qa": "policy-dimension-is-time-dimension"
+    },
+    {
+      "propertyId": "computeLastNumber",
+      "propertyName": "_COMPUTE_LAST_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "default": 10,
+      "required": true,
+      "tooltip": "Sets the time window for aggregation operations.",
+      "qa": "policy-cube-dimension-dateTime-computeLastNumber",
+      "visible": [
+        [
+          {
+            "propertyId": "isTimeDimension",
+            "value": true
+          }
+        ]
+      ]
+    },
+    {
+      "propertyId": "computeLastTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "policy-cube-dimension-dateTime-computeLastTime",
+      "default": "m",
+      "required": true,
+      "values": [
+        {
+          "label": "Millisecond(s)",
+          "value": "ms"
+        },
+        {
+          "label": "Second(s)",
+          "value": "s"
+        },
+        {
+          "label": "Minute(s)",
+          "value": "m"
+        },
+        {
+          "label": "Hour(s)",
+          "value": "h"
+        },
+        {
+          "label": "Day(s)",
+          "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
+        }
+      ],
+      "visible": [
+        [
+          {
+            "propertyId": "isTimeDimension",
+            "value": true
+          }
+        ]
+      ]
+    }
+  ]
+}

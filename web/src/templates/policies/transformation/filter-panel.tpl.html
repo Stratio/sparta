@@ -1,0 +1,22 @@
+<form-field data-ng-repeat="item in vm.template.model[vm.model.type].properties"
+            class="c-col c-col--vertical-top c-col--right-margin c-form-group--with-gutter"
+            data-ng-class="{'c-col--{{item.width}}': item.width}"
+            data-ng-form-id="{{item.propertyId}}"
+            data-c-new-row="{{item.newRow}}"
+            data-field="item"
+            data-model="vm.model.configuration"
+            data-form="vm.form"
+            data-st-name="modelFilter_{{item.propertyName}}Form"
+            data-qa="{{item.qa}}">
+</form-field>
+<form-field-textarea data-json="true"
+                     data-label="{{'_COMMANDS_' | translate}}"
+                     data-form="vm.form"
+                     data-st-name="model-configuration"
+                     data-model="vm.model.configuration.filters"
+                     data-required="true"
+                     data-extra-info="'_CONFIGURATION_INFO_' | translate"
+                     data-placeholder="vm.configPlaceholder"
+                     data-qa="{{'policy-model-configuration-textarea'}}"
+                     data-large-size="true">
+</form-field-textarea>

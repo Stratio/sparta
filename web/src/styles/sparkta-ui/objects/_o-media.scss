@@ -1,0 +1,20 @@
+/*doc
+---
+title: o-media
+name: o-media
+category: objects
+---
+
+The o-media is a BEMification over the o-media object create by Stubbornella.
+[See more here](http://www.stubbornella.org/content/2010/06/25/the-media-object-saves-hundreds-of-lines-of-code/).
+
+```html_example
+To do
+```
+*/
+
+.o-media {margin:10px;}
+.o-media, .o-media__bd {_overflow:visible; zoom:1;}
+.o-media__img {float:left; margin-right: 10px;}
+.o-media__img__item{display:block;}
+.o-media__imgExt{float:right; margin-left: 10px;}

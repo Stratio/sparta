@@ -1,0 +1,32 @@
+<ng-form name="{{name}}" class="c-form-group" ng-class="{empty: !model, focus: isFocused, placeholder: placeholder && !label, error: (this[name][name].$invalid || isError ) && form.$submitted, disabled: disabled, submitted: form.$submitted, dirty: this[name][name].$dirty, 'c-form-group--compressed': listCompressed, submittedForm: submittedForm, selectInvalid: outputsLength === 0}">
+    <div class="c-form-control c-form-control--full-width">
+        <span class="c-icon-label c-col c-col--12" >
+            <label  class="c-icon-label__text c-label" title="{{label}}" for="{{name}}" data-ng-if="label && !hideMessage">
+                {{label}}
+                <span data-ng-if="required === false" class="c-label__optional">
+                    {{'_OPTIONAL_' | translate}}
+                </span>
+                <i data-ng-if="help" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"
+                   uib-popover='{{help}}' popover-class="popover--top" popover-trigger="click" popover-placement="top" data-qa="{{helpQa}}"
+                 ></i>
+            </label>
+        </span>
+        <div ng-if="placeholder" class="st-form-field-placeholder">
+            {{placeholder}}
+        </div>
+        <select ng-attr-id="{{name}}" name="{{name}}" class="st-form-field-select c-combobox {{selectClass}}" ng-model="model" ng-change="changeActionHandler()"
+                data-ng-required="required" ng-blur="isFocused=false" ng-keyup="keyupHandler($event)" ng-show="!trackBy" data-qa="{{qa}}"
+             >
+            <option value="" class="placeholder" data-ng-if="!hideMessage" data-ng-disabled="disabled">{{"_SELECT_AN_OPTION_" | translate}}</option>
+            <option value="{{item.value}}" data-ng-repeat="item in options" data-ng-selected="item.value === model" data-ng-disabled="disabled">
+                {{item.label | translate}}
+            </option>
+        </select>
+        <div ng-if="(this[name][name].$invalid || isError) && form.$submitted" class="angular-forms__error" data-qa="{{qa}}-error">
+            <i class="icon icon-circle-cross"></i>
+            <span ng-if="this[name][name].$error.required || isError">This field is required. </span>
+        </div>
+    </div>
+</ng-form>
+
+

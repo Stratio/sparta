@@ -1,0 +1,45 @@
+@mixin c-pagination {
+  display: inline-block;
+  float:right;
+  margin-top:20px;
+  &--button {
+    display: inline-block;
+    box-sizing: border-box;
+    cursor: pointer;
+    height: 35px;
+    outline: 0;
+    text-align: center;
+    border:2px solid #cbcbcb;
+    border-radius: 50%;
+    line-height: 34px;
+    width:35px;
+    color:#999;
+
+    &:not([disabled]) {
+      &:hover {
+        border-color: #999;
+        color: #777;
+      }
+      &:active {
+        box-shadow: 0 0 0 2px #37b5e4;
+      }
+    }
+
+    &[disabled]{
+        cursor: auto;
+        opacity: .2;
+    }
+  }
+
+  &--navigation-buttons{
+      display: inline-block;
+  }
+
+  &--info{
+      display:inline-block;
+  }
+}
+
+.c-pagination {
+  @include c-pagination;
+}

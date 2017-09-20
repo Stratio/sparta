@@ -1,0 +1,65 @@
+@mixin c-msg {
+	@include c-panel;
+  &.ng-enter, &.ng-leave {
+    -webkit-transition: 750ms ease all;
+    -moz-transition: 750ms ease all;
+    -ms-transition: 750ms ease all;
+    -o-transition: 750ms ease all;
+    transition: 750ms ease all;
+  }
+
+  &.ng-enter {
+    opacity: 0;
+  }
+
+  &.ng-enter.ng-enter-active {
+    opacity: 1;
+  }
+
+  &.ng-leave {
+    opacity: 1;
+  }
+
+  &.ng-leave.ng-leave-active{
+    opacity: 0;
+  }
+
+	&--small {
+		font-size: $c-msg--small---font-size;
+		padding: $c-msg--small---padding;
+	}
+
+	&--giant {
+		font-size: $c-msg--giant---font-size;
+		padding: $c-msg--giant---padding;
+	}
+
+	&--error {
+		cursor: $c-msg--error---cursor;
+		background: $c-msg--error---background;
+		color: $c-msg--error---color;
+		display: $c-msg--error---display;
+    margin-top: $c-msg--error---margin-top;
+
+	}
+	&--success {
+		background: $c-msg--success---background;
+		color: $c-msg--success---color;
+		display: $c-msg--success---display;
+	}
+
+	&--noitems {
+		background: $c-msg--noitems---background;
+		color: $c-msg--noitems---color;
+		cursor: pointer;
+		text-align: center;
+	}
+
+	.c-icon {
+		margin: $c-msg__c-icon---margin;
+	}
+}
+
+.c-msg {
+	@include c-msg;
+}

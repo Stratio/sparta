@@ -1,0 +1,249 @@
+[
+  {
+    "name": "Flume",
+    "modelType": "Flume",
+    "description": {
+      "short": "Reads events from flume",
+      "long": "Reads events from flume",
+      "learnMore": "http://docs.stratio.com/modules/sparta/0.6/inputs.html#flume-label"
+    },
+    "properties": [
+      {
+        "propertyId": "type",
+        "propertyName": "_TYPE_",
+        "propertyType": "select",
+        "qa": "fragment-details-flume-type",
+        "values": [
+          {
+            "label": "pull",
+            "value": "pull"
+          },
+          {
+            "label": "push",
+            "value": "push"
+          }
+        ],
+        "regexp": "pull|push",
+        "default": "pull",
+        "required": true,
+        "tooltip": ""
+      },
+      {
+      "propertyId": "addresses",
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "",
+      "qa": "fragment-details-flume-pull-addresses",
+      "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "pull"
+            }
+          ]
+        ],
+      "fields": [
+        {
+          "propertyId": "host",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "localhost",
+          "required": true,
+          "tooltip": "Flume's address.",
+          "hidden": false,
+          "qa": "fragment-details-flume-pull-host"
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "11999",
+          "required": true,
+          "tooltip": "Flume's port.",
+          "hidden": false,
+          "qa": "fragment-details-flume-pull-port"
+        }
+      ]
+      },
+      {
+        "propertyId": "maxBatchSize",
+        "propertyName": "_MAX_BATCH_SIZE",
+        "propertyType": "text",
+        "regexp": "\\d*",
+        "default": "1000",
+        "required": false,
+        "tooltip": "",
+        "hidden": false,
+        "qa": "fragment-details-flume-pull-max-batch-size",
+        "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "pull"
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "parallelism",
+        "propertyName": "_PARALLELISM_",
+        "propertyType": "text",
+        "regexp": "\\d*",
+        "default": "5",
+        "required": false,
+        "tooltip": "",
+        "hidden": false,
+        "qa": "fragment-details-flume-pull-parallelism",
+        "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "pull"
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "hostname",
+        "propertyName": "_HOST_",
+        "propertyType": "text",
+        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+        "default": "localhost",
+        "required": true,
+        "tooltip": "You must set the Flume host IP or name.",
+        "hidden": false,
+        "qa": "fragment-details-flume-push-host",
+        "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "push"
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "port",
+        "propertyName": "_PORT_",
+        "propertyType": "text",
+        "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+        "default": "11999",
+        "required": true,
+        "tooltip": "Flume port",
+        "hidden": false,
+        "qa": "fragment-details-flume-push-port",
+        "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "push"
+            }
+          ]
+        ]
+      },
+      {
+        "propertyId": "enableDecompression",
+        "propertyName": "_DECOMPRESSION_",
+        "propertyType": "boolean",
+        "regexp": "true|false",
+        "required": false,
+        "tooltip": "",
+        "hidden": false,
+        "qa": "fragment-details-flume-push-enable-decompression",
+        "visible": [
+          [
+            {
+              "propertyId": "type",
+              "value": "push"
+            }
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Kafka",
+    "modelType": "Kafka",
+    "description": {
+      "short": "Reads events from apache-kafka",
+      "long": "Reads events from apache-kafka",
+      "learnMore": "http://docs.stratio.com/modules/sparta/0.6/inputs.html#kafka-label"
+    },
+    "properties": [
+      {
+      "propertyId": "bootstrap.servers",
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "",
+      "qa": "fragment-details-kafka-zookeeper-connect",
+      "fields": [
+        {
+          "propertyId": "host",
+          "propertyName": "_HOST_",
+          "propertyType": "text",
+          "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+          "default": "localhost",
+          "required": true,
+          "tooltip": "Zookeeper's address.",
+          "hidden": false,
+          "qa": "fragment-details-kafka-host"
+        },
+        {
+          "propertyId": "port",
+          "propertyName": "_PORT_",
+          "propertyType": "text",
+          "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+          "default": "2181",
+          "required": true,
+          "tooltip": "Zookeeper's port.",
+          "hidden": false,
+          "qa": "fragment-details-kafka-port"
+        }
+      ]
+      },
+      {
+        "propertyId": "group.id",
+        "propertyName": "_GROUP_ID_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-group-id"
+      },
+      {
+      "propertyId": "topics",
+      "propertyName": "",
+      "propertyType": "list",
+      "default": "",
+      "required": true,
+      "hidden": false,
+      "limit": 0,
+      "tooltip": "",
+      "qa": "fragment-details-kafka-topics",
+      "fields": [
+        {
+          "propertyId": "topic",
+          "propertyName": "_TOPIC_",
+          "propertyType": "text",
+          "regexp": "",
+          "default": "",
+          "required": true,
+          "tooltip": "Topic to connect.",
+          "hidden": false,
+          "qa": "fragment-details-kafka-topic"
+        }
+      ]
+      }
+    ]
+  }
+]

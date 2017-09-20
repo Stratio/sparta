@@ -1,0 +1,33 @@
+$font-families: (
+	brandon: 'Brandon Text',
+	stratio-iconfont: 'ico_stratio'
+) !default;
+
+$font-weights: (
+	bolder: bolder,
+	bold: bold,
+	semibold: 600,
+	normal: normal,
+	light: 200,
+	lighter: lighter
+) !default;
+
+$font-sizes: (
+	xxxlarge: 4rem,
+	xxlarge: 3rem,
+	xlarge: 2rem,
+	large: 1.5rem,
+	medium: 1rem,
+	small: .8rem,
+	xsmall: .7rem,
+	xxsmall: .6rem,
+	xxxsmall: .5rem
+) !default;
+
+$line-heights: (
+	double: 2em,
+	large: 1.5em,
+	normal-alpha: 1.2em,
+	normal: 1em,
+	single: .5em
+) !default;

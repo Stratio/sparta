@@ -1,0 +1,48 @@
+@mixin c-policy-status-badge {
+	@include c-component;
+
+	display: inline-block;
+	margin: $c-policy-status-badge---margin;
+	padding: $c-policy-status-badge---padding;
+
+	&--launched {
+		background: $c-policy-status-badge--launched---background;
+		color: $c-policy-status-badge--launched---color;
+	}
+
+	&--starting {
+		background: $c-policy-status-badge--starting---background;
+		color: $c-policy-status-badge--starting---color;
+	}
+
+	&--started {
+		background: $c-policy-status-badge--started---background;
+		color: $c-policy-status-badge--started---color;
+	}
+
+	&--failed {
+		background: $c-policy-status-badge--failed---background;
+		color: $c-policy-status-badge--failed---color;
+	}
+
+	&--stopping {
+		background: $c-policy-status-badge--stopping---background;
+		color: $c-policy-status-badge--stopping---color;
+	}
+
+	&--stopped {
+		background: $c-policy-status-badge--stopped---background;
+		color: $c-policy-status-badge--stopped---color;
+	}
+
+	&--notstarted {
+		background: $c-policy-status-badge--notstarted---background;
+		color: $c-policy-status-badge--notstarted---color;
+	}
+
+	@include font-sizes;
+}
+
+.c-policy-status-badge {
+	@include c-policy-status-badge;
+}

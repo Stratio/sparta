@@ -1,0 +1,36 @@
+@mixin c-fieldset {
+  @include c-component;
+  &__title {
+    font-weight: $c-fieldset__title---font-weight;
+  }
+  &--bottom-border {
+    border-bottom: 1px solid get-color(n3);
+  }
+  &--padding-bottom {
+    padding-bottom: 6px;
+  }
+
+  &--padding-top {
+    padding-top: 6px;
+  }
+  
+  &__fluid-box {
+    margin-right: 10px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    border: 1px solid get-color(a1);
+    display: inline-block;
+    &>div {
+      display: inline-block;
+      padding: 0px 6px;
+    }
+
+    .key {
+      border-right: 1px solid get-color(a1);
+    }
+  }
+}
+
+.c-fieldset {
+  @include c-fieldset;
+}

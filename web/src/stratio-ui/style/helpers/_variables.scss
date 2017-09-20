@@ -1,0 +1,58 @@
+
+// Colors
+$blue: 		#37b5e4 !default;		$blue-h:	#009dde !default;
+$red:		#d24234 !default;		$red-h:		#a90e00 !default;
+$yellow:	#ea942f !default;		$yellow-h:	#cd6f01 !default;
+$green:		#93ae64 !default;		$green-h:	#6b8e1c !default;
+
+
+
+// Colors on element
+	// Header
+	$header-bg-top: #222b37 !default;
+	$header-bg-main: #1a212b !default;
+	$header-font-main: #959595 !default;
+	$header-font-selected: #ccc !default;
+	$header-selected-border: $blue !default;
+
+	// Primary Sidebar
+	$primary-sidebar-bg: #eff2f3 !default;
+	$primary-sidebar-font-mtitle: #282c31 !default;
+	$primary-sidebar-font-title: #212429 !default;
+	$primary-sidebar-font-list: #474747 !default;
+
+	// Auxiliar sidebar
+	$auxiliar-sidebar-font-mtitle: #8b8b8b !default;
+	$auxiliar-sidebar-bg-mtitle: #f3f3f3 !default;
+	$auxiliar-sidebar-border-block: #c8c8c8 !default;
+
+
+// Layout
+$dashboard-main-content---margin-bottom: 100px !default;
+$base-padding: 30px !default;
+
+	// Base
+	$layout-base-left: 310px !default;
+	$layout-base-right: 240px !default;
+
+	// Header
+	$header-menu-height: 100px !default;
+	$header-topmenu-height: 40px !default;
+	$header-show-auxiliar: 37px !default;
+	$header-compact: 70px !default;
+
+	// Sidebars
+	$force-hide-auxiliar-sidebar: 1340px !default;
+	$allow-primary-sidebar-hidden: 1366px - 240px !default;
+
+	// Before content
+	$primary-sidebar-opener-size: 45px !default;
+
+
+
+// Media Queries
+	// Auxiliar sidebar hidden
+	$mq-auxiliar-sidebar-hidden: '(max-width: ' $force-hide-auxiliar-sidebar ')' !default;
+
+	// Allow hide primary sidebar
+	$mq-allow-hide-primary-sidebar: '(max-width: ' $allow-primary-sidebar-hidden ')' !default;

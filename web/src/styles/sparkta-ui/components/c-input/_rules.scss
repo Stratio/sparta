@@ -1,0 +1,34 @@
+@mixin c-input {
+	@include c-component;
+
+	border: $c-input---border;
+	border-radius: $c-input---border-radius;
+	color: $c-input---color;
+	height: $c-input---height;
+	padding: $c-input---padding;
+
+	@include full-width();
+
+	&--left-icon {
+		padding: $c-input--left-icon---padding;
+	}
+
+	&--no-border {
+		border: 0;
+	}
+
+	&__outputField {
+		padding-right: 85px;
+	}
+
+	&:disabled,
+	&--disabled {
+		background: $c-input--disabled---background;
+		color: $c-input--disabled---color;
+		font-style: $c-input--disabled---font-style;
+	}
+}
+
+.c-input {
+	@include c-input;
+}

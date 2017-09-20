@@ -1,0 +1,218 @@
+#stratio-base {
+  .stratio-base-header {
+    padding: 0;
+    .top {
+      height: $header-topmenu-height;
+      line-height: $header-topmenu-height - 4px;
+      background: $header-bg-top;
+      text-align: right;
+      padding: 0 6px;
+      color: #828e92;
+      .block {
+        display: inline-block;
+        vertical-align: middle;
+        padding-right: 24px;
+        font-size: 15px;
+        height: $header-topmenu-height;
+        line-height: $header-topmenu-height;
+        &>* {
+          vertical-align: middle;
+        }
+      }
+      .user-block {
+        cursor: pointer;
+      }
+      .arrow-dropdown {
+        font-size: 12px;
+      }
+      .profile {
+        position: relative;
+        top: 2px;
+      }
+      .profile,
+      .name,
+      .logo {
+        margin-right: 5px;
+      }
+      st-floating-menu {
+        left: 2px;
+      }
+    }
+    .main {
+      height: $header-menu-height;
+      background: $header-bg-main;
+      font-size: 0;
+      position: relative;
+      white-space: nowrap;
+      div {
+        display: inline-block;
+        vertical-align: bottom;
+      }
+      .valign {
+        height: 100%;
+      }
+      .menu-cont {
+        width: 100%;
+      }
+
+      .sth-header-border {
+        background: #1b303f;
+        height: 10px;
+        width: 100%;
+        user-select: none;
+        z-index: 10;
+        position: absolute;
+        top: 0;
+
+        .sth-header-user{
+          position: relative;
+          float: right;
+          padding-right: 10px;
+          height: 34px;
+          min-width: 35px;
+          cursor: default;
+          padding-left: 35px;
+          background-color: #1b303f;
+          color: #fff;
+          font-size: .75rem;
+          font-weight: 700;
+
+          &:before{
+                width: 0;
+            height: 0;
+            content:' ';
+            border-top: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-left: 12px solid #0f1b27;
+            border-bottom: 12px solid #0f1b27;
+            position: absolute;
+            left: 0;
+            top: 10px;
+          }
+        }
+
+        .session-info{
+          display: block;
+          min-width: 100px;
+        }
+
+        .logout{
+          font-family: "Open Sans";
+          font-size: 0.75rem;
+          height: 35px;
+          padding-left: 10px;
+          line-height: 35px;
+          font-weight: 400;
+          display:block;
+          color:rgb(119, 119, 119);
+          background: white;
+          position:relative;
+
+          &:before{
+            content: "\a ";
+            position: absolute;
+            top: -10px;
+            right: 7px;
+            border-style: solid;
+            border-width: 5px;
+            border-color: transparent transparent rgb(255, 255, 255);
+          }
+        }
+
+        .username{
+              margin: 0 5px 0 7px;
+              line-height: 34px;
+              font-family: "Open Sans";
+        }
+
+        .combo-selector{
+          color: #777;
+        }
+      }
+	  
+      .logo-cont {
+        @extend .t-normal;
+        vertical-align: bottom;
+        padding: 0 32px 25px;
+        img {
+          @extend .t-normal;
+          vertical-align: bottom;
+          width: 168px;
+        }
+      }
+      .menu-element {
+        @extend .t-normal;
+        border-bottom: 4px solid $header-bg-main;
+        text-transform: uppercase;
+        font-size: 15.4px;
+        text-rendering: optimizeLegibility;
+        position: relative;
+        a {
+          @extend .t-normal;
+          display: block;
+          padding: 16px 25px 16px;
+          color: $header-font-main;
+        }
+        .title {
+          @extend %t-normal;
+        }
+        &.selected {
+          border-bottom-color: $header-selected-border;
+        }
+        &.selected,
+        &:hover {
+          a,
+          .title {
+            color: $header-font-selected;
+          }
+        }
+        .ico {
+          padding-right: 8px;
+          position: relative;
+          top: 1px;
+        }
+        .label {
+          @extend .numerical-label;
+          position: absolute;
+          top: 0px;
+          right: 0px;
+        }
+      }
+    }
+    .show-auxiliar-sidebar {
+      position: absolute;
+      bottom: 0;
+      right: 30px;
+      background: #222b37;
+      color: #fff;
+      height: $header-show-auxiliar;
+      line-height: $header-show-auxiliar - 2px;
+      font-size: 15px;
+      cursor: pointer;
+      .pre-ico {
+        position: relative;
+        top: 1px;
+        margin: 0px 2px 0px 10px;
+      }
+      .ico {
+        position: absolute;
+        height: 100%;
+        line-height: 39px;
+        right: 14px;
+        font-size: 19px;
+        color: #515f66;
+      }
+    }
+  }
+  &.menu-compact {
+    .menu-element {
+      .ico {
+        padding: 0;
+        font-size: 22px;
+      }
+      .title {
+        display: none;
+      }
+    }
+  }
+}

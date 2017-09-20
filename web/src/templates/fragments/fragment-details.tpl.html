@@ -1,0 +1,77 @@
+<aside data-qa="fragment-details-modal">
+  <div class="c-titlebar">
+    <span class="c-titlebar__title" translate="{{vm.modalTexts.title}}"></span>
+    <i class="c-titlebar__close-icon icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+  </div>
+
+  <div class="c-modal-inner">
+    <form class="c-form" name="vm.form" novalidate>
+
+      <form-field-input class="c-form-gutter" id="dataSourceName" data-model="vm.dataSource.name"
+                        data-label="{{'_NAME_' | translate}}" data-form="vm.form" data-st-name="dataSourceNameForm"
+                        data-required="true" data-autofocus="true" data-pattern="'\\S+'"
+                        data-placeholder='{{"_FRAGMENT_WINDOW_PLACEHOLDER_NAME_" | translate}}'
+                        data-qa="fragment-detail-name" data-help='{{"_NAME_HELP_" | translate}}'
+                        data-help-qa="fragment-detail-name-help"></form-field-input>
+
+      <ng-form name="dataSourceTypeForm" class="c-form-group c-form-gutter">
+        <div class="c-form-control c-form-control--full-width c-icon-radio">
+          <label class="c-col c-col--12 c-label c-icon-label__text c-icon-radio__label"
+                 title="{{'_TYPE_' | translate}}:">{{"_INPUT_WINDOW_FORM_TYPE_" |
+            translate}}</label>
+          <label data-ng-repeat="fragmentData in vm.templateFragmentsData">
+            <input class="c-icon-radio__item" id="type-{{fragmentData.modelType | lowercase}}" type="radio"
+                   name="dataSourceTypeForm" data-ng-model="vm.dataSource.element.type"
+                   value="{{fragmentData.modelType}}" data-ng-click="vm.setProperties($index, fragmentData.modelType)">
+            <label class="c-icon-radio__label" for="type-{{fragmentData.modelType | lowercase}}"
+                   data-qa="fragment-detail-type-{{fragmentData.modelType | lowercase}}"><i
+              class="c-icon c-icon--large c-icon-radio__icon {{vm.getFragmentIcon(fragmentData.modelType)}}"
+              uib-popover="{{fragmentData.description.short | lowercase}}" popover-placement="top" popover-trigger="mouseenter" popover-class="popover--top"></i><span
+              class="c-icon-radio__text" data-ng-if="vm.dataSource.element.type === fragmentData.modelType">{{fragmentData.name}}</span></label>
+          </label>
+        </div>
+      </ng-form>
+
+      <form-field data-ng-repeat="item in vm.templateFragmentsData[vm.selectedIndex].properties"
+                  class="c-form-gutter c-col c-col--vertical-top"
+                  data-ng-class="{'c-col--12': item.propertyType === 'list' || item.propertyType === 'multiple-list',
+		    'c-col--6': item.propertyType !== 'list' && item.propertyType !== 'multiple-list'}"
+                  data-ng-form-id="{{item.propertyId}}"
+                  data-field="item"
+                  data-model="vm.dataSource.element.configuration"
+                  data-form="vm.form"
+                  data-st-name="dataSource{{item.propertyName}}Form"
+                  data-ng-if="item.propertyId !== 'name'"
+                  data-list-compressed="true"
+                  data-modal="true"
+                  data-delete-class="true"
+                  data-qa="{{item.qa}}">
+      </form-field>
+      <section class="c-col c-col--12" data-ng-if="vm.dataSource.id" ><span class ="c-icon icon-alert c-icon--alert c-icon c-info-text__icon"></span> <span class ="c-icon-text__text c-icon-text--a2">{{"_FRAGMENT_WARNING_AFFECTED_POLICIES_"  | translate: "{'fragmentType': '" + vm.dataSource.fragmentType + "'}"}}</span></section>
+      <div class="c-row c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
+        <i class="c-icon icon-circle-cross"></i>
+        <span translate="{{vm.errorText}}"></span>
+      </div>
+
+      <div class="c-row c-row--separated">
+        <div class="c-col c-col--6 c-col--vertical-centered">
+          <a data-ng-href="{{vm.templateFragmentsData[vm.selectedIndex].description.learnMore}}"
+             class="c-info-text c-info-text--is-clickable" target="_blank"
+             data-qa="fragment-detail-type-{{vm.dataSource.element.type | lowercase}}-help"><i
+            class="c-icon c-info-text__icon icon-info1"></i><span class="c-info-text__text c-info-text__text--is-link">{{"_INPUT_WINDOW_NEW_HELP_" | translate}}</span></a>
+        </div><div class="c-col c-col--6 c-col--vertical-centered c-col--to-right">
+          <button type="button" class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()"
+                  data-qa="modal-cancel-button">
+            <i class="c-icon icon-circle-cross"></i>
+            <span translate="_INPUT_BUTTON_CANCEL_"></span>
+          </button>
+          <button type="submit" class="c-button c-button--call-to-action-1" data-ng-click="vm.ok()"
+                  data-qa="modal-ok-button">
+            <i class="icon {{vm.modalTexts.icon}}"></i>
+            <span translate="{{vm.modalTexts.button}}"></span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</aside>

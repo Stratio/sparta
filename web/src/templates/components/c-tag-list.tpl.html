@@ -1,0 +1,12 @@
+<div class="{{formControlClass}}">
+  <span class="c-icon-label c-col c-col--12" data-ng-if = "showLabel">
+  	<i class="c-icon-label__icon c-icon c-icon--is-clickable c-icon--call-to-action icon-info1" uib-popover='{{help}}' popover-class="t-uib-popover" popover-trigger="click" data-qa="{{helpQa}}"></i>
+  	<label class="{{labelControlClass}}" data-ng-class = "{'c-label--required': required, 'c-label': !required}">{{labelControlText}}:</label>
+  </span>
+  <div data-ng-if="tags.length > 0" class="c-form-group c-form-group--full-width">
+    <span data-ng-repeat="tag in tags track by $index" data-ng-model="tag" data-ng-value="(tag)" class="c-tag" type="{{tagType}}">
+    	<span class="c-tag__text" data-qa="{{qa}}-{{$index}}">{{tag}}</span>
+    	<i class="c-tag__close-icon c-icon c-icon--is-clickable icon-cross" data-ng-click="deleteTag($index)" data-ng-if="enableDelete" data-qa="{{qa}}-{{$index}}-remove"></i>
+    </span>
+  </div>
+</div>

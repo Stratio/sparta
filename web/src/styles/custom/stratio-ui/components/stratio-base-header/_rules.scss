@@ -1,0 +1,169 @@
+@mixin stratio-base-header {
+
+	position: fixed;
+    width: 100%;
+    height: 85px;
+    top: 0;
+    left: 0;
+	z-index: 200;
+
+	.top {
+		height: $stratio-base-header_top---height;
+		background-color: $stratio-base-header_top---background-color;
+	}
+
+	.login {
+		position: $stratio-base-header_login---position;
+		top: $stratio-base-header_login---top;
+		right: $stratio-base-header_login---right;
+		padding: $stratio-base-header_login---padding;
+		background-color: $stratio-base-header_login---background-color;
+		border-bottom-left-radius: $stratio-base-header_login---border-bottom-left-radius;
+		z-index: $stratio-base-header_login---z-index;
+		color: $stratio-base-header_login---color;
+
+		.user {
+			position: relative;
+			display: inline-block;
+			padding-right: 20px;
+
+			.icon {
+				color: getColor(n7);
+
+				&.icon_xxsmall {
+					font-size: 13px;
+				}
+
+				&.icon_xxxsmall {
+					font-size: 11px;
+				}
+			}
+
+			.user-name {
+				padding: 0 10px 0 5px;
+
+				&.head_xxsmall {
+					font-size: 15px;
+				}
+			}
+		}
+
+		.app-menu {
+			position: relative;
+			display: inline-block;
+
+			.icon_xsmall {
+				font-size: 15px;
+			}
+		}
+	}
+
+	.main {
+		background-color: $stratio-base-header_main---background-color;
+		height: 85px;
+
+		.menu-cont {
+
+			.logo {
+				color: getColor(a1);
+				padding: 15px 0 5px 30px;
+				text-transform: uppercase;
+
+				.icon_xsmall {
+					font-size: 15px;
+				}
+
+				.head_xxsmall {
+					font-size: 15px;
+				}
+			}
+
+			.module-title {
+				color: $stratio-base-header_main_menu-cont_modeule-title---color;
+				font-size: $stratio-base-header_main_menu-cont_modeule-title---font-size;
+				text-transform: $stratio-base-header_main_menu-cont_modeule-title---text-transform;
+				padding: $stratio-base-header_main_menu-cont_modeule-title---padding;
+				cursor: $stratio-base-header_main_menu-cont_modeule-title---cursor;
+			}
+		}
+
+		.menu-element {
+			border-bottom: 0;
+
+			a {
+				padding: $stratio-base-header_main_menu-element_a---padding;
+			}
+
+			&.selected a {
+				color: #ffffff;
+
+				.title {
+					color: #ffffff;
+				}
+			}
+
+			.submenu-element {
+				display:block;
+			}
+		}
+		.submenu-element{
+			position:absolute;
+			top:52px;
+
+
+			&:before{
+				border-left: 7px solid transparent;
+				border-right: 7px solid transparent;
+				border-top-width: 7px;
+				border-top-style: solid;
+				border-top-color: #0f1b27;
+				content:' ';
+				top:-14px;
+				left:25px;
+				position:absolute;
+			}
+
+			@media screen and (max-width: 1400px) {
+					left: -130px;
+
+					&:before{
+						left: 50%;
+						margin-left: -20px;
+					}
+				}
+
+
+			li{
+				display:inline-block;
+				margin: 0 10px 0 10px;
+				color: #999;
+				padding: 0 10px 0 10px;
+				cursor: pointer;
+				position:relative;
+
+				&.active{
+					color:#555;
+					border-bottom: 4px solid #37b5e4;
+					padding-bottom: 12px;
+				}
+
+				&:before{
+					content: '|';
+					color: #cbcbcb;
+					font-family: "Brandon Text";
+					font-size: 0.94rem;
+					position: absolute;
+					left: -10px;
+				}
+
+				&:first-child:before{
+					content:'';
+				}
+			}
+		}
+	}
+}
+
+#stratio-base .stratio-base-header {
+  @include stratio-base-header;
+}

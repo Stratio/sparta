@@ -1,0 +1,27 @@
+/*doc
+---
+title: c-label
+name: c-label
+category: components
+---
+
+The label component creates a customized label item.
+
+```html_example
+<label type="text" class="c-label">My label</label>
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+$c-label---margin 							| `0 15px 0 0' 
+
+## Dependencies
+
+[c-component]()
+
+*/
+
+@import "vars";
+@import "rules";

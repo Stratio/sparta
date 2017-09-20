@@ -1,0 +1,110 @@
+#base-auxiliar-sidebar{
+	box-shadow: 0px 0px 10px rgba(#000, 0.2);
+	margin-bottom: 30px;
+
+	#auxiliar-title{
+		text-transform: uppercase;
+		height: 96px;
+		color: $auxiliar-sidebar-font-mtitle;
+		background: $auxiliar-sidebar-bg-mtitle;
+		padding: 55px 24px 0px;
+		font-size: 25px;
+		overflow: hidden;
+		position: relative;
+
+		.ico{
+			position: absolute;
+			top: -28px;
+			left: -11px;
+			font-size: 82px;
+			color: #e3e3e3;
+		}
+		.close-auxiliar{
+			@extend .t-fast;
+			position: absolute;
+			top: 15px;
+			right: 20px;
+			font-size: 20px;
+			color: #767676;
+			cursor: pointer;
+
+			&:hover{
+				color: #242424;
+			}
+		}
+		& + .auxiliar-block{
+			border-top: 0;
+		}
+	}
+	.auxiliar-block{
+		border-top: 1px solid $auxiliar-sidebar-bg-mtitle;
+		padding: 24px;
+
+		.status-bar-widget-title{
+			font-size: 16px;
+			color: $auxiliar-sidebar-font-mtitle;
+			border-bottom: 1px solid $auxiliar-sidebar-border-block;
+			text-transform: uppercase;
+			margin-bottom: 4px;
+		}
+	}
+
+	@mixin aColor($c, $ch){
+		color: $c;
+
+		&:hover{
+			color: $ch;
+		}
+		&.no-hover:hover{
+			color: $c;
+		}
+	}
+	.auxiliar-status-row{
+		font-size: 14px;
+		line-height: 30px;
+
+		@include aColor(#888, #666);
+
+		&,a{
+			@extend .t-fast;
+		}
+		a{
+			color: inherit;
+		}
+
+		&.status-ok{@include aColor($green, $green-h);}
+		&.status-warning,
+		&.status-starting,
+		&.status-stopping
+			{@include aColor($yellow, $yellow-h);}
+		&.status-critical{@include aColor($red, $red-h);}
+	}
+	.info-legend{
+		.info-ico,
+		.legend{
+			display: inline-block;
+			vertical-align: top;
+		}
+		.info-ico{
+			color: #e1e1e1;
+			height: 100%;
+			
+			.ico{
+				font-size: 20px;
+				margin-right: 8px;
+			}
+		}
+		.legend{
+			border-left: 2px solid #e1e1e1;
+			padding-left: 10px;
+
+			.auxiliar-status-row{
+				line-height: 22px;
+				cursor: default;
+			}
+			span{
+				margin-right: 6px;
+			}
+		}
+	}
+}

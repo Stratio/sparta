@@ -1,0 +1,82 @@
+<section>
+  <div class="c-panel" data-ng-if="inputs.inputsData.length > 0">
+    <aside class="c-toolbar--filter c-toolbar--fixed">
+      <div class="c-col c-col--9">
+        <div class="c-toolbar--filter__item c-toolbar--filter__item--padding-right">
+          <i class="icon icon-filter "></i>
+		            <span class="c-toolbar--filter__item__label">
+		        	    {{"_FILTER_BY_TYPE_" | translate}}
+		        	</span>
+          <div class="c-combobox--right-margin  c-toolbar--filter__item__input">
+            <select id="type" class="c-combobox c-combobox__filter c-combobox--filter" data-ng-model="inputs.filters.element.type" data-qa="input-filter-type">
+              <option value="" data-qa="input-filter-type-allTypes">{{"_INPUT_FILTER_TYPE_DEFAULT_" | translate}}</option>
+              <option value="{{inputType.type}}" data-ng-repeat="inputType in inputs.inputTypes" data-qa="input-filter-type-{{inputType.type | lowercase}}">
+                {{inputType.type}} ({{inputType.count}})
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="c-toolbar--filter__item">
+          <i class="icon  icon-filter "></i>
+                    <span class="c-toolbar--filter__item__label">
+                        {{"_FILTER_BY_NAME_"| translate}}
+                    </span>
+          <div class="quick-search quick-search__filter">
+            <input type="text" id="name" class="quick-search__input" data-ng-model="inputs.filters.name" data-qa="input-filter-name"/>
+            <i class="quick-search__ico icon-search"></i>
+          </div>
+        </div>
+      </div><!--
+		 --><div class="c-col c-col--3 c-form-group--to-right">
+      <button class="c-button c-button--toolbar c-button--call-to-action-1  c-button--left-margin" data-ng-click="inputs.createInput()"
+              data-qa="input-filter-new-input">
+        <span class="icon icon-circle-plus"></span>
+        <span>{{"_INPUT_WINDOW_NEW_TITLE_" | translate |uppercase}}</span>
+      </button>
+    </div>
+    </aside>
+
+    <!-- Error message -->
+    <c-animated-msg data-msg="inputs.errorMessage" data-on-click-close-msg="inputs.deleteErrorMessage()"  data-qa="manage-policies-error-msg"
+                    data-timeout=10000>
+    </c-animated-msg>
+
+    <ul br-ba-container="c-grid" class="br-ba-container-margin">
+      <li class="c-grid-item" data-ng-repeat="input in  filteredInputsData = (inputs.inputsData
+			| filter:{'element':{'type':inputs.filters.element.type || undefined}}:true | filter:{ 'name': inputs.filters.name})" br-ba-item="{index:$index, total:filteredInputsData.length}">
+        <header class="title">
+          <span class="name">{{input.name}}</span>
+					<span class="icon-actions menu_actions" data-ng-click="$root.stToggleFloatingMenu[input.id]()" data-qa="input-context-menu-{{input.id}}">
+						<st-floating-menu toggle-id="{{input.id}}" align="right">
+              <st-menu-element class-icon="icon-edit2" data-ng-click="inputs.editInput(input)" data-qa="input-context-menu-{{input.id}}-edit">
+                {{"_INPUT_ACTIONS_MENU_EDIT_" | translate}}
+              </st-menu-element>
+              <st-menu-element class-icon="icon-copy" data-ng-click="inputs.duplicateInput(input.id)" data-qa="input-context-menu-{{input.id}}-duplicate">
+                {{"_INPUT_ACTIONS_MENU_DUPLICATE_" | translate}}
+              </st-menu-element>
+              <st-menu-element class-icon="icon-cross" data-ng-click="inputs.deleteInput(input.fragmentType, input.id, input.element.type)" data-qa="input-context-menu-{{input.id}}-delete">
+                {{"_INPUT_ACTIONS_MENU_DELETE_" | translate}}
+              </st-menu-element>
+            </st-floating-menu>
+					</span>
+        </header>
+
+        <div class="c-row o-media">
+          <div class="o-media__img">
+            <i class="c-icon c-icon--xxxlarge {{inputs.getFragmentIcon(input.element.type)}} o-media__img__item" alt="{{input.element.type}}"></i>
+          </div>
+
+          <span class="o-media__bd c-grid-item__desc">{{input.shortDescription}}</span>
+        </div>
+
+        <footer class="c-row c-row--to-bottom c-row--to-right">
+          <i class="c-icon c-icon--is-clickable c-grid-item__info-icon icon-info1" uib-popover="{{input.description}}" popover-placement="left" popover-class="popover--left" popover-trigger="click" data-qa="input-tootip-{{input.id}}"></i>
+        </footer>
+      </li>
+    </ul>
+  </div>
+  <div class="c-msg--noitems c-msg--giant" data-ng-if="inputs.inputsData.length === 0" data-ng-click="inputs.createInput()" data-qa="input-first-message">
+    <i class="c-icon icon-marquee-plus"></i>
+    <span class="c-msg__text">{{"_INPUT_CREATE_FIRST_ONE_" | translate}}</span>
+  </div>
+</section>

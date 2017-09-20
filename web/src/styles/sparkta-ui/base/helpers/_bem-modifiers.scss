@@ -1,0 +1,95 @@
+@mixin is-clickable($onlyProperties: false) {
+	@if $onlyProperties {
+		cursor: pointer;
+	} @else {
+		&--is-clickable {
+			cursor: pointer;
+		}
+	}
+}
+
+@mixin is-coloured($colors) {
+	@each $key, $value in $colors {
+		&--#{$key} {
+			color: $value;
+		}
+	}
+}
+
+@mixin is-link() {
+	&--is-link {
+		&:hover {
+			@include is-clickable(true);
+
+			text-decoration: underline;
+		}
+	}
+}
+
+@mixin container-to-right() {
+	&--to-right {
+		text-align: right;
+	}
+}
+
+@mixin container-to-center() {
+	&--content-to-center {
+    width:100%;
+		text-align: center;
+	}
+}
+
+@mixin container-to-bottom() {
+	&--to-bottom {
+		bottom: 0;
+		position: absolute;
+		width: 100%;
+	}
+}
+
+@mixin item-to-right() {
+	&--to-right {
+		float: right;
+	}
+}
+
+@mixin item-to-left() {
+	&--to-left {
+		float: left;
+	}
+}
+
+@mixin font-sizes() {
+	@each $key, $value in $font-sizes {
+		&--#{$key} {
+			font-size: $value;
+		}
+	}
+}
+
+@mixin full-width() {
+	&--full-width {
+		width: 100%;
+	}
+}
+
+@mixin no-paddings() {
+	&--no-padding {
+		padding: 0;
+	}
+	&--no-padding-top {
+		padding-top: 0;
+	}
+
+	&--no-padding-bottom {
+		padding-bottom: 0;
+	}
+
+	&--no-padding-left {
+		padding-left: 0;
+	}
+
+	&--no-padding-right {
+		padding-right: 0;
+	}
+}

@@ -1,0 +1,33 @@
+@mixin c-icon-text {
+	@include c-component;
+
+	display: inline-block;
+	position: relative;
+
+	@include is-clickable();
+	@include is-coloured($c-icon-text---colors);
+
+	&__text {
+		vertical-align: middle;
+		font-size: 0.875rem;
+		@include is-link;
+
+		&--required:after {
+			content: ' *';
+		}
+
+		&::first-letter {
+			text-transform: uppercase;
+		}
+	}
+
+	&__icon {
+		margin: $c-icon-text__icon---margin;
+		vertical-align: middle;
+	}
+
+}
+
+.c-icon-text {
+	@include c-icon-text;
+}

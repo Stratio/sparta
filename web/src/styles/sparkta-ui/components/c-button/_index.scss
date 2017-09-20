@@ -1,0 +1,53 @@
+/*doc
+---
+title: c-button
+name: c-button
+category: components
+---
+
+The button component creates a button that can be customized.
+
+```html_example
+ <button class="c-button c-button--call-to-action-1"></button>
+ <button class="c-button c-button--call-to-action-2"></button>
+ <button class="c-button c-button--call-to-action-3"></button>
+ <button class="c-button c-button--call-to-action-4"></button>
+ <button class="c-button c-button--call-to-action-1 c-button--to-right"></button>
+```
+
+## Variables exposed to theming
+
+Variable                                     	 	| Default value
+--------------------------------------------------- | -----------------
+$c-button---height             						| `40px`
+$c-button---min-width              					| `180px`
+$c-button---padding              					| `0 20px`
+$c-button---text-align              				| `center`
+$c-button---text-transform              			| `uppercase`
+$c-button--call-to-action-1---background            | `get-color(c1)`
+$c-button--call-to-action-1---color              	| `get-color(g0)`
+$c-button--call-to-action-1--hover---background     | `get-color(c1b)`
+$c-button--call-to-action-1--hover---color          | `get-color(g0)`
+$c-button--call-to-action-2---background            | `get-color(c2)`
+$c-button--call-to-action-2---color              	| `get-color(g0)`
+$c-button--call-to-action-2--hover---background     | `get-color(c2b)`
+$c-button--call-to-action-2--hover---color          | `get-color(g0)`
+$c-button--call-to-action-3---background            | `get-color(c3)`
+$c-button--call-to-action-3---color              	| `get-color(g0)`
+$c-button--call-to-action-3--hover---background     | `get-color(c3b)`
+$c-button--call-to-action-3--hover---color          | `get-color(g0)`
+$c-button--call-to-action-4---background   			| `get-color(g0)`
+$c-button--call-to-action-4---border   				| `2px solid get-color(g3)`
+$c-button--call-to-action-4---color   				| `get-color(g4)`
+$c-button--call-to-action-4--hover---background   	| `get-color(g0)`
+$c-button--call-to-action-4--hover---border   		| `2px solid get-color(g4)`
+$c-button--call-to-action-4--hover---color   		| `get-color(g5)`
+
+## Dependencies
+
+[c-component]()
+
+*/
+
+@import "vars";
+@import "rules";

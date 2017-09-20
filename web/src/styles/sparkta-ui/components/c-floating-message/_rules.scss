@@ -1,0 +1,46 @@
+@mixin c-floating-message {
+  @include c-component;
+  & {
+    vertical-align: middle;
+    text-align: center;
+    background: $c-floating-message---background;
+    padding: $c-floating-message---padding;
+    position: $c-floating-message---position;
+    height: $c-floating-message---height;
+
+    &.ng-leave {
+      -webkit-transition:$c-floating-message---transition;
+      -moz-transition:$c-floating-message---transition;
+      -ms-transition: $c-floating-message---transition;
+      -o-transition: $c-floating-message---transition;
+      transition: $c-floating-message---transition;
+      opacity: 1;
+    }
+    &.ng-leave.ng-leave-active,   &__text.ng-leave.ng-leave-active {
+      opacity: 0;
+    }
+
+    &.ng-enter, &__text.ng-enter {
+      -webkit-transition:$c-floating-message---transition;
+      -moz-transition:$c-floating-message---transition;
+      -ms-transition: $c-floating-message---transition;
+      -o-transition: $c-floating-message---transition;
+      transition: $c-floating-message---transition;
+      opacity: 0;
+    }
+
+    &.ng-enter.ng-enter-active,   &__text.ng-enter.ng-enter-active {
+      opacity: 1;
+    }
+  }
+
+  &__icon, &__text, &__close-button {
+    color: $c-floating-message---color;
+    line-height: $c-floating-message---line-height;
+    vertical-align: middle;
+  }
+}
+
+.c-floating-message {
+  @include c-floating-message;
+}

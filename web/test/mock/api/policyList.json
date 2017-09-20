@@ -1,0 +1,434 @@
+[{
+    "id": "8c062142-7e52-4f5c-ae7d-39bd619a019e",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "df",
+    "description": "dfdf",
+    "sparkStreamingWindow": "6s",
+    "transformations": {
+      "transformationsPipe": [{
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [{
+          "name": "df",
+          "type": "string"
+        }],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
+        }
+      }]
+    },
+    "streamTriggers": [],
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+        "name": "df",
+        "field": "df",
+        "precision": "identity",
+        "type": "Default"
+      }],
+      "operators": [{
+          "type": "Accumulator",
+          "name": "accumulator",
+          "configuration": {
+            "dfdf": "dfdfdf"
+          }
+        },
+        {
+          "type": "EntityCount",
+          "name": "entitycount",
+          "configuration": {
+            "b": "bbvvb"
+          }
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "fdfdf"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
+      }
+    },
+    "outputs": [{
+      "name": "fdfdf",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "saveOptions": [{
+          "saveOptionsKey": "fdf",
+          "saveOptionsValue": "dfdfd"
+        }]
+      }
+    }],
+    "fragments": [{
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
+          }
+        }
+      },
+      {
+        "id": "76022f60-e95f-49ca-afda-3db76232b7a0",
+        "fragmentType": "output",
+        "name": "fdfdf",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom output defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "saveOptions": [{
+              "saveOptionsKey": "fdf",
+              "saveOptionsValue": "dfdfd"
+            }]
+          }
+        }
+      }
+    ],
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
+  },
+  {
+    "id": "1db9edd0-ae4e-4e4d-b313-55bf4e4f122e",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "dfdf",
+    "description": "Dfdf",
+    "sparkStreamingWindow": "6s",
+    "transformations": {
+      "transformationsPipe": [{
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [{
+          "name": "dfdf",
+          "type": "string"
+        }],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
+        }
+      }]
+    },
+    "streamTriggers": [],
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+        "name": "dfdf",
+        "field": "dfdf",
+        "precision": "identity",
+        "type": "Default"
+      }],
+      "operators": [{
+          "type": "MeanAssociative",
+          "name": "meanassociative",
+          "configuration": {}
+        },
+        {
+          "type": "EntityCount",
+          "name": "entitycount",
+          "configuration": {}
+        }
+      ],
+      "writer": {
+        "outputs": [
+          "adsdsd"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
+      }
+    },
+    "outputs": [{
+      "name": "adsdsd",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "localhost",
+        "cluster": "sparta",
+        "keyspace": "sparta",
+        "connectionPort": "9042",
+        "saveOptions": [{
+          "saveOptionsKey": "",
+          "saveOptionsValue": ""
+        }],
+        "sparkProperties": [{
+          "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+          "sparkPropertyValue": "180000"
+        }]
+      }
+    }],
+    "fragments": [{
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
+          }
+        }
+      },
+      {
+        "id": "39fa1280-3807-44ad-8208-d29c0983b514",
+        "fragmentType": "output",
+        "name": "adsdsd",
+        "description": "Datastax Spark Connector:  goo.gl/PO4k4F",
+        "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
+        "element": {
+          "name": "in-Cassandra",
+          "type": "Cassandra",
+          "configuration": {
+            "connectionHost": "localhost",
+            "cluster": "sparta",
+            "keyspace": "sparta",
+            "connectionPort": "9042",
+            "saveOptions": [{
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
+            }],
+            "sparkProperties": [{
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }]
+          }
+        }
+      }
+    ],
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
+  },
+  {
+    "id": "b10dbf78-167a-444d-a879-a4bce3ae2ce7",
+    "storageLevel": "MEMORY_ONLY_SER",
+    "name": "sds",
+    "description": "dfd",
+    "sparkStreamingWindow": "6s",
+    "transformations": {
+      "transformationsPipe": [{
+        "type": "Ingestion",
+        "order": 0,
+        "inputField": "_attachment_body",
+        "outputFields": [{
+          "name": "df",
+          "type": "string"
+        }],
+        "configuration": {
+          "whenError": "Error",
+          "removeInputField": false
+        }
+      }]
+    },
+    "streamTriggers": [],
+    "cubes": [{
+      "name": "cube1",
+      "dimensions": [{
+          "name": "df",
+          "field": "df",
+          "precision": "identity",
+          "type": "Default"
+        },
+        {
+          "name": "dfgffgfg",
+          "field": "df",
+          "precision": "3232h",
+          "type": "DateTime",
+          "computeLast": "34ms",
+          "configuration": {
+            "typeOp": "double"
+          }
+        },
+        {
+          "name": "dfcvcvfdf",
+          "field": "df",
+          "precision": "precision6",
+          "type": "GeoHash",
+          "configuration": {
+            "typeOp": "integer"
+          }
+        },
+        {
+          "name": "dfdfdf",
+          "field": "df",
+          "precision": "identity",
+          "type": "Default",
+          "configuration": {
+            "typeOp": "arraydouble"
+          }
+        }
+      ],
+      "operators": [{
+        "type": "Sum",
+        "name": "sum",
+        "configuration": {}
+      }],
+      "writer": {
+        "outputs": [
+          "adsdsd"
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append"
+      },
+      "triggers": [],
+      "avoidNullValues": true
+    }],
+    "input": {
+      "name": "a",
+      "type": "Custom",
+      "configuration": {
+        "modelType": "Custom",
+        "inputOptions": [{
+          "inputOptionsKey": "df",
+          "inputOptionsValue": "df"
+        }]
+      }
+    },
+    "outputs": [{
+      "name": "adsdsd",
+      "type": "Cassandra",
+      "configuration": {
+        "connectionHost": "localhost",
+        "cluster": "sparta",
+        "keyspace": "sparta",
+        "connectionPort": "9042",
+        "saveOptions": [{
+          "saveOptionsKey": "",
+          "saveOptionsValue": ""
+        }],
+        "sparkProperties": [{
+          "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+          "sparkPropertyValue": "180000"
+        }]
+      }
+    }],
+    "fragments": [{
+        "id": "37eb65e4-fbed-4fd0-a246-e5ec5fa17102",
+        "fragmentType": "input",
+        "name": "a",
+        "description": "User can extend the Sparta SDK with his own implementation of Input class",
+        "shortDescription": "Custom input defined by user",
+        "element": {
+          "name": "in-Custom",
+          "type": "Custom",
+          "configuration": {
+            "modelType": "Custom",
+            "inputOptions": [{
+              "inputOptionsKey": "df",
+              "inputOptionsValue": "df"
+            }]
+          }
+        }
+      },
+      {
+        "id": "39fa1280-3807-44ad-8208-d29c0983b514",
+        "fragmentType": "output",
+        "name": "adsdsd",
+        "description": "Datastax Spark Connector:  goo.gl/PO4k4F",
+        "shortDescription": "The Cassandra output uses the generic implementation with DataFrames.",
+        "element": {
+          "name": "in-Cassandra",
+          "type": "Cassandra",
+          "configuration": {
+            "connectionHost": "localhost",
+            "cluster": "sparta",
+            "keyspace": "sparta",
+            "connectionPort": "9042",
+            "saveOptions": [{
+              "saveOptionsKey": "",
+              "saveOptionsValue": ""
+            }],
+            "sparkProperties": [{
+              "sparkPropertyKey": "spark.cassandra.connection.keep_alive_ms",
+              "sparkPropertyValue": "180000"
+            }]
+          }
+        }
+      }
+    ],
+    "userPluginsJars": [{
+      "jarPath": ""
+    }],
+    "sparkConf": [{
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }],
+    "sparkSubmitArguments": [{
+      "submitArgument": "",
+      "submitValue": ""
+    }],
+    "initSqlSentences": [{
+      "sentence": ""
+    }]
+  }
+]

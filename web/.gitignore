@@ -1,29 +1,6 @@
-# IDEs
-.history/
-.idea/
-.vscode/
-
-# dist
-dist/
-target
-
-# Node
-node/
-node_modules/
-npm-debug.log
-.npmrc
-
-# OS metadata
-.DS_Store
-Thumbs.db
-
-# Node
-node_modules/
-npm-debug.log
-.npmrc
-
-# Karma
-coverage/
-
-# Yarn
-yarn.lock
+/node
+/node_modules
+/target
+/.tmp
+/.sass-cache
+/bower_components

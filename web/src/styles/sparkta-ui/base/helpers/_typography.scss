@@ -1,0 +1,15 @@
+@function get-font($font-family: brandon) {
+	@return map-get($font-families, $font-family);
+}
+
+@function get-font-weight($weight: normal) {
+	@return map-get($font-weights, $weight);
+}
+
+@function get-font-size($size: medium) {
+	@return map-get($font-sizes, $size);
+}
+
+@function get-line-height($height: normal) {
+	@return map-get($line-heights, $height);
+}

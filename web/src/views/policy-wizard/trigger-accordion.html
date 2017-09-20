@@ -1,0 +1,14 @@
+<form class="c-form c-panel c-panel--framed c-panel--border-top" novalidate>
+
+  <c-accordion items="vm.triggerContainer" data-ng-model = "vm.triggerContainer"
+    item-template="'views/policy-wizard/trigger-panel.html'"
+    on-change-opened-element="vm.changeOpenedTrigger(selectedItemPosition)"
+    item-qa-tag="policy-trigger"
+    show-new-item-panel="vm.isActiveTriggerCreationPanel()"
+    accordion-status="vm.triggerAccordionStatus"
+    item-attribute-in-header="name"
+    data-width="{{vm.outputsWidth}}"
+    new-item-header="_POLICY_._NEW_TRIGGER_DEFINITION_"
+    data-ng-class="{'secondary-accordion': vm.outputsWidth === 'lg'}">
+  </c-accordion>
+</form>

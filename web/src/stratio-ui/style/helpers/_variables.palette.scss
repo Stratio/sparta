@@ -1,0 +1,51 @@
+
+
+$colors: (
+	a1: #37b5e4,
+	a1_light: #3dc9fc,
+	a1_dark: #2d96bd,
+	a2: #b5c1c5,
+	a2_light: #ccd9de,
+	a2_dark: #919b93,
+	a3: #405467,
+	a3_light: #4f6880,
+	a3_dark: #283440,
+
+	b1: #172734,
+	b2: #0f1b27,
+	b3: #eff2f3,
+	b3_dark: #e1e5e5,
+	b4: #ffffff,
+
+	n0: #ffffff,
+	n1: #fbfbfb,
+	n2: #f3f3f3,
+	n3: #e4e4e4,
+	n4: #cbcbcb,
+	n5: #b5b5b5,
+	n6: #999999,
+	n7: #777777,
+	n8: #555555,
+	n9: #242424,
+	n10: #000000,
+
+	s1: #88b060,
+	s1_light: #9ab084,
+	s1_dark: #759653,
+	s2: #ff8900,
+	s2_light: #ffa033,
+	s2_dark: #e57a00,
+	s3: #e23b2b,
+	s3_light: #e36459,
+	s3_dark: #c93426,
+
+	t1: #d7c200,
+	t2: #00d9df,
+	t3: #a7eb1e
+) !default;
+
+
+
+@function getColor($name: n0){
+	@return map-get($colors, $name);
+}

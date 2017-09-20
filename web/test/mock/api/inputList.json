@@ -1,0 +1,130 @@
+[
+  {
+    "description": "Reads events from a socket.",
+    "element": {
+      "configuration": {
+        "hostname": "localhost",
+        "port": "123"
+      },
+      "type": "Socket",
+      "name": "in-Socket"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from a socket.",
+    "name": "test_input_socket",
+    "id": "2581f20a-fd83-4315-be45-192bc5sEdhff"
+  },
+  {
+    "description": "Reads events from flume",
+    "element": {
+      "configuration": {
+        "enableDecompression": true,
+        "hostname": "localhost",
+        "type": "push",
+        "port": "11999"
+      },
+      "type": "Flume",
+      "name": "in-Flume"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from flume",
+    "name": "test_input_flume_type_push",
+    "id": "2581f20a-fd83-4315-be45-192bc5sEd0ff"
+  },
+  {
+    "description": "Reads events from apache-kafka",
+    "element": {
+      "configuration": {
+        "bootstrap.servers":
+        [
+          {
+            "host":"localhost",
+            "port":"2181"
+          }
+        ],
+        "topics":
+        [
+          {
+            "topic":"1111",
+            "partition":"1"
+          },
+          {
+            "topic":"2222",
+            "partition":"2"
+          }
+        ],
+        "group.id": "aaaa"
+      },
+      "type": "Kafka",
+      "name": "in-Kafka"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from apache-kafka",
+    "name": "test_input_kafka",
+    "id": "2581f20a-fd83-4315-be45-1923c5sEFfl"
+  },
+  {
+    "description": "Reads events from a socket.",
+    "element": {
+      "configuration": {
+        "hostname": "localhost",
+        "port": "123"
+      },
+      "type": "Socket",
+      "name": "in-Socket"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from a socket.",
+    "name": "test_input_socket",
+    "id": "2500f20a-fd83-4315-be45-192bc5sEdhff"
+  },
+  {
+    "description": "Reads events from flume",
+    "element": {
+      "configuration": {
+        "parallelism": "5",
+        "type": "pull",
+        "addresses": [{"host":"localhost","port":"11999"}],
+        "maxBatchSize": "1000"
+      },
+      "type": "Flume",
+      "name": "in-Flume"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from flume",
+    "name": "test_input_flume_type_pull",
+    "id": "2581f20a-fd83-4315-be45-192bc5sE4Fff"
+  },
+  {
+    "description": "Reads events from apache-kafka",
+    "element": {
+      "configuration": {
+        "bootstrap.servers":
+        [
+          {
+            "host":"localhost",
+            "port":"2181"
+          }
+        ],
+        "topics":
+        [
+          {
+            "topic":"1111",
+            "partition":"1"
+          },
+          {
+            "topic":"2222",
+            "partition":"2"
+          }
+        ],
+        "group.id": "aaaa"
+      },
+      "type": "Kafka",
+      "name": "in-Kafka"
+    },
+    "fragmentType": "input",
+    "shortDescription": "Reads events from apache-kafka",
+    "name": "test_input_kafka",
+    "id": "2581f20a-fd83-4315-bt05-1923c5sEFfl"
+  }
+]

@@ -1,0 +1,35 @@
+@mixin c-info-text {
+	@include c-icon-text;
+
+	color: $c-info-text---color;
+	font-size: $c-info-text---font-size;
+
+	&--narrow {
+		font-style: italic;
+	}
+
+	&__icon {
+		color: $c-info-text__icon---color;
+		font-size: $c-info-text__icon---font-size;
+	}
+
+	&__link {
+		position: $c-info-text__link---position;
+		display: $c-info-text__link---display;
+		color: $c-info-text__link---color;
+		cursor: $c-info-text__link---cursor;
+
+		&__align {
+			font-size: $c-info-text__link__align---font-size;
+			vertical-align: $c-info-text__link__align---vertical-align;
+		}
+
+		&--padding-left {
+			padding-left: 15px;
+		}
+	}
+}
+
+.c-info-text {
+	@include c-info-text;
+}

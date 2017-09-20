@@ -1,0 +1,54 @@
+<ng-form name="{{name}}" class="c-form-group">
+  <div class="c-form-control c-form-control--full-width">
+    <div ng-if="!field.limit == 1 || listCompressed"
+         class="c-label c-icon-label__text c-label--margin-list c-col c-col--12">
+
+      <label class="c-icon-label__text">                {{field.propertyName | translate}}  </label>
+           <i data-ng-if="field.tooltip" uib-popover="{{field.tooltip}}" popover-class="popover--top" popover-trigger="click"
+              popover-placement="top" class="c-icon icon-help2 c-icon--is-clickable c-icon--in-label"
+              data-qa="{{helpQa}}"></i>
+
+    </div>
+
+    <div class="c-form-group"
+         data-ng-class="{'c-form-group--list-compressed': listCompressed, 'c-form-group--with-gutter': modal}"
+         data-ng-repeat="row in model[field.propertyId] track by $index" data-ng-init="indexRow = $index">
+      <div data-ng-repeat="item in field.fields track by $index" class="st-form-list-column c-col"
+           ng-class="{'c-col--vertical-top': ($index <= (field.fields.length - 2)),
+           'c-col--12': (listCompressed && !modal),
+            'c-col--{{getColNumberWidth(item)}}' : listCompressed === modal}">
+        <!-- input text -->
+        <form-field-input ng-attr-id="ng-{{name}}{{$parent.$index}}-{{item.propertyId}}"
+                          data-ng-if="(item.propertyType == 'text' || item.propertyType == 'password' || item.propertyType == 'number')"
+                          data-form="form" data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}"
+                          data-model="row[item.propertyId]" data-label="{{item.propertyName | translate}}"
+                          data-type="{{item.propertyType}}" data-pattern="item.regexp" data-required="item.required"
+                          data-col="item.col" data-output-field="item.outputField"
+                          data-qa="{{item.qa}}-{{indexRow}}"></form-field-input>
+        <!-- checkbox -->
+        <form-field-check ng-attr-id="{{ngFormId}}" data-ng-if="item.propertyType == 'boolean'" data-form="form"
+                          data-st-name="{{name}}-{{indexRow}}-{{item.propertyId}}" data-model="row[item.propertyId]"
+                          data-label="{{item.propertyName | translate}}" data-type="{{item.propertyType}}"
+                          data-help="{{item.tooltip}}" data-pattern="item.regexp" data-required="item.required"
+                          data-list-compressed="listCompressed" data-qa="{{item.qa}}-{{indexRow}}"></form-field-check>
+        <!-- select -->
+        <form-field-select ng-attr-id="{{ngFormId}}" data-ng-if="(item.propertyType == 'select')" data-form="form"
+                           data-st-name="{{name}}" data-model="row[item.propertyId]" data-options="item.values"
+                           data-item="label" data-label="{{item.propertyName | translate}}" data-help="{{item.tooltip}}"
+                           data-required="item.required" data-list-compressed="listCompressed"
+                           data-qa="{{qa}}"></form-field-select>
+
+      </div>
+      <i class="c-icon c-icon--is-clickable c-icon--list-compressed icon-square-cross" data-ng-if="!($first && $last)"
+         ng-click="removeItem($index)" data-qa="{{qa}}-minus-{{$parent.$index}}"></i>
+    </div>
+    <div class="c-label c-label--to-right c-label__add-button c-col c-col--12"
+         data-ng-class="{'c-label__secondary_button': multipleList}">
+            <span class="c-icon-label__text">
+                {{"_ADD_" | translate}}
+            </span>
+      <i class="c-icon icon-square-plus c-icon--is-clickable" data-ng-click="addItem()"
+         data-qa="{{qa}}-plus-{{model[field.propertyId].length}}"></i>
+    </div>
+  </div>
+</ng-form>

@@ -1,0 +1,28 @@
+@mixin c-icon-link {
+	@include c-icon-text;
+
+	color: $c-icon-link---color;
+	font-size: $c-icon-link---font-size;
+
+	&--narrow {
+		font-style: italic;
+	}
+
+	&__icon {
+		color: $c-icon-link__icon---color;
+		font-size: $c-icon-link__icon---font-size;
+	}
+
+	&__toolbar {
+		padding-top: $c-icon-link__toolbar---padding-top;
+		color: $c-icon-link__toolbar---color;
+
+		.c-icon {
+			color: $c-icon-link__toolbar--c-icon---color;
+		}
+	}
+}
+
+.c-icon-link {
+	@include c-icon-link;
+}

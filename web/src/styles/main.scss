@@ -1,28 +1,82 @@
-$egeo-sanitize: true;
-
-@import '~@stratio/egeo/theme/sanitize';
-@import '~@stratio/egeo/theme/grid.css';
-@import '~@stratio/egeo/theme/theme.css';
-
-html{
-   font-size: 16px;
-}
-
-body{
-   margin: 0;
-   overflow-x: hidden;
-   background: #fafafa;
-   font-family: 'Nunito Sans';
-}
-
-.selected-button {
-    background:#f3f6f8;
-}
-
-textarea.st-form-control{
-    width:100%;
-}
-
-.sth-header{
-    z-index:999!important;
-}
+@import 'sparkta-ui/base/settings/colors';
+@import 'sparkta-ui/base/settings/fonts';
+@import 'sparkta-ui/base/settings/layers';
+@import 'sparkta-ui/base/settings/typography';
+@import 'sparkta-ui/base/helpers/helpers';
+@import 'sparkta-ui/base/helpers/colors';
+@import 'sparkta-ui/base/helpers/typography';
+@import 'sparkta-ui/base/helpers/layers';
+@import 'sparkta-ui/base/helpers/app-config';
+@import 'sparkta-ui/base/helpers/bem-modifiers';
+@import 'sparkta-ui/base/helpers/angular-forms';
+@import 'sparkta-ui/themes/light-platinum';
+// Import vendors
+@import 'vendors/angular-ui/tooltip';
+@import 'vendors/angular-ui/modal';
+@import 'vendors/angular-ui/accordion';
+@import 'vendors/reset-css/reset';
+@import '../stratio-ui/style/stratio.ui';
+// End import vendors
+@import 'app';
+@import 'sparkta-ui/components/c-component/index';
+@import 'sparkta-ui/components/c-panel/index';
+@import 'sparkta-ui/components/c-row/index';
+@import 'sparkta-ui/components/c-col/index';
+@import 'sparkta-ui/components/c-column-grid/index';
+@import 'sparkta-ui/components/c-line-separator/index';
+@import 'sparkta-ui/components/c-list/index';
+@import 'sparkta-ui/components/c-button/index';
+@import 'sparkta-ui/components/c-input/index';
+@import 'sparkta-ui/components/c-input-file/index';
+@import 'sparkta-ui/components/c-searchbox/index';
+@import 'sparkta-ui/components/c-combobox/index';
+@import 'sparkta-ui/components/c-label/index';
+@import 'sparkta-ui/components/c-text/index';
+@import 'sparkta-ui/components/c-icon/index';
+@import 'sparkta-ui/components/c-form/index';
+@import 'sparkta-ui/components/c-form-control/index';
+@import 'sparkta-ui/components/c-form-group/index';
+@import 'sparkta-ui/components/c-horizontal-tabs/index';
+@import 'sparkta-ui/components/c-toolbar/index';
+@import 'sparkta-ui/components/c-toolbar-container/index';
+@import 'sparkta-ui/components/c-titlebar/index';
+@import 'sparkta-ui/components/c-icon-text/index';
+@import 'sparkta-ui/components/c-icon-label/index';
+@import 'sparkta-ui/components/c-info-text/index';
+@import 'sparkta-ui/components/c-icon-link/index';
+@import 'sparkta-ui/components/c-modal-inner/index';
+@import 'sparkta-ui/components/c-icon-radio/index';
+@import 'sparkta-ui/components/c-msg/index';
+@import 'sparkta-ui/components/c-table/index';
+@import 'sparkta-ui/components/c-pagination/index';
+@import 'sparkta-ui/components/c-checkbox/index';
+@import 'sparkta-ui/components/c-step-progress-bar/index';
+@import 'sparkta-ui/components/c-step/index';
+@import 'sparkta-ui/components/c-step-content/index';
+@import 'sparkta-ui/components/c-step-counter/index';
+@import 'sparkta-ui/components/c-fieldset/index';
+@import 'sparkta-ui/components/c-slider-content/index';
+@import 'sparkta-ui/components/c-floating-message/index';
+@import 'sparkta-ui/components/c-check-block/index';
+@import 'sparkta-ui/components/c-textarea/index';
+@import 'sparkta-ui/components/c-tag/index';
+@import 'sparkta-ui/components/c-cube/index';
+@import 'sparkta-ui/components/c-policy-status-badge/index';
+@import 'sparkta-ui/components/c-header/index';
+@import 'sparkta-ui/components/c-footer/index';
+@import 'sparkta-ui/components/c-form-gutter/index';
+@import 'sparkta-ui/components/c-auto-calculated-field/index';
+@import 'sparkta-ui/objects/o-media';
+@import 'sparkta-ui/objects/o-wcag-hidden';
+// Vendor customizations
+@import 'custom/angular-ui/components/tooltip';
+@import 'custom/angular-ui/components/_accordion';
+@import 'custom/angular-ui/components/c-accordion/index';
+@import 'custom/angular-ui/components/tooltip/index';
+@import 'custom/stratio-ui/components/c-grid-item/index';
+@import 'custom/stratio-ui/components/stratio-base-header/index';
+@import 'custom/stratio-ui/components/c-input/index';
+@import 'custom/stratio-ui/components/c-form-group/index';
+@import 'custom/stratio-ui/components/base-content-wrapper/index';
+@import 'custom/stratio-ui/components/br-ba-container/index';
+// End vendor customizations

@@ -1,0 +1,13 @@
+@mixin c-list {
+	@include c-component;
+
+	line-height: $c-list---line-height;
+
+  &__item{
+    margin-left:$c-list__item---margin-left;
+  }
+}
+
+.c-list {
+	@include c-list;
+}

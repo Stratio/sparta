@@ -1,0 +1,29 @@
+@mixin c-combobox {
+  @include c-input;
+
+  cursor: pointer;
+  border: 0;
+  border-bottom: 1px solid #9a9a9a;
+  color: getColor(n9);
+  background-color: transparent;
+  font-size: 1rem;
+
+  &:focus {
+    outline-width: 0;
+    border-bottom-color: getColor(n9);
+  }
+
+  &__filter {
+
+    border: 1px solid getColor(n3);
+    color: #555555;
+    background-color: getColor(n0);
+    font-size: 0.8rem;
+  }
+}
+
+.c-combobox {
+  @include c-combobox;
+  width: 100%;
+  padding: $c-combobox---padding;
+}

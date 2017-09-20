@@ -1,0 +1,40 @@
+{
+  "overLastNumber": "1",
+  "overLastTime": "s",
+  "computeEveryNumber": "1",
+  "computeEveryTime": "s",
+  "fixedMeasure":"fixed measure",
+  "name": "fake cube",
+  "sql": "SELECT x FROM y",
+  "writer": {
+    "outputs": ["output1"],
+    "dateType": "long",
+    "autoCalculatedFields": [{
+      "fromNotNullFields": {
+        "name": "a",
+        "outputType": "map"
+      }
+    }, {
+      "fromPkFields": {
+        "name": "b",
+        "outputType": "string"
+      }
+    }, {
+      "fromFields": {
+        "field": {
+          "name": "c",
+          "outputType": "array"
+        },
+        "fromFields": ["response"]
+      }
+    }, {
+      "fromFixedValue": {
+        "field": {
+          "name": "d",
+          "outputType": "string"
+        },
+        "value": "fake value"
+      }
+    }]
+  }
+}

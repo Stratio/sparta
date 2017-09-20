@@ -1,0 +1,28 @@
+@mixin c-col {
+	@include c-panel;
+
+	display: inline-block;
+	position: relative;
+
+	@for $i from 1 through $c-col---cols-number {
+		&--#{$i} {
+			width: percentage( $i / $c-col---cols-number );
+		}
+	}
+
+	&--auto{
+		display:inline-block;
+	}
+
+	&--vertical-centered {
+		vertical-align: middle;
+	}
+
+	&--vertical-top {
+		vertical-align: top;
+	}
+}
+
+.c-col {
+	@include c-col;
+}

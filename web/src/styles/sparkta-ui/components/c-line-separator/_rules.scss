@@ -1,0 +1,14 @@
+@mixin c-line-separator {
+	@include c-component;
+
+	border-bottom: 0;
+	border-left: 0;
+	border-right: 0;
+	border-top: $c-line-separator---border-width $c-line-separator---border-style $c-line-separator---border-color;
+	display: block;
+	margin: $c-line-separator---margin;
+}
+
+.c-line-separator {
+	@include c-line-separator;
+}

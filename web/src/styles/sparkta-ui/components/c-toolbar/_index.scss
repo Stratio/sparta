@@ -1,0 +1,27 @@
+/*doc
+---
+title: c-toolbar
+name: c-toolbar
+category: components
+---
+
+The toolbar component is a type of panel.
+
+```html_example
+TO DO
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+$c-input---border 							| `none' 
+
+## Dependencies
+
+[c-panel]()
+
+*/
+
+@import "vars";
+@import "rules";

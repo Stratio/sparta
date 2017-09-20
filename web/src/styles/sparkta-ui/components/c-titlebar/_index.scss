@@ -1,0 +1,27 @@
+/*doc
+---
+title: c-titlebar
+name: c-titlebar
+category: components
+---
+
+The titlebar component is a type of panel.
+
+```html_example
+TO DO
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+$c-input---border 							| `none' 
+
+## Dependencies
+
+[c-panel]()
+
+*/
+
+@import "vars";
+@import "rules";

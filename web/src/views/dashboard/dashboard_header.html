@@ -1,0 +1,48 @@
+<!--
+<div class="login">
+	<div class="user">
+		<i class="icon icon-head icon_xxsmall"></i>
+		<span class="user-name head_xxsmall">Antonio H.</span>
+		<i class="icon icon-arrow2_down icon_xxxsmall"></i>
+	</div>
+	<div class="app-menu">
+		<i class="icon icon-grid-dots icon_xsmall"></i>
+	</div>
+</div>
+-->
+<div class="menu-container" data-ng-controller="dashboardController">
+  <div class="main">
+    <div class="sth-header-border header-border">
+      <c-session></c-session>
+    </div>
+    <div class="menu-cont">
+      <div class="c-col c-col--12 c-header__menu">
+        <div class="c-header__menu__logo">
+          <img src="images/app-logo.png">
+        </div>
+        <div st-menu-tab data-title="'_MENU_DASHBOARD_POLICIES_'" data-route="dashboard.policies" data-sref="dashboard.policies"
+          data-icon="icon-policy2" data-visible="true" data-qaref="dashboard-menu-policies"></div>
+        <div st-menu-tab data-title="'_MENU_DASHBOARD_INPUT_'" data-route="dashboard.inputs" data-sref="dashboard.inputs" data-icon="icon-input"
+          data-visible="true" data-qaref="dashboard-menu-inputs"></div>
+        <div st-menu-tab data-title="'_MENU_DASHBOARD_OUTPUT_'" data-route="dashboard.outputs" data-sref="dashboard.outputs" data-icon="icon-output"
+          data-visible="true" data-qaref="dashboard-menu-outputs"></div>
+        <div st-menu-tab data-title="'_MENU_DASHBOARD_EXECUTIONS_'" data-route="dashboard.executions" data-sref="dashboard.executions"
+          data-icon="icon-toggle" data-visible="true" data-qaref="dashboard-menu-policies"></div>
+        <div st-menu-tab data-title="'_MENU_DASHBOARD_RESOURCES_'" data-route="dashboard.resources" data-sref="dashboard.resources.plugins" data-sub-menu="resourcesList"
+          data-icon="icon-tool" data-visible="true" data-qaref="dashboard-menu-plugins">
+          <!-- <div st-submenu-tab data-title="'_MENU_DASHBOARD_RESOURCES_'" data-route="" data-sref="dashboard.resources.plugins" data-visible="true"></div>
+		  <div st-submenu-tab data-title="'_MENU_DASHBOARD_RESOURCES_'" data-route="" data-sref="dashboard.resources.plugins" data-visible="true"></div>
+		  </div>-->
+
+        </div>
+      </div>
+    </div>
+    <div class="show-auxiliar-sidebar" ng-if="auxiliarSidebar" ng-click="toggleAuxiliarSidebar()">
+      <span class="pre-ico icon-thermometer"></span> Global Status Panel
+      <span class="ico icon-view"></span>
+    </div>
+  </div>
+  <div class="subMenu" style="background:#f5f5f5; height:45px; width:100%" data-ng-if="$root.subHeaderShow">
+
+  </div>
+</div>

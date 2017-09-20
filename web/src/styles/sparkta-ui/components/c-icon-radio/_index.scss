@@ -1,0 +1,36 @@
+/*doc
+---
+title: c-icon-radio
+name: c-icon-radio
+category: components
+---
+
+To do
+
+```html_example
+<form>
+	<div class="c-form-group c-icon-radio">
+		<label class="c-label">Type</label>
+		<input class="c-icon-radio__item" id="type-Flume" type="radio" name="type" value="Flume" checked /><label class="c-icon-radio__label" for="type-Flume"><i class="c-icon c-icon-radio__icon icon-flume"></i></label>
+		<input class="c-icon-radio__item" id="type-Kafka" type="radio" name="type" value="Kafka" /><label class="c-icon-radio__label" for="type-Kafka"><i class="c-icon c-icon-radio__icon icon-kafka"></i></label>
+		<input class="c-icon-radio__item" id="type-RabbitMQ" type="radio" name="type" value="RabbitMQ" /><label class="c-icon-radio__label" for="type-RabbitMQ"><i class="c-icon c-icon-radio__icon icon-rabbitmq"></i></label>
+		<input class="c-icon-radio__item" id="type-Socket" type="radio" name="type" value="Socket" /><label class="c-icon-radio__label" for="type-Socket"><i class="c-icon c-icon-radio__icon icon-socket"></i></label>
+		<input class="c-icon-radio__item" id="type-Twitter" type="radio" name="type" value="Twitter" /><label class="c-icon-radio__label" for="type-Twitter"><i class="c-icon c-icon-radio__icon icon-twitter"></i></label>
+	</div>
+</form>
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+To do 							| `0' 
+
+## Dependencies
+
+[c-component]()
+
+*/
+
+@import "vars";
+@import "rules";

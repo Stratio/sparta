@@ -1,0 +1,29 @@
+<aside data-qa="delete-policy-modal">
+	<header class="c-titlebar">
+		<span class="c-titlebar__title">{{vm.title | translate}}</span>
+		<i class="c-icon c-icon--is-clickable c-icon--to-right icon-circle-cross" data-ng-click="vm.cancel()" data-qa="modal-cancel-icon"></i>
+	</header>
+
+	<div class="c-modal-inner">
+		<p class="c-modal-inner__title">{{"_ARE_YOU_SURE_" | translate}}</p>
+		<p data-ng-if="vm.textInfo ">{{vm.textInfo | translate}}</p>
+		<div class="c-row c-row--separated c-msg c-msg--small c-msg--error" data-ng-if="vm.error" data-qa="error-msg">
+			<i class="c-icon icon-circle-cross"></i>
+			<span translate="{{vm.errorText}}"></span>
+		</div>
+
+		<div class="c-row c-row--separated">
+			<div class="c-col c-col--12 c-col--vertical-centered c-col--to-right">
+				<button class="c-button c-button--call-to-action-2" data-ng-click="vm.cancel()" data-qa="modal-cancel-button">
+					<span class="icon-circle-cross"></span>
+					<span>{{"_INPUT_BUTTON_CANCEL_" | translate}}</span>
+				</button>
+
+				<button class="c-button c-button--danger" data-ng-click="vm.ok()" data-qa="modal-ok-button">
+					<span class="icon icon-circle-check"></span>
+					<span>{{"_INPUT_BUTTON_DELETE_" | translate}}</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</aside>

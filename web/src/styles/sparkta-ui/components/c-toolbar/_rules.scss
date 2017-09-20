@@ -1,0 +1,75 @@
+@mixin c-toolbar {
+  @include c-panel;
+  @include no-paddings();
+
+  background: $c-toolbar---background;
+  padding: $c-toolbar---padding;
+
+  &-button_container {
+    box-sizing: border-box;
+    position: relative;
+    display: inline-block;
+
+    &--padding-right {
+      padding-right: 10px;
+      border-right: 1px solid getColor(n6);
+    }
+
+    &--padding-left {
+      padding-left: 10px;
+    }
+  }
+
+  &__item--to-right {
+    float: right;
+  }
+
+  &--filter {
+    padding: $c-toolbar--filter---padding;
+    border-bottom: $c-toolbar--filter---border-bottom;
+    background-color: $c-toolbar--filter---background-color;
+    z-index: $c-toolbar--filter---z-index;
+  }
+
+  &--bottom-separation{
+    padding-bottom:15px;
+  }
+
+  &--filter__item__label {
+    margin-left:$c-toolbar--filter__item__label---margin-left;
+    margin-right: $c-toolbar--filter__item__label---margin-right;
+    text-transform: $c-toolbar--filter__item__label---text-transform;
+  }
+
+  &--filter__item {
+    position: $c-toolbar--filter__item---position;
+    display: $c-toolbar--filter__item---display;
+
+    &--padding-right {
+      padding-right: $c-toolbar--filter__item---padding-right;
+    }
+  }
+
+  &--filter__item__button-icon{
+    height: $c-toolbar--filter__item__button-icon---height;
+    width: $c-toolbar--filter__item__button-icon---width;
+    line-height: $c-toolbar--filter__item__button-icon---line-height;
+    vertical-align: $c-toolbar--filter__item__button-icon---vertical-align;
+  }
+  &--filter__item__input{
+    display: inline-block;
+  }
+
+  &--filter__item--to-right {
+    float: right;
+  }
+
+  &--fixed {
+    position: fixed;
+    width: calc(100% - 60px);
+  }
+}
+
+.c-toolbar {
+  @include c-toolbar;
+}

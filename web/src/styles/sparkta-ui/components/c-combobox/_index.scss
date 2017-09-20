@@ -1,0 +1,26 @@
+/*doc
+---
+title: c-combobox
+name: c-combobox
+category: components
+---
+
+The combobox component creates an combobox element which is customizable.
+
+```html_example
+TO DO
+```
+
+## Variables exposed to theming
+
+Variable                                    | Default value
+------------------------------------------- | -----------------
+$c-input---border 							| `none' 
+
+## Dependencies
+
+[c-input]()
+*/
+
+@import "vars";
+@import "rules";

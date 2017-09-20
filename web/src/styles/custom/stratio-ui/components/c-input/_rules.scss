@@ -1,0 +1,30 @@
+@mixin c-input {
+	border: 0px;
+	border-bottom: 1px solid #9a9a9a;
+	background-color: transparent;
+	color: getColor(n9);
+	font-size: 1rem;
+
+	&::-moz-placeholder {
+		color: getColor(n7);
+		font-style: italic;
+	}
+  	&::-webkit-input-placeholder {
+  		color: getColor(n7);
+  		font-style: italic;
+  	}
+  	&:-ms-input-placeholder {
+  		color: getColor(n7);
+  		font-style: italic;
+  	}
+
+  	&:focus {
+		outline-width: 0;
+		background-color: transparent;
+		border-bottom-color: getColor(n9);
+  	}
+}
+
+.c-input {
+  @include c-input;
+}

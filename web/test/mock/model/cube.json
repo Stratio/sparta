@@ -1,0 +1,52 @@
+{
+  "name": "fake cube",
+  "dimensions": [
+    {
+      "field": "output1"
+    }
+  ],
+  "operators": [
+    {
+      "fake attribute": ""
+    }
+  ],
+  "checkpointConfig": {
+    "timeDimension": "fake timeDimension",
+    "interval": "fake interval",
+    "timeAvailability": "fake timeAvailability",
+    "granularity": "fake granularity"
+  },
+  "triggers": [],
+  "writer": {
+    "outputs": ["cube output 1",
+      "cube output 2"],
+    "dateType": "long",
+    "autoCalculatedFields": [{
+      "fromNotNullFields": {
+        "name": "a",
+        "outputType": "map"
+      }
+    }, {
+      "fromPkFields": {
+        "name": "b",
+        "outputType": "string"
+      }
+    }, {
+      "fromFields": {
+        "field": {
+          "name": "c",
+          "outputType": "array"
+        },
+        "fromFields": ["response"]
+      }
+    }, {
+      "fromFixedValue": {
+        "field": {
+          "name": "d",
+          "outputType": "string"
+        },
+        "value": "fake value"
+      }
+    }]
+  }
+}

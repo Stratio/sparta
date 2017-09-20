@@ -1,21 +1,171 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
 <head>
-   <base href="/">
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png">
-   <title>Stratio Sparta</title>
-   <style>
-
-
-   </style>
+  <meta charset="utf-8">
+  <title>Stratio Sparta</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/png" href="favicon-16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="favicon-24.png" sizes="24x24">
+  <link rel="icon" type="image/png" href="favicon-32.png" sizes="32x32">
+  <!-- build:css(.tmp) styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild -->
 </head>
 
-<body>
-   <st-app>Loading ...</st-app>
-</body>
+<body class="stratio-app stratio-app--sparkta">
 
+<div id="stratio-base">
+    <header class="stratio-base-header" ui-view="header"  data-ng-class="headerClass"></header>
+    <div id="base-content-wrapper" data-ng-class="{containerClass: containerClass, subHeaderShow : subHeaderShow}" ui-view="content"></div>
+    <div ui-view="footer" class="c-footer"></div>
+</div>
+
+<!-- build:js(.) scripts/vendors.js -->
+<script src="node_modules/jquery/dist/jquery.js"></script>
+<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-resource/angular-resource.js"></script>
+<script src="node_modules/angular-route/angular-route.js"></script>
+<script src="node_modules/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="node_modules/angular-animate/angular-animate.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,src}) scripts/scripts.js -->
+<script src="scripts/app.js"></script>
+<!-- Filters -------------------------------- -->
+<script src="scripts/filters/truncate-number.js"></script>
+<script src="scripts/filters/fragment-filter.js"></script>
+<!-- Controllers -------------------------------- -->
+<script src="scripts/controllers/inputs.js"></script>
+<script src="scripts/controllers/outputs.js"></script>
+<script src="scripts/controllers/crossdata.js"></script>
+<script src="scripts/controllers/policy-list.js"></script>
+<script src="scripts/controllers/resources.js"></script>
+<script src="scripts/controllers/executions-list.js"></script>
+<script src="scripts/controllers/plugins-list.js"></script>
+<script src="scripts/controllers/drivers-list.js"></script>
+<script src="scripts/controllers/general-settings.js"></script>
+<script src="scripts/controllers/settings.js"></script>
+<script src="scripts/controllers/modal/new-fragment-modal.js"></script>
+<script src="scripts/controllers/modal/legal-terms-modal.js"></script>
+<script src="scripts/controllers/fragments/edit-fragment.js"></script>
+<script src="scripts/controllers/fragments/footer-controller.js"></script>
+<script src="scripts/controllers/fragments/duplicate-fragment.js"></script>
+<script src="scripts/controllers/fragments/delete-fragment.js"></script>
+<script src="scripts/controllers/policy-wizard/policy.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-inputs.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-settings.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-wizard-header.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/delete-policy-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/delete-entity-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/create-entity-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/new-dimension-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/new-operator-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/execute-backup-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-cube.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-model.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-raw-data.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-cube-accordion.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-trigger-accordion.js"></script>
+<script src="scripts/controllers/policy-wizard/policy-model-accordion.js"></script>
+<script src="scripts/controllers/modal/confirm-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/policy-creation-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/modal/policy-json-creation-modal.js"></script>
+<script src="scripts/controllers/policy-wizard/trigger.js"></script>
+<script src="scripts/controllers/modal/policy-info-modal.js"></script>
+<!-- Directives ----------------------------------------- -->
+<script src="scripts/vendors/angular-translate.js"></script>
+<script src="scripts/vendors/ui.stratio.grid.js"></script>
+<script src="scripts/vendors/ui-bootstrap-1.3.3.min.js"></script>
+<script src="scripts/vendors/ui-bootstrap-tpls-1.3.3.min.js"></script>
+
+<!-- Form directives -->
+<script src="stratio-ui/script/directives/forms/form-field-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-input-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-select-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-check-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-list-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-multiple-list-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-textarea-directive.js"></script>
+<script src="stratio-ui/script/directives/forms/form-field-array-directive.js"></script>
+<!-- HTML component directives -->
+<script src="scripts/directives/c-step-directive.js"></script>
+<script src="scripts/directives/c-step-progress-bar-directive.js"></script>
+<script src="scripts/directives/c-horizontal-tabs-directive.js"></script>
+<script src="scripts/directives/c-form-group-directive.js"></script>
+<script src="scripts/directives/c-route-button-directive.js"></script>
+<script src="scripts/directives/c-array-min-length.js"></script>
+<script src="scripts/directives/c-row-directive.js"></script>
+<script src="scripts/directives/c-slider-directive.js"></script>
+<script src="scripts/directives/c-icon-label-directive.js"></script>
+<script src="scripts/directives/c-input-file-reader.js"></script>
+<script src="scripts/directives/c-input-file-model.js"></script>
+<script src="scripts/directives/c-icon-link-directive.js"></script>
+<script src="scripts/directives/c-output-field-list-directive.js"></script>
+<script src="scripts/directives/c-add-element-directive.js"></script>
+<script src="scripts/directives/c-json-text-directive.js"></script>
+<script src="scripts/directives/c-tag-list-directive.js"></script>
+<script src="scripts/directives/c-accordion-directive.js"></script>
+<script src="scripts/directives/c-panel-directive.js"></script>
+<script src="scripts/directives/c-slider-section-directive.js"></script>
+<script src="scripts/directives/c-animated-msg-directive.js"></script>
+<script src="scripts/directives/c-session-directive.js"></script>
+<script src="scripts/directives/c-auto-calculated-fields-directive.js"></script>
+<script src="scripts/directives/c-writer-model-directive.js"></script>
+<script src="scripts/directives/c-value-validate-directive.js"></script>
+<!-- Factories ----------------------------------- -->
+<script src="scripts/factories/fragment-factory.js"></script>
+<script src="scripts/factories/template-factory.js"></script>
+<script src="scripts/factories/policy-factory.js"></script>
+<script src="scripts/factories/entity-factory.js"></script>
+<script src="scripts/factories/policy-model-factory.js"></script>
+<script src="scripts/factories/model-factory.js"></script>
+<script src="scripts/factories/cube-model-factory.js"></script>
+<script src="scripts/factories/trigger-model-factory.js"></script>
+<script src="scripts/factories/request-interceptor-factory.js"></script>
+<!-- Services ----------------------------------- -->
+<script src="scripts/services/api/api-policy-service.js"></script>
+<script src="scripts/services/api/api-template-service.js"></script>
+<script src="scripts/services/api/api-fragment-service.js"></script>
+<script src="scripts/services/api/api-entities-service.js"></script>
+<script src="scripts/services/accordion-status-service.js"></script>
+<script src="scripts/services/cube-service.js"></script>
+<script src="scripts/services/model-service.js"></script>
+<script src="scripts/services/trigger-service.js"></script>
+<script src="scripts/services/rawData-service.js"></script>
+<script src="scripts/services/utils-service.js"></script>
+<script src="scripts/services/modal-service.js"></script>
+<script src="scripts/services/output-service.js"></script>
+<script src="scripts/services/new-workflow-service.js"></script>
+<script src="scripts/services/wizard-status-service.js"></script>
+<script src="scripts/services/policy-service.js"></script>
+<script src="scripts/services/fragment-service.js"></script>
+<!-- Constants ----------------------------------- -->
+<script src="scripts/constants/fragment-constants.js"></script>
+<script src="scripts/constants/trigger-constants.js"></script>
+<script src="scripts/constants/rawData-constants.js"></script>
+<script src="scripts/constants/model-constants.js"></script>
+<script src="scripts/constants/cube-constants.js"></script>
+
+<!-- endbuild -->
+
+<!-- build:js({.tmp,src}) scripts/stratio-ui.js -->
+<script src="stratio-ui/script/helper/ui.stratio.contant.templateUrl.js"></script>
+<script src="stratio-ui/script/helper/ui.stratio.passAllAttributes.js"></script>
+<script src="stratio-ui/script/layout/ui.stratio.dashboard.js"></script>
+<script src="stratio-ui/script/layout/ui.stratio.menutab.js"></script>
+<script src="stratio-ui/script/layout/ui.stratio.submenutab.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.actionButton.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.floatingMenu.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.heading.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.menuElement.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.nodeList.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.primarySidebarTitle.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.primarySidebarSubmenu.js"></script>
+<script src="stratio-ui/script/components/ui.stratio.quickSearch.js"></script>
+<script src="stratio-ui/script/ui.stratio.js"></script>
+<script src="scripts/main.js"></script>
+
+<!-- endbuild -->
+</body>
 </html>

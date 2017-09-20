@@ -1,0 +1,172 @@
+{
+  "defaultName": "trigger",
+  "properties": [
+    {
+      "propertyId": "name",
+      "propertyName": "_NAME_",
+      "propertyType": "text",
+      "required": true,
+      "qa": "trigger-name",
+      "tooltip": "If is not assigned the result data is saved in one table, topic or queue with this name. Additionally this data is available in other triggers in one temporal table with this name",
+      "position": "left",
+      "width": 12
+    },
+    {
+      "propertyId": "overLastNumber",
+      "propertyName": "_OVER_LAST_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "required": true,
+      "tooltip": "This number has to be multiple of the window batch defined in policy settings",
+      "qa": "trigger-overLastNumber"
+    },
+    {
+      "propertyId": "overLastTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "trigger-overLastTime",
+      "required": true,
+      "values": [
+        {
+          "label": "Millisecond(s)",
+          "value": "ms"
+        },
+        {
+          "label": "Second(s)",
+          "value": "s"
+        },
+        {
+          "label": "Minute(s)",
+          "value": "m"
+        },
+        {
+          "label": "Hour(s)",
+          "value": "h"
+        },
+        {
+          "label": "Day(s)",
+          "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
+        }
+      ]
+    },
+    {
+      "propertyId": "computeEveryNumber",
+      "propertyName": "_COMPUTE_EVERY_",
+      "propertyType": "number",
+      "width": 6,
+      "position": "left",
+      "required": true,
+      "tooltip": "This number has to be multiple of the window batch defined in policy settings",
+      "qa": "trigger-computeEveryNumber"
+    },
+    {
+      "propertyId": "computeEveryTime",
+      "propertyName": "_WHITE_SPACE_",
+      "propertyType": "select",
+      "width": 6,
+      "position": "right",
+      "qa": "trigger-computeEveryTime",
+      "required": true,
+      "values": [
+        {
+          "label": "Millisecond(s)",
+          "value": "ms"
+        },
+        {
+          "label": "Second(s)",
+          "value": "s"
+        },
+        {
+          "label": "Minute(s)",
+          "value": "m"
+        },
+        {
+          "label": "Hour(s)",
+          "value": "h"
+        },
+        {
+          "label": "Day(s)",
+          "value": "d"
+        },
+        {
+          "label": "Week(s)",
+          "value": "w"
+        }
+      ]
+    },
+    {
+      "propertyId": "sql",
+      "propertyName": "_SQL_",
+      "propertyType": "textarea",
+      "required": true,
+      "qa": "trigger-sql",
+      "tooltip": "Here is possible to write sql sentences where the transformed data is available in one temporal table, by default 'stream'. Example: select * from stream",
+      "width": 12
+    }
+  ],
+  "writer": {
+    "properties": [
+      {
+        "propertyId": "partitionBy",
+        "propertyName": "_PARTITION_BY_",
+        "propertyType": "text",
+        "regexp": "",
+        "required": false,
+        "position": "left",
+        "width": 6,
+        "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
+        "qa": "cube-partitionBy"
+      },
+      {
+        "propertyId": "tableName",
+        "propertyName": "_TABLE_NAME_",
+        "propertyType": "text",
+        "required": false,
+        "qa": "trigger-tableName",
+        "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name, if is not assigned then the output name is the trigger name",
+        "position": "right",
+        "width": 6
+      },
+      {
+        "propertyId": "saveMode",
+        "propertyName": "_SAVE_MODE_",
+        "propertyType": "select",
+        "required": true,
+        "default": "Append",
+        "qa": "trigger-save-mode",
+        "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+        "values": [
+          {
+            "label": "_APPEND_",
+            "value": "Append"
+          },
+          {
+            "label": "_ERROR_IF_EXISTS_",
+            "value": "ErrorIfExists"
+          },
+          {
+            "label": "_IGNORE_",
+            "value": "Ignore"
+          },
+          {
+            "label": "_OVERWRITE_",
+            "value": "Overwrite"
+          },
+          {
+            "label": "_UPSERT_",
+            "value": "Upsert"
+          }
+        ],
+        "width": 6,
+        "position": "left"
+      }
+    ]
+  }
+}

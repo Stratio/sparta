@@ -1,0 +1,12 @@
+<aside>
+  <div data-ng-if="msg.text" class="c-msg c-msg--small c-msg--{{msg.type}} c-col--12" data-qa="{{msg.type}}-msg">
+    <i class="c-icon c-icon--is-clickable icon-circle-cross" data-ng-click="onClickCloseMsg()"></i>
+    <span>{{msg.text| translate}}</span>
+    <ul class="c-list" data-ng-if="msg.subErrors">
+      <li data-ng-repeat="subError in msg.subErrors" class="c-list__item">{{"_" + (msg.type |uppercase) + "_._" +
+        subError.i18nCode + "_" | translate}}
+      </li>
+    </ul>
+    <span data-ng-if="msg.internalTrace">{{msg.internalTrace}}</span>
+  </div>
+</aside>

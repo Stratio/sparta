@@ -1,0 +1,589 @@
+/*
+ *	Theme: Light Platinum
+ *	Author: Alex R Chies
+ *	Version: 1.0.0
+ *
+ *	INDEX
+ *
+ *	1 - Settings.........................All the configuration values needed
+ *		angular-forms
+ *	2 - Stratio UI.......................The Stratio component UI library
+ *		heading
+ *		c-grid-item
+ *	3 - Sparkta UI.......................The Sparkta component UI library
+ *		c-component
+ *		c-panel
+ *		c-line-separator
+ *		c-button
+ *		c-input
+ *		c-searchbox
+ *		c-combobox
+ *		c-label
+ *		c-form-group
+ *		c-form-control
+ *		c-toolbar
+ *		c-titlebar
+ *		c-icon-text
+ *		c-info-text
+ *		c-icon-link
+ *		c-icon-label
+ *		c-icon
+ *		c-modal-inner
+ *		c-col
+ *		c-row
+ *		c-list
+ *		c-icon-radio
+ *		c-msg
+ *		c-table
+ *		c-checkbox
+ *		c-step-progress-bar
+ *		c-step
+ *		c-step-content
+ *		c-step-counter
+ *		c-fieldset
+ *		c-slider
+ *		c-check-block
+ *		c-textarea
+ *		c-accordion
+ *		c-tag
+ *		c-cube
+ *		c-policy-status-badge
+ *
+ */
+
+/*
+ * 1 - Settings
+ *
+ */
+$colors: (
+	a1: #37b5e4,
+	a1_light: #3dc9fc,
+	a1_dark: #2d96bd,
+	a2: #b5c1c5,
+	a2_light: #ccd9de,
+	a2_dark: #919b93,
+	a3: #405467,
+	a3_light: #4f6880,
+	a3_dark: #283440,
+	b1: #172734,
+	b2: #0f1b27,
+	b3: #eff2f3,
+	b3_dark: #e1e5e5,
+	b4: #ffffff,
+	n0: #ffffff,
+	n1: #fbfbfb,
+	n2: #f3f3f3,
+	n3: #e4e4e4,
+	n4: #cbcbcb,
+	n5: #b5b5b5,
+	n6: #999999,
+	n7: #777777,
+	n8: #555555,
+	n9: #242424,
+	n10: #000000,
+	s1: #88b060,
+	s1_light: #9ab084,
+	s1_dark: #759653,
+	s2: #ff8900,
+	s2_light: #ffa033,
+	s2_dark: #e57a00,
+	s3: #e23b2b,
+	s3_light: #e36459,
+	s3_dark: #c93426,
+	t1: #d7c200,
+	t2: #00d9df,
+	t3: #a7eb1e
+);
+
+$font-sizes: (
+	xxxlarge: 4rem,
+	xxlarge: 3rem,
+	xlarge-alpha: 2.5rem,
+	xlarge: 2rem,
+	large: 1.5rem,
+	medium-alpha: 1.2rem,
+	medium: 1rem,
+	small: .8rem,
+	xsmall: .7rem,
+	xxsmall: .6rem,
+	xxxsmall: .5rem
+);
+
+$component-border-radius: 5px;
+$component-margin: 15px;
+$component-default-margin: .5em;
+
+$c-icon-default-margin: 0 $component-default-margin 0 0;
+
+$c-icon-default-margin: 0 $component-default-margin 0 0;
+
+
+
+// angular-forms
+$angular-forms--ng-invalid---border: 1px solid get-color(s3);
+
+
+// angular-forms
+$angular-forms--ng-invalid---border: 1px solid get-color(s3);
+
+
+
+
+
+/*
+ * 2 - Stratio UI
+ *
+ */
+
+// heading
+$base-padding: 30px;
+$primary-sidebar-bg: get-color(b3_dark);
+$heading---margin: 0;
+
+$dashboard-main-content---margin-bottom: 100px;
+$stratio-ui---base-padding: $base-padding;
+
+
+
+// c-grid-item
+$c-grid-item__info-icon---color: get-color(a1);
+$c-grid-item__info-icon---margin: 0 $component-default-margin $component-default-margin 0;
+
+$c-grid-item__desc---font-size: get-font-size(small);
+$c-grid-item__desc---line-height: get-line-height(large);
+$c-grid-item__desc---letter-spacing: .05rem;
+
+
+
+/*
+ * 3 - Sparkta UI
+ *
+ */
+
+ // c-component
+ $c-component---margin-bottom: $component-margin;
+
+
+
+ // c-panel
+ $c-panel--framed---padding: $component-margin;
+
+
+
+// c-line-separator
+
+$c-line-separator---border-color: get-color(n3);
+$c-line-separator---border-style: solid;
+$c-line-separator---border-width: 1px;
+$c-line-separator---margin: 20px 0;
+
+
+// c-button
+$c-button---height: 40px;
+$c-button---min-width: 180px;
+$c-button---padding: 3px 20px 0px;
+$c-button---text-align: center;
+$c-button---text-transform: uppercase;
+
+$c-button--call-to-action-1---background: get-color(a1);
+$c-button--call-to-action-1---border: 0;
+$c-button--call-to-action-1---color: get-color(n0);
+$c-button--call-to-action-1--hover---background: get-color(a1_dark);
+$c-button--call-to-action-1--hover---border: 0;
+$c-button--call-to-action-1--hover---color: get-color(n0);
+
+$c-button--call-to-action-2---background: get-color(a2);
+$c-button--call-to-action-2---border: 0;
+$c-button--call-to-action-2---color: get-color(n0);
+$c-button--call-to-action-2--hover---background: get-color(a2_dark);
+$c-button--call-to-action-2--hover---border: 0;
+$c-button--call-to-action-2--hover---color: get-color(n0);
+
+$c-button--call-to-action-3---background: get-color(a3);
+$c-button--call-to-action-3---border: 0;
+$c-button--call-to-action-3---color: get-color(n0);
+$c-button--call-to-action-3--hover---background: get-color(a3_dark);
+$c-button--call-to-action-3--hover---border: 0;
+$c-button--call-to-action-3--hover---color: get-color(n0);
+
+$c-button--call-to-action-4---background: get-color(n0);
+$c-button--call-to-action-4---border: 2px solid get-color(n3);
+$c-button--call-to-action-4---color: get-color(n4);
+$c-button--call-to-action-4--hover---background: get-color(n0);
+$c-button--call-to-action-4--hover---border: 2px solid get-color(n4);
+$c-button--call-to-action-4--hover---color: get-color(n5);
+
+$c-button--danger---background: get-color(s3);
+$c-button--danger---border: 0;
+$c-button--danger---color: get-color(n0);
+$c-button--danger--hover---background: get-color(s3_dark);
+$c-button--danger--hover---border: 0;
+$c-button--danger--hover---color: get-color(n0);
+
+$c-button__c-icon---margin: $c-icon-default-margin;
+
+
+
+// c-input
+$c-input---border: 1px solid get-color(n3);
+$c-input---color: get-color(n8);
+$c-input---height: 28px;
+$c-input---border-radius: 0;
+$c-input---padding: 0 5px;
+
+$c-input--disabled---background: get-color(n2);
+$c-input--disabled---color: get-color(n7);
+$c-input--disabled---font-style: italic;
+
+$c-input--left-icon---padding: 0 0 0 35px;
+
+
+
+//c-searchbox
+
+
+
+//c-combobox
+$c-combobox---padding: 0 10px;
+
+
+
+// c-label
+$c-label---margin: 0 $component-margin 0 0;
+$c-form__c-label---margin: 0 0 5px;
+
+
+
+// c-form-group
+$c-form__c-form-group---margin: 0 0 $component-margin;
+
+
+
+// c-form-control
+$c-form-control---padding: 0 0 0 $component-margin;
+
+
+
+// c-toolbar
+$c-toolbar---background: get-color(a2);
+$c-toolbar---padding: 11px 25px;
+
+
+
+// c-titlebar
+$c-titlebar---background: get-color(b3);
+$c-titlebar---color: get-color(n7);
+$c-titlebar---text-transform: uppercase;
+$c-titlebar---padding: 15px 15px 15px 30px;
+
+$c-titlebar__title---font-size: get-font-size(medium-alpha);
+
+
+
+// c-icon-text
+$c-icon-text---colors: (
+	call-to-action: get-color(a1),
+	danger: get-color(s3)
+);
+$c-icon-text__icon---margin: $c-icon-default-margin;
+
+
+
+// c-info-text
+$c-info-text---color: get-color(n7);
+$c-info-text---font-size: get-font-size(medium);
+
+$c-info-text__icon---color: get-color(a1);
+$c-info-text__icon---font-size: get-font-size(medium);
+
+
+
+// c-icon-link
+$c-icon-link---color: $c-info-text---color;
+$c-icon-link---font-size: $c-info-text---font-size;
+
+$c-icon-link__icon---color: $c-info-text__icon---color;
+$c-icon-link__icon---font-size: $c-info-text__icon---font-size;
+
+
+
+// c-icon-label
+$c-icon-label---color: $c-info-text---color;
+$c-icon-label---font-size: $c-info-text---font-size;
+
+$c-icon-label__icon---color: $c-info-text__icon---color;
+$c-icon-label__icon---font-size: $c-info-text__icon---font-size;
+
+
+
+// c-icon
+$c-icon---colors: $c-icon-text---colors;
+$c-icon--in-input---top: 7px;
+$c-icon--in-input---left: 22px;
+$c-icon--in-input---color: get-color(n6);
+
+$c-icon--in-input-right---right: 7px;
+
+
+
+// c-modal-inner
+$c-modal-inner---color: get-color(n7);
+$c-modal-inner---line-height: get-line-height(large);
+$c-modal-inner---padding: 30px 20px;
+
+$c-modal-inner__title---color: get-color(b1);
+$c-modal-inner__title---font-size: get-font-size(large);
+$c-modal-inner__title---font-weight: get-font-weight(normal);
+$c-modal-inner__title---text-transform: uppercase;
+$c-modal-inner__title---margin: 15px 0 5px;
+
+$c-modal-inner__c-list---line-height:  get-line-height(double);
+$c-modal-inner__c-list---margin:  $component-margin $component-margin*2;
+
+
+
+// c-col
+$c-col---cols-number: 12;
+
+
+
+// c-row
+$c-row--separated---margin: 20px 0 0;
+$c-row---gutter: 5px;
+
+
+
+// c-list
+$c-list---line-height: get-line-height(large);
+
+
+
+//c-icon-radio
+$c-icon-radio__icon--selected---background: get-color(n0);
+$c-icon-radio__icon--selected---color: get-color(a1);
+
+$c-icon-radio__item--checked---border: 1px solid get-color(b1);
+
+$c-icon-radio__icon---background: get-color(n4);
+$c-icon-radio__icon---border: 1px solid get-color(n4);
+$c-icon-radio__icon---color: get-color(b1);
+$c-icon-radio__item---margin: 4px .5em 4px 0 !default;
+$c-icon-radio__icon---padding: .4em;
+
+$c-icon-radio__text---margin: 0 $component-default-margin 0 (-$component-default-margin / 2);
+
+
+
+// c-msg
+$c-msg--small---font-size: get-font-size(medium);
+$c-msg--small---padding: 5px 10px;
+
+$c-msg--giant---font-size: get-font-size(xxxlarge);
+$c-msg--giant---padding: 150px 10px;
+
+$c-msg--error---background: get-color(s3);
+$c-msg--error---color: get-color(n0);
+
+$c-msg--success---background: get-color(s1);
+$c-msg--success---color: get-color(n0);
+
+$c-msg--noitems---background: transparent;
+$c-msg--noitems---color: get-color(n4);
+
+$c-msg__c-icon---margin: $c-icon-default-margin;
+
+
+
+// c-table
+$c-table---border-bottom: 0px solid get-color(n4);
+$c-table---cell-spacing: 10px;
+$c-table---line-height: get-line-height(normal-alpha);
+$c-table---padding-bottom: 12px;
+$c-table---padding-left: 30px;
+$c-table---padding-right: 30px;
+$c-table---padding-top: 12px;
+$c-table---color: get-color(n8);
+$c-table__thead---background: get-color(n0);
+$c-table__thead---color: get-color(n8);
+$c-table__thead---font-weight: get-font-weight(bold);
+$c-table__thead---text-align: left;
+$c-table__thead---box-shadow:0px 1px 0 0 #cbcbcb;
+
+$c-table__tr---border-bottom: 1px solid get-color(n2);
+$c-table__tr--ntd-child--even---background: get-color(n2);
+$c-table__tr--hover---background:#EBF6FD;
+
+
+
+// c-checkbox
+$c-checkbox---color: get-color(n4);
+$c-checkbox---font-family: 'ico_stratio';
+
+$c-checkbox--checked---color: get-color(s1);
+
+$c-checkbox__label---margin: 0 0 2px;
+
+
+
+// c-step-progress-bar
+$c-step-progress-bar---background: transparent;
+$c-step-progress-bar---padding: $component-margin 0 ($component-margin * 2);
+
+
+
+// c-step
+$c-step---separation: 15px;
+$c-step---padding: 0;
+$c-step---color: get-color(n4);
+$c-step--active---color: get-color(a1);
+
+$c-step__progress-line---height: 1px;
+
+$c-step__section-icon---font-size: get-font-size(large);
+$c-step__section-icon---font-weight: get-font-weight(medium);
+
+$c-step__section-name---font-size: get-font-size(small);
+$c-step__section-name---font-weight: get-font-weight(semibold);
+$c-step__section-name---text-transform: uppercase;
+
+
+
+// c-step-content
+$c-step-content---background: white;
+$c-step-content---margin: 0;
+$c-step-content---padding: 0 $stratio-ui---base-padding;
+
+$c-step-content__title---color: get-color(b1);
+$c-step-content__title---font-size: get-font-size(large);
+$c-step-content__title---font-weight: get-font-weight(normal);
+$c-step-content__title---margin: 15px 0 $component-margin;
+$c-step-content__title---text-transform: uppercase;
+
+$c-step-content__title--underlined---border-bottom: 1px solid get-color(b3_dark);
+$c-step-content__title--underlined---padding: 0 0 ($component-margin / 2);
+
+
+
+// c-step-counter
+$c-step-counter---color: get-color(a1);
+$c-step-counter--after---color: get-color(b1);
+$c-step-counter--after---margin: 0 5px;
+
+
+
+// c-fielset
+$c-fieldset__title---font-weight: get-font-weight(semibold);
+
+
+
+// c-slider
+$c-slider---margin: 0;
+
+
+
+// c-check-block
+$c-check-block---color: get-color(a1);
+$c-check-block---padding: 10px 10px;
+
+$c-check-block__form-control---background: get-color(b3_dark);
+$c-check-block__form-control---border-radius: 5px;
+$c-check-block__form-control---box-shadow: 0px 0px 5px 0px rgba(50, 50, 50, 0.75);
+$c-check-block__form-control---height: 80px;
+$c-check-block__form-control---padding: 10px;
+
+$c-check-block__checkbox---top: -15px;
+$c-check-block__checkbox---right: 5px;
+$c-check-block__checkbox---color: $c-check-block---color;
+
+$c-check-block__icon---left: 20px;
+$c-check-block__icon---font-size: 2rem;
+$c-check-block__icon---bottom: 20px;
+
+
+
+// c-textarea
+$c-textarea--min-height: 100px;
+$c-textarea--big--min-height: 500px;
+
+
+
+// c-accordion
+$c-accordion-header__step-number---margin: -10px 10px -10px -14px;
+$c-accordion-header__step-number---font-size: 2rem;
+$c-accordion-header__step-number---width: 47px;
+$c-accordion-header__step-number---height: $c-accordion-header__step-number---width;
+$c-accordion-header__step-number---padding: 7px 0 0;
+
+$c-accordion-header__step-number---background: get-color(a1);
+$c-accordion-header__step-number---color: get-color(n0);
+
+$c-accordion__type---font-size: get-font-size(large);
+$c-accordion__type---margin: 0 10px 0 0;
+
+$c-accordion__open-mark---margin: 7px 0 0;
+$c-accordion__open-mark---rotation: 90deg;
+
+$c-accordion-item--new---background: get-color(c5);
+$c-accordion-item--new---color: get-color(n9);
+
+$c-accordion-header--new__step-number---background: get-color(a1_dark);
+$c-accordion-header--new__step-number---color: get-color(n0);
+
+
+
+// c-tag
+$c-tag---background: get-color(a1_dark);
+$c-tag---color: get-color(n0);
+$c-tag---padding: 5px 10px;
+$c-tag---margin: 0 0 0 5px;
+
+$c-tag__close-icon---color: get-color(n10);
+$c-tag__close-icon---font-size: get-font-size(small);
+$c-tag__close-icon---margin: 0 0 0 5px;
+
+
+
+// c-cube
+$c-cube---background: get-color(n2);
+$c-cube---color: get-color(n9);
+
+$c-cube--first-child---border-right: 1px solid get-color(n5);
+
+$c-cube__title---background: get-color(n5);
+$c-cube__title---color: get-color(n0);
+$c-cube__title---padding: 20px 15px 5px;
+$c-cube__title---text-transform: uppercase;
+
+$c-cube__title--2---background: get-color(n3);
+$c-cube__title--2---color: get-color(n9);
+
+$c-cube__section---padding: 20px 10px;
+
+$c-cube__field-wrapper---padding: 10px;
+
+$c-cube__field-icon---padding: 10px;
+$c-cube__field-icon---background: get-color(n3);
+
+$c-cube__field-name---background: get-color(n0);
+$c-cube__field-name---left: 36px;
+$c-cube__field-name---right: 0;
+
+
+
+// c-policy-status-badge
+$c-policy-status-badge---margin: 0;
+$c-policy-status-badge---padding: .2em .5em;
+$c-policy-status-badge--launched---background: get-color(s1);
+$c-policy-status-badge--launched---color: get-color(n0);
+$c-policy-status-badge--starting---background: get-color(s1);
+$c-policy-status-badge--starting---color: get-color(n0);
+$c-policy-status-badge--started---background: get-color(s1);
+$c-policy-status-badge--started---color: get-color(n0);
+$c-policy-status-badge--failed---background: get-color(e3);
+$c-policy-status-badge--failed---color: get-color(n0);
+$c-policy-status-badge--stopping---background: get-color(s3_dark);
+$c-policy-status-badge--stopping---color: get-color(n0);
+$c-policy-status-badge--stopped---background: get-color(s3_dark);
+$c-policy-status-badge--stopped---color: get-color(n0);
+$c-policy-status-badge--notstarted---background: get-color(n4);
+$c-policy-status-badge--notstarted---color: get-color(n0);
