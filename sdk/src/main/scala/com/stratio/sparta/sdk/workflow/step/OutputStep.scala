@@ -40,7 +40,8 @@ abstract class OutputStep(
   val PartitionByKey = "partitionBy"
 
   /**
-   * Generic write function that receive the stream data and pass to dataFrame, after this call the save function.
+   * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
+   * function afterwards.
    *
    * @param inputData Input stream data to save
    * @param outputOptions Options to save
@@ -123,8 +124,8 @@ abstract class OutputStep(
       if (partitionFields.forall(field => fieldsInDataFrame.contains(field)))
         dataFrame.partitionBy(partitionFields: _*)
       else {
-        log.warn(s"Impossible to execute partition by fields: $partitionFields because the dataFrame not contain all" +
-          s" fields. The dataFrame only contains: ${fieldsInDataFrame.mkString(",")}")
+        log.warn(s"Impossible to execute partition by fields: $partitionFields because the dataFrame does not " +
+          s"contain all fields. The dataFrame only contains: ${fieldsInDataFrame.mkString(",")}")
         dataFrame
       }
     })

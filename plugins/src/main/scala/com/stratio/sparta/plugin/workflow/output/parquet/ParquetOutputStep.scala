@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.parquet
+package com.stratio.sparta.plugin.workflow.output.parquet
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.output.Output._
-import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql._
+import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
+
 /**
- * This output save as parquet file the information.
- *
- * @param name
- * @param properties
- */
-class ParquetOutput(
-                     name: String,
-                     sparkSession: XDSession,
-                     properties: Map[String, JSerializable]
-                   ) extends Output(name, sparkSession, properties) {
+  * This output saves as a parquet file the information received from the stream.
+  *
+  * @param name
+  * @param properties
+  */
+class ParquetOutputStep(
+                        name : String,
+                        xDSession: XDSession,
+                        properties: Map[String, JSerializable]
+                        ) extends OutputStep(name, xDSession, properties){
 
   val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
 
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+  override def supportedSaveModes : Seq[SaveModeEnum.Value] = {
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
+  }
 
-  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String,String]): Unit = {
     val tableName = getTableNameFromOptions(options)
 
     validateSaveMode(saveMode)
