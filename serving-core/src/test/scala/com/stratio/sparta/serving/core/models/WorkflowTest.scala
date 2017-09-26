@@ -27,9 +27,8 @@ class WorkflowTest extends WordSpec with Matchers with MockitoSugar {
 
   val settingsModel = Settings(
     GlobalSettings(),
-    CheckpointSettings("test/test"),
-    StreamingSettings(),
-    SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, None, None, None, SubmitArguments(),
+    StreamingSettings("6s", None, None, None, CheckpointSettings("test/test")),
+    SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, None, SubmitArguments(),
       SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
   )
   val workflow = Workflow(

@@ -59,7 +59,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         throw new RuntimeException(message)
       }
       val zookeeperConfig = launcherService.getZookeeperConfig
-      val driverFile = sparkSubmitService.extractDriverSubmit
+      val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginsFiles = sparkSubmitService.userPluginsJars
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)

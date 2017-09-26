@@ -32,13 +32,13 @@ trait CheckpointUtils extends SLF4JLogging {
   /* PUBLIC METHODS */
 
   def deleteFromLocal(workflow: Workflow): Unit = {
-    val checkpointDirectory = checkpointPath(workflow, checkTime = false)
+    val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     FileUtils.deleteDirectory(new File(checkpointDirectory))
   }
 
   def deleteFromHDFS(workflow: Workflow): Unit = {
-    val checkpointDirectory = checkpointPath(workflow, checkTime = false)
+    val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
     log.info(s"Deleting checkpoint directory: $checkpointDirectory")
     HdfsUtils().delete(checkpointDirectory)
   }
@@ -55,8 +55,10 @@ trait CheckpointUtils extends SLF4JLogging {
         deleteFromLocal(workflow)
       else deleteFromHDFS(workflow)
     } match {
-      case Success(_) => log.info(s"Checkpoint deleted in folder: ${checkpointPath(workflow, checkTime = false)}")
-      case Failure(ex) => log.error("Unable to delete checkpoint folder", ex)
+      case Success(_) =>
+        log.info(s"Checkpoint deleted in folder: ${checkpointPathFromWorkflow(workflow, checkTime = false)}")
+      case Failure(ex) =>
+        log.error("Unable to delete checkpoint folder", ex)
     }
 
   def createLocalCheckpointPath(workflow: Workflow): Unit = {
@@ -64,15 +66,17 @@ trait CheckpointUtils extends SLF4JLogging {
       Try {
         createFromLocal(workflow)
       } match {
-        case Success(_) => log.info(s"Checkpoint created in folder: ${checkpointPath(workflow, checkTime = false)}")
-        case Failure(ex) => log.error("Unable to create checkpoint folder", ex)
+        case Success(_) =>
+          log.info(s"Checkpoint created in folder: ${checkpointPathFromWorkflow(workflow, checkTime = false)}")
+        case Failure(ex) =>
+          log.error("Unable to create checkpoint folder", ex)
       }
   }
 
-  def checkpointPath(workflow: Workflow, checkTime: Boolean = true): String = {
-    val path = cleanCheckpointPath(workflow.settings.checkpointSettings.checkpointPath)
+  def checkpointPathFromWorkflow(workflow: Workflow, checkTime: Boolean = true): String = {
+    val path = cleanCheckpointPath(workflow.settings.streamingSettings.checkpointSettings.checkpointPath)
 
-    if (checkTime && workflow.settings.checkpointSettings.addTimeToCheckpointPath)
+    if (checkTime && workflow.settings.streamingSettings.checkpointSettings.addTimeToCheckpointPath)
       s"$path/${workflow.name}/${Calendar.getInstance().getTime.getTime}"
     else s"$path/${workflow.name}"
   }
@@ -88,7 +92,7 @@ trait CheckpointUtils extends SLF4JLogging {
   }
 
   private def createFromLocal(workflow: Workflow): Unit = {
-    val checkpointDirectory = checkpointPath(workflow)
+    val checkpointDirectory = checkpointPathFromWorkflow(workflow)
     log.info(s"Creating checkpoint directory: $checkpointDirectory")
     FileUtils.forceMkdir(new File(checkpointDirectory))
   }

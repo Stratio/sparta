@@ -41,9 +41,10 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
   def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
     killLocalContextListener(workflow, workflow.name)
 
-    if (workflow.settings.checkpointSettings.enableCheckpointing) {
-      if (workflow.settings.checkpointSettings.autoDeleteCheckpoint)
-        deleteCheckpointPath(workflow)
+    import workflow.settings.streamingSettings.checkpointSettings._
+
+    if (enableCheckpointing) {
+      if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
       createLocalCheckpointPath(workflow)
     }
 
@@ -67,10 +68,12 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
 
     val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
     val ssc = {
-      if (workflow.settings.checkpointSettings.enableCheckpointing) {
-        if (workflow.settings.checkpointSettings.autoDeleteCheckpoint) deleteCheckpointPath(workflow)
-        StreamingContext.getOrCreate(checkpointPath(workflow), () => {
-          log.info(s"Nothing in checkpoint path: ${checkpointPath(workflow)}")
+      import workflow.settings.streamingSettings.checkpointSettings._
+
+      if (enableCheckpointing) {
+        if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
+        StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
+          log.info(s"Nothing in checkpoint path: ${checkpointPathFromWorkflow(workflow)}")
           val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
           sparkClusterContextInstance(stepsSparkConfig, files)
           spartaWorkflow.streamingStages()

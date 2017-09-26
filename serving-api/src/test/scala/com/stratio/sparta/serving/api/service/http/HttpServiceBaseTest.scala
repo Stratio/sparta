@@ -78,9 +78,8 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getWorkflowModel(): Workflow = {
     val settingsModel = Settings(
       GlobalSettings(),
-      CheckpointSettings("test/test"),
-      StreamingSettings(),
-      SparkSettings("local[*]", false, false, Option("/opt/spark/dist"), None, None, SubmitArguments(),
+      StreamingSettings("6s", None, None, None, CheckpointSettings("test/test")),
+      SparkSettings("local[*]", false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
     val workflow = Workflow(

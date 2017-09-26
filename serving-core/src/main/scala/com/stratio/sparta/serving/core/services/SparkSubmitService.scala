@@ -59,8 +59,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     SubmitExecutorMemory -> SubmitExecutorMemoryConf
   )
 
-  def extractDriverSubmit: String = {
-    val driverStorageLocation = workflow.settings.global.driverUri
+  def extractDriverSubmit(detailConfig: Config): String = {
+    val driverStorageLocation = Try(detailConfig.getString("driverLocation"))
+      .getOrElse("/opt/sds/sparta/driver/sparta-driver.jar")
     if (driverLocation(driverStorageLocation) == ConfigHdfs) {
       val Hdfs = HdfsUtils()
       val Uploader = ClusterSparkFilesUtils(workflow, Hdfs)
@@ -119,9 +120,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
       SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
       SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
-      SubmitBlockIntervalConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.blockInterval,
-      SubmitConcurrentJobsConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.concurrentJobs,
-      SubmitSerializerConf -> workflow.settings.sparkSettings.sparkConf.serializer
+      SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
+      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
 
   /** Private Methods **/
@@ -132,8 +132,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitCoarseConf -> workflow.settings.sparkSettings.sparkConf.coarse.map(_.toString),
       SubmitGracefullyStopConf -> workflow.settings.sparkSettings.sparkConf.stopGracefully.map(_.toString),
       SubmitGracefullyStopTimeoutConf -> workflow.settings.sparkSettings.sparkConf.stopGracefulTimeout,
-      SubmitSerializerConf -> workflow.settings.sparkSettings.sparkConf.serializer,
-      SubmitExecutorUriConf -> workflow.settings.sparkSettings.sparkConf.executorURI,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
       SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax,
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory,
@@ -142,14 +140,17 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory,
       SubmitExtraCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.mesosExtraCores,
       SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
+      SubmitLocalDirConf -> workflow.settings.sparkSettings.sparkConf.sparkLocalDir,
       SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
-      SubmitBlockIntervalConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.blockInterval,
-      SubmitConcurrentJobsConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.concurrentJobs,
+      SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
+      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate,
+      SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions,
+      SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.sparkMemoryFraction,
       SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerImage,
       SubmitExecutorDockerVolumeConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerVolumes,
       SubmitExecutorDockerForcePullConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorForcePullImage.map(_.toString),
       SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosNativeJavaLibrary,
-      SubmitExecutorHomeConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosExecutorHome,
+      SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
       SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
@@ -180,11 +181,12 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   }
 
   private[sparta] def extractSparkHome: Option[String] =
-    Properties.envOrNone("SPARK_HOME").notBlank.orElse(workflow.settings.sparkSettings.sparkHome)
+    Properties.envOrNone("SPARK_HOME").notBlank.orElse(Option("/opt/spark/dist"))
 
   private[sparta] def addSparkUserConf(sparkConfs: Map[String, String]): Map[String, String] =
-    if (!sparkConfs.contains(SubmitSparkUserConf) && workflow.settings.sparkSettings.sparkUser.notBlank.isDefined) {
-      sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkUser.get)
+    if (!sparkConfs.contains(SubmitSparkUserConf) &&
+      workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.isDefined) {
+      sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.get)
     } else sparkConfs
 
   private[sparta] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
@@ -198,35 +200,10 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     }
 
   private[sparta] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] = {
-
-    def getPrincipal: Option[String] =
-      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosPrincipal.notBlank,
-        Properties.envOrNone(MesosPrincipalEnv).notBlank) match {
-        case (Some(workflowPrincipal), _) => Option(workflowPrincipal)
-        case (_, Some(envPrincipal)) => Option(envPrincipal)
-        case _ => None
-      }
-
-    def getSecret: Option[String] =
-      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosSecret.notBlank,
-        Properties.envOrNone(MesosSecretEnv).notBlank) match {
-        case (Some(workflowSecret), _) => Option(workflowSecret)
-        case (_, Some(envSecret)) => Option(envSecret)
-        case _ => None
-      }
-
-    def getRole: Option[String] =
-      (workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosRole.notBlank,
-        Properties.envOrNone(MesosRoleEnv).notBlank) match {
-        case (Some(workflowRole), _) => Option(workflowRole)
-        case (_, Some(envRole)) => Option(envRole)
-        case _ => None
-      }
-
     val mesosOptions = Map(
-      SubmitMesosPrincipalConf -> getPrincipal,
-      SubmitMesosSecretConf -> getSecret,
-      SubmitMesosRoleConf -> getRole
+      SubmitMesosPrincipalConf -> Properties.envOrNone(MesosPrincipalEnv).notBlank,
+      SubmitMesosSecretConf -> Properties.envOrNone(MesosSecretEnv).notBlank,
+      SubmitMesosRoleConf -> Properties.envOrNone(MesosRoleEnv).notBlank
     )
 
     mesosOptions.flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs

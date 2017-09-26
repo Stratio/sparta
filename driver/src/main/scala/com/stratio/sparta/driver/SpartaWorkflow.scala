@@ -88,11 +88,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     clearError()
 
     //Prepare Workflow Context variables with the Spark Contexts used in steps
-    val workflowCheckpointPath = {
-      if (workflow.settings.checkpointSettings.enableCheckpointing)
-        Option(checkpointPath(workflow))
-      else None
-    }
+    val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
+      .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
     val window = AggregationTime.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
     val ssc = sparkStreamingInstance(Duration(window),
       workflowCheckpointPath,
