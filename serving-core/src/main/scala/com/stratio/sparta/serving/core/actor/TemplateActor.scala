@@ -32,7 +32,7 @@ import spray.http.StatusCodes
 
 import scala.util.Try
 
-class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: Option[SpartaSecurityManager])
+class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   //TODO change dyplon to new names: policy -> workflow
@@ -68,40 +68,34 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
       case (None, _) => sender ! Left(ResponseTemplates(Try(templateService.findAll)))
     }
 
-  def findByType(fragmentType: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplates(Try(templateService.findByType(fragmentType)))
-
-    securityActionAuthorizer[ResponseTemplates](secManagerOpt, user, Map(fragmentType -> View), callback)
+  def findByType(fragmentType: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseTemplates](user, Map(fragmentType -> View)) {
+    ResponseTemplates(Try(templateService.findByType(fragmentType)))
   }
 
-  def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(templateService.findByTypeAndId(fragmentType, id)))
-
-    securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragmentType -> View), callback)
+  def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseTemplate](user, Map(fragmentType -> View)) {
+    ResponseTemplate(Try(templateService.findByTypeAndId(fragmentType, id)))
   }
 
-  def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(templateService.findByTypeAndName(fragmentType, name)
+  def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseTemplate]( user, Map(fragmentType -> View)) {
+      ResponseTemplate(Try(templateService.findByTypeAndName(fragmentType, name)
       .getOrElse(errorTemplateNotFound(fragmentType, name))))
-
-    securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragmentType -> View), callback)
   }
 
-  def create(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseTemplate(Try(templateService.create(fragment)))
-
-    securityActionAuthorizer[ResponseTemplate](secManagerOpt, user, Map(fragment.templateType -> Create), callback)
+  def create(fragment: TemplateElement, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseTemplate](user, Map(fragment.templateType -> Create)) {
+    ResponseTemplate(Try(templateService.create(fragment)))
   }
 
   def update(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(templateService.update(fragment)))
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(fragment.templateType -> Edit, PolicyResource -> View, PolicyResource -> Edit),
-      callback
-    )
+    val actions = Map(fragment.templateType -> Edit, PolicyResource -> View, PolicyResource -> Edit)
+    securityActionAuthorizer[Response](user, actions) {
+      Response(Try(templateService.update(fragment)))
+    }
   }
+
 
   def deleteAll(user: Option[LoggedUser]): Unit =
     (secManagerOpt, user) match {
@@ -119,32 +113,24 @@ class TemplateActor(val curatorFramework: CuratorFramework, val secManagerOpt: O
     }
 
   def deleteByType(fragmentType: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(templateService.deleteByType(fragmentType)))
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View),
-      callback
-    )
+    val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
+    securityActionAuthorizer[Response](user, actions) {
+      Response(Try(templateService.deleteByType(fragmentType)))
+    }
   }
 
   def deleteByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(templateService.deleteByTypeAndId(fragmentType, id)))
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View),
-      callback)
+    val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
+    securityActionAuthorizer[Response](user, actions) {
+      Response(Try(templateService.deleteByTypeAndId(fragmentType, id)))
+    }
   }
 
   def deleteByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(templateService.deleteByTypeAndName(fragmentType, name)))
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View),
-      callback
-    )
+    val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
+    securityActionAuthorizer[Response](user, actions) {
+      Response(Try(templateService.deleteByTypeAndName(fragmentType, name)))
+    }
   }
 
   //PRIVATE METHODS

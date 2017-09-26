@@ -65,7 +65,7 @@ class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     """.stripMargin)
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
-  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+  implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
   val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
@@ -83,21 +83,21 @@ class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   "DriverActor " must {
 
     "Not save files with wrong extension" in {
-      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      val driverActor = system.actorOf(Props(new DriverActor()))
       driverActor ! UploadDrivers(fileList, rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
-      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      val driverActor = system.actorOf(Props(new DriverActor()))
       driverActor ! UploadDrivers(Seq.empty, rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Failure(f))) => f.getMessage shouldBe "At least one file is expected"
       }
     }
     "Save a file" in {
-      val driverActor = system.actorOf(Props(new DriverActor(secManager)))
+      val driverActor = system.actorOf(Props(new DriverActor()))
       driverActor ! UploadDrivers(Seq(BodyPart("reference.conf", "file.jar")), rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) =>

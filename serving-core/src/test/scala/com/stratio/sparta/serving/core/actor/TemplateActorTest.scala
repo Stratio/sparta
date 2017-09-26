@@ -92,7 +92,7 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
         |}rootUser
       """.stripMargin
 
-    val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+    implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
     val templateElementModel = read[TemplateElement](template)
     val templateElementModel2 = read[TemplateElement](outputTemplate)
     val curatorFramework = mock[CuratorFramework]
@@ -103,7 +103,7 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
     val deleteBuilder = mock[DeleteBuilder]
     val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
-    val templateActor = system.actorOf(Props(new TemplateActor(curatorFramework, secManager)))
+    val templateActor = system.actorOf(Props(new TemplateActor(curatorFramework)))
     implicit val timeout: Timeout = Timeout(15.seconds)
   }
 

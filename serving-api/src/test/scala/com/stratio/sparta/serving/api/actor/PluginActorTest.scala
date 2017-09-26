@@ -65,7 +65,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
-  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+  implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
   val limitedUser = Some(LoggedUser("4321","limited", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
@@ -83,21 +83,21 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   "PluginActor " must {
 
     "Not save files with wrong extension" in {
-      val pluginActor = system.actorOf(Props(new PluginActor(secManager)))
+      val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(fileList, rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.isEmpty shouldBe true
       }
     }
     "Not upload empty files" in {
-      val pluginActor = system.actorOf(Props(new PluginActor(secManager)))
+      val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq.empty, rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Failure(f))) => f.getMessage shouldBe "At least one file is expected"
       }
     }
     "Save a file" in {
-      val pluginActor = system.actorOf(Props(new PluginActor(secManager)))
+      val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")), rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.head.fileName.endsWith("file.jar") shouldBe true

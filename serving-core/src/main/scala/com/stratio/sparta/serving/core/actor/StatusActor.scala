@@ -28,8 +28,8 @@ import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
-class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
-  with ActionUserAuthorize{
+class StatusActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with ActionUserAuthorize {
 
   private val ResourceType = "context"
   private val statusService = new WorkflowStatusService(curatorFramework)
@@ -50,37 +50,37 @@ class StatusActor(val curatorFramework: CuratorFramework,val secManagerOpt: Opti
     case _ => log.info("Unrecognized message in Status Actor")
   }
 
-  def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(statusService.create(policyStatus))
+  def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
+      ResponseStatus(statusService.create(policyStatus))
+    }
 
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
-  }
+  def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
+      ResponseStatus(statusService.update(policyStatus))
+    }
 
-  def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(statusService.update(policyStatus))
-
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
-  }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), statusService.findAll)
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      statusService.findAll
+    }
 
 
-  def findById(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseStatus(statusService.findById(id))
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
-  }
+  def findById(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      ResponseStatus(statusService.findById(id))
+    }
 
-  def deleteAll(user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseDelete(statusService.deleteAll())
-    securityActionAuthorizer[ResponseDelete](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
+  def deleteAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseDelete](user, Map(ResourceType -> Delete)) {
+      ResponseDelete(statusService.deleteAll())
+    }
 
-  def deleteStatus(id: String, user: Option[LoggedUser]): Unit = {
-   def callback () = ResponseDelete(statusService.delete(id))
-
-    securityActionAuthorizer[ResponseDelete](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
+  def deleteStatus(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseDelete](user, Map(ResourceType -> Delete)) {
+      ResponseDelete(statusService.delete(id))
+    }
 
   //scalastyle:on cyclomatic.complexity
 }

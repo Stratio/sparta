@@ -38,7 +38,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Success, Try}
 
-class MetadataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport
   with BackupRestoreUtils
   with SpartaSerializer
@@ -73,58 +73,57 @@ class MetadataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Ac
   def errorResponse(): Unit =
     sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
 
-  def uploadBackups(files: Seq[BodyPart], user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(uploadFiles(files))
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Upload), callback)
+  def uploadBackups(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
+      SpartaFilesResponse(uploadFiles(files))
   }
 
-  def browseBackups(user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(browseDirectory())
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> View), callback)
+  def browseBackups(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
+    SpartaFilesResponse(browseDirectory())
   }
 
   def buildBackup(user: Option[LoggedUser]): Unit = {
     val format = DateTimeFormat.forPattern("yyyy-MM-dd-hh:mm:ss")
     val appInfo = InfoHelper.getAppInfo
-    def callback () = Try {
-      dump(BaseZkPath, s"$targetDir/backup-${format.print(DateTime.now)}-${appInfo.pomVersion}.json")
-    } match {
-      case Success(_) =>
-       SpartaFilesResponse(browseDirectory())
-      case Failure(e) =>
-       SpartaFilesResponse(Try(throw e))
+
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Create)) {
+      Try {
+        dump(BaseZkPath, s"$targetDir/backup-${format.print(DateTime.now)}-${appInfo.pomVersion}.json")
+      } match {
+        case Success(_) =>
+          SpartaFilesResponse(browseDirectory())
+        case Failure(e) =>
+          SpartaFilesResponse(Try(throw e))
+      }
     }
 
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Create), callback)
   }
 
-  def deleteBackups(user: Option[LoggedUser]): Unit = {
-    def callback() = BackupResponse(deleteFiles())
+  def deleteBackups(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+      BackupResponse(deleteFiles())
+    }
 
-    securityActionAuthorizer[BackupResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
+  def cleanMetadata(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+      BackupResponse(Try(cleanZk(BaseZkPath)))
+    }
+
+  def deleteBackup(fileName: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Delete)) {
+      BackupResponse(deleteFile(fileName))
+    }
+
+  def executeBackup(backupRequest: BackupRequest, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[BackupResponse](user, Map(ResourceType -> Execute)) {
+    BackupResponse {
+      Try{
+        importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore)
+      }
+    }
   }
 
-  def cleanMetadata(user: Option[LoggedUser]): Unit = {
-    def callback() = BackupResponse(Try(cleanZk(BaseZkPath)))
-
-    securityActionAuthorizer[BackupResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
-
-  def deleteBackup(fileName: String, user: Option[LoggedUser]): Unit = {
-    def callback() =  BackupResponse(deleteFile(fileName))
-
-    securityActionAuthorizer[BackupResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
-
-  def executeBackup(backupRequest: BackupRequest, user: Option[LoggedUser]): Unit = {
-    def callback() = BackupResponse(Try{
-      importer("/", s"$targetDir/${backupRequest.fileName}", backupRequest.deleteAllBefore)
-    })
-
-    securityActionAuthorizer[BackupResponse](secManagerOpt, user, Map(ResourceType -> Execute), callback)
-  }
 }
 
 object MetadataActor {

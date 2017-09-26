@@ -29,9 +29,9 @@ import com.stratio.sparta.serving.core.utils.HdfsUtils
 
 import scala.util.Try
 
-class CrossdataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with SLF4JLogging
-  with ActionUserAuthorize{
+  with ActionUserAuthorize {
 
   lazy val crossdataService = new CrossdataService
   val ResourceType = "catalog"
@@ -48,62 +48,40 @@ class CrossdataActor(val secManagerOpt: Option[SpartaSecurityManager]) extends A
     case _ => log.info("Unrecognized message in CrossdataActor")
   }
 
-  def findAllDatabases(user: Option[LoggedUser]): Unit = {
-    def callback() = crossdataService.listDatabases()
+  /**
+    * Runs `f` using `HdfsUtils#runFunction` if possible.
+    * otherwise, just invoke `f`
+    */
+  def maybeWithHdfsUtils(f: => Unit): Unit = hdfsUtils.map(_.runFunction(f)).getOrElse(f)
 
-    hdfsUtils match {
-      case Some(utils) =>
-        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
-      case None =>
-        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+  def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      crossdataService.listDatabases
+    }
+  }
+
+  def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      crossdataService.listAllTables
+    }
+  }
+
+  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
     }
   }
 
 
-  def findAllTables(user: Option[LoggedUser]): Unit = {
-    def callback() = crossdataService.listAllTables
-
-    hdfsUtils match {
-      case Some(utils) =>
-        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
-      case None =>
-        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
+  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+    securityActionAuthorizer(user, Map(ResourceType -> Describe)) {
+      crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
     }
   }
 
-  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = {
-    def callback() = crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
-
-    hdfsUtils match {
-      case Some(utils) =>
-        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback))
-      case None =>
-        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
-    }
-  }
-
-
-  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = {
-    def callback() = crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
-
-    hdfsUtils match {
-      case Some(utils) =>
-        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Describe), callback))
-      case None =>
-        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Describe), callback)
-    }
-  }
-
-
-
-  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = {
-    def callback() = crossdataService.executeQuery(queryRequest.query)
-
-    hdfsUtils match {
-      case Some(utils) =>
-        utils.runFunction(securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Execute), callback))
-      case None =>
-        securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Execute), callback)
+  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+    securityActionAuthorizer(user, Map(ResourceType -> Execute)) {
+      crossdataService.executeQuery(queryRequest.query)
     }
   }
 

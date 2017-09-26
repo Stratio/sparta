@@ -21,30 +21,30 @@ import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
 
+trait ActionUserAuthorize extends Actor with SLF4JLogging {
 
-trait ActionUserAuthorize extends Actor with SLF4JLogging{
-
-  def securityActionAuthorizer[T](secManagerOpt: Option[SpartaSecurityManager],
-                                  user: Option[LoggedUser],
-                                  actions : Map[String, Action],
-                                  actionFunction: () => T) : Unit =
+  def securityActionAuthorizer[T](user: Option[LoggedUser], actions : Map[String, Action])(actionFunction: => T)(
+    implicit secManagerOpt: Option[SpartaSecurityManager]
+  ): Unit =
     (secManagerOpt, user) match {
       case (Some(secManager), Some(userLogged)) =>
-        val rejectedActions = actions.flatMap {case (resource, action) =>
-          if(!secManager.authorize(userLogged.id, resource, action))
-            Option(action)
-          else None
+
+        val rejectedActions = actions filterNot {
+          case (resource, action) => secManager.authorize(userLogged.id, resource, action)
         }
-        if (rejectedActions.isEmpty){
-          log.debug(s"Authorized! Actions: $actions")
-          sender ! Left(actionFunction())
-        } else{
-          log.debug(s"Not authorized: Actions: $actions \t Rejected: ${rejectedActions.head}")
-          sender ! Right(errorResponseAuthorization(userLogged.id, actions.head._1))
+
+        sender ! {
+          rejectedActions.headOption map { _ => // There are rejected actions.
+            log.debug(s"Not authorized: Actions: $actions \t Rejected: ${rejectedActions.head}")
+            Right(errorResponseAuthorization(userLogged.id, actions.head._1))
+          } getOrElse { // All actions've been accepted.
+            log.debug(s"Authorized! Actions: $actions")
+            Left(actionFunction)
+          }
         }
 
       case (Some(secManager), None) => sender ! Right(errorNoUserFound(actions.values.toSeq))
-      case (None, _) => sender ! Left(actionFunction())
+      case (None, _) => sender ! Left(actionFunction)
     }
 
 }

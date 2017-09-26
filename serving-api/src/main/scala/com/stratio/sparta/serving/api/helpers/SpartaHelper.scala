@@ -41,13 +41,13 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
     if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
 
       val curatorFramework = CuratorFactoryHolder.getInstance()
-      val secManager = SecurityManagerHelper.securityManager
+      implicit val secManager = SecurityManagerHelper.securityManager
 
       log.info("Initializing Sparta Actor System ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
 
       val controllerActor =
-        system.actorOf(Props(new ControllerActor(secManager, curatorFramework)), ControllerActorName)
+        system.actorOf(Props(new ControllerActor(curatorFramework)), ControllerActorName)
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")

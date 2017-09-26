@@ -46,7 +46,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   with ImplicitSender
   with MockitoSugar {
 
-  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+  implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
   val getChildrenBuilder = mock[GetChildrenBuilder]
   val getDataBuilder = mock[GetDataBuilder]
@@ -57,7 +57,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
   SpartaConfig.initMainConfig()
 
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
-  val actor = system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
+  val actor = system.actorOf(Props(new StatusActor(curatorFramework)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
   val status = WorkflowStatus("existingID", WorkflowStatusEnum.Launched)

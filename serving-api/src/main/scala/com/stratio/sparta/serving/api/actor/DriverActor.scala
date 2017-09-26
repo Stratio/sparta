@@ -34,7 +34,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Try}
 
-class DriverActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class DriverActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize{
 
   //The dir where the jars will be saved
@@ -56,29 +56,25 @@ class DriverActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Acto
   def errorResponse(): Unit =
     sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
 
-  def deleteDrivers(user: Option[LoggedUser]): Unit = {
-    def callback() = DriverResponse(deleteFiles())
+  def deleteDrivers(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[DriverResponse](user, Map(ResourceType -> Delete)) {
+      DriverResponse(deleteFiles())
+    }
 
-    securityActionAuthorizer[DriverResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
+  def deleteDriver(fileName: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[DriverResponse](user, Map(ResourceType -> Delete)) {
+      DriverResponse(deleteFile(fileName))
+    }
 
-  def deleteDriver(fileName: String, user: Option[LoggedUser]): Unit = {
-    def callback() = DriverResponse(deleteFile(fileName))
+  def browseDrivers(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
+      SpartaFilesResponse(browseDirectory())
+    }
 
-    securityActionAuthorizer[DriverResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
-
-  def browseDrivers(user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(browseDirectory())
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> View), callback)
-  }
-
-  def uploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(uploadFiles(files))
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Upload), callback)
-  }
+  def uploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
+      SpartaFilesResponse(uploadFiles(files))
+    }
 }
 
 object DriverActor {

@@ -31,9 +31,9 @@ import org.apache.zookeeper.KeeperException.NoNodeException
 
 import scala.util.{Failure, Success, Try}
 
-class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRef,
-                    val secManagerOpt: Option[SpartaSecurityManager])
-  extends Actor with CheckpointUtils with ActionUserAuthorize {
+class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => ActorRef)(
+  implicit val secManagerOpt: Option[SpartaSecurityManager]
+) extends Actor with CheckpointUtils with ActionUserAuthorize {
 
   import WorkflowActor._
 
@@ -62,93 +62,81 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: ActorRe
 
   //scalastyle:on
 
-  def findAll(user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflows(Try {
-      workflowService.findAll
-    }.recover {
-      case _: NoNodeException => Seq.empty[Workflow]
-    })
+  def findAll(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+      ResponseWorkflows {
+        Try {
+          workflowService.findAll
+        } recover {
+          case _: NoNodeException => Seq.empty[Workflow]
+        }
+      }
+    }
 
-    securityActionAuthorizer[ResponseWorkflows](secManagerOpt, user, Map(ResourcePol -> View), callback)
+  def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+      ResponseWorkflows {
+        Try(workflowService.findByTemplateType(fragmentType)).recover {
+          case _: NoNodeException => Seq.empty[Workflow]
+        }
+      }
+    }
+
+  def findByTemplateName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+      ResponseWorkflows {
+        Try(workflowService.findByTemplateName(fragmentType, name)).recover {
+          case _: NoNodeException => Seq.empty[Workflow]
+        }
+      }
+    }
+
+  def find(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+      ResponseWorkflow {
+        Try(workflowService.findById(id)).recover {
+          case _: NoNodeException =>
+            throw new ServerException(s"No workflow with id $id.")
+        }
+      }
   }
 
-  def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflows(
-      Try(workflowService.findByTemplateType(fragmentType)).recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      })
+  def findByName(name: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+      ResponseWorkflow(Try(workflowService.findByName(name)))
+    }
 
-    securityActionAuthorizer[ResponseWorkflows](secManagerOpt, user, Map(ResourcePol -> View), callback)
-  }
+  def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> Create, ResourceContext -> Create)) {
+      ResponseWorkflow(Try(workflowService.create(workflow)))
+    }
 
-  def findByTemplateName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflows(
-      Try(workflowService.findByTemplateName(fragmentType, name)).recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      })
+  def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourcePol -> Edit)) {
+      ResponseWorkflow {
+        Try(workflowService.update(workflow)).recover {
+        case _: NoNodeException =>
+          throw new ServerException(s"No workflow with name ${workflow.name}.")
+        }
+      }
+    }
 
-    securityActionAuthorizer[ResponseWorkflows](secManagerOpt, user, Map(ResourcePol -> View), callback)
-  }
-
-  def find(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(workflowService.findById(id)).recover {
-      case _: NoNodeException =>
-        throw new ServerException(s"No workflow with id $id.")
-    })
-
-    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
-  }
-
-  def findByName(name: String, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(workflowService.findByName(name)))
-
-    securityActionAuthorizer[ResponseWorkflow](secManagerOpt, user, Map(ResourcePol -> View), callback)
-  }
-
-  def create(workflow: Workflow, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(workflowService.create(workflow)))
-
-    securityActionAuthorizer[ResponseWorkflow](secManagerOpt,
-      user,
-      Map(ResourcePol -> Create, ResourceContext -> Create),
-      callback)
-  }
-
-  def update(workflow: Workflow, user: Option[LoggedUser]): Unit = {
-    def callback() = ResponseWorkflow(Try(workflowService.update(workflow)).recover {
-      case _: NoNodeException =>
-        throw new ServerException(s"No workflow with name ${workflow.name}.")
-    })
-
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourcePol -> Edit), callback)
-  }
-
-  def delete(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(workflowService.delete(id))
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(ResourcePol -> Delete, ResourceCP -> Delete),
-      callback)
-  }
+  def delete(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user, Map(ResourcePol -> Delete, ResourceCP -> Delete)) {
+      Response(workflowService.delete(id))
+    }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    def callback() = Response(workflowService.deleteAll())
-
-    securityActionAuthorizer[Response](secManagerOpt,
-      user,
-      Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete),
-      callback)
+    val actions = Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete)
+    securityActionAuthorizer[Response](user, actions) {
+      Response(workflowService.deleteAll())
+    }
   }
 
-  def deleteCheckpoint(workflow: Workflow, user: Option[LoggedUser]): Unit = {
-    def callback() = Response(Try(deleteCheckpointPath(workflow)))
-
-    securityActionAuthorizer[Response](secManagerOpt, user,
-      Map(ResourceCP -> Delete, ResourcePol -> View),
-      callback
-    )
-  }
+  def deleteCheckpoint(workflow: Workflow, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourcePol -> View)) {
+      Response(Try(deleteCheckpointPath(workflow)))
+    }
 
   def loggingResponseTemplate(response: Try[TemplateElement]): Unit =
     response match {

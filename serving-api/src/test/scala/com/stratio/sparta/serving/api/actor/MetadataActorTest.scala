@@ -80,7 +80,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     """.stripMargin)
 
   val fileList = Seq(BodyPart("reference.conf", "file"))
-  val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
+  implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
   var zkTestServer: TestingCluster = _
   var clusterConfig: Option[Config] = None
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
@@ -113,7 +113,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   "MetadataActor " must {
 
     "Not save files with wrong extension" in {
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! (UploadBackups(fileList, rootUser))
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.isEmpty shouldBe true
@@ -124,7 +124,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       }
     }
     "Not upload empty files" in {
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! UploadBackups(Seq.empty, rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Failure(f))) => f.getMessage shouldBe "At least one file is expected"
@@ -135,7 +135,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       }
     }
     "Save a file" in {
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! UploadBackups(Seq(BodyPart("reference.conf", "file.json")), rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) =>
@@ -150,7 +150,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     "Build backup and response the uploaded file" in {
       val instance = CuratorFactoryHolder.getInstance()
       instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup(rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.head.fileName.startsWith("backup-") shouldBe true
@@ -162,7 +162,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     }
 
     "Build backup and response error when path does not exists" in {
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup(rootUser)
       expectMsgPF() {
         case Left(SpartaFilesResponse(Failure(e: Exception))) => e.getLocalizedMessage shouldBe
@@ -178,7 +178,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     "Build backup, clean metadata and execute backup" in {
       val instance = CuratorFactoryHolder.getInstance()
       instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup(rootUser)
       var backupFile = ""
       expectMsgPF() {
@@ -207,7 +207,7 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
     "Build backup and delete backup" in {
       val instance = CuratorFactoryHolder.getInstance()
       instance.create().creatingParentsIfNeeded().forPath(s"${AppConstant.DefaultZKPath}/test", "testData".getBytes)
-      val metadataActor = system.actorOf(Props(new MetadataActor(secManager)))
+      val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! BuildBackup(rootUser)
       var backupFile = ""
       expectMsgPF() {

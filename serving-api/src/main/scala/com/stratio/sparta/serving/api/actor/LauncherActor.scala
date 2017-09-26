@@ -32,8 +32,7 @@ import org.apache.curator.framework.CuratorFramework
 import scala.util.Try
 
 class LauncherActor(val streamingContextService: StreamingContextService,
-                    val curatorFramework: CuratorFramework,
-                    val secManagerOpt: Option[SpartaSecurityManager])
+                    val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   private val ResourceType = "context"
@@ -50,9 +49,9 @@ class LauncherActor(val streamingContextService: StreamingContextService,
   override def receive: Receive = {
 
     case Launch(workflow, user) =>
-      def callback() = create(workflow)
-
-      securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
+      securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
+        create(workflow)
+      }
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 

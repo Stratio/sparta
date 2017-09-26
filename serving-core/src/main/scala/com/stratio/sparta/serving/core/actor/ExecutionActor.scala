@@ -25,7 +25,7 @@ import com.stratio.sparta.serving.core.services.ExecutionService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
-class ExecutionActor(val curatorFramework: CuratorFramework, val secManagerOpt: Option[SpartaSecurityManager])
+class ExecutionActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize{
 
 
@@ -42,36 +42,36 @@ class ExecutionActor(val curatorFramework: CuratorFramework, val secManagerOpt: 
     case _ => log.info("Unrecognized message in Workflow Execution Actor")
   }
 
-  def createExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
-    def callback() = executionService.create(request)
+  def createExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> Create)) {
+      executionService.create(request)
+    }
 
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Create), callback)
-  }
+  def updateExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
+      executionService.update(request)
+    }
 
-  def updateExecution(request: WorkflowExecution, user: Option[LoggedUser]): Unit = {
-    def callback() = executionService.update(request)
+  def findAllExecutions(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      executionService.findAll
+    }
 
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Edit), callback)
-  }
-
-  def findAllExecutions(user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), executionService.findAll)
-  }
-
-  def findExecutionById(id: String, user: Option[LoggedUser]): Unit = {
-    def callback() = executionService.findById(id)
-
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> View), callback)
-  }
+  def findExecutionById(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
+      executionService.findById(id)
+    }
 
   def deleteAllExecutions(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), executionService.deleteAll)
+    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
+      executionService.deleteAll
+    }
 
 
-  def deleteExecution(id:String, user: Option[LoggedUser]): Unit = {
-    def callback() = executionService.delete(id)
-    securityActionAuthorizer(secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
+  def deleteExecution(id:String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceType -> Delete)) {
+      executionService.delete(id)
+    }
 
 }
 

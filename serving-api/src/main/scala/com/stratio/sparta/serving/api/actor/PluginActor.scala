@@ -34,7 +34,7 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Try}
 
-class PluginActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
+class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize{
 
   //The dir where the jars will be saved
@@ -56,29 +56,25 @@ class PluginActor(val secManagerOpt: Option[SpartaSecurityManager]) extends Acto
   def errorResponse(): Unit =
     sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
 
-  def deletePlugins(user: Option[LoggedUser]): Unit = {
-    def callback() = PluginResponse(deleteFiles())
+  def deletePlugins(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
+      PluginResponse(deleteFiles())
+    }
 
-    securityActionAuthorizer[PluginResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
+  def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
+      PluginResponse(deleteFile(fileName))
+    }
 
-  def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit = {
-    def callback() = PluginResponse(deleteFile(fileName))
+  def browsePlugins(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
+      SpartaFilesResponse(browseDirectory())
+    }
 
-    securityActionAuthorizer[PluginResponse](secManagerOpt, user, Map(ResourceType -> Delete), callback)
-  }
-
-  def browsePlugins(user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(browseDirectory())
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> View), callback)
-  }
-
-  def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit = {
-    def callback() = SpartaFilesResponse(uploadFiles(files))
-
-    securityActionAuthorizer[SpartaFilesResponse](secManagerOpt, user, Map(ResourceType -> Upload), callback)
-  }
+  def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
+      SpartaFilesResponse(uploadFiles(files))
+    }
 
 }
 

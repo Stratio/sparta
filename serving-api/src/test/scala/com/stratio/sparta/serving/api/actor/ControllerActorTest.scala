@@ -38,7 +38,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   SpartaConfig.initMainConfig()
   SpartaConfig.initApiConfig()
 
-  val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
+  implicit val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = StreamingContextService(curatorFramework)
 
@@ -51,7 +51,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   "ControllerActor" should {
     "set up the controller actor that contains all Sparta's routes without any error" in {
-      _system.actorOf(Props(new ControllerActor(secManager, curatorFramework)))
+      _system.actorOf(Props(new ControllerActor(curatorFramework)))
     }
   }
 }

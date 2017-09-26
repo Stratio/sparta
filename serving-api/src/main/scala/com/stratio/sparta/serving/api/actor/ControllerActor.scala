@@ -40,7 +40,7 @@ import spray.routing._
 
 import scala.util.{Properties, Try}
 
-class ControllerActor(secManager: Option[SpartaSecurityManager], curatorFramework: CuratorFramework) extends HttpServiceActor
+class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager]) extends HttpServiceActor
   with SLF4JLogging
   with SpartaSerializer
   with CorsSupport
@@ -50,26 +50,26 @@ class ControllerActor(secManager: Option[SpartaSecurityManager], curatorFramewor
   override implicit def actorRefFactory: ActorContext = context
 
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusActor(curatorFramework, secManager))), StatusActorName)
+    .props(Props(new StatusActor(curatorFramework))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new TemplateActor(curatorFramework, secManager))), TemplateActorName)
+    .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(curatorFramework, statusActor, secManager))), WorkflowActorName)
+    .props(Props(new WorkflowActor(curatorFramework, statusActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new ExecutionActor(curatorFramework, secManager))), ExecutionActorName)
+    .props(Props(new ExecutionActor(curatorFramework))), ExecutionActorName)
   val scService = StreamingContextService(curatorFramework)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(scService, curatorFramework, secManager))), LauncherActorName)
+    .props(Props(new LauncherActor(scService, curatorFramework))), LauncherActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new PluginActor(secManager))), PluginActorName)
+    .props(Props(new PluginActor())), PluginActorName)
   val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new DriverActor(secManager))), DriverActorName)
+    .props(Props(new DriverActor())), DriverActorName)
   val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ConfigActor())), ConfigActorName)
   val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new MetadataActor(secManager))), MetadataActorName)
+    .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new CrossdataActor(secManager))), CrossdataActorName)
+    .props(Props(new CrossdataActor())), CrossdataActorName)
 
   statusActor ! AddClusterListeners
 
