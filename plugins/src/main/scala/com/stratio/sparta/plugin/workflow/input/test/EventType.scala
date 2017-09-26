@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.input.test
+package com.stratio.sparta.plugin.workflow.input.test
 
 object EventType extends Enumeration {
 

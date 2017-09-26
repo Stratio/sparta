@@ -1,6 +1,6 @@
 {
-  "name": "socket_trigger_casting",
-  "description": "Workflow with socket, trigger, casting and print",
+  "name": "test_input_trigger",
+  "description": "Workflow with testInput and trigger",
   "settings": {
     "global": {
       "executionMode": "local",
@@ -19,6 +19,7 @@
     },
     "checkpointSettings": {
       "checkpointPath": "sparta/checkpoint",
+      "enableCheckpointing": true,
       "autoDeleteCheckpoint": true,
       "addTimeToCheckpointPath": false
     },
@@ -28,6 +29,7 @@
     "sparkSettings": {
       "master": "local[*]",
       "sparkKerberos": false,
+      "sparkDataStoreTls": false,
       "sparkHome": "/opt/spark/dist",
       "submitArguments": {
         "userArguments": [
@@ -74,19 +76,18 @@
   "pipelineGraph": {
     "nodes": [
       {
-        "name": "socket",
+        "name": "test",
         "stepType": "Input",
-        "className": "WebSocketInputStep",
-        "classPrettyName": "WebSocket",
+        "className": "TestInputStep",
+        "classPrettyName": "Test",
         "writer": {
-          "autoCalculatedFields": [],
           "saveMode": "Append",
-          "tableName": "inputsocket"
+          "tableName": "inputtest"
         },
         "configuration": {
-          "url": "ws://stream.meetup.com/2/rsvps",
-          "outputField": "raw",
-          "outputType": "string"
+          "eventType": "String",
+          "event": "eventTest",
+          "outputField": "rawTest"
         }
       },
       {
@@ -95,33 +96,12 @@
         "className": "TriggerTransformStep",
         "classPrettyName": "Trigger",
         "writer": {
-          "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": "triggertable"
         },
         "configuration": {
           "whenError": "Error",
-          "sql": "SELECT raw, array(named_struct('ean', raw, 'price', raw, 'lastUpdate', '')) as articles, array(map('raw', raw)) as articlesraw FROM socket"
-        }
-      },
-      {
-        "name": "casting1",
-        "stepType": "Transformation",
-        "className": "CastingTransformStep",
-        "classPrettyName": "Casting",
-        "writer": {
-          "autoCalculatedFields": [],
-          "saveMode": "Append",
-          "tableName": "castingtable"
-        },
-        "configuration": {
-          "whenError": "Error",
-          "outputFieldsFrom": "FIELDS",
-          "fields": [
-            {"name": "raw", "type": "string"},
-            {"name": "articlesraw", "type": "ArrayType(MapType(StringType,StringType,true),false)"},
-            {"name": "articles", "type": "{\"type\":\"array\",\"elementType\":{\"type\":\"struct\",\"fields\":[{\"name\":\"ean\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"price\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"lastUpdate\",\"type\":\"string\",\"nullable\":false,\"metadata\":{}}]},\"containsNull\":false}"}
-          ]
+          "sql": "SELECT rawTest FROM test"
         }
       },
       {
@@ -130,7 +110,6 @@
         "className": "PrintOutputStep",
         "classPrettyName": "Print",
         "writer": {
-          "autoCalculatedFields": [],
           "saveMode": "Append",
           "tableName": ""
         },
@@ -143,15 +122,15 @@
     ],
     "edges": [
       {
-        "origin": "socket",
+        "origin": "test",
         "destination": "trigger1"
       },
       {
-        "origin": "trigger1",
-        "destination": "casting1"
+        "origin": "test",
+        "destination": "print"
       },
       {
-        "origin": "casting1",
+        "origin": "trigger1",
         "destination": "print"
       }
     ]

@@ -192,12 +192,9 @@ class KafkaInputStep(
 
   def getLocationStrategy: LocationStrategy =
     properties.getString("locationStrategy", None) match {
-      case Some(strategy) => strategy match {
-        case "preferbrokers" => LocationStrategies.PreferBrokers
-        case "preferconsistent" => LocationStrategies.PreferConsistent
-        case _ => LocationStrategies.PreferConsistent
-      }
-      case None => LocationStrategies.PreferConsistent
+      case Some("preferbrokers") => LocationStrategies.PreferBrokers
+      case Some("preferconsistent") => LocationStrategies.PreferConsistent
+      case _ => LocationStrategies.PreferConsistent
     }
 
   /** PARTITION ASSIGNMENT STRATEGY **/
@@ -207,7 +204,7 @@ class KafkaInputStep(
     val strategy = properties.getString("partition.assignment.strategy", None) match {
       case Some("range") => classOf[RangeAssignor].getCanonicalName
       case Some("roundrobin") => classOf[RoundRobinAssignor].getCanonicalName
-      case None => classOf[RangeAssignor].getCanonicalName
+      case _ => classOf[RangeAssignor].getCanonicalName
     }
 
     Map(partitionStrategyKey -> strategy)

@@ -49,10 +49,10 @@ abstract class InputStep(
   /* METHODS TO IMPLEMENT */
 
   /**
-   * Create and initialize stream using the Spark Streaming Context.
-   *
-   * @return The DStream created with spark rows
-   */
+    * Create and initialize stream using the Spark Streaming Context.
+    *
+    * @return The DStream created with spark rows
+    */
   def initStream(): DStream[Row]
 
 }

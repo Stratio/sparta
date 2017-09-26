@@ -16,11 +16,14 @@
 package com.stratio.sparta.plugin.workflow.input.websocket
 
 import akka.event.slf4j.SLF4JLogging
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
 
-class WebSocketReceiver(url: String, storageLevel: StorageLevel)
-  extends Receiver[String](storageLevel) with SLF4JLogging {
+class WebSocketReceiver(url: String, storageLevel: StorageLevel, outputSchema: StructType)
+  extends Receiver[Row](storageLevel) with SLF4JLogging {
 
 
   private var webSocket: Option[WebSocket] = None
@@ -29,8 +32,12 @@ class WebSocketReceiver(url: String, storageLevel: StorageLevel)
     try {
       log.info("Connecting to WebSocket: " + url)
       val newWebSocket = WebSocket().open(url)
-        .onTextMessage({ msg: String => store(msg) })
-        .onBinaryMessage({ msg: Array[Byte] => store(new Predef.String(msg)) })
+        .onTextMessage { msg: String =>
+          store(new GenericRowWithSchema(Array(msg), outputSchema))
+        }
+        .onBinaryMessage { msg: Array[Byte] =>
+          store(new GenericRowWithSchema(Array(new Predef.String(msg)), outputSchema))
+        }
       setWebSocket(Option(newWebSocket))
       log.info("Connected to: WebSocket" + url)
     } catch {

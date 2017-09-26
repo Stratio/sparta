@@ -44,7 +44,6 @@ class WebSocketInputStep(
   lazy val outputSchema = StructType(Seq(StructField(outputField, outputSparkType)))
 
   def initStream(): DStream[Row] = {
-    ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel))
-      .map(data => new GenericRowWithSchema(Array(data), outputSchema))
+    ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel, outputSchema))
   }
 }
