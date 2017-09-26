@@ -22,9 +22,10 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
@@ -59,16 +60,16 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
   }
 
   def create(template: TemplateElement): TemplateElement =
-    findByTypeAndName(template.templateType, template.name.toLowerCase)
-      .getOrElse{
-        val newTemplate = template.copy(id = Option(UUID.randomUUID.toString), name = template.name.toLowerCase)
+    findByTypeAndName(template.templateType, template.name)
+      .getOrElse {
+        val newTemplate = addCreationDate(addId(template))
         curatorFramework.create().creatingParentsIfNeeded().forPath(
-        s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
+          s"${templatePathType(newTemplate.templateType)}/${newTemplate.id.get}", write(newTemplate).getBytes())
         newTemplate
       }
 
   def update(template: TemplateElement): TemplateElement = {
-    val newTemplate = template.copy(name = template.name.toLowerCase)
+    val newTemplate = addUpdateDate(addId(template))
 
     curatorFramework.setData().forPath(
       s"${templatePathType(newTemplate.templateType)}/${template.id.get}", write(newTemplate).getBytes)
@@ -120,6 +121,7 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
   }
 
   /* PRIVATE METHODS */
+
   private def templatePathType(templateType: String): String = {
     templateType match {
       case "input" => s"$TemplatesZkPath/input"
@@ -128,4 +130,19 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
       case _ => throw new IllegalArgumentException("The template type must be input|output|transformation")
     }
   }
+
+  private[sparta] def addId(template: TemplateElement): TemplateElement =
+    template.id match {
+      case None => template.copy(id = Some(UUID.randomUUID.toString))
+      case Some(_) => template
+    }
+
+  private[sparta] def addCreationDate(template: TemplateElement): TemplateElement =
+    template.creationDate match {
+      case None => template.copy(creationDate = Some(new DateTime()))
+      case Some(_) => template
+    }
+
+  private[sparta] def addUpdateDate(template: TemplateElement): TemplateElement =
+    template.copy(lastUpdateDate = Some(new DateTime()))
 }

@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
+import org.joda.time.DateTime
 
 case class TemplateElement(
                                  id: Option[String] = None,
@@ -25,7 +26,9 @@ case class TemplateElement(
                                  description: String,
                                  className: String,
                                  classPrettyName: String,
-                                 configuration: Map[String, JsoneyString] = Map()
+                                 configuration: Map[String, JsoneyString] = Map(),
+                                 creationDate: Option[DateTime] = None,
+                                 lastUpdateDate: Option[DateTime] = None
                                )
 
 object TemplateType extends Enumeration {

@@ -20,11 +20,11 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.recipes.cache.{NodeCache, NodeCacheListener}
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
@@ -55,14 +55,15 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
     }
 
   def create(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
-    val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
+    val workflowStatusWithFields = addCreationDate(workflowStatus)
+    val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatusWithFields.id}"
     if (CuratorFactoryHolder.existsPath(statusPath)) {
-      update(workflowStatus)
+      update(workflowStatusWithFields)
     } else {
       Try {
-        log.info(s"Creating workflow status ${workflowStatus.id} to <${workflowStatus.status}>")
-        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatus).getBytes)
-        workflowStatus
+        log.info(s"Creating workflow status ${workflowStatusWithFields.id} to <${workflowStatusWithFields.status}>")
+        curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatusWithFields).getBytes)
+        workflowStatusWithFields
       }
     }
   }
@@ -73,46 +74,32 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
-        val newStatus = workflowStatus.copy(
-          status = if (workflowStatus.status == WorkflowStatusEnum.NotDefined) actualStatus.status
-          else workflowStatus.status,
-          name = if (workflowStatus.name.isEmpty) actualStatus.name
-          else workflowStatus.name,
-          description = if (workflowStatus.description.isEmpty) actualStatus.description
-          else workflowStatus.description,
-          lastError = if (workflowStatus.lastError.isDefined) workflowStatus.lastError
-          else if (workflowStatus.status == WorkflowStatusEnum.NotStarted) None else actualStatus.lastError,
-          submissionId = if (workflowStatus.submissionId.isDefined) workflowStatus.submissionId
-          else if (workflowStatus.status == WorkflowStatusEnum.NotStarted) None else actualStatus.submissionId,
-          marathonId = if (workflowStatus.marathonId.isDefined) workflowStatus.marathonId
-          else if (workflowStatus.status == WorkflowStatusEnum.NotStarted) None else actualStatus.marathonId,
-          submissionStatus = if (workflowStatus.submissionStatus.isEmpty) actualStatus.submissionStatus
-          else workflowStatus.submissionStatus,
-          statusInfo = if (workflowStatus.statusInfo.isEmpty) actualStatus.statusInfo
-          else workflowStatus.statusInfo,
-          lastExecutionMode = if (workflowStatus.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-          else workflowStatus.lastExecutionMode,
-          resourceManagerUrl = if (workflowStatus.status == WorkflowStatusEnum.Started) workflowStatus.resourceManagerUrl
-          else if (workflowStatus.status == WorkflowStatusEnum.NotDefined) actualStatus.resourceManagerUrl else None
+        val workflowStatusWithFields = addUpdateDate(workflowStatus)
+        val newStatus = workflowStatusWithFields.copy(
+          status = if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.status
+          else workflowStatusWithFields.status,
+          name = if (workflowStatusWithFields.name.isEmpty) actualStatus.name
+          else workflowStatusWithFields.name,
+          lastError = if (workflowStatusWithFields.lastError.isDefined) workflowStatusWithFields.lastError
+          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.lastError,
+          applicationId = if (workflowStatusWithFields.applicationId.isDefined) workflowStatusWithFields.applicationId
+          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.applicationId,
+          marathonId = if (workflowStatusWithFields.marathonId.isDefined) workflowStatusWithFields.marathonId
+          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.marathonId,
+          statusInfo = if (workflowStatusWithFields.statusInfo.isEmpty) actualStatus.statusInfo
+          else workflowStatusWithFields.statusInfo,
+          lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
+          else workflowStatusWithFields.lastExecutionMode,
+          sparkUi = if (workflowStatusWithFields.status == WorkflowStatusEnum.Started) workflowStatusWithFields.sparkUi
+          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.sparkUi else None
         )
         log.info(s"Updating status ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
+          s"\n\tSubmission Id:\t${newStatus.applicationId.getOrElse("undefined")}" +
+          s"\n\tMarathon Id:\t${newStatus.marathonId.getOrElse("undefined")}" +
           s"\n\tStatus:\t${actualStatus.status}\t--->\t${newStatus.status}" +
-          s"\n\tStatus Information:\t${actualStatus.statusInfo.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.statusInfo.getOrElse("undefined")} " +
-          s"\n\tSubmission Id:\t${actualStatus.submissionId.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.submissionId.getOrElse("undefined")}" +
-          s"\n\tSubmission Status:\t${actualStatus.submissionStatus.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.submissionStatus.getOrElse("undefined")}" +
-          s"\n\tKill Url:\t${actualStatus.killUrl.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.killUrl.getOrElse("undefined")}" +
-          s"\n\tMarathon Id:\t${actualStatus.marathonId.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.marathonId.getOrElse("undefined")}" +
-          s"\n\tLast Error:\t${actualStatus.lastError.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.lastError.getOrElse("undefined")}" +
-          s"\n\tLast Execution Mode:\t${actualStatus.lastExecutionMode.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.lastExecutionMode.getOrElse("undefined")}" +
-          s"\n\tResource Manager URL:\t${actualStatus.resourceManagerUrl.getOrElse("undefined")}" +
-          s"\t--->\t${newStatus.resourceManagerUrl.getOrElse("undefined")}")
+          s"\n\tStatus Information:\t${newStatus.statusInfo.getOrElse("undefined")} " +
+          s"\n\tLast Execution Mode:\t${newStatus.lastExecutionMode.getOrElse("undefined")}" +
+          s"\n\tLast Error:\t${newStatus.lastError.getOrElse("undefined")}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         newStatus
       } else create(workflowStatus)
@@ -184,5 +171,14 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       case (true, true) =>
         log.warn(s"The workflow ${workflowModel.name} is already launched")
         false
+    }
+
+  private[sparta] def addUpdateDate(workflowStatus: WorkflowStatus): WorkflowStatus =
+    workflowStatus.copy(lastUpdateDate = Some(new DateTime()))
+
+  private[sparta] def addCreationDate(workflowStatus: WorkflowStatus): WorkflowStatus =
+    workflowStatus.creationDate match {
+      case None => workflowStatus.copy(creationDate = Some(new DateTime()))
+      case Some(_) => workflowStatus
     }
 }

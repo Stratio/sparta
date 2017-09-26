@@ -67,7 +67,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         id = workflow.id.get,
         status = WorkflowStatusEnum.Started,
         statusInfo = Some(startedInformation),
-        resourceManagerUrl = ResourceManagerLinkHelper.getLink(
+        sparkUi = ResourceManagerLinkHelper.getLink(
           workflow.settings.global.executionMode,
           workflow.settings.sparkSettings.master,
           workflow.settings.global.monitoringLink

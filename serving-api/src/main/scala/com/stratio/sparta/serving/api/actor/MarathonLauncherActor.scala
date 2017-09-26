@@ -71,7 +71,6 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
         sparkSubmitArgs,
         sparkConfs,
         driverArgs,
-        workflow.settings.global.executionMode,
         workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
       )
 

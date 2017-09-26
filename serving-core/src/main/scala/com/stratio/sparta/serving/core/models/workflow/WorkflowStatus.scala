@@ -17,17 +17,22 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import org.joda.time.DateTime
 
-case class WorkflowStatus(id: String,
-                          status: WorkflowStatusEnum.Value,
-                          submissionId: Option[String] = None,
-                          submissionStatus: Option[String] = None,
-                          statusInfo: Option[String] = None,
-                          name: Option[String] = None,
-                          description: Option[String] = None,
-                          lastExecutionMode: Option[String] = None,
-                          lastError: Option[WorkflowError] = None,
-                          resourceManagerUrl: Option[String] = None,
-                          marathonId: Option[String] = None,
-                          killUrl: Option[String] = None
-                              )
+case class WorkflowStatus(
+                           id: String,
+                           status: WorkflowStatusEnum.Value,
+                           applicationId: Option[String] = None,
+                           statusInfo: Option[String] = None,
+                           name: Option[String] = None,
+                           description: Option[String] = None,
+                           lastExecutionMode: Option[String] = None,
+                           lastError: Option[WorkflowError] = None,
+                           sparkUi: Option[String] = None,
+                           marathonId: Option[String] = None,
+                           killUrl: Option[String] = None,
+                           creationDate: Option[DateTime] = None,
+                           lastUpdateDate: Option[DateTime] = None
+                         )
+
+case class SparkDispatcherStatus()

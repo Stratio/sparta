@@ -68,12 +68,6 @@ class ListenerService(curatorFramework: CuratorFramework) extends SpartaSerializ
     new SparkAppHandle.Listener() {
       override def stateChanged(handle: SparkAppHandle): Unit = {
         log.info(s"Submission state changed to ... ${handle.getState.name()}")
-        statusService.update(WorkflowStatus(
-          id = workflow.id.get,
-          status = NotDefined,
-          submissionId = None,
-          submissionStatus = Try(handle.getState.name()).toOption
-        ))
       }
 
       override def infoChanged(handle: SparkAppHandle): Unit = {
@@ -171,11 +165,11 @@ class ListenerService(curatorFramework: CuratorFramework) extends SpartaSerializ
         if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
           try {
-            workflowStatus.submissionId match {
-              case Some(submissionId) =>
+            workflowStatus.applicationId match {
+              case Some(applicationId) =>
                 Try {
-                  log.info(s"Killing submission ($submissionId) with Spark Submissions API in url: $killUrl")
-                  val post = new HttpPost(s"$killUrl/$submissionId")
+                  log.info(s"Killing application ($applicationId) with Spark Submissions API in url: $killUrl")
+                  val post = new HttpPost(s"$killUrl/$applicationId")
                   val postResponse = HttpClientBuilder.create().build().execute(post)
 
                   read[SubmissionResponse](Source.fromInputStream(postResponse.getEntity.getContent).mkString)
@@ -237,7 +231,7 @@ class ListenerService(curatorFramework: CuratorFramework) extends SpartaSerializ
         if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
           log.info("Stop message received from Zookeeper")
           try {
-            workflowStatus.submissionId match {
+            workflowStatus.applicationId match {
               case Some(_) =>
                 Try {
                   log.info("Stopping submission workflow with handler")

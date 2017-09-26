@@ -74,7 +74,7 @@ object SparkDriver extends SLF4JLogging {
         statusService.update(WorkflowStatus(
           id = workflowId,
           status = NotDefined,
-          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))
+          applicationId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))
         ))
         spartaWorkflow.setup()
         ssc.start
@@ -83,9 +83,9 @@ object SparkDriver extends SLF4JLogging {
         statusService.update(WorkflowStatus(
           id = workflowId,
           status = Started,
-          submissionId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
+          applicationId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
           statusInfo = Some(startedInfo),
-          resourceManagerUrl = ResourceManagerLinkHelper.getLink(
+          sparkUi = ResourceManagerLinkHelper.getLink(
             workflow.settings.global.executionMode, workflow.settings.sparkSettings.master)
         ))
         ssc.awaitTermination()

@@ -51,7 +51,7 @@ with BeforeAndAfter
 
   val executionService = new ExecutionService(curatorFramework)
   val executionID = "exec1"
-  val exec = WorkflowExecution("exec1","driver", "file","mast", Map(), Map(), Map(), "", "")
+  val exec = WorkflowExecution("exec1","driver", "file","mast", Map(), Map(), Map(), "", None)
   val executionRaw =
     """
       |{
@@ -62,7 +62,6 @@ with BeforeAndAfter
       |"submitArguments": {},
       |"sparkConfigurations": {},
       |"driverArguments": {},
-      |"executionMode": "",
       |"killUrl": ""
       |}
     """.stripMargin

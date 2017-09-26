@@ -21,6 +21,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
 import org.json4s.ext.EnumNameSerializer
+import org.json4s.ext.DateTimeSerializer
 import org.json4s.{DefaultFormats, Formats}
 
 /**
@@ -29,7 +30,7 @@ import org.json4s.{DefaultFormats, Formats}
 trait SpartaSerializer {
 
   implicit val json4sJacksonFormats: Formats =
-    DefaultFormats +
+    DefaultFormats + DateTimeSerializer +
       new JsoneyStringSerializer() +
       new EnumNameSerializer(WorkflowStatusEnum) +
       new EnumNameSerializer(SaveModeEnum) +

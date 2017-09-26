@@ -16,11 +16,15 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import org.joda.time.DateTime
+
 case class Workflow(
                      id: Option[String] = None,
                      name: String,
                      description: String = "Default description",
                      settings: Settings,
                      pipelineGraph: PipelineGraph,
-                     uiSettings: Option[UiSettings] = None
+                     uiSettings: Option[UiSettings] = None,
+                     creationDate: Option[DateTime] = None,
+                     lastUpdateDate: Option[DateTime] = None
                    )

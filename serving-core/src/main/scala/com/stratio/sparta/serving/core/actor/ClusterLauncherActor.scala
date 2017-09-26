@@ -71,7 +71,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         sparkSubmitArgs,
         sparkConfs,
         driverArgs,
-        workflow.settings.global.executionMode,
         workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl),
         Option(sparkHome)
       )
@@ -104,7 +103,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
           id = workflow.id.get,
           status = NotStarted,
           statusInfo = Option(information),
-          lastExecutionMode = Option(submitRequestCreated.executionMode)
+          lastExecutionMode = Option(workflow.settings.global.executionMode)
         ))
 
         launch(workflow, submitRequestCreated)
@@ -157,11 +156,10 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Launched,
-          submissionId = Option(sparkHandler.getAppId),
-          submissionStatus = Option(sparkHandler.getState.name()),
+          applicationId = Option(sparkHandler.getAppId),
           statusInfo = Option(information)
         ))
-        if (submitRequest.executionMode.contains(ConfigMesos))
+        if (workflow.settings.global.executionMode.contains(ConfigMesos))
           clusterListenerService.addClusterContextListener(
             workflow.id.get,
             workflow.name,

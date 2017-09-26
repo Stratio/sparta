@@ -23,7 +23,6 @@ case class WorkflowExecution(id: String,
                              submitArguments: Map[String, String],
                              sparkConfigurations: Map[String, String],
                              driverArguments: Map[String, String],
-                             executionMode: String,
                              killUrl: String,
                              sparkHome: Option[String] = None
                         )

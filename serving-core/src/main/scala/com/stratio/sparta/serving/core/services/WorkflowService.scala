@@ -22,10 +22,11 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import org.apache.curator.framework.CuratorFramework
+import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
@@ -63,16 +64,15 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         s"Workflow with name ${workflow.name} exists. The actual workflow name is: ${searchWorkflow.get.name}")
     }
 
-    val workflowId = addId(workflow)
+    val workflowWithFields = addCreationDate(addId(workflow))
     curatorFramework.create.creatingParentsIfNeeded.forPath(
-      s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
+      s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
     statusService.update(WorkflowStatus(
-      id = workflowId.id.get,
+      id = workflowWithFields.id.get,
       status = WorkflowStatusEnum.NotStarted,
-      name = Option(workflow.name),
-      description = Option(workflow.description)
+      name = Option(workflow.name)
     ))
-    workflowId
+    workflowWithFields
   }
 
   def update(workflow: Workflow): Workflow = {
@@ -81,14 +81,13 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
     } else {
-      val workflowId = addId(workflow)
+      val workflowId = addUpdateDate(addId(workflow))
       curatorFramework.setData().forPath(
         s"${AppConstant.WorkflowsZkPath}/${workflow.id.get}", write(workflow).getBytes)
       statusService.update(WorkflowStatus(
         id = workflowId.id.get,
         status = WorkflowStatusEnum.NotDefined,
-        name = Option(workflow.name),
-        description = Option(workflow.description)
+        name = Option(workflow.name)
       ))
       workflowId
     }
@@ -98,7 +97,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     Try {
       val executionPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
-      if(CuratorFactoryHolder.existsPath(executionPath)){
+      if (CuratorFactoryHolder.existsPath(executionPath)) {
         log.info(s"Deleting workflow with id: $id")
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
@@ -107,10 +106,10 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
 
 
   def deleteAll(): Try[_] =
-    Try{
+    Try {
       val executionPath = s"${AppConstant.WorkflowsZkPath}"
 
-      if(CuratorFactoryHolder.existsPath(executionPath)){
+      if (CuratorFactoryHolder.existsPath(executionPath)) {
         log.info(s"Deleting all existing workflows")
         val children = curatorFramework.getChildren.forPath(executionPath)
         val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
@@ -119,9 +118,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         )
         workflows.foreach(workflow => {
           val workflowPath = s"${AppConstant.WorkflowsZkPath}/${workflow.id.get}"
-          if(Option(curatorFramework.checkExists().forPath(workflowPath)).isDefined)
+          if (Option(curatorFramework.checkExists().forPath(workflowPath)).isDefined)
             delete(workflow.id.get)
-          })
+        })
 
       }
     }
@@ -134,7 +133,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         findAll.find { workflow =>
           if (id.isDefined && workflow.id.isDefined)
             workflow.id.get == id.get
-          else workflow.name.toLowerCase == name.toLowerCase
+          else workflow.name == name
         }
       } else None
     } match {
@@ -157,10 +156,18 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         None
     }
 
-  private[sparta] def addId(workflow: Workflow): Workflow = {
-    (workflow.id match {
+  private[sparta] def addId(workflow: Workflow): Workflow =
+    workflow.id match {
       case None => workflow.copy(id = Some(UUID.randomUUID.toString))
       case Some(_) => workflow
-    }).copy(name = workflow.name.toLowerCase)
-  }
+    }
+
+  private[sparta] def addCreationDate(workflow: Workflow): Workflow =
+    workflow.creationDate match {
+      case None => workflow.copy(creationDate = Some(new DateTime()))
+      case Some(_) => workflow
+    }
+
+  private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
+    workflow.copy(lastUpdateDate = Some(new DateTime()))
 }
