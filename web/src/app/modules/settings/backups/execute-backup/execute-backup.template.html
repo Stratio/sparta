@@ -1,0 +1,16 @@
+<div>
+   <span class="confirmation">ARE YOU SURE?</span>
+
+   <st-switch label="Remove all data before running backup" labelPosition="right" [stModel]="removeData" qaTag="remove-data-switch" (change)="onChangeValue($event)"
+      class="remove-data">
+   </st-switch>
+   <p class="execute-info">Executing the backup could cause a potential loss of data.</p>
+   <div class="modal-buttons">
+        <button class="button button-toolbar" (click)="submitExecute()">
+            <i class="icon-play"></i>   {{'DASHBOARD.EXECUTE' | translate}}
+        </button>
+         <button class="button button-toolbar" click)="onCloseExecuteModal.emit()">
+            <i class="icon-circle-cross"></i>   {{'DASHBOARD.CANCEL' | translate}}
+        </button>
+   </div>
+</div>

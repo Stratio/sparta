@@ -1,0 +1,52 @@
+ {
+    "name": "MongoDb",
+    "classPrettyName": "MongoDb",
+    "description": {
+      "short": "MongoDB is an open-source document database, and the leading NoSQL database.",
+      "long": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-MongoDB"
+    },
+    "properties": [
+      {
+        "propertyId": "hosts",
+        "propertyName": "_HOSTS_",
+        "propertyType": "list",
+        "default": "",
+        "required": true,
+        "tooltip": "This section let us specify the parameters needed to establish a MongoDB connection, with different replica set or with sharding.",
+        "qa": "fragment-details-mongoDb-hosts",
+        "fields": [
+          {
+            "propertyId": "host",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "hidden": false,
+            "required": true,
+            "qa": "fragment-details-mongoDb-hostName"
+          },
+          {
+            "propertyId": "port",
+            "propertyName": "_PORT_",
+            "propertyType": "text",
+            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+            "default": "27017",
+            "hidden": false,
+            "required": true,
+            "qa": "fragment-details-mongoDb-port"
+          }
+        ]
+      },
+      {
+        "propertyId": "dbName",
+        "propertyName": "_DATEBASE_NAME_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "sparta",
+        "required": true,
+        "tooltip": "Default value set to sparta.",
+        "qa": "fragment-details-mongoDb-dbName"
+      }
+    ]
+  }

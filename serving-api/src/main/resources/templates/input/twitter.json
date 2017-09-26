@@ -1,6 +1,6 @@
 {
   "name": "Twitter",
-  "modelType": "Twitter",
+  "classPrettyName": "Twitter",
   "description": {
     "short": "Reads events from Twitter stream.",
     "long": "Reads events from Twitter stream.",

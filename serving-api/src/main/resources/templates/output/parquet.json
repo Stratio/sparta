@@ -1,6 +1,6 @@
 {
   "name": "Parquet",
-  "modelType": "Parquet",
+  "classPrettyName": "Parquet",
   "description": {
     "short": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "long": "Parquet's output uses the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",

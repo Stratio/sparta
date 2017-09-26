@@ -1,6 +1,6 @@
 {
   "name": "Cassandra",
-  "modelType": "Cassandra",
+  "classPrettyName": "Cassandra",
   "description": {
     "short": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",
     "long": "The output of Cassandra use the generic implementation with DataFrames, this implementation transform each UpdateMetricOperation to Row type of Spark and identify each row with his schema.",

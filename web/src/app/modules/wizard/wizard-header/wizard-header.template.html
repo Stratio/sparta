@@ -1,0 +1,70 @@
+<div class="wizard-header">
+   <div class="title-header">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-12">
+               <div class="header-info">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="24" viewBox="0 0 32 24" class="st-logo">
+                     <g fill="none" fill-rule="evenodd">
+                        <path fill="#37B5E4" d="M21.794.102l5.38 1.557c.246.07.405.308.378.564l-.012.12-.526 5.044a.527.527 0 0 1-.522.474H11.659a.529.529 0 0 1-.472-.302c-.214-.431-.656-.713-1.222-.713-.614 0-1.22.331-1.62.826a.515.515 0 0 1-.401.19H2.038a.528.528 0 0 1-.521-.585l.47-4.515a.527.527 0 0 1 .458-.47L20.75.02c.35-.044.705-.016 1.044.082zm3.281 21.606L6.725 23.98c-.35.044-.704.015-1.042-.083L.38 22.364a.529.529 0 0 1-.377-.564l.015-.143.525-5.044a.527.527 0 0 1 .523-.474h14.841c.201 0 .38.118.47.299.216.427.656.706 1.219.706.61 0 1.213-.328 1.612-.818a.516.516 0 0 1 .401-.187h5.906c.313 0 .557.274.521.588l-.503 4.514a.527.527 0 0 1-.458.467zM9.249 10.246c.61 0 1.213-.328 1.612-.818a.515.515 0 0 1 .4-.187h14.977c.312 0 .555.272.522.585l-.465 4.459a.527.527 0 0 1-.522.474h-5.767a.53.53 0 0 1-.472-.302c-.214-.432-.655-.713-1.222-.713-.614 0-1.22.33-1.62.826a.516.516 0 0 1-.402.19H1.32a.528.528 0 0 1-.522-.586l.464-4.459a.527.527 0 0 1 .522-.474H7.56c.2 0 .38.118.47.298.216.428.656.707 1.219.707z"
+                        />
+                     </g>
+                  </svg>
+                  <input type="text" (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant workflow-name"name="workflow-name" [(ngModel)]="workflowName"/>
+               </div>
+               <div class="header-links">
+                  <a class="link" (click)="goToWorkflow()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
+                  <button class="button button-primary" (click)="onSaveWorkflow.emit()">
+                    {{'WIZARD.SAVE' | translate}}
+                </button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="tool-header">
+      <div class="container">
+         <div class="row">
+            <div class="col-xs-6">
+               <floating-menu [menuOptions]="menuOptions$ | async" class="show-options" (selectedOption)="selectedMenuOption($event)">
+                  <div menu-action>
+                     <button class="button button-toolbar">
+                        <i class="icon-plus"></i>
+                    </button>
+                     <i class="icon-arrow2_down"></i>
+                  </div>
+               </floating-menu>
+               <div class="position-tools">
+                  <button menu-action class="button button-toolbar" (click)="onZoomIn.emit()">
+                    <i class="icon-zoom-in"></i>
+                </button>
+                  <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()">
+                    <i class="icon-zoom-out"></i>
+                </button>
+                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
+                    <i class="icon-move"></i>
+                </button>
+               </div>
+            </div>
+            <div class="col-xs-6">
+               <div style="float:left" *ngIf="isNodeSelected">
+                  <button menu-action class="button button-toolbar" (click)="onEditEntity.emit()">
+                    <i class="icon-edit"></i>
+                </button>
+                  <button menu-action class="button button-toolbar" (click)="deleteWorkflow()">
+                    <i class="icon-trash"></i>
+                  </button>
+               </div>
+               <div class="" style="float:right">
+                  <button menu-action class="button button-toolbar" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
+                     <i class="icon-info1"></i>
+                  </button>
+                  <button menu-action class="button button-toolbar" (click)="onShowSettings.emit()">
+                    <i class="icon-cog"></i>
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>

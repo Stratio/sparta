@@ -1,0 +1,9 @@
+  <form #groupForm="ngForm" class="form-group" novalidate autocomplete="off">
+    <st-horizontal-tabs [options]="options" [qaTag]="qaTag" (changedOption)="changeFormOption($event)" class="form-tabs">
+    </st-horizontal-tabs>
+    <div *ngFor="let category of formData" class="subsections">
+        <div [hidden]="activeOption !== category.name">
+          <form-generator [forceValidations]="submitted" [(ngModel)]="stModel[category.name]" [name]="category.name" [formData]="category.properties"></form-generator>
+        </div>
+    </div>
+  </form>

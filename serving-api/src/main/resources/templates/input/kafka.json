@@ -1,6 +1,6 @@
 {
   "name": "Kafka Direct",
-  "modelType": "Kafka",
+  "classPrettyName": "Kafka",
   "description": {
     "short": "Reads events from apache-kafka",
     "long": "Reads events from apache-kafka",

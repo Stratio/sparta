@@ -1,6 +1,6 @@
 {
   "name": "Flume",
-  "modelType": "Flume",
+  "classPrettyName": "Flume",
   "description": {
     "short": "Reads events from flume",
     "long": "Reads events from flume",

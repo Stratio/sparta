@@ -1,0 +1,35 @@
+<div>
+   <form #jsonWorkflowForm="ngForm" novalidate autocomplete="off" (ngSubmit)="onSubmitWorkflow()">
+      <div class="editor">
+         <div class="workflow-fields">
+            <st-input #input label="{{'DASHBOARD.WORKFLOW_NAME' | translate}}" placeholder="{{'DASHBOARD.NAME_PLACEHOLDER' | translate}}"
+               name="name" qaTag="workflow-name" [(ngModel)]="model.name"></st-input>
+            <br>
+            <st-textarea class="description" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
+               name="description" qaTag="workflow-description" [rows]="4" [(ngModel)]="model.description"></st-textarea>
+            <p class="json-info">
+               <span class="icon"><i class="icon-pin"></i></span>
+               <span>{{'DASHBOARD.JSON_INFO' | translate}}</span>
+            </p>
+            <p>
+         </div>
+         <div class="workflow-json">
+            <!--<p *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>-->
+            <st-textarea placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" name="components-template" [qaTag]="'components-textarea-template'"
+               required class="workflow-json-content" [rows]="15" [(ngModel)]="model.json"> </st-textarea>
+            <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
+
+            <div class="edition-buttons">
+                <button class="button button-secondary-gray cancel-button" (click)="onCloseJsonModal.emit('0')">
+                    <i class="icon-circle-cross"></i> 
+                    <span>{{'DASHBOARD.CANCEL' | translate}}</span>
+                </button>
+                <button class="button button-primary">
+                    <i class="icon-circle-check"></i>
+                    <span>{{'DASHBOARD.CREATE' | translate}}</span>
+                </button>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>

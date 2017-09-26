@@ -1,0 +1,81 @@
+.fragment-box {
+   margin-bottom: 30px;
+   animation: BoxAnimation 0.4s;
+   width: 282px;
+   height: 282px;
+   border-radius: 4px;
+   position: relative;
+   border: solid 1px #cdd6df;
+   &.checked {
+      box-shadow: 0 3px 6px 0 rgba(161, 160, 160, 0.5);
+      border: solid 1px #3dc9fc;
+   }
+   &-header {
+      min-height: 60px;
+      padding: 12px;
+      color: #242424;
+   }
+   .selected-fragment {
+      position: absolute;
+      right: 6px;
+      top: 10px;
+   }
+   .fragment-line {
+      border-bottom: solid 1px #cdd6df;
+   }
+   .name {
+      font-size: 23px;
+      font-weight: 300;
+      line-height: 1.48;
+      text-align: left;
+      color: #242424;
+   }
+   &-body {
+      padding: 10px;
+   }
+   .fragment-type {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 4px;
+   }
+   .fragment-icon {
+      width: 44px;
+      height: 34px;
+      font-family: ico_stratio;
+      font-size: 30px;
+      line-height: 1.13;
+      text-align: left;
+      color: #777777;
+      vertical-align: middle;
+   }
+   .description {
+      font-size: 16px;
+      line-height: 1.31;
+      text-align: left;
+      color: #555555;
+   }
+   .actions {
+      float: right;
+   }
+
+   .selected-fragment{
+        position: absolute;
+        top: 7px;
+        right: -5px;
+   }
+}
+
+@keyframes BoxAnimation {
+   0% {
+      opacity: 0;
+      transform: scale(0.5)
+   }
+   70% {
+      opacity: 1;
+      transform: scale(1.05)
+   }
+   100% {
+      opacity: 1;
+      transform: none;
+   }
+}

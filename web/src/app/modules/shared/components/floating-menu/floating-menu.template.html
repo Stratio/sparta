@@ -1,0 +1,10 @@
+<section>
+   <div class="action-button">
+      <div class="action-link" (click)="activateMenu($event)">
+         <ng-content select="[menu-action]"></ng-content>
+      </div>
+      <div class="menu-options" [ngClass]="{'active': showMenu, 'right-position': position === 'right'}">
+         <menu-options [menuOptions]="menuOptions" [position]="position" (selectedOption)="selectedMenuOption($event)"></menu-options>
+      </div>
+   </div>
+</section>

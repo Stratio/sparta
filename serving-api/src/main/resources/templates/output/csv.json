@@ -1,6 +1,6 @@
 {
   "name": "CSV",
-  "modelType": "Csv",
+  "classPrettyName": "Csv",
   "description": {
     "short": "",
     "long": "",

@@ -1,0 +1,52 @@
+ {
+    "name": "Parquet",
+    "classPrettyName": "Parquet",
+    "description": {
+      "short": "Parquet output uses the generic implementation with DataFrames.",
+      "long": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Parquet"
+    },
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-parquet-path"
+      },
+      {
+        "propertyId": "saveOptions",
+        "propertyName": "_PARQUET_SAVE_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-parquet-save-properties",
+        "fields": [
+          {
+            "propertyId": "saveOptionsKey",
+            "propertyName": "_SAVE_OPTIONS_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-parquet-saveOptionsKey"
+          },
+          {
+            "propertyId": "saveOptionsValue",
+            "propertyName": "_SAVE_OPTIONS_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-parquet-saveOptionsValue"
+          }
+        ]
+      }
+    ]
+  }

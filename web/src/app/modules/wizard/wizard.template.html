@@ -1,0 +1,7 @@
+<section class="workflow-wizard" [hidden]="(editionConfigMode$ | async).isEdition">
+    <div class="wizard-content">
+        <wizard-editor></wizard-editor>
+    </div>
+    <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
+</section>
+<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition" [config]="editionConfigMode$ | async"></wizard-config-editor>

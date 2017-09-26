@@ -1,0 +1,37 @@
+:host {
+   display: block;
+   width: 100%;
+}
+
+.form-generator {
+    width: 100%;
+    display:block;
+}
+
+.newRow{
+    flex-wrap: wrap;
+}
+
+.form{
+   display: block;
+   width: 100%;
+}
+
+.form-list-row{
+    width:100%;
+}
+
+.form-container{
+    width:100%;
+}
+.col-xs-auto {
+    margin-right: 30px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    padding-right: .9375rem;
+    padding-left: .9375rem;
+}
+
+.list-field{
+    width:100%;
+}

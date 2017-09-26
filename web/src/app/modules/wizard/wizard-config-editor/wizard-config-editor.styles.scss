@@ -1,0 +1,40 @@
+:host {
+   min-height: 100vh;
+   background-color: #fafafa;
+   width: 100%;
+   display: block;
+}
+
+.edition-header {
+   width: 100%;
+   background: #fff;
+   border-bottom: 1px solid #dedede;
+}
+
+.menu {
+   overflow: hidden;
+   padding: 20px 0;
+   width: 100%;
+}
+
+.action-buttons {
+   float: right;
+}
+
+.cancel-button {
+   margin-right: 20px;
+}
+
+.breadcrumb {
+   display: inline-block;
+}
+
+.advanced-settings,
+.content {
+   margin-top: 30px;
+}
+
+.input-field {
+   margin: 10px 0;
+   display: block;
+}

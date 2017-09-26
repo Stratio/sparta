@@ -1,0 +1,42 @@
+<section class="template-creation-page">
+   <tool-bar>
+      <div breadcrumb>
+         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="create-template-breadcrumb"></st-breadcrumbs>
+      </div>
+      <div selection-tools>
+
+      </div>
+      <div general-tools>
+         <button id="cancel-edit-button" class="button button-secondary-gray cancel-button" (click)="cancelCreate()">{{'DASHBOARD.CANCEL' | translate}}</button>
+         <button id="save-edit-button" class="button button-primary" (click)="onSubmitInputForm()">{{'DASHBOARD.SAVE' | translate}}</button>
+      </div>
+   </tool-bar>
+   <div class="container top-separation">
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="egeo-title-giant">{{ (editMode ? 'DASHBOARD.EDIT_INPUT' : 'DASHBOARD.CREATE_INPUT') | translate }}</div>
+         </div>
+         <br>
+         
+         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" (ngSubmit)="onSubmitInputForm()">
+            <div class="row">
+               <div class="col-xs-6">
+                  <st-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                     qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors" class="input-field"></st-input>
+                  <st-input name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
+                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors" class="input-field"></st-input>
+                  <div *ngIf="!editMode">
+                     <st-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.INPUT_TYPE' | translate}}"
+                        name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></st-select>
+                  </div>
+               </div>
+               <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
+                  name="proper"></form-generator>
+               <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
+                      {{'DASHBOARD.SAVE_INPUT' | translate}}
+                  </button>
+            </div>
+         </form>
+      </div>
+   </div>
+</section>

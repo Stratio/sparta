@@ -1,0 +1,52 @@
+  {
+    "name": "Avro",
+    "classPrettyName": "Avro",
+    "description": {
+      "short": "Avro output uses the databricks implementation with DataFrames.",
+      "long": "Avro is a remote procedure call and data serialization framework developed within Apache's Hadoop project. It uses JSON for defining data types and protocols, and serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Avro"
+    },
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-avro-path"
+      },
+      {
+        "propertyId": "saveOptions",
+        "propertyName": "_AVRO_SAVE_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-avro-save-properties",
+        "fields": [
+          {
+            "propertyId": "saveOptionsKey",
+            "propertyName": "_SAVE_OPTIONS_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-avro-saveOptionsKey"
+          },
+          {
+            "propertyId": "saveOptionsValue",
+            "propertyName": "_SAVE_OPTIONS_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-avro-saveOptionsValue"
+          }
+        ]
+      }
+    ]
+  }

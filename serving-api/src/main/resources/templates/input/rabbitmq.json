@@ -1,6 +1,6 @@
 {
   "name": "RabbitMQ",
-  "modelType": "RabbitMQ",
+  "classPrettyName": "RabbitMQ",
   "description": {
     "short": "Reads events from RabbitMQ",
     "long": "Reads events from RabbitMQ",

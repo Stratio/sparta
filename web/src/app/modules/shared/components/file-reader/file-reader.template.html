@@ -1,0 +1,5 @@
+<button class="button button-primary" (click)="fileInput.click()">
+    <i class="icon-circle-plus"></i>
+    <span>{{text}}</span>
+</button>
+<input #fileInput type="file" [hidden]="true" (change)="fileChangeEvent($event)" />

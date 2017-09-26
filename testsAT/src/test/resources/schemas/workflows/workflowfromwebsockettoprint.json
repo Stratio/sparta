@@ -1,78 +1,9 @@
 {
-  "id": "b0fa49ee-eca4-42ba-97da-e539c68ebc15",
-  "name": "workflowfromwebsockettoprint",
-  "description": "workflowfromwebsockettoprint",
-  "settings": {
-    "global": {
-      "executionMode": "marathon",
-      "streamTemporalTable": "stream",
-      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
-      "userPluginsJars": [
-        {
-          "jarPath": ""
-        }
-      ],
-      "initSqlSentences": [
-        {
-          "sentence": ""
-        }
-      ]
-    },
-    "checkpointSettings": {
-      "checkpointPath": "sparta/checkpoint",
-      "enableCheckpointing": true,
-      "autoDeleteCheckpoint": true,
-      "addTimeToCheckpointPath": false
-    },
-    "streamingSettings": {
-      "window": "6s"
-    },
-    "sparkSettings": {
-      "master": "mesos://leader.mesos:5050",
-      "sparkKerberos": false,
-      "sparkHome": "/opt/spark/dist",
-      "submitArguments": {
-        "userArguments": [
-          {
-            "submitArgument": "",
-            "submitValue": ""
-          }
-        ],
-        "deployMode": "client",
-        "supervise": false
-      },
-      "sparkConf": {
-        "sparkResourcesConf": {
-          "coresMax": "1",
-          "executorMemory": "1G",
-          "executorCores": "1",
-          "driverCores": "1",
-          "driverMemory": "1G",
-          "localityWait": "0",
-          "taskMaxFailures": "8",
-          "blockInterval": "200ms"
-        },
-        "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
-          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
-          "executorForcePullImage": false
-        },
-        "sparkMesosConf": {
-          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
-          "mesosExecutorHome": "/opt/spark/dist"
-        },
-        "userSparkConf": [
-          {
-            "sparkConfKey": "",
-            "sparkConfValue": ""
-          }
-        ],
-        "coarse": true,
-        "stopGracefully": true,
-        "parquetBinaryAsString": true
-      }
-    }
-  },
+  "id": "116b7f26-1132-4f26-b28a-f3da0a383e87",
+  "storageLevel": "MEMORY_ONLY_SER",
+  "name": "test1explode",
+  "description": "aaa",
+  "sparkStreamingWindow": "6s",
   "transformations": {
     "transformationsPipe": [
       {
@@ -83,6 +14,10 @@
           {
             "name": "response",
             "type": "string"
+          },
+          {
+            "name": "grouptopics",
+            "type": "arraymapstringstring"
           }
         ],
         "configuration": {
@@ -90,101 +25,116 @@
             {
               "field": "response",
               "query": "$.response"
+            },
+            {
+              "field": "grouptopics",
+              "query": "$.group.group_topics"
             }
           ],
           "supportNullValues": true,
           "whenError": "Error",
+          "removeInputField": true
+        }
+      },
+      {
+        "type": "Explode",
+        "order": 1,
+        "inputField": "grouptopics",
+        "outputFields": [
+          {
+            "name": "urlkey",
+            "type": "string"
+          }
+        ],
+        "configuration": {
+          "whenError": "Error",
           "removeInputField": false
         }
       }
-    ]
+    ],
+    "writer": {
+      "outputs": [
+        "testprint"
+      ],
+      "autoCalculatedFields": [],
+      "saveMode": "Append",
+      "tableName": "test"
+    }
   },
-  "streamTriggers": [
-    {
-      "name": "response",
-      "sql": "select * from stream",
-      "writer": {
-        "outputs": [
-          "postgres"
-        ],
-        "autoCalculatedFields": [],
-        "saveMode": "Append"
-      },
-      "overLast": "6s",
-      "configuration": {},
-      "computeEvery": "6s"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "cube1",
-      "dimensions": [
-        {
-          "name": "response",
-          "field": "response",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "type": "Count",
-          "name": "count",
-          "configuration": {}
-        }
-      ],
-      "writer": {
-        "outputs": [
-          "print"
-        ],
-        "dateType": "timestamp",
-        "autoCalculatedFields": [],
-        "saveMode": "Upsert"
-      },
-      "triggers": [],
-      "configuration": {}
-    }
-  ],
+  "cubes": [],
   "input": {
-    "name": "websocket",
+    "name": "ws",
     "type": "WebSocket",
     "configuration": {
-      "url": "ws://stream.meetup.com/2/rsvps",
-      "storageLevel": "MEMORY_ONLY_SER"
+      "url": "ws://stream.meetup.com/2/rsvps"
     }
   },
   "outputs": [
     {
-      "name": "print",
+      "name": "testprint",
       "type": "Print",
       "configuration": {
         "printMetadata": false,
-        "printData": true,
-        "printSchema": true,
+        "printData": false,
+        "printSchema": false,
         "logLevel": "warn"
-      }
-    },
-    {
-      "name": "postgres",
-      "type": "Postgres",
-      "configuration": {
-        "url": "jdbc:postgresql://pg_0001-postgressec.service.paas.labs.stratio.com:1027/postgres?user=sparta&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
-        "postgresSaveMode": "STATEMENT",
-        "batchsize": "",
-        "isolationLevel": "READ_UNCOMMITTED",
-        "driver": "",
-        "caName": "ca",
-        "bufferSize": "65536",
-        "tlsEnable": true,
-        "saveOptions": [
-          {
-            "saveOptionsValue": "",
-            "saveOptionsKey": ""
-          }
-        ],
-        "numPartitions": ""
       }
     }
   ],
-  "fragments": []
+  "fragments": [
+    {
+      "fragmentType": "input",
+      "name": "ws",
+      "description": "",
+      "shortDescription": "",
+      "element": {
+        "name": "ws",
+        "type": "WebSocket",
+        "configuration": {
+          "url": "ws://stream.meetup.com/2/rsvps"
+        }
+      }
+    },
+    {
+      "fragmentType": "output",
+      "name": "testprint",
+      "description": "",
+      "shortDescription": "",
+      "element": {
+        "name": "testprint",
+        "type": "Print",
+        "configuration": {
+          "printMetadata": false,
+          "printData": false,
+          "printSchema": false,
+          "logLevel": "warn"
+        }
+      }
+    }
+  ],
+  "userPluginsJars": [
+    {
+      "jarPath": ""
+    }
+  ],
+  "sparkConf": [
+    {
+      "sparkConfKey": "",
+      "sparkConfValue": ""
+    }
+  ],
+  "sparkSubmitArguments": [
+    {
+      "submitArgument": "",
+      "submitValue": ""
+    }
+  ],
+  "initSqlSentences": [
+    {
+      "sentence": ""
+    }
+  ],
+  "autoDeleteCheckpoint": true,
+  "streamTemporalTable": "stream",
+  "sparkUser": "sparta"
 }

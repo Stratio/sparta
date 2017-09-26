@@ -1,0 +1,380 @@
+  {
+    "name": "Kafka",
+    "classPrettyName": "Kafka",
+    "description": {
+      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
+      "long": "There is available in Sparta with Kafka 0.10 version",
+      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Kafka"
+    },
+    "properties": [
+      {
+        "propertyId": "bootstrap.servers",
+        "propertyName": "_BOOTSTRAP_SERVERS_",
+        "propertyType": "list",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "Kafka host/port to connect",
+        "qa": "fragment-details-kafka-bootstrap-servers",
+        "fields": [
+          {
+            "propertyId": "host",
+            "propertyName": "_HOST_",
+            "propertyType": "text",
+            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+            "default": "localhost",
+            "required": true,
+            "tooltip": "Kafka's address.",
+            "hidden": false,
+            "qa": "fragment-details-kafka-host"
+          },
+          {
+            "propertyId": "port",
+            "propertyName": "_PORT_",
+            "propertyType": "text",
+            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+            "default": "9092",
+            "required": true,
+            "tooltip": "Kafka's port.",
+            "hidden": false,
+            "qa": "fragment-details-kafka-port"
+          }
+        ]
+      },
+      {
+        "propertyId": "key.serializer",
+        "propertyName": "_KEY_SERIALIZER_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "org.apache.kafka.common.serialization.StringSerializer",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-key-serializer-class"
+      },
+      {
+        "propertyId": "value.serializer",
+        "propertyName": "_VALUE_SERIALIZER_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "org.apache.kafka.common.serialization.StringSerializer",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-value-serializer-class"
+      },
+      {
+        "propertyId": "format",
+        "propertyName": "_KAFKA_FORMAT_",
+        "propertyType": "select",
+        "regexp": "JSON|ROW",
+        "values": [
+          {
+            "label": "JSON",
+            "value": "JSON"
+          },
+          {
+            "label": "ROW",
+            "value": "ROW"
+          }
+        ],
+        "default": "JSON",
+        "required": true,
+        "qa": "fragment-details-kafka-format"
+      },
+      {
+        "propertyId": "rowSeparator",
+        "propertyName": "_KAFKA_ROW_SEPARATOR_",
+        "propertyType": "text",
+        "default": ",",
+        "required": false,
+        "qa": "fragment-details-kafka-row-separator"
+      },
+      {
+        "propertyId": "acks",
+        "propertyName": "_ACKS_",
+        "propertyType": "text",
+        "default": "0",
+        "required": false,
+        "tooltip": "Specifies whether the producer waits for an acknowledgment from the broker.",
+        "qa": "fragment-details-kafka-request-required-acks"
+      },
+      {
+        "propertyId": "batch.size",
+        "propertyName": "_BATCH_NUM_MESSAGES_",
+        "propertyType": "text",
+        "regexp": "[0-9]+",
+        "default": "200",
+        "required": false,
+        "tooltip": "The number of messages to send in one batch",
+        "qa": "fragment-details-kafka-batch-num-messages"
+      },
+      {
+        "propertyId": "security.protocol",
+        "propertyName": "_SECURITY_PROTOCOL_",
+        "propertyType": "select",
+        "regexp": "PLAINTEXT|SSL",
+        "values": [
+          {
+            "label": "PLAINTEXT",
+            "value": "PLAINTEXT"
+          },
+          {
+            "label": "SSl",
+            "value": "SSL"
+          }
+        ],
+        "default": "PLAINTEXT",
+        "required": true,
+        "qa": "fragment-details-kafka-security-protocol"
+      },
+      {
+        "propertyId": "ssl.client.auth",
+        "propertyName": "_SECURITY_AUTH_",
+        "propertyType": "select",
+        "regexp": "none|required|requested",
+        "values": [
+          {
+            "label": "none",
+            "value": "none"
+          },
+          {
+            "label": "required",
+            "value": "required"
+          },
+          {
+            "label": "requested",
+            "value": "requested"
+          }
+        ],
+        "default": "none",
+        "required": true,
+        "qa": "fragment-details-kafka-security-auth"
+      },
+      {
+        "propertyId": "vaultTLSEnable",
+        "propertyName": "_TLS_ENABLE_",
+        "propertyType": "boolean",
+        "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
+        "default": false,
+        "qa": "fragment-details-kafka-tls"
+      },
+      {
+        "propertyId": "vaultRole",
+        "propertyName": "_KAFKA_VAULT_ROLE_",
+        "propertyType": "text",
+        "tooltip": "Example: sparta-job",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultRole"
+      },
+      {
+        "propertyId": "vaultCertPath",
+        "propertyName": "_KAFKA_CERT_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPath"
+      },
+      {
+        "propertyId": "vaultCertPassPath",
+        "propertyName": "_KAFKA_CERT_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultCertPassPath"
+      },
+      {
+        "propertyId": "vaultKeyPassPath",
+        "propertyName": "_KAFKA_KEY_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultKeyPassPath"
+      },
+      {
+        "propertyId": "vaultTrustStorePath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/certificates/sparta",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
+      },
+      {
+        "propertyId": "vaultTrustStorePassPath",
+        "propertyName": "_KAFKA_TRUSTSTORE_PASS_PATH_",
+        "propertyType": "text",
+        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
+        "regexp": "",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": true
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-vaultTrustStorePath"
+      },
+      {
+        "propertyId": "ssl.truststore.location",
+        "propertyName": "_SSL_TRUSTSTORE_LOCATION_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
+        "tooltip": "Example: /some-directory/kafka.client.truststore.jks",
+        "qa": "fragment-details-kafka-truststore-location"
+      },
+      {
+        "propertyId": "ssl.truststore.password",
+        "propertyName": "_SSL_TRUSTSTORE_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "required": false,
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
+        "qa": "fragment-details-kafka-batch-truststore-password"
+      },
+      {
+        "propertyId": "ssl.keystore.location",
+        "propertyName": "_SSL_KEYSTORE_LOCATION_",
+        "propertyType": "text",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
+        "required": false,
+        "tooltip": "Example: /some-directory/kafka.client.keystore.jks",
+        "qa": "fragment-details-kafka-keystore-location"
+      },
+      {
+        "propertyId": "ssl.keystore.password",
+        "propertyName": "_SSL_KEYSTORE_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-keystore-password"
+      },
+      {
+        "propertyId": "ssl.key.password",
+        "propertyName": "_SSL_KEY_PASSWORD_",
+        "propertyType": "text",
+        "default": "",
+        "visible": [
+          [
+            {
+              "propertyId": "vaultTLSEnable",
+              "value": false
+            }
+          ]
+        ],
+        "required": false,
+        "qa": "fragment-details-kafka-key-password"
+      },
+      {
+        "propertyId": "kafkaProperties",
+        "propertyName": "_KAFKA_PROPERTIES_",
+        "propertyType": "list",
+        "default": "",
+        "required": false,
+        "tooltip": "",
+        "qa": "fragment-details-kafka-properties",
+        "fields": [
+          {
+            "propertyId": "kafkaPropertyKey",
+            "propertyName": "_KAFKA_PROPERTY_KEY_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyKey"
+          },
+          {
+            "propertyId": "kafkaPropertyValue",
+            "propertyName": "_KAFKA_PROPERTY_VALUE_",
+            "propertyType": "text",
+            "regexp": "",
+            "default": "",
+            "hidden": false,
+            "required": false,
+            "qa": "fragment-details-kafka-kafkaPropertyValue"
+          }
+        ]
+      }
+    ]
+  }

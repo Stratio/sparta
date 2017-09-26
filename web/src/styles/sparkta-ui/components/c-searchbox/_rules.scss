@@ -1,7 +1,0 @@
-@mixin c-searchbox {
-	@include c-input;
-}
-
-.c-searchbox {
-	@include c-searchbox;
-}

@@ -1,0 +1,50 @@
+.entity {
+    cursor: move;
+    &.active {
+        -webkit-filter: drop-shadow(193, 193, 193, 0.5);
+        filter: url(#drop-shadow);
+    }
+}
+.entity-name {
+   fill: #0f1b27;
+   font-family: "Nunito Sans";
+   font-size: 14px;
+   font-weight: 300;
+   cursor: move;
+   letter-spacing: -0.6px;
+   user-select: none;
+}
+
+.entity-icon {
+    font-family: ico_stratio;
+    font-size:25px;
+    user-select: none;
+    cursor: move;
+}
+
+.output-point, .entry-point{
+    user-select: none;
+}
+
+.input{
+    stroke: #fcb66c;
+
+    &.active {
+        fill: #fbf3ec;
+    }
+}
+
+
+.output {
+    stroke:#78c7dd;
+    &.active {
+        fill: #f5fbfd;
+    }
+}
+
+.transformation {
+    stroke: #c59ddb;
+    &.active {
+        fill: #f5fbfd;
+    }
+}

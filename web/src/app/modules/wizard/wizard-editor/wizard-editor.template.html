@@ -1,0 +1,32 @@
+<section>
+   <wizard-header (onZoomIn)="changeZoom(true)" [isNodeSelected]="selectedEntity && selectedEntity.length" (onZoomOut)="changeZoom(false)"
+      (onCenter)="centerWorkflow()" (onShowSettings)="showSettings()" (onSaveWorkflow)="saveWorkflow()" (onEditEntity)="editButtonEntity()"></wizard-header>
+   <div class="editor">
+      <svg id="composition" class="composition" (click)="clickDetected($event)">
+         <svg:g id="svg-container">
+
+            <svg:g *ngFor="let relation of workflowRelations" wizard-segment [initialEntity]="relation.origin" [finalEntity]="relation.destination"></svg:g>
+
+            <svg:g wizard-box svg-draggable *ngFor="let entity of entities" [data]="entity" [selected]="selectedEntity === entity.name"
+               (onDrawConnector)="drawConnector($event)" (onFinishConnector)="finishConnector($event)" [(position)]="entity.uiConfiguration.position"
+               [attr.transform]="getPosition(entity.uiConfiguration.position)" (onDoubleClickEvent)="editEntity(entity)" (onClickEvent)="selectEntity(entity)"/>
+         </svg:g>
+         <svg:filter id="drop-shadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="6" />
+            <feOffset dx="-1" dy="1" result="offsetblur" />
+            <feFlood flood-color="rgba(193, 193, 193, 0.5)" />
+            <feComposite in2="offsetblur" operator="in" />
+            <feMerge>
+               <feMergeNode/>
+               <feMergeNode in="SourceGraphic" />
+            </feMerge>
+         </svg:filter>
+
+         <svg:path [attr.d]="'M ' + connector.x1 +' ' +connector.y1 +' l ' + connector.x2 + ' ' + connector.y2" stroke="#333" *ngIf="showConnector"
+            stroke-width="2" fill="none" class="connector-line"></svg:path>
+      </svg>
+
+      <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
+      </sparta-sidebar>
+   </div>
+</section>

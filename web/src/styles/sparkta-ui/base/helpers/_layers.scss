@@ -1,3 +1,0 @@
-@function get-layer($layer) {
-	@return map-get($layers, $layer)
-}

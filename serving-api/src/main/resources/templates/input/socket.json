@@ -1,6 +1,6 @@
 {
   "name": "Socket",
-  "modelType": "Socket",
+  "classPrettyName": "Socket",
   "description": {
     "short": "Reads events from a socket.",
     "long": "Reads events from a socket.",

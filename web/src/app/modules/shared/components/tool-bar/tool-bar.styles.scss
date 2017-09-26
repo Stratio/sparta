@@ -1,0 +1,30 @@
+.tool-bar {
+   width: 100%;
+   display: block;
+   background: white;
+}
+
+.breadcrumb-tool {
+   float: left;
+}
+
+.left-tools {
+   display: flex;
+   justify-content: space-between;
+   &>div {
+      margin-top: auto;
+   }
+}
+
+.tools-content {
+   padding-top: 50px;
+   width: 100%;
+   padding-bottom: 15px;
+}
+
+.right-tools {
+   margin-top: auto;
+   .general-tools {
+      float: right;
+   }
+}

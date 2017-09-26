@@ -1,0 +1,23 @@
+<section>
+   <div #backupsModal qaTag="backup-modal"></div>
+   <tool-bar>
+      <div breadcrumb>
+         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
+      </div>
+      <div selection-tools>
+
+      </div>
+      <div general-tools>
+
+      </div>
+   </tool-bar>
+   <div class="container">
+      <div class="row">
+         <div>
+            <st-horizontal-tabs [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
+         </div>
+         <crossdata-tables *ngIf="activeMenuOption === 'CATALOG'"></crossdata-tables>
+         <crossdata-queries *ngIf="activeMenuOption === 'QUERIES'"></crossdata-queries>
+      </div>
+   </div>
+</section>

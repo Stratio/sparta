@@ -1,0 +1,32 @@
+<div class="workflow-detail">
+   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+   <div class="not-selected" *ngIf="!workflowData || !workflowData.name">
+      <img src="assets/images/workflow-detail.png" class="workflow-detail-image" />
+      <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
+   </div>
+   <div class="selected" *ngIf="workflowData && workflowData.name">
+      <span class="status" [ngClass]="workflowData.context.status.toLowerCase()">{{('DASHBOARD.' + (workflowData.context.status | uppercase)) | translate}}</span>
+      <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
+      <div *ngIf="workflowData.context && workflowData.context.statusInfo && workflowData.context.statusInfo.length">
+         <span class="title">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
+         <span class="values">{{workflowData.context.statusInfo}}</span>
+        
+      </div>
+      <div>
+         <span class="title">Execution mode</span>
+         <span class="">{{workflowData.context.lastExecutionMode}}</span>
+      </div>
+      <div *ngIf="inputs && inputs.length">
+         <span class="title">{{'GLOBAL.INPUTS' | translate}}</span>
+         <span class="values" *ngFor="let input of inputs">{{input}}</span>
+      </div>
+      <div *ngIf="transformations && transformations.length">
+         <span class="title">{{'GLOBAL.TRANSFORMATIONS' | translate}}</span>
+         <span class="values" *ngFor="let transformation of transformations">{{transformation}}</span>
+      </div>
+      <div *ngIf="outputs && outputs.length">
+         <span class="title">{{'GLOBAL.OUTPUTS' | translate}}</span>
+         <span class="values" *ngFor="let output of outputs">{{output}}</span>
+      </div>
+   </div>
+</div>

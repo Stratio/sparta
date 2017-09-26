@@ -1,0 +1,59 @@
+<section>
+   <div class="edition-header">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-12">
+               <div class="menu">
+                  <div class="breadcrumb">
+                     <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" [qaTag]="'editor-breadcrumb'"></st-breadcrumbs>
+                  </div>
+                  <div class="action-buttons">
+                     <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()">
+                    <span>{{'WIZARD.CANCEL' | translate}}</span>
+                 </button>
+                     <button class="button button-primary" (click)="saveForm()">
+                    <span>{{'WIZARD.SAVE' | translate}}</span>
+                </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="content">
+      <div class="container">
+         <div class="row">
+            <form #entityForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" (ngSubmit)="saveForm()">
+               <div *ngIf="!advancedSettings.length" class="col-sm-12">
+                  <div class="row">
+                     <div class="col-sm-6">
+                        <st-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                           qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                           class="input-field"></st-input>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-sm-6">
+                        <st-input name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                           fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30"
+                           [errors]="errorsService.errors.inputErrors" class="input-field"></st-input>
+                     </div>
+                  </div>
+                  <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="entityFormModel.configuration"></form-generator>
+               </div>
+
+
+               <!------- settings ----------- -->
+               <div *ngIf="advancedSettings.length" class="col-sm-12">
+                  <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel"></form-generator>
+                  <form-generator-group [forceValidations]="submitted" name="entity" [(stModel)]="settingsFormModel" [formData]="advancedSettings"
+                     class="advanced-settings" *ngIf="advancedSettings.length"></form-generator-group>
+               </div>
+               <!--- ---------------------------- -->
+
+
+            </form>
+         </div>
+      </div>
+   </div>
+</section>

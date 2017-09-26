@@ -1,0 +1,64 @@
+@import '~@stratio/egeo/theme/constants';
+
+$cloudy-black: #cdd6df;
+
+.title-header {
+   background-color: white;
+   border-bottom:1px solid $cloudy-black;
+   padding: 9px 0 1px;
+}
+
+.main-title {
+   display: inline-block;
+   font-size: 28px;
+   position: relative;
+}
+
+.tool-header{
+    padding:12px 0;
+    border-bottom:1px solid #ddd;
+}
+
+.position-tools{
+    display:inline-block;
+}
+
+.show-options {
+    margin-right: 40px;
+}
+.header-info {
+    display:inline-block;
+}
+
+.st-logo {
+    float: left;
+    margin-top: 8px;
+}
+
+.workflow-name{
+    float: left;
+    line-height: 27px;
+    vertical-align: bottom;
+    margin-top: 0px;
+    margin-left: 40px;
+    min-width: 400px;
+
+    &:focus {
+        border: 0;
+        outline: none;
+    }
+}
+
+.header-links {
+    float:right;
+    
+    .link{
+        margin-right: 30px;
+        color: $action-primary-default;
+        cursor:pointer;
+
+        &:hover {
+            color: $action-primary-hover;
+        }
+    }
+}

@@ -2,7 +2,7 @@
 
 ## 1.8.0 (upcoming)
 
-* Pending changelog
+* Front refactor.
 
 ## 1.7.5 (September 20, 2017)
 

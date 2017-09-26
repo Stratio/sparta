@@ -1,0 +1,7 @@
+<div>
+   <button class="button button-primary" (click)="file.click()">
+    <i class="icon-upload"></i>
+    <span>{{text}}</span>
+    </button>
+   <input type="file" (change)="onChange($event)" #file/>
+</div>

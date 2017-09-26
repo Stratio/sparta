@@ -1,7 +1,0 @@
-{
-  "type": "fake type",
-  "outputFields":[{"name":"output1"}, {"name":"output2"}],
-  "configuration":{"fake attribute": "fake"},
-  "inputField": "fake inputField",
-  "order": 0
-}

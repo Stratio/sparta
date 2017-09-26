@@ -1,0 +1,48 @@
+<div #backupsModal qaTag="backup-modal">
+</div>
+<tool-bar>
+   <div breadcrumb>
+      <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
+   </div>
+   <div selection-tools>
+
+   </div>
+   <div general-tools>
+      <form-file text="{{'DASHBOARD.UPLOAD_BACKUP' | translate}}" class="form-file" (onFileUpload)="uploadBackup($event)"></form-file>
+      <button class="button button-toolbar" (click)="generatebackup()">
+        <i class="icon-plus"></i>   
+    </button>
+   </div>
+</tool-bar>
+<div class="container">
+   <div class="row center">
+      <div class="col-xs-12">
+         <st-table [fields]="fields" [sortable]="true" [qaTag]="'backups-table'" class="backups-table">
+            <tr st-table-row *ngFor="let backup of backupList$ | async">
+                <td st-table-cell st-table-row-content>
+                    <st-checkbox [value]="backup" (change)="checkValue($event)"></st-checkbox>
+                </td>
+               <td st-table-cell st-table-row-content>
+                  <label>{{backup.fileName}}</label>
+               </td>
+               <td st-table-cell st-table-row-content>
+                  <label>{{backup.size}}</label>
+               </td>
+               <td st-table-cell st-table-row-content>
+                  <!--<floating-menu class="actions">
+                        <div menu-action>
+                            <st-button typeClass="btnTool" subtypeClass="subtype2" themeClass="themeA" qaTag="delete-input-button" leftIcon="icon-actions"
+                            inputType="button"></st-button>
+                        </div>
+                        <div menu-options>
+                            <menu-option icon="icon-play" label="{{'DASHBOARD.EXECUTE' | translate}}" (click)="executeBackupModal(backup.fileName)"></menu-option>
+                            <menu-option icon="icon-download" label="{{'DASHBOARD.DOWNLOAD' | translate}}" (click)="downloadBackup(backup.fileName)"></menu-option>
+                            <menu-option icon="icon-cross" label="{{'DASHBOARD.DELETE' | translate}}" (click)="deleteBackup(backup.fileName)"></menu-option>
+                        </div>
+                    </floating-menu>-->
+               </td>
+            </tr>
+         </st-table>
+      </div>
+   </div>
+</div>

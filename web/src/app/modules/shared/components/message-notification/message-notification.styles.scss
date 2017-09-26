@@ -1,0 +1,31 @@
+.message-notification {
+   color: white;
+}
+
+.notification-container {
+   display: inline-block;
+   &>div {
+      padding: 0px 9px 4px;
+   }
+}
+
+.icon {
+   font-size: 17px;
+   float: left;
+   margin-top: 7px;
+   margin-right: 5px;
+}
+
+.message {
+   font-size: 15px;
+}
+
+.error {
+   background: #e23b2b;
+}
+
+.info {
+   background: #88b060;
+}
+
+.warning {}

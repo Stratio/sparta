@@ -1,0 +1,38 @@
+@import '~@stratio/egeo/theme/constants';
+:host {
+   display: block;
+}
+
+.not-selected {
+   text-align: center;
+   .workflow-detail-image {
+      width: 130px;
+   }
+}
+
+.title {
+   text-transform: uppercase;
+   font-size: $egeo-font-size-xxsmall;
+   font-weight: 600;
+   line-height: 1.43;
+   margin-top: 10px;
+   display: block;
+   color: #6c7b8b;
+}
+
+.values {
+   display: block;
+}
+
+.status {
+   font-weight: 600;
+   color: #3c3c3c;
+   font-size: $egeo-font-size-xsmall;
+   .notstarted {}
+}
+
+.workflow-info {
+   color: #0f1b27;
+   font-size: 15px;
+   margin-top: 20px;
+}
