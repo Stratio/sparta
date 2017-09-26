@@ -22,7 +22,6 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.actor.TemplateActor.ResponseTemplate
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{ResponseWorkflow, TemplateElement, Workflow, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowService

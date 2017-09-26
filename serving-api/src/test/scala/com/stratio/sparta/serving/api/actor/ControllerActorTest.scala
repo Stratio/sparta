@@ -19,9 +19,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.core.actor.{TemplateActor, ExecutionActor, StatusActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.DummySecurityClass
 import org.apache.curator.framework.CuratorFramework
 import org.junit.runner.RunWith
@@ -43,27 +41,9 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
   val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
   val streamingContextService = StreamingContextService(curatorFramework)
-  val statusActor = _system.actorOf(Props(new StatusActor(curatorFramework, secManager)))
-  val executionActor = _system.actorOf(Props(new ExecutionActor(curatorFramework, secManager)))
-  val templateActor = _system.actorOf(Props(new TemplateActor(curatorFramework, secManager)))
-  val workflowActor = _system.actorOf(Props(new WorkflowActor(curatorFramework, statusActor, secManager)))
-  val sparkStreamingContextActor = _system.actorOf(
-    Props(new LauncherActor(streamingContextService, curatorFramework, secManager)))
-  val pluginActor = _system.actorOf(Props(new PluginActor(secManager)))
-  val configActor = _system.actorOf(Props(new ConfigActor()))
 
   def this() =
     this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))
-
-  implicit val actors = Map(
-    AkkaConstant.StatusActorName -> statusActor,
-    AkkaConstant.TemplateActorName -> templateActor,
-    AkkaConstant.WorkflowActorName -> workflowActor,
-    AkkaConstant.LauncherActorName -> sparkStreamingContextActor,
-    AkkaConstant.PluginActorName -> pluginActor,
-    AkkaConstant.ExecutionActorName -> executionActor,
-    AkkaConstant.ConfigActorName -> configActor
-  )
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
@@ -71,7 +51,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   "ControllerActor" should {
     "set up the controller actor that contains all Sparta's routes without any error" in {
-      _system.actorOf(Props(new ControllerActor(actors, curatorFramework)))
+      _system.actorOf(Props(new ControllerActor(secManager, curatorFramework)))
     }
   }
 }

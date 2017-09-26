@@ -18,11 +18,17 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
+import akka.routing.RoundRobinPool
+import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
+import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
+import com.stratio.sparta.serving.core.actor.{ExecutionActor, StatusActor, TemplateActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
@@ -34,7 +40,7 @@ import spray.routing._
 
 import scala.util.{Properties, Try}
 
-class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: CuratorFramework) extends HttpServiceActor
+class ControllerActor(secManager: Option[SpartaSecurityManager], curatorFramework: CuratorFramework) extends HttpServiceActor
   with SLF4JLogging
   with SpartaSerializer
   with CorsSupport
@@ -42,6 +48,43 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
   with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
+
+  val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new StatusActor(curatorFramework, secManager))), StatusActorName)
+  val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new TemplateActor(curatorFramework, secManager))), TemplateActorName)
+  val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new WorkflowActor(curatorFramework, statusActor, secManager))), WorkflowActorName)
+  val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new ExecutionActor(curatorFramework, secManager))), ExecutionActorName)
+  val scService = StreamingContextService(curatorFramework)
+  val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new LauncherActor(scService, curatorFramework, secManager))), LauncherActorName)
+  val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new PluginActor(secManager))), PluginActorName)
+  val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new DriverActor(secManager))), DriverActorName)
+  val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new ConfigActor())), ConfigActorName)
+  val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new MetadataActor(secManager))), MetadataActorName)
+  val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new CrossdataActor(secManager))), CrossdataActorName)
+
+  statusActor ! AddClusterListeners
+
+  val actorsMap = Map(
+    StatusActorName -> statusActor,
+    TemplateActorName -> templateActor,
+    WorkflowActorName -> workflowActor,
+    LauncherActorName -> launcherActor,
+    PluginActorName -> pluginActor,
+    DriverActorName -> driverActor,
+    ExecutionActorName -> executionActor,
+    ConfigActorName -> configActor,
+    CrossdataActorName -> crossdataActor,
+    MetadataActorName -> metadataActor
+  )
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
@@ -51,14 +94,14 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
-  def getRoutes: Route = cors {
+  lazy val getRoutes: Route = cors {
     redirectToRoot ~
       pathPrefix(HttpConstant.SpartaRootPath) {
         secRoute ~ staticRoutes ~ dynamicRoutes
       } ~ secRoute ~ staticRoutes ~ dynamicRoutes
   }
 
-  private def redirectToRoot: Route =
+  lazy val redirectToRoot: Route =
     path(HttpConstant.SpartaRootPath) {
       get {
         requestUri { uri =>
@@ -67,7 +110,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
       }
     }
 
-  private def staticRoutes: Route = {
+  lazy val staticRoutes: Route = {
     if (enabledSecurity) {
       secured { userAuth =>
         val user: Option[LoggedUser] = userAuth
@@ -76,7 +119,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
     } else webRoutes
   }
 
-  private def dynamicRoutes: Route = {
+  lazy val dynamicRoutes: Route = {
     if (enabledSecurity) {
       authorized { userAuth =>
         val user: Option[LoggedUser] = userAuth
@@ -93,7 +136,7 @@ class ControllerActor(actorsMap: Map[String, ActorRef], curatorFramework: Curato
       serviceRoutes.crossdataRoute(user)
   }
 
-  private def webRoutes: Route =
+  lazy val webRoutes: Route =
     get {
       pathPrefix(HttpConstant.SwaggerPath) {
         pathEndOrSingleSlash {
