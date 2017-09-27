@@ -46,11 +46,15 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   //scalastyle:off
   override def receive: Receive = {
     case CreateWorkflow(workflow, user) => create(workflow, user)
+    case CreateWorkflows(workflows, user) => createList(workflows, user)
     case Update(workflow, user) => update(workflow, user)
-    case DeleteWorkflow(id, user) => delete(id, user)
+    case UpdateList(workflows, user) => updateList(workflows, user)
     case Find(id, user) => find(id, user)
+    case FindByIdList(workflowIds, user) => findByIdList(workflowIds, user)
     case FindByName(name, user) => findByName(name.toLowerCase, user)
     case FindAll(user) => findAll(user)
+    case DeleteWorkflow(id, user) => delete(id, user)
+    case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
     case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
     case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
@@ -101,6 +105,11 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
       }
   }
 
+  def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+      ResponseWorkflows(Try(workflowService.findByIdList(workflowIds)))
+    }
+
   def findByName(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
       ResponseWorkflow(Try(workflowService.findByName(name)))
@@ -109,6 +118,11 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> Create, ResourceContext -> Create)) {
       ResponseWorkflow(Try(workflowService.create(workflow)))
+    }
+
+  def createList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> Create, ResourceContext -> Create)) {
+      ResponseWorkflows(Try(workflowService.createList(workflows)))
     }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
@@ -121,9 +135,20 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
       }
     }
 
+  def updateList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourcePol -> Edit)) {
+      ResponseWorkflows(Try(workflowService.updateList(workflows)))
+    }
+
   def delete(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourcePol -> Delete, ResourceCP -> Delete)) {
       Response(workflowService.delete(id))
+    }
+
+  def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user,
+      Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete)) {
+      Response(workflowService.deleteList(workflowIds))
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
@@ -160,15 +185,23 @@ object WorkflowActor extends SLF4JLogging {
 
   case class CreateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
+  case class CreateWorkflows(workflows: Seq[Workflow], user: Option[LoggedUser])
+
   case class Update(workflow: Workflow, user: Option[LoggedUser])
 
-  case class DeleteWorkflow(name: String, user: Option[LoggedUser])
+  case class UpdateList(workflows: Seq[Workflow], user: Option[LoggedUser])
+
+  case class DeleteWorkflow(id: String, user: Option[LoggedUser])
 
   case class DeleteAll(user: Option[LoggedUser])
+
+  case class DeleteList(workflowIds: Seq[String], user: Option[LoggedUser])
 
   case class FindAll(user: Option[LoggedUser])
 
   case class Find(id: String, user: Option[LoggedUser])
+
+  case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 
   case class FindByName(name: String, user: Option[LoggedUser])
 

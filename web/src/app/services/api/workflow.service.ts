@@ -35,7 +35,7 @@ export class WorkflowService extends ApiService {
       const options: ApiRequestOptions = {
          method: 'get'
       };
-      return this.request(this.configService.config.API_URL + '/workflows/all', options);
+      return this.request(this.configService.config.API_URL + '/workflows', options);
    }
 
    getWorkFlowContextList(): Observable<any> {

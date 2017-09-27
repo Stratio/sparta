@@ -50,6 +50,16 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   def findByTemplateName(templateType: String, name: String): List[Workflow] =
     findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.name == name && f.className == templateType))
 
+  def findByIdList(workflowIds: Seq[String]): List[Workflow] = {
+    val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
+
+    JavaConversions.asScalaBuffer(children).toList.flatMap { id =>
+      if (workflowIds.contains(id))
+        Option(findById(id))
+      else None
+    }
+  }
+
   def findAll: List[Workflow] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
 
@@ -57,12 +67,8 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   }
 
   def create(workflow: Workflow): Workflow = {
-    val searchWorkflow = existsByName(workflow.name, workflow.id)
-
-    if (searchWorkflow.isDefined) {
-      throw new ServerException(
-        s"Workflow with name ${workflow.name} exists. The actual workflow name is: ${searchWorkflow.get.name}")
-    }
+    existsByName(workflow.name, workflow.id).foreach(searchWorkflow => throw new ServerException(
+      s"Workflow with name ${workflow.name} exists. The actual workflow is: ${searchWorkflow.id}"))
 
     val workflowWithFields = addCreationDate(addId(workflow))
     curatorFramework.create.creatingParentsIfNeeded.forPath(
@@ -74,6 +80,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     ))
     workflowWithFields
   }
+
+  def createList(workflows: Seq[Workflow]): Seq[Workflow] =
+    workflows.map(create)
 
   def update(workflow: Workflow): Workflow = {
     val searchWorkflow = existsByName(workflow.name, workflow.id)
@@ -93,35 +102,61 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     }
   }
 
+  def updateList(workflows: Seq[Workflow]): Seq[Workflow] =
+    workflows.map(update)
+
   def delete(id: String): Try[_] =
     Try {
-      val executionPath = s"${AppConstant.WorkflowsZkPath}/$id"
+      val workflowPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
-      if (CuratorFactoryHolder.existsPath(executionPath)) {
+      if (CuratorFactoryHolder.existsPath(workflowPath)) {
         log.info(s"Deleting workflow with id: $id")
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
-      } else throw new ServerException(s"No workflow with id $id")
+      } else log.warn(s"No workflow with id $id")
     }
 
+  def deleteList(workflowIds: Seq[String]): Try[_] =
+    Try {
+      val workflowPath = s"${AppConstant.WorkflowsZkPath}"
+
+      if (CuratorFactoryHolder.existsPath(workflowPath)) {
+        log.info(s"Deleting existing workflows from id list: $workflowIds")
+        val workflows = findByIdList(workflowIds)
+
+        try {
+          workflows.foreach(workflow => delete(workflow.id.get))
+          log.info(s"Workflows from ids ${workflowIds.mkString(",")} deleted")
+        } catch {
+          case e: Exception =>
+            log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
+            Try(workflows.foreach(create))
+            throw new RuntimeException("Error deleting workflows", e)
+        }
+      }
+    }
 
   def deleteAll(): Try[_] =
     Try {
-      val executionPath = s"${AppConstant.WorkflowsZkPath}"
+      val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
-      if (CuratorFactoryHolder.existsPath(executionPath)) {
+      if (CuratorFactoryHolder.existsPath(workflowPath)) {
         log.info(s"Deleting all existing workflows")
-        val children = curatorFramework.getChildren.forPath(executionPath)
+        val children = curatorFramework.getChildren.forPath(workflowPath)
         val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
           read[Workflow](new String(curatorFramework.getData.forPath(
             s"${AppConstant.WorkflowsZkPath}/$workflow")))
         )
-        workflows.foreach(workflow => {
-          val workflowPath = s"${AppConstant.WorkflowsZkPath}/${workflow.id.get}"
-          if (Option(curatorFramework.checkExists().forPath(workflowPath)).isDefined)
-            delete(workflow.id.get)
-        })
 
+        try {
+          workflows.foreach(workflow => delete(workflow.id.get))
+          log.info(s"All workflows deleted")
+        } catch {
+          case e: Exception =>
+            log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
+            Try(workflows.foreach(create))
+            throw new RuntimeException("Error deleting workflows", e)
+        }
       }
     }
 

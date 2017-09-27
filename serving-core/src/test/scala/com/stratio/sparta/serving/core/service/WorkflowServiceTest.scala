@@ -160,6 +160,15 @@ with BeforeAndAfter
       result shouldBe a[Seq[_]]
     }
 
+    "findIdList: should return a list with the workflows" in {
+      mockListOfWorkflows
+      mockFindByID
+
+      val result = workflowService.findByIdList(Seq("wf1"))
+
+      result shouldBe a[Seq[_]]
+    }
+
     "findByTemplateType: should return a list with all the workflow of a given type" in {
       mockListOfWorkflows
       mockFindByID
@@ -197,6 +206,25 @@ with BeforeAndAfter
 
     }
 
+    "createList: given a certain workflow list a new workflows should be created" in {
+      existByNameMock
+
+      when(curatorFramework.create)
+        .thenReturn(createBuilder)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded)
+        .thenReturn(protectedACL)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded
+        .forPath(s"${AppConstant.WorkflowsZkPath}/newWorkflow"))
+        .thenReturn(newWorkflowRaw)
+
+      val result = workflowService.createList(Seq(newWorkflow))
+
+      result.head.id.get shouldBe "wf2"
+
+    }
+
     "update: given a certain workflow if a matching id is found the information regarding that " +
       "workflow is updated" in {
       existByNameMock
@@ -209,6 +237,20 @@ with BeforeAndAfter
 
       val result = workflowService.update(testWorkflow)
       result shouldBe a[Workflow]
+    }
+
+    "updateList: given a certain workflow list if a matching id is found the information regarding that " +
+      "workflows is updated" in {
+      existByNameMock
+
+      when(curatorFramework.setData())
+        .thenReturn(setDataBuilder)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowsZkPath}/$workflowID"))
+        .thenReturn(new Stat)
+
+      val result = workflowService.updateList(Seq(testWorkflow))
+      result shouldBe a[Seq[Workflow]]
     }
 
     "delete: given an id, looks up for a workflow with a matching id and deletes it" in {
