@@ -26,79 +26,95 @@ import { Http } from '@angular/http';
 @Injectable()
 export class WorkflowService extends ApiService {
 
-   constructor(private _http: Http, private configService: ConfigService) {
-      super(_http);
-   }
+    constructor(private _http: Http, private configService: ConfigService) {
+        super(_http);
+    }
 
-   getWorkflowList(): Observable<any> {
+    getWorkflowList(): Observable<any> {
 
-      const options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL + '/workflows', options);
-   }
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflows', options);
+    }
 
-   getWorkFlowContextList(): Observable<any> {
+    getWorkFlowContextList(): Observable<any> {
 
-      const options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL + '/workflowStatuses', options);
-   }
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflowStatuses', options);
+    }
 
-   getWorkflowByName(name: string): Observable<any> {
+    getWorkflowByName(name: string): Observable<any> {
 
-      const options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL + '/workflows/findByName/' + name, options);
-   }
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflows/findByName/' + name, options);
+    }
 
-   saveWorkflow(json: any): Observable<any> {
+    getWorkflowById(id: string): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflows/findById/' + id, options);
+    }
 
-      const options: ApiRequestOptions = {
-         method: 'post',
-         body: json
-      };
-      return this.request(this.configService.config.API_URL + '/workflows', options);
-   }
+    saveWorkflow(json: any): Observable<any> {
 
-   downloadWorkflow(id: string): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'post',
+            body: json
+        };
+        return this.request('workflows', options);
+    }
 
-      const options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL + '/workflows/download/' + id, options);
-   }
+    updateWorkflow(json: any): Observable<any> {
 
+        const options: ApiRequestOptions = {
+            method: 'put',
+            body: json
+        };
+        return this.request('workflows', options);
+    }
 
-   runWorkflow(id: string): Observable<any> {
+    downloadWorkflow(id: string): Observable<any> {
 
-      const options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL + '/workflows/run/' + id, options);
-   }
-
-   stopWorkflow(status: any): Observable<any> {
-
-      const options: ApiRequestOptions = {
-         method: 'put',
-         body: status
-
-      };
-      return this.request(this.configService.config.API_URL + '/workflowStatuses', options);
-   }
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflows/download/' + id, options);
+    }
 
 
+    runWorkflow(id: string): Observable<any> {
 
-   deleteWorkflow(id: string): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('workflows/run/' + id, options);
+    }
 
-      const options: ApiRequestOptions = {
-         method: 'delete'
-      };
-      return this.request(this.configService.config.API_URL + '/workflows/' + id, options);
-   }
+    stopWorkflow(status: any): Observable<any> {
+
+        const options: ApiRequestOptions = {
+            method: 'put',
+            body: status
+
+        };
+        return this.request('workflowStatuses', options);
+    }
+
+
+
+    deleteWorkflow(id: string): Observable<any> {
+
+        const options: ApiRequestOptions = {
+            method: 'delete'
+        };
+        return this.request('workflows/' + id, options);
+    }
 
 
 }

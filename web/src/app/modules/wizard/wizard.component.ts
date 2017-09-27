@@ -20,6 +20,7 @@ import * as fromRoot from 'reducers';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TranslateService } from '@ngx-translate/core';
 import * as wizardActions from 'actions/wizard';
+import { ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -32,20 +33,27 @@ export class WizardComponent implements OnInit, OnDestroy {
 
     public creationMode$: Observable<any>;
     public editionConfigMode$: Observable<any>;
+    private paramSubscription: Subscription;
 
     constructor(
         private _cd: ChangeDetectorRef,
         private store: Store<fromRoot.State>,
-        private translate: TranslateService) {
+        private translate: TranslateService,
+        private route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
+        this.store.dispatch(new wizardActions.ResetWizardAction());
         this.creationMode$ = this.store.select(fromRoot.isCreationMode);
         this.editionConfigMode$ = this.store.select(fromRoot.getEditionConfigMode);
+        this.paramSubscription = this.route.params.subscribe(params => {
+           if (params && params.id) {
+            this.store.dispatch(new wizardActions.ModifyWorkflowAction(params.id));
+           }
+        });
     }
 
-
-
     ngOnDestroy(): void {
+        this.paramSubscription.unsubscribe();
     }
 }

@@ -35,7 +35,7 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup', options);
+        return this.request('metadata/backup', options);
     }
 
     generateBackup(): Observable<any> {
@@ -43,7 +43,7 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup/build', options);
+        return this.request('metadata/backup/build', options);
     }
 
     deleteBackup(fileName: string): Observable<any> {
@@ -51,7 +51,7 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'delete'
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup/' + fileName, options);
+        return this.request('metadata/backup/' + fileName, options);
     }
 
     downloadBackup(fileName: string): Observable<any> {
@@ -59,7 +59,7 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup/' + fileName, options);
+        return this.request('metadata/backup/' + fileName, options);
     }
 
     executeBackup(fileName: string, removeData: boolean): Observable<any> {
@@ -71,7 +71,7 @@ export class BackupService extends ApiService {
                 deleteAllBefore: removeData
             }
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup', options);
+        return this.request('metadata/backup', options);
     }
 
     uploadBackup(file:any): Observable<any> {
@@ -81,7 +81,7 @@ export class BackupService extends ApiService {
             method: 'put',
             body: fd
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup', options);
+        return this.request('metadata/backup', options);
     }
 
     createBackupFile(data: any, fileName: string): void {
@@ -100,7 +100,7 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'delete'
         };
-        return this.request(this.configService.config.API_URL + '/metadata/backup', options);
+        return this.request('metadata/backup', options);
     }
 
 
@@ -109,6 +109,6 @@ export class BackupService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'delete'
         };
-        return this.request(this.configService.config.API_URL + '/metadata', options);
+        return this.request('metadata', options);
     }
 }

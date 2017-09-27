@@ -27,7 +27,7 @@ import * as d3 from 'd3';
 import * as wizardActions from 'actions/wizard';
 import { D3ZoomEvent } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
-import { ValidateSchemaService } from "app/services";
+import { ValidateSchemaService } from 'services';
 
 
 @Component({
@@ -66,6 +66,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private getSeletedEntitiesSubscription: Subscription;
     private getWorflowNodesSubscription: Subscription;
     private workflowRelationsSubscription: Subscription;
+    private workflowPositionSubscription: Subscription;
 
     private creationMode: any;
     private documentRef: any;
@@ -77,8 +78,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     constructor(private elementRef: ElementRef, private editorService: WizardEditorService,
         private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private validateSchemaService: ValidateSchemaService) {
-            this.store.dispatch(new wizardActions.ResetWizardAction());            
-         }
+
+    }
 
     ngOnInit(): void {
         // ngrx
@@ -104,6 +105,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 };
             });
         });
+
+
 
         // d3
         this.documentRef = d3.select(document);
@@ -138,8 +141,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.setContainerPosition();
         })).on('dblclick.zoom', null);
 
-        this.SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this.svgPosition.x, this.svgPosition.y)
-            .scale(this.svgPosition.k));
+        this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
+            this.svgPosition = position;
+            this.SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this.svgPosition.x, this.svgPosition.y)
+                .scale(this.svgPosition.k === 0 ? 1 : this.svgPosition.k));
+        });
+
     }
 
     getPosition(entity: any) {
@@ -160,7 +167,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         if (this.creationMode.active) {
             const entityData = this.creationMode.data;
             const entity = this.validateSchemaService.setDefaultEntityModel(this.creationMode.data.value);
-            entity.name =  this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
+            entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
             entity.stepType = this.creationMode.data.stepType;
             entity.uiConfiguration = {
                 position: {
@@ -199,7 +206,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     finishConnector(name: string) {
-        this.store.dispatch(new wizardActions.CreateNodeRelation({
+        this.store.dispatch(new wizardActions.CreateNodeRelationAction({
             origin: this.newOrigin,
             destination: name
         }));
@@ -263,6 +270,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.getSeletedEntitiesSubscription && this.getSeletedEntitiesSubscription.unsubscribe();
         this.getWorflowNodesSubscription && this.getWorflowNodesSubscription.unsubscribe();
         this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
+        this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
     }
 
     saveWorkflow(): void {
@@ -271,6 +279,10 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.SaveEditorPosition(this.svgPosition));
 
         this.store.dispatch(new wizardActions.SaveWorkflowAction());
+    }
+
+    removeSegment($event: any) {
+        this.store.dispatch(new wizardActions.DeleteNodeRelationAction($event));
     }
 
 }

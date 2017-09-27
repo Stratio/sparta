@@ -19,6 +19,9 @@ import { type } from '../utils';
 
 export const actionTypes: any = {
     RESET_WIZARD: type('[Wizard] Reset wizard'),
+    MODIFY_WORKFLOW: type('[Wizard] Modify workflow'),
+    MODIFY_WORKFLOW_COMPLETE: type('[Wizard] Modify workflow complete'),
+    MODIFY_WORKFLOW_ERROR: type('[Wizard] Modify workflow error'),
     SELECTED_CREATION_ENTITY: type('[Wizard] Selected creation entity'),
     DESELECTED_CREATION_ENTITY: type('[Wizard] Deselected creation entity'),
     TOGGLE_ENTITY_DETAILS: type('[Wizard] Toggle entity details'),
@@ -28,6 +31,9 @@ export const actionTypes: any = {
     EDIT_ENTITY: type('[Wizard] Edit entity'),
     HIDE_EDIT_ENTITY: type('[Wizard] Hide edit entity'),
     CREATE_NODE_RELATION: type('[Wizard] Create node relation'),
+    CREATE_NODE_RELATION_COMPLETE: type('[Wizard] Create node relation complete'),
+    CREATE_NODE_RELATION_ERROR: type('[Wizard] Create node relation error'),
+    DELETE_NODE_RELATION: type('[Wizard] delete node relation'),
     DELETE_ENTITY: type('[Wizard] Delete entity'),
     SAVE_WORKFLOW_POSITIONS: type('[Wizard] Save workflow positions'),
     SAVE_EDITOR_POSITION: type('[Wizard] Save editor position'),
@@ -44,6 +50,21 @@ export const actionTypes: any = {
 
 export class ResetWizardAction implements Action {
     type: any = actionTypes.RESET_WIZARD;
+}
+
+export class ModifyWorkflowAction implements Action {
+    type: any = actionTypes.MODIFY_WORKFLOW;
+    constructor(public payload: any) { }
+}
+
+export class ModifyWorkflowCompleteAction implements Action {
+    type: any = actionTypes.MODIFY_WORKFLOW_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class ModifyWorkflowErrorAction implements Action {
+    type: any = actionTypes.MODIFY_WORKFLOW_ERROR;
+    constructor(public payload: any) { }
 }
 
 export class SelectedCreationEntityAction implements Action {
@@ -81,8 +102,23 @@ export class ToggleDetailSidebarAction implements Action {
     type: any = actionTypes.TOGGLE_ENTITY_DETAILS;
 }
 
-export class CreateNodeRelation implements Action {
+export class CreateNodeRelationAction implements Action {
     type: any = actionTypes.CREATE_NODE_RELATION;
+    constructor(public payload: any) { }
+}
+
+export class CreateNodeRelationCompleteAction implements Action {
+    type: any = actionTypes.CREATE_NODE_RELATION_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class CreateNodeRelationErrorAction implements Action {
+    type: any = actionTypes.CREATE_NODE_RELATION_ERROR;
+    constructor(public payload: any) { }
+}
+
+export class DeleteNodeRelationAction implements Action {
+    type: any = actionTypes.DELETE_NODE_RELATION;
     constructor(public payload: any) { }
 }
 
@@ -96,7 +132,7 @@ export class SaveWorkflowPositionsAction implements Action {
 }
 
 export class SaveEditorPosition implements Action {
-    type: any =  actionTypes.SAVE_EDITOR_POSITION;
+    type: any = actionTypes.SAVE_EDITOR_POSITION;
     constructor(public payload: any) { }
 }
 
@@ -148,6 +184,9 @@ export class SaveWorkflowErrorAction implements Action {
 
 export type Actions =
     ResetWizardAction |
+    ModifyWorkflowAction |
+    ModifyWorkflowCompleteAction |
+    ModifyWorkflowErrorAction |
     SelectedCreationEntityAction |
     DeselectedCreationEntityAction |
     ChangeWorkflowNameAction |
@@ -156,7 +195,10 @@ export type Actions =
     SelectEntityAction |
     UnselectEntityAction |
     ToggleDetailSidebarAction |
-    CreateNodeRelation |
+    CreateNodeRelationAction |
+    CreateNodeRelationErrorAction |
+    CreateNodeRelationCompleteAction |
+    DeleteNodeRelationAction |
     DeleteEntityAction |
     SaveWorkflowPositionsAction |
     ShowEditorConfigAction |

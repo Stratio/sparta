@@ -44,6 +44,6 @@ export const inputNames = inputs.map((input: any) => {
     return {
         name: input.name,
         value: input,
-        stepType: 'input'
+        stepType: 'Input'
     };
 });

@@ -15,7 +15,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-
+import { ValidationModel, ValidationErrorModel } from 'app/models/validation-schema.model';
 
 @Injectable()
 export class ValidateSchemaService {
@@ -54,7 +54,7 @@ export class ValidateSchemaService {
         model.className = value.className;
         model.stepType = value.stepType;
         model.description = value.description.short;
-
+        
         return model;
     }
 
@@ -81,9 +81,7 @@ export class ValidateSchemaService {
                 model[prop.propertyId] = prop.default ? prop.default : null;
             }
         });
-
         return model;
-
     }
 
 

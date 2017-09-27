@@ -5,7 +5,10 @@
       <svg id="composition" class="composition" (click)="clickDetected($event)">
          <svg:g id="svg-container">
 
-            <svg:g *ngFor="let relation of workflowRelations" wizard-segment [initialEntity]="relation.origin" [finalEntity]="relation.destination"></svg:g>
+            <svg:g *ngFor="let relation of workflowRelations" wizard-segment 
+                  [initialEntity]="relation.origin" 
+                  [finalEntity]="relation.destination"
+                  (onRemoveSegment)="removeSegment($event)"></svg:g>
 
             <svg:g wizard-box svg-draggable *ngFor="let entity of entities" [data]="entity" [selected]="selectedEntity === entity.name"
                (onDrawConnector)="drawConnector($event)" (onFinishConnector)="finishConnector($event)" [(position)]="entity.uiConfiguration.position"

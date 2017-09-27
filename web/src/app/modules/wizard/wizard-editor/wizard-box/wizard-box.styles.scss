@@ -26,7 +26,7 @@
     user-select: none;
 }
 
-.input{
+.Input{
     stroke: #fcb66c;
 
     &.active {
@@ -35,14 +35,14 @@
 }
 
 
-.output {
+.Output {
     stroke:#78c7dd;
     &.active {
         fill: #f5fbfd;
     }
 }
 
-.transformation {
+.Transformation {
     stroke: #c59ddb;
     &.active {
         fill: #f5fbfd;

@@ -14,8 +14,10 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, Input, AfterContentInit, 
-    ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import {
+    Component, OnInit, OnDestroy, HostListener, ElementRef, Input, AfterContentInit,
+    ChangeDetectorRef, Output, EventEmitter
+} from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
@@ -42,6 +44,7 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
     private el: HTMLElement;
     private svg: any;
     private dragrect: any;
+    private relationSelector: any;
 
     private isSelected = false;
     public boxConfig = ENTITY_BOX;
@@ -49,6 +52,7 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
     public icon = '';
     public strokeColor = 'white';
 
+    public relationClasses = '';
 
     constructor(elementRef: ElementRef, private utilsService: UtilsService, private _cd: ChangeDetectorRef) {
         this.el = elementRef.nativeElement;
@@ -60,19 +64,41 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
     }
 
     ngAfterContentInit() {
-        const div = d3.select(this.el.querySelector('.output-point'));
-        div.on('mousedown', () => {
+
+        this.relationSelector = d3.selectAll(this.el.querySelectorAll(('.relation')));
+        switch (this.data.stepType) {
+            case 'Input':
+                this.relationClasses = 'output-point';
+                this.generateEntry();
+                break;
+            case 'Output':
+                this.relationClasses = 'entry-point';
+                this.generateOutput();
+                break;
+            case 'Transformation':
+                this.relationClasses = 'entry-point output-point';
+                this.generateEntry(); this.generateOutput();
+                break;
+        }
+
+    }
+
+    generateEntry() {
+        this.relationSelector.on('mousedown', () => {
             this.onDrawConnector.emit({
                 event: d3.event,
                 name: this.data.name
             });
             d3.event.stopPropagation();
         });
+    }
 
-        d3.select(this.el.querySelector('.entry-point'))
-        .on('mouseup', () => {
-            this.onFinishConnector.emit(this.data.name);
-        });
+
+    generateOutput() {
+        this.relationSelector
+            .on('mouseup', () => {
+                this.onFinishConnector.emit(this.data.name);
+            });
     }
 
     getEntityIcon() {

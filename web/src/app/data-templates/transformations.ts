@@ -14,14 +14,16 @@
 /// limitations under the License.
 ///
 
-export * from './api/workflow.service';
-export * from './api/input.service';
-export * from './api/output.service';
-export * from './api/api.service';
-export * from './api/backup.service';
-export * from './api/resources.service';
-export * from './api/crossdata.service';
-export * from './breadcrumb-menu.service';
-export * from './error-messages.service';
-export * from './validate-schema.service';
-export * from './initialize-workflow.service';
+//import * as avroTemplate from './transformations/transformation-name.json';
+
+export const transformations: any = [
+
+];
+
+export const transformationNames = transformations.map((transformation: any) => {
+  return {
+        name: transformation.name,
+        value: transformation,
+        stepType: 'Transformation'
+  };
+});

@@ -24,6 +24,7 @@ import { Observable } from 'rxjs/Observable';
 import * as fromRoot from 'reducers';
 
 import * as wizardActions from 'actions/wizard';
+import { InitializeWorkflowService } from 'services/initialize-workflow.service';
 
 
 @Injectable()
@@ -58,7 +59,7 @@ export class WizardEffect {
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]) => {
             const workflow = Object.assign({
-                uiConfiguration: {
+                uiSettings: {
                     position: wizard.svgPosition
                 },
                 pipelineGraph: {
@@ -68,7 +69,7 @@ export class WizardEffect {
                 settings: wizard.settings.advanced
             }, wizard.settings.basic);
 
-            return this.workflowService.saveWorkflow(workflow)
+            return (workflow.id ? this.workflowService.updateWorkflow(workflow) : this.workflowService.saveWorkflow(workflow))
                 .map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
@@ -77,13 +78,40 @@ export class WizardEffect {
         });
 
 
+    @Effect()
+    createNodeRelation$: Observable<Action> = this.actions$
+        .ofType(wizardActions.actionTypes.CREATE_NODE_RELATION)
+        .map(toPayload)
+        .withLatestFrom(this.store.select(state => state.wizard))
+        .switchMap(([payload, wizard]) => {
+            const filtered = wizard.edges.filter((edge: any) => {
+                return edge.origin === payload.origin && edge.destination === payload.destination;
+            });
+            if (filtered.length || (payload.origin === payload.destination)) {
+                return Observable.of(new wizardActions.CreateNodeRelationErrorAction(''));
+            } else {
+                return Observable.of(new wizardActions.CreateNodeRelationCompleteAction(payload));
+            }
+        });
 
-
+    @Effect()
+    getEditedWorkflow$: Observable<Action> = this.actions$
+        .ofType(wizardActions.actionTypes.MODIFY_WORKFLOW)
+        .map((action: any) => action.payload)
+        .switchMap((id: any) => {
+            return this.workflowService.getWorkflowById(id)
+                .map((workflow: any) => {
+                    return new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow));
+                }).catch(function (error: any) {
+                    return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
+                });
+        });
 
     constructor(
         private actions$: Actions,
         private store: Store<fromRoot.State>,
-        private workflowService: WorkflowService
+        private workflowService: WorkflowService,
+        private initializeWorkflowService: InitializeWorkflowService
     ) { }
 
 }

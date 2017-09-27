@@ -17,8 +17,9 @@
 import * as wizardActions from 'actions/wizard';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { inputNames } from 'data-templates/inputs';
+import { transformationNames } from 'data-templates/transformations';
 import { outputNames } from 'data-templates/outputs';
-import { ValidateSchemaService } from "services";
+import { ValidateSchemaService } from 'services';
 import * as settingsTemplate from 'data-templates/settings.json';
 
 export interface State {
@@ -40,7 +41,7 @@ export interface State {
 const defaultSettings = ValidateSchemaService.setDefaultWorkflowSettings(settingsTemplate);
 
 const initialState: State = {
-    settings: Object.assign({},defaultSettings),
+    settings: Object.assign({}, defaultSettings),
     svgPosition: {
         x: 0,
         y: 0,
@@ -70,7 +71,7 @@ const initialState: State = {
         name: 'Transformation',
         value: 'action',
         icon: 'icon-shuffle',
-        subMenus: inputNames
+        subMenus: transformationNames
     },
     {
         name: 'Output',
@@ -133,9 +134,16 @@ export function reducer(state: State = initialState, action: any): State {
                 showEntityDetails: !state.showEntityDetails
             });
         }
-        case wizardActions.actionTypes.CREATE_NODE_RELATION: {
+        case wizardActions.actionTypes.CREATE_NODE_RELATION_COMPLETE: {
             return Object.assign({}, state, {
                 edges: [...state.edges, action.payload]
+            });
+        }
+        case wizardActions.actionTypes.DELETE_NODE_RELATION: {
+            return Object.assign({}, state, {
+                edges: state.edges.filter((edge: any) => {
+                    return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
+                })
             });
         }
         case wizardActions.actionTypes.DELETE_ENTITY: {
@@ -167,6 +175,7 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.actionTypes.SAVE_EDITOR_POSITION: {
+            console.log(action.payload);
             return Object.assign({}, state, {
                 svgPosition: action.payload
             });
@@ -203,7 +212,6 @@ export function reducer(state: State = initialState, action: any): State {
             const findEntity = state.nodes.find((node) => {
                 return node.name === state.selectedEntity;
             });
-            console.log(findEntity);
             return Object.assign({}, state, {
                 editionConfig: true,
                 editionConfigType: {
@@ -217,13 +225,29 @@ export function reducer(state: State = initialState, action: any): State {
             return {
                 ...state,
                 settings: {
-                  ...state.settings,
-                  basic: {
-                      ...state.settings.basic,
-                      name: action.payload
-                  }
+                    ...state.settings,
+                    basic: {
+                        ...state.settings.basic,
+                        name: action.payload
+                    }
                 }
-              };
+            };
+        }
+        case wizardActions.actionTypes.MODIFY_WORKFLOW_COMPLETE: {
+            const workflow = action.payload;
+            return Object.assign({}, state, {
+                svgPosition: workflow.uiSettings.position,
+                nodes: workflow.pipelineGraph.nodes,
+                edges: workflow.pipelineGraph.edges,
+                settings: {
+                    basic: {
+                        id: workflow.id,
+                        name: workflow.name,
+                        description: workflow.description
+                    },
+                    advancedSettings: workflow.settings.advancedSettings
+                }
+            });
         }
         default:
             return state;
@@ -238,6 +262,7 @@ export const getWorkflowNodes: any = (state: State) => state.nodes;
 export const isEntitySaved: any = (state: State) => state.editionSaved;
 export const getWorkflowSettings: any = (state: State) => state.settings;
 export const getWorkflowName: any = (state: State) => state.settings.basic.name;
+export const getWorkflowPosition: any = (state: State) => state.svgPosition;
 export const getEditionConfigMode: any = (state: State) => {
     return {
         isEdition: state.editionConfig,

@@ -17,5 +17,6 @@
         "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
         "qa": "fragment-details-filesystem-url"
       }
+      
     ]
   }

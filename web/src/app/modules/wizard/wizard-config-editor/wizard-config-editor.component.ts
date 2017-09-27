@@ -83,15 +83,15 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.basicSettings = settings.basicSettings;
                 this.advancedSettings = settings.advancedSettings;
                 break;
-            case 'input':
+            case 'Input':
                 const selectedI: any = this._getEntityTemplate(inputs, this.config.editionType.data.classPrettyName);
                 this.basicSettings = selectedI.properties;
                 break;
-            case 'output':
+            case 'Output':
                 const selectedO: any = this._getEntityTemplate(outputs, this.config.editionType.data.classPrettyName);
                 this.basicSettings = selectedO.properties;
                 break;
-            case 'transformation':
+            case 'Transformation':
                 break;
         }
     }

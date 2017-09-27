@@ -1,6 +1,22 @@
+::host {
+   display: block;
+}
+
 .segment {
    fill: none;
    stroke: 2px;
    stroke: #1E190E;
    stroke-width: 1px;
+}
+
+.delete-icon {
+   font-family: ico_stratio;
+   font-size: 25px;
+   cursor: pointer;
+   opacity: 0;
+   stroke-width:30px;
+}
+
+.delete-icon:hover {
+   opacity: 1;
 }

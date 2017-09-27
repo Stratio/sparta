@@ -1,0 +1,46 @@
+{
+   "/workflows/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/workflowStatuses/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/template/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/fragment/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/plugins/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/driver/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/executions/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/config/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/metadata/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/appInfo/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   },
+   "/crossdata/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
+   }
+}

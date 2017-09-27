@@ -35,7 +35,7 @@ export class ResourcesService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/plugins', options);
+        return this.request('plugins', options);
     }
 
     getDriversList(): Observable<any> {
@@ -43,7 +43,7 @@ export class ResourcesService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/driver', options);
+        return this.request('driver', options);
     }
 
     uploadDriver(file: any): Observable<any> {
@@ -53,7 +53,7 @@ export class ResourcesService extends ApiService {
             method: 'put',
             body: fd
         };
-        return this.request(this.configService.config.API_URL + '/driver', options);
+        return this.request('driver', options);
     }
 
 
@@ -64,20 +64,20 @@ export class ResourcesService extends ApiService {
             method: 'put',
             body: fd
         };
-        return this.request(this.configService.config.API_URL + '/plugins', options);
+        return this.request('plugins', options);
     }
 
     deleteDriver(fileName: string): Observable<any> {
         let options: ApiRequestOptions = {
             method: 'delete'
         };
-        return this.request(this.configService.config.API_URL + '/driver/' + fileName, options);
+        return this.request('driver/' + fileName, options);
     }
 
     deletePlugin(fileName: string): Observable<any> {
         let options: ApiRequestOptions = {
             method: 'delete'
         };
-        return this.request(this.configService.config.API_URL + '/plugins/' + fileName, options);
+        return this.request('plugins/' + fileName, options);
     }
 }

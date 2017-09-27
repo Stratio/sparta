@@ -14,14 +14,17 @@
 /// limitations under the License.
 ///
 
-export * from './api/workflow.service';
-export * from './api/input.service';
-export * from './api/output.service';
-export * from './api/api.service';
-export * from './api/backup.service';
-export * from './api/resources.service';
-export * from './api/crossdata.service';
-export * from './breadcrumb-menu.service';
-export * from './error-messages.service';
-export * from './validate-schema.service';
-export * from './initialize-workflow.service';
+import * as utils from './';
+
+describe("Util function type", function () {
+
+    const action = 'TEST_ACTION';
+
+    it("should return action name when this is unique", () => {
+        expect(utils.type(action)).toBe(action);
+    });
+
+    it("should throw an exception when an action its not unique", () => {
+        expect(() => utils.type(action)).toThrow();
+    });
+});

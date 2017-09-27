@@ -34,7 +34,7 @@ export class InputService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/template/input', options);
+        return this.request('template/input', options);
     }
 
     deleteInput(inputId: string): Observable<any> {
@@ -42,7 +42,7 @@ export class InputService extends ApiService {
             method: 'delete'
         };
 
-        return this.request(this.configService.config.API_URL + '/template/input/id/' + inputId, options);
+        return this.request('template/input/id/' + inputId, options);
     }
 
     validateInputName(inputName: string): Observable<any> {
@@ -50,7 +50,7 @@ export class InputService extends ApiService {
             method: 'get'
         };
 
-        return this.request(this.configService.config.API_URL + '/template/input/name/' + inputName, options);
+        return this.request('template/input/name/' + inputName, options);
     }
 
     createFragment(fragmentData: any): Observable<any> {
@@ -59,7 +59,7 @@ export class InputService extends ApiService {
             body: fragmentData
         };
 
-        return this.request(this.configService.config.API_URL + '/template', options);
+        return this.request('template', options);
     }
 
 
@@ -69,6 +69,6 @@ export class InputService extends ApiService {
             body: fragmentData
         };
 
-        return this.request(this.configService.config.API_URL + '/template', options);
+        return this.request('template', options);
     }
 }

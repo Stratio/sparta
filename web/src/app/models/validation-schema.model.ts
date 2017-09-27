@@ -14,12 +14,12 @@
 /// limitations under the License.
 ///
 
-interface ValidationModel {
+export interface ValidationModel {
     valid:boolean;
     errors: Array<ValidationErrorModel>;
 }
 
-interface ValidationErrorModel {
+export interface ValidationErrorModel {
     fieldName: string,
     fieldValue: any,
     validationError: string

@@ -119,3 +119,4 @@ export const getEditionConfigMode: any = createSelector(getWizardState, fromWiza
 export const isEntitySaved: any = createSelector(getWizardState, fromWizard.isEntitySaved);
 export const getWorkflowSettings: any = createSelector(getWizardState, fromWizard.getWorkflowSettings);
 export const getWorkflowName: any = createSelector(getWizardState, fromWizard.getWorkflowName);
+export const getWorkflowPosition: any = createSelector(getWizardState, fromWizard.getWorkflowPosition);

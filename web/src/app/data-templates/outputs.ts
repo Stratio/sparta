@@ -53,6 +53,6 @@ export const outputNames = outputs.map((output: any) => {
   return {
         name: output.name,
         value: output,
-        stepType: 'output'
+        stepType: 'Output'
   };
 });

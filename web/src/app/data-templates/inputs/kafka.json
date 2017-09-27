@@ -96,6 +96,7 @@
       {
         "propertyId": "value.deserializer",
         "propertyName": "_VALUE_DESERIALIZER_",
+        "float": "true",
         "propertyType": "select",
         "values": [
           {

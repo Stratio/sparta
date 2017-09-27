@@ -34,7 +34,7 @@ export class CrossdataService extends ApiService {
         let options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/crossdata/tables', options);
+        return this.request('crossdata/tables', options);
     }
 
     getCrossdataTableInfo(tableName: string): Observable<any> {
@@ -45,7 +45,7 @@ export class CrossdataService extends ApiService {
                 tableName: tableName
             }
         };
-        return this.request(this.configService.config.API_URL + '/crossdata/tables/info', options);
+        return this.request('crossdata/tables/info', options);
     }
 
     executeCrossdataQuery(query: string): Observable<any> {
@@ -56,7 +56,7 @@ export class CrossdataService extends ApiService {
                 query: query
             }
         };
-        return this.request(this.configService.config.API_URL + '/crossdata/queries', options);
+        return this.request('crossdata/queries', options);
     }
 
 }

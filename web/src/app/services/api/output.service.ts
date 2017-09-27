@@ -42,7 +42,7 @@ export class OutputService extends ApiService {
          method: 'delete'
       };
 
-      return this.request(this.configService.config.API_URL + '/template/output/id/' + outputId, options);
+      return this.request('template/output/id/' + outputId, options);
    }
 
     validateOutputName(outputName: string): Observable<any> {
@@ -50,7 +50,7 @@ export class OutputService extends ApiService {
             method: 'get'
         };
 
-        return this.request(this.configService.config.API_URL + '/template/output/name/' + outputName, options);
+        return this.request('template/output/name/' + outputName, options);
     }
 
     createFragment(fragmentData: any): Observable<any> {
@@ -59,6 +59,6 @@ export class OutputService extends ApiService {
             body: fragmentData
         };
 
-        return this.request(this.configService.config.API_URL + '/template', options);
+        return this.request('template', options);
     }
 }

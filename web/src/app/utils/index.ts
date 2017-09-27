@@ -25,11 +25,6 @@ export function type<T>(label: T | ''): T {
   return <T>label;
 }
 
-
-export function downloadResource(uri: string): void {
-  window.open(uri);
-}
-
 export function generateJsonFile(name: string, content: any) {
   const data = 'text/json;charset=utf-8,' + JSON.stringify(content);
   const a = document.createElement('a');

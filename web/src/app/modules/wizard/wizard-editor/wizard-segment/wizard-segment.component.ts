@@ -14,7 +14,8 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, Input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, Input, 
+    ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
@@ -34,9 +35,15 @@ export class WizardSegmentComponent implements OnInit, OnDestroy {
 
     @Input() initialEntity: any;
     @Input() finalEntity: any;
+    @Output() onRemoveSegment = new EventEmitter<any>();
 
     private h = ENTITY_BOX.height;
     private w = ENTITY_BOX.width;
+
+    public closeIconPosition = {
+        x:0,
+        y:0
+    };
 
     private el: HTMLElement;
 
@@ -54,6 +61,10 @@ export class WizardSegmentComponent implements OnInit, OnDestroy {
 
             let x2 = final.uiConfiguration.position.x;
             let y2 = final.uiConfiguration.position.y;
+
+
+            this.closeIconPosition.x = x1 - ((x1 - x2 - 114) / 2);
+            this.closeIconPosition.y = y1 - ((y1 - y2 - 100) / 2);
 
             const diff = Math.abs(x1 - x2);
             if (diff > this.w) {
@@ -83,6 +94,13 @@ export class WizardSegmentComponent implements OnInit, OnDestroy {
         } else {
             return '';
         }
+    }
+
+    deleteSegment() {
+        this.onRemoveSegment.emit({
+            origin: this.initialEntity.name,
+            destination: this.finalEntity.name
+        });
     }
 
 
