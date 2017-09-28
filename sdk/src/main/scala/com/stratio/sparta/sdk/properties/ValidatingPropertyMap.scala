@@ -66,7 +66,8 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
     )
   }
 
-  def getMapFromJsoneyString(key: K): Seq[Map[String, String]] = {
+  //scalastyle:off
+  def getMapFromArrayOfValues(key: K): Seq[Map[String, String]] = {
     m.get(key) match {
       case Some(value) =>
 
@@ -78,8 +79,18 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
             JObject(list) <- element
           } yield {
             (for {
-              JField(key, JString(value)) <- list
-            } yield (key, value)).toMap
+              (key, value) <- list
+            } yield {
+              val valueToReturn = value match {
+                case value : JString => value.s
+                case value : JInt => value.num.toString
+                case value : JDouble => value.num.toString
+                case value : JBool => value.value.toString
+                case value : JDecimal => value.num.toString
+                case _ => compact(render(value))
+              }
+              (key, valueToReturn)
+            }).toMap
           }
         if (result.isEmpty)
           throw new IllegalStateException(s"$key is mandatory")
@@ -148,7 +159,7 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
   def getOptionsList(key: K,
                      propertyKey: String,
                      propertyValue: String): Map[String, String] =
-    Try(getMapFromJsoneyString(key)).getOrElse(Seq.empty[Map[String, String]])
+    Try(getMapFromArrayOfValues(key)).getOrElse(Seq.empty[Map[String, String]])
       .map(c =>
         (c.get(propertyKey) match {
           case Some(value) => value.toString

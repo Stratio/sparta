@@ -75,7 +75,7 @@ class ElasticSearchOutput(
                        defaultPort: String,
                        nodeName: String,
                        portName: String): Seq[(String, Int)] = {
-    properties.getMapFromJsoneyString(key).map(c =>
+    properties.getMapFromArrayOfValues(key).map(c =>
       (c.getOrElse(nodeName, defaultHost), c.getOrElse(portName, defaultPort).toInt))
   }
 

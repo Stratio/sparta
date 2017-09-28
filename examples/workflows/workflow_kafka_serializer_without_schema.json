@@ -1,6 +1,6 @@
 {
-  "name": "socket_kafka_trigger_checkpointing",
-  "description": "Workflow with socket, kafka, trigger from two steps, checkpointing and print",
+  "name": "workflow_kafka_serializer_without_schema",
+  "description": "Workflow with kafka serializer to row, trigger and print",
   "settings": {
     "global": {
       "executionMode": "local",
@@ -74,22 +74,6 @@
   "pipelineGraph": {
     "nodes": [
       {
-        "name": "socket",
-        "stepType": "Input",
-        "className": "WebSocketInputStep",
-        "classPrettyName": "WebSocket",
-        "writer": {
-          "autoCalculatedFields": [],
-          "saveMode": "Append",
-          "tableName": "inputsocket"
-        },
-        "configuration": {
-          "url": "ws://stream.meetup.com/2/rsvps",
-          "outputField": "raw",
-          "outputType": "string"
-        }
-      },
-      {
         "name": "kafka",
         "stepType": "Input",
         "className": "KafkaInputStep",
@@ -106,7 +90,7 @@
           "locationStrategy": "preferconsistent",
           "topics": [
             {
-              "topic": "offsetspr"
+              "topic": "offsetser"
             }
           ],
           "auto.offset.reset": "latest",
@@ -121,44 +105,15 @@
             }
           ],
           "enable.auto.commit": false,
-          "value.deserializer": "string",
           "kafkaProperties": [
             {
               "kafkaPropertyKey": "",
               "kafkaPropertyValue": ""
             }
           ],
-          "storeOffsetInKafka": true
-        }
-      },
-      {
-        "name": "trigger1",
-        "stepType": "Transformation",
-        "className": "TriggerTransformStep",
-        "classPrettyName": "Trigger",
-        "writer": {
-          "autoCalculatedFields": [],
-          "saveMode": "Append",
-          "tableName": "triggertable"
-        },
-        "configuration": {
-          "whenError": "Error",
-          "sql": "SELECT checkpoint1.raw AS raw2, socket.raw AS raws FROM socket CROSS JOIN checkpoint1"
-        }
-      },
-      {
-        "name": "checkpoint1",
-        "stepType": "Transformation",
-        "className": "CheckpointTransformStep",
-        "classPrettyName": "Checkpoint",
-        "writer": {
-          "autoCalculatedFields": [],
-          "saveMode": "Append",
-          "tableName": "checkpointtable"
-        },
-        "configuration": {
-          "whenError": "Error",
-          "interval": "6s"
+          "storeOffsetInKafka": false,
+          "value.deserializer": "row",
+          "value.deserializer.inputFormat": "JSON"
         }
       },
       {
@@ -181,18 +136,6 @@
     "edges": [
       {
         "origin": "kafka",
-        "destination": "checkpoint1"
-      },
-      {
-        "origin": "socket",
-        "destination": "trigger1"
-      },
-      {
-        "origin": "checkpoint1",
-        "destination": "trigger1"
-      },
-      {
-        "origin": "trigger1",
         "destination": "print"
       }
     ]

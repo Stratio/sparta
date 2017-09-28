@@ -19,8 +19,7 @@ package com.stratio.sparta.plugin.output.kafka
 import java.io.{Serializable => JSerializable}
 import java.util.Properties
 
-import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.plugin.workflow.input.kafka.KafkaBase
+import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.sdk.pipeline.output.Output._
 import com.stratio.sparta.sdk.pipeline.output.{Output, OutputFormatEnum, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.CustomProperties
@@ -42,7 +41,6 @@ class KafkaOutput(
   val DefaultKafkaSerializer = classOf[StringSerializer].getName
   val DefaultAck = "0"
   val DefaultBatchNumMessages = "200"
-  val DefaultProducerPort = "9092"
 
   override val customKey = "KafkaProperties"
   override val customPropertyKey = "kafkaPropertyKey"
@@ -78,12 +76,12 @@ class KafkaOutput(
   }
 
   private[kafka] def getProducerConnectionKey: String =
-    getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort)
+    getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultBrokerPort)
       .getOrElse(BOOTSTRAP_SERVERS_CONFIG, throw new Exception("Invalid metadata broker list"))
 
 
   private[kafka] def mandatoryOptions: Map[String, String] =
-    getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultProducerPort) ++
+    getHostPort(BOOTSTRAP_SERVERS_CONFIG, DefaultHost, DefaultBrokerPort) ++
       Map(
         KEY_SERIALIZER_CLASS_CONFIG -> properties.getString(KEY_SERIALIZER_CLASS_CONFIG, DefaultKafkaSerializer),
         VALUE_SERIALIZER_CLASS_CONFIG -> properties.getString(VALUE_SERIALIZER_CLASS_CONFIG, DefaultKafkaSerializer),

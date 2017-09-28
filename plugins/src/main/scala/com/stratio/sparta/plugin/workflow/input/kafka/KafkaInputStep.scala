@@ -17,17 +17,18 @@
 package com.stratio.sparta.plugin.workflow.input.kafka
 
 import java.io.{Serializable => JSerializable}
-import java.nio.ByteBuffer
-import java.{lang => jl}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
+import com.stratio.sparta.plugin.common.kafka.KafkaBase
+import com.stratio.sparta.plugin.common.kafka.models.TopicsModel
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
 import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
-import org.apache.kafka.common.utils.Bytes
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -35,6 +36,8 @@ import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
+import org.json4s.jackson.Serialization._
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 
@@ -47,9 +50,6 @@ class KafkaInputStep(
                     )
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
-  lazy val KeyDeserializer = "key.deserializer"
-  lazy val ValueDeserializer = "value.deserializer"
-
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputType = properties.getString("outputType", DefaultRawDataType)
   lazy val outputSparkType = SparkTypes.get(outputType) match {
@@ -60,61 +60,45 @@ class KafkaInputStep(
 
   //scalastyle:off
   def initStream(): DStream[Row] = {
-    val groupId = getGroupId("group.id")
     val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
       getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
     else getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
-    val keySerializer = classOf[StringDeserializer]
-    val serializerProperty = properties.getString("value.deserializer", "string")
-    val valueSerializer = getSerializerByKey(serializerProperty)
-    val serializers = Map(KeyDeserializer -> keySerializer, ValueDeserializer -> valueSerializer)
-    val topics = extractTopics
-    val partitionStrategy = getPartitionStrategy
-    val locationStrategy = getLocationStrategy
-    val autoOffset = getAutoOffset
-    val enableAutoCommit = getAutoCommit
+    val serializerProperty = properties.getString("value.deserializer", "row")
+    val serializers = Map(
+      "key.deserializer" -> classOf[StringDeserializer],
+      "value.deserializer" -> getSerializerByKey(serializerProperty)
+    )
     val kafkaSecurityOptions = securityOptions(ssc.sparkContext.getConf)
-    val offsets = getOffsets
 
-    val inputDStream = serializerProperty match {
-      case "long" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Long](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, Long](ssc, locationStrategy, consumerStrategy)
-      case "int" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Int](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, Int](ssc, locationStrategy, consumerStrategy)
-      case "double" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Double](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, Double](ssc, locationStrategy, consumerStrategy)
-      case "bytebuffer" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, ByteBuffer](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, ByteBuffer](ssc, locationStrategy, consumerStrategy)
+    val (inputDStream, outputDStream) = serializerProperty match {
       case "arraybyte" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, Array[Byte]](ssc, locationStrategy, consumerStrategy)
-      case "bytes" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Bytes](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, Bytes](ssc, locationStrategy, consumerStrategy)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](extractTopics, getAutoCommit ++
+          getAutoOffset ++ serializers ++ metaDataBrokerList ++ getGroupId ++ getPartitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties, getOffsets)
+        val inputStream = KafkaUtils.createDirectStream[String, Array[Byte]](ssc, getLocationStrategy, consumerStrategy)
+        val outputStream = inputStream.map(data =>
+          new GenericRowWithSchema(Array(new String(data.value())), outputSchema))
+
+        (inputStream, outputStream)
+      case "row" =>
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
+          getAutoOffset ++ serializers ++ getRowSerializerProperties ++ metaDataBrokerList ++ getGroupId ++
+          getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
+        val inputStream = KafkaUtils.createDirectStream[String, Row](ssc, getLocationStrategy, consumerStrategy)
+        val outputStream = inputStream.map(data => data.value())
+
+        (inputStream, outputStream)
       case _ =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](topics, enableAutoCommit ++
-          autoOffset ++ serializers ++ metaDataBrokerList ++ groupId ++ partitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, offsets)
-        KafkaUtils.createDirectStream[String, String](ssc, locationStrategy, consumerStrategy)
+        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](extractTopics, getAutoCommit ++
+          getAutoOffset ++ serializers ++ metaDataBrokerList ++ getGroupId ++ getPartitionStrategy ++
+          kafkaSecurityOptions ++ getCustomProperties, getOffsets)
+        val inputStream = KafkaUtils.createDirectStream[String, String](ssc, getLocationStrategy, consumerStrategy)
+        val outputStream = inputStream.map(data => new GenericRowWithSchema(Array(data.value()), outputSchema))
+
+        (inputStream, outputStream)
     }
 
-    if (!enableAutoCommit.head._2 && getAutoCommitInKafka) {
+    if (!getAutoCommit.head._2 && getAutoCommitInKafka) {
       inputDStream.foreachRDD { rdd =>
         val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
         inputDStream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
@@ -127,15 +111,38 @@ class KafkaInputStep(
       }
     }
 
-    inputDStream.map(data => new GenericRowWithSchema(Array(data.value()), outputSchema))
+    outputDStream.asInstanceOf[DStream[Row]]
   }
 
   //scalastyle:on
 
+  /** GROUP ID extractions **/
+
+  def getGroupId: Map[String, String] =
+    Map("group.id" -> properties.getString("group.id", s"sparta-${System.currentTimeMillis}"))
+
+  /** TOPICS extractions **/
+
+  def extractTopics: Set[String] =
+    if (properties.contains("topics"))
+      getTopicsPartitions.topics.map(topicPartitionModel => topicPartitionModel.topic).toSet
+    else throw new IllegalArgumentException(s"Invalid configuration, topics must be declared in direct approach")
+
+  def getTopicsPartitions: TopicsModel = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    val topicsModel = read[TopicsModel](
+      s"""{"topics": ${properties.get("topics").fold("[]") { values => values.toString }}}""""
+    )
+
+    if (topicsModel.topics.isEmpty)
+      throw new IllegalArgumentException(s"At least one topic must be defined")
+    else topicsModel
+  }
+
   /** OFFSETS **/
 
   def getOffsets: Map[TopicPartition, Long] = {
-    Try(properties.getMapFromJsoneyString("offsets"))
+    Try(properties.getMapFromArrayOfValues("offsets"))
       .getOrElse(Seq.empty[Map[String, String]])
       .flatMap(offsetSequence => getOffset(offsetSequence)).toMap
   }
@@ -154,35 +161,30 @@ class KafkaInputStep(
 
   /** SERIALIZERS **/
 
-  def getSerializerByKey(serializerKey: String): Class[_ >: StringDeserializer with LongDeserializer
-    with IntegerDeserializer with DoubleDeserializer with ByteArrayDeserializer with ByteBufferDeserializer
-    with BytesDeserializer <: Deserializer[_ >: String with jl.Long with Integer with jl.Double with
-    Array[Byte] with ByteBuffer with Bytes]] =
+  def getSerializerByKey(serializerKey: String): Class[_ >: StringDeserializer with ByteArrayDeserializer
+    with RowDeserializer <: Deserializer[_ >: String with Array[Byte] with Row]] =
     serializerKey match {
       case "string" => classOf[StringDeserializer]
-      case "long" => classOf[LongDeserializer]
-      case "int" => classOf[IntegerDeserializer]
-      case "double" => classOf[DoubleDeserializer]
       case "arraybyte" => classOf[ByteArrayDeserializer]
-      case "bytebuffer" => classOf[ByteBufferDeserializer]
-      case "bytes" => classOf[BytesDeserializer]
+      case "row" => classOf[RowDeserializer]
       case _ => classOf[StringDeserializer]
     }
 
+  def getRowSerializerProperties: Map[String, String] =
+    Map(
+      "value.deserializer.inputFormat" -> properties.getString("value.deserializer.inputFormat", "STRING"),
+      "value.deserializer.schema" -> properties.getString("value.deserializer.schema", "NONE"),
+      "value.deserializer.outputField" -> outputField
+    ) ++ properties.mapValues(_.toString).filterKeys(key => key.contains("key.deserializer.json"))
+
   /** OFFSETS MANAGEMENT **/
 
-  def getAutoOffset: Map[String, String] = {
-    val autoOffsetResetKey = "auto.offset.reset"
-    val autoOffsetResetValue = properties.getString(autoOffsetResetKey, "latest")
+  def getAutoOffset: Map[String, String] =
+    Map("auto.offset.reset" -> properties.getString("auto.offset.reset", "latest"))
 
-    Map(autoOffsetResetKey -> autoOffsetResetValue)
-  }
-
-  def getAutoCommit: Map[String, java.lang.Boolean] = {
-    val autoCommitKey = "enable.auto.commit"
-    val autoCommitValue = Try(properties.getBoolean(autoCommitKey)).getOrElse(false)
-
-    Map(autoCommitKey -> autoCommitValue)
+  def getAutoCommit: Map[String, java.lang.Boolean] ={
+    val autoCommit = Try(properties.getBoolean("enable.auto.commit")).getOrElse(false)
+    Map("enable.auto.commit" -> autoCommit)
   }
 
   def getAutoCommitInKafka: Boolean =
@@ -200,14 +202,13 @@ class KafkaInputStep(
   /** PARTITION ASSIGNMENT STRATEGY **/
 
   def getPartitionStrategy: Map[String, String] = {
-    val partitionStrategyKey = "partition.assignment.strategy"
     val strategy = properties.getString("partition.assignment.strategy", None) match {
       case Some("range") => classOf[RangeAssignor].getCanonicalName
       case Some("roundrobin") => classOf[RoundRobinAssignor].getCanonicalName
       case _ => classOf[RangeAssignor].getCanonicalName
     }
 
-    Map(partitionStrategyKey -> strategy)
+    Map("partition.assignment.strategy" -> strategy)
   }
 }
 

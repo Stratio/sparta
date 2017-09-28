@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.input.kafka.models
+package com.stratio.sparta.sdk.workflow.enumerators
 
-case class TopicsModel(topics: Seq[TopicModel])
+object InputFormatEnum extends Enumeration {
+
+  type Status = Value
+  val JSON, STRING = Value
+
+}

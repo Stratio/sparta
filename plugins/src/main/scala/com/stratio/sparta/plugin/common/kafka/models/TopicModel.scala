@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.input.kafka.models
+package com.stratio.sparta.plugin.common.kafka.models
 
 case class TopicModel(topic: String)

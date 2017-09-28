@@ -77,7 +77,7 @@ object CassandraOutput {
   private def getSparkCassandraProperties(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     configuration.get("sparkProperties") match {
       case Some(properties) =>
-        val conObj = configuration.getMapFromJsoneyString("sparkProperties")
+        val conObj = configuration.getMapFromArrayOfValues("sparkProperties")
         conObj.map(propKeyPair => {
           val key = propKeyPair("sparkPropertyKey")
           val value = propKeyPair("sparkPropertyValue")

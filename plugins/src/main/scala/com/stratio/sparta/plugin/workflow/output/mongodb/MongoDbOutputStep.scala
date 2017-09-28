@@ -73,7 +73,7 @@ class MongoDbOutputStep(name: String, xDSession: XDSession, properties: Map[Stri
   }
 
   private def getConnectionConfs(key: String, firstJsonItem: String, secondJsonItem: String): String = {
-    val conObj = properties.getMapFromJsoneyString(key)
+    val conObj = properties.getMapFromArrayOfValues(key)
     conObj.map(c => {
       val host = c.getOrElse(firstJsonItem, DefaultHost)
       val port = c.getOrElse(secondJsonItem, DefaultPort)

@@ -51,7 +51,7 @@
           "blockInterval": "200ms"
         },
         "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/spark-krb-calico:2.1.0",
+          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
           "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
           "executorForcePullImage": false
         },

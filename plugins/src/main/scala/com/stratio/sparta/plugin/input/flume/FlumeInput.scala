@@ -61,7 +61,7 @@ class FlumeInput(
   }
 
   private def getAddresses: Seq[InetSocketAddress] =
-    properties.getMapFromJsoneyString("addresses")
+    properties.getMapFromArrayOfValues("addresses")
       .map(values => (values.get("host"), values.get("port")))
       .map {
         case (Some(address), None) =>

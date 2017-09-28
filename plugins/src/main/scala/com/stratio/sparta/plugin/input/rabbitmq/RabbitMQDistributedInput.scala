@@ -65,7 +65,7 @@ class RabbitMQDistributedInput(
   }
 
   def getKeys(rabbitMQParams: Map[String, String]): Seq[RabbitMQDistributedKey] = {
-    val items = Try(properties.getMapFromJsoneyString(DistributedPropertyKey))
+    val items = Try(properties.getMapFromArrayOfValues(DistributedPropertyKey))
       .getOrElse(Seq.empty[Map[String, String]])
     for (item <- items) yield getKey(item, rabbitMQParams)
   }
