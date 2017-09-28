@@ -19,13 +19,13 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
+import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
 import spray.http._
@@ -63,8 +63,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
               response <- (supervisor ? UploadPlugins(form.fields, user))
                 .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
             } yield response match {
-              case Left(SpartaFilesResponse(Success(newFilesUris))) => newFilesUris
-              case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+              case Left(Success(newFilesUris)) => newFilesUris
+              case Left(Failure(exception)) => throw exception
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in plugins")
             }
@@ -109,8 +109,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
             response <- (supervisor ? ListPlugins(user))
               .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
           } yield response match {
-            case Left(SpartaFilesResponse(Success(filesUris))) => filesUris
-            case Left(SpartaFilesResponse(Failure(exception))) => throw exception
+            case Left(Success(filesUris)) => filesUris
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
@@ -134,8 +134,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
             response <- (supervisor ? DeletePlugins)
               .mapTo[Either[PluginResponse,UnauthorizedResponse]]
           } yield response match {
-            case Left(PluginResponse(Success(_))) => StatusCodes.OK
-            case Left(PluginResponse(Failure(exception))) => throw exception
+            case Left(Success(_)) => StatusCodes.OK
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }
@@ -166,8 +166,8 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
             response <- (supervisor ? DeletePlugin(file, user))
               .mapTo[Either[PluginResponse,UnauthorizedResponse]]
           } yield response match {
-            case Left(PluginResponse(Success(_))) => StatusCodes.OK
-            case Left(PluginResponse(Failure(exception))) => throw exception
+            case Left(Success(_)) => StatusCodes.OK
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in fragments")
           }

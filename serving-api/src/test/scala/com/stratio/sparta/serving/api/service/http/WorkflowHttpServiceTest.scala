@@ -20,12 +20,10 @@ import java.util.UUID
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.TemplateActor.ResponseTemplate
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.actor.{LauncherActor, StatusActor, TemplateActor}
+import com.stratio.sparta.serving.core.actor.StatusActor
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 import com.stratio.sparta.serving.core.models.workflow._
@@ -56,14 +54,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.find" should {
     "return workflow" in {
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         responseAs[Workflow] should equal(getWorkflowModel())
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseWorkflow(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)
@@ -73,14 +71,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.findByName" should {
     "return a workflow" in {
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/findByName/name") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByName]
         responseAs[Workflow] should equal(getWorkflowModel())
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseWorkflow(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/findByName/name") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindByName]
         status should be(StatusCodes.InternalServerError)
@@ -90,14 +88,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.findByIds" should {
     "find all workflows" in {
-      startAutopilot(Left(ResponseWorkflows(Success(Seq(getWorkflowModel())))))
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
       Post(s"/${HttpConstant.WorkflowsPath}/findByIds", Seq(id)) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByIdList]
         responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseWorkflows(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Post(s"/${HttpConstant.WorkflowsPath}/findByIds", Seq(id)) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByIdList]
         status should be(StatusCodes.InternalServerError)
@@ -107,14 +105,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.findAll" should {
     "find all workflows" in {
-      startAutopilot(Left(ResponseWorkflows(Success(Seq(getWorkflowModel())))))
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
       Get(s"/${HttpConstant.WorkflowsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
         responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseWorkflows(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindAll]
         status should be(StatusCodes.InternalServerError)
@@ -124,14 +122,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.create" should {
     "return the workflow created" in {
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Post(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[CreateWorkflow]
         responseAs[Workflow] should equal(getWorkflowModel())
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Put(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
@@ -141,14 +139,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.createList" should {
     "return the workflow created" in {
-      startAutopilot(Left(ResponseWorkflows(Success(Seq(getWorkflowModel())))))
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
       Post(s"/${HttpConstant.WorkflowsPath}/list", Seq(getWorkflowModel())) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[CreateWorkflows]
         responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Post(s"/${HttpConstant.WorkflowsPath}/list", Seq(getWorkflowModel())) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[CreateWorkflows]
         status should be(StatusCodes.InternalServerError)
@@ -158,14 +156,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.update" should {
     "return an OK because the workflow was updated" in {
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Put(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Put(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Update]
         status should be(StatusCodes.InternalServerError)
@@ -175,14 +173,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.updateList" should {
     "return an OK because the workflows was updated" in {
-      startAutopilot(Left(ResponseWorkflows(Success(Seq(getWorkflowModel())))))
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
       Put(s"/${HttpConstant.WorkflowsPath}/list", Seq(getWorkflowModel())) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[UpdateList]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseWorkflows(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Put(s"/${HttpConstant.WorkflowsPath}/list", Seq(getWorkflowModel())) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[UpdateList]
         status should be(StatusCodes.InternalServerError)
@@ -192,14 +190,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.remove" should {
     "return an OK because the workflow was deleted" in {
-      startAutopilot(Left(Response(Success(getFragmentModel()))))
+      startAutopilot(Left(Success(getFragmentModel())))
       Delete(s"/${HttpConstant.WorkflowsPath}/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteWorkflow]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
@@ -208,7 +206,7 @@ with HttpServiceBaseTest {
               TestActor.NoAutoPilot
           }
       })
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Delete(s"/${HttpConstant.WorkflowsPath}/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteWorkflow]
@@ -219,14 +217,14 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.removeList" should {
     "return an OK because the workflows was deleted" in {
-      startAutopilot(Left(Response(Success(getFragmentModel()))))
+      startAutopilot(Left(Success(getFragmentModel())))
       Delete(s"/${HttpConstant.WorkflowsPath}/list", Seq(id)) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteList]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Delete(s"/${HttpConstant.WorkflowsPath}/list", Seq(id)) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeleteList]
         status should be(StatusCodes.InternalServerError)
@@ -246,7 +244,7 @@ with HttpServiceBaseTest {
           }
       })
       startAutopilot(None, sparkStreamingTestProbe, workflowAutoPilot)
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.OK)
@@ -262,7 +260,7 @@ with HttpServiceBaseTest {
             case Delete => TestActor.NoAutoPilot
           }
       })
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       startAutopilot(None, sparkStreamingTestProbe, workflowAutoPilot)
       Get(s"/${HttpConstant.WorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
@@ -273,7 +271,7 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.download" should {
     "return an OK and the attachment filename" in {
-      startAutopilot(Left(ResponseWorkflow(Success(getWorkflowModel()))))
+      startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/download/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.OK)
@@ -281,7 +279,7 @@ with HttpServiceBaseTest {
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/download/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
         status should be(StatusCodes.InternalServerError)

@@ -38,7 +38,7 @@ trait FileActorUtils extends SLF4JLogging {
   //Regexp for name validation
   val patternFileName: Option[Predicate[String]] = None
 
-  def deleteFiles(): Try[_] =
+  def deleteFiles(): Try[Unit] =
     Try {
       val directory = new File(targetDir)
       if (directory.exists && directory.isDirectory)
@@ -48,7 +48,7 @@ trait FileActorUtils extends SLF4JLogging {
         }
     }
 
-  def deleteFile(fileName: String): Try[_] =
+  def deleteFile(fileName: String): Try[Unit] =
     Try {
       val plugin = new File(s"$targetDir/$fileName")
       if (plugin.exists && !plugin.isDirectory)

@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.dto.LoggedUserConstant
-import com.stratio.sparta.serving.core.models.files.{SpartaFile, SpartaFilesResponse}
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -52,7 +52,7 @@ class PluginsHttpServiceTest extends WordSpec
 
   "PluginsHttpService.upload" should {
     "Upload a file" in {
-      val response = Left(SpartaFilesResponse(Success(Seq(SpartaFile("", "", "", "")))))
+      val response = Left(Success(Seq(SpartaFile("", "", "", ""))))
       startAutopilot(response)
       Put(s"/${HttpConstant.PluginsPath}") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[UploadPlugins]
@@ -60,7 +60,7 @@ class PluginsHttpServiceTest extends WordSpec
       }
     }
     "Fail when service is not available" in {
-      val response = Left(SpartaFilesResponse(Failure(new IllegalArgumentException("Error"))))
+      val response = Left(Failure(new IllegalArgumentException("Error")))
       startAutopilot(response)
       Put(s"/${HttpConstant.PluginsPath}") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[UploadPlugins]

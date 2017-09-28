@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{ResponseWorkflow, Workflow, WorkflowValidator}
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidator}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
@@ -70,8 +70,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? Find(id.toString, user))
               .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
           } yield response match {
-            case Left(ResponseWorkflow(Failure(exception))) => throw exception
-            case Left(ResponseWorkflow(Success(workflow))) => workflow
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(workflow)) => workflow
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in workflows")
           }
@@ -104,8 +104,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? FindByName(name, user))
               .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
           } yield response match {
-            case Left(ResponseWorkflow(Failure(exception))) => throw exception
-            case Left(ResponseWorkflow(Success(workflow))) => workflow
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(workflow)) => workflow
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in workflows")
           }
@@ -139,8 +139,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               response <- (supervisor ? FindByIdList(workflowIds, user))
                 .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
             } yield response match {
-              case Left(ResponseWorkflows(Failure(exception))) => throw exception
-              case Left(ResponseWorkflows(Success(workflows))) => workflows
+              case Left(Failure(exception)) => throw exception
+              case Left(Success(workflows)) => workflows
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in workflows")
             }
@@ -168,8 +168,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               response <- (supervisor ? FindAll(user))
                 .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
             } yield response match {
-              case Left(ResponseWorkflows(Failure(exception))) => throw exception
-              case Left(ResponseWorkflows(Success(workflows))) => workflows
+              case Left(Failure(exception)) => throw exception
+              case Left(Success(workflows)) => workflows
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in workflows")
             }
@@ -202,8 +202,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
                 response <- (supervisor ? CreateWorkflow(workflow, user))
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield response match {
-                case Left(ResponseWorkflow(Failure(exception))) => throw exception
-                case Left(ResponseWorkflow(Success(workflowCreated))) => workflowCreated
+                case Left(Failure(exception)) => throw exception
+                case Left(Success(workflowCreated)) => workflowCreated
                 case Right(UnauthorizedResponse(exception)) => throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in workflows")
               }
@@ -237,8 +237,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
                 response <- (supervisor ? CreateWorkflows(workflows, user))
                   .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
               } yield response match {
-                case Left(ResponseWorkflows(Failure(exception))) => throw exception
-                case Left(ResponseWorkflows(Success(workflowsCreated))) => workflowsCreated
+                case Left(Failure(exception)) => throw exception
+                case Left(Success(workflowsCreated)) => workflowsCreated
                 case Right(UnauthorizedResponse(exception)) => throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in workflows")
               }
@@ -271,8 +271,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
                 response <- (supervisor ? Update(workflow, user))
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield response match {
-                case Left(ResponseWorkflow(Failure(exception))) => throw exception
-                case Left(ResponseWorkflow(Success(pol))) => StatusCodes.OK
+                case Left(Failure(exception)) => throw exception
+                case Left(Success(pol)) => StatusCodes.OK
                 case Right(UnauthorizedResponse(exception)) => throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in workflows")
               }
@@ -305,8 +305,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
                 response <- (supervisor ? UpdateList(workflows, user))
                   .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
               } yield response match {
-                case Left(ResponseWorkflows(Failure(exception))) => throw exception
-                case Left(ResponseWorkflows(Success(pol))) => StatusCodes.OK
+                case Left(Failure(exception)) => throw exception
+                case Left(Success(pol)) => StatusCodes.OK
                 case Right(UnauthorizedResponse(exception)) => throw exception
                 case _ => throw new RuntimeException("Unexpected behaviour in workflows")
               }
@@ -334,8 +334,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               workflows <- (supervisor ? DeleteAll(user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
             } yield workflows match {
-              case Left(Response(Failure(exception))) => throw exception
-              case Left(Response(Success(_))) => StatusCodes.OK
+              case Left(Failure(exception)) => throw exception
+              case Left(Success(_)) => StatusCodes.OK
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in workflows")
             }
@@ -369,8 +369,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               workflows <- (supervisor ? DeleteList(workflowIds, user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
             } yield workflows match {
-              case Left(Response(Failure(exception))) => throw exception
-              case Left(Response(Success(_))) => StatusCodes.OK
+              case Left(Failure(exception)) => throw exception
+              case Left(Success(_)) => StatusCodes.OK
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in workflows")
             }
@@ -403,8 +403,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? DeleteWorkflow(id.toString, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
           } yield response match {
-            case Left(Response(Failure(ex))) => throw ex
-            case Left(Response(Success(_))) => StatusCodes.OK
+            case Left(Failure(ex)) => throw ex
+            case Left(Success(_)) => StatusCodes.OK
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in workflows")
           }
@@ -437,13 +437,13 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             responsePolicy <- (supervisor ? FindByName(name, user))
               .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
           } yield responsePolicy match {
-            case Left(ResponseWorkflow(Failure(exception))) => throw exception
-            case Left(ResponseWorkflow(Success(workflow))) => for {
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(workflow : Workflow)) => for {
               response <- (supervisor ? DeleteCheckpoint(workflow, user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
             } yield response match {
-              case Left(Response(Failure(ex))) => throw ex
-              case Left(Response(Success(_))) => StatusCodes.OK
+              case Left(Failure(ex)) => throw ex
+              case Left(Success(_)) => StatusCodes.OK
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in workflows")
             }
@@ -475,8 +475,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
       get {
         complete {
           for (result <- supervisor ? Find(id.toString, user)) yield result match {
-            case Left((ResponseWorkflow(Failure(exception)))) => throw exception
-            case Left(ResponseWorkflow(Success(workflow))) =>
+            case Left((Failure(exception))) => throw exception
+            case Left(Success(workflow: Workflow)) =>
               val launcherActor = actors(AkkaConstant.LauncherActorName)
               for {
                 response <- (launcherActor ? Launch(workflow, user))
@@ -533,8 +533,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
       response <- (supervisor ? Find(id.toString, user))
         .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
     } yield response match {
-      case Left(ResponseWorkflow(Failure(ex))) => throw ex
-      case Left(ResponseWorkflow(Success(workflow))) =>
+      case Left(Failure(ex)) => throw ex
+      case Left(Success(workflow: Workflow)) =>
         val tempFile = File.createTempFile(s"${workflow.id.get}-${workflow.name}-", ".json")
         tempFile.deleteOnExit()
         (workflow, tempFile)

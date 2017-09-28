@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
-import com.stratio.sparta.serving.core.models.workflow.{WorkflowStatus, ResponseWorkflow}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner

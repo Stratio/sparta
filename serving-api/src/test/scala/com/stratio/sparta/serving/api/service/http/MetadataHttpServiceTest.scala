@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.api.actor.MetadataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
-import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile, SpartaFilesResponse}
+import com.stratio.sparta.serving.core.models.files.{BackupRequest, SpartaFile}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
@@ -55,7 +55,7 @@ class MetadataHttpServiceTest extends WordSpec
       "create a ZK backup" in {
         val fileResponse = Seq(SpartaFile("backup",
           "/etc/sds/sparta/backup","/etc/sds/sparta/backup","251"))
-        startAutopilot(Left(SpartaFilesResponse(Success(fileResponse))))
+        startAutopilot(Left(Success(fileResponse)))
         Get(s"/${HttpConstant.MetadataPath}/backup/build") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[BuildBackup]
           status should be(StatusCodes.OK)
@@ -65,7 +65,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(BackupResponse(Failure(new MockException))))
+        startAutopilot(Left(Failure(new MockException)))
         Get(s"/${HttpConstant.MetadataPath}/backup/build") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[BuildBackup]
           status should be(StatusCodes.InternalServerError)
@@ -78,7 +78,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.executeBackup" when {
     "everything goes right" should {
       "restore a ZK backup" in {
-        startAutopilot(Left(BackupResponse(Success("OK"))))
+        startAutopilot(Left(Success("OK")))
         Post(s"/${HttpConstant.MetadataPath}/backup", BackupRequest("backup1")) ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[ExecuteBackup]
           status should be(StatusCodes.OK)
@@ -87,7 +87,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(BackupResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Post(s"/${HttpConstant.MetadataPath}/backup", BackupRequest("backup1")) ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[ExecuteBackup]
           status should be(StatusCodes.InternalServerError)
@@ -101,7 +101,7 @@ class MetadataHttpServiceTest extends WordSpec
       "upload a ZK backup" in {
         val fileResponse = Seq(SpartaFile("backup",
           "/etc/sds/sparta/backup","/etc/sds/sparta/backup","251"))
-        startAutopilot(Left(SpartaFilesResponse(Success(fileResponse))))
+        startAutopilot(Left(Success(fileResponse)))
         Put(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[UploadBackups]
           status should be(StatusCodes.OK)
@@ -111,7 +111,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(SpartaFilesResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Put(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[UploadBackups]
           status should be(StatusCodes.InternalServerError)
@@ -124,7 +124,7 @@ class MetadataHttpServiceTest extends WordSpec
     "everything goes right" should {
       "retrieve all the ZK backups" in {
         val fileResponse = Seq(SpartaFile("a", "", "", ""), SpartaFile("b","","",""))
-        startAutopilot(Left(SpartaFilesResponse(Success(fileResponse))))
+        startAutopilot(Left(Success(fileResponse)))
         Get(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[ListBackups]
           status should be(StatusCodes.OK)
@@ -134,7 +134,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(SpartaFilesResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Get(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[ListBackups]
           status should be(StatusCodes.InternalServerError)
@@ -146,7 +146,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.deleteAllBackups" when {
     "everything goes right" should {
       "retrieve all the ZK backups" in {
-        startAutopilot(Left(BackupResponse(Success("Ok"))))
+        startAutopilot(Left(Success("Ok")))
         Delete(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[DeleteBackups]
           status should be(StatusCodes.OK)
@@ -155,7 +155,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(BackupResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Delete(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[DeleteBackups]
           status should be(StatusCodes.InternalServerError)
@@ -168,7 +168,7 @@ class MetadataHttpServiceTest extends WordSpec
     "everything goes right" should {
       "delete the desired backup" in {
         val fileToDelete = "backup1"
-        startAutopilot(Left(BackupResponse(Success("Ok"))))
+        startAutopilot(Left(Success("Ok")))
         Delete(s"/${HttpConstant.MetadataPath}/backup/$fileToDelete") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[DeleteBackup]
           status should be(StatusCodes.OK)
@@ -178,7 +178,7 @@ class MetadataHttpServiceTest extends WordSpec
     "there is an error" should {
       "return a 500 error" in {
         val fileToDelete = "backup1"
-        startAutopilot(Left(BackupResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Delete(s"/${HttpConstant.MetadataPath}/backup/$fileToDelete") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[DeleteBackup]
           status should be(StatusCodes.InternalServerError)
@@ -191,7 +191,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.cleanMetadata" when {
     "everything goes right" should {
       "clean all data in ZK" in {
-        startAutopilot(Left(BackupResponse(Success("Ok"))))
+        startAutopilot(Left(Success("Ok")))
         Delete(s"/${HttpConstant.MetadataPath}") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[CleanMetadata]
           status should be(StatusCodes.OK)
@@ -200,7 +200,7 @@ class MetadataHttpServiceTest extends WordSpec
     }
     "there is an error" should {
       "return a 500 error" in {
-        startAutopilot(Left(BackupResponse(Failure(new MockException()))))
+        startAutopilot(Left(Failure(new MockException())))
         Delete(s"/${HttpConstant.MetadataPath}") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[CleanMetadata]
           status should be(StatusCodes.InternalServerError)

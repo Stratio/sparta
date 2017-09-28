@@ -122,7 +122,7 @@ class TemplateActorTest extends TestKit(ActorSystem("TemplateActorSpec"))
         .thenThrow(new NoNodeException)
 
       templateActor ! TemplateActor.FindByType("input", rootUser)
-      expectMsg(Left(ResponseTemplates(Success(List()))))
+      expectMsg(Left(Success(List())))
     }
 
     "findByTypeAndId: returns a failure holded by a ResponseTemplate when the node does not exist" in new TestData {

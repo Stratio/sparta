@@ -28,7 +28,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
@@ -54,34 +54,34 @@ class DriverActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
   }
 
   def errorResponse(): Unit =
-    sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
+    sender ! Left(Failure(new IllegalArgumentException(s"At least one file is expected")))
 
   def deleteDrivers(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[DriverResponse](user, Map(ResourceType -> Delete)) {
-      DriverResponse(deleteFiles())
+    securityActionAuthorizer[Try[Unit]](user, Map(ResourceType -> Delete)) {
+      deleteFiles()
     }
 
   def deleteDriver(fileName: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[DriverResponse](user, Map(ResourceType -> Delete)) {
-      DriverResponse(deleteFile(fileName))
+    securityActionAuthorizer[Try[Unit]](user, Map(ResourceType -> Delete)) {
+      deleteFile(fileName)
     }
 
   def browseDrivers(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
-      SpartaFilesResponse(browseDirectory())
+      browseDirectory()
     }
 
   def uploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
-      SpartaFilesResponse(uploadFiles(files))
+      uploadFiles(files)
     }
 }
 
 object DriverActor {
 
-  case class UploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser])
+  type SpartaFilesResponse = Try[Seq[SpartaFile]]
 
-  case class DriverResponse(status: Try[_])
+  case class UploadDrivers(files: Seq[BodyPart], user: Option[LoggedUser])
 
   case class ListDrivers(user: Option[LoggedUser])
 

@@ -68,8 +68,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplate <- (supervisor ? FindByTypeAndId(templateType, id, user))
               .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
           } yield responseTemplate match {
-            case Left(ResponseTemplate(Failure(exception))) => throw exception
-            case Left(ResponseTemplate(Success(template))) => template
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(template)) => template
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -107,8 +107,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplate <- (supervisor ? FindByTypeAndName(templateType, name, user))
               .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
           } yield responseTemplate match {
-            case Left(ResponseTemplate(Failure(exception))) => throw exception
-            case Left(ResponseTemplate(Success(template))) => template
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(template)) => template
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -142,8 +142,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplates <- (supervisor ? FindByType(templateType, user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
           } yield responseTemplates match {
-            case Left(ResponseTemplates(Failure(exception))) => throw exception
-            case Left(ResponseTemplates(Success(templates))) => templates
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(templates)) => templates
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -169,8 +169,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplates <- (supervisor ? FindAllTemplates(user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
           } yield responseTemplates match {
-            case Left(ResponseTemplates(Failure(exception))) => throw exception
-            case Left(ResponseTemplates(Success(templates))) => templates
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(templates)) => templates
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -198,8 +198,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
               responseTemplate <- (supervisor ? CreateTemplate(template, user))
                 .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
             } yield responseTemplate match {
-              case Left(ResponseTemplate(Failure(exception))) => throw exception
-              case Left(ResponseTemplate(Success(template: TemplateElement))) => template
+              case Left(Failure(exception)) => throw exception
+              case Left(Success(template: TemplateElement)) => template
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in templates")
             }
@@ -228,8 +228,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
               responseTemplates <- (supervisor ? Update(template, user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
             } yield responseTemplates match {
-              case Left(Response(Success(_))) => HttpResponse(StatusCodes.OK)
-              case Left(Response(Failure(exception))) => throw exception
+              case Left(Success(_)) => HttpResponse(StatusCodes.OK)
+              case Left(Failure(exception)) => throw exception
               case Right(UnauthorizedResponse(exception)) => throw exception
               case _ => throw new RuntimeException("Unexpected behaviour in templates")
             }
@@ -266,8 +266,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplates <- (supervisor ? DeleteByTypeAndId(templateType, id, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
           } yield responseTemplates match {
-            case Left(Response(Success(_))) => HttpResponse(StatusCodes.OK)
-            case Left(Response(Failure(exception))) => throw exception
+            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -303,8 +303,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplates <- (supervisor ? DeleteByTypeAndName(templateType, name, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
           } yield responseTemplates match {
-            case Left(Response(Success(_))) => HttpResponse(StatusCodes.OK)
-            case Left(Response(Failure(exception))) => throw exception
+            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -334,8 +334,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             responseTemplates <- (supervisor ? DeleteByType(templateType, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
           } yield responseTemplates match {
-            case Left(Response(Success(_))) => HttpResponse(StatusCodes.OK)
-            case Left(Response(Failure(exception))) => throw exception
+            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
+            case Left(Failure(exception)) => throw exception
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }
@@ -358,8 +358,8 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
             templatesResponse <- (supervisor ? DeleteAllTemplates(user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
           } yield templatesResponse match {
-            case Left(ResponseTemplates(Failure(exception))) => throw exception
-            case Left(ResponseTemplates(Success(_))) => HttpResponse(StatusCodes.OK)
+            case Left(Failure(exception)) => throw exception
+            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
             case Right(UnauthorizedResponse(exception)) => throw exception
             case _ => throw new RuntimeException("Unexpected behaviour in templates")
           }

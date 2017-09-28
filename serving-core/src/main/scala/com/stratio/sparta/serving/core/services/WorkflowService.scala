@@ -105,7 +105,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   def updateList(workflows: Seq[Workflow]): Seq[Workflow] =
     workflows.map(update)
 
-  def delete(id: String): Try[_] =
+  def delete(id: String): Try[Unit] =
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
@@ -116,7 +116,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
       } else log.warn(s"No workflow with id $id")
     }
 
-  def deleteList(workflowIds: Seq[String]): Try[_] =
+  def deleteList(workflowIds: Seq[String]): Try[Unit] =
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
@@ -136,7 +136,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
       }
     }
 
-  def deleteAll(): Try[_] =
+  def deleteAll(): Try[Unit] =
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 

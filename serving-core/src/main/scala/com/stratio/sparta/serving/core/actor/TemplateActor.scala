@@ -61,40 +61,41 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
       case (Some(secManager), Some(userLogged)) =>
         if (secManager.authorize(userLogged.id, TemplateType.InputValue, View) &&
           secManager.authorize(userLogged.id, TemplateType.OutputValue, View))
-          sender ! Left(ResponseTemplates(Try(templateService.findAll))) // [T]
+          sender ! Left(Try(templateService.findAll)) // [T]
         else
           sender ! Right(errorResponseAuthorization(userLogged.id, PolicyResource))
       case (Some(_), None) => sender ! Right(errorNoUserFound(Seq(View)))
-      case (None, _) => sender ! Left(ResponseTemplates(Try(templateService.findAll)))
+      case (None, _) => sender ! Left(Try(templateService.findAll))
     }
 
   def findByType(fragmentType: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplates](user, Map(fragmentType -> View)) {
-    ResponseTemplates(Try(templateService.findByType(fragmentType)))
+    Try(templateService.findByType(fragmentType))
   }
 
   def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplate](user, Map(fragmentType -> View)) {
-    ResponseTemplate(Try(templateService.findByTypeAndId(fragmentType, id)))
+    Try(templateService.findByTypeAndId(fragmentType, id))
   }
 
   def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplate]( user, Map(fragmentType -> View)) {
-      ResponseTemplate(Try(templateService.findByTypeAndName(fragmentType, name)
-      .getOrElse(errorTemplateNotFound(fragmentType, name))))
+      Try(templateService.findByTypeAndName(fragmentType, name)
+      .getOrElse(errorTemplateNotFound(fragmentType, name)))
   }
 
   def create(fragment: TemplateElement, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplate](user, Map(fragment.templateType -> Create)) {
-    ResponseTemplate(Try(templateService.create(fragment)))
+    Try(templateService.create(fragment))
   }
 
   def update(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
     val actions = Map(fragment.templateType -> Edit, PolicyResource -> View, PolicyResource -> Edit)
     securityActionAuthorizer[Response](user, actions) {
-      Response(Try(templateService.update(fragment)))
+      Try(templateService.update(fragment))
     }
   }
+
 
 
   def deleteAll(user: Option[LoggedUser]): Unit =
@@ -105,31 +106,31 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
           secManager.authorize(userLogged.id, PolicyResource, View) &&
           secManager.authorize(userLogged.id, PolicyResource, Delete)
         )
-          sender ! Left(ResponseTemplates(Try(templateService.deleteAll())))
+          sender ! Left(Try(templateService.deleteAll()))
         else
           sender ! Right(errorResponseAuthorization(userLogged.id, PolicyResource))
       case (Some(_), None) => sender ! Right(errorNoUserFound(Seq(Delete)))
-      case (None, _) => sender ! Left(ResponseTemplates(Try(templateService.deleteAll())))
+      case (None, _) => sender ! Left(Try(templateService.deleteAll()))
     }
 
   def deleteByType(fragmentType: String, user: Option[LoggedUser]): Unit = {
     val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
     securityActionAuthorizer[Response](user, actions) {
-      Response(Try(templateService.deleteByType(fragmentType)))
+      Try(templateService.deleteByType(fragmentType))
     }
   }
 
   def deleteByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit = {
     val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
     securityActionAuthorizer[Response](user, actions) {
-      Response(Try(templateService.deleteByTypeAndId(fragmentType, id)))
+      Try(templateService.deleteByTypeAndId(fragmentType, id))
     }
   }
 
   def deleteByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit = {
     val actions = Map(fragmentType -> Delete, PolicyResource -> Delete, PolicyResource -> View)
     securityActionAuthorizer[Response](user, actions) {
-      Response(Try(templateService.deleteByTypeAndName(fragmentType, name)))
+      Try(templateService.deleteByTypeAndName(fragmentType, name))
     }
   }
 
@@ -168,10 +169,10 @@ object TemplateActor {
 
   case class DeleteByTypeAndName(templateType: String, name: String, user: Option[LoggedUser])
 
-  case class ResponseTemplate(template: Try[TemplateElement])
+  type ResponseTemplate = Try[TemplateElement]
 
-  case class ResponseTemplates(templates: Try[Seq[TemplateElement]])
+  type ResponseTemplates = Try[Seq[TemplateElement]]
 
-  case class Response(status: Try[_])
+  type Response = Try[Unit]
 
 }

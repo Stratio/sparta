@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.files.{SpartaFile, SpartaFilesResponse}
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.typesafe.config.{Config, ConfigFactory}
 import org.junit.runner.RunWith
 import org.scalatest._
@@ -86,21 +86,21 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(fileList, rootUser)
       expectMsgPF() {
-        case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.isEmpty shouldBe true
+        case Left(Success(f: Seq[SpartaFile])) => f shouldBe empty
       }
     }
     "Not upload empty files" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq.empty, rootUser)
       expectMsgPF() {
-        case Left(SpartaFilesResponse(Failure(f))) => f.getMessage shouldBe "At least one file is expected"
+        case Left(Failure(f)) => f.getMessage shouldBe "At least one file is expected"
       }
     }
     "Save a file" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")), rootUser)
       expectMsgPF() {
-        case Left(SpartaFilesResponse(Success(f: Seq[SpartaFile]))) => f.head.fileName.endsWith("file.jar") shouldBe true
+        case Left(Success(f: Seq[SpartaFile])) => f.head.fileName.endsWith("file.jar") shouldBe true
       }
     }
   }

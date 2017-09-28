@@ -20,13 +20,13 @@ import java.util.regex.Pattern
 
 import akka.actor.Actor
 import com.stratio.sparta.security._
+import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.FileActorUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.files.SpartaFilesResponse
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
@@ -54,35 +54,35 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
   }
 
   def errorResponse(): Unit =
-    sender ! Left(SpartaFilesResponse(Failure(new IllegalArgumentException(s"At least one file is expected"))))
+    sender ! Left(Failure(new IllegalArgumentException(s"At least one file is expected")))
 
   def deletePlugins(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
-      PluginResponse(deleteFiles())
+      deleteFiles()
     }
 
   def deletePlugin(fileName: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[PluginResponse](user, Map(ResourceType -> Delete)) {
-      PluginResponse(deleteFile(fileName))
+      deleteFile(fileName)
     }
 
   def browsePlugins(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> View)) {
-      SpartaFilesResponse(browseDirectory())
+      browseDirectory()
     }
 
   def uploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[SpartaFilesResponse](user, Map(ResourceType -> Upload)) {
-      SpartaFilesResponse(uploadFiles(files))
+      uploadFiles(files)
     }
 
 }
 
 object PluginActor {
 
-  case class UploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser])
+  type PluginResponse = Try[Unit]
 
-  case class PluginResponse(status: Try[_])
+  case class UploadPlugins(files: Seq[BodyPart], user: Option[LoggedUser])
 
   case class ListPlugins(user: Option[LoggedUser])
 

@@ -54,14 +54,14 @@ class TemplateHttpServiceTest extends WordSpec
 
   "FragmentHttpService.findByTypeAndId" should {
     "find a fragment" in {
-      startAutopilot(Left(ResponseTemplate(Success(getFragmentModel()))))
+      startAutopilot(Left(Success(getFragmentModel())))
       Get(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindByTypeAndId]
         responseAs[TemplateElement] should equal((getFragmentModel()))
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseTemplate(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByTypeAndId]
         status should be(StatusCodes.InternalServerError)
@@ -71,14 +71,14 @@ class TemplateHttpServiceTest extends WordSpec
 
   "FragmentHttpService.findByTypeAndName" should {
     "find a fragment" in {
-      startAutopilot(Left(ResponseTemplate(Success(getFragmentModel()))))
+      startAutopilot(Left(Success(getFragmentModel())))
       Get(s"/${HttpConstant.TemplatePath}/input/name/fragment") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindByTypeAndName]
         responseAs[TemplateElement] should equal(getFragmentModel())
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseTemplate(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.TemplatePath}/input/name/fragment") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByTypeAndName]
         status should be(StatusCodes.InternalServerError)
@@ -88,14 +88,14 @@ class TemplateHttpServiceTest extends WordSpec
 
   "FragmentHttpService.findAllByType" should {
     "find all fragments" in {
-      startAutopilot(Left(ResponseTemplates(Success(Seq(getFragmentModel())))))
+      startAutopilot(Left(Success(Seq(getFragmentModel()))))
       Get(s"/${HttpConstant.TemplatePath}/input") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindByType]
         responseAs[Seq[TemplateElement]] should equal(Seq(getFragmentModel()))
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(ResponseTemplate(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.TemplatePath}/input") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByType]
         status should be(StatusCodes.InternalServerError)
@@ -105,14 +105,14 @@ class TemplateHttpServiceTest extends WordSpec
 
   "FragmentHttpService.create" should {
     "return the fragment that was created" in {
-      startAutopilot(Left(ResponseTemplate(Success(getFragmentModel()))))
+      startAutopilot(Left(Success(getFragmentModel())))
       Post(s"/${HttpConstant.TemplatePath}", getFragmentModel) ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[CreateTemplate]
         responseAs[TemplateElement] should equal(getFragmentModel())
       }
     }
     "return a 500 if there was any error" in {
-      startAutopilot(Left(Response(Failure(new MockException()))))
+      startAutopilot(Left(Failure(new MockException())))
       Post(s"/${HttpConstant.TemplatePath}", getFragmentModel) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[CreateTemplate]
         status should be(StatusCodes.InternalServerError)
@@ -130,7 +130,7 @@ class TemplateHttpServiceTest extends WordSpec
           }
       })
       startAutopilot(None, policyTestProbe, policyAutoPilot)
-      startAutopilot(Left(Response(Success(None))))
+      startAutopilot(Left(Success(None)))
       Delete(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[DeleteByTypeAndId]
         status should be(StatusCodes.OK)
