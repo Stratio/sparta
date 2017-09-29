@@ -1,0 +1,17 @@
+  {
+     "name": "Intersection",
+     "icon": "Intersection",
+     "className": "IntersectionTransformStep",
+     "classPrettyName": "Intersection",
+     "description": "Select the intersection of events from the two input DStream",
+     "properties": [
+        {
+           "propertyId": "partitions",
+           "propertyName": "_INTERVAL_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Change the number of partitions associated to the Spark RDDs",
+           "qa": "fragment-details-distinct-partitions"
+        }
+     ]
+  }

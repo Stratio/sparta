@@ -20,7 +20,7 @@ import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 
 case class WriterGraph(
                              saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                             tableName: String,
+                             tableName: Option[String],
                              partitionBy: Option[String] = None,
                              primaryKey: Option[String] = None
                            )

@@ -1,11 +1,9 @@
   {
     "name": "Crossdata",
+     "icon": "Crossdata",
+     "className": "CrossdataOutputStep",
     "classPrettyName": "Crossdata",
-    "description": {
-      "short": "Crossdata output use Crossdata catalog to save the data into persistent tables.",
-      "long": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/latSPARTA0x11est/Outputs#Outputs-Crossdata"
-    },
+    "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
     "properties": [
       {
         "propertyId": "tlsEnable",
@@ -13,14 +11,12 @@
         "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
-        "qa": "fragment-details-postgres-tls",
-        "newRow":true
+        "qa": "fragment-details-postgres-tls"
       },
       {
         "propertyId": "caName",
         "propertyName": "_CA_NAME_",
         "propertyType": "text",
-        "width": 6,
         "visible": [
           [
             {

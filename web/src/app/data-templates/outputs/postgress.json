@@ -1,18 +1,14 @@
   {
     "name": "Postgres",
+     "icon": "Postgres",
+     "className": "PostgresOutputStep",
     "classPrettyName": "Postgres",
-    "description": {
-      "short": "With one Postgres connection it's possible to write data into Postgres Databases.",
-      "long": "Optimize Jdbc write times, use function COPY IN available in Postgres library",
-      "learnMore": "http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"
-    },
+    "description": "With one Postgres connection it's possible to write data into Postgres Databases. Optimize Jdbc write times, use function COPY IN available in Postgres library",
     "properties": [
       {
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
-        "width": 12,
-        "align": "left",
         "default": "jdbc:postgresql://dbserver:port/database?user=postgres",
         "required": true,
         "tooltip": "Url to connect to one Postgres Database",
@@ -23,7 +19,6 @@
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
         "regexp": "",
-        "width": 6,
         "default": "",
         "required": false,
         "tooltip": "Driver class, this property has priority to URL",
@@ -33,7 +28,6 @@
         "propertyId": "isolationLevel",
         "propertyName": "_ISOLATION_LEVEL_",
         "propertyType": "select",
-        "width": 6,
         "values": [
           {
             "label": "None",
@@ -73,7 +67,6 @@
         "propertyId": "caName",
         "propertyName": "_CA_NAME_",
         "propertyType": "text",
-        "width": 6,
         "visible": [
           [
             {
@@ -91,7 +84,6 @@
         "propertyId": "postgresSaveMode",
         "propertyName": "_POSTGRES_SAVE_MODE_",
         "propertyType": "select",
-        "width": 6,
         "values": [
           {
             "label": "Statement",
@@ -111,7 +103,6 @@
         "propertyId": "delimiter",
         "propertyName": "_POSTGRES_DELIMITER_",
         "propertyType": "text",
-        "width": 6,
         "visible": [
           [
             {
@@ -129,7 +120,6 @@
         "propertyId": "newLineSubstitution",
         "propertyName": "_POSTGRES_NEW_LINE_SUBSTITUTION_",
         "propertyType": "text",
-        "width": 6,
         "default": " ",
         "visible": [
           [
@@ -148,7 +138,6 @@
         "propertyName": "_POSTGRES_ENCODING_",
         "propertyType": "text",
         "regexp": "",
-        "width": 6,
         "default": "UTF8",
         "visible": [
           [
@@ -167,7 +156,6 @@
         "propertyName": "_JDBC_BATCH_SIZE_",
         "propertyType": "text",
         "regexp": "",
-        "width": 6,
         "visible": [
           [
             {

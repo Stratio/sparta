@@ -1,11 +1,9 @@
   {
     "name": "Redis",
+     "icon": "Redis",
+     "className": "RedisOutputStep",
     "classPrettyName": "Redis",
-    "description": {
-      "short": "The output of Redis doesnt use the generic implementation with DataFrames.",
-      "long": "Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Redis"
-    },
+    "description": "Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker. The output doesn't use the generic implementation with DataFrames",
     "properties": [
       {
         "propertyId": "hostname",

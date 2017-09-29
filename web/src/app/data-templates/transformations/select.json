@@ -1,0 +1,17 @@
+  {
+     "name": "Select",
+     "icon": "Select",
+     "className": "SelectTransformStep",
+     "classPrettyName": "Select",
+     "description": "Select fields from the events in the input DStream",
+     "properties": [
+        {
+           "propertyId": "selectExp",
+           "propertyName": "_SELECT_EXPRESSION_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Select the fields based in one expression, support UDFs, fixed fields and aliases",
+           "qa": "fragment-details-select-expression"
+        }
+     ]
+  }

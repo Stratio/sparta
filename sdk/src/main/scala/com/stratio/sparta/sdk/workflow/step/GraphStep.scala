@@ -34,20 +34,23 @@ trait GraphStep extends CustomProperties {
   lazy val propertiesWithCustom: Map[String, Serializable] = properties ++ getCustomProperties
   lazy val SparkTypes = Map(
     "long" -> LongType,
+    "float" -> FloatType,
     "double" -> DoubleType,
     "integer" -> IntegerType,
     "boolean" -> BooleanType,
+    "binary" -> BinaryType,
     "date" -> DateType,
     "timestamp" -> TimestampType,
     "string" -> StringType,
     "arraydouble" -> ArrayType(DoubleType),
     "arraystring" -> ArrayType(StringType),
+    "arraylong" -> ArrayType(LongType),
+    "arrayinteger" -> ArrayType(IntegerType),
     "arraymapstringstring" -> ArrayType(MapType(StringType, StringType)),
     "mapstringlong" -> MapType(StringType, LongType),
     "mapstringdouble" -> MapType(StringType, DoubleType),
-    "mapstringint" -> MapType(StringType, IntegerType),
-    "mapstringstring" -> MapType(StringType, StringType),
-    "text" -> StringType
+    "mapstringinteger" -> MapType(StringType, IntegerType),
+    "mapstringstring" -> MapType(StringType, StringType)
   )
 
   /* METHODS TO IMPLEMENT */

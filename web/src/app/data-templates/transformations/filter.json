@@ -1,0 +1,17 @@
+  {
+     "name": "Filter",
+     "icon": "Filter",
+     "className": "FilterTransformStep",
+     "classPrettyName": "Filter",
+     "description": "Filter the events in the input DStream",
+     "properties": [
+        {
+           "propertyId": "filterExp",
+           "propertyName": "_FILTER_EXPRESSION_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Filter the events based in one expression, support UDFs, logical operators, etc ...",
+           "qa": "fragment-details-filter-expression"
+        }
+     ]
+  }

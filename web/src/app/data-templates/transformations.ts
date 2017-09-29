@@ -14,10 +14,33 @@
 /// limitations under the License.
 ///
 
-//import * as avroTemplate from './transformations/transformation-name.json';
+import * as castingTemplate from './transformations/casting.json';
+import * as checkpointTemplate from './transformations/checkpoint.json';
+import * as distinctTemplate from './transformations/distinct.json';
+import * as filterTemplate from './transformations/filter.json';
+import * as intersectionTemplate from './transformations/intersection.json';
+import * as jsonTemplate from './transformations/json.json';
+import * as persistTemplate from './transformations/persist.json';
+import * as selectTemplate from './transformations/select.json';
+import * as triggerTemplate from './transformations/trigger.json';
+import * as unionTemplate from './transformations/union.json';
+import * as windowTemplate from './transformations/window.json';
+import * as csvTemplate from './transformations/csv.json';
 
 export const transformations: any = [
-
+   castingTemplate,
+   checkpointTemplate,
+   distinctTemplate,
+   filterTemplate,
+   intersectionTemplate,
+   jsonTemplate,
+   persistTemplate,
+   selectTemplate,
+   triggerTemplate,
+   jsonTemplate,
+   unionTemplate,
+   windowTemplate,
+   csvTemplate
 ];
 
 export const transformationNames = transformations.map((transformation: any) => {

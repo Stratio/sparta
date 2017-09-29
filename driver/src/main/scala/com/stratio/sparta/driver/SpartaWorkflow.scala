@@ -252,7 +252,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName,
+        node.writer.tableName.getOrElse(node.name),
         node.writer.partitionBy,
         node.writer.primaryKey
       )
@@ -286,7 +286,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName,
+        node.writer.tableName.getOrElse(node.name),
         node.writer.partitionBy,
         node.writer.primaryKey
       )

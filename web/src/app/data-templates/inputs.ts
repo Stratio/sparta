@@ -16,27 +16,29 @@
 
 import * as kafkaTemplate from './inputs/kafka.json';
 import * as crossdataTemplate from './inputs/crossdata.json';
-import * as customTemplate from './inputs/custom.json';
-import * as filesystemTemplate from './inputs/filesystem.json';
-import * as flumeTemplate from './inputs/flume.json';
-import * as rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
-import * as rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
-import * as socketTemplate from './inputs/socket.json';
-import * as twitterJsonTemplate from './inputs/twitter-json.json';
+//import * as customTemplate from './inputs/custom.json';
+//import * as filesystemTemplate from './inputs/filesystem.json';
+//import * as flumeTemplate from './inputs/flume.json';
+//import * as rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
+//import * as rabbitmqSingleTemplate from './inputs/rabbitmq-single-node.json';
+//import * as socketTemplate from './inputs/socket.json';
+//import * as twitterJsonTemplate from './inputs/twitter-json.json';
 import * as websocketTemplate from './inputs/websocket.json';
+import * as testTemplate from './inputs/test.json';
 
 
 export const inputs = [
     kafkaTemplate,
     crossdataTemplate,
-    customTemplate,
-    filesystemTemplate,
-    flumeTemplate,
-    rabbitmqDistributedTemplate,
-    rabbitmqSingleTemplate,
-    socketTemplate,
-    twitterJsonTemplate,
-    websocketTemplate
+    //customTemplate,
+    //filesystemTemplate,
+    //flumeTemplate,
+    //rabbitmqDistributedTemplate,
+    //rabbitmqSingleTemplate,
+    //socketTemplate,
+    //twitterJsonTemplate,
+    websocketTemplate,
+    testTemplate
 ];
 
 

@@ -1,0 +1,17 @@
+  {
+     "name": "Checkpoint",
+     "icon": "Checkpoint",
+     "className": "CheckpointTransformStep",
+     "classPrettyName": "Checkpoint",
+     "description": "Make checkpoint of the input DStream",
+     "properties": [
+        {
+           "propertyId": "interval",
+           "propertyName": "_INTERVAL_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Make the checkpoint with the specified interval",
+           "qa": "fragment-details-checkpoint-interval"
+        }
+     ]
+  }

@@ -2,22 +2,15 @@
     "name": "Kafka",
     "classPrettyName": "Kafka",
     "className": "KafkaInputStep",
-    "description": {
-      "short": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
-      "long": "There is available in Sparta, a Kafka 0.10 version with security",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-Kafka"
-
-    },
+     "icon": "Kafka",
+    "description": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
     "properties": [
       {
         "propertyId": "bootstrap.servers",
         "propertyName": "_BOOTSTRAP_SERVERS_",
         "propertyType": "list",
-        "width": 12,
         "default": "",
         "required": true,
-        "hidden": false,
-        "limit": 0,
         "tooltip": "",
         "qa": "fragment-details-stratio-kafkadirect-bootstrap-servers",
         "fields": [
@@ -46,22 +39,12 @@
         ]
       },
       {
-        "propertyId": "group.id",
-        "propertyName": "_GROUP_ID_",
-        "propertyType": "text",
-        "default": "sparta",
-        "required": false,
-        "tooltip": "Identifies the consumer group this consumer belongs to.",
-        "qa": "fragment-details-stratio-kafkadirect-group-id"
-      },
-      {
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
         "propertyType": "list",
         "width": 12,
         "default": "",
         "required": true,
-        "hidden": false,
         "limit": 0,
         "tooltip": "Kafka topic name. At least one is required.",
         "qa": "fragment-details-stratio-kafkadirect-topics",
@@ -79,59 +62,106 @@
           }
         ]
       },
-      {
-        "propertyId": "key.deserializer",
-        "propertyName": "_KEY_DESERIALIZER_",
-        "propertyType": "select",
-        "values": [
-          {
-            "label": "String",
-            "value": "string"
-          }
-        ],
-        "default": "string",
-        "required": true,
-        "qa": "fragment-details-stratiokafkadirect-key-deserializer"
-      },
+       {
+          "propertyId": "group.id",
+          "propertyName": "_GROUP_ID_",
+          "propertyType": "text",
+          "default": "sparta",
+          "required": false,
+          "tooltip": "Identifies the consumer group this consumer belongs to.",
+          "qa": "fragment-details-stratio-kafkadirect-group-id"
+       },
       {
         "propertyId": "value.deserializer",
         "propertyName": "_VALUE_DESERIALIZER_",
-        "float": "true",
         "propertyType": "select",
+         "required": true,
         "values": [
           {
             "label": "String",
             "value": "string"
           },
           {
-            "label": "Int",
-            "value": "int"
-          },
-          {
-            "label": "Long",
-            "value": "long"
-          },
-          {
-            "label": "Double",
-            "value": "double"
-          },
-          {
-            "label": "Bytes",
-            "value": "bytes"
+            "label": "Row",
+            "value": "row"
           },
           {
             "label": "Array Byte",
             "value": "arraybyte"
-          },
-          {
-            "label": "Byte Buffer",
-            "value": "bytebuffer"
           }
         ],
         "default": "string",
-        "required": true,
         "qa": "fragment-details-stratiokafkadirect-value-deserializer"
       },
+       {
+          "propertyId": "value.deserializer.inputFormat",
+          "propertyName": "_DESERIALIZER_INPUT_FORMAT_",
+          "propertyType": "select",
+          "float": true,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer",
+                   "value": "row"
+                }
+             ]
+          ],
+          "values": [
+             {
+                "label": "String",
+                "value": "STRING"
+             },
+             {
+                "label": "Json",
+                "value": "JSON"
+             }
+          ],
+          "default": "STRING",
+          "required": true,
+          "qa": "fragment-details-stratiokafkadirect-deserializer-input-format"
+       },
+       {
+          "propertyId": "key.deserializer.schema",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "text",
+          "tooltip": "Schema in json or Spark format",
+          "default": "",
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "JSON"
+                }
+             ]
+          ],
+          "required": false,
+          "qa": "fragment-details-stratiokafkadirect-deserializer-json"
+       },
+       {
+          "propertyId": "outputField",
+          "propertyName": "_OUTPUT_FIELD_",
+          "propertyType": "text",
+          "default": "raw",
+          "required": true,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer",
+                   "value": "string"
+                },
+                {
+                   "propertyId": "value.deserializer",
+                   "value": "arraybyte"
+                },
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "STRING"
+                }
+             ]
+          ],
+          "tooltip": "Name assigned to the output field generated",
+          "qa": "fragment-details-kafka-outputField"
+       },
       {
         "propertyId": "partition.assignment.strategy",
         "propertyName": "_PARTITION_STRATEGY_",

@@ -1,0 +1,17 @@
+  {
+     "name": "Trigger",
+     "icon": "Trigger",
+     "className": "TriggerTransformStep",
+     "classPrettyName": "Trigger",
+     "description": "Execute one trigger with one SQL query",
+     "properties": [
+        {
+           "propertyId": "sql",
+           "propertyName": "_SQL_",
+           "propertyType": "textarea",
+           "required": false,
+           "tooltip": "Query in SQL language",
+           "qa": "fragment-details-trigger-sql"
+        }
+     ]
+  }

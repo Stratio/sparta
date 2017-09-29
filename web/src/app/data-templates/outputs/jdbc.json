@@ -1,19 +1,15 @@
   {
     "name": "Jdbc",
+     "icon": "Jdbc",
+     "className": "JdbcOutputStep",
     "classPrettyName": "Jdbc",
-    "description": {
-      "short": "With one jdbc connection it's possible to write data into SQL Databases.",
-      "long": "To use a JDBC driver it's necessary to add the dependency to the system classpath. To add the dependency to the system classpath setup the file spark-defaults.conf in every instance of the cluster.",
-      "learnMore": "http://spark.apache.org/docs/latest/sql-programming-guide.html#data-sources"
-    },
+    "description": "With one jdbc connection it's possible to write data into relational SQL Databases.",
     "properties": [
       {
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
         "regexp": "",
-        "width": 12,
-        "align": "left",
         "default": "jdbc:postgresql://dbserver:port/database?user=postgres",
         "required": true,
         "tooltip": "Url to connect to one relational Database with jdbc",
@@ -24,8 +20,6 @@
         "propertyName": "_JDBC_BATCH_SIZE_",
         "propertyType": "text",
         "regexp": "",
-        "width": 6,
-        "align": "left",
         "default": "1000",
         "required": false,
         "tooltip": "Number of insert or upsert statements that are sent to Database on each partition",
@@ -36,8 +30,6 @@
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
         "regexp": "",
-        "width": 6,
-        "align": "right",
         "default": "",
         "required": false,
         "tooltip": "Driver class, this property has priority to URL",
@@ -47,7 +39,6 @@
         "propertyId": "isolationLevel",
         "propertyName": "_ISOLATION_LEVEL_",
         "propertyType": "select",
-        "width": 6,
         "values": [
           {
             "label": "None",
@@ -87,7 +78,6 @@
         "propertyId": "caName",
         "propertyName": "_CA_NAME_",
         "propertyType": "text",
-        "width": 6,
         "visible": [
           [
             {
@@ -116,7 +106,6 @@
             "propertyType": "text",
             "regexp": "",
             "default": "",
-            "hidden": false,
             "required": false,
             "qa": "fragment-details-jdbc-saveOptionsKey"
           },
@@ -126,7 +115,6 @@
             "propertyType": "text",
             "regexp": "",
             "default": "",
-            "hidden": false,
             "required": false,
             "qa": "fragment-details-jdbc-saveOptionsValue"
           }

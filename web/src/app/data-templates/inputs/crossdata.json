@@ -1,18 +1,14 @@
   {
     "name": "Crossdata",
-    "icon": "",
+    "icon": "Crossdata",
+     "className": "CrossdataInputStep",
     "classPrettyName": "Crossdata",
-    "description": {
-      "short": "Allows you to load data from external Datasources using Crossdata and monitoring tables migrating data in streaming processes with finite or infinite duration",
-      "long": "Input used for reading data from tables using Crossdata and Spark. It is possible to migrate data in streaming processes with finite or infinite duration",
-      "learnMore": ""
-    },
+    "description": "Allows you to load data from external Datasources using Crossdata and monitoring tables migrating data in streaming processes with finite or infinite duration",
     "properties": [
       {
         "propertyId": "query",
         "propertyName": "_QUERY_",
-        "propertyType": "text",
-        "with": 12,
+        "propertyType": "textarea",
         "required": true,
         "tooltip": "Query to read data from. Example: select * from tableName",
         "qa": "fragment-details-crossdata-query"
@@ -67,41 +63,6 @@
             "value": "MEMORY_AND_DISK_SER_2"
           }
         ]
-      },
-      {
-        "propertyId": "outputFormat",
-        "propertyName": "_OUTPUT_FORMAT_",
-        "propertyType": "select",
-        "values": [
-          {
-            "label": "Json",
-            "value": "JSON"
-          },
-          {
-            "label": "Row",
-            "value": "ROW"
-          }
-        ],
-        "default": "JSON",
-        "required": true,
-        "tooltip": "Sets whether the output values should be written as Json or Row with one separator character.",
-        "qa": "fragment-details-crossdata-outputformat"
-      },
-      {
-        "propertyId": "rowSeparator",
-        "propertyName": "_KAFKA_ROW_SEPARATOR_",
-        "propertyType": "text",
-        "default": ",",
-        "visible": [
-          [
-            {
-              "propertyId": "outputFormat",
-              "value": "ROW"
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-crossdata-row-separator"
       },
       {
         "propertyId": "limitRecords",
@@ -208,14 +169,6 @@
         "propertyType": "text",
         "tooltip": "Remember duration in milliseconds",
         "qa": "fragment-details-crossdata-rememberDuration"
-      },
-      {
-        "propertyId": "initialSentence",
-        "propertyName": "_INITIAL_SENTENCE_",
-        "propertyType": "text",
-        "with": 12,
-        "tooltip": "Initial sentence executed by Crossdata Context",
-        "qa": "fragment-details-crossdata-initialSentence"
       },
       {
         "propertyId": "fromBeginning",

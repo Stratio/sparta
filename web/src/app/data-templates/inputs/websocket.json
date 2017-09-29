@@ -1,11 +1,9 @@
   {
     "name": "WebSocket",
     "classPrettyName": "WebSocket",
-    "description": {
-      "short": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
-      "long": "",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Inputs#Inputs-WebSocket"
-    },
+     "className": "WebSocketInputStep",
+     "icon": "WebSocket",
+    "description": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
     "properties": [
       {
         "propertyId": "url",
@@ -17,6 +15,36 @@
         "tooltip": "",
         "qa": "fragment-details-websocket-url"
       },
+       {
+          "propertyId": "outputField",
+          "propertyName": "_OUTPUT_FIELD_",
+          "propertyType": "text",
+          "default": "raw",
+          "required": true,
+          "tooltip": "Name assigned to the output field generated",
+          "qa": "fragment-details-websocket-outputField"
+       },
+       {
+          "propertyId": "outputType",
+          "propertyName": "_OUTPUT_TYPE_",
+          "propertyType": "select",
+          "position": "left",
+          "custom": false,
+          "width": 12,
+          "required": true,
+          "values": [
+             {
+                "label": "String",
+                "value": "string"
+             },
+             {
+                "label": "Binary",
+                "value": "binary"
+             }
+          ],
+          "default": "string",
+          "qa": "policy-operator-output-type"
+       },
       {
         "propertyId": "storageLevel",
         "propertyName": "_STORAGELEVEL_",

@@ -32,7 +32,7 @@ import org.apache.kafka.common.serialization._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.kafka010._
@@ -51,18 +51,11 @@ class KafkaInputStep(
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
-  lazy val outputType = properties.getString("outputType", DefaultRawDataType)
-  lazy val outputSparkType = SparkTypes.get(outputType) match {
-    case Some(sparkType) => sparkType
-    case None => schemaFromString(outputType)
-  }
-  lazy val outputSchema = StructType(Seq(StructField(outputField, outputSparkType)))
+  lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
   //scalastyle:off
   def initStream(): DStream[Row] = {
-    val metaDataBrokerList = if (properties.contains("metadata.broker.list"))
-      getHostPort("metadata.broker.list", DefaultHost, DefaultBrokerPort)
-    else getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
+    val brokerList = getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val serializerProperty = properties.getString("value.deserializer", "row")
     val serializers = Map(
       "key.deserializer" -> classOf[StringDeserializer],
@@ -73,7 +66,7 @@ class KafkaInputStep(
     val (inputDStream, outputDStream) = serializerProperty match {
       case "arraybyte" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ metaDataBrokerList ++ getGroupId ++ getPartitionStrategy ++
+          getAutoOffset ++ serializers ++ brokerList ++ getGroupId ++ getPartitionStrategy ++
           kafkaSecurityOptions ++ getCustomProperties, getOffsets)
         val inputStream = KafkaUtils.createDirectStream[String, Array[Byte]](ssc, getLocationStrategy, consumerStrategy)
         val outputStream = inputStream.map(data =>
@@ -82,7 +75,7 @@ class KafkaInputStep(
         (inputStream, outputStream)
       case "row" =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ getRowSerializerProperties ++ metaDataBrokerList ++ getGroupId ++
+          getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
           getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
         val inputStream = KafkaUtils.createDirectStream[String, Row](ssc, getLocationStrategy, consumerStrategy)
         val outputStream = inputStream.map(data => data.value())
@@ -90,7 +83,7 @@ class KafkaInputStep(
         (inputStream, outputStream)
       case _ =>
         val consumerStrategy = ConsumerStrategies.Subscribe[String, String](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ metaDataBrokerList ++ getGroupId ++ getPartitionStrategy ++
+          getAutoOffset ++ serializers ++ brokerList ++ getGroupId ++ getPartitionStrategy ++
           kafkaSecurityOptions ++ getCustomProperties, getOffsets)
         val inputStream = KafkaUtils.createDirectStream[String, String](ssc, getLocationStrategy, consumerStrategy)
         val outputStream = inputStream.map(data => new GenericRowWithSchema(Array(data.value()), outputSchema))

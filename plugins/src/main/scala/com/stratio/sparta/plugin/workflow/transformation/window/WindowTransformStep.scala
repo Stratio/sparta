@@ -20,10 +20,9 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTime
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
@@ -36,16 +35,19 @@ class WindowTransformStep(name: String,
                           properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
-  lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)).getOrElse(None).map(over =>
-    Milliseconds(AggregationTime.parseValueToMilliSeconds(over)))
-  lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)).getOrElse(None).map(every =>
-    Milliseconds(AggregationTime.parseValueToMilliSeconds(every)))
+  lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)).getOrElse(None)
+    .notBlank.map(over => Milliseconds(AggregationTime.parseValueToMilliSeconds(over)))
+  lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)).getOrElse(None)
+    .notBlank.map(every => Milliseconds(AggregationTime.parseValueToMilliSeconds(every)))
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     (overLast, computeEvery) match {
+      case (Some(over), None) =>
+        inputStream.window(over)
       case (Some(over), Some(every)) =>
         inputStream.window(over, every)
-      case _ => inputStream
+      case _ =>
+        inputStream
     }
   }
 

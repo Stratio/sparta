@@ -1,0 +1,25 @@
+  {
+     "name": "Window",
+     "icon": "Window",
+     "className": "WindowTransformStep",
+     "classPrettyName": "Window",
+     "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
+     "properties": [
+        {
+           "propertyId": "overLast",
+           "propertyName": "_OVER_LAST_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Execute the window operation over last time, must be multiplier of the batch window",
+           "qa": "fragment-details-window-overLast"
+        },
+        {
+           "propertyId": "computeEvery",
+           "propertyName": "_COMPUTE_EVERY_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Execute the window operation with sliding window, must be multiplier of the batch window",
+           "qa": "fragment-details-window-computeEvery"
+        }
+     ]
+  }

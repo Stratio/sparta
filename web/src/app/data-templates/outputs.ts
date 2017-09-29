@@ -14,16 +14,16 @@
 /// limitations under the License.
 ///
 
-import * as avroTemplate from './outputs/avro.json';
-import * as cassandraTemplate from './outputs/cassandra.json';
+//import * as avroTemplate from './outputs/avro.json';
+//import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
-import * as csvTemplate from './outputs/csv.json';
-import * as customTemplate from './outputs/custom.json';
-import * as elasticSearchTemplate from './outputs/elastic-search.json';
-import * as filesystemTemplate from './outputs/filesystem.json';
-import * as httpTemplate from './outputs/http.json';
+//import * as csvTemplate from './outputs/csv.json';
+//import * as customTemplate from './outputs/custom.json';
+//import * as elasticSearchTemplate from './outputs/elastic-search.json';
+//import * as filesystemTemplate from './outputs/filesystem.json';
+//import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
-import * as kafkaTemplate from './outputs/kafka.json';
+//import * as kafkaTemplate from './outputs/kafka.json';
 import * as mongodbTemplate from './outputs/mongodb.json';
 import * as parquetTemplate from './outputs/parquet.json';
 import * as postgressTemplate from './outputs/postgress.json';
@@ -33,20 +33,20 @@ import * as redisTemplate from './outputs/redis.json';
 
 export const outputs = [
   crossdataTemplate,
-  avroTemplate,
-  cassandraTemplate,
-  csvTemplate,
-  customTemplate,
-  elasticSearchTemplate,
-  filesystemTemplate,
-  httpTemplate,
+  //avroTemplate,
+  //cassandraTemplate,
+  //csvTemplate,
+  //customTemplate,
+  //elasticSearchTemplate,
+  //filesystemTemplate,
+  //httpTemplate,
   jdbcTemplate,
-  kafkaTemplate,
+  //kafkaTemplate,
   mongodbTemplate,
   parquetTemplate,
   postgressTemplate,
-  printTemplate,
-  redisTemplate
+  redisTemplate,
+  printTemplate
 ];
 
 export const outputNames = outputs.map((output: any) => {

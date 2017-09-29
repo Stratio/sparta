@@ -23,7 +23,7 @@ case class TemplateElement(
                                  id: Option[String] = None,
                                  templateType: String,
                                  name: String,
-                                 description: String,
+                                 description: Option[String],
                                  className: String,
                                  classPrettyName: String,
                                  configuration: Map[String, JsoneyString] = Map(),

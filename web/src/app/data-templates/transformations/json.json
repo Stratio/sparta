@@ -1,0 +1,170 @@
+  {
+     "name": "Json",
+     "icon": "Json",
+     "className": "JsonTransformStep",
+     "classPrettyName": "Json",
+     "description": "Parsing input field with json format to selected output fields",
+     "properties": [
+        {
+           "propertyId": "inputField",
+           "propertyName": "_INPUT_FIELD_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Filed that contains the json string",
+           "qa": "fragment-details-casting-fieldsString"
+        },
+        {
+           "propertyId": "queries",
+           "propertyName": "_QUERIES_",
+           "propertyType": "list",
+           "required": true,
+           "tooltip": "Schema definition from list of fields",
+           "qa": "fragment-details-casting-fields",
+           "visible": [
+              [
+                 {
+                    "propertyId": "outputFieldsFrom",
+                    "value": "FIELDS"
+                 }
+              ]
+           ],
+           "fields": [
+              {
+                 "propertyId": "field",
+                 "propertyName": "_FIELD_",
+                 "propertyType": "text",
+                 "required": true,
+                 "qa": "fragment-details-field-name"
+              },
+              {
+                 "propertyId": "query",
+                 "propertyName": "_QUERY_",
+                 "propertyType": "text",
+                 "required": true,
+                 "qa": "fragment-details-field-query"
+              },
+              {
+                 "propertyId": "type",
+                 "propertyName": "_TYPE_",
+                 "propertyType": "select",
+                 "custom": true,
+                 "required": true,
+                 "values": [
+                    {
+                       "label": "String",
+                       "value": "string"
+                    },
+                    {
+                       "label": "Long",
+                       "value": "long"
+                    },
+                    {
+                       "label": "Float",
+                       "value": "float"
+                    },
+                    {
+                       "label": "Double",
+                       "value": "double"
+                    },
+                    {
+                       "label": "Integer",
+                       "value": "integer"
+                    },
+                    {
+                       "label": "Boolean",
+                       "value": "boolean"
+                    },
+                    {
+                       "label": "Binary",
+                       "value": "binary"
+                    },
+                    {
+                       "label": "Date",
+                       "value": "date"
+                    },
+                    {
+                       "label": "Timestamp",
+                       "value": "timestamp"
+                    },
+                    {
+                       "label": "Array(Double)",
+                       "value": "arraydouble"
+                    },
+                    {
+                       "label": "Array(String)",
+                       "value": "arraystring"
+                    },
+                    {
+                       "label": "Array(Long)",
+                       "value": "arraylong"
+                    },
+                    {
+                       "label": "Array(Integer)",
+                       "value": "arrayinteger"
+                    },
+                    {
+                       "label": "Array(Map(String, String))",
+                       "value": "arraymapstringstring"
+                    },
+                    {
+                       "label": "Map(String, Long)",
+                       "value": "mapstringlong"
+                    },
+                    {
+                       "label": "Map(String, Double)",
+                       "value": "mapstringdouble"
+                    },
+                    {
+                       "label": "Map(String, Integer)",
+                       "value": "mapstringint"
+                    },
+                    {
+                       "label": "Map(String, String)",
+                       "value": "mapstringstring"
+                    }
+                 ],
+                 "default": "string",
+                 "qa": "fragment-details-field-type"
+              }
+           ]
+        },
+        {
+           "propertyId": "supportNullValues",
+           "propertyName": "_SUPPORT_NULL_VALUES_",
+           "propertyType": "boolean",
+           "default": true,
+           "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
+           "qa": "workflow-transformation-json-supportNullValues"
+        },
+        {
+           "propertyId": "addAllInputFields",
+           "propertyName": "_ADD_ALL_INPUT_FIELDS_",
+           "propertyType": "boolean",
+           "default": true,
+           "tooltip": "If checked, the output fields contains all the input fields",
+           "qa": "workflow-transformation-json-addAllInputFields"
+        },
+        {
+           "propertyId": "whenError",
+           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+           "propertyType": "select",
+           "default": "Error",
+           "required": true,
+           "values": [
+              {
+              "label": "Error",
+              "value": "Error"
+              },
+              {
+                 "label": "Discard",
+                 "value": "Discard"
+              },
+              {
+                 "label": "Null",
+                 "value": "Null"
+              }
+           ],
+           "qa": "workflow-transformation-json-whenError"
+        }
+     ]
+  }

@@ -1,12 +1,9 @@
   {
     "name": "Print",
+     "icon": "Print",
+     "className": "PrintOutputStep",
     "classPrettyName": "Print",
-    "className": "PrintOutputStep",
-    "description": {
-      "short": "Print the number of elements, schemas and data",
-      "long": "Print output uses the generic implementation with DataFrames, this implementation print each dataframe with its schema.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Print"
-    },
+    "description": "Print the number of elements, schemas and data",
     "properties": [
       {
         "propertyId": "printMetadata",
