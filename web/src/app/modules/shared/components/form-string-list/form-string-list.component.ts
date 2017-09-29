@@ -60,6 +60,7 @@ export class FormListStringComponent implements ControlValueAccessor, OnInit, On
     public items: FormArray;
     public innerInputContent = '';
 
+
     onChange = (_: any) => { };
     onTouched = () => { };
 

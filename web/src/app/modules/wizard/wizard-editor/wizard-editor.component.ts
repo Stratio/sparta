@@ -38,15 +38,8 @@ import { ValidateSchemaService } from 'services';
 
 export class WizardEditorComponent implements OnInit, OnDestroy {
 
-    SUPR_KEYCODE = 27;
-    
-    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        console.log(event.keyCode);
-        console.log(this.selectedEntity);
-        if (event.keyCode === this.SUPR_KEYCODE && this.selectedEntity.length) {
-            this.store.dispatch(new wizardActions.UnselectEntityAction());
-        }
-    }
+    RETURN_KEYCODE = 27;
+    SUPR_KEYCODE = 46;
 
     public entities: any = [];
 
@@ -85,7 +78,14 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private zoom: any;
     private drag: any;
 
-
+    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+        if (event.keyCode === this.RETURN_KEYCODE && this.selectedEntity.length) {
+            this.store.dispatch(new wizardActions.UnselectEntityAction());
+        } else if(event.keyCode === this.SUPR_KEYCODE && this.selectedEntity && this.selectedEntity.length) {
+            this.store.dispatch(new wizardActions.DeleteEntityAction());
+        }
+    }
+    
     constructor(private elementRef: ElementRef, private editorService: WizardEditorService,
         private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private validateSchemaService: ValidateSchemaService) {
 

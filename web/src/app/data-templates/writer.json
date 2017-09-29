@@ -1,0 +1,51 @@
+ [{
+       "propertyId": "tableName",
+       "propertyName": "_TABLE_NAME_",
+       "propertyType": "text",
+       "regexp": "",
+       "required": true,
+       "float": true,
+       "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name. If is not assigned then the output name is the trigger name",
+       "qa": "table-name-writer-field"
+    },
+    {
+       "propertyId": "saveMode",
+       "propertyName": "_SAVEMODE_",
+       "propertyType": "select",
+       "required": true,
+       "default": "MEMORY_ONLY_SER",
+       "width": 6,
+       "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
+       "qa": "save-mode-writer",
+       "values": [{
+             "label": "Append",
+             "value": "Append"
+          },
+          {
+             "label": "Error if exists",
+             "value": "Error if exists"
+          },
+          {
+             "label": "Ignore",
+             "value": "Ignore"
+          },
+          {
+             "label": "Overwrite",
+             "value": "Overwrite"
+          },
+          {
+             "label": "Upsert",
+             "value": "Upsert"
+          }
+       ]
+    },
+    {
+       "propertyId": "partitionBy",
+       "propertyName": "_PARTITION_BY_",
+       "propertyType": "text",
+       "regexp": "",
+       "required": false,
+       "tooltip": "Partition the output by one or more fields, separated by '.'. This property is supported by outputs that write on file systems",
+       "qa": "partition-by-writer"
+    }
+ ]

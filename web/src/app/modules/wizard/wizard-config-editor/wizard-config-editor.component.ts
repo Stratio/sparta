@@ -29,6 +29,7 @@ import { inputs } from 'data-templates/inputs';
 import { outputs } from 'data-templates/outputs';
 import { transformations } from 'data-templates/transformations';
 import { NgForm } from '@angular/forms';
+import { StHorizontalTab } from '@stratio/egeo';
 
 
 @Component({
@@ -50,6 +51,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
     public settingsFormModel: any = {}; // advanced settings
+    public activeOption = 'Global';
+    public options: StHorizontalTab[] = [{
+        id: 'Global',
+        text: 'Global'
+    }, {
+        id: 'Writer',
+        text: 'Writer'
+    }];
 
     private saveSubscription: Subscription;
     private settingsSubscription: Subscription;
@@ -66,6 +75,10 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     cancelEdition() {
         this.store.dispatch(new wizardActions.HideEditorConfigAction());
+    }
+
+    changeFormOption($event: any) {
+        this.activeOption = $event.id;
     }
 
     getFormTemplate() {
@@ -88,10 +101,12 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.basicSettings = selectedI.properties;
                 break;
             case 'Output':
-                const selectedT: any = this._getEntityTemplate(transformations, this.config.editionType.data.classPrettyName);
-                this.basicSettings = selectedT.properties;
+                const selectedO: any = this._getEntityTemplate(outputs, this.config.editionType.data.classPrettyName);
+                this.basicSettings = selectedO.properties;
                 break;
             case 'Transformation':
+                const selectedT: any = this._getEntityTemplate(transformations, this.config.editionType.data.classPrettyName);
+                this.basicSettings = selectedT.properties;
                 break;
         }
     }

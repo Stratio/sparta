@@ -98,7 +98,7 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
     }
 
     ngOnDestroy(): void {
-
+        this.stFormGroupSubcription && this.stFormGroupSubcription.unsubscribe();
     }
 }
 

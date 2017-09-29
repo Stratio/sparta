@@ -27,7 +27,7 @@ import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
 import * as wizardActions from 'actions/wizard';
 import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
-import { WizardModalComponent } from "@app/wizard/wizard-modal/wizard-modal.component";
+import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
 
 
 @Component({
@@ -132,6 +132,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         }, WizardModalComponent);
     }
 
+
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if(event === '1') {
@@ -144,8 +145,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.nameSubscription && this.nameSubscription.unsubscribe();
     }
-
-    
 
 
 }

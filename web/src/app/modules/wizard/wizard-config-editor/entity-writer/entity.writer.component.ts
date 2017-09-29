@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -15,20 +16,75 @@
 ///
 
 
-
-import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import * as writerTemplate from 'data-templates/writer.json';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, Input, forwardRef, OnDestroy, ViewChild } from '@angular/core';
+import { NG_VALUE_ACCESSOR, NG_VALIDATORS, Validator, ControlValueAccessor, FormGroup, NgForm } from '@angular/forms';
 
 @Component({
     selector: 'entity-writer',
     templateUrl: './entity-writer.template.html',
     styleUrls: ['./entity-writer.styles.scss'],
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => EntityWriterComponent),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => EntityWriterComponent),
+            multi: true
+        }],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EntityWriterComponent implements OnInit {
+export class EntityWriterComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
+    @Input() forceValidations = false;
     @Output() onCloseConfirmModal = new EventEmitter<string>();
+    @ViewChild('writerForm') public groupForm: NgForm;
 
-    constructor() { }
+    public writerSettings: any = [];
+    public writerModel: any = {};
 
-    ngOnInit() { }
+    private stFormGroupSubcription: Subscription;
+
+    constructor() {
+        this.writerSettings = writerTemplate;
+    }
+
+    ngOnInit() {
+
+    }
+
+    writeValue(value: any): void {
+        if (value) {
+            this.writerModel = value;
+        } else {
+            this.writerModel = {};
+        }
+    }
+
+    registerOnChange(fn: any): void {
+        this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(fn);
+    }
+
+    registerOnTouched(fn: any): void {
+
+    }
+
+    setDisabledState(isDisabled: boolean): void {
+    }
+
+    validate(c: FormGroup): { [key: string]: any; } {
+        return (this.groupForm.valid) ? null : {
+            formGeneratorGroupError: {
+                valid: false
+            }
+        };
+    }
+
+    ngOnDestroy(): void {
+        this.stFormGroupSubcription && this.stFormGroupSubcription.unsubscribe();
+    }
+
 }
