@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.transformation.csv
+package com.stratio.sparta.plugin.workflow.transformation.csv
 
 object DelimiterType extends Enumeration {
 

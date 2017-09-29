@@ -16,4 +16,8 @@
 
 package com.stratio.sparta.sdk.properties.models
 
-case class PropertiesFieldModel(name: String, `type`: Option[String] = None, nullable: Option[Boolean] = None)
+case class PropertiesFieldModel(
+                                 name: String,
+                                 `type`: Option[String] = None,
+                                 nullable: Option[Boolean] = None
+                               )

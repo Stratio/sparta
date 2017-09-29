@@ -46,13 +46,13 @@ class JsonTransformStep(name: String,
   assert(inputField.nonEmpty)
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
-    inputStream.flatMap(data => parse(data, inputSchema))
+    inputStream.flatMap(data => parse(data))
 
   override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
     applyHeadTransform(inputData)(transformFunction)
 
   //scalastyle:off
-  def parse(row: Row, schemaName: String): Seq[Row] = {
+  def parse(row: Row): Seq[Row] = {
     returnSeqData(Try {
       val inputSchema = row.schema
       getNewOutputSchema(inputSchema) match {
@@ -99,7 +99,7 @@ class JsonTransformStep(name: String,
           case Some(sparkType) => sparkType
           case None => schemaFromString(outputType)
         },
-        nullable = true
+        nullable = queryField.nullable.getOrElse(true)
       )
     }
     val inputFieldsSchema = if(addAllInputFields) inputSchema.fields.toSeq else Seq.empty[StructField]

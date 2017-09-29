@@ -94,7 +94,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json", "addAllInputFields" -> false)
-      ).parse(input, inputField)
+      ).parse(input)
       val expected = Seq(Row("red", 19.95))
 
       assertResult(expected)(result)
@@ -124,7 +124,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "addAllInputFields" -> "true", "inputField" -> "json")
-      ).parse(input, inputField)
+      ).parse(input)
       val expected = Seq(Row(JSON, "red", 19.95))
 
       assertResult(expected)(result)
@@ -154,7 +154,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
-      ).parse(input, inputField)
+      ).parse(input)
     }
 
     "not parse when input is wrong" in {
@@ -181,7 +181,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
-      ).parse(input, inputField)
+      ).parse(input)
     }
 
     "parse when input is null" in {
@@ -217,7 +217,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
-      ).parse(input, inputField)
+      ).parse(input)
       val expected = Seq(Row(JSON, "red", null))
 
       assertResult(expected)(result)
@@ -255,7 +255,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
-      ).parse(input, inputField)
+      ).parse(input)
       val expected = Seq(Row(JSON, "red", null))
 
       assertResult(expected)(result)
@@ -294,7 +294,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Error, "inputField" -> "json",
           "supportNullValues" -> "false")
-      ).parse(input, inputField)
+      ).parse(input)
     }
   }
 }
