@@ -30,8 +30,8 @@
    <div class="container top-separation">
       <div class="row" *ngIf="(selectedDisplayOption$ | async) === 'ROWS'">
          <div class="col-xs-12">
-            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag">
-               <tr st-table-row *ngFor="let template of templateList" [selected]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1">
+            <st-table [fields]="fields" [sortable]="true" qaTag="templates-list" (changeOrder)="changeOrder($event)">
+               <tr st-table-row *ngFor="let template of templateList | orderBy:orderBy:sortOrder; let i = index;" [selected]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1">
                   <td st-table-cell st-table-row-content>
                     <st-checkbox [value]="template" (change)="onCheckedTemplate($event)" [checked]="selectedTemplates.selectedIds.indexOf(template.id) > -1"></st-checkbox>
                   </td>
@@ -41,15 +41,12 @@
                   <td st-table-cell st-table-row-content>
                      <label>{{template.description}}</label>
                   </td>
-                  <td st-table-cell st-table-row-content>
-
-                  </td>
                </tr>
             </st-table>
          </div>
       </div>
       <div class="box-list" *ngIf="(selectedDisplayOption$ | async) !== 'ROWS'">
-         <fragment-box *ngFor="let template of templateList; let i = index" [fragmentData]="template" class="fragment" [isChecked]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1"
+         <fragment-box *ngFor="let template of templateList | orderBy:orderBy:sortOrder; let i = index;" [fragmentData]="template" class="fragment" [isChecked]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1"
             (onChecked)="onCheckedTemplate($event)">
          </fragment-box>
       </div>

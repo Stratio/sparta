@@ -32,6 +32,8 @@ import { SpartaSidebarComponent } from '@app/shared/components/sparta-sidebar/sp
 import { DragEventsDirective } from '@app/shared/directives/drag-events/drag-events.directive';
 import { DragEventsService } from '@app/shared/directives/drag-events/drag-events.service';
 import { FormGeneratorGroupComponent } from '@app/shared/components/form-generator/form-generator-group/form-generator-group.component';
+import { OrderByPipe } from '@app/shared/pipes/sort.pipe';
+import { FormListStringComponent } from '@app/shared/components/form-string-list/form-string-list.component';
 
 export const sharedProvider = [
    MenuService,
@@ -43,6 +45,7 @@ export const shareComponents = [
     SearchFilterComponent,
     FileReaderComponent,
     FormListComponent,
+    FormListStringComponent,
     FormFieldComponent,
     FloatingMenuComponent,
     MenuOptionsComponent,
@@ -54,5 +57,6 @@ export const shareComponents = [
     ToolBarComponent,
     SpartaSidebarComponent,
     DragEventsDirective,
-    FilterPipe
+    FilterPipe,
+    OrderByPipe
 ];

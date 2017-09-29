@@ -22,6 +22,32 @@ export class ValidateSchemaService {
     public errors: any;
 
 
+    public static setDefaultWorkflowSettings(value: any): any {
+        let model: any = {};
+        model.basic = {
+            name: 'Workflow-name',
+            description: 'workflow description'
+        };
+        model.advancedSettings = {};
+        value.advancedSettings.map((category: any) => {
+            model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
+        });
+        return model;
+    }
+
+
+    public static getCategoryModel(value: any): any {
+        let model: any = {};
+        value.map((prop: any) => {
+            if (prop.properties) {
+                model[prop.name] = this.getCategoryModel(prop.properties);
+            } else {
+                model[prop.propertyId] = prop.default ? prop.default : null;
+            }
+        });
+        return model;
+    }
+
     validateModel(): ValidationModel {
         return null;
     }
@@ -32,6 +58,8 @@ export class ValidateSchemaService {
 
 
     }
+
+
 
 
 
@@ -53,34 +81,8 @@ export class ValidateSchemaService {
         model.classPrettyName = value.classPrettyName;
         model.className = value.className;
         model.stepType = value.stepType;
-        model.description = value.description.short;
-        
-        return model;
-    }
+        model.description = value.description;
 
-    public static setDefaultWorkflowSettings(value: any): any {
-        let model: any = {};
-        model.basic = {
-            name: 'Workflow-name',
-            description: 'workflow description'
-        };
-        model.advancedSettings = {};
-        value.advancedSettings.map((category: any) => {
-            model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
-        });
-        return model;
-    }
-
-
-    public static getCategoryModel(value: any): any {
-        let model: any = {};
-        value.map((prop: any) => {
-            if(prop.properties) {
-                model[prop.name] = this.getCategoryModel(prop.properties);
-            } else {
-                model[prop.propertyId] = prop.default ? prop.default : null;
-            }
-        });
         return model;
     }
 

@@ -73,10 +73,8 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
 
     disableField(value: any, field: any): void {
         if (value === field.value) {
-            //this.isVisible = true;
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
-            //this.isVisible = false;
             this.stFormGroup.controls[this.field.propertyId].disable();
         }
     }

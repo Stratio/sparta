@@ -46,7 +46,7 @@ describe('validate-schema.service', function () {
         const model = validateSchemaService.setDefaultEntityModel(kafkaTemplate);
 
         expect(model.classPrettyName).toBe(template.classPrettyName);
-        expect(model.description).toBe(template.description.short);
+        expect(model.description).toBe(template.description);
         expect(model.stepType).toBe(template.stepType);
     });
 

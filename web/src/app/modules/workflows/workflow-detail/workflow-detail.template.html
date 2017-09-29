@@ -12,7 +12,7 @@
          <span class="values">{{workflowData.context.statusInfo}}</span>
         
       </div>
-      <div>
+      <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
          <span class="title">Execution mode</span>
          <span class="">{{workflowData.context.lastExecutionMode}}</span>
       </div>

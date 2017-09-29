@@ -85,13 +85,14 @@ export const getInputList: any = createSelector(getInputListState, fromInput.get
 export const getSelectedInputs: any = createSelector(getInputListState, fromInput.getSelectedInputs);
 export const getSelectedInputDisplayOption: any = createSelector(getInputListState, fromInput.getSelectedDisplayOption);
 export const getEditedInput: any = createSelector(getInputListState, fromInput.getEditedInput);
-
+export const isInputSaved: any = createSelector(getInputListState, fromInput.isInputSaved);
 
 // outputs
 export const getOutputList: any = createSelector(getOutputListState, fromOutput.getOutputList);
 export const getSelectedOutputs: any = createSelector(getOutputListState, fromOutput.getSelectedOutputs);
 export const getSelectedOutputDisplayOption: any = createSelector(getOutputListState, fromOutput.getSelectedDisplayOption);
 export const getEditedOutput: any = createSelector(getOutputListState, fromOutput.getEditedOutput);
+export const isOutputSaved: any = createSelector(getOutputListState, fromOutput.isOutputSaved);
 
 
 // backups
@@ -120,3 +121,4 @@ export const isEntitySaved: any = createSelector(getWizardState, fromWizard.isEn
 export const getWorkflowSettings: any = createSelector(getWizardState, fromWizard.getWorkflowSettings);
 export const getWorkflowName: any = createSelector(getWizardState, fromWizard.getWorkflowName);
 export const getWorkflowPosition: any = createSelector(getWizardState, fromWizard.getWorkflowPosition);
+export const isSavedWorkflow: any = createSelector(getWizardState, fromWizard.isSavedWorkflow);

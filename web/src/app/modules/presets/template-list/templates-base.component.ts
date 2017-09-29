@@ -42,14 +42,16 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     public selectedTemplates: any = [];
     public fragmentIndex = 0;
     public breadcrumbOptions: string[] = [];
+    public orderBy = 'name';
+    public sortOrder = true;
+
     protected selectedTemplatesSubscription: Subscription;
     protected templateListSubscription: Subscription;
 
     public fields: StTableHeader[] = [
         { id: 'isChecked', label: '', sortable: false },
         { id: 'name', label: 'Name' },
-        { id: 'description', label: 'Description' },
-        { id: 'actions', label: '', sortable: false }
+        { id: 'description', label: 'Description' }
     ];
     private tasksSubscription: Subscription;
 
@@ -84,8 +86,8 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
             let name = '';
             let i = 0;
             do {
-                 name = input.name + '(' + i + ')';
-                 i++;
+                name = input.name + '(' + i + ')';
+                i++;
             } while (!this.isValidTemplateName(name));
 
             const duplicatedInput = {};
@@ -93,7 +95,7 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
                 name: name
             });
 
-           this.duplicateTemplate(duplicatedInput);
+            this.duplicateTemplate(duplicatedInput);
         });
     }
 
@@ -115,6 +117,11 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         this.route.navigate(['edit'], { relativeTo: this.currentActivatedRoute });
     }
 
+    changeOrder($event: any): void {
+        this.orderBy = $event.orderBy;
+        this.sortOrder = $event.type;
+    }
+
     constructor(protected store: Store<fromRoot.State>, private _modalService: StModalService,
         private route: Router, private currentActivatedRoute: ActivatedRoute, protected _cd: ChangeDetectorRef,
         public breadcrumbMenuService: BreadcrumbMenuService) {
@@ -126,9 +133,9 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         this.templateListSubscription.unsubscribe();
     }
 
-    abstract duplicateTemplate(input : any) : void;
-    abstract deleteTemplates(templates : any) : void;
-    abstract onCheckedTemplate($event: any) : void;
+    abstract duplicateTemplate(input: any): void;
+    abstract deleteTemplates(templates: any): void;
+    abstract onCheckedTemplate($event: any): void;
     abstract changeDisplayOption(): void;
     abstract editTemplateAction(input: any): void;
 }

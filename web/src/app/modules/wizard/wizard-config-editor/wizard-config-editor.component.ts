@@ -27,6 +27,7 @@ import * as wizardActions from 'actions/wizard';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { inputs } from 'data-templates/inputs';
 import { outputs } from 'data-templates/outputs';
+import { transformations } from 'data-templates/transformations';
 import { NgForm } from '@angular/forms';
 
 
@@ -72,9 +73,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             this.entityFormModel = Object.assign({}, this.config.editionType.data);
         } else {
             this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((settings: any) => {
-                console.log(this.advancedSettings);
                 this.basicFormModel = settings.basic;
-                this.advancedSettings = settings.advanced;
+                this.settingsFormModel = settings.advancedSettings;
             });
         }
         switch (this.config.editionType.stepType) {
@@ -88,8 +88,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.basicSettings = selectedI.properties;
                 break;
             case 'Output':
-                const selectedO: any = this._getEntityTemplate(outputs, this.config.editionType.data.classPrettyName);
-                this.basicSettings = selectedO.properties;
+                const selectedT: any = this._getEntityTemplate(transformations, this.config.editionType.data.classPrettyName);
+                this.basicSettings = selectedT.properties;
                 break;
             case 'Transformation':
                 break;
@@ -109,7 +109,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             if (this.entityForm.valid) {
                 this.store.dispatch(new wizardActions.SaveSettingsAction({
                     basic: this.basicFormModel,
-                    advanced: this.settingsFormModel
+                    advancedSettings: this.settingsFormModel
                 }));
                 this.store.dispatch(new wizardActions.HideEditorConfigAction());
             }

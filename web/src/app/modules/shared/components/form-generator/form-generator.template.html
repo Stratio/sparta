@@ -1,18 +1,18 @@
 <div class="row">
-    <form [formGroup]="stFormGroup" class="form-generator">
-        <ng-container *ngFor="let prop of formDataValues; let i = index;">
-            <div *ngIf="prop.field.properties" class="form-container">
-                <form-generator [forceValidations]="submitted" [formData]="prop.field.properties"></form-generator>                
-            </div>
-            <div *ngIf="!prop.field.properties" [ngClass]="getClass(prop.field.width)">
-                <div class="form-container" *ngIf="prop.field.propertyType !== 'list'">
-                    <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup"></form-field>
-                </div>
-                <div *ngIf="prop.field.propertyType === 'list'" class="row">
-                    <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup" class="list-field"></form-field>
-                </div>
-            </div>
-            <div class="col-sm-12" *ngIf="!prop.field.float"></div>        
-        </ng-container>
-    </form>
+   <form [formGroup]="stFormGroup" class="form-generator">
+      <ng-container *ngFor="let prop of formDataValues; let i = index;">
+         <div *ngIf="prop.field.properties" class="form-container">
+            <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="prop.field.properties"></form-generator>
+         </div>
+         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [ngClass]="getClass(prop.field.width)">
+            <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup"></form-field>
+         </div>
+         <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">
+            <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup"
+               class="list-field"></form-field>
+         </div>
+
+         <div class="col-sm-12" *ngIf="!prop.field.float"></div>
+      </ng-container>
+   </form>
 </div>

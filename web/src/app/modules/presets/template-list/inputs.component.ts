@@ -82,7 +82,7 @@ export class InputsComponent extends TemplatesBaseComponent {
         route: Router, currentActivatedRoute: ActivatedRoute, protected _cd: ChangeDetectorRef,
         breadcrumbMenuService: BreadcrumbMenuService) {
         super(store, modalService, route, currentActivatedRoute, _cd, breadcrumbMenuService);
-
+        this.store.dispatch(new inputActions.ResetInputFormAction());
         const deleteTemplateModalTitle = 'DASHBOARD.DELETE_INPUT_TITLE';
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_INPUT_MESSAGE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_INPUT';

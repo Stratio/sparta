@@ -16,7 +16,7 @@
 
 import {
     Component, OnInit, OnDestroy, HostListener, ElementRef, Input, AfterContentInit,
-    ChangeDetectorRef, Output, EventEmitter
+    ChangeDetectorRef, Output, EventEmitter, ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
@@ -30,7 +30,8 @@ import { UtilsService } from '@app/shared/services/utils.service';
 @Component({
     selector: '[wizard-box]',
     styleUrls: ['wizard-box.styles.scss'],
-    templateUrl: 'wizard-box.template.html'
+    templateUrl: 'wizard-box.template.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {

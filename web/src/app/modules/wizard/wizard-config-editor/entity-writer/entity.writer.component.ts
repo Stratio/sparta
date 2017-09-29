@@ -14,8 +14,21 @@
 /// limitations under the License.
 ///
 
-export interface CustomAlert {
-   type: 'WARNING' | 'ERROR' | 'SUCCESS';
-   title: string;
-   description: string;
+
+
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+
+@Component({
+    selector: 'entity-writer',
+    templateUrl: './entity-writer.template.html',
+    styleUrls: ['./entity-writer.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class EntityWriterComponent implements OnInit {
+
+    @Output() onCloseConfirmModal = new EventEmitter<string>();
+
+    constructor() { }
+
+    ngOnInit() { }
 }

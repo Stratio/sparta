@@ -4,8 +4,6 @@
    margin-bottom: 14px;
 }
 
-.items-list {}
-
 .item-element {
    margin-top: 14px;
 }
@@ -21,4 +19,22 @@
       line-height: 35px;
    }
 
+}
+
+.list-field{
+    width: calc(100% - 5px);
+    display: flex;
+    font-size: 18px;
+    flex-wrap: wrap;
+    flex-direction: row;
+    line-height: 1.89;
+    margin-top: 12px;    
+    text-align: left;
+    color: $neutral-07;
+    position:relative;
+    .icon {
+        position:absolute;
+        bottom: 12px;
+        cursor: pointer;
+    }
 }

@@ -26,11 +26,19 @@ import { StHorizontalTab } from '@stratio/egeo';
     templateUrl: './form-generator-group.template.html',
     styleUrls: ['./form-generator-group.styles.scss'],
     providers: [
-        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => FormGeneratorGroupComponent), multi: true }
-    ],
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FormGeneratorGroupComponent),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => FormGeneratorGroupComponent),
+            multi: true
+        }],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormGeneratorGroupComponent implements OnInit, OnDestroy {
+export class FormGeneratorGroupComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
     @Input() public formData: Array<any>; // data template
     @Input() public forceValidations = false;
@@ -39,6 +47,8 @@ export class FormGeneratorGroupComponent implements OnInit, OnDestroy {
     @Input() public stModel: any = {};
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
 
+    private stFormGroupSubcription: Subscription;
+
     @ViewChild('groupForm') public groupForm: NgForm;
 
     public options: StHorizontalTab[] = [];
@@ -46,7 +56,6 @@ export class FormGeneratorGroupComponent implements OnInit, OnDestroy {
     public formGroup: FormGroup;
 
     constructor(private _cd: ChangeDetectorRef) {
-        this.formGroup = new FormGroup({});
     }
 
     public changeFormOption($event: StHorizontalTab) {
@@ -64,6 +73,29 @@ export class FormGeneratorGroupComponent implements OnInit, OnDestroy {
         });
     }
 
+    writeValue(value: any): void {
+        if (value) {
+            this.stModel = value;
+        } else {
+            this.stModel = {};
+        }
+    }
+
+    registerOnChange(fn: any): void {
+        this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(fn);
+    }
+
+    registerOnTouched(fn: any): void {
+
+    }
+
+    validate(c: FormGroup): { [key: string]: any; } {
+        return (this.groupForm.valid) ? null : {
+            formGeneratorGroupError: {
+                valid: false
+            }
+        };
+    }
 
     ngOnDestroy(): void {
 

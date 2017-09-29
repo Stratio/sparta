@@ -1,0 +1,11 @@
+<span class="confirmation">{{'WIZARD.CONFIRM_EXIT' | translate}}</span>
+<span class="advice">{{'WIZARD.CONFIRM_EXIT_ADVICE' | translate}}</span>
+
+<div class="action-buttons">
+    <button class="button button-secondary-gray cancel-button" (click)="onCloseConfirmModal.emit('0')">
+       <span>{{'WIZARD.DONT_SAVE' | translate}}</span>
+    </button>
+        <button class="button button-primary save-button" (click)="onCloseConfirmModal.emit('1')">
+       <span>{{'WIZARD.SAVE' | translate}}</span>
+   </button>
+</div>

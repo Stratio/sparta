@@ -27,7 +27,7 @@ import { ENTITY_BOX } from '../../wizard.constants';
 @Component({
     selector: '[wizard-segment]',
     styleUrls: ['wizard-segment.styles.scss'],
-    templateUrl: 'wizard-segment.template.html',
+    templateUrl: 'wizard-segment.template.html'
 
 })
 

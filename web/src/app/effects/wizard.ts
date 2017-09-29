@@ -58,7 +58,9 @@ export class WizardEffect {
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]) => {
+            console.log(wizard);
             const workflow = Object.assign({
+                id: wizard.workflowId,
                 uiSettings: {
                     position: wizard.svgPosition
                 },
@@ -66,10 +68,10 @@ export class WizardEffect {
                     nodes: wizard.nodes,
                     edges: wizard.edges
                 },
-                settings: wizard.settings.advanced
+                settings: wizard.settings.advancedSettings
             }, wizard.settings.basic);
 
-            return (workflow.id ? this.workflowService.updateWorkflow(workflow) : this.workflowService.saveWorkflow(workflow))
+            return (wizard.workflowId && wizard.workflowId.length ? this.workflowService.updateWorkflow(workflow) : this.workflowService.saveWorkflow(workflow))
                 .map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {

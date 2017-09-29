@@ -14,8 +14,21 @@
 /// limitations under the License.
 ///
 
-export interface CustomAlert {
-   type: 'WARNING' | 'ERROR' | 'SUCCESS';
-   title: string;
-   description: string;
+
+
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+
+@Component({
+    selector: 'wizard-modal',
+    templateUrl: './wizard-modal.template.html',
+    styleUrls: ['./wizard-modal.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class WizardModalComponent implements OnInit {
+
+    @Output() onCloseConfirmModal = new EventEmitter<string>();
+
+    constructor() { }
+
+    ngOnInit() { }
 }

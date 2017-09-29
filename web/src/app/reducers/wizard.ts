@@ -23,8 +23,10 @@ import { ValidateSchemaService } from 'services';
 import * as settingsTemplate from 'data-templates/settings.json';
 
 export interface State {
+    workflowId: string;
     nodes: Array<any>;
     edges: Array<any>;
+    savedWorkflow:boolean;
     selectedCreationEntity: any;
     entityCreationMode: boolean;
     editionConfig: boolean;
@@ -41,6 +43,7 @@ export interface State {
 const defaultSettings = ValidateSchemaService.setDefaultWorkflowSettings(settingsTemplate);
 
 const initialState: State = {
+    workflowId: '',
     settings: Object.assign({}, defaultSettings),
     svgPosition: {
         x: 0,
@@ -49,6 +52,7 @@ const initialState: State = {
     },
     edges: [],
     nodes: [],
+    savedWorkflow: false,
     editionConfig: false,
     editionConfigType: '',
     editionConfigData: null,
@@ -89,14 +93,16 @@ export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case wizardActions.actionTypes.RESET_WIZARD: {
             return Object.assign({}, state, {
+                workflowId: '',
                 svgPosition: {
                     x: 0,
                     y: 0,
-                    k: 0
+                    k: 1
                 },
                 settings: Object.assign({}, defaultSettings),
                 nodes: [],
                 edges: [],
+                savedWorkflow: false,
                 selectedCreationEntity: null,
                 entityCreationMode: false,
                 editionConfig: false,
@@ -239,14 +245,19 @@ export function reducer(state: State = initialState, action: any): State {
                 svgPosition: workflow.uiSettings.position,
                 nodes: workflow.pipelineGraph.nodes,
                 edges: workflow.pipelineGraph.edges,
+                workflowId: workflow.id,
                 settings: {
                     basic: {
-                        id: workflow.id,
                         name: workflow.name,
                         description: workflow.description
                     },
-                    advancedSettings: workflow.settings.advancedSettings
+                    advancedSettings: workflow.settings
                 }
+            });
+        }
+        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state , {
+                savedWorkflow: true
             });
         }
         default:
@@ -263,6 +274,7 @@ export const isEntitySaved: any = (state: State) => state.editionSaved;
 export const getWorkflowSettings: any = (state: State) => state.settings;
 export const getWorkflowName: any = (state: State) => state.settings.basic.name;
 export const getWorkflowPosition: any = (state: State) => state.svgPosition;
+export const isSavedWorkflow: any = (state: State) => state.savedWorkflow;
 export const getEditionConfigMode: any = (state: State) => {
     return {
         isEdition: state.editionConfig,

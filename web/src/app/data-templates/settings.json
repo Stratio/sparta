@@ -203,7 +203,7 @@
           "width": 3,
           "float": true,
           "tooltip": "Maximum time a certain query will be executed before being aborted",
-          "required": "scope.form['dataSourcerememberTimeForm']['dataSourcerememberTimeForm'].$modelValue.length > 0",
+          "required": "false",
           "qa": "workflow-remember-number"
         },
         {
@@ -212,7 +212,7 @@
           "propertyType": "select",
           "width": 3,
           "qa": "workflow-remember-time",
-          "required": "scope.form['dataSourcerememberNumberForm']['dataSourcerememberNumberForm'].$modelValue",
+          "required": "false",
           "values": [{
             "label": "Milliseconds",
             "value": "ms"

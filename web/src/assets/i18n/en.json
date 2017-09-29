@@ -55,6 +55,7 @@
       "STOPPED": "Stopped",
       "STOPPING": "Stopping",
       "FINISHED": "Finished",
+      "STARTED": "Running",
       "DELETE_INPUT_TITLE": "Delete input",
       "DELETE_INPUT_MESSAGE": "Are you sure?",
       "DELETE_OUTPUT_TITLE": "Delete output",
@@ -303,7 +304,12 @@
       "RUN_WORKFLOW": "The workflow {{name}} is running!",
       "DELETE_WORKFLOW": "Workflow '{{name}}' has been deleted.",
       "LIST_INPUT_ERROR": "Cannot get input template list",
-      "LIST_WORKFLOW_ERROR": "Cannot get workflow list"
+      "LIST_WORKFLOW_ERROR": "Cannot get workflow list",
+      "WORKFLOW_SAVE_SUCCESS": "Workflow has been saved succesfully",
+      "UPDATE_INPUT_DESCRIPTION": "Input has been saved",
+      "UPDATE_OUTPUT_DESCRIPTION": "Output has been saved",
+      "CREATE_INPUT_DESCRIPTION": "Input has been created succesfully",
+      "CREATE_OUTPUT_DESCRIPTION": "Output has been created succesfully"
    },
    "WIZARD": {
       "INPUTS": "Inputs",
@@ -311,7 +317,10 @@
       "TRANSFORMATIONS": "Transformations",
       "CANCEL": "Cancel",
       "SAVE": "Save",
-      "RETURN_WORKFLOW": "Return to workflow list"
+      "DONT_SAVE": "Don´ t save",
+      "RETURN_WORKFLOW": "Return to workflow list",
+      "CONFIRM_EXIT": "Save changes to the Ticket Management workflow?",
+      "CONFIRM_EXIT_ADVICE": "If you don´t save the changes, they will be lost."
    },
    "ERRORS": {
       "404": "404: Page missing",

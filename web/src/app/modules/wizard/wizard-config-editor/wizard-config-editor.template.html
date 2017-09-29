@@ -42,11 +42,10 @@
                   <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="entityFormModel.configuration"></form-generator>
                </div>
 
-
                <!------- settings ----------- -->
                <div *ngIf="advancedSettings.length" class="col-sm-12">
                   <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel"></form-generator>
-                  <form-generator-group [forceValidations]="submitted" name="entity" [(stModel)]="settingsFormModel" [formData]="advancedSettings"
+                  <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
                      class="advanced-settings" *ngIf="advancedSettings.length"></form-generator-group>
                </div>
                <!--- ---------------------------- -->

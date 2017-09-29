@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { Observable, Subscription } from 'rxjs/Rx';
@@ -26,6 +26,8 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
 import * as wizardActions from 'actions/wizard';
+import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
+import { WizardModalComponent } from "@app/wizard/wizard-modal/wizard-modal.component";
 
 
 @Component({
@@ -46,6 +48,8 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     @Input() isNodeSelected = false;
 
+    @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
+    
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
     public workflowName: string = '';
@@ -59,9 +63,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
-        private _cd: ChangeDetectorRef) { }
+        private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
 
     ngOnInit(): void {
+        this._modalService.container = this.target;
         // this.store.dispatch(new inputActions.ListInputAction());
         // this.store.dispatch(new outputActions.ListOutputAction());
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
@@ -108,18 +113,39 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         });
     }
 
-    goToWorkflow(): void {
-        this.route.navigate(['']);
-    }
 
     toggleEntityInfo() {
         this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
     }
 
 
+    public showConfirmModal(): void {
+        const sub: any = this._modalService.show({
+            qaTag: 'exit-workflow',
+            modalTitle: 'Exit workflow',
+            outputs: {
+                onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
+            },
+            modalWidth: StModalWidth.COMPACT,
+            mainText: StModalMainTextSize.BIG,
+            modalType: StModalType.NEUTRAL
+        }, WizardModalComponent);
+    }
+
+    onCloseConfirmationModal(event: any) {
+        this._modalService.close();
+        if(event === '1') {
+            this.onSaveWorkflow.emit();
+        } else {
+            this.route.navigate(['']);
+        }
+    }
+
     ngOnDestroy(): void {
         this.nameSubscription && this.nameSubscription.unsubscribe();
     }
+
+    
 
 
 }

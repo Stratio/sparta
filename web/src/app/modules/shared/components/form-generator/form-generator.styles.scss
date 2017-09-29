@@ -4,34 +4,41 @@
 }
 
 .form-generator {
-    width: 100%;
-    display:block;
+   width: 100%;
+   display: flex;
+   flex-wrap: wrap;
 }
 
-.newRow{
-    flex-wrap: wrap;
+.newRow {
+   flex-wrap: wrap;
 }
 
-.form{
+.form {
    display: block;
    width: 100%;
 }
 
-.form-list-row{
-    width:100%;
+.form-list-row {
+   width: 100%;
 }
 
-.form-container{
-    width:100%;
+.form-container {
+   width: 100%;
 }
+
 .col-xs-auto {
-    margin-right: 30px;
-    box-sizing: border-box;
-    flex: 0 0 auto;
-    padding-right: .9375rem;
-    padding-left: .9375rem;
+   margin-right: 30px;
+   box-sizing: border-box;
+   flex: 0 0 auto;
+   padding-right: .9375rem;
+   padding-left: .9375rem;
 }
 
-.list-field{
-    width:100%;
+.list-field {
+   width: 100%;
+}
+
+.prop-container {
+   width: 100%;
+   display: flex;
 }

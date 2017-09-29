@@ -95,8 +95,8 @@ export class WorkflowsService {
         return [
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
-            { id: 'status', label: 'Status' },
-            { id: 'deply', label: 'Deploy mode' }
+            { id: 'context.status', label: 'Status' },
+            { id: 'context.lastExecutionMode', label: 'Execution mode' }
         ];
     }
 

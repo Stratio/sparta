@@ -18,7 +18,9 @@ import { BackupType } from 'app/models/backup.model';
 
 import * as backupsActions from 'actions/backups';
 import * as inputActions from 'actions/input';
+import * as outputActions from 'actions/output';
 import * as workflowActions from 'actions/workflow';
+import * as wizardActions from 'actions/wizard';
 
 import { CustomAlert } from 'app/models/alert.model';
 import { STALERT_SEVERITY } from '@stratio/egeo';
@@ -39,6 +41,15 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'UPDATE_INPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case outputActions.actionTypes.UPDATE_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'UPDATE_OUTPUT_DESCRIPTION'
                 }]
             });
         }
@@ -82,6 +93,14 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case workflowActions.actionTypes.DELETE_WORKFLOW_COMPLETE: {
+            let names = '';
+            const workflows = action.payload;
+            for (let i = 0; i < workflows.length; i++) {
+                names += workflows[i].name;
+                if (i < workflows.length) {
+                    names += ', ';
+                }
+            };
             return Object.assign({}, state, {
                 currentAlert: action.payload.map((workflow: any) => {
                     return {
@@ -89,7 +108,7 @@ export function reducer(state: State = initialState, action: any): State {
                         title: 'SUCCESS',
                         description: 'DELETE_WORKFLOW',
                         params: {
-                            name: action.payload.name
+                            name: names
                         }
                     };
                 })
@@ -110,6 +129,33 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.ERROR,
                     title: 'ERROR',
                     description: 'LIST_WORKFLOW_ERROR'
+                }]
+            });
+        }
+        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'WORKFLOW_SAVE_SUCCESS'
+                }]
+            });
+        }
+        case inputActions.actionTypes.CREATE_INPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'CREATE_INPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case outputActions.actionTypes.CREATE_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'CREATE_OUTPUT_DESCRIPTION'
                 }]
             });
         }

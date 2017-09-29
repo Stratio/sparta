@@ -23,6 +23,7 @@ export interface State {
     editedOutput: any;
     selectedOutputs: Array<OutputType>;
     selectedOutputsIds: Array<string>;
+    isSaved: boolean;
 };
 
 const initialState: State = {
@@ -30,7 +31,8 @@ const initialState: State = {
     selectedDisplayOption: 'BLOCKS',
     editedOutput: {},
     selectedOutputs: [],
-    selectedOutputsIds: []
+    selectedOutputsIds: [],
+    isSaved: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -81,6 +83,23 @@ export function reducer(state: State = initialState, action: any): State {
                 editedOutput: action.payload
             });
         }
+        case outputActions.actionTypes.UPDATE_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                isSaved: true
+            });
+        }
+        case outputActions.actionTypes.CREATE_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                isSaved: true
+            });
+        }
+        case outputActions.actionTypes.RESET_OUTPUT_FORM: {
+            return Object.assign({}, state, {
+                isSaved: false,
+                selectedOutputs: [],
+                selectedOutputsIds: []
+            });
+        }
         default:
             return state;
     }
@@ -95,3 +114,5 @@ export const getSelectedOutputs: any = (state: State) => {
 };
 export const getSelectedDisplayOption: any = (state: State) => state.selectedDisplayOption;
 export const getEditedOutput: any = (state: State) => state.editedOutput;
+export const isOutputSaved: any = (state: State) => state.isSaved;
+

@@ -14,16 +14,17 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as inputActions from 'actions/input';
+import * as outputActions from 'actions/output';
 import * as fromRoot from 'reducers';
 import * as outputsTemplate from 'data-templates/outputs';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 import { CreateTemplateComponent } from './create-template.component';
+import { Subscription } from 'rxjs/Rx';
 
 @Component({
     selector: 'create-output',
@@ -31,7 +32,7 @@ import { CreateTemplateComponent } from './create-template.component';
     styleUrls: ['./create-template.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreateOutputComponent extends CreateTemplateComponent {
+export class CreateOutputComponent extends CreateTemplateComponent implements OnDestroy {
 
     @Output() onCloseInputModal = new EventEmitter<string>();
     @ViewChild('inputForm') public inputForm: NgForm;
@@ -47,17 +48,25 @@ export class CreateOutputComponent extends CreateTemplateComponent {
     };
     public configuration: FormGroup;
     public editMode = false;
+    public stepType = 'output';
+    private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
-        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, breadcrumbMenuService: BreadcrumbMenuService) {
+        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService);
-
+        this.store.dispatch(new outputActions.ResetOutputFormAction());
         this.listData = outputsTemplate.outputs;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
                 label: fragmentData.name,
                 value: fragmentData.name
+            }
+        });
+
+        this.saveSubscription = this.store.select(fromRoot.isOutputSaved).subscribe((isSaved) => {
+            if (isSaved) {
+                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
             }
         });
     }
@@ -74,9 +83,9 @@ export class CreateOutputComponent extends CreateTemplateComponent {
             this.inputFormModel.templateType = 'output';
 
             if (this.editMode) {
-                this.store.dispatch(new inputActions.UpdateInputAction(this.inputFormModel));
+                this.store.dispatch(new outputActions.UpdateOutputAction(this.inputFormModel));
             } else {
-                this.store.dispatch(new inputActions.CreateInputAction(this.inputFormModel));
+                this.store.dispatch(new outputActions.CreateOutputAction(this.inputFormModel));
             }
         }
     }
@@ -92,6 +101,11 @@ export class CreateOutputComponent extends CreateTemplateComponent {
             }
             this.setEditedTemplateIndex(editedOutput.type || 'kafka');
             this.inputFormModel = editedOutput;
+            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedOutput.name);
         });
+    }
+
+    ngOnDestroy() {
+        this.saveSubscription && this.saveSubscription.unsubscribe();
     }
 }

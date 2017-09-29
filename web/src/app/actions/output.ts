@@ -35,7 +35,8 @@ export const actionTypes: any = {
   CREATE_OUTPUT_ERROR: type('[Output] Create output error'),
   UPDATE_OUTPUT: type('[Output] Update output'),
   UPDATE_OUTPUT_COMPLETE: type('[Output] Update output complete'),
-  UPDATE_OUTPUT_ERROR: type('[Output] Update output error')
+  UPDATE_OUTPUT_ERROR: type('[Output] Update output error'),
+  RESET_OUTPUT_FORM: type('[Output] Reset output form')
 };
 
 export class ListOutputAction implements Action {
@@ -149,6 +150,10 @@ export class UpdateOutputErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class ResetOutputFormAction implements Action {
+  type: any = actionTypes.RESET_OUTPUT_FORM;
+}
+
 export type Actions =
   ListOutputAction |
   ListOutputFailAction |
@@ -168,5 +173,6 @@ export type Actions =
   UpdateOutputAction |
   UpdateOutputCompleteAction |
   UpdateOutputErrorAction |
-  DisplayModeAction;
+  DisplayModeAction |
+  ResetOutputFormAction;
 

@@ -50,6 +50,9 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
     public menuOptions: any = [];
+    public orderBy = 'name';
+    public sortOrder = true;
+
     private tasksSubscription: Subscription;
     private modalSubscription: Subscription;
     private timer: any;
@@ -105,8 +108,17 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         this.showDetails = !this.showDetails;
     }
 
+    editSelectedWorkflow(workflowId: string) {
+        this.route.navigate(['wizard', workflowId]);
+    }
+
     editWorkflow(): void {
         this.route.navigate(['wizard', this.selectedWorkflows[0].id]);
+    }
+
+    changeOrder($event: any): void {
+        this.orderBy = $event.orderBy;
+        this.sortOrder = $event.type;
     }
 
     selectedMenuOption(event: any) {
@@ -114,6 +126,22 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
             this.route.navigate(['wizard']);
         } else {
             this.workflowsService.showCreateJsonModal();
+        }
+    }
+
+    public runWorkflow(workflow: any): void {
+        const policyStatus = workflow.context.status;
+        if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
+            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
+            policyStatus.toLowerCase() !== 'finished') {
+            const stopPolicy = {
+                'id': workflow.id,
+                'status': 'Stopping'
+            };
+            this.workflowsService.stopWorkflow(stopPolicy);
+
+        } else {
+            this.workflowsService.runWorkflow(workflow.id, workflow.name);
         }
     }
 

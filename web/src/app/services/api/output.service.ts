@@ -25,28 +25,28 @@ import { Http } from '@angular/http';
 @Injectable()
 export class OutputService extends ApiService {
 
-   constructor(private _http: Http, private configService:ConfigService) {
-      super(_http);
-   }
+    constructor(private _http: Http, private configService: ConfigService) {
+        super(_http);
+    }
 
-   getOutputList(): Observable<any> {
+    getOutputList(): Observable<any> {
 
-      let options: ApiRequestOptions = {
-         method: 'get'
-      };
-      return this.request(this.configService.config.API_URL +  '/template/output', options);
-   }
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request(this.configService.config.API_URL + '/template/output', options);
+    }
 
     deleteOutput(outputId: string): Observable<any> {
-      let options: ApiRequestOptions = {
-         method: 'delete'
-      };
+        const options: ApiRequestOptions = {
+            method: 'delete'
+        };
 
-      return this.request('template/output/id/' + outputId, options);
-   }
+        return this.request('template/output/id/' + outputId, options);
+    }
 
     validateOutputName(outputName: string): Observable<any> {
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'get'
         };
 
@@ -54,8 +54,17 @@ export class OutputService extends ApiService {
     }
 
     createFragment(fragmentData: any): Observable<any> {
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'post',
+            body: fragmentData
+        };
+
+        return this.request('template', options);
+    }
+
+    updateFragment(fragmentData: any): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'put',
             body: fragmentData
         };
 

@@ -1,12 +1,18 @@
-::host {
+:host {
    display: block;
 }
 
 .segment {
    fill: none;
    stroke: 2px;
-   stroke: #1E190E;
+   stroke: #999;
    stroke-width: 1px;
+}
+
+.segment-hover {
+   fill: none;
+   stroke:transparent;
+   stroke-width: 100px;
 }
 
 .delete-icon {
@@ -14,9 +20,17 @@
    font-size: 25px;
    cursor: pointer;
    opacity: 0;
-   stroke-width:30px;
+   stroke-width: 30px;
 }
 
-.delete-icon:hover {
-   opacity: 1;
+.segmentContainer {
+   &:hover {
+      .delete-icon {
+         opacity: 1;
+      }
+
+      .segment {
+          stroke: #666;
+      }
+   }
 }

@@ -1,0 +1,28 @@
+@import '~@stratio/egeo/theme/constants';
+
+.confirmation {
+    font-family: $egeo-nunito-sans-light;
+    font-size: 23px;
+    display:block;
+    color: #000;
+}
+
+.advice {
+    font-family: $egeo-nunito-sans;   
+    font-size:15px;
+    display: block;
+    color: $action-secondary-07;
+    margin-top:4px; 
+}
+
+.action-buttons{
+    margin-top:100px;
+    overflow: hidden;
+    .button {
+        padding: .925rem 1.875rem;
+        min-width:9rem;
+    }
+    .save-button {
+        float:right;
+    }
+}

@@ -56,7 +56,7 @@ export class OutputEffect {
         });
 
     @Effect()
-    duplicateInput$: Observable<Action> = this.actions$
+    duplicateOutput$: Observable<Action> = this.actions$
         .ofType(outputActions.actionTypes.DUPLICATE_OUTPUT)
         .switchMap((data: any) => {
             return this.outputService.createFragment(data.payload).mergeMap((data: any) => {
@@ -66,6 +66,28 @@ export class OutputEffect {
             });
         });
 
+
+    @Effect()
+    createOutput$: Observable<Action> = this.actions$
+        .ofType(outputActions.actionTypes.CREATE_OUTPUT)
+        .switchMap((data: any) => {
+            return this.outputService.createFragment(data.payload).mergeMap((data: any) => {
+                return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
+            }).catch(function (error: any) {
+                return Observable.of(new outputActions.CreateOutputErrorAction(''));
+            });
+        });
+
+    @Effect()
+    updateOutput$: Observable<Action> = this.actions$
+        .ofType(outputActions.actionTypes.UPDATE_OUTPUT)
+        .switchMap((data: any) => {
+            return this.outputService.updateFragment(data.payload).mergeMap((data: any) => {
+                return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];
+            }).catch(function (error: any) {
+                return Observable.of(new outputActions.UpdateOutputErrorAction(''));
+            });
+        });
 
     constructor(
         private actions$: Actions,

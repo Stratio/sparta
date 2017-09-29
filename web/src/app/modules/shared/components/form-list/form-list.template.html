@@ -9,7 +9,9 @@
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index;">
             <div [formGroupName]="i" class="row">
-               <div *ngFor="let field of formListData.fields; let j = index;" [className]="'item-element col-xs-' + (formListData.fields.length === 1 ? 6 : (12/formListData.fields.length))">
+                        <div class="list-field">
+               <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass()">
+                 
                   <st-input *ngIf="field.propertyType == 'text' || field.propertyType == 'number'" label="{{field.propertyName | translate}}"
                      fieldType="{{field.propertyType}}" placeholder="Field name" formControlName="{{field.propertyId}}" qaTag="form-list-input"
                      (change)="changeValue($event)" [required]="field.required" contextualHelp="{{field.tooltip | translate}}"></st-input>
@@ -17,7 +19,11 @@
                   <st-select *ngIf="field.propertyType == 'select'" [options]="field.options" qaTag="form-list-combo" label="{{field.propertyName | translate}}"
                      tooltip="Select option from list" placeholder="Select option" (change)="changeValue($event)" [required]="field.required"
                      formControlName="{{field.propertyId}}"></st-select>
+                  </div>
+           
+                  <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>
+ 
             </div>
          </div>
       </div>

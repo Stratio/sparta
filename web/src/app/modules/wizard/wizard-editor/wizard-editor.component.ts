@@ -38,6 +38,16 @@ import { ValidateSchemaService } from 'services';
 
 export class WizardEditorComponent implements OnInit, OnDestroy {
 
+    SUPR_KEYCODE = 27;
+    
+    @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+        console.log(event.keyCode);
+        console.log(this.selectedEntity);
+        if (event.keyCode === this.SUPR_KEYCODE && this.selectedEntity.length) {
+            this.store.dispatch(new wizardActions.UnselectEntityAction());
+        }
+    }
+
     public entities: any = [];
 
     public svgPosition = {

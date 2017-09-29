@@ -13,7 +13,7 @@
                   <input type="text" (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant workflow-name"name="workflow-name" [(ngModel)]="workflowName"/>
                </div>
                <div class="header-links">
-                  <a class="link" (click)="goToWorkflow()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
+                  <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
                   <button class="button button-primary" (click)="onSaveWorkflow.emit()">
                     {{'WIZARD.SAVE' | translate}}
                 </button>
@@ -22,6 +22,7 @@
          </div>
       </div>
    </div>
+   <div #wizardModal qaTag="wizard-modal"></div>
    <div class="tool-header">
       <div class="container">
          <div class="row">

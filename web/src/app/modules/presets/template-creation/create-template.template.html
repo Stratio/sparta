@@ -14,10 +14,14 @@
    <div class="container top-separation">
       <div class="row">
          <div class="col-sm-12">
-            <div class="egeo-title-giant">{{ (editMode ? 'DASHBOARD.EDIT_INPUT' : 'DASHBOARD.CREATE_INPUT') | translate }}</div>
+            <div class="egeo-title-giant" *ngIf="stepType === 'input'">{{ (editMode ? 'DASHBOARD.EDIT_INPUT' : 'DASHBOARD.CREATE_INPUT') | translate }}</div>
+            <div class="egeo-title-giant" *ngIf="stepType === 'output'">{{ (editMode ? 'DASHBOARD.EDIT_OUTPUT' : 'DASHBOARD.CREATE_OUTPUT') | translate }}</div>
          </div>
          <br>
          
+
+         <!--<form-string-list [formListData]="listData[fragmentIndex].properties[0]"></form-string-list>-->
+
          <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" (ngSubmit)="onSubmitInputForm()">
             <div class="row">
                <div class="col-xs-6">

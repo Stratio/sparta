@@ -80,6 +80,7 @@ export class OutputsComponent extends TemplatesBaseComponent {
         route: Router, currentActivatedRoute: ActivatedRoute, cd: ChangeDetectorRef,
         breadcrumbMenuService: BreadcrumbMenuService) {
         super(store, modalService, route, currentActivatedRoute, cd, breadcrumbMenuService);
+        this.store.dispatch(new outputActions.ResetOutputFormAction());
 
         const deleteTemplateModalTitle = 'DASHBOARD.DELETE_OUTPUT_TITLE';
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_OUTPUT_MESSAGE';

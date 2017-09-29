@@ -16,7 +16,7 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { EgeoModule } from '@stratio/egeo';
+import { EgeoModule, StModalModule } from '@stratio/egeo';
 import {
     WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
     WizardEditorComponent, WizardEditorService, WizardBoxComponent,
@@ -25,6 +25,8 @@ import {
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
 import { DndModule } from 'ng2-dnd';
+import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
+import { EntityWriterComponent } from '@app/wizard/wizard-config-editor/entity-writer/entity.writer.component';
 
 
 @NgModule({
@@ -36,16 +38,18 @@ import { DndModule } from 'ng2-dnd';
         DraggableSvgDirective,
         WizardSegmentComponent,
         WizardConfigEditorComponent,
-        SelectedEntityComponent
+        SelectedEntityComponent,
+        WizardModalComponent,
+        EntityWriterComponent
     ],
     imports: [
-        EgeoModule,
+        EgeoModule.forRoot(),
+        StModalModule.withComponents([WizardModalComponent]),
         WizardRoutingModule,
         FormsModule,
         SharedModule,
         FormsModule,
-        ReactiveFormsModule,
-        DndModule.forRoot()
+        ReactiveFormsModule
     ],
     providers: [WizardEditorService]
 })

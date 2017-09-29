@@ -5,6 +5,10 @@
          <st-breadcrumbs [options]="breadcrumbOptions" qaTag="qaTag"></st-breadcrumbs>
       </div>
       <div selection-tools *ngIf="selectedWorkflows.length">
+         <button class="button button-toolbar" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+            <i class="icon-stop" *ngIf="selectedWorkflows[0].context.status === 'Started'"></i> 
+            <i class="icon-play" *ngIf="selectedWorkflows[0].context.status !== 'Started'"></i>
+        </button>
          <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
             <i class="icon-edit"></i>
         </button>
@@ -34,16 +38,16 @@
    <div class="container">
       <div class="row">
          <div class="workflow-list">
-            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table">
-               <tr st-table-row *ngFor="let workflow of workflowList; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1">
+            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)">
+               <tr st-table-row *ngFor="let workflow of workflowList | orderBy:orderBy:sortOrder; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1">
                   <td st-table-cell st-table-row-content>
                      <st-checkbox [value]="workflow" (change)="checkValue($event)"></st-checkbox>
                   </td>
                   <td st-table-cell st-table-row-content>
-                     <label>{{workflow.name}}</label>
+                     <label class="workflow-link" (click)="editSelectedWorkflow(workflow.id)">{{workflow.name}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
-                     <label>{{('DASHBOARD.' + (workflow.context.status | uppercase)) | translate}}</label>
+                     <label class="status-field" [ngClass]="workflow.context.status">{{('DASHBOARD.' + (workflow.context.status | uppercase)) | translate}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
                      <label>{{workflow.context.lastExecutionMode}}</label>

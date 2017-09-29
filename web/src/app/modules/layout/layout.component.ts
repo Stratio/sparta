@@ -32,33 +32,16 @@ import { TranslateService } from '@ngx-translate/core';
 export class LayoutComponent implements OnInit, OnDestroy {
 
     public menu: Array<StHeaderMenuOption>;
-    public alertSubscribe: Subscription;
 
     constructor(
-        private _cd: ChangeDetectorRef,
-        private store: Store<fromRoot.State>,
-        private _alertService: StAlertsService,
-        private translate: TranslateService,
         private menuService: MenuService) {
     }
 
     ngOnInit(): void {
         this.menu = this.menuService.getMenu();
-        this.alertSubscribe = this.store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
-            if (alerts && alerts.length) {
-                alerts.map((alert: any) => {
-                    const title = 'ALERTS.' + alert.title;
-                    const description = 'ALERTS.' + alert.description;
-                    this.translate.get([title, description], alert.params).subscribe((value: { [key: string]: string }) => {
-                        this._alertService.notifyAlert(value[title], value[description], alert.type);
-                    });
-                });
-            }
-        });
     }
 
     ngOnDestroy(): void {
-        this.alertSubscribe.unsubscribe();
     }
 
 

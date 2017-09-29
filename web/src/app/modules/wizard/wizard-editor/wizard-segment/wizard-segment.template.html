@@ -1,10 +1,8 @@
-<svg:g>
+<svg:g class="segmentContainer">
    <svg:path [attr.d]="getPosition(initialEntity, finalEntity)" class="segment">
-      <text x="0" y="15" fill="red">{{initialEntity | json}}</text>
    </svg:path>
-   <svg:text class="delete-icon" text 
-        [attr.x]="closeIconPosition.x" 
-        [attr.y]="closeIconPosition.y"
-        (click)="deleteSegment()" 
-        fill="#0f1b27">&#xfE117;</svg:text>
+   <svg:path [attr.d]="getPosition(initialEntity, finalEntity)" class="segment-hover">
+   </svg:path>
+   <svg:text class="delete-icon" text [attr.x]="closeIconPosition.x" [attr.y]="closeIconPosition.y" (click)="deleteSegment()"
+      fill="#0f1b27">&#xfE117;</svg:text>
 </svg:g>

@@ -20,10 +20,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 @Injectable()
 export class BreadcrumbMenuService {
 
-    public getOptions(): string[] {
+    public getOptions(lastOption?: string): string[] {
         let options = ['home'];
         const params = this.route.url.split('/');
         options = options.concat(params.slice(1, params.length));
+        if(lastOption && lastOption.length) {
+            options[options.length - 1] = lastOption;
+        }
         return options;
     }
 
@@ -33,7 +36,6 @@ export class BreadcrumbMenuService {
         for (let i = 1; i < routeIndex + 1; i++) {
             route += '/' + routeParams[i];
         }
-        console.log(route);
         this.route.navigate([route], {});
     }
 

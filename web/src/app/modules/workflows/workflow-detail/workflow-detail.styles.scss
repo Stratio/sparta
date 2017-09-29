@@ -29,6 +29,19 @@
    color: #3c3c3c;
    font-size: $egeo-font-size-xsmall;
    .notstarted {}
+   display: inline-block;
+   margin-bottom:5px;
+   &.started {
+      background: rgba(12, 170, 112, 0.15);
+      color: #0baa70;
+      padding: 3px 10px;
+   }
+
+   &.failed {
+       color:$status-critical-default;
+       padding: 3px 10px;
+           background: rgba(170, 12 , 112, 0.15);
+   }
 }
 
 .workflow-info {

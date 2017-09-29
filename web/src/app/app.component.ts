@@ -16,19 +16,38 @@
 
 import { Component, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import * as fromRoot from 'reducers';
+import { Subscription } from 'rxjs/Rx';
+import { CustomAlert } from 'app/models/alert.model';
+import { Store } from '@ngrx/store';
+import { StAlertsService } from '@stratio/egeo';
 
 @Component({
-   encapsulation: ViewEncapsulation.None,
-   selector: 'st-app',
-   styleUrls: [ './app.styles.scss' ],
-   templateUrl: './app.template.html'
+    encapsulation: ViewEncapsulation.None,
+    selector: 'st-app',
+    styleUrls: ['./app.styles.scss'],
+    templateUrl: './app.template.html'
 })
 
 export class AppComponent {
-   constructor(translate:TranslateService) {
-      let lang:string = navigator.language.split('-')[0];
-      lang = /(es|en)/gi.test(lang) ? lang : 'en';
-      translate.setDefaultLang('en');
-      translate.use(lang);
-   }
+    constructor(private translate: TranslateService, private store: Store<fromRoot.State>, private _alertService: StAlertsService,) {
+        let lang: string = navigator.language.split('-')[0];
+        lang = /(es|en)/gi.test(lang) ? lang : 'en';
+        translate.setDefaultLang('en');
+        translate.use(lang);
+    }
+
+    ngOnInit(): void {
+        this.store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
+            if (alerts && alerts.length) {
+                alerts.map((alert: any) => {
+                    const title = 'ALERTS.' + alert.title;
+                    const description = 'ALERTS.' + alert.description;
+                    this.translate.get([title, description], alert.params).subscribe((value: { [key: string]: string }) => {
+                        this._alertService.notifyAlert(value[title], value[description], alert.type, undefined, 1000);
+                    });
+                });
+            }
+        });
+    }
 }

@@ -27,7 +27,9 @@ import {
     SimpleChange,
     SimpleChanges,
     ViewChildren,
-    ViewChild
+    ViewChild,
+    ElementRef,
+    HostListener
 } from '@angular/core';
 import {
     ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm
@@ -35,35 +37,46 @@ import {
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
-    selector: 'form-list',
-    templateUrl: './form-list.template.html',
-    styleUrls: ['./form-list.styles.scss'],
+    selector: 'form-string-list',
+    templateUrl: './form-string-list.template.html',
+    styleUrls: ['./form-string-list.styles.scss'],
     providers: [
-        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => FormListComponent), multi: true }
+        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => FormListStringComponent), multi: true }
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormListComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class FormListStringComponent implements ControlValueAccessor, OnInit, OnDestroy {
 
     @Input() public formListData: any;
     @Input() public label: string = '';
     @Input() public qaTag = '';
 
     @ViewChild('inputForm') public inputForm: NgForm;
+    @ViewChild('newElement') newElementInput: ElementRef;
+
 
     public item: any = {};
     public form: FormGroup;
     public items: FormArray;
+    public innerInputContent = '';
 
     onChange = (_: any) => { };
     onTouched = () => { };
 
+    addElementFocus() {
+        this.newElementInput.nativeElement.focus();
+    }
+
+    onkeyPress($event: any) {
+        if($event.keyCode === 13) {
+            this.items.push(this.createItem(this.innerInputContent));
+            this.innerInputContent = '';
+        }
+    }
+
     constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef) { };
 
     ngOnInit() {
-        for (let field of this.formListData.fields) {
-            this.item[field.propertyId] = '';
-        }
 
         this.items = this.formBuilder.array([]);
         this.form = new FormGroup({
@@ -72,8 +85,8 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
     }
 
     //create empty item
-    createItem(): FormGroup {
-        return this.formBuilder.group(this.item);
+    createItem(value: any): FormControl {
+        return this.formBuilder.control(value);
     }
 
     deleteItem(i: number) {
@@ -81,7 +94,7 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
     }
     
     addItem(): void {
-        this.items.push(this.createItem());
+       
     }
 
     getItemClass(): string {

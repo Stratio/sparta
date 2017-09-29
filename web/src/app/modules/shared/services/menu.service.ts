@@ -35,11 +35,11 @@ export class MenuService {
             link: DASHBOARD_ROUTES.PRESETS,
             subMenus: [
                 {
-                    label:'Inputs',
+                    label: 'Inputs',
                     link: DASHBOARD_ROUTES.INPUTS
                 },
                 {
-                    label:'Outputs',
+                    label: 'Outputs',
                     link: DASHBOARD_ROUTES.OUTPUTS
                 }
             ]

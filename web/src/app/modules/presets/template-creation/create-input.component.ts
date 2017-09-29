@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { NgForm, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +24,7 @@ import * as inputsTemplate from 'data-templates/inputs';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 import { CreateTemplateComponent } from './create-template.component';
+import { Subscription } from 'rxjs/Rx';
 
 @Component({
     selector: 'create-input',
@@ -31,7 +32,7 @@ import { CreateTemplateComponent } from './create-template.component';
     styleUrls: ['./create-template.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreateInputComponent extends CreateTemplateComponent {
+export class CreateInputComponent extends CreateTemplateComponent implements OnDestroy {
 
     @Output() onCloseInputModal = new EventEmitter<string>();
     @ViewChild('inputForm') public inputForm: NgForm;
@@ -48,16 +49,25 @@ export class CreateInputComponent extends CreateTemplateComponent {
     public configuration: FormGroup;
     public editMode = false;
     public title = '';
+    public stepType = 'input';
+    private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
-        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, breadcrumbMenuService: BreadcrumbMenuService) {
+        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService);
+        this.store.dispatch(new inputActions.ResetInputFormAction());
         this.listData = inputsTemplate.inputs;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
                 label: fragmentData.name,
                 value: fragmentData.name
+            }
+        });
+
+        this.saveSubscription = this.store.select(fromRoot.isInputSaved).subscribe((isSaved) => {
+            if(isSaved) {
+                 this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
             }
         });
     }
@@ -87,7 +97,12 @@ export class CreateInputComponent extends CreateTemplateComponent {
             }
             this.setEditedTemplateIndex(editedInput.type || 'Kafka');
             this.inputFormModel = editedInput;
+            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
         });
     }
-    
+
+    ngOnDestroy() {
+        this.saveSubscription && this.saveSubscription.unsubscribe();
+    }
+
 }

@@ -35,7 +35,8 @@ export const actionTypes: any = {
   CREATE_INPUT_ERROR: type('[Input] Create input error'),
   UPDATE_INPUT: type('[Input] Update input'),
   UPDATE_INPUT_COMPLETE: type('[Input] Update input complete'),
-  UPDATE_INPUT_ERROR: type('[Input] Update input error')
+  UPDATE_INPUT_ERROR: type('[Input] Update input error'),
+  RESET_INPUT_FORM: type('[Input] Reset input form')
 };
 
 export class ListInputAction implements Action {
@@ -151,6 +152,10 @@ export class UpdateInputErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class ResetInputFormAction implements Action {
+  type: any = actionTypes.RESET_INPUT_FORM;
+}
+
 export type Actions =
   ListInputAction |
   ListInputFailAction |
@@ -170,4 +175,5 @@ export type Actions =
   UpdateInputAction |
   UpdateInputCompleteAction |
   UpdateInputErrorAction |
-  DisplayModeAction;
+  DisplayModeAction |
+  ResetInputFormAction;
