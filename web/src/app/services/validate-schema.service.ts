@@ -75,8 +75,9 @@ export class ValidateSchemaService {
 
     setDefaultEntityModel(value: any): any {
         let model: any = {};
+        model.configuration = {};
         value.properties.map((prop: any) => {
-            model[prop.propertyId] = prop.default ? prop.default : null;
+            model.configuration[prop.propertyId] = prop.default ? prop.default : null;
         });
         model.classPrettyName = value.classPrettyName;
         model.className = value.className;

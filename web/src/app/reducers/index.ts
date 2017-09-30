@@ -114,6 +114,7 @@ export const isCreationMode: any = createSelector(getWizardState, fromWizard.isC
 export const isShowedEntityDetails: any = createSelector(getWizardState, fromWizard.isShowedEntityDetails);
 export const getMenuOptions: any = createSelector(getWizardState, fromWizard.getMenuOptions);
 export const getSelectedEntities: any = createSelector(getWizardState, fromWizard.getSelectedEntities);
+export const getSelectedEntityData: any = createSelector(getWizardState, fromWizard.getSelectedEntityData);
 export const getWorkflowRelations: any = createSelector(getWizardState, fromWizard.getWorkflowRelations);
 export const getWorkflowNodes: any = createSelector(getWizardState, fromWizard.getWorkflowNodes);
 export const getEditionConfigMode: any = createSelector(getWizardState, fromWizard.getEditionConfigMode);

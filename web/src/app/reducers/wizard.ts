@@ -267,6 +267,9 @@ export function reducer(state: State = initialState, action: any): State {
 
 export const getMenuOptions: any = (state: State) => state.menuOptions;
 export const getSelectedEntities: any = (state: State) => state.selectedEntity;
+export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => {
+    return node.name === state.selectedEntity;
+});
 export const isShowedEntityDetails: any = (state: State) => state.showEntityDetails;
 export const getWorkflowRelations: any = (state: State) => state.edges;
 export const getWorkflowNodes: any = (state: State) => state.nodes;

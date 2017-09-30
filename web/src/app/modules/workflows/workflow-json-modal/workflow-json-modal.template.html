@@ -1,5 +1,5 @@
 <div>
-   <form #jsonWorkflowForm="ngForm" novalidate autocomplete="off" (ngSubmit)="onSubmitWorkflow()">
+   <form #jsonWorkflowForm="ngForm" novalidate autocomplete="off">
       <div class="editor">
          <div class="workflow-fields">
             <st-input #input label="{{'DASHBOARD.WORKFLOW_NAME' | translate}}" placeholder="{{'DASHBOARD.NAME_PLACEHOLDER' | translate}}"
@@ -24,7 +24,7 @@
                     <i class="icon-circle-cross"></i> 
                     <span>{{'DASHBOARD.CANCEL' | translate}}</span>
                 </button>
-                <button class="button button-primary">
+                <button class="button button-primary" (click)="onSubmitWorkflow()">
                     <i class="icon-circle-check"></i>
                     <span>{{'DASHBOARD.CREATE' | translate}}</span>
                 </button>

@@ -27,6 +27,7 @@ import { SharedModule } from '@app/shared';
 import { DndModule } from 'ng2-dnd';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
 import { EntityWriterComponent } from '@app/wizard/wizard-config-editor/entity-writer/entity.writer.component';
+import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details/wizard-details.component';
 
 
 @NgModule({
@@ -35,6 +36,7 @@ import { EntityWriterComponent } from '@app/wizard/wizard-config-editor/entity-w
         WizardHeaderComponent,
         WizardEditorComponent,
         WizardBoxComponent,
+        WizardDetailsComponent,
         DraggableSvgDirective,
         WizardSegmentComponent,
         WizardConfigEditorComponent,

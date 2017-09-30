@@ -29,13 +29,19 @@ export class InitializeWorkflowService {
             };
         }
         const nodes = workflow.pipelineGraph.nodes;
+        let x = 40;
+        let y = 100;
+        let h = true;
         if (nodes && nodes.length && !nodes[0].uiConfiguration) {
             nodes.map((node: any) => {
                 node.uiConfiguration = {};
                 node.uiConfiguration.position = {
-                    x: 0,
-                    y: 0
+                    x: x,
+                    y: y
                 };
+
+                h ? x += 200 : y+=120;
+                h = !h;
             });
         }
         return workflow;

@@ -58,7 +58,6 @@ export class WizardEffect {
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]) => {
-            console.log(wizard);
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 uiSettings: {

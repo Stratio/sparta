@@ -16,9 +16,14 @@
                      fieldType="{{field.propertyType}}" placeholder="Field name" formControlName="{{field.propertyId}}" qaTag="form-list-input"
                      (change)="changeValue($event)" [required]="field.required" contextualHelp="{{field.tooltip | translate}}"></st-input>
 
-                  <st-select *ngIf="field.propertyType == 'select'" [options]="field.options" qaTag="form-list-combo" label="{{field.propertyName | translate}}"
+                  <st-select *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo" label="{{field.propertyName | translate}}"
                      tooltip="Select option from list" placeholder="Select option" (change)="changeValue($event)" [required]="field.required"
                      formControlName="{{field.propertyId}}"></st-select>
+
+                     <st-checkbox *ngIf="field.propertyType == 'boolean'" 
+                     formControlName="{{field.propertyId}}"
+                     [name]="field.propertyId" 
+                     [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
                   </div>
            
                   <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>

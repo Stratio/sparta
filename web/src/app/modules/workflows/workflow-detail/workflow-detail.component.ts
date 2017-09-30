@@ -14,14 +14,13 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
 import { StHorizontalTab } from '@stratio/egeo';
 
 @Component({
     selector: 'workflow-detail',
     templateUrl: './workflow-detail.template.html',
-    styleUrls: ['./workflow-detail.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./workflow-detail.styles.scss']
 })
 export class WorkflowDetailComponent implements OnInit {
 
@@ -50,9 +49,10 @@ export class WorkflowDetailComponent implements OnInit {
        this.inputs = inputs;
        this.outputs = outputs;
        this.transformations = transformations;
+       this._cd.detectChanges();
     }
 
-    constructor() { }
+    constructor(private _cd: ChangeDetectorRef) { }
 
     ngOnInit() { }
 }

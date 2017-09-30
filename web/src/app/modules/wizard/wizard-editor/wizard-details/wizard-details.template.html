@@ -1,0 +1,15 @@
+<div class="workflow-detail">
+   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+   <div class="not-selected" *ngIf="!entityData || !entityData.name">
+      <img src="assets/images/wizard-details.svg" class="workflow-detail-image" />
+      <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
+   </div>
+   <div class="selected" *ngIf="entityData && entityData.name">
+      <h3 class="egeo-title-giant">{{entityData.name}}</h3>
+      <div>
+         <span class="title">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
+         <span class="values"></span>
+
+      </div>
+   </div>
+</div>

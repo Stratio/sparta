@@ -132,7 +132,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         }, WizardModalComponent);
     }
 
-
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if(event === '1') {

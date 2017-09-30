@@ -42,6 +42,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     SUPR_KEYCODE = 46;
 
     public entities: any = [];
+    public entitiesData: any = [];
 
     public svgPosition = {
         x: 10,
@@ -67,6 +68,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     /**** Subscriptions ****/
     private creationModeSubscription: Subscription;
     private getSeletedEntitiesSubscription: Subscription;
+    private getSeletedEntitiesDataSubscription: Subscription;
     private getWorflowNodesSubscription: Subscription;
     private workflowRelationsSubscription: Subscription;
     private workflowPositionSubscription: Subscription;
@@ -85,7 +87,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.store.dispatch(new wizardActions.DeleteEntityAction());
         }
     }
-    
+
     constructor(private elementRef: ElementRef, private editorService: WizardEditorService,
         private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private validateSchemaService: ValidateSchemaService) {
 
@@ -95,6 +97,10 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         // ngrx
         this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => {
             this.creationMode = data;
+        });
+
+        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData).subscribe((data)=> {
+            this.entitiesData = data;
         });
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
         this.getSeletedEntitiesSubscription = this.store.select(fromRoot.getSelectedEntities).subscribe((data) => {
@@ -281,6 +287,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.getWorflowNodesSubscription && this.getWorflowNodesSubscription.unsubscribe();
         this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
         this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
+        this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
     }
 
     saveWorkflow(): void {

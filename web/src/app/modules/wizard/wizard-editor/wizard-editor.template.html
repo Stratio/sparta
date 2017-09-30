@@ -30,6 +30,7 @@
       </svg>
 
       <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
+            <wizard-details [entityData]="entitiesData"></wizard-details>
       </sparta-sidebar>
    </div>
 </section>

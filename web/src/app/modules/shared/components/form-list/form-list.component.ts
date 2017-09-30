@@ -78,8 +78,9 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
 
     deleteItem(i: number) {
         this.items.removeAt(i);
+        this.onChange(this.items.value);
     }
-    
+
     addItem(): void {
         this.items.push(this.createItem());
     }

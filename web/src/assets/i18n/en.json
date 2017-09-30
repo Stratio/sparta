@@ -294,6 +294,8 @@
    "_SSL_KEYSTORE_PASSWORD_": "SSL KeyStore Password",
    "_SSL_KEY_PASSWORD_": "SSL Key Password",
    "_SECURITY_AUTH_": "Security Client Auth",
+   "_SAVEMODE_": "Save mode",
+   "_TABLE_NAME_": "Table name",
    "ALERTS": {
       "SUCCESS": "Success",
       "ERROR": "Error",
