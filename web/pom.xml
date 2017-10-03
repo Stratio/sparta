@@ -19,6 +19,7 @@
         <customnodeDownloadRoot></customnodeDownloadRoot>
         <customnpmDownloadRoot></customnpmDownloadRoot>
         <customnpmRegistryURL></customnpmRegistryURL>
+        <sonar.sources>src/app</sonar.sources>
     </properties>
 
     <build>
