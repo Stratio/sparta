@@ -38,10 +38,10 @@ class JsonTransformStep(name: String,
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
-  lazy val supportNullValues: Boolean = Try(properties.getString("supportNullValues").toBoolean).getOrElse(true)
+  lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
   lazy val inputField: String = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
-  lazy val addAllInputFields: Boolean = Try(propertiesWithCustom.getBoolean("addAllInputFields")).getOrElse(true)
+  lazy val addAllInputFields: Boolean = propertiesWithCustom.getBoolean("addAllInputFields", default = true)
 
   assert(inputField.nonEmpty)
 
@@ -92,7 +92,7 @@ class JsonTransformStep(name: String,
 
   def getNewOutputSchema(inputSchema: StructType): Option[StructType] = {
     val outputFieldsSchema = queriesModel.queries.map { queryField =>
-      val outputType = queryField.`type`.getOrElse("string")
+      val outputType = queryField.`type`.notBlank.getOrElse("string")
       StructField(
         name = queryField.field,
         dataType = SparkTypes.get(outputType) match {

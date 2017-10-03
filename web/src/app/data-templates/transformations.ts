@@ -30,6 +30,7 @@ import * as csvTemplate from './transformations/csv.json';
 export const transformations: any = [
    castingTemplate,
    checkpointTemplate,
+   csvTemplate,
    distinctTemplate,
    filterTemplate,
    intersectionTemplate,
@@ -37,10 +38,8 @@ export const transformations: any = [
    persistTemplate,
    selectTemplate,
    triggerTemplate,
-   jsonTemplate,
    unionTemplate,
-   windowTemplate,
-   csvTemplate
+   windowTemplate
 ];
 
 export const transformationNames = transformations.map((transformation: any) => {

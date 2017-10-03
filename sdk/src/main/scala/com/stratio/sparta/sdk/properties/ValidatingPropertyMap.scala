@@ -110,9 +110,9 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
 
   def getString(key: K, default: Option[String]): Option[String] = {
     m.get(key) match {
-      case Some(value: String) => if (value.isEmpty) default else Some(value)
+      case Some(value: String) => if (value.isEmpty) default else Option(value)
       case Some(null) => default
-      case Some(value) => if (value.toString.isEmpty) default else Some(value.toString)
+      case Some(value) => if (value.toString.isEmpty) default else Option(value.toString)
       case None => default
     }
   }
@@ -136,7 +136,36 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
       case None => throw new IllegalStateException(s"$key is mandatory")
     }
 
-  //scalastyle:on
+  def getBoolean(key: K, default: Boolean): Boolean =
+    m.get(key) match {
+      case Some(value: String) => value.toBoolean
+      case Some(value: Int) =>
+        value match {
+          case 1 => true
+          case 0 => false
+          case _ => default
+        }
+      case Some(value: Boolean) => value
+      case Some(value) => Try(value.toString.toBoolean).getOrElse(default)
+      case None => default
+    }
+
+  def getBoolean(key: K, default: Option[Boolean]): Option[Boolean] =
+    m.get(key) match {
+      case Some(value: String) => Option(value.toBoolean)
+      case Some(value: Int) =>
+        value match {
+          case 1 => Option(true)
+          case 0 => Option(false)
+          case _ => default
+        }
+      case Some(value: Boolean) => Option(value)
+      case Some(value) => Try(value.toString.toBoolean) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case None => default
+    }
 
   def getInt(key: K): Int =
     m.get(key) match {
@@ -154,6 +183,85 @@ class ValidatingPropertyMap[K, V](val m: Map[K, V]) extends SLF4JLogging {
         }
       case None =>
         throw new IllegalStateException(s"$key is mandatory")
+    }
+
+  def getInt(key: K, default: Int): Int =
+    m.get(key) match {
+      case Some(value: String) => Try(value.toInt).getOrElse(default)
+      case Some(value: Int) => value
+      case Some(value: Long) => Try(value.toInt).getOrElse(default)
+      case Some(value) => Try(value.toString.toInt).getOrElse(default)
+      case None => default
+    }
+
+  def getInt(key: K, default: Option[Int]): Option[Int] =
+    m.get(key) match {
+      case Some(value: String) => Try(value.toInt) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case Some(value: Int) =>
+        Option(value)
+      case Some(value: Long) => Try(value.toInt) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case Some(value) => Try(value.toString.toInt) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case None => default
+    }
+
+  def getLong(key: K): Long =
+    m.get(key) match {
+      case Some(value: String) =>
+        Try(value.toLong) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
+      case Some(value: Long) =>
+        value
+      case Some(value: Int) =>
+        Try(value.toLong) match {
+        case Success(v) => v
+        case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+      }
+      case Some(value) =>
+        Try(value.toString.toLong) match {
+          case Success(v) => v
+          case Failure(ex) => throw new IllegalStateException(s"Bad value for $key", ex)
+        }
+      case None =>
+        throw new IllegalStateException(s"$key is mandatory")
+    }
+
+  def getLong(key: K, default: Long): Long =
+    m.get(key) match {
+      case Some(value: String) => Try(value.toLong).getOrElse(default)
+      case Some(value: Long) => value
+      case Some(value: Int) => value.toInt
+      case Some(value) => Try(value.toString.toLong).getOrElse(default)
+      case None => default
+    }
+
+  def getLong(key: K, default: Option[Long]): Option[Long] =
+    m.get(key) match {
+      case Some(value: String) => Try(value.toLong) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case Some(value: Long) =>
+        Option(value)
+      case Some(value: Int) => Try(value.toLong) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case Some(value) => Try(value.toString.toLong) match {
+        case Success(x) => Option(x)
+        case Failure(_) => default
+      }
+      case None => default
     }
 
   def getOptionsList(key: K,

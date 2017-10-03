@@ -42,8 +42,8 @@ class TestInputStep(
 
   lazy val eventType: EventType.Value = EventType.withName(properties.getString("eventType", "STRING").toUpperCase)
   lazy val event: String = properties.getString("event", "dummyEvent")
-  lazy val maxNumber: Int = Try(properties.getString("maxNumber").toInt).getOrElse(1)
-  lazy val numEvents: Long = Try(properties.getString("numEvents").toLong).getOrElse(1L)
+  lazy val maxNumber: Int = properties.getInt("maxNumber", 1)
+  lazy val numEvents: Long = properties.getLong("numEvents", 1L)
   lazy val outputField: String = properties.getString("outputField", DefaultRawDataField)
   lazy val numberSchema = StructType(Seq(StructField(outputField, IntegerType)))
   lazy val stringSchema = StructType(Seq(StructField(outputField, StringType)))

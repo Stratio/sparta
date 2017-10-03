@@ -28,6 +28,7 @@ import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.collection.JavaConversions
 import scala.util._
@@ -192,7 +193,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     }
 
   private[sparta] def addId(workflow: Workflow): Workflow =
-    workflow.id match {
+    workflow.id.notBlank match {
       case None => workflow.copy(id = Some(UUID.randomUUID.toString))
       case Some(_) => workflow
     }

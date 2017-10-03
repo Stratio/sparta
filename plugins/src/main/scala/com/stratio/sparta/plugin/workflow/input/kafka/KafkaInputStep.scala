@@ -142,8 +142,8 @@ class KafkaInputStep(
 
   def getOffset(fields: Map[String, String]): Option[(TopicPartition, Long)] = {
     val topic = fields.get("topic").notBlank
-    val partition = Try(fields.getInt("partition")).toOption
-    val offsetValue = fields.get("offsetValue").notBlank.map(_.toLong)
+    val partition = fields.getInt("partition", None)
+    val offsetValue = fields.getLong("offsetValue", None)
 
     (topic, partition, offsetValue) match {
       case (Some(tp), Some(part), Some(off)) =>
@@ -176,7 +176,7 @@ class KafkaInputStep(
     Map("auto.offset.reset" -> properties.getString("auto.offset.reset", "latest"))
 
   def getAutoCommit: Map[String, java.lang.Boolean] ={
-    val autoCommit = Try(properties.getBoolean("enable.auto.commit")).getOrElse(false)
+    val autoCommit = properties.getBoolean("enable.auto.commit", default = false)
     Map("enable.auto.commit" -> autoCommit)
   }
 

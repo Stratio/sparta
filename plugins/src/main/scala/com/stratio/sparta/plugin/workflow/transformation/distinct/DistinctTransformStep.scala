@@ -37,7 +37,7 @@ class DistinctTransformStep(name: String,
                             properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val partitions = Try(properties.getString("partitions").toInt).toOption
+  lazy val partitions = properties.getInt("partitions", None)
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     inputStream.transform { rdd =>

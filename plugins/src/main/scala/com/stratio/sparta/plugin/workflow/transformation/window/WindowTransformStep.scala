@@ -35,9 +35,9 @@ class WindowTransformStep(name: String,
                           properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
-  lazy val overLast: Option[Duration] = Try(properties.getString("overLast", None)).getOrElse(None)
+  lazy val overLast: Option[Duration] = properties.getString("overLast", None)
     .notBlank.map(over => Milliseconds(AggregationTime.parseValueToMilliSeconds(over)))
-  lazy val computeEvery: Option[Duration] = Try(properties.getString("computeEvery", None)).getOrElse(None)
+  lazy val computeEvery: Option[Duration] = properties.getString("computeEvery", None)
     .notBlank.map(every => Milliseconds(AggregationTime.parseValueToMilliSeconds(every)))
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {

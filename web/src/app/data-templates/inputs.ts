@@ -28,8 +28,8 @@ import * as testTemplate from './inputs/test.json';
 
 
 export const inputs = [
-    kafkaTemplate,
     crossdataTemplate,
+    kafkaTemplate,
     //customTemplate,
     //filesystemTemplate,
     //flumeTemplate,
@@ -37,8 +37,8 @@ export const inputs = [
     //rabbitmqSingleTemplate,
     //socketTemplate,
     //twitterJsonTemplate,
-    websocketTemplate,
-    testTemplate
+    testTemplate,
+    websocketTemplate
 ];
 
 

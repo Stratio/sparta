@@ -45,7 +45,7 @@ class CastingTransformStep(name: String,
       case OutputFieldsFrom.FIELDS =>
         if (fieldsModel.fields.nonEmpty) {
           Option(StructType(fieldsModel.fields.map { outputField =>
-            val outputType = outputField.`type`.getOrElse("string")
+            val outputType = outputField.`type`.notBlank.getOrElse("string")
             StructField(
               name = outputField.name,
               dataType = SparkTypes.get(outputType) match {

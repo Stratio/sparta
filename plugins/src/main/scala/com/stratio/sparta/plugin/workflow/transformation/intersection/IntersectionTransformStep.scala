@@ -36,7 +36,7 @@ class IntersectionTransformStep(name: String,
                                 properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val partitions = Try(properties.getString("partitions").toInt).toOption
+  lazy val partitions = properties.getInt("partitions", None)
 
   override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
     assert(inputData.size == 2,

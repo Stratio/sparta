@@ -34,7 +34,7 @@ object SpartaConfig extends SLF4JLogging {
   def initConfig(node: String,
                  currentConfig: Option[Config] = None,
                  configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
-    log.info(s"Loading $node configuration")
+    log.debug(s"Loading $node configuration")
     val configResult = currentConfig match {
       case Some(config) => Try(config.getConfig(node)).toOption
       case None => configFactory.getConfig(node)
@@ -44,7 +44,7 @@ object SpartaConfig extends SLF4JLogging {
   }
 
   def initWithFallbackConfig(node: String, currentConfig: Config): Option[Config] = {
-    log.info(s"Loading $node configuration")
+    log.debug(s"Loading $node configuration")
     val mergedConfig = ConfigFactory.load().withFallback(currentConfig)
     val configResult = Try(mergedConfig.getConfig(node)).toOption
     assert(configResult.isDefined, s"Fatal Error: configuration can not be loaded: $node")
@@ -94,7 +94,7 @@ object SpartaConfig extends SLF4JLogging {
   def initOptionalConfig(node: String,
                          currentConfig: Option[Config] = None,
                          configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
-    log.info(s" Loading $node configuration")
+    log.debug(s" Loading $node configuration")
     Try(
       currentConfig match {
         case Some(config) => getOptionConfig(node, config)

@@ -116,7 +116,6 @@
                  "propertyName": "_NULLABLE_",
                  "propertyType": "boolean",
                  "default": true,
-                 "required": true,
                  "qa": "fragment-details-field-nullable"
               }
            ]
@@ -133,7 +132,7 @@
            "propertyId": "delimiter",
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
-           "required": true,
+           "required": false,
            "tooltip": "Delimiter character in csv string",
            "qa": "fragment-details-csv-delimiter"
         },
@@ -141,7 +140,7 @@
            "propertyId": "splitLimit",
            "propertyName": "_SPLIT_LIMIT_",
            "propertyType": "text",
-           "required": true,
+           "required": false,
            "tooltip": "",
            "qa": "fragment-details-csv-splitLimit"
         },
@@ -149,7 +148,7 @@
            "propertyId": "delimiterType",
            "propertyName": "_DELIMITER_TYPE_",
            "propertyType": "select",
-           "default": "Error",
+           "default": "CHARACTER",
            "required": true,
            "values": [
               {

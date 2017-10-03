@@ -20,6 +20,7 @@ import java.net.Socket
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.util._
 
@@ -29,7 +30,7 @@ object ResourceManagerLinkHelper extends SLF4JLogging {
               sparkMaster: String,
               monitoringLink: Option[String] = None,
               withCheck: Boolean = true): Option[String] = {
-    val (host: String, port: Int) = (monitoringLink, executionMode) match {
+    val (host: String, port: Int) = (monitoringLink.notBlank, executionMode) match {
       case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink(sparkMaster)
       case (None, AppConstant.ConfigLocal) => localLink
       case (Some(uri), _) => userLink(uri)

@@ -9,7 +9,7 @@
            "propertyId": "sql",
            "propertyName": "_SQL_",
            "propertyType": "textarea",
-           "required": false,
+           "required": true,
            "tooltip": "Query in SQL language",
            "qa": "fragment-details-trigger-sql"
         }

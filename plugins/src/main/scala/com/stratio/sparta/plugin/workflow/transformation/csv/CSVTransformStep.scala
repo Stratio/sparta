@@ -38,12 +38,12 @@ class CSVTransformStep(name: String,
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val fieldsModel = properties.getPropertiesFields("fields")
-  lazy val fieldsSeparator = Try(properties.getString("delimiter")).getOrElse(",")
-  lazy val splitLimit = Try(properties.getString("splitLimit").toInt).getOrElse(-1)
+  lazy val fieldsSeparator = properties.getString("delimiter", ",")
+  lazy val splitLimit = properties.getInt("splitLimit", -1)
   lazy val delimiterType = DelimiterType.withName(properties.getString("delimiterType", "character").toUpperCase)
   lazy val inputField = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
-  lazy val addAllInputFields: Boolean = Try(propertiesWithCustom.getBoolean("addAllInputFields")).getOrElse(true)
+  lazy val addAllInputFields: Boolean = propertiesWithCustom.getBoolean("addAllInputFields", default = true)
 
   assert(inputField.nonEmpty)
 
@@ -111,7 +111,7 @@ class CSVTransformStep(name: String,
 
   def getNewOutputSchema(inputSchema: StructType): Option[StructType] = {
     val outputFieldsSchema = fieldsModel.fields.map { fieldModel =>
-      val outputType = fieldModel.`type`.getOrElse("string")
+      val outputType = fieldModel.`type`.notBlank.getOrElse("string")
       StructField(
         name = fieldModel.name,
         dataType = SparkTypes.get(outputType) match {

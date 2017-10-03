@@ -52,22 +52,22 @@ class CrossdataInputStep(
 
   lazy val query = properties.getString("query")
   lazy val offsetField = properties.getString("offsetField")
-  lazy val offsetOperator = properties.getString("offsetOperator", None)
+  lazy val offsetOperator = properties.getString("offsetOperator", None).notBlank
     .map(operator => OffsetOperator.withName(operator))
-  lazy val offsetValue = properties.getString("offsetValue", None)
-  lazy val finishApplicationWhenEmpty = Try(properties.getBoolean("finishAppWhenEmpty")).getOrElse(false)
-  lazy val fromBeginning = Try(properties.getBoolean("fromBeginning")).toOption.getOrElse(false)
+  lazy val offsetValue = properties.getString("offsetValue", None).notBlank
+  lazy val finishApplicationWhenEmpty = properties.getBoolean("finishAppWhenEmpty", default = false)
+  lazy val fromBeginning = properties.getBoolean("fromBeginning", default = false)
   lazy val forcedBeginning = Try(properties.getBoolean("forcedBeginning")).toOption
-  lazy val limitRecords = Try(properties.getString("limitRecords", None).map(_.toLong)).getOrElse(None)
-  lazy val stopContexts = Try(properties.getBoolean("stopContexts")).getOrElse(false)
-  lazy val stopGracefully = Try(properties.getBoolean("stopGracefully")).getOrElse(true)
+  lazy val limitRecords = properties.getLong("limitRecords", None)
+  lazy val stopContexts = properties.getBoolean("stopContexts", default = false)
+  lazy val stopGracefully = properties.getBoolean("stopGracefully", default = true)
   lazy val zookeeperPath = Properties.envOrElse("SPARTA_ZOOKEEPER_PATH", "/stratio/sparta") + {
     val path = properties.getString("zookeeperPath", "/crossdata/offsets")
     if (path.startsWith("/"))
       path
     else s"/$path"
   }
-  lazy val initialSentence = properties.getString("initialSentence", None).flatMap { sentence =>
+  lazy val initialSentence = properties.getString("initialSentence", None).notBlank.flatMap { sentence =>
     if (sentence.toUpperCase.startsWith("CREATE TEMPORARY TABLE"))
       Option(sentence)
     else {

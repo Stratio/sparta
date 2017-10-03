@@ -36,7 +36,7 @@ class CheckpointTransformStep(name: String,
                               properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
-  lazy val interval: Option[Duration] = Try(properties.getString("interval", None)).getOrElse(None).map(time =>
+  lazy val interval: Option[Duration] = properties.getString("interval", None).map(time =>
     Milliseconds(AggregationTime.parseValueToMilliSeconds(time)))
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {

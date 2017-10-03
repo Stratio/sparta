@@ -35,7 +35,7 @@ class SelectTransformStep(name: String,
                           properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val selectExpression: Option[String] = Try(properties.getString("selectExp")).toOption
+  lazy val selectExpression: Option[String] = properties.getString("selectExp", None)
 
   assert(selectExpression.isDefined,
     "It's mandatory one select expression, such as colA, colB as newName, abs(colC)")

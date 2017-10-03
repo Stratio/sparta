@@ -35,7 +35,7 @@ class FilterTransformStep(name: String,
                           properties: Map[String, JSerializable])
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val filterExpression: Option[String] = Try(properties.getString("filterExp")).toOption
+  lazy val filterExpression: Option[String] = properties.getString("filterExp", None)
 
   assert(filterExpression.isDefined,
     "It's mandatory one filter expression, such as colA, colB as newName, abs(colC)")

@@ -30,17 +30,20 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
 
     val theString = "Sparta is awesome!"
     val one = 1
+    val oneL = 1L
     val zero = 0
     val two = 2
+    val twoL = 2L
     val oneString = "1"
+    val emptyString = ""
     val theLong = 2L
     val theDouble = 2D
     val trueString = "true"
     val falseString = "false"
     val trueBool = true
     val data: Map[String, JSerializable] = Map("someString" -> theString, "someInt" -> one, "someLong" -> theLong,
-      "someTrue" -> trueString, "someFalse" -> falseString, "zero" -> zero, "two" -> two,
-      "someBoolean" -> trueBool, "oneString" -> oneString, "theDouble" -> theDouble)
+      "someTrue" -> trueString, "someFalse" -> falseString, "zero" -> zero, "two" -> two, "twoL" -> twoL,
+      "someBoolean" -> trueBool, "oneString" -> oneString, "theDouble" -> theDouble, "emptyStr" -> emptyString)
   }
 
   "ValidatingProperty" should " returs value as String" in new ValuesMap {
@@ -51,13 +54,14 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
     an[IllegalStateException] should be thrownBy data.getString("otherLong")
   }
 
-  it should "returs value as Option" in new ValuesMap {
+  it should "returns value as Option" in new ValuesMap {
     data.getString("someInt", None) should be(Some(one.toString))
     data.getString("dummy", None) should be(None)
+    data.getString("emptyStr", None) should be(None)
     data.getString("dummy", Some("dummy")) should be(Some("dummy"))
   }
 
-  it should "returs value as Boolean" in new ValuesMap {
+  it should "returns value as Boolean" in new ValuesMap {
     data.getBoolean("someTrue") should be(true)
     data.getBoolean("someFalse") should be(false)
     data.getBoolean("someInt") should be(true)
@@ -67,13 +71,78 @@ class ValidatingPropertyMapTest extends FlatSpec with ShouldMatchers {
     an[IllegalStateException] should be thrownBy data.getBoolean("two")
   }
 
-  it should "returs value as Int" in new ValuesMap {
+  it should "returns value as Boolean with default value" in new ValuesMap {
+    data.getBoolean("someTrue", false) should be(true)
+    data.getBoolean("someFalse", false) should be(false)
+    data.getBoolean("someInt", false) should be(true)
+    data.getBoolean("zero", false) should be(false)
+    data.getBoolean("someBoolean", false) should be(true)
+    data.getBoolean("dummy", false) should be(false)
+    data.getBoolean("two", false) should be(false)
+  }
+
+  it should "returns value as Boolean with default value as Option" in new ValuesMap {
+    data.getBoolean("someTrue", None) should be(Some(true))
+    data.getBoolean("someFalse", None) should be(Some(false))
+    data.getBoolean("someInt", None) should be(Some(true))
+    data.getBoolean("zero", None) should be(Some(false))
+    data.getBoolean("someBoolean", None) should be(Some(true))
+    data.getBoolean("dummy", None) should be(None)
+    data.getBoolean("two", None) should be(None)
+  }
+
+  it should "returns value as Int" in new ValuesMap {
     data.getInt("oneString") should be(one)
     an[IllegalStateException] should be thrownBy data.getInt("theString")
     an[IllegalStateException] should be thrownBy data.getInt("someString")
     data.getInt("someInt") should be(one)
     data.getInt("someLong") should be(two)
     an[IllegalStateException] should be thrownBy data.getInt("theDouble")
+  }
+
+  it should "returns value as Int with default value" in new ValuesMap {
+    data.getInt("oneString", 2) should be(one)
+    data.getInt("theString", 2) should be(two)
+    data.getInt("someString", 2) should be(two)
+    data.getInt("someInt", 2) should be(one)
+    data.getInt("someLong", 2) should be(two)
+    data.getInt("theDouble", 2) should be(two)
+  }
+
+  it should "returns value as Int with default value as option" in new ValuesMap {
+    data.getInt("oneString", None) should be(Some(one))
+    data.getInt("theString", None) should be(None)
+    data.getInt("someString", None) should be(None)
+    data.getInt("someInt", None) should be(Some(one))
+    data.getInt("someLong", None) should be(Some(two))
+    data.getInt("theDouble", None) should be(None)
+  }
+
+  it should "returns value as Long" in new ValuesMap {
+    data.getLong("oneString") should be(oneL)
+    an[IllegalStateException] should be thrownBy data.getLong("theString")
+    an[IllegalStateException] should be thrownBy data.getLong("someString")
+    data.getLong("someInt") should be(oneL)
+    data.getLong("someLong") should be(twoL)
+    an[IllegalStateException] should be thrownBy data.getLong("theDouble")
+  }
+
+  it should "returns value as Long with default value" in new ValuesMap {
+    data.getLong("oneString", 2L) should be(oneL)
+    data.getLong("theString", 2L) should be(twoL)
+    data.getLong("someString", 2L) should be(twoL)
+    data.getLong("someInt", 2L) should be(oneL)
+    data.getLong("someLong", 2L) should be(twoL)
+    data.getLong("theDouble", 2L) should be(twoL)
+  }
+
+  it should "returns value as Long with default value as option" in new ValuesMap {
+    data.getLong("oneString", None) should be(Some(oneL))
+    data.getLong("theString", None) should be(None)
+    data.getLong("someString", None) should be(None)
+    data.getLong("someInt", None) should be(Some(oneL))
+    data.getLong("someLong", None) should be(Some(twoL))
+    data.getLong("theDouble", None) should be(None)
   }
 
   it should "check key" in new ValuesMap {
