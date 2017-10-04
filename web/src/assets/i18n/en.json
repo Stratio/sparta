@@ -321,6 +321,8 @@
    "_SECURITY_AUTH_": "Security Client Auth",
    "_SAVEMODE_": "Save mode",
    "_TABLE_NAME_": "Table name",
+   "_NEW_FILES_ONLY_": "New files only",
+   "_FILTER_OUT_FILES_": "Filter",
    "ALERTS": {
       "SUCCESS": "Success",
       "ERROR": "Error",

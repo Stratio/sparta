@@ -2,7 +2,7 @@
     "name": "Kafka",
     "classPrettyName": "Kafka",
     "className": "KafkaInputStep",
-     "icon": "Kafka",
+    "icon": "Kafka",
     "description": "Apache Kafka is publish-subscribe messaging system rethought as a distributed commit log.",
     "properties": [
       {
