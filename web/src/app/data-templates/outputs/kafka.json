@@ -1,11 +1,9 @@
   {
     "name": "Kafka",
     "classPrettyName": "Kafka",
-    "description": {
-      "short": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
-      "long": "There is available in Sparta with Kafka 0.10 version",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Kafka"
-    },
+    "className": "KafkaOutputStep",
+    "icon": "Kafka",
+    "description": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
     "properties": [
       {
         "propertyId": "bootstrap.servers",
@@ -42,50 +40,38 @@
         ]
       },
       {
-        "propertyId": "key.serializer",
-        "propertyName": "_KEY_SERIALIZER_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "org.apache.kafka.common.serialization.StringSerializer",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-kafka-key-serializer-class"
-      },
-      {
-        "propertyId": "value.serializer",
-        "propertyName": "_VALUE_SERIALIZER_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "org.apache.kafka.common.serialization.StringSerializer",
-        "required": true,
-        "tooltip": "",
-        "qa": "fragment-details-kafka-value-serializer-class"
-      },
-      {
-        "propertyId": "format",
-        "propertyName": "_KAFKA_FORMAT_",
+        "propertyId": "value.serializer.outputFormat",
+        "propertyName": "_KAFKA_OUTPUT_FORMAT_",
         "propertyType": "select",
         "regexp": "JSON|ROW",
         "values": [
-          {
+           {
+              "label": "ROW",
+              "value": "ROW"
+           },
+           {
             "label": "JSON",
             "value": "JSON"
-          },
-          {
-            "label": "ROW",
-            "value": "ROW"
           }
         ],
-        "default": "JSON",
+        "default": "ROW",
         "required": true,
         "qa": "fragment-details-kafka-format"
       },
       {
-        "propertyId": "rowSeparator",
+        "propertyId": "value.serializer.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
         "default": ",",
         "required": false,
+         "visible": [
+            [
+               {
+                  "propertyId": "value.serializer.outputFormat",
+                  "value": "ROW"
+               }
+            ]
+         ],
         "qa": "fragment-details-kafka-row-separator"
       },
       {
@@ -151,12 +137,21 @@
       },
       {
         "propertyId": "vaultTLSEnable",
-        "propertyName": "_TLS_ENABLE_",
+        "propertyName": "_VAULT_TLS_ENABLE_",
         "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
         "default": false,
-        "qa": "fragment-details-kafka-tls"
+         "float": true,
+        "qa": "fragment-details-kafka-vault-tls"
       },
+       {
+          "propertyId": "tlsEnable",
+          "propertyName": "_TLS_ENABLE_",
+          "propertyType": "boolean",
+          "tooltip": "Enable TLS connection with certs provided to connect to Kafka brokers",
+          "default": false,
+          "qa": "fragment-details-kafka-tls"
+       },
       {
         "propertyId": "vaultRole",
         "propertyName": "_KAFKA_VAULT_ROLE_",
@@ -272,8 +267,8 @@
         "visible": [
           [
             {
-              "propertyId": "vaultTLSEnable",
-              "value": false
+              "propertyId": "tlsEnable",
+              "value": true
             }
           ]
         ],
@@ -289,8 +284,8 @@
         "visible": [
           [
             {
-              "propertyId": "vaultTLSEnable",
-              "value": false
+              "propertyId": "tlsEnable",
+              "value": true
             }
           ]
         ],
@@ -304,8 +299,8 @@
         "visible": [
           [
             {
-              "propertyId": "vaultTLSEnable",
-              "value": false
+              "propertyId": "tlsEnable",
+              "value": true
             }
           ]
         ],
@@ -321,8 +316,8 @@
         "visible": [
           [
             {
-              "propertyId": "vaultTLSEnable",
-              "value": false
+              "propertyId": "tlsEnable",
+              "value": true
             }
           ]
         ],
@@ -337,8 +332,8 @@
         "visible": [
           [
             {
-              "propertyId": "vaultTLSEnable",
-              "value": false
+              "propertyId": "tlsEnable",
+              "value": true
             }
           ]
         ],

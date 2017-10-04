@@ -91,9 +91,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
     } else {
-      val workflowId = addUpdateDate(addId(workflow))
+      val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
       curatorFramework.setData().forPath(
-        s"${AppConstant.WorkflowsZkPath}/${workflow.id.get}", write(workflow).getBytes)
+        s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
       statusService.update(WorkflowStatus(
         id = workflowId.id.get,
         status = WorkflowStatusEnum.NotDefined,

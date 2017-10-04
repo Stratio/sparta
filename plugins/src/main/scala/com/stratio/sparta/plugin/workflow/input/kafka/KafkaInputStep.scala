@@ -50,6 +50,10 @@ class KafkaInputStep(
                     )
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
+  override lazy val customKey = "kafkaProperties"
+  override lazy val customPropertyKey = "kafkaPropertyKey"
+  override lazy val customPropertyValue = "kafkaPropertyValue"
+
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 

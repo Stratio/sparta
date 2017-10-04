@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.input.kafka
+package com.stratio.sparta.plugin.common.kafka
 
 import java.util.Properties
 
@@ -34,7 +34,6 @@ import org.scalatest.concurrent.TimeLimitedTests
 import org.scalatest.time.{Minute, Span}
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Matchers, WordSpec}
 
-import scala.collection.JavaConversions._
 import scala.language.postfixOps
 import scala.util.{Failure, Success, Try}
 
@@ -45,8 +44,8 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
   val timeLimit = Span(1, Minute)
 
   /**
-   * Spark Properties
-   */
+    * Spark Properties
+    */
   val DefaultSparkTimeOut = 3000L
   val SparkTimeOut = Try(config.getLong("spark.timeout")).getOrElse(DefaultSparkTimeOut)
   val conf = new SparkConf()
@@ -56,17 +55,10 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
   val totalRegisters = 10000
 
   /**
-   * Kafka Properties
-   */
+    * Kafka Properties
+    */
+
   val keySerializer = classOf[StringSerializer]
-  val topic = Try(config.getString("kafka.topic")) match {
-    case Success(configTopic) =>
-      log.info(s"Kafka topic from config: $configTopic")
-      configTopic
-    case Failure(e) =>
-      log.info(s"Kafka topic from default")
-      "topicTest"
-  }
   val hosts = Try(config.getString("kafka.hosts")) match {
     case Success(configHosts) =>
       log.info(s"Kafka hosts from config: $configHosts")
@@ -109,9 +101,7 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
     System.gc()
   }
 
-  def initKafka(): Unit = {
-    AdminUtils.createTopic(zkUtils, topic, numPartitions, replicationFactor, topicConfig)
-    log.info(s"Topic created: $topic")
+  def produceEvents(topics: Seq[String]): Unit = {
     val props = new Properties()
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, s"$hosts:9092")
     props.put("key.serializer", keySerializer)
@@ -119,17 +109,30 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
 
     val producer = new KafkaProducer[String, String](props)
     log.info(s"Producer created")
-    for (register <- 1 to totalRegisters) yield {
-      val record = new ProducerRecord[String, String](topic, register.toString)
-      producer.send(record)
+
+    topics.foreach { topic =>
+      for (register <- 1 to totalRegisters) yield {
+        val record = new ProducerRecord[String, String](topic, register.toString)
+        producer.send(record)
+      }
+      log.info(s"Registers produced in topic $topic")
     }
-    log.info(s"Registers produced")
+
     producer.close()
   }
 
-  def closeKafka(): Unit = {
-    AdminUtils.deleteTopic(zkUtils, topic)
-    log.info(s"Topic deleted: $topic")
+  def createTopics(topics: Seq[String]): Unit = {
+    topics.foreach { topic =>
+      AdminUtils.createTopic(zkUtils, topic, numPartitions, replicationFactor, topicConfig)
+      log.info(s"Topic created: $topic")
+    }
+  }
+
+  def resetTopics(topics: Seq[String]): Unit = {
+    topics.foreach { topic =>
+      AdminUtils.deleteTopic(zkUtils, topic)
+      log.info(s"Topic deleted: $topic")
+    }
   }
 
   before {
@@ -142,17 +145,9 @@ abstract class KafkaSuiteBase extends WordSpec with Matchers with SLF4JLogging w
     stopSpark()
   }
 
-  override def beforeAll(): Unit = {
-    log.info("Sending messages to topic..")
-    initKafka()
-    log.info("Messages in topic.")
-  }
+  override def beforeAll(): Unit = {}
 
-  override def afterAll(): Unit = {
-    log.info("Clean kafka")
-    closeKafka()
-    zkClient.close()
-  }
+  override def afterAll(): Unit = {}
 
   private object ZKStringSerializer extends ZkSerializer {
 

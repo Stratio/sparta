@@ -23,7 +23,7 @@ import * as crossdataTemplate from './outputs/crossdata.json';
 //import * as filesystemTemplate from './outputs/filesystem.json';
 //import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
-//import * as kafkaTemplate from './outputs/kafka.json';
+import * as kafkaTemplate from './outputs/kafka.json';
 import * as mongodbTemplate from './outputs/mongodb.json';
 import * as parquetTemplate from './outputs/parquet.json';
 import * as postgressTemplate from './outputs/postgress.json';
@@ -41,7 +41,7 @@ export const outputs = [
   //filesystemTemplate,
   //httpTemplate,
   jdbcTemplate,
-  //kafkaTemplate,
+  kafkaTemplate,
   mongodbTemplate,
   parquetTemplate,
   postgressTemplate,
