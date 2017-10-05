@@ -25,7 +25,7 @@ import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.Unauthorize
 import com.stratio.sparta.serving.core.models.ErrorModel.{CrossdataServiceListDatabases, CrossdataServiceListTables, ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import spray.http.StatusCodes
+import spray.http.{StatusCode, StatusCodes}
 import spray.httpx.Json4sJacksonSupport
 import spray.httpx.marshalling.ToResponseMarshaller
 import spray.routing._
@@ -35,8 +35,8 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 /**
- * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
- */
+  * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
+  */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging with SpartaSerializer {
 
   implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
@@ -49,15 +49,15 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
 
   def routes(user: Option[LoggedUser] = None): Route
 
-  def manageGetResponse[T](
-                            context: RequestContext,
-                            errorCodeToReturn: String,
-                            response: Either[Try[T], UnauthorizedResponse],
-                            genericError: ErrorModel
-                          )(implicit marshaller: ToResponseMarshaller[T]): Unit = {
+  def getResponse[T](
+                      context: RequestContext,
+                      errorCodeToReturn: String,
+                      response: Either[Try[T], UnauthorizedResponse],
+                      genericError: ErrorModel
+                    )(implicit marshaller: ToResponseMarshaller[T]): Unit = {
     response match {
-      case Left(Success(databases)) =>
-        context.complete(databases)
+      case Left(Success(data)) =>
+        context.complete(data)
       case Left(Failure(e)) =>
         Try(ErrorModel.toErrorModel(e.getLocalizedMessage)) match {
           case Success(error) =>
@@ -79,14 +79,38 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLo
     }
   }
 
-  def managePostResponse[T](
-                             errorCodeToReturn: String,
-                             response: Either[Try[T], UnauthorizedResponse],
-                             genericError: ErrorModel
-                           ): T = {
+  def deletePostPutResponse[T](
+                                errorCodeToReturn: String,
+                                response: Either[Try[T], UnauthorizedResponse],
+                                genericError: ErrorModel
+                              ): T = {
     response match {
-      case Left((Success(tables))) =>
-        tables
+      case Left((Success(data))) =>
+        data
+      case Left((Failure(e))) =>
+        throw new ServerException(ErrorModel.toString(ErrorModel(
+          StatusCodes.InternalServerError.intValue,
+          errorCodeToReturn,
+          ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
+          None,
+          Option(e.getLocalizedMessage)
+        )))
+      case Right(UnauthorizedResponse(exception)) =>
+        throw exception
+      case _ =>
+        throw new ServerException(ErrorModel.toString(genericError))
+    }
+  }
+
+  def deletePostPutResponse(
+                                errorCodeToReturn: String,
+                                response: Either[Try[_], UnauthorizedResponse],
+                                genericError: ErrorModel,
+                                statusResponse: StatusCode
+                              ): StatusCode = {
+    response match {
+      case Left((Success(_))) =>
+        statusResponse
       case Left((Failure(e))) =>
         throw new ServerException(ErrorModel.toString(ErrorModel(
           StatusCodes.InternalServerError.intValue,

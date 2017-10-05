@@ -58,7 +58,7 @@ trait CrossdataHttpService extends BaseHttpService {
         for {
           response <- (supervisor ? FindAllDatabases(user))
             .mapTo[Either[Try[Array[Database]], UnauthorizedResponse]]
-        } yield manageGetResponse(context, CrossdataServiceListDatabases, response, genericError)
+        } yield getResponse(context, CrossdataServiceListDatabases, response, genericError)
       }
     }
   }
@@ -76,7 +76,7 @@ trait CrossdataHttpService extends BaseHttpService {
         for {
           response <- (supervisor ? FindAllTables(user))
             .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
-        } yield manageGetResponse(context, CrossdataServiceListTables, response, genericError)
+        } yield getResponse(context, CrossdataServiceListTables, response, genericError)
       }
     }
   }
@@ -103,7 +103,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? FindTables(tablesRequest, user))
                 .mapTo[Either[Try[Array[Table]], UnauthorizedResponse]]
-            } yield managePostResponse(CrossdataServiceListTables, response, genericError)
+            } yield deletePostPutResponse(CrossdataServiceListTables, response, genericError)
           }
         }
       }
@@ -132,7 +132,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? DescribeTable(tableInfoRequest, user))
                 .mapTo[Either[Try[Array[Column]], UnauthorizedResponse]]
-            } yield managePostResponse(CrossdataServiceListColumns, response, genericError)
+            } yield deletePostPutResponse(CrossdataServiceListColumns, response, genericError)
           }
         }
       }
@@ -160,7 +160,7 @@ trait CrossdataHttpService extends BaseHttpService {
             for {
               response <- (supervisor ? ExecuteQuery(queryRequest, user))
                 .mapTo[Either[Try[Array[Map[String, Any]]], UnauthorizedResponse]]
-            } yield managePostResponse(CrossdataServiceExecuteQuery, response, genericError)
+            } yield deletePostPutResponse(CrossdataServiceExecuteQuery, response, genericError)
           }
         }
       }

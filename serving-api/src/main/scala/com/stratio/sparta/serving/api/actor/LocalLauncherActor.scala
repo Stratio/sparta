@@ -49,6 +49,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     val jars = sparkSubmitService.userPluginsFiles
 
     jars.foreach(file => JarsHelper.addToClasspath(file))
+
     Try {
       val startingInfo = s"Starting a Sparta local job for the workflow"
       log.info(startingInfo)

@@ -37,7 +37,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
 
   import WorkflowActor._
 
-  //TODO change dyplon to new names: workflow -> workflow
+  //TODO change dyplon to new names: policy -> workflow
   val ResourcePol = "policy"
   val ResourceCP = "checkpoint"
   val ResourceContext = "context"
@@ -58,7 +58,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     case DeleteAll(user) => deleteAll(user)
     case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
     case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
-    case DeleteCheckpoint(workflow, user) => deleteCheckpoint(workflow, user)
+    case DeleteCheckpoint(name, user) => deleteCheckpoint(name, user)
     case fragment: ResponseTemplate => loggingResponseTemplate(fragment)
     case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Workflow Actor")
@@ -148,9 +148,9 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     }
   }
 
-  def deleteCheckpoint(workflow: Workflow, user: Option[LoggedUser]): Unit =
+  def deleteCheckpoint(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourcePol -> View)) {
-      Try(deleteCheckpointPath(workflow))
+      Try(deleteCheckpointPath(workflowService.findByName(name)))
     }
 
   def loggingResponseTemplate(response: Try[TemplateElement]): Unit =
@@ -199,7 +199,7 @@ object WorkflowActor extends SLF4JLogging {
 
   case class FindByTemplateName(templateType: String, name: String, user: Option[LoggedUser])
 
-  case class DeleteCheckpoint(workflow: Workflow, user: Option[LoggedUser])
+  case class DeleteCheckpoint(name: String, user: Option[LoggedUser])
 
   type Response = Try[Unit]
 

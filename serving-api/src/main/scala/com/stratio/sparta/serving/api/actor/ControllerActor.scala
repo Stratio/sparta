@@ -40,12 +40,8 @@ import spray.routing._
 
 import scala.util.{Properties, Try}
 
-class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager]) extends HttpServiceActor
-  with SLF4JLogging
-  with SpartaSerializer
-  with CorsSupport
-  with CacheSupport
-  with OauthClient {
+class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager])
+  extends HttpServiceActor with SLF4JLogging with SpartaSerializer with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
 

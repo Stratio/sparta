@@ -61,7 +61,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       update(workflowStatusWithFields)
     } else {
       Try {
-        log.info(s"Creating workflow status ${workflowStatusWithFields.id} to <${workflowStatusWithFields.status}>")
+        log.info(s"Creating workflow ${workflowStatusWithFields.id} with status ${workflowStatusWithFields.status}")
         curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatusWithFields).getBytes)
         workflowStatusWithFields
       }
@@ -96,7 +96,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         log.info(s"Updating status ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
           s"\n\tSubmission Id:\t${newStatus.applicationId.getOrElse("undefined")}" +
           s"\n\tMarathon Id:\t${newStatus.marathonId.getOrElse("undefined")}" +
-          s"\n\tStatus:\t${actualStatus.status}\t--->\t${newStatus.status}" +
+          s"\n\tStatus:\t${actualStatus.status}\t${newStatus.status}" +
           s"\n\tStatus Information:\t${newStatus.statusInfo.getOrElse("undefined")} " +
           s"\n\tLast Execution Mode:\t${newStatus.lastExecutionMode.getOrElse("undefined")}" +
           s"\n\tLast Error:\t${newStatus.lastError.getOrElse("undefined")}")

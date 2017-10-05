@@ -237,16 +237,15 @@ with HttpServiceBaseTest {
       val workflowAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
-            case Launch(workflow, user) =>
+            case Launch(id, user) =>
               sender ! Left(Success(getWorkflowModel()))
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, sparkStreamingTestProbe, workflowAutoPilot)
-      startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Find]
+        sparkStreamingTestProbe.expectMsgType[Launch]
         status should be(StatusCodes.OK)
       }
     }
@@ -255,15 +254,14 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case Launch(workflow, user) =>
-              sender ! Left(Success(getWorkflowModel()))
+              sender ! Left(Failure(new MockException()))
               TestActor.NoAutoPilot
             case Delete => TestActor.NoAutoPilot
           }
       })
-      startAutopilot(Left(Failure(new MockException())))
       startAutopilot(None, sparkStreamingTestProbe, workflowAutoPilot)
       Get(s"/${HttpConstant.WorkflowsPath}/run/$id") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Find]
+        sparkStreamingTestProbe.expectMsgType[Launch]
         status should be(StatusCodes.InternalServerError)
       }
     }

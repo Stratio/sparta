@@ -32,6 +32,9 @@ object ErrorModel extends SpartaSerializer {
   /* Generic error messages */
   val UnknownError = "Unknown error"
 
+  /* Authorization Service 550-559 */
+  val UserNotFound = "550"
+
   /* Unkown error */
   val UnknownErrorCode = "560"
 
@@ -41,18 +44,33 @@ object ErrorModel extends SpartaSerializer {
   /* App Info Service */
   val AppStatus = "562"
 
-  /* Authorization Service 550-559 */
-  val UserNotFound = "550"
-
-  /* Template Service 650-699 */
-  val TemplateServiceNotFound = "650"
-
   /* Crossdata Service 600-649 */
   val CrossdataServiceUnexpected = "600"
   val CrossdataServiceListDatabases = "601"
   val CrossdataServiceListTables = "602"
   val CrossdataServiceListColumns = "603"
   val CrossdataServiceExecuteQuery = "604"
+
+  /* Template Service 650-699 */
+  val TemplateServiceNotFound = "650"
+
+  /* Workflow Service 700-749 */
+  val WorkflowServiceUnexpected = "700"
+  val WorkflowServiceFindById = "701"
+  val WorkflowServiceFindByName = "702"
+  val WorkflowServiceFindByIds = "703"
+  val WorkflowServiceFindAll = "704"
+  val WorkflowServiceCreate = "705"
+  val WorkflowServiceCreateList = "706"
+  val WorkflowServiceUpdate = "707"
+  val WorkflowServiceUpdateList = "708"
+  val WorkflowServiceDeleteAll = "709"
+  val WorkflowServiceDeleteList = "710"
+  val WorkflowServiceDeleteById = "711"
+  val WorkflowServiceDeleteCheckpoint = "712"
+  val WorkflowServiceRun = "713"
+  val WorkflowServiceDownload = "714"
+
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -65,7 +83,21 @@ object ErrorModel extends SpartaSerializer {
     CrossdataServiceListColumns -> "Impossible to list columns in Crossdata Context",
     TemplateServiceNotFound -> "No templates found",
     AppInfo -> "Impossible to extract server information",
-    AppStatus -> "Zookeeper is not connected"
+    AppStatus -> "Zookeeper is not connected",
+    WorkflowServiceFindById -> "Error finding workflow by ID",
+    WorkflowServiceFindByName -> "Error finding workflow by Name",
+    WorkflowServiceFindByIds -> "Error finding workflows by ID's",
+    WorkflowServiceFindAll -> "Error obtaining all workflows",
+    WorkflowServiceCreate -> "Error creating workflow",
+    WorkflowServiceCreateList -> "Error creating workflows",
+    WorkflowServiceUpdate -> "Error updating workflow",
+    WorkflowServiceUpdateList -> "Error updating workflows",
+    WorkflowServiceDeleteAll -> "Error deleting all workflows",
+    WorkflowServiceDeleteList -> "Error deleting workflows",
+    WorkflowServiceDeleteById -> "Error deleting workflows by ID's",
+    WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",
+    WorkflowServiceRun -> "Error running workflow",
+    WorkflowServiceDownload -> "Error downloading workflow"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

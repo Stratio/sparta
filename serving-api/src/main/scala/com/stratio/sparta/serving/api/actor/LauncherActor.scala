@@ -16,79 +16,66 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.SupervisorStrategy.Escalate
 import akka.actor.{Props, _}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
+import com.stratio.sparta.security.{Execute, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class LauncherActor(val streamingContextService: StreamingContextService,
-                    val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class LauncherActor(
+                     val streamingContextService: StreamingContextService,
+                     val curatorFramework: CuratorFramework
+                   )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val ResourceType = "context"
-  private val workflowService = new WorkflowService(curatorFramework)
+  //TODO change dyplon to new names: policy -> workflow
+  private val ResourcePol = "policy"
   private val statusService = new WorkflowStatusService(curatorFramework)
-
-  override val supervisorStrategy: OneForOneStrategy =
-    OneForOneStrategy() {
-      case _: ServerException => Escalate
-      case t =>
-        super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Escalate)
-    }
+  private val workflowService = new WorkflowService(curatorFramework)
 
   override def receive: Receive = {
-
-    case Launch(workflow, user) =>
-      securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
-        create(workflow)
-      }
+    case Launch(id, user) => launch(id, user)
     case _ => log.info("Unrecognized message in Launcher Actor")
   }
 
-  def create(workflow: Workflow): Try[Workflow] =
-    Try {
-      if (workflow.id.isEmpty) workflowService.create(workflow)
-      launch(workflow, context)
-    }
+  def launch(id: String, user: Option[LoggedUser]): Unit = {
+    securityActionAuthorizer(user, Map(ResourcePol -> Execute)) {
+      Try {
+        val workflow = workflowService.findById(id)
 
-  def launch(workflow: Workflow, context: ActorContext): Workflow = {
-    if (statusService.isAvailableToRun(workflow)) {
-      log.info("Streaming Context available, launching workflow ... ")
-      val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
-      val workflowActor = context.children.find(children => children.path.name == actorName)
-
-      val launcherActor = workflowActor match {
-        case Some(actor) =>
-          actor
-        case None =>
-          log.info(s"Launched -> $actorName")
-          if (workflow.settings.global.executionMode == AppConstant.ConfigLocal) {
-            log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in local mode")
-            context.actorOf(Props(
-              new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
-          } else {
-            if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon) {
-              log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in marathon mode")
-              context.actorOf(Props(new MarathonLauncherActor(streamingContextService.curatorFramework)), actorName)
-            }
-            else {
-              log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in cluster mode")
-              context.actorOf(Props(new ClusterLauncherActor(streamingContextService.curatorFramework)), actorName)
-            }
+        if (statusService.isAvailableToRun(workflow)) {
+          log.info("Context available, launching workflow ... ")
+          val actorName = AkkaConstant.cleanActorName(s"LauncherActor-${workflow.name}")
+          val childLauncherActor = context.children.find(children => children.path.name == actorName)
+          val workflowActor = childLauncherActor match {
+            case Some(actor) =>
+              actor
+            case None =>
+              if (workflow.settings.global.executionMode == AppConstant.ConfigLocal) {
+                log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in local mode")
+                context.actorOf(Props(
+                  new LocalLauncherActor(streamingContextService, streamingContextService.curatorFramework)), actorName)
+              } else {
+                if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon) {
+                  log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in marathon mode")
+                  context.actorOf(Props(new MarathonLauncherActor(streamingContextService.curatorFramework)), actorName)
+                }
+                else {
+                  log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in cluster mode")
+                  context.actorOf(Props(new ClusterLauncherActor(streamingContextService.curatorFramework)), actorName)
+                }
+              }
           }
+          workflowActor ! Start(workflow)
+        }
       }
-      launcherActor ! Start(workflow)
     }
-    workflow
   }
 }

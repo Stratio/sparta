@@ -21,9 +21,9 @@ import com.stratio.sparta.serving.core.models.workflow.{WorkflowExecution, Workf
 
 object LauncherActor {
 
-  case class Launch(policy: Workflow, user: Option[LoggedUser])
+  case class Launch(workflowId: String, user: Option[LoggedUser])
 
-  case class Start(policy: Workflow)
+  case class Start(workflow: Workflow)
 
-  case class StartWithRequest(policy: Workflow, request: WorkflowExecution)
+  case class StartWithRequest(workflow: Workflow, request: WorkflowExecution)
 }
