@@ -22,17 +22,23 @@ import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.TemplateActor._
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
-import spray.http.{HttpResponse, StatusCodes}
+import spray.http.StatusCodes
 import spray.routing.Route
-
-import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.TemplatePath, description = "Operations over templates (inputs, outputs and transformations)")
 trait TemplateHttpService extends BaseHttpService with OauthClient {
+
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    TemplateServiceUnexpected,
+    ErrorCodesMessages.getOrElse(TemplateServiceUnexpected, UnknownError)
+  )
 
   override def routes(user: Option[LoggedUser] = None): Route =
     findAll(user) ~ findByTypeAndId(user) ~ findByTypeAndName(user) ~
@@ -63,17 +69,11 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   def findByTypeAndId(user: Option[LoggedUser]): Route = {
     path(HttpConstant.TemplatePath / Segment / "id" / Segment) { (templateType, id) =>
       get {
-        complete {
+        context =>
           for {
-            responseTemplate <- (supervisor ? FindByTypeAndId(templateType, id, user))
+            response <- (supervisor ? FindByTypeAndId(templateType, id, user))
               .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
-          } yield responseTemplate match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(template)) => template
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
-        }
+          } yield getResponse(context, TemplateServiceFindByTypeId, response, genericError)
       }
     }
   }
@@ -102,17 +102,11 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   def findByTypeAndName(user: Option[LoggedUser]): Route = {
     path(HttpConstant.TemplatePath / Segment / "name" / Segment) { (templateType, name) =>
       get {
-        complete {
+        context =>
           for {
-            responseTemplate <- (supervisor ? FindByTypeAndName(templateType, name, user))
+            response <- (supervisor ? FindByTypeAndName(templateType, name, user))
               .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
-          } yield responseTemplate match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(template)) => template
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
-        }
+          } yield getResponse(context, TemplateServiceFindByTypeName, response, genericError)
       }
     }
   }
@@ -137,17 +131,11 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   def findAllByType(user: Option[LoggedUser]): Route = {
     path(HttpConstant.TemplatePath / Segment) { (templateType) =>
       get {
-        complete {
+        context =>
           for {
-            responseTemplates <- (supervisor ? FindByType(templateType, user))
+            response <- (supervisor ? FindByType(templateType, user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
-          } yield responseTemplates match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(templates)) => templates
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
-        }
+          } yield getResponse(context, TemplateServiceFindAllByType, response, genericError)
       }
     }
   }
@@ -164,17 +152,11 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
   def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.TemplatePath) {
       get {
-        complete {
+        context =>
           for {
-            responseTemplates <- (supervisor ? FindAllTemplates(user))
+            response <- (supervisor ? FindAllTemplates(user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
-          } yield responseTemplates match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(templates)) => templates
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
-        }
+          } yield getResponse(context, TemplateServiceFindAll, response, genericError)
       }
     }
   }
@@ -195,21 +177,15 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         entity(as[TemplateElement]) { template =>
           complete {
             for {
-              responseTemplate <- (supervisor ? CreateTemplate(template, user))
+              response <- (supervisor ? CreateTemplate(template, user))
                 .mapTo[Either[ResponseTemplate, UnauthorizedResponse]]
-            } yield responseTemplate match {
-              case Left(Failure(exception)) => throw exception
-              case Left(Success(template: TemplateElement)) => template
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in templates")
-            }
+            } yield deletePostPutResponse(TemplateServiceCreate, response, genericError)
           }
         }
       }
     }
   }
 
-  // scalastyle:off cyclomatic.complexity
   @ApiOperation(value = "Updates a template.",
     notes = "Updates a template.",
     httpMethod = "PUT")
@@ -225,14 +201,9 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
         entity(as[TemplateElement]) { template =>
           complete {
             for {
-              responseTemplates <- (supervisor ? Update(template, user))
+              response <- (supervisor ? Update(template, user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
-            } yield responseTemplates match {
-              case Left(Success(_)) => HttpResponse(StatusCodes.OK)
-              case Left(Failure(exception)) => throw exception
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in templates")
-            }
+            } yield deletePostPutResponse(TemplateServiceUpdate, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -263,14 +234,9 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            responseTemplates <- (supervisor ? DeleteByTypeAndId(templateType, id, user))
+            response <- (supervisor ? DeleteByTypeAndId(templateType, id, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
-          } yield responseTemplates match {
-            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
+          } yield deletePostPutResponse(TemplateServiceDeleteByTypeId, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -300,14 +266,9 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            responseTemplates <- (supervisor ? DeleteByTypeAndName(templateType, name, user))
+            response <- (supervisor ? DeleteByTypeAndName(templateType, name, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
-          } yield responseTemplates match {
-            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
+          } yield deletePostPutResponse(TemplateServiceDeleteByTypeName, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -331,14 +292,9 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            responseTemplates <- (supervisor ? DeleteByType(templateType, user))
+            response <- (supervisor ? DeleteByType(templateType, user))
               .mapTo[Either[Response, UnauthorizedResponse]]
-          } yield responseTemplates match {
-            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
+          } yield deletePostPutResponse(TemplateServiceDeleteByType, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -355,14 +311,9 @@ trait TemplateHttpService extends BaseHttpService with OauthClient {
       delete {
         complete {
           for {
-            templatesResponse <- (supervisor ? DeleteAllTemplates(user))
+            response <- (supervisor ? DeleteAllTemplates(user))
               .mapTo[Either[ResponseTemplates, UnauthorizedResponse]]
-          } yield templatesResponse match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(_)) => HttpResponse(StatusCodes.OK)
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in templates")
-          }
+          } yield deletePostPutResponse(TemplateServiceDeleteAll, response, genericError, StatusCodes.OK)
         }
       }
     }

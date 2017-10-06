@@ -52,7 +52,7 @@ class TemplateHttpServiceTest extends WordSpec
     SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
   }
 
-  "FragmentHttpService.findByTypeAndId" should {
+  "TemplateHttpService.findByTypeAndId" should {
     "find a fragment" in {
       startAutopilot(Left(Success(getFragmentModel())))
       Get(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(rootUser) ~> check {
@@ -69,7 +69,7 @@ class TemplateHttpServiceTest extends WordSpec
     }
   }
 
-  "FragmentHttpService.findByTypeAndName" should {
+  "TemplateHttpService.findByTypeAndName" should {
     "find a fragment" in {
       startAutopilot(Left(Success(getFragmentModel())))
       Get(s"/${HttpConstant.TemplatePath}/input/name/fragment") ~> routes(rootUser) ~> check {
@@ -86,7 +86,7 @@ class TemplateHttpServiceTest extends WordSpec
     }
   }
 
-  "FragmentHttpService.findAllByType" should {
+  "TemplateHttpService.findAllByType" should {
     "find all fragments" in {
       startAutopilot(Left(Success(Seq(getFragmentModel()))))
       Get(s"/${HttpConstant.TemplatePath}/input") ~> routes(rootUser) ~> check {
@@ -103,98 +103,88 @@ class TemplateHttpServiceTest extends WordSpec
     }
   }
 
-  "FragmentHttpService.create" should {
+  "TemplateHttpService.findAll" should {
+    "find all fragments" in {
+      startAutopilot(Left(Success(Seq(getFragmentModel()))))
+      Get(s"/${HttpConstant.TemplatePath}") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindAllTemplates]
+        responseAs[Seq[TemplateElement]] should equal(Seq(getFragmentModel()))
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Get(s"/${HttpConstant.TemplatePath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[FindAllTemplates]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "TemplateHttpService.create" should {
     "return the fragment that was created" in {
       startAutopilot(Left(Success(getFragmentModel())))
-      Post(s"/${HttpConstant.TemplatePath}", getFragmentModel) ~> routes(rootUser) ~> check {
+      Post(s"/${HttpConstant.TemplatePath}", getFragmentModel()) ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[CreateTemplate]
         responseAs[TemplateElement] should equal(getFragmentModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Post(s"/${HttpConstant.TemplatePath}", getFragmentModel) ~> routes(dummyUser) ~> check {
+      Post(s"/${HttpConstant.TemplatePath}", getFragmentModel()) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[CreateTemplate]
         status should be(StatusCodes.InternalServerError)
       }
     }
   }
 
-  "FragmentHttpService.deleteByTypeAndId" should {
+  "TemplateHttpService.update" should {
+    "return the fragment that was updated" in {
+      startAutopilot(Left(Success(getFragmentModel())))
+      Put(s"/${HttpConstant.TemplatePath}", getFragmentModel()) ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[Update]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Put(s"/${HttpConstant.TemplatePath}", getFragmentModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[Update]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "TemplateHttpService.deleteByTypeAndId" should {
     "return an OK because the fragment was deleted" in {
-      val policyAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case Delete =>
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, policyTestProbe, policyAutoPilot)
       startAutopilot(Left(Success(None)))
       Delete(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[DeleteByTypeAndId]
         status should be(StatusCodes.OK)
       }
     }
-  }
-
-  "FragmentHttpService.update" should {
-    /*"return an OK because the fragment was updated" in {
-      val policy = getPolicyModel().copy(fragments = Seq(getFragmentModel()))
-      val fragmentAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FragmentActor.Update(input) =>
-              sender ! Response(Success(getFragmentModel()))
-              TestActor.NoAutoPilot
-          }
-      })
-      val policyAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case PolicyActor.FindAll() =>
-              sender ! ResponsePolicies(Success(Seq(policy)))
-              TestActor.NoAutoPilot
-            case PolicyActor.Update(policy) =>
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
-      startAutopilot(None, policyTestProbe, policyAutoPilot)
-      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes ~> check {
-        fragmentTestProbe.expectMsgType[Update]
-        policyTestProbe.expectMsgType[PolicyActor.FindAll]
-        policyTestProbe.expectMsgType[PolicyActor.Update]
-        status should be(StatusCodes.OK)
-      }
-    }*/
-    /*
     "return a 500 if there was any error" in {
-      val fragmentAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case FragmentActor.Update(input, rootUser) =>
-              sender ! Left(Response(Failure(new MockException())))
-              TestActor.NoAutoPilot
-          }
-      })
-      val policyAutoPilot = Option(new TestActor.AutoPilot {
-        def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
-          msg match {
-            case PolicyActor.FindAll(rootUser) =>
-              sender ! Left(ResponsePolicies(Success(Seq(getPolicyModel()))))
-              TestActor.NoAutoPilot
-            case PolicyActor.Update(policy, rootUser) =>
-              TestActor.NoAutoPilot
-          }
-      })
-      startAutopilot(None, fragmentTestProbe, fragmentAutoPilot)
-      startAutopilot(None, policyTestProbe, policyAutoPilot)
-
-      Put(s"/${HttpConstant.FragmentPath}", getFragmentModel(Some("id"))) ~> routes(rootUser) ~> check {
-        fragmentTestProbe.expectMsgType[Update]
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.TemplatePath}/input/id/fragmentId") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[DeleteByTypeAndId]
         status should be(StatusCodes.InternalServerError)
       }
-    } */
+    }
+  }
+
+  "TemplateHttpService.deleteByTypeAndName" should {
+    "return an OK because the fragment was deleted" in {
+      startAutopilot(Left(Success(None)))
+      Delete(s"/${HttpConstant.TemplatePath}/input/name/fragmentName") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[DeleteByTypeAndName]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.TemplatePath}/input/name/fragmentName") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[DeleteByTypeAndName]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
   }
 }

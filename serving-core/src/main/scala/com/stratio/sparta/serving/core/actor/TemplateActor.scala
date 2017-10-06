@@ -61,7 +61,7 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
       case (Some(secManager), Some(userLogged)) =>
         if (secManager.authorize(userLogged.id, TemplateType.InputValue, View) &&
           secManager.authorize(userLogged.id, TemplateType.OutputValue, View))
-          sender ! Left(Try(templateService.findAll)) // [T]
+          sender ! Left(Try(templateService.findAll))
         else
           sender ! Right(errorResponseAuthorization(userLogged.id, PolicyResource))
       case (Some(_), None) => sender ! Right(errorNoUserFound(Seq(View)))
@@ -70,24 +70,23 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
 
   def findByType(fragmentType: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplates](user, Map(fragmentType -> View)) {
-    Try(templateService.findByType(fragmentType))
-  }
+      Try(templateService.findByType(fragmentType))
+    }
 
   def findByTypeAndId(fragmentType: String, id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplate](user, Map(fragmentType -> View)) {
-    Try(templateService.findByTypeAndId(fragmentType, id))
-  }
+      Try(templateService.findByTypeAndId(fragmentType, id))
+    }
 
   def findByTypeAndName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseTemplate]( user, Map(fragmentType -> View)) {
-      Try(templateService.findByTypeAndName(fragmentType, name)
-      .getOrElse(errorTemplateNotFound(fragmentType, name)))
-  }
+    securityActionAuthorizer[ResponseTemplate](user, Map(fragmentType -> View)) {
+      Try(templateService.findByTypeAndName(fragmentType, name))
+    }
 
   def create(fragment: TemplateElement, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseTemplate](user, Map(fragment.templateType -> Create)) {
-    Try(templateService.create(fragment))
-  }
+      Try(templateService.create(fragment))
+    }
 
   def update(fragment: TemplateElement, user: Option[LoggedUser]): Unit = {
     val actions = Map(fragment.templateType -> Edit, PolicyResource -> View, PolicyResource -> Edit)
@@ -95,7 +94,6 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
       Try(templateService.update(fragment))
     }
   }
-
 
 
   def deleteAll(user: Option[LoggedUser]): Unit =
@@ -132,18 +130,6 @@ class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secMana
     securityActionAuthorizer[Response](user, actions) {
       Try(templateService.deleteByTypeAndName(fragmentType, name))
     }
-  }
-
-  //PRIVATE METHODS
-
-  private def errorTemplateNotFound(fragmentType: String, name: String): Nothing = {
-    throw new ServerException(ErrorModel.toString(new ErrorModel(
-      StatusCodes.OK.intValue,
-      ErrorModel.TemplateServiceNotFound,
-      ErrorCodesMessages.getOrElse(ErrorModel.TemplateServiceNotFound, UnknownError),
-      Option(s"No fragment of type $fragmentType with name $name"),
-      None
-    )))
   }
 }
 

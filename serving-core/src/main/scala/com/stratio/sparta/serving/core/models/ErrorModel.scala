@@ -44,24 +44,34 @@ object ErrorModel extends SpartaSerializer {
   /* App Info Service */
   val AppStatus = "562"
 
-  /* Crossdata Service 600-619 */
+  /* Crossdata Service 600-624 */
   val CrossdataServiceUnexpected = "600"
   val CrossdataServiceListDatabases = "601"
   val CrossdataServiceListTables = "602"
   val CrossdataServiceListColumns = "603"
   val CrossdataServiceExecuteQuery = "604"
 
-  /* Workflow Status 620-649 */
-  val WorkflowStatusUnexpected = "620"
-  val WorkflowStatusFindAll = "621"
-  val WorkflowStatusFindById = "622"
-  val WorkflowStatusDeleteAll = "623"
-  val WorkflowStatusDeleteById = "624"
-  val WorkflowStatusUpdate = "625"
-
+  /* Workflow Status 625-649 */
+  val WorkflowStatusUnexpected = "625"
+  val WorkflowStatusFindAll = "626"
+  val WorkflowStatusFindById = "627"
+  val WorkflowStatusDeleteAll = "628"
+  val WorkflowStatusDeleteById = "629"
+  val WorkflowStatusUpdate = "630"
 
   /* Template Service 650-675 */
-  val TemplateServiceNotFound = "650"
+  val TemplateServiceUnexpected = "650"
+  val TemplateServiceFindByTypeId = "651"
+  val TemplateServiceFindByTypeName = "652"
+  val TemplateServiceFindAllByType = "653"
+  val TemplateServiceFindAll = "654"
+  val TemplateServiceCreate = "655"
+  val TemplateServiceUpdate = "656"
+  val TemplateServiceDeleteByTypeId = "657"
+  val TemplateServiceDeleteByTypeName = "658"
+  val TemplateServiceDeleteByType = "659"
+  val TemplateServiceDeleteAll = "660"
+
 
   /* Workflow Service 700-749 */
   val WorkflowServiceUnexpected = "700"
@@ -90,7 +100,6 @@ object ErrorModel extends SpartaSerializer {
     CrossdataServiceListDatabases -> "Impossible to list databases in Crossdata Context",
     CrossdataServiceListTables -> "Impossible to list tables in Crossdata Context",
     CrossdataServiceListColumns -> "Impossible to list columns in Crossdata Context",
-    TemplateServiceNotFound -> "No templates found",
     AppInfo -> "Impossible to extract server information",
     AppStatus -> "Zookeeper is not connected",
     WorkflowServiceUnexpected -> "Unexpected behaviour in Workflow service",
@@ -113,7 +122,18 @@ object ErrorModel extends SpartaSerializer {
     WorkflowStatusFindById -> "Error obtaining workflow status",
     WorkflowStatusDeleteAll -> "Error deleting all workflow statuses",
     WorkflowStatusDeleteById -> "Error deleting workflow status",
-    WorkflowStatusUpdate -> "Error updating workflow status"
+    WorkflowStatusUpdate -> "Error updating workflow status",
+    TemplateServiceUnexpected -> "Unexpected behaviour in templates service",
+    TemplateServiceFindByTypeId -> "Error obtaining template by id",
+    TemplateServiceFindByTypeName -> "Error obtaining template by name",
+    TemplateServiceFindAllByType -> "Error obtaining templates by type",
+    TemplateServiceFindAll -> "Error obtaining templates",
+    TemplateServiceCreate -> "Error creating template",
+    TemplateServiceUpdate -> "Error updating template",
+    TemplateServiceDeleteByTypeId -> "Error deleting template by id",
+    TemplateServiceDeleteByTypeName -> "Error deleting template by name",
+    TemplateServiceDeleteByType -> "Error deleting templates by type",
+    TemplateServiceDeleteAll -> "Error deleting all templates"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

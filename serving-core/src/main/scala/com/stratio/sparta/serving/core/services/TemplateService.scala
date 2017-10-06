@@ -29,6 +29,7 @@ import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
+import scala.util.Try
 
 class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLogging with SpartaSerializer {
 
@@ -49,8 +50,9 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
     } else throw new ServerException(s"Template type: $templateType and id: $id does not exist")
   }
 
-  def findByTypeAndName(templateType: String, name: String): Option[TemplateElement] =
+  def findByTypeAndName(templateType: String, name: String): TemplateElement =
     findByType(templateType).find(template => template.name == name)
+      .getOrElse(throw new ServerException(s"Template type: $templateType and name: $name does not exist"))
 
   def findAll: List[TemplateElement] = {
     if (CuratorFactoryHolder.existsPath(TemplatesZkPath)) {
@@ -60,7 +62,7 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
   }
 
   def create(template: TemplateElement): TemplateElement =
-    findByTypeAndName(template.templateType, template.name)
+    Try(findByTypeAndName(template.templateType, template.name)).toOption
       .getOrElse {
         val newTemplate = addCreationDate(addId(template))
         curatorFramework.create().creatingParentsIfNeeded().forPath(
@@ -96,7 +98,7 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
   }
 
   def deleteByTypeAndName(templateType: String, name: String): Unit = {
-    val templateFound = findByTypeAndName(templateType, name)
+    val templateFound = Try(findByTypeAndName(templateType, name)).toOption
 
     if (templateFound.isDefined && templateFound.get.id.isDefined) {
       val id = templateFound.get.id.get
