@@ -24,6 +24,9 @@ output.txt
 .idea
 *.iml
 
+# ensime
+.ensime*
+
 # building
 target
 build

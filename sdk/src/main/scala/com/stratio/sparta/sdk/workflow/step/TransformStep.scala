@@ -18,21 +18,11 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp
 import com.stratio.sparta.sdk.properties.Parameterizable
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError._
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types._
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-
-import scala.collection.mutable
-import scala.util.{Failure, Success, Try}
 
 abstract class TransformStep(
                               val name: String,
@@ -41,12 +31,6 @@ abstract class TransformStep(
                               @transient private[sparta] val xDSession: XDSession,
                               properties: Map[String, JSerializable]
                             ) extends Parameterizable(properties) with GraphStep {
-
-  /* GLOBAL VARIABLES */
-
-  lazy val whenErrorDo: WhenError = Try(WhenError.withName(propertiesWithCustom.getString("whenError")))
-    .getOrElse(WhenError.Error)
-
 
   /* METHODS TO IMPLEMENT */
 
@@ -78,37 +62,6 @@ abstract class TransformStep(
     generateDStream(firstStep, firstStream)
   }
 
-
-  //scalastyle:off
-  def returnWhenError(exception: Exception): Null =
-    whenErrorDo match {
-      case WhenError.Null => null
-      case _ => throw exception
-    }
-
-  //scalastyle:on
-
-  def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
-    Try {
-      TypeOp.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
-    } match {
-      case Success(result) => result
-      case Failure(e) => returnWhenError(new IllegalStateException(
-        s"Error casting to output type the value: ${inputValue.toString}", e))
-    }
-
-  def returnSeqData(newData: Try[_]): Seq[Row] =
-    newData match {
-      case Success(data: GenericRowWithSchema) => Seq(data)
-      case Success(_) => whenErrorDo match {
-        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
-        case _ => throw new IllegalStateException("Invalid new data in step")
-      }
-      case Failure(e) => whenErrorDo match {
-        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
-        case _ => throw e
-      }
-    }
 }
 
 object TransformStep {

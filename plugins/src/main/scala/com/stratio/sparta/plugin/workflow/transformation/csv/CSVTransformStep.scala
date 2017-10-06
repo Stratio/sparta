@@ -19,7 +19,7 @@ import java.io.{Serializable => JSerializable}
 import java.util.regex.Pattern
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, SchemaCasting, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -35,7 +35,7 @@ class CSVTransformStep(name: String,
                        ssc: StreamingContext,
                        xDSession: XDSession,
                        properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorChecking with SchemaCasting {
 
   lazy val fieldsModel = properties.getPropertiesFields("fields")
   lazy val fieldsSeparator = properties.getString("delimiter", ",")
@@ -55,8 +55,8 @@ class CSVTransformStep(name: String,
   }
 
   //scalastyle:off
-  def parse(row: Row): Seq[Row] = {
-    returnSeqData(Try {
+  def parse(row: Row): Seq[Row] =
+    returnSeqData {
       val inputSchema = row.schema
       getNewOutputSchema(inputSchema) match {
         case Some(outputSchema) =>
@@ -106,8 +106,7 @@ class CSVTransformStep(name: String,
 
         case None => row
       }
-    })
-  }
+    }
 
   def getNewOutputSchema(inputSchema: StructType): Option[StructType] = {
     val outputFieldsSchema = fieldsModel.fields.map { fieldModel =>

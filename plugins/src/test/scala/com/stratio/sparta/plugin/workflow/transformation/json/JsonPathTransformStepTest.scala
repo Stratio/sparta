@@ -30,7 +30,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
-class JsonTransformStepTest extends WordSpecLike with Matchers {
+class JsonPathTransformStepTest extends WordSpecLike with Matchers {
 
   val inputField = "json"
   val schema = StructType(Seq(StructField(inputField, StringType)))
@@ -72,7 +72,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonTransformStep(
+      val result = new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -102,7 +102,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonTransformStep(
+      val result = new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -132,7 +132,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[IllegalArgumentException] should be thrownBy new JsonTransformStep(
+      an[IllegalArgumentException] should be thrownBy new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -159,7 +159,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[Exception] should be thrownBy new JsonTransformStep(
+      an[Exception] should be thrownBy new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -195,7 +195,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonTransformStep(
+      val result = new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -233,7 +233,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonTransformStep(
+      val result = new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -271,7 +271,7 @@ class JsonTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[PathNotFoundException] should be thrownBy new JsonTransformStep(
+      an[PathNotFoundException] should be thrownBy new JsonPathTransformStep(
         "json",
         outputOptions,
         null,

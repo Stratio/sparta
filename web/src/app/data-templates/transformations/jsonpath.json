@@ -1,8 +1,8 @@
   {
-     "name": "Json",
+     "name": "JsonPath",
      "icon": "Json",
-     "className": "JsonTransformStep",
-     "classPrettyName": "Json",
+     "className": "JsonPathTransformStep",
+     "classPrettyName": "JsonPath",
      "description": "Parsing input field with json format to selected output fields",
      "properties": [
         {
