@@ -21,16 +21,24 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.StatusActor.{DeleteStatus, FindAll, _}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.wordnik.swagger.annotations._
-import spray.http.{HttpResponse, StatusCodes}
+import spray.http.StatusCodes
 import spray.routing._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Api(value = HttpConstant.WorkflowStatusesPath, description = "Operations over workflow statuses", position = 0)
 trait WorkflowStatusHttpService extends BaseHttpService {
+
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    WorkflowStatusUnexpected,
+    ErrorCodesMessages.getOrElse(WorkflowStatusUnexpected, UnknownError)
+  )
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
     update(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
@@ -38,7 +46,7 @@ trait WorkflowStatusHttpService extends BaseHttpService {
   @ApiOperation(value = "Finds all workflow statuses",
     notes = "Returns a workflows list",
     httpMethod = "GET",
-    response = classOf[Try[Seq[WorkflowStatus]]],
+    response = classOf[Seq[WorkflowStatus]],
     responseContainer = "List")
   @ApiResponses(
     Array(new ApiResponse(code = HttpConstant.NotFound,
@@ -46,18 +54,12 @@ trait WorkflowStatusHttpService extends BaseHttpService {
   def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.WorkflowStatusesPath) {
       get {
-        complete {
+        context =>
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            workflowsStatuses <- (statusActor ? FindAll(user))
+            response <- (statusActor ? FindAll(user))
               .mapTo[Either[Try[Seq[WorkflowStatus]], UnauthorizedResponse]]
-          } yield workflowsStatuses match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(statuses)) => statuses
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in status")
-          }
-        }
+          } yield getResponse(context, WorkflowStatusFindAll, response, genericError)
       }
     }
   }
@@ -80,18 +82,12 @@ trait WorkflowStatusHttpService extends BaseHttpService {
   def find(user: Option[LoggedUser]): Route = {
     path(HttpConstant.WorkflowStatusesPath / Segment) { (id) =>
       get {
-        complete {
+        context =>
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            workflowStatus <- (statusActor ? FindById(id, user))
+            response <- (statusActor ? FindById(id, user))
               .mapTo[Either[ResponseStatus, UnauthorizedResponse]]
-          } yield workflowStatus match {
-            case Left(ResponseStatus(Failure(exception))) => throw exception
-            case Left(ResponseStatus(Success(workflow))) => workflow
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in status")
-          }
-        }
+          } yield getResponse(context, WorkflowStatusFindById, response, genericError)
       }
     }
   }
@@ -108,14 +104,9 @@ trait WorkflowStatusHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            responseCode <- (statusActor ? DeleteAll(user))
-              .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
-          } yield responseCode match {
-            case Left(ResponseDelete(Failure(exception))) => throw exception
-            case Left(ResponseDelete(Success(_))) => StatusCodes.OK
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in status")
-          }
+            response <- (statusActor ? DeleteAll(user))
+              .mapTo[Either[Response, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowStatusDeleteAll, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -140,14 +131,9 @@ trait WorkflowStatusHttpService extends BaseHttpService {
         complete {
           val statusActor = actors(AkkaConstant.StatusActorName)
           for {
-            responseDelete <- (statusActor ? DeleteStatus(id, user))
-              .mapTo[Either[ResponseDelete, UnauthorizedResponse]]
-          } yield responseDelete match {
-            case Left(ResponseDelete(Failure(exception))) => throw exception
-            case Left(ResponseDelete(Success(_))) => StatusCodes.OK
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in status")
-          }
+            response <- (statusActor ? DeleteStatus(id, user))
+              .mapTo[Either[Response, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowStatusDeleteById, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -171,15 +157,7 @@ trait WorkflowStatusHttpService extends BaseHttpService {
             for {
               response <- (statusActor ? Update(workflowStatus, user))
                 .mapTo[Either[ResponseStatus, UnauthorizedResponse]]
-            } yield response match {
-              case Left(ResponseStatus(Success(status))) => HttpResponse(StatusCodes.Created)
-              case Left(ResponseStatus(Failure(ex))) =>
-                log.error("Can't update workflow", ex)
-                //TODO refactor to ServerException
-                throw new Exception("Can't update workflow")
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in status")
-            }
+            } yield deletePostPutResponse(WorkflowStatusDeleteById, response, genericError, StatusCodes.OK)
           }
         }
       }

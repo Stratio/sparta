@@ -19,7 +19,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit._
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.core.actor.StatusActor.{ResponseDelete, ResponseStatus}
+import com.stratio.sparta.serving.core.actor.StatusActor.Response
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
@@ -37,7 +37,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
 import scala.concurrent.duration._
-import scala.util.Success
+import scala.util.Try
 
 @RunWith(classOf[JUnitRunner])
 class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaConfig.daemonicAkkaConfig))
@@ -56,7 +56,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
   SpartaConfig.initMainConfig()
 
-  val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
+  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
   val actor = system.actorOf(Props(new StatusActor(curatorFramework)))
   implicit val timeout: Timeout = Timeout(15.seconds)
   val id = "existingID"
@@ -88,7 +88,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
       actor ! StatusActor.FindById(id, rootUser)
 
-      expectMsgAnyClassOf(classOf[Either[ResponseStatus,UnauthorizedResponse]])
+      expectMsgAnyClassOf(classOf[Either[Try[WorkflowStatus], UnauthorizedResponse]])
 
       // scalastyle:on null
 
@@ -111,7 +111,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
       actor ! StatusActor.DeleteStatus(id, rootUser)
 
-      expectMsgAnyClassOf(classOf[Either[ResponseDelete,UnauthorizedResponse]])
+      expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
 
       // scalastyle:on null
 
@@ -126,9 +126,9 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$id"))
         .thenReturn(null)
 
-     actor ! StatusActor.DeleteStatus(id, rootUser)
+      actor ! StatusActor.DeleteStatus(id, rootUser)
 
-      expectMsgAnyClassOf(classOf[Either[ResponseDelete,UnauthorizedResponse]])
+      expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
       // scalastyle:on null
 
     }
@@ -149,7 +149,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
         .thenThrow(new RuntimeException())
       actor ! StatusActor.DeleteStatus(id, rootUser)
 
-      expectMsgAnyClassOf(classOf[Either[ResponseDelete,UnauthorizedResponse]])
+      expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
       // scalastyle:on null
 
     }

@@ -109,7 +109,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
 
   //scalastyle:on
 
-  def delete(id: String): Try[_] =
+  def delete(id: String): Try[Unit] =
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
@@ -118,7 +118,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       } else throw new ServerException(s"No workflow status found with id: $id.")
     }
 
-  def deleteAll(): Try[_] =
+  def deleteAll(): Try[Unit] =
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {

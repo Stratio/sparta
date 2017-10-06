@@ -180,7 +180,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         log.info(s"TOTAL EVENTS : $totalEvents")
         val streamingRegisters = rdd.collect()
         if (!rdd.isEmpty())
-          streamingRegisters.foreach(row => assert(dataRaw.contains(row)))
+          streamingRegisters.foreach(row => assert(dataRaw.contains(row.get(0))))
       })
 
       ssc.get.start()

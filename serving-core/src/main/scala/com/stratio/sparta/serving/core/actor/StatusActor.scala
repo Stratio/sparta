@@ -46,43 +46,42 @@ class StatusActor(val curatorFramework: CuratorFramework)(implicit val secManage
     case AddListener(name, callback) => listenerService.addWorkflowStatusListener(name, callback)
     case AddClusterListeners => listenerService.addClusterListeners(statusService.findAll(), context)
     case DeleteStatus(id, user) => deleteStatus(id, user)
-
     case _ => log.info("Unrecognized message in Status Actor")
   }
 
+  //scalastyle:on cyclomatic.complexity
+
   def createStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> Create)) {
-      ResponseStatus(statusService.create(policyStatus))
+      statusService.create(policyStatus)
     }
 
   def update(policyStatus: WorkflowStatus, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> Edit)) {
-      ResponseStatus(statusService.update(policyStatus))
+      statusService.update(policyStatus)
     }
 
 
   def findAll(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      statusService.findAll
+      statusService.findAll()
     }
 
 
   def findById(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
-      ResponseStatus(statusService.findById(id))
+      statusService.findById(id)
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseDelete](user, Map(ResourceType -> Delete)) {
-      ResponseDelete(statusService.deleteAll())
+    securityActionAuthorizer[Response](user, Map(ResourceType -> Delete)) {
+      statusService.deleteAll()
     }
 
   def deleteStatus(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseDelete](user, Map(ResourceType -> Delete)) {
-      ResponseDelete(statusService.delete(id))
+    securityActionAuthorizer[Response](user, Map(ResourceType -> Delete)) {
+      statusService.delete(id)
     }
-
-  //scalastyle:on cyclomatic.complexity
 }
 
 object StatusActor {
@@ -101,12 +100,14 @@ object StatusActor {
 
   case class FindById(id: String, user: Option[LoggedUser])
 
-  case class ResponseStatus(policyStatus: Try[WorkflowStatus])
-
-  case class ResponseDelete(value: Try[_])
-
   case class ClearLastError(id: String)
 
   case object AddClusterListeners
+
+  type Response = Try[Unit]
+
+  type ResponseStatuses = Try[Seq[WorkflowStatus]]
+
+  type ResponseStatus = Try[WorkflowStatus]
 
 }

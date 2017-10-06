@@ -202,7 +202,7 @@ with HttpServiceBaseTest {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case StatusActor.DeleteStatus(id, user) =>
-              sender ! Left(StatusActor.ResponseDelete(Success(true)))
+              sender ! Left(Success(true))
               TestActor.NoAutoPilot
           }
       })

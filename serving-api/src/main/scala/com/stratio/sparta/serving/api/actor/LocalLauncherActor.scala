@@ -21,12 +21,11 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
-import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{LauncherService, SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{SparkSubmitService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -35,11 +34,9 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
   extends Actor with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val launcherService = new LauncherService(curatorFramework)
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => doInitSpartaContext(workflow)
-    case ResponseStatus(status) => launcherService.loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Local Launcher Actor")
   }
 

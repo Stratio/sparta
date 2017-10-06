@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, Cancellable, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
-import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
@@ -43,7 +42,6 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => initializeSubmitRequest(workflow)
-    case ResponseStatus(status) => launcherService.loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 

@@ -44,14 +44,23 @@ object ErrorModel extends SpartaSerializer {
   /* App Info Service */
   val AppStatus = "562"
 
-  /* Crossdata Service 600-649 */
+  /* Crossdata Service 600-619 */
   val CrossdataServiceUnexpected = "600"
   val CrossdataServiceListDatabases = "601"
   val CrossdataServiceListTables = "602"
   val CrossdataServiceListColumns = "603"
   val CrossdataServiceExecuteQuery = "604"
 
-  /* Template Service 650-699 */
+  /* Workflow Status 620-649 */
+  val WorkflowStatusUnexpected = "620"
+  val WorkflowStatusFindAll = "621"
+  val WorkflowStatusFindById = "622"
+  val WorkflowStatusDeleteAll = "623"
+  val WorkflowStatusDeleteById = "624"
+  val WorkflowStatusUpdate = "625"
+
+
+  /* Template Service 650-675 */
   val TemplateServiceNotFound = "650"
 
   /* Workflow Service 700-749 */
@@ -84,6 +93,7 @@ object ErrorModel extends SpartaSerializer {
     TemplateServiceNotFound -> "No templates found",
     AppInfo -> "Impossible to extract server information",
     AppStatus -> "Zookeeper is not connected",
+    WorkflowServiceUnexpected -> "Unexpected behaviour in Workflow service",
     WorkflowServiceFindById -> "Error finding workflow by ID",
     WorkflowServiceFindByName -> "Error finding workflow by Name",
     WorkflowServiceFindByIds -> "Error finding workflows by ID's",
@@ -97,7 +107,13 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceDeleteById -> "Error deleting workflows by ID's",
     WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",
     WorkflowServiceRun -> "Error running workflow",
-    WorkflowServiceDownload -> "Error downloading workflow"
+    WorkflowServiceDownload -> "Error downloading workflow",
+    WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
+    WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
+    WorkflowStatusFindById -> "Error obtaining workflow status",
+    WorkflowStatusDeleteAll -> "Error deleting all workflow statuses",
+    WorkflowStatusDeleteById -> "Error deleting workflow status",
+    WorkflowStatusUpdate -> "Error updating workflow status"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

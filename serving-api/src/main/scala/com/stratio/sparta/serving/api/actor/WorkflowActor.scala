@@ -19,17 +19,15 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.actor.StatusActor.ResponseStatus
-import com.stratio.sparta.serving.core.actor.TemplateActor.ResponseTemplate
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.WorkflowService
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => ActorRef)(
   implicit val secManagerOpt: Option[SpartaSecurityManager]
@@ -59,8 +57,6 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
     case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
     case DeleteCheckpoint(name, user) => deleteCheckpoint(name, user)
-    case fragment: ResponseTemplate => loggingResponseTemplate(fragment)
-    case ResponseStatus(status) => loggingResponseWorkflowStatus(status)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -151,23 +147,6 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   def deleteCheckpoint(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourcePol -> View)) {
       Try(deleteCheckpointPath(workflowService.findByName(name)))
-    }
-
-  def loggingResponseTemplate(response: Try[TemplateElement]): Unit =
-    response match {
-      case Success(fragment) =>
-        log.info(s"Template created correctly: \n\tId: ${fragment.id}\n\tName: ${fragment.name}")
-      case Failure(e) =>
-        log.error(s"Template creation failure. Error: ${e.getLocalizedMessage}", e)
-    }
-
-  def loggingResponseWorkflowStatus(response: Try[WorkflowStatus]): Unit =
-    response match {
-      case Success(statusModel) =>
-        log.info(s"Workflow status model created or updated correctly: " +
-          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
-      case Failure(e) =>
-        log.error(s"Workflow status model creation failure. Error: ${e.getLocalizedMessage}", e)
     }
 }
 

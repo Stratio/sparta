@@ -18,14 +18,10 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.LauncherActor
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.{TemplateActor, LauncherActor}
-import com.stratio.sparta.serving.core.actor.TemplateActor.{Response, ResponseTemplate}
-import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, ResponseStatus, Update}
+import com.stratio.sparta.serving.core.actor.StatusActor.{FindAll, FindById, Update}
 import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
@@ -54,7 +50,7 @@ class WorkflowStatusHttpServiceTest extends WordSpec
 
   override val supervisor: ActorRef = testProbe.ref
 
-  "PolicyContextHttpService.findAll" should {
+  "WorkflowStatusHttpService.findAll" should {
     "find all policy contexts" in {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
@@ -87,13 +83,13 @@ class WorkflowStatusHttpServiceTest extends WordSpec
     }
   }
 
-  "PolicyContextHttpService.find" should {
+  "WorkflowStatusHttpService.find" should {
     "find policy contexts by id" in {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindById(id, user) =>
-              sender ! Left(ResponseStatus(Success(getWorkflowStatusModel())))
+              sender ! Left(Success(getWorkflowStatusModel()))
               TestActor.NoAutoPilot
           }
       })
@@ -108,7 +104,7 @@ class WorkflowStatusHttpServiceTest extends WordSpec
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case FindById(id, user) =>
-              sender ! Left(ResponseStatus(Failure(new MockException)))
+              sender ! Left(Failure(new MockException))
               TestActor.NoAutoPilot
           }
       })
@@ -120,20 +116,20 @@ class WorkflowStatusHttpServiceTest extends WordSpec
     }
   }
 
-  "PolicyContextHttpService.update" should {
+  "WorkflowStatusHttpService.update" should {
     "update a policy context when the id of the contexts exists" in {
       val statusActorAutoPilot = Option(new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case Update(policyStatus, user) =>
-              sender ! Left(ResponseStatus(Try(policyStatus)))
+              sender ! Left(Try(policyStatus))
               TestActor.NoAutoPilot
           }
       })
       startAutopilot(None, statusActorTestProbe, statusActorAutoPilot)
       Put(s"/${HttpConstant.WorkflowStatusesPath}", getWorkflowStatusModel()) ~> routes(rootUser) ~> check {
         statusActorTestProbe.expectMsgType[Update]
-        status should be(StatusCodes.Created)
+        status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
@@ -141,7 +137,7 @@ class WorkflowStatusHttpServiceTest extends WordSpec
         def run(sender: ActorRef, msg: Any): TestActor.AutoPilot =
           msg match {
             case Update(policyStatus, user) =>
-              sender ! Left(ResponseStatus(Try(throw new Exception)))
+              sender ! Left(Try(throw new Exception))
               TestActor.NoAutoPilot
           }
       })

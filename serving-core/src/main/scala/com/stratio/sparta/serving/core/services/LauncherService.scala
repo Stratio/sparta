@@ -56,16 +56,6 @@ class LauncherService(curatorFramework: CuratorFramework) extends SLF4JLogging {
         log.error(s"Error when extracting workflow status in the scheduled task", exception)
     }
   }
-  
-  def loggingResponseWorkflowStatus(response: Try[WorkflowStatus]): Unit =
-    response match {
-      case Success(statusModel) =>
-        log.info(s"Workflow status model created or updated correctly: " +
-          s"\n\tId: ${statusModel.id}\n\tStatus: ${statusModel.status}")
-      case Failure(e) =>
-        log.error(s"An error was encountered while creating the Workflow status model. " +
-          s"Error: ${e.getLocalizedMessage}", e)
-    }
 
   def getZookeeperConfig: Config = SpartaConfig.getZookeeperConfig.getOrElse {
     val message = "Impossible to extract Zookeeper Configuration"
