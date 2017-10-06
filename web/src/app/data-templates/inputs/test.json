@@ -2,7 +2,7 @@
      "name": "Test",
      "className": "TestInputStep",
      "classPrettyName": "Test",
-     "description": "Simulate one streaming input generating events based in fixed string or random number",
+     "description": "Simulates a data stream generating events based on a fixed string or random numbers",
      "properties": [
         {
            "propertyId": "eventType",

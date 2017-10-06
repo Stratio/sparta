@@ -108,7 +108,10 @@ case class SparkMesosConf(
                            mesosHDFSConfURI: Option[String] = None
                          )
 
-case class UserSubmitArgument(submitArgument: String, submitValue: String)
+case class UserSubmitArgument(
+                               submitArgument: String,
+                               submitValue: String
+                             )
 
 case class UserJar(jarPath: String)
 

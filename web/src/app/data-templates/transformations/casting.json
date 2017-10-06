@@ -3,7 +3,7 @@
      "icon": "Casting",
      "className": "CastingTransformStep",
      "classPrettyName": "Casting",
-     "description": "Casting input fields to other types, support advanced Spark types conversions",
+     "description": "Casts input fields to other types, support advanced Spark types conversions",
      "properties": [
         {
            "propertyId": "outputFieldsFrom",
@@ -21,7 +21,7 @@
                  "value": "FIELDS"
               }
            ],
-           "tooltip": "Type of output fields definition, with string in json or spark format or fields model ",
+           "tooltip": "Type of output fields definition, string in json or spark format or a fields model.",
            "qa": "fragment-details-casting-outputFieldsFrom"
         },
         {

@@ -3,7 +3,7 @@
      "icon": "CSV",
      "className": "CSVTransformStep",
      "classPrettyName": "CSV",
-     "description": "Parsing input field with csv format to selected output fields",
+     "description": "Parses an input field with csv format and returns all the obtained new fields or selected ones",
      "properties": [
         {
            "propertyId": "inputField",
@@ -116,6 +116,7 @@
                  "propertyName": "_NULLABLE_",
                  "propertyType": "boolean",
                  "default": true,
+                 "required": true,
                  "qa": "fragment-details-field-nullable"
               }
            ]
@@ -125,7 +126,7 @@
            "propertyName": "_ADD_ALL_INPUT_FIELDS_",
            "propertyType": "boolean",
            "default": true,
-           "tooltip": "If checked, the output fields contains all the input fields",
+           "tooltip": "If checked, the output will contain all the input fields too",
            "qa": "workflow-transformation-csv-addAllInputFields"
         },
         {
@@ -140,8 +141,9 @@
            "propertyId": "splitLimit",
            "propertyName": "_SPLIT_LIMIT_",
            "propertyType": "text",
-           "required": false,
-           "tooltip": "",
+           "required": true,
+           "default": "-1",
+           "tooltip": "Determines the number of results obtained from parsing. If set to -1 no limit will be specified.",
            "qa": "fragment-details-csv-splitLimit"
         },
         {

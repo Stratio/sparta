@@ -43,32 +43,23 @@
               "value": "marathon"
             }
           ],
-          "tooltip": "Execution mode when the workflow is launched, if nothing is selected Sparta will use the values in the configuration file",
+          "tooltip": "Execution mode used to launch the existing workflows, if nothing is selected Sparta will use the values in the configuration file",
           "qa": "workflow-execution-mode"
-        },
-        {
-          "propertyId": "streamTemporalTable",
-          "propertyName": "SETTINGS._TEMPORAL_TABLE_TRANSFORMATIONS_",
-          "propertyType": "text",
-          "width": 4,
-          "default": "stream",
-          "required": true,
-          "tooltip": "Temporal table name assigned to the transformed data, this temporal table is available in triggers, example 'select * from stream' when the value is 'stream'",
-          "qa": "workflow-temporal-table-name"
         },
         {
           "propertyId": "monitoringLink",
           "propertyName": "SETTINGS._MONITORING_LINK_",
+          "required": false,
           "width": 4,
           "propertyType": "text",
-          "tooltip": "User defined URI to monitoring policies when is launched in the polices view ",
+          "tooltip": "User defined URI to monitor the workflows when they are launched in the view",
           "qa": "monitoring-link"
         },
         {
           "propertyId": "userPluginsJars",
           "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
           "propertyType": "list",
-          "tooltip": "User Jars with plugins that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
+          "tooltip": "Custom jars with plugins created by the user that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
           "qa": "workflow-user-plugins-jars",
           "fields": [{
             "propertyId": "jarPath",
@@ -102,145 +93,96 @@
       ]
     },
     {
-      "name" : "checkpointSettings",
-      "properties": [
-        {
-          "propertyId": "enableCheckpointing",
-          "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
-          "propertyType": "boolean",
-          "width": "auto",
-          "newRow": true,
-          "required": true,
-          "default": true,
-          "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",
-          "qa": "workflow-enable-checkpoint"
-        },
-        {
-          "propertyId": "autoDeleteCheckpoint",
-          "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
-          "propertyType": "boolean",
-          "width": "auto",
-          "required": true,
-          "default": true,
-          "tooltip": "Only it is used when is enabled the checkpointing. Auto delete checkpoint path in HDFS when running policies",
-          "qa": "workflow-delete-checkpoint"
-        },
-        {
-          "propertyId": "addTimeToCheckpointPath",
-          "propertyName": "SETTINGS._ADD_TIME_TO_CHECKPOINT_",
-          "width": "auto",
-          "propertyType": "boolean",
-          "required": true,
-          "default": false,
-          "tooltip": "Only it is used when is enabled the checkpointing. Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
-          "qa": "workflow-delete-checkpoint"
-        },
-        {
-          "propertyId": "checkpointPath",
-          "propertyName": "SETTINGS._CHECKPOINT_PATH_",
-          "propertyType": "text",
-          "width": 6,
-          "default": "sparta/checkpoint",
-          "newRow": true,
-          "required": false,
-          "tooltip": "Only it is used when is enabled the checkpointing. When is selected Mesos or Marathon the checkpoint path indicates one path in HDFS (sparta/checkpoint), when is selected  Local the checkpoint path indicate one local path in the machine (/tmp/sparta/checkpoint)",
-          "qa": "checkpoint-path"
-        }
-      ]
-    },
-    {
       "name" : "streamingSettings",
       "properties": [
         {
-          "propertyId": "sparkStreamingWindowNumber",
+          "propertyId": "window",
           "propertyName": "SETTINGS._SPARK_STREAMING_WINDOW_",
-          "propertyType": "number",
-          "default": 6,
+          "propertyType": "text",
+          "default": "2s",
           "width": 3,
-          "tooltip": "Streaming window assigned to Spark Streaming.",
+          "tooltip": "Streaming window assigned to Spark",
           "required": true,
           "float": true,
-          "qa": "workflow-spark-streaming-window-sparkStreamingWindowNumber"
+          "qa": "spark-streaming-window"
         },
         {
-          "propertyId": "sparkStreamingWindowTime",
-          "propertyName": "SETTINGS._WHITE_SPACE_",
-          "propertyType": "select",
-          "qa": "workflow-spark-streaming-window-sparkStreamingWindowTime",
-          "default": "s",
-          "width": 3,
-          "required": true,
-          "values": [{
-            "label": "Milliseconds",
-            "value": "ms"
-          },
-            {
-              "label": "Seconds",
-              "value": "s"
-            },
-            {
-              "label": "Minutes",
-              "value": "m"
-            },
-            {
-              "label": "Hours",
-              "value": "h"
-            },
-            {
-              "label": "Days",
-              "value": "d"
-            },
-            {
-              "label": "Week(s)",
-              "value": "w"
-            }
-          ]
-        },
-        {
-          "propertyId": "rememberNumber",
-          "propertyName": "SETTINGS._POLICY_REMEMBER_FIELD_",
-          "propertyType": "number",
+          "propertyId": "remember",
+          "propertyName": "SETTINGS._WORKFLOW_REMEMBER_FIELD_",
+          "propertyType": "text",
           "width": 3,
           "float": true,
           "tooltip": "Maximum time a certain query will be executed before being aborted",
-          "required": "false",
-          "qa": "workflow-remember-number"
+          "required": false,
+          "qa": "spark-streaming-remember-number"
         },
         {
-          "propertyId": "rememberTime",
-          "propertyName": "SETTINGS._WHITE_SPACE_",
-          "propertyType": "select",
+          "propertyId": "backpressure",
+          "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_",
+          "propertyType": "boolean",
+          "required": false,
+          "default": false,
           "width": 3,
-          "qa": "workflow-remember-time",
-          "required": "false",
-          "values": [{
-            "label": "Milliseconds",
-            "value": "ms"
-          },
-            {
-              "label": "Seconds",
-              "value": "s"
-            },
-            {
-              "label": "Minutes",
-              "value": "m"
-            },
-            {
-              "label": "Hours",
-              "value": "h"
-            },
-            {
-              "label": "Days",
-              "value": "d"
-            },
-            {
-              "label": "Week(s)",
-              "value": "w"
-            }
+          "tooltip": "Enables or disables Spark Streaming's internal backpressure mechanism",
+          "qa": "spark-streaming-backpressure"
+        },
+        {
+          "propertyId": "backpressureInitialRate",
+          "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_INITIAL_RATE_",
+          "propertyType": "text",
+          "width": 3,
+          "tooltip": "Maximum time a certain query will be executed before being aborted",
+          "required": false,
+          "qa": "spark-streaming-backpressure-initial-rate"
+        },
+        {
+          "name" : "checkpointSettings",
+          "properties": [
+               {
+                  "propertyId": "checkpointPath",
+                  "propertyName": "SETTINGS._CHECKPOINT_PATH_",
+                  "propertyType": "text",
+                  "width": 6,
+                  "default": "sparta/checkpoint",
+                  "newRow": true,
+                  "required": false,
+                  "tooltip": "Used only if the checkpointing feature is activated. When selecting Mesos or Marathon as deploy mode the checkpoint path must be one located in a HDFS node(sparta/checkpoint), when deploying in Local the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint)",
+                  "qa": "workflow-checkpoint-path"
+               },
+               {
+                  "propertyId": "enableCheckpointing",
+                  "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
+                  "propertyType": "boolean",
+                  "width": "auto",
+                  "newRow": true,
+                  "required": true,
+                  "default": true,
+                  "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",
+                  "qa": "workflow-enable-checkpoint"
+               },
+               {
+                  "propertyId": "autoDeleteCheckpoint",
+                  "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
+                  "propertyType": "boolean",
+                  "width": "auto",
+                  "required": true,
+                  "default": true,
+                  "tooltip": "Only used when the checkpointing feature is enabled. Auto delete checkpoint path in HDFS when running policies",
+                  "qa": "workflow-delete-checkpoint"
+               },
+               {
+                  "propertyId": "addTimeToCheckpointPath",
+                  "propertyName": "SETTINGS._ADD_TIME_TO_CHECKPOINT_",
+                  "width": "auto",
+                  "propertyType": "boolean",
+                  "required": true,
+                  "default": false,
+                  "tooltip": "Only used when the checkpointing feature is enabled. Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
+                  "qa": "workflow-add-timestamp-checkpoint"
+               }
           ]
         }
       ]
-
     },
     {
       "name" : "sparkSettings",
@@ -251,32 +193,7 @@
           "propertyName": "SETTINGS._SPARK_MASTER_",
           "propertyType": "text",
           "default": "mesos://leader.mesos:5050",
-          "tooltip": "Set the spark master. In Marathon deployments: mesos://leader.mesos:5050 . Local deployments:local[*] . Dispatcher deployments: dispatcherURI:7077",
-          "qa": "workflow-spark-user"
-        },
-        {
-          "propertyId": "sparkHome",
-          "propertyName": "SETTINGS._SPARK_HOME_",
-          "propertyType": "text",
-          "width": 4,
-          "default": "/opt/spark/dist",
-          "tooltip": "Set the spark home in Mesos deployments",
-          "qa": "workflow-spark-home"
-        },
-        {
-          "propertyId": "killUrl",
-          "propertyName": "SETTINGS._SPARK_KILL_URL_",
-          "width": 4,
-          "propertyType": "text",
-          "tooltip": "Set the spark home in Mesos deployments",
-          "qa": "workflow-spark-home"
-        },
-        {
-          "propertyId": "sparkUser",
-          "propertyName": "SETTINGS._SPARK_USER_",
-          "propertyType": "text",
-          "width": 4,
-          "tooltip": "Set the spark user in Mesos deployments",
+          "toltip": "Sets the spark master. In Marathon deployments: mesos://leader.mesos:5050 . Local deployments:local[*] . Dispatcher deployments: dispatcherURI:7077",
           "qa": "workflow-spark-user"
         },
         {
@@ -286,7 +203,7 @@
           "newRow": true,
           "width": "auto",
           "default": false,
-          "tooltip": "Enable kerberos integration and send in the spark submits,  principal and keytab arguments if is available",
+          "tooltip": "Enables Kerberos integration and send the principal and keytab arguments if  available through the spark submit",
           "qa": "workflow-spark-kerberos"
         },
         {
@@ -296,44 +213,360 @@
           "newRow": false,
           "width": "auto",
           "default": false,
-          "tooltip": "Enable datastore with TLS integration and send options in the spark submits",
+          "tooltip": "Enables dataStore with TLS integration and send options through the spark submit",
           "qa": "workflow-spark-datastore-tls"
         },
         {
+          "propertyId": "killUrl",
+          "propertyName": "SETTINGS._SPARK_KILL_URL_",
+          "width": 4,
+          "propertyType": "text",
+          "tooltip": "Sets the spark home in Mesos deployments",
+          "qa": "workflow-spark-home"
+        },
+        {
+           "name": "submitArguments",
+           "listCompressed": true,
+            "properties": [
+               {
+                  "propertyId": "userArguments",
+                  "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENTS_",
+                  "propertyType": "list",
+                  "required": false,
+                  "tooltip": "Spark submit arguments added when the workflow is executed on a Spark cluster. Values set here will override the property file options",
+                  "qa": "workflow-spark-submit-argument",
+                  "fields": [
+                     {
+                       "propertyId": "submitArgument",
+                       "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_KEY_",
+                       "position": "left",
+                       "propertyType": "text",
+                       "regexp": "",
+                       "default": "",
+                       "hidden": false,
+                       "required": false,
+                       "tooltip": "Spark submit argument with the structure --xxx",
+                       "qa": "workflow-spark-submit-argument-key"
+                     },
+                     {
+                       "propertyId": "submitValue",
+                       "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_VALUE_",
+                       "position": "right",
+                       "propertyType": "text",
+                       "regexp": "",
+                       "default": "",
+                       "hidden": false,
+                       "required": false,
+                       "qa": "workflow-spark-submit-argument-value"
+                     }
+                  ]
+               },
+               {
+                  "propertyId": "deployMode",
+                  "propertyName": "SETTINGS._SPARK_DEPLOY_MODE_",
+                  "propertyType": "select",
+                  "width": 4,
+                  "values": [
+                     {
+                        "label": "Client",
+                        "value": "client"
+                     },
+                     {
+                        "label": "Cluster",
+                        "value": "cluster"
+                     }
+                  ],
+                  "default": "client",
+                  "tooltip": "Sets the spark deploy mode in cluster executions",
+                  "qa": "workflow-spark-deploy-mode"
+               },
+               {
+                  "propertyId": "supervise",
+                  "propertyName": "SETTINGS._SPARK_SUPERVISE_",
+                  "propertyType": "boolean",
+                  "newRow": true,
+                  "width": "auto",
+                  "default": false,
+                  "tooltip": "Sets if the driver restarts on a possible failure. Supervised mode available in Mesos executions with a Spark dispatcher",
+                  "qa": "workflow-spark-supervise"
+               },
+               {
+                  "propertyId": "jars",
+                  "propertyName": "SETTINGS._SPARK_JARS_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Comma-separated list of local jars to include on the driver and executor classPaths",
+                  "qa": "workflow-spark-jars"
+               },
+               {
+                  "propertyId": "propertiesFile",
+                  "propertyName": "SETTINGS._SPARK_PROPERTIES_FILE_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Path to a file from which to load extra properties. If not specified, this will look for conf/spark-defaults.conf",
+                  "qa": "workflow-spark-propertiesFile"
+               },
+               {
+                  "propertyId": "packages",
+                  "propertyName": "SETTINGS._SPARK_PACKAGES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Comma-separated list of jars expressed as maven coordinates to include in the driver and executor classPaths. This will search first in the local maven repo, then in maven central and any additional remote repositories given by --repositories. The format for the coordinates should be groupId:artifactId:version",
+                  "qa": "workflow-spark-packages"
+               },
+               {
+                  "propertyId": "excludePackages",
+                  "propertyName": "SETTINGS._SPARK_EXCLUDE_PACKAGES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Comma-separated list of groupId:artifactId coordinates to exclude while resolving the dependencies provided in --packages in order to avoid dependency conflicts",
+                  "qa": "workflow-spark-excludePackages"
+               },
+               {
+                  "propertyId": "repositories",
+                  "propertyName": "SETTINGS._SPARK_REPOSITORIES_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Comma-separated list of additional remote repositories where to look for the maven coordinates given with --packages",
+                  "qa": "workflow-spark-repositories"
+               },
+               {
+                  "propertyId": "proxyUser",
+                  "propertyName": "SETTINGS._SPARK_PROXY_USER_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "User to impersonate when submitting the application. This argument does not work with --principal / --keytab",
+                  "qa": "workflow-spark-proxyUser"
+               },
+               {
+                  "propertyId": "driverJavaOptions",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "default": "-XX:+UseConcMarkSweepGC",
+                  "tooltip": "Extra Java options to pass to the driver",
+                  "qa": "workflow-spark-driverJavaOptions"
+               },
+               {
+                  "propertyId": "driverLibraryPath",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_LIBRARY_PATH_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Extra library path entries to be passed to the driver",
+                  "qa": "workflow-spark-driverLibraryPath"
+               },
+               {
+                  "propertyId": "driverClassPath",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_CLASS_PATH_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Extra class path entries to passed to the driver. Note that jars added with --jars are automatically included in the classpath",
+                  "qa": "workflow-spark-driverClassPath"
+               }
+            ]
+         },
+        {
           "name": "sparkConf",
+          "listCompressed": true,
           "properties": [
-             {
+            {
+                "name": "sparkResourcesConf",
+                "listCompressed": true,
+                "properties": [
+                   {
+                      "propertyId": "coresMax",
+                      "propertyName": "SETTINGS._SPARK_CORES_MAX_",
+                      "propertyType": "text",
+                      "default": "2",
+                      "width": 4,
+                      "tooltip": "Maximum amount of CPU cores to request for the application",
+                      "qa": "workflow-spark-coresMax"
+                   },
+                   {
+                      "propertyId": "executorMemory",
+                      "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
+                      "propertyType": "text",
+                      "default": "2G",
+                      "width": 4,
+                      "tooltip": "Amount of memory to use per executor process",
+                      "qa": "workflow-spark-executorMemory"
+                   },
+                   {
+                      "propertyId": "executorCores",
+                      "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "1",
+                      "tooltip": "Number of cores to use on each executor",
+                      "qa": "workflow-spark-executorCores"
+                   },
+                   {
+                      "propertyId": "driverCores",
+                      "propertyName": "SETTINGS._SPARK_DRIVER_CORES_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "1",
+                      "tooltip": "Number of cores assigned to the Spark Driver",
+                      "qa": "workflow-spark-driverCores"
+                   },
+                   {
+                      "propertyId": "driverMemory",
+                      "propertyName": "SETTINGS._SPARK_DRIVER_MEMORY_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "2G",
+                      "tooltip": "Memory assigned to the Spark Driver",
+                      "qa": "workflow-spark-driverMemory"
+                   },
+                   {
+                      "propertyId": "mesosExtraCores",
+                      "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "tooltip": "Extra amount of CPUs to request per task",
+                      "qa": "workflow-spark-mesosExtraCores"
+                   },
+                   {
+                      "propertyId": "localityWait",
+                      "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "0",
+                      "tooltip": "Period of time to wait to launch a data-local task before giving up and launching it on a less-local node",
+                      "qa": "workflow-spark-localityWait"
+                   },
+                   {
+                      "propertyId": "taskMaxFailures",
+                      "propertyName": "SETTINGS._SPARK_TASK_MAX_FAILURES_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "8",
+                      "tooltip": "Number of failures of any particular task before giving up on the job",
+                      "qa": "workflow-spark-taskMaxFailures"
+                   },
+                   {
+                      "propertyId": "sparkMemoryFraction",
+                      "propertyName": "SETTINGS._SPARK_MEMORY_FRACTION_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "default": "0.6",
+                      "tooltip": "Fraction of (heap space - 300MB) used for execution and storage",
+                      "qa": "workflow-spark-memory-fraction"
+                   }
+
+                ]
+             },
+            {
+                "name": "sparkDockerConf",
+                "listCompressed": true,
+                "properties": [
+                   {
+                      "propertyId": "executorDockerImage",
+                      "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
+                      "propertyType": "text",
+                      "width": 6,
+                      "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
+                      "tooltip": "Run over Mesos Clusters with Docker containers",
+                      "qa": "workflow-spark-executorDockerImage"
+                   },
+                   {
+                      "propertyId": "executorDockerVolumes",
+                      "propertyName": "SETTINGS._SPARK_DOCKER_VOLUMES_",
+                      "propertyType": "text",
+                      "width": 6,
+                      "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+                      "tooltip": "Mount volumes from host machine in the executor docker container",
+                      "qa": "workflow-spark-executorDockerVolumes"
+                   },
+                   {
+                      "propertyId": "executorForcePullImage",
+                      "propertyName": "SETTINGS._SPARK_DOCKER_FORCE_PULL_IMAGE_",
+                      "propertyType": "boolean",
+                      "default": false,
+                      "width": "auto",
+                      "newRow": true,
+                      "tooltip": "Force pull image for each execution",
+                      "qa": "workflow-spark-executorForcePullImage"
+                   }
+                ]
+             },
+            {
+                "name": "sparkMesosConf",
+                "listCompressed": true,
+                "properties": [
+                   {
+                      "propertyId": "mesosNativeJavaLibrary",
+                      "width": 4,
+                      "propertyName": "SETTINGS._SPARK_MESOS_NATIVE_LIBRARY_",
+                      "propertyType": "text",
+                      "default": "/opt/mesosphere/lib/libmesos.so",
+                      "tooltip": "Mesos native library location",
+                      "qa": "workflow-spark-mesosNativeJavaLibrary"
+                   },
+                   {
+                      "propertyId": "mesosHDFSConfURI",
+                      "width": 4,
+                      "propertyName": "SETTINGS._SPARK_MESOS_HDFS_CONF_URI_",
+                      "propertyType": "text",
+                      "tooltip": "Download HDFS configuration in Stratio's Spark fork",
+                      "qa": "workflow-spark-mesos-HDFS-ConfURI"
+                   }
+                ]
+             },
+            {
               "propertyId": "userSparkConf",
               "propertyName": "SETTINGS._SPARK_CONF_",
               "propertyType": "list",
               "required": false,
               "tooltip": "Spark configuration properties. Values set here will override the ones set in the configuration file.",
               "qa": "workflow-spark-conf",
-              "fields": [{
-                "propertyId": "sparkConfKey",
-                "propertyName": "SETTINGS._SPARK_CONF_KEY_",
-                "position": "left",
-                "propertyType": "text",
-                "regexp": "",
-                "default": "",
-                "hidden": false,
-                "required": false,
-                "tooltip": "Spark configuration property with the structure spark.xxx",
-                "qa": "workflow-sparkConfKey"
-              },
-                {
-                  "propertyId": "sparkConfValue",
-                  "propertyName": "SETTINGS._SPARK_CONF_VALUE_",
-                  "position": "right",
-                  "propertyType": "text",
-                  "regexp": "",
-                  "default": "",
-                  "hidden": false,
-                  "required": false,
-                  "qa": "workflow-sparkConfValue"
-                }
+              "fields": [
+                 {
+                   "propertyId": "sparkConfKey",
+                   "propertyName": "SETTINGS._SPARK_CONF_KEY_",
+                   "position": "left",
+                   "propertyType": "text",
+                   "regexp": "",
+                   "default": "",
+                   "hidden": false,
+                   "required": false,
+                   "tooltip": "Spark configuration property with the structure spark.xxx",
+                   "qa": "workflow-sparkConfKey"
+                 },
+                 {
+                   "propertyId": "sparkConfValue",
+                   "propertyName": "SETTINGS._SPARK_CONF_VALUE_",
+                   "position": "right",
+                   "propertyType": "text",
+                   "regexp": "",
+                   "default": "",
+                   "hidden": false,
+                   "required": false,
+                   "qa": "workflow-sparkConfValue"
+                 }
               ]
             },
+            {
+                "propertyId": "coarse",
+                "propertyName": "SETTINGS._SPARK_COARSE_",
+                "propertyType": "boolean",
+                "newRow": true,
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Coarse mode is recommended in Streaming Applications over Mesos Clusters. If assigned to false is used the Spark fine grained mode",
+                "qa": "workflow-spark-coarse"
+             },
+            {
+                "propertyId": "stopGracefully",
+                "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Stop gracefully the streaming contexts when shutting down the spark applications",
+                "qa": "workflow-spark-stopGracefully"
+             },
             {
               "propertyId": "stopGracefulTimeout",
               "propertyName": "SETTINGS._SPARK_STOP_GRACEFUL_TIMEOUT_",
@@ -343,376 +576,41 @@
               "qa": "workflow-spark-stopGracefulTimeout"
             },
             {
-              "propertyId": "serializer",
-              "propertyName": "SETTINGS._SPARK_SERIALIZER_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Use other serializer than default Java Serializer",
-              "qa": "workflow-spark-serializer"
-            },
-            {
-              "propertyId": "executorURI",
-              "propertyName": "SETTINGS._SPARK_EXECUTOR_URI_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "If the user want to use one Spark compilation",
-              "qa": "workflow-spark-executorURI"
-            },
-            {
-              "propertyId": "coarse",
-              "propertyName": "SETTINGS._SPARK_COARSE_",
-              "propertyType": "boolean",
-              "newRow": true,
-              "required": true,
-              "width": "auto",
-              "default": true,
-              "tooltip": "Coarse mode is recommended in Streaming Applications over Mesos Clusters. If is assinged false is used the Spark fine grained mode",
-              "qa": "workflow-spark-coarse"
-            },
-            {
-              "propertyId": "parquetBinaryAsString",
-              "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
-              "propertyType": "boolean",
-              "required": true,
-              "width": "auto",
-              "default": true,
-              "tooltip": "Parquet prevention errors",
-              "qa": "workflow-spark-parquetBinaryAsString"
-            },
-            {
-              "propertyId": "stopGracefully",
-              "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
-              "propertyType": "boolean",
-              "required": true,
-              "width": "auto",
-              "default": true,
-              "tooltip": "Stop gracefully the streaming contexts when shutdown the spark applications",
-              "qa": "workflow-spark-stopGracefully"
-            },
-            {
-              "name": "sparkResourcesConf",
-              "listCompressed": true,
-              "properties": [
-                {
-                  "propertyId": "coresMax",
-                  "propertyName": "SETTINGS._SPARK_CORES_MAX_",
-                  "propertyType": "text",
-                  "default": "1",
-                  "width": 4,
-                  "tooltip": "Total cores by executors",
-                  "qa": "workflow-spark-coresMax"
-                },
-                {
-                  "propertyId": "executorMemory",
-                  "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
-                  "propertyType": "text",
-                  "default": "1G",
-                  "width": 4,
-                  "tooltip": "Memory by executor",
-                  "qa": "workflow-spark-executorMemory"
-                },
-                {
-                  "propertyId": "executorCores",
-                  "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "1",
-                  "tooltip": "Cores by executors",
-                  "qa": "workflow-spark-executorCores"
-                },
-                {
-                  "propertyId": "driverMemory",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_MEMORY_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "1G",
-                  "tooltip": "Memory assigned to Spark Driver",
-                  "qa": "workflow-spark-driverMemory"
-                },
-                {
-                  "propertyId": "driverCores",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_CORES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "1",
-                  "tooltip": "Cores assigned to Spark Driver",
-                  "qa": "workflow-spark-driverCores"
-                },
-                {
-                  "propertyId": "mesosExtraCores",
-                  "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Extra amount of cpus to request per task",
-                  "qa": "workflow-spark-mesosExtraCores"
-                },
-                {
-                  "propertyId": "localityWait",
-                  "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "0",
-                  "tooltip": "How long to wait to launch a data-local task before giving up and launching it on a less-local node",
-                  "qa": "workflow-spark-localityWait"
-                },
-                {
-                  "propertyId": "taskMaxFailures",
-                  "propertyName": "SETTINGS._SPARK_TASK_MAX_FAILURES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "8",
-                  "tooltip": "Number of failures of any particular task before giving up on the job",
-                  "qa": "workflow-spark-taskMaxFailures"
-                },
-                {
-                  "propertyId": "blockInterval",
-                  "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "default": "200ms",
-                  "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark",
-                  "qa": "workflow-spark-blockInterval"
-                },
-                {
-                  "propertyId": "concurrentJobs",
-                  "propertyName": "SETTINGS._SPARK_CONCURRENT_JOBS_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Running concurrent jobs brings down the overall processing time and scheduling delay even if a batch takes processing time slightly more than batch interval. By default the number of concurrent jobs is 1 which means at a time only 1 job will be active and till its not finished,other jobs will be queued up even if the resources are available and idle",
-                  "qa": "workflow-spark-concurrentJobs"
-                }
-              ]
-            },
-            {
-              "name": "sparkDockerConf",
-              "listCompressed": true,
-              "properties": [
-                {
-                  "propertyId": "executorDockerImage",
-                  "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
-                  "propertyType": "text",
-                  "width": 6,
-                  "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
-                  "tooltip": "Run over Mesos Clusters with Docker containers",
-                  "qa": "workflow-spark-executorDockerImage"
-                },
-                {
-                  "propertyId": "executorDockerVolumes",
-                  "propertyName": "SETTINGS._SPARK_DOCKER_VOLUMES_",
-                  "propertyType": "text",
-                  "width": 6,
-                  "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
-                  "tooltip": "Mount volumes from host machine in the executor docker container",
-                  "qa": "workflow-spark-executorDockerVolumes"
-                },
-                {
-                  "propertyId": "executorForcePullImage",
-                  "propertyName": "SETTINGS._SPARK_DOCKER_FORCE_PULL_IMAGE_",
-                  "propertyType": "boolean",
-                  "default": false,
-                  "width": "auto",
-                  "newRow": true,
-                  "tooltip": "Force pull image for each execution",
-                  "qa": "workflow-spark-executorForcePullImage"
-                }
-              ]
-            },
-            {
-              "name": "sparkMesosConf",
-              "listCompressed": true,
-              "properties": [
-                {
-                  "propertyId": "mesosNativeJavaLibrary",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_NATIVE_LIBRARY_",
-                  "propertyType": "text",
-                  "default": "/opt/mesosphere/lib/libmesos.so",
-                  "tooltip": "Mesos native library location",
-                  "qa": "workflow-spark-mesosNativeJavaLibrary"
-                },
-                {
-                  "propertyId": "mesosExecutorHome",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_EXECUTOR_HOME_",
-                  "propertyType": "text",
-                  "default": "/opt/spark/dist",
-                  "tooltip": "If Spark in Mesos Slaves are installed in a different path than spark submit installation",
-                  "qa": "workflow-spark-mesosExecutorHome"
-                },
-                {
-                  "propertyId": "mesosHDFSConfURI",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_HDFS_CONF_URI_",
-                  "propertyType": "text",
-                  "tooltip": "Download HDFS conf in stratio spark fork",
-                  "qa": "workflow-spark-mesosHDFSConfURI"
-                },
-                {
-                  "propertyId": "mesosPrincipal",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_PRINCIPAL_",
-                  "propertyType": "text",
-                  "tooltip": "Principal name used when run Sparta over Mesos securized",
-                  "qa": "workflow-spark-mesosPrincipal"
-                },
-                {
-                  "propertyId": "mesosSecret",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_SECRET_",
-                  "propertyType": "text",
-                  "tooltip": "Secret password used when run Sparta over Mesos securized",
-                  "qa": "workflow-spark-mesosSecret"
-                },
-                {
-                  "propertyId": "mesosRole",
-                  "width": 4,
-                  "propertyName": "SETTINGS._SPARK_MESOS_ROLE_",
-                  "propertyType": "text",
-                  "tooltip": "Role assigned to spark jobs when run Sparta over Mesos securized",
-                  "qa": "workflow-spark-mesosRole"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "submitArguments",
-          "listCompressed": true,
-          "properties": [
-            {
-              "propertyId": "userArguments",
-              "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENTS_",
-              "propertyType": "list",
-              "required": false,
-              "tooltip": "Spark submit arguments added when the workflow is executed on a Spark cluster. Values set here will override the property file options",
-              "qa": "workflow-spark-submit-argument",
-              "fields": [{
-                "propertyId": "submitArgument",
-                "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_",
-                "position": "left",
+                "propertyId": "sparkUser",
+                "propertyName": "SETTINGS._SPARK_USER_",
                 "propertyType": "text",
-                "regexp": "",
-                "default": "",
-                "hidden": false,
-                "required": false,
-                "tooltip": "Spark submit argument with the structure --xxx",
-                "qa": "workflow-spark-submit-argument-key"
-              },
-                {
-                  "propertyId": "submitValue",
-                  "propertyName": "SETTINGS._SPARK_SUBMIT_ARGUMENT_VALUE_",
-                  "position": "right",
-                  "propertyType": "text",
-                  "regexp": "",
-                  "default": "",
-                  "hidden": false,
-                  "required": false,
-                  "qa": "workflow-spark-submit-argument-value"
-                }
-              ]
-            },
+                "width": 4,
+                "tooltip": "Sets the spark user in Mesos deployments",
+                "qa": "workflow-spark-user"
+             },
             {
-              "propertyId": "deployMode",
-              "propertyName": "SETTINGS._SPARK_DEPLOY_MODE_",
-              "propertyType": "select",
-              "width": 4,
-              "values": [
-                {
-                  "label": "Client",
-                  "value": "client"
-                },
-                {
-                  "label": "Cluster",
-                  "value": "cluster"
-                }
-              ],
-              "default": "client",
-              "tooltip": "Set the spark deploy mode in cluster executions",
-              "qa": "workflow-spark-deploy-mode"
-            },
-
+                "propertyId": "sparkLocalDir",
+                "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
+                "propertyType": "text",
+                "width": 4,
+                "default": "/opt/spark/dist",
+                "tooltip": "Set the spark home in Mesos deployments",
+                "qa": "workflow-spark-home"
+             },
             {
-              "propertyId": "jars",
-              "propertyName": "SETTINGS._SPARK_JARS_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Comma-separated list of local jars to include on the driver and executor classpaths",
-              "qa": "workflow-spark-jars"
-            },
+                "propertyId": "parquetBinaryAsString",
+                "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Tells Spark SQL to treat binary-encoded data as strings",
+                "qa": "workflow-spark-parquetBinaryAsString"
+             },
             {
-              "propertyId": "propertiesFile",
-              "propertyName": "SETTINGS._SPARK_PROPERTIES_FILE_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Path to a file from which to load extra properties. If notspecified, this will look for conf/spark-defaults.conf",
-              "qa": "workflow-spark-propertiesFile"
-            },
-            {
-              "propertyId": "packages",
-              "propertyName": "SETTINGS._SPARK_PACKAGES_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Comma-separated list of maven coordinates of jars to include on the driver and executor classpaths. Will search the local maven repo, then maven central and any additional remote repositories given by --repositories. The format for the coordinates should be groupId:artifactId:version",
-              "qa": "workflow-spark-packages"
-            },
-            {
-              "propertyId": "excludePackages",
-              "propertyName": "SETTINGS._SPARK_EXCLUDE_PACKAGES_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Comma-separated list of groupId:artifactId, to exclude while resolving the dependencies provided in --packages to avoid dependency conflicts",
-              "qa": "workflow-spark-excludePackages"
-            },
-            {
-              "propertyId": "repositories",
-              "propertyName": "SETTINGS._SPARK_REPOSITORIES_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Comma-separated list of additional remote repositories to search for the maven coordinates given with --packages",
-              "qa": "workflow-spark-repositories"
-            },
-            {
-              "propertyId": "proxyUser",
-              "propertyName": "SETTINGS._SPARK_PROXY_USER_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "User to impersonate when submitting the application. This argument does not work with --principal / --keytab",
-              "qa": "workflow-spark-proxyUser"
-            },
-            {
-              "propertyId": "driverJavaOptions",
-              "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Extra Java options to pass to the driver",
-              "qa": "workflow-spark-driverJavaOptions"
-            },
-            {
-              "propertyId": "driverLibraryPath",
-              "propertyName": "SETTINGS._SPARK_DRIVER_LIBRARY_PATH_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Extra library path entries to pass to the driver",
-              "qa": "workflow-spark-driverLibraryPath"
-            },
-            {
-              "propertyId": "driverClassPath",
-              "propertyName": "SETTINGS._SPARK_DRIVER_CLASS_PATH_",
-              "propertyType": "text",
-              "width": 4,
-              "tooltip": "Extra class path entries to pass to the driver. Note that jars added with --jars are automatically included in the classpath",
-              "qa": "workflow-spark-driverClassPath"
-            },
-            {
-              "propertyId": "supervise",
-              "propertyName": "SETTINGS._SPARK_SUPERVISE_",
-              "propertyType": "boolean",
-              "newRow": true,
-              "width": "auto",
-              "default": false,
-              "tooltip": "Restarts the driver on failure. Supervised mode available in mesos executions with Spark dispatcher",
-              "qa": "workflow-spark-supervise"
-            }
+                "propertyId": "executorExtraJavaOptions",
+                "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
+                "propertyType": "text",
+                "width": 4,
+                "default": "-XX:+UseConcMarkSweepGC",
+                "tooltip": "Extra Java options to pass to the executors",
+                "qa": "workflow-spark-executorJavaOptions"
+             }
           ]
         }
       ]

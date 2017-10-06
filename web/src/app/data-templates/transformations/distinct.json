@@ -3,14 +3,14 @@
      "icon": "Distinct",
      "className": "DistinctTransformStep",
      "classPrettyName": "Distinct",
-     "description": "Select distinct events in the input DStream",
+     "description": "Selects distinct events in the input DStream",
      "properties": [
         {
            "propertyId": "partitions",
            "propertyName": "_PARTITIONS_",
            "propertyType": "text",
            "required": false,
-           "tooltip": "Change the number of partitions associated to the Spark RDDs",
+           "tooltip": "Changesthe number of partitions associated to the Spark RDDs",
            "qa": "fragment-details-distinct-partitions"
         }
      ]
