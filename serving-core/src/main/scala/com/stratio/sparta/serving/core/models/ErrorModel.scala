@@ -44,6 +44,10 @@ object ErrorModel extends SpartaSerializer {
   /* App Info Service */
   val AppStatus = "562"
 
+  /* Config Service */
+  val ConfigurationUnexpected = "563"
+  val ConfigurationFind = "564"
+
   /* Workflow Executions Service 575-599 */
   val WorkflowExecutionUnexpected = "575"
   val WorkflowExecutionFindAll = "576"
@@ -95,7 +99,7 @@ object ErrorModel extends SpartaSerializer {
   val PluginsServiceDeleteAll = "688"
   val PluginsServiceDeleteByName = "689"
 
-  /* Workflow Service 700-749 */
+  /* Workflow Service 700-724 */
   val WorkflowServiceUnexpected = "700"
   val WorkflowServiceFindById = "701"
   val WorkflowServiceFindByName = "702"
@@ -111,6 +115,16 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDeleteCheckpoint = "712"
   val WorkflowServiceRun = "713"
   val WorkflowServiceDownload = "714"
+
+  /* Metadata Service 725-749 */
+  val MetadataServiceUnexpected = "725"
+  val MetadataServiceBuildBackup = "726"
+  val MetadataServiceExecuteBackup = "727"
+  val MetadataServiceUploadBackup = "728"
+  val MetadataServiceFindAllBackups = "729"
+  val MetadataServiceDeleteAllBackups = "730"
+  val MetadataServiceDeleteBackup = "731"
+  val MetadataServiceCleanAll = "732"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -171,7 +185,15 @@ object ErrorModel extends SpartaSerializer {
     PluginsServiceUpload -> "Error uploading plugins",
     PluginsServiceFindAll -> "Error obtaining all plugins",
     PluginsServiceDeleteAll -> "Error deleting all plugins",
-    PluginsServiceDeleteByName -> "Error deleting plugins by name"
+    PluginsServiceDeleteByName -> "Error deleting plugins by name",
+    MetadataServiceUnexpected -> "Unexpected behaviour in metadata service",
+    MetadataServiceBuildBackup -> "Error building backup",
+    MetadataServiceExecuteBackup -> "Error executing backup",
+    MetadataServiceUploadBackup -> "Error uploading backup",
+    MetadataServiceFindAllBackups -> "Error obtaining all backups",
+    MetadataServiceDeleteAllBackups -> "Error deleting all backups",
+    MetadataServiceDeleteBackup -> "Error deleting backup",
+    MetadataServiceCleanAll -> "Error cleaning all metadata"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

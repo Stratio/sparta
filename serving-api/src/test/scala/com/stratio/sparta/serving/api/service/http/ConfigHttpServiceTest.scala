@@ -17,6 +17,7 @@ package com.stratio.sparta.serving.api.service.http
 
 import akka.actor.ActorRef
 import akka.testkit.TestProbe
+import com.stratio.sparta.sdk.exception.MockException
 import com.stratio.sparta.serving.api.actor.ConfigActor
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -27,6 +28,9 @@ import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
+import spray.http.StatusCodes
+
+import scala.util.{Failure, Success, Try}
 
 @RunWith(classOf[JUnitRunner])
 class ConfigHttpServiceTest extends WordSpec
@@ -52,10 +56,17 @@ class ConfigHttpServiceTest extends WordSpec
 
   "ConfigHttpService.FindAll" should {
     "retrieve a FrontendConfiguration item" in {
-      startAutopilot(ConfigResponse(retrieveStringConfig()))
+      startAutopilot(Left(Success(retrieveStringConfig())))
       Get(s"/${HttpConstant.ConfigPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[ConfigActor.FindAll]
+        testProbe.expectMsgType[FindAll]
         responseAs[FrontendConfiguration] should equal(retrieveStringConfig())
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Get(s"/${HttpConstant.ConfigPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[FindAll]
+        status should be(StatusCodes.InternalServerError)
       }
     }
   }

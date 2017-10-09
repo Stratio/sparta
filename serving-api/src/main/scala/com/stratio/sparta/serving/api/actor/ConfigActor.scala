@@ -17,9 +17,12 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Actor, _}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
@@ -29,10 +32,12 @@ import spray.httpx.Json4sJacksonSupport
 
 import scala.util.Try
 
-class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer {
+class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
 
   val apiPath = HttpConstant.ConfigPath
-
+  //TODO add in sparta dyplon plugin
+  val ResourceType = "configuration"
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val emptyField = ""
@@ -43,18 +48,20 @@ class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with
   }
 
   def findFrontendConfig(user: Option[LoggedUser]): Unit = {
-    sender ! ConfigResponse(retrieveStringConfig(user))
+    securityActionAuthorizer[Try[FrontendConfiguration]](user, Map(ResourceType -> View)) {
+      retrieveStringConfig(user)
+    }
   }
 
-  def retrieveStringConfig(user: Option[LoggedUser]): FrontendConfiguration = {
-    enabledSecurity match {
-      case true => FrontendConfiguration(
-        Try(SpartaConfig.getFrontendConfig.get
-          .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout),
-        retrieveNameUser(user))
-      case false => FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get
-        .getInt("timeout")).getOrElse(AppConstant.DefaultFrontEndTimeout), emptyField)
+  def retrieveStringConfig(user: Option[LoggedUser]): Try[FrontendConfiguration] = {
+    Try {
+      if (enabledSecurity)
+        FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get.getInt("timeout"))
+          .getOrElse(AppConstant.DefaultFrontEndTimeout), retrieveNameUser(user))
+      else FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get.getInt("timeout"))
+        .getOrElse(AppConstant.DefaultFrontEndTimeout), emptyField)
     }
+
   }
 
   private def retrieveNameUser(user: Option[LoggedUser]): String = user match {
@@ -65,6 +72,7 @@ class ConfigActor extends Actor with SLF4JLogging with Json4sJacksonSupport with
 }
 
 object ConfigActor {
+
   case class FindAll(user: Option[LoggedUser])
-  case class ConfigResponse(frontendConfiguration:FrontendConfiguration)
+
 }

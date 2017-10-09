@@ -25,6 +25,8 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.files.BackupRequest
 import com.stratio.spray.oauth2.client.OauthClient
@@ -33,10 +35,16 @@ import spray.http._
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Api(value = HttpConstant.MetadataPath, description = "Operations over Sparta metadata")
 trait MetadataHttpService extends BaseHttpService with OauthClient {
+
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    MetadataServiceUnexpected,
+    ErrorCodesMessages.getOrElse(MetadataServiceUnexpected, UnknownError)
+  )
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
@@ -56,17 +64,11 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
   def buildBackup(user: Option[LoggedUser]): Route =
     path(HttpConstant.MetadataPath / "backup" / "build") {
       get {
-        complete {
+        context =>
           for {
             response <- (supervisor ? BuildBackup(user))
               .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(filesUris)) => filesUris
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in backups")
-          }
-        }
+          } yield getResponse(context, MetadataServiceBuildBackup, response, genericError)
       }
     }
 
@@ -90,12 +92,7 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
             for {
               response <- (supervisor ? ExecuteBackup(backupRequest, user))
                 .mapTo[Either[BackupResponse, UnauthorizedResponse]]
-            } yield response match {
-              case Left(Success(_)) => StatusCodes.OK
-              case Left(Failure(exception)) => throw exception
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in backups")
-            }
+            } yield deletePostPutResponse(MetadataServiceExecuteBackup, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -121,12 +118,7 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
             for {
               response <- (supervisor ? UploadBackups(form.fields, user))
                 .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
-            } yield response match {
-              case Left(Success(newFilesUris)) => newFilesUris
-              case Left(Failure(exception)) => throw exception
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in backups")
-            }
+            } yield deletePostPutResponse(MetadataServiceUploadBackup, response, genericError)
           }
         }
       }
@@ -163,18 +155,11 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
   def getAllBackups(user: Option[LoggedUser]): Route =
     path(HttpConstant.MetadataPath / "backup") {
       get {
-        complete {
+        context =>
           for {
             response <- (supervisor ? ListBackups(user))
               .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(filesUris)) => filesUris
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in backups")
-
-          }
-        }
+          } yield getResponse(context, MetadataServiceFindAllBackups, response, genericError)
       }
     }
 
@@ -193,12 +178,7 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? DeleteBackups(user))
               .mapTo[Either[BackupResponse, UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(_)) => StatusCodes.OK
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in backups")
-          }
+          } yield deletePostPutResponse(MetadataServiceDeleteAllBackups, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -225,12 +205,7 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? DeleteBackup(file, user))
               .mapTo[Either[BackupResponse, UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(_)) => StatusCodes.OK
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in backups")
-          }
+          } yield deletePostPutResponse(MetadataServiceDeleteBackup, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -251,12 +226,7 @@ trait MetadataHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? CleanMetadata(user))
               .mapTo[Either[BackupResponse, UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(_)) => StatusCodes.OK
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in backups")
-          }
+          } yield deletePostPutResponse(MetadataServiceCleanAll, response, genericError, StatusCodes.OK)
         }
       }
     }
