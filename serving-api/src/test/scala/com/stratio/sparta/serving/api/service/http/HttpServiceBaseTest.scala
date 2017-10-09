@@ -93,6 +93,18 @@ trait HttpServiceBaseTest extends WordSpec
     workflow
   }
 
+  protected def getWorkflowExecutionModel: WorkflowExecution =
+    WorkflowExecution(id = "id",
+      driverClass = "class",
+      driverFile = "driverFile",
+      master = "local[*]",
+      submitArguments = Map.empty[String, String],
+      sparkConfigurations = Map.empty[String, String],
+      driverArguments = Map.empty[String, String],
+      killUrl = "url",
+      sparkHome = None
+  )
+
   /**
    * Starts and actor used to reply messages though the akka system. By default it can send a message to reply and it
    * will be use a default TestProbe. Also, it is possible to send a custom autopilot with a specific logic.

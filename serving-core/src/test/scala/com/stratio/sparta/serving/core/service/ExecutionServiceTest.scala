@@ -208,7 +208,7 @@ with BeforeAndAfter
 
 
           val result = executionService.delete(executionID)
-          result shouldBe Success(null)
+          result shouldBe Success(())
         }
 
         "deleteAll: deletes all the execution in a given path" in {

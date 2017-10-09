@@ -79,7 +79,7 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
     }
   }
 
-  def delete(id: String): Try[_] =
+  def delete(id: String): Try[Unit] =
     Try {
       val executionPath = s"${AppConstant.WorkflowExecutionsZkPath}/$id"
 
@@ -89,7 +89,7 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
       } else throw new ServerException(s"No execution with id $id")
     }
 
-  def deleteAll(): Try[_] =
+  def deleteAll(): Try[Unit] =
     Try {
       val executionPath = s"${AppConstant.WorkflowExecutionsZkPath}"
 

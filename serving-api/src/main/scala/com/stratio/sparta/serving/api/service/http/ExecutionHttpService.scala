@@ -19,19 +19,25 @@ package com.stratio.sparta.serving.api.service.http
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.actor.ExecutionActor._
-import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
 import com.wordnik.swagger.annotations._
-import spray.http.{HttpResponse, StatusCodes}
+import spray.http.StatusCodes
 import spray.routing._
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Api(value = HttpConstant.ExecutionsPath, description = "Operations over workflow executions", position = 0)
 trait ExecutionHttpService extends BaseHttpService {
+
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    WorkflowServiceUnexpected,
+    ErrorCodesMessages.getOrElse(WorkflowServiceUnexpected, UnknownError)
+  )
 
   override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
     update(user) ~ create(user) ~ deleteAll(user) ~ deleteById(user) ~ find(user)
@@ -47,17 +53,11 @@ trait ExecutionHttpService extends BaseHttpService {
   def findAll(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath) {
       get {
-        complete {
+        context =>
           for {
             response <- (supervisor ? FindAll(user))
               .mapTo[Either[Try[Seq[WorkflowExecution]], UnauthorizedResponse]]
-          } yield response match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(executions)) => executions
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in executions")
-          }
-        }
+          } yield getResponse(context, WorkflowExecutionFindAll, response, genericError)
       }
     }
   }
@@ -80,17 +80,11 @@ trait ExecutionHttpService extends BaseHttpService {
   def find(user: Option[LoggedUser]): Route = {
     path(HttpConstant.ExecutionsPath / Segment) { (id) =>
       get {
-        complete {
+        context =>
           for {
             response <- (supervisor ? FindById(id, user))
               .mapTo[Either[Try[WorkflowExecution], UnauthorizedResponse]]
-          } yield response match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(request)) => request
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in executions")
-          }
-        }
+          } yield getResponse(context, WorkflowExecutionFindById, response, genericError)
       }
     }
   }
@@ -107,13 +101,8 @@ trait ExecutionHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteAll(user))
-              .mapTo[Either[Try[_],UnauthorizedResponse]]
-          } yield response match {
-            case Left(Failure(exception)) => throw exception
-            case Left(Success(_)) => StatusCodes.OK
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in executions")
-          }
+              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowExecutionDeleteAll, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -138,13 +127,8 @@ trait ExecutionHttpService extends BaseHttpService {
         complete {
           for {
             response <- (supervisor ? DeleteExecution(id, user))
-              .mapTo[Either[Try[_],UnauthorizedResponse]]
-          } yield response match {
-            case Left(Failure(exception))=> throw exception
-            case Left(Success(_)) => StatusCodes.OK
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in executions")
-          }
+              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowExecutionDeleteById, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -172,17 +156,8 @@ trait ExecutionHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? Update(request, user))
-                .mapTo[Either[Try[WorkflowExecution],UnauthorizedResponse]]
-            } yield response match {
-              case Left(Success(status)) => HttpResponse(StatusCodes.Created)
-              case Left(Failure(ex)) =>
-                val message = "Unable to update execution"
-                log.error(message, ex)
-                //TODO refactor to ServerException
-                throw new Exception(message)
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in executions")
-            }
+                .mapTo[Either[Try[WorkflowExecution], UnauthorizedResponse]]
+            } yield deletePostPutResponse(WorkflowExecutionUpdate, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -209,20 +184,8 @@ trait ExecutionHttpService extends BaseHttpService {
           complete {
             for {
               response <- (supervisor ? CreateExecution(request, user))
-                .mapTo[Either[Try[WorkflowExecution],UnauthorizedResponse]]
-            } yield {
-              response match {
-                case Left(Success(requestCreated)) => requestCreated
-                case Left(Failure(ex: Throwable)) =>
-                  val message = "Unable to create execution"
-                  log.error(message, ex)
-                  //TODO refactor to ServerException
-                  throw new Exception(message)
-                case Right(UnauthorizedResponse(exception)) =>
-                  throw exception
-                case _ => throw new RuntimeException("Unexpected behaviour in executions")
-              }
-            }
+                .mapTo[Either[Try[WorkflowExecution], UnauthorizedResponse]]
+            } yield deletePostPutResponse(WorkflowExecutionCreate, response, genericError)
           }
         }
       }

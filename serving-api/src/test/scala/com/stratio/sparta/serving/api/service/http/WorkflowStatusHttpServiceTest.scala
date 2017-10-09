@@ -40,8 +40,6 @@ class WorkflowStatusHttpServiceTest extends WordSpec
   val statusActorTestProbe = TestProbe()
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
 
-
-
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
     AkkaConstant.TemplateActorName -> fragmentActorTestProbe.ref,

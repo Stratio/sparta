@@ -44,6 +44,15 @@ object ErrorModel extends SpartaSerializer {
   /* App Info Service */
   val AppStatus = "562"
 
+  /* Workflow Executions Service 575-599 */
+  val WorkflowExecutionUnexpected = "575"
+  val WorkflowExecutionFindAll = "576"
+  val WorkflowExecutionFindById = "577"
+  val WorkflowExecutionDeleteAll = "578"
+  val WorkflowExecutionDeleteById = "579"
+  val WorkflowExecutionUpdate = "580"
+  val WorkflowExecutionCreate = "581"
+
   /* Crossdata Service 600-624 */
   val CrossdataServiceUnexpected = "600"
   val CrossdataServiceListDatabases = "601"
@@ -51,7 +60,7 @@ object ErrorModel extends SpartaSerializer {
   val CrossdataServiceListColumns = "603"
   val CrossdataServiceExecuteQuery = "604"
 
-  /* Workflow Status 625-649 */
+  /* Workflow Status Service 625-649 */
   val WorkflowStatusUnexpected = "625"
   val WorkflowStatusFindAll = "626"
   val WorkflowStatusFindById = "627"
@@ -71,7 +80,6 @@ object ErrorModel extends SpartaSerializer {
   val TemplateServiceDeleteByTypeName = "658"
   val TemplateServiceDeleteByType = "659"
   val TemplateServiceDeleteAll = "660"
-
 
   /* Workflow Service 700-749 */
   val WorkflowServiceUnexpected = "700"
@@ -133,7 +141,14 @@ object ErrorModel extends SpartaSerializer {
     TemplateServiceDeleteByTypeId -> "Error deleting template by id",
     TemplateServiceDeleteByTypeName -> "Error deleting template by name",
     TemplateServiceDeleteByType -> "Error deleting templates by type",
-    TemplateServiceDeleteAll -> "Error deleting all templates"
+    TemplateServiceDeleteAll -> "Error deleting all templates",
+    WorkflowExecutionUnexpected -> "575",
+    WorkflowExecutionFindAll -> "Error obtaining all workflow executions",
+    WorkflowExecutionFindById -> "Error obtaining workflow execution",
+    WorkflowExecutionDeleteAll -> "Error deleting all workflow executions",
+    WorkflowExecutionDeleteById -> "Error deleting workflow execution",
+    WorkflowExecutionUpdate -> "Error updating workflow execution",
+    WorkflowExecutionCreate -> "Error creating workflow execution"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)
