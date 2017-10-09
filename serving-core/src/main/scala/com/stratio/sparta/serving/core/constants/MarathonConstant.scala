@@ -34,6 +34,7 @@ object MarathonConstant {
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
   val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
+  val SpartaOSMemoryEnv = "SPARTA_MARATHON_OS_MEMORY"
   val SparkHomeEnv = "SPARK_HOME"
   val HadoopUserNameEnv = "HADOOP_USER_NAME"
   val HdfsConfFromUriEnv = "HADOOP_CONF_FROM_URI"
@@ -84,4 +85,8 @@ object MarathonConstant {
   val MesosRoleEnv = "SPARK_MESOS_ROLE"
   val DynamicAuthEnv = "USE_DYNAMIC_AUTHENTICATION"
   val SpartaZookeeperPathEnv= "SPARTA_ZOOKEEPER_PATH"
+  val LoggerStdoutSizeEnv= "CONTAINER_LOGGER_MAX_STDOUT_SIZE"
+  val LoggerStderrSizeEnv= "CONTAINER_LOGGER_MAX_STDERR_SIZE"
+  val LoggerStdoutRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDOUT_OPTIONS"
+  val LoggerStderrRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDERR_OPTIONS"
 }

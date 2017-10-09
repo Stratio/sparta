@@ -133,6 +133,23 @@
         "tooltip": "Character used to substitute the new line character in the events",
         "qa": "fragment-details-postgres-new-line-substitution"
       },
+       {
+          "propertyId": "newQuotesSubstitution",
+          "propertyName": "_POSTGRES_NEW_QUOTE_SUBSTITUTION_",
+          "propertyType": "text",
+          "default": "",
+          "visible": [
+             [
+                {
+                   "propertyId": "postgresSaveMode",
+                   "value": "COPYIN"
+                }
+             ]
+          ],
+          "required": false,
+          "tooltip": "Character used to substitute the quoting character in the events",
+          "qa": "fragment-details-postgres-new-quote-substitution"
+       },
       {
         "propertyId": "encoding",
         "propertyName": "_POSTGRES_ENCODING_",

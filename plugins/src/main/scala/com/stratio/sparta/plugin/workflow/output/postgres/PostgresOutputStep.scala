@@ -42,6 +42,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val url = properties.getString("url")
   lazy val delimiter = properties.getString("delimiter", "\t")
   lazy val newLineSubstitution = properties.getString("newLineSubstitution", " ")
+  lazy val quotesSubstitution = properties.getString("newQuotesSubstitution", """\b""")
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = PostgresSaveMode.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
   lazy val tlsEnable = Try(properties.getBoolean("tlsEnable")).getOrElse(false)
@@ -84,7 +85,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 val cm = new CopyManager(conn.asInstanceOf[BaseConnection])
 
                 cm.copyIn(
-                  s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter')""",
+                  s"""COPY $tableName FROM STDIN WITH (NULL 'null', ENCODING '$encoding', FORMAT CSV, DELIMITER E'$delimiter', QUOTE E'$quotesSubstitution')""",
                   rowsToInputStream(rows)
                 )
               }

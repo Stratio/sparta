@@ -168,6 +168,7 @@
       "_SPARK_EXECUTOR_JAVA_OPTIONS_": "Executor Java options",
       "_WORKFLOW_REMEMBER_FIELD_": "Max. execution query time"
     },
+   "_POSTGRES_NEW_QUOTE_SUBSTITUTION_": "Quoting character to be used",
    "_KAFKA_OUTPUT_FORMAT_": "Output format",
    "_KAFKA_ROW_SEPARATOR_": "String separator",
    "_VAULT_TLS_ENABLE_": "Vault TLS enable",

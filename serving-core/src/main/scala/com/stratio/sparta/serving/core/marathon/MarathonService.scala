@@ -91,6 +91,8 @@ class MarathonService(context: ActorContext,
   val DefaultForcePullImage = false
   val DefaultPrivileged = false
   val DefaultSparkUIPort = 4040
+  val DefaultSOMemSize = 512
+  val MinSOMemSize = 256
 
   lazy val calicoEnabled: Boolean = {
     val calicoEnabled = Properties.envOrNone(CalicoEnableEnv)
@@ -213,6 +215,13 @@ class MarathonService(context: ActorContext,
     case _ => memory.toInt
   }).getOrElse(DefaultMemory)
 
+  private def getSOMemory: Int =
+    Properties.envOrNone(SpartaOSMemoryEnv) match {
+      case Some(x) =>
+        Try(x.toInt).filter(y => y >= MinSOMemSize).getOrElse(DefaultSOMemSize)
+      case None => DefaultSOMemSize
+    }
+
   private def addRequirements(app: CreateApp, workflowModel: Workflow, submitRequest: WorkflowExecution): CreateApp = {
     val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble).getOrElse(app.cpus)
     val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt)
@@ -287,7 +296,7 @@ class MarathonService(context: ActorContext,
     app.copy(
       id = ServiceName,
       cpus = newCpus,
-      mem = newMem,
+      mem = newMem + getSOMemory,
       env = newEnv,
       container = newDockerContainerInfo,
       healthChecks = newHealthChecks,
@@ -333,6 +342,10 @@ class MarathonService(context: ActorContext,
       ParquetLogLevelEnv -> Properties.envOrNone(ParquetLogLevelEnv),
       AvroLogLevelEnv -> Properties.envOrNone(AvroLogLevelEnv),
       NettyLogLevelEnv -> Properties.envOrNone(NettyLogLevelEnv),
+      LoggerStderrSizeEnv -> Properties.envOrSome(LoggerStderrSizeEnv, Option("20MB")),
+      LoggerStdoutSizeEnv -> Properties.envOrSome(LoggerStdoutSizeEnv, Option("20MB")),
+      LoggerStdoutRotateEnv -> Properties.envOrSome(LoggerStdoutRotateEnv, Option("rotate 10")),
+      LoggerStderrRotateEnv -> Properties.envOrSome(LoggerStderrRotateEnv, Option("rotate 10")),
       HdfsRpcProtectionEnv -> Properties.envOrNone(HdfsRpcProtectionEnv),
       HdfsSecurityAuthEnv -> Properties.envOrNone(HdfsSecurityAuthEnv),
       HdfsEncryptDataEnv -> Properties.envOrNone(HdfsEncryptDataEnv),
