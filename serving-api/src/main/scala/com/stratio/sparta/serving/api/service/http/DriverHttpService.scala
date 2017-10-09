@@ -24,6 +24,8 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
+import com.stratio.sparta.serving.core.models.ErrorModel
+import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
@@ -31,10 +33,16 @@ import spray.http._
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 @Api(value = HttpConstant.DriverPath, description = "Upload or download driver jars")
 trait DriverHttpService extends BaseHttpService with OauthClient {
+
+  val genericError = ErrorModel(
+    StatusCodes.InternalServerError.intValue,
+    DriverServiceUnexpected,
+    ErrorCodesMessages.getOrElse(DriverServiceUnexpected, UnknownError)
+  )
 
   implicit def unmarshaller[T: Manifest]: Unmarshaller[MultipartFormData] =
     FormDataUnmarshallers.MultipartFormDataUnmarshaller
@@ -60,13 +68,8 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
           complete {
             for {
               response <- (supervisor ? UploadDrivers(form.fields, user))
-                .mapTo[Either[SpartaFilesResponse,UnauthorizedResponse]]
-            } yield response match {
-              case Left(Success(newFilesUris)) => newFilesUris
-              case Left(Failure(exception)) => throw exception
-              case Right(UnauthorizedResponse(exception)) => throw exception
-              case _ => throw new RuntimeException("Unexpected behaviour in drivers")
-            }
+                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+            } yield deletePostPutResponse(DriverServiceUpload, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -103,17 +106,11 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
   def getAll(user: Option[LoggedUser]): Route =
     path(HttpConstant.DriverPath) {
       get {
-        complete {
+        context =>
           for {
             response <- (supervisor ? ListDrivers(user))
-              .mapTo[Either[SpartaFilesResponse,UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(filesUris)) => filesUris
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
-          }
-        }
+              .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+          } yield getResponse(context, DriverServiceFindAll, response, genericError)
       }
     }
 
@@ -131,13 +128,8 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
         complete {
           for {
             response <- (supervisor ? DeleteDrivers(user))
-              .mapTo[Either[Try[Unit],UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(_)) => StatusCodes.OK
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
-          }
+              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+          } yield deletePostPutResponse(DriverServiceDeleteAll, response, genericError, StatusCodes.OK)
         }
       }
     }
@@ -164,12 +156,7 @@ trait DriverHttpService extends BaseHttpService with OauthClient {
           for {
             response <- (supervisor ? DeleteDriver(file, user))
               .mapTo[Either[Try[Unit], UnauthorizedResponse]]
-          } yield response match {
-            case Left(Success(_)) => StatusCodes.OK
-            case Left(Failure(exception)) => throw exception
-            case Right(UnauthorizedResponse(exception)) => throw exception
-            case _ => throw new RuntimeException("Unexpected behaviour in drivers")
-          }
+          } yield deletePostPutResponse(DriverServiceDeleteByName, response, genericError, StatusCodes.OK)
         }
       }
     }

@@ -81,6 +81,20 @@ object ErrorModel extends SpartaSerializer {
   val TemplateServiceDeleteByType = "659"
   val TemplateServiceDeleteAll = "660"
 
+  /* Driver Service 675-684 */
+  val DriverServiceUnexpected = "675"
+  val DriverServiceUpload = "676"
+  val DriverServiceFindAll = "677"
+  val DriverServiceDeleteAll = "678"
+  val DriverServiceDeleteByName = "679"
+
+  /* Plugins Service 685-699 */
+  val PluginsServiceUnexpected = "685"
+  val PluginsServiceUpload = "686"
+  val PluginsServiceFindAll = "687"
+  val PluginsServiceDeleteAll = "688"
+  val PluginsServiceDeleteByName = "689"
+
   /* Workflow Service 700-749 */
   val WorkflowServiceUnexpected = "700"
   val WorkflowServiceFindById = "701"
@@ -97,7 +111,6 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDeleteCheckpoint = "712"
   val WorkflowServiceRun = "713"
   val WorkflowServiceDownload = "714"
-
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -132,13 +145,13 @@ object ErrorModel extends SpartaSerializer {
     WorkflowStatusDeleteById -> "Error deleting workflow status",
     WorkflowStatusUpdate -> "Error updating workflow status",
     TemplateServiceUnexpected -> "Unexpected behaviour in templates service",
-    TemplateServiceFindByTypeId -> "Error obtaining template by id",
+    TemplateServiceFindByTypeId -> "Error obtaining template by ID",
     TemplateServiceFindByTypeName -> "Error obtaining template by name",
     TemplateServiceFindAllByType -> "Error obtaining templates by type",
     TemplateServiceFindAll -> "Error obtaining templates",
     TemplateServiceCreate -> "Error creating template",
     TemplateServiceUpdate -> "Error updating template",
-    TemplateServiceDeleteByTypeId -> "Error deleting template by id",
+    TemplateServiceDeleteByTypeId -> "Error deleting template by ID",
     TemplateServiceDeleteByTypeName -> "Error deleting template by name",
     TemplateServiceDeleteByType -> "Error deleting templates by type",
     TemplateServiceDeleteAll -> "Error deleting all templates",
@@ -148,7 +161,17 @@ object ErrorModel extends SpartaSerializer {
     WorkflowExecutionDeleteAll -> "Error deleting all workflow executions",
     WorkflowExecutionDeleteById -> "Error deleting workflow execution",
     WorkflowExecutionUpdate -> "Error updating workflow execution",
-    WorkflowExecutionCreate -> "Error creating workflow execution"
+    WorkflowExecutionCreate -> "Error creating workflow execution",
+    DriverServiceUnexpected -> "Unexpected behaviour in driver service",
+    DriverServiceUpload -> "Error uploading driver",
+    DriverServiceFindAll -> "Error obtaining all drivers",
+    DriverServiceDeleteAll -> "Error deleting all drivers",
+    DriverServiceDeleteByName -> "Error deleting driver by name",
+    PluginsServiceUnexpected -> "Unexpected behaviour in plugins service",
+    PluginsServiceUpload -> "Error uploading plugins",
+    PluginsServiceFindAll -> "Error obtaining all plugins",
+    PluginsServiceDeleteAll -> "Error deleting all plugins",
+    PluginsServiceDeleteByName -> "Error deleting plugins by name"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

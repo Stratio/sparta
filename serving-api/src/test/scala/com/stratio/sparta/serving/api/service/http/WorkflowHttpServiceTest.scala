@@ -40,7 +40,6 @@ with WorkflowHttpService
 with HttpServiceBaseTest {
   override val supervisor: ActorRef = testProbe.ref
   val sparkStreamingTestProbe = TestProbe()
-  val fragmentActorTestProbe = TestProbe()
   val id = UUID.randomUUID.toString
   val statusActorTestProbe = TestProbe()
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
@@ -48,7 +47,6 @@ with HttpServiceBaseTest {
 
   override implicit val actors: Map[String, ActorRef] = Map(
     AkkaConstant.LauncherActorName -> sparkStreamingTestProbe.ref,
-    AkkaConstant.TemplateActorName -> fragmentActorTestProbe.ref,
     AkkaConstant.StatusActorName -> statusActorTestProbe.ref
   )
 

@@ -21,6 +21,7 @@ import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
@@ -104,6 +105,15 @@ trait HttpServiceBaseTest extends WordSpec
       killUrl = "url",
       sparkHome = None
   )
+
+  protected def getSpartaFiles: Seq[SpartaFile] =
+    Seq(SpartaFile(fileName = "file.jar",
+      uri = "http://localhost:9090/driver/file.jar",
+      localPath = "/tmp/file.jar",
+      size = "0",
+      version = None
+  ))
+
 
   /**
    * Starts and actor used to reply messages though the akka system. By default it can send a message to reply and it

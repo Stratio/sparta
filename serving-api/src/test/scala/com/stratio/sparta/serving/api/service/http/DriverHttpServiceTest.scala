@@ -13,108 +13,100 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.stratio.sparta.serving.api.service.http
 
+import java.util.UUID
+
 import akka.actor.ActorRef
-import akka.testkit.TestProbe
 import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.PluginActor.{DeletePlugin, DeletePlugins, ListPlugins, UploadPlugins}
+import com.stratio.sparta.serving.api.actor.DriverActor.{DeleteDriver, DeleteDrivers, ListDrivers, UploadDrivers}
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.{SpartaConfig, SpartaConfigFactory}
 import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
-import spray.http._
+import spray.http.StatusCodes
 
 import scala.util.{Failure, Success}
 
 @RunWith(classOf[JUnitRunner])
-class PluginsHttpServiceTest extends WordSpec
-  with PluginsHttpService
+class DriverHttpServiceTest extends WordSpec
+  with DriverHttpService
   with HttpServiceBaseTest {
-
   override val supervisor: ActorRef = testProbe.ref
 
-  val pluginTestProbe = TestProbe()
-
+  val id = UUID.randomUUID.toString
+  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
 
-  val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
-
-  override implicit val actors: Map[String, ActorRef] = Map.empty
-
-  override def beforeEach(): Unit = {
-    SpartaConfig.initMainConfig(Option(localConfig), SpartaConfigFactory(localConfig))
-  }
+  override implicit val actors: Map[String, ActorRef] = Map.empty[String, ActorRef]
 
   "PluginsHttpService.upload" should {
     "Upload a file" in {
       val response = Left(Success(Seq(SpartaFile("", "", "", ""))))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[UploadPlugins]
+      Put(s"/${HttpConstant.DriverPath}") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[UploadDrivers]
         status should be(StatusCodes.OK)
       }
     }
     "Fail when service is not available" in {
       val response = Left(Failure(new IllegalArgumentException("Error")))
       startAutopilot(response)
-      Put(s"/${HttpConstant.PluginsPath}") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[UploadPlugins]
+      Put(s"/${HttpConstant.DriverPath}") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[UploadDrivers]
         status should be(StatusCodes.InternalServerError)
       }
     }
   }
 
-  "PluginsHttpService.findAll" should {
+  "DriverHttpService.findAll" should {
     "find all sparta files" in {
       startAutopilot(Left(Success(getSpartaFiles)))
-      Get(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[ListPlugins]
+      Get(s"/${HttpConstant.DriverPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[ListDrivers]
         responseAs[Seq[SpartaFile]] should equal(getSpartaFiles)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[ListPlugins]
+      Get(s"/${HttpConstant.DriverPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[ListDrivers]
         status should be(StatusCodes.InternalServerError)
       }
     }
   }
 
-  "PluginsHttpService.remove" should {
+  "DriverHttpService.remove" should {
     "return an OK because the sparta file was deleted" in {
       startAutopilot(Left(Success(getSpartaFiles)))
-      Delete(s"/${HttpConstant.PluginsPath}/file.jar") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[DeletePlugin]
+      Delete(s"/${HttpConstant.DriverPath}/file.jar") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteDriver]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Delete(s"/${HttpConstant.PluginsPath}/file.jar") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[DeletePlugin]
+      Delete(s"/${HttpConstant.DriverPath}/file.jar") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteDriver]
         status should be(StatusCodes.InternalServerError)
       }
     }
   }
 
-  "PluginsHttpService.removeAll" should {
+  "DriverHttpService.removeAll" should {
     "return an OK because the sparta files was deleted" in {
-      startAutopilot(Left(Success(())))
-      Delete(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgClass(DeletePlugins.getClass)
+      startAutopilot(Left(Success(getSpartaFiles)))
+      Delete(s"/${HttpConstant.DriverPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteDrivers]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Delete(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgClass(DeletePlugins.getClass)
+      Delete(s"/${HttpConstant.DriverPath}") ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteDrivers]
         status should be(StatusCodes.InternalServerError)
       }
     }
