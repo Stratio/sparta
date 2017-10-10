@@ -356,6 +356,12 @@
    "_TABLE_NAME_": "Table name",
    "_NEW_FILES_ONLY_": "New files only",
    "_FILTER_OUT_FILES_": "Filter",
+   "_SCHEMA_FROM_ROW_": "Infer schema for each row",
+   "_SCHEMA_": "Schema",
+   "_EXAMPLE_": "Example",
+   "_DESERIALIZER_SCHEMA_MODE_": "By description/By example",
+   "_DESERIALIZER_SCHEMA_": "Schema",
+   "_FIELDS_PRESERVATION_": "Build output row by",
    "ALERTS": {
       "SUCCESS": "Success",
       "ERROR": "Error",

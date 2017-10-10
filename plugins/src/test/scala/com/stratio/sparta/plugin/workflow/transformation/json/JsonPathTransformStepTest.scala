@@ -52,7 +52,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
       |}""".stripMargin
 
   //scalastyle:off
-  "A JsonTransformStep" should {
+  "A JsonPathTransformStep" should {
 
     "parse json string" in {
       val schema = StructType(Seq(StructField("json", StringType)))

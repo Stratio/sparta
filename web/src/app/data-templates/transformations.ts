@@ -19,7 +19,8 @@ import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as distinctTemplate from './transformations/distinct.json';
 import * as filterTemplate from './transformations/filter.json';
 import * as intersectionTemplate from './transformations/intersection.json';
-import * as jsonTemplate from './transformations/jsonpath.json';
+import * as jsonPathTemplate from './transformations/jsonpath.json';
+import * as jsonTemplate from './transformations/json.json';
 import * as persistTemplate from './transformations/persist.json';
 import * as selectTemplate from './transformations/select.json';
 import * as triggerTemplate from './transformations/trigger.json';
@@ -34,6 +35,7 @@ export const transformations: any = [
    distinctTemplate,
    filterTemplate,
    intersectionTemplate,
+   jsonPathTemplate,
    jsonTemplate,
    persistTemplate,
    selectTemplate,

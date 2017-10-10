@@ -39,8 +39,7 @@ class JsonPathTransformStep(name: String,
 
   lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
   lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
-  lazy val inputField: String = Try(properties.getString("inputField"))
-    .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
+  lazy val inputField: String = properties.getString("inputField")
   lazy val addAllInputFields: Boolean = propertiesWithCustom.getBoolean("addAllInputFields", default = true)
 
   assert(inputField.nonEmpty)

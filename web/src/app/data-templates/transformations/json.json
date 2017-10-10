@@ -1,0 +1,112 @@
+  {
+     "name": "Json",
+     "icon": "Json",
+     "className": "JsonTransformStep",
+     "classPrettyName": "JsonTransformStep",
+     "description": "Parsing input field in text format to row",
+     "properties": [
+        {
+           "propertyId": "inputField",
+           "propertyName": "_INPUT_FIELD_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Filed that contains the json string",
+           "qa": "fragment-details-casting-fieldsString"
+        },
+        {
+           "propertyId": "fieldsPreservationPolicy",
+           "propertyName": "_FIELDS_PRESERVATION_",
+           "propertyType": "select",
+           "default": "REPLACE",
+           "values": [
+              {
+                 "label": "Replacing input field",
+                 "value": "REPLACE"
+              },
+              {
+                 "label": "Appending extracted",
+                 "value": "APPEND"
+              },
+              {
+                 "label": "Keeping just extracted",
+                 "value": "JUST_EXTRACTED"
+              }
+           ],
+           "qa": "workflow-transformation-json-fieldsPreservationPolicy"
+        },
+        {
+           "propertyId": "schema.fromRow",
+           "propertyName": "_SCHEMA_FROM_ROW_",
+           "propertyType": "boolean",
+           "default": true,
+           "tooltip": "If checked, each row schema will be inferred from its contents",
+           "qa": "workflow-transformation-json-schema-fromRow"
+        },
+        {
+           "propertyId": "schema.inputMode",
+           "propertyName": "_DESERIALIZER_SCHEMA_MODE_",
+           "propertyType": "select",
+           "float": true,
+           "visible": [
+              [
+                 {
+                    "propertyId": "schema.fromRow",
+                    "value": false
+                 }
+              ]
+           ],
+           "values": [
+              {
+                 "label": "Schema",
+                 "value": "SCHEMA"
+              },
+              {
+                 "label": "Example",
+                 "value": "EXAMPLE"
+              }
+           ],
+           "default": "SCHEMA",
+           "required": true,
+           "qa": "workflow-transformation-json-schema-mode"
+        },
+        {
+           "propertyId": "schema.provided",
+           "propertyName": "_DESERIALIZER_SCHEMA_",
+           "propertyType": "text",
+           "tooltip": "Schema in json/Spark format or from example",
+           "default": "",
+           "visible": [
+              [
+                 {
+                    "propertyId": "schema.fromRow",
+                    "value": false
+                 }
+              ]
+           ],
+           "required": false,
+           "qa": "workflow-transformation-json-schema-provided"
+        },
+        {
+           "propertyId": "whenError",
+           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+           "propertyType": "select",
+           "default": "Error",
+           "required": true,
+           "values": [
+              {
+              "label": "Error",
+              "value": "Error"
+              },
+              {
+                 "label": "Discard",
+                 "value": "Discard"
+              },
+              {
+                 "label": "Null",
+                 "value": "Null"
+              }
+           ],
+           "qa": "workflow-transformation-json-whenError"
+        }
+     ]
+  }
