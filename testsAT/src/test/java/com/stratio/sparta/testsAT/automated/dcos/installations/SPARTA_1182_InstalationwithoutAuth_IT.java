@@ -24,8 +24,8 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
-        "src/test/resources/features/automated/dcos/installations/SPARTA_1182_InstalationwithoutAuth_IT.feature"
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1182_InstalationwithoutAuth_IT.feature"
 
 })
 public class SPARTA_1182_InstalationwithoutAuth_IT extends BaseTest {
@@ -39,7 +39,7 @@ public class SPARTA_1182_InstalationwithoutAuth_IT extends BaseTest {
     public SPARTA_1182_InstalationwithoutAuth_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_instalation"})
+    @Test(enabled = true, groups = {"dcos"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

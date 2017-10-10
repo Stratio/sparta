@@ -12,20 +12,38 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
       |   $.name                  |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
     Then the service response status must be '201'
-  @manual @ignore
+  @ignore @manual
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_SP}          | n/a |
       |   $.name                  |  UPDATE    | ${ID_POLICY_SP}          | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
-  @manual @ignore
+  @ignore @manual
   Scenario: [SPARTA-1162][03]Add sparta policy to write in kafka
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_KAFKA}        | n/a |
       |   $.name                  |  UPDATE    | ${ID_POLICY_KAFKA}        | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
     Then the service response status must be '201'
+  @ignore @manual
+  Scenario: [SPARTA-1162][03]Add Elastic policy to write in Elastic
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/elastic_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_POLICY_ELASTIC}        | n/a |
+      |   $.name                  |  UPDATE    | ${ID_POLICY_ELASTIC}        | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
+    Then the service response status must be '201'
+
+  @ignore @manual
+  Scenario: [SPARTA-1162] [04] Restart Sparta Application after gosec
+    Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
+    When I run 'echo $(dcos marathon app restart  /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME})' in the ssh connection
+    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME} | wc -l' contains '1'
+    #Get ip in marathon
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}  | awk '{print $5}' | grep ${DCOS_SERVICE_NAME} ' in the ssh connection and save the value in environment variable 'spartaTaskId'
+    #Check sparta is runing in DCOS
+    And  I run 'echo !{spartaTaskId}' in the ssh connection
+    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING | wc -l' contains '1'
 
 # Example of execution with mvn :
-#mvn verify -DBASE_END_POINT=/service/gosecmanagement -DGOSECMANAGEMENT_HOST='megadev.labs.stratio.com' -DGOSECMANAGEMENT_PORT=443 -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.ISGosec_AddzookeperPolitic -DlogLevel=DEBUG -DUSER_NAME=admin -DPASS_WORD=1234 -DSECURED=true -Dmaven.failsafe.debu -DID_POLICY_ZK='sparta_zk' -DNAME_POLICY_ZK='zk_sparta' -DID_POLICY_SP='sparta' -DNAME_POLICY_SP='sparta' -DID_POLICY_KAFKA='kafka-sec' -DNAME_POLICY_KAFKA='kafka-sec'-DUSER='sparta-dg'
+# mvn verify -DCLUSTER_ID=nightly -DID_POLICY_KAFKA=sparta-kafka -DID_POLICY_SP=sparta_1 -DID_POLICY_ZK=sparta-zk1 -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1162_Gosec_AddzookeperPolicy_IT -DlogLevel=DEBUG

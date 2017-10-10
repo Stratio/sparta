@@ -24,10 +24,12 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature"
-
+        "src/test/resources/features/automated/dcos/01.installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1273_AddConfigurationForSparta_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
+        "src/test/resources/features/automated/dcos/02.executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
 })
-public class SPARTA_1162_Gosec_AddzookeperPolicy_IT extends BaseTest {
+public class SPARTA_1238_InstalationwithMustacheAndExecuteWorkflow_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,10 +37,10 @@ public class SPARTA_1162_Gosec_AddzookeperPolicy_IT extends BaseTest {
 
     }
 
-    public SPARTA_1162_Gosec_AddzookeperPolicy_IT() {this.browser = browser;
+    public SPARTA_1238_InstalationwithMustacheAndExecuteWorkflow_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"gosecPolicy"})
+    @Test(enabled = true, groups = {"dcos_instalation"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

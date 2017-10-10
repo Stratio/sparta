@@ -23,7 +23,7 @@ import org.testng.annotations.Factory;
 import com.stratio.qa.data.BrowsersDataProvider;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/executions/SPARTA_1193_AppwithSecurityLogin_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1193_AppwithSecurityLogin_IT.feature"
 
 })
 public class SPARTA_1193_AppwithSecurityLogin_IT extends BaseTest {

@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/e2e/AppGenerateWorkflowinDcos_KafkatoElastic.feature"
+        "src/test/resources/features/automated/dcos/03_e2e/AppGenerateWorkflowinDcos_KafkatoElastic.feature"
 
 })
 public class ISAppGenerateWorkflowinDcos_KafkatoElastic extends BaseTest {

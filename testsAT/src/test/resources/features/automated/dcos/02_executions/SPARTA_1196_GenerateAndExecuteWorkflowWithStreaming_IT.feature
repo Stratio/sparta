@@ -1,12 +1,11 @@
 @rest @web
 Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
   Background: conect to navigator
-    Given I set sso token using host '${GOSECMANAGEMENT_HOST}' with user '${USERNAME}' and password '${PASSWORD}'
-    And I securely send requests to '${GOSECMANAGEMENT_HOST}'
-    Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
   Scenario:[SPARTA_1196][01]Install and execute workflow
     #include workflow
-    Given I send a 'POST' request to '/service/sparta-server/policy' based on 'schemas/workflows/${WORKFLOW}.json' as 'json' with:
+    Given I send a 'POST' request to '/service/sparta-server/policy' based on 'schemas/workflows/testinput-to-print.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -16,9 +15,11 @@ Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     #verify the generation of  workflow in dcos
   Scenario:[SPARTA_1196][02]Test workflow in Dcos
+    Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'
     #And I run 'dcos marathon task list /sparta/sparta-server/sparta-server | awk '{print $5}' | grep sparta-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
   Scenario:[SPARTA_1196][03] Generate report of Spark Streaming
+    Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/workflows/${WORKFLOW} | awk '{print $2}'' contains 'True'
     #Now we give time to generate streaming process
     Then I wait '30' seconds
@@ -33,3 +34,7 @@ Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
     Then '1' element exists with 'id:completed'
     #Take evidence of streaming
     And I take a snapshot
+
+
+    #MVN Example
+    #mvn verify -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.InstallAndExecuteWorkflowWithStreaming -DCLUSTER_ID='nightly' -DWORKFLOW=workflowfromwebsockettoprint -DFORCE_BROWSER=chrome_48iddiegotest -DSELENIUM_GRID=localhost:4444 -DGOSECMANAGEMENT_PORT=443  -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nightly.demo.stratio.com

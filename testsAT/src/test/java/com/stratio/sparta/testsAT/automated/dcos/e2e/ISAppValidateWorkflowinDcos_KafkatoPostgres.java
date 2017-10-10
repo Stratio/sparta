@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/e2e/AppValidateWokflowinDcos_KafkatoPostgres.feature"
+        "src/test/resources/features/automated/dcos/03_e2e/AppValidateWokflowinDcos_KafkatoPostgres.feature"
 
 })
 public class ISAppValidateWorkflowinDcos_KafkatoPostgres extends BaseTest {

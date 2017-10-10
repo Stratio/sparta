@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.stratio.sparta.testsAT.automated.dcos.installations;
+
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
 import com.stratio.qa.utils.ThreadProperty;
@@ -23,10 +24,10 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/installations/SPARTA_1190_AppInstalationwithfullSecurity_IT.feature"
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature"
 
 })
-public class SPARTA_1190_AppInstalationwithfullSecurity_IT extends BaseTest {
+public class SPARTA_1238_InstalationwithMustache_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -34,7 +35,7 @@ public class SPARTA_1190_AppInstalationwithfullSecurity_IT extends BaseTest {
 
     }
 
-    public SPARTA_1190_AppInstalationwithfullSecurity_IT() {this.browser = browser;
+    public SPARTA_1238_InstalationwithMustache_IT() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos"})

@@ -117,11 +117,11 @@ hose {
         ]  
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=1.7.4
+            | -DSTRATIO_SPARTA_VERSION=1.7.6
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
-            | -DZK_URL=zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181
+            | -DZK_URL=zk-0001-zkuserland.service.paas.labs.stratio.com:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181
             | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
@@ -130,7 +130,10 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=zk_sparta
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartainstalation_without_Calico.json
+            | -DSPARTA_JSON=spartamustache_1.7.6.json
+            | -DWORKFLOW=testinput-to-print
+            | -DAUTH_ENABLED=false
+            | -DCALICOENABLED=false
             """
     INSTALL = { config ->
         doAT(conf: config, groups: ['dcos_instalation'])

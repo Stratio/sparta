@@ -1,0 +1,50 @@
+{
+  "id": "elastic-sparta",
+  "name": "elastic-sparta",
+  "users": [
+    "user"
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "elasticsearchstratio",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "*"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Index",
+              "name": "",
+              "recursive": true,
+              "actions": [
+                "Delete",
+                "Describe",
+                "Edit",
+                "View",
+                "Write"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Index",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Delete",
+                "Describe",
+                "Edit",
+                "View",
+                "Write"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -27,4 +27,4 @@ Feature: [SPARTA_1195]Running sparta without security
 
 
 # Example of execution with mvn :
-#  mvn verify -DZK_URL='localhost:2181' -DDCOS_CLI_HOST=172.17.0.3 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:latest -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppWithoutSecurity -DlogLevel=DEBUG -Dmaven.failsafe.debu
+#   mvn verify -DZK_URL='localhost:2181' -DDCOS_CLI_HOST=172.17.0.3 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:latest -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppWithoutSecurity -DlogLevel=DEBUG -Dmaven.failsafe.debu

@@ -115,6 +115,18 @@
                 "Edit"
               ],
               "allActions": []
+            },
+            {
+              "resourceType": "catalog",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
+                "Audit",
+                "Execute",
+                "Describe"
+              ],
+              "allActions": []
             }
           ]
         }

@@ -12,7 +12,7 @@
         {
           "instances": [
             {
-              "name": "zookeeperstable"
+              "name": "*"
             }
           ],
           "acls": [
@@ -30,6 +30,21 @@
                 "ViewPolicies"
               ],
               "allActions": []
+            },
+            {
+            "resourceType": "zkNode",
+            "name": "/stratio/sparta-server",
+            "recursive": true,
+            "actions": [
+            "Read",
+            "Write",
+            "Delete",
+            "Create",
+            "Manage",
+            "Audit",
+            "ViewPolicies"
+            ],
+            "allActions": []
             },
             {
               "resourceType": "zkNode",

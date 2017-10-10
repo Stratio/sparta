@@ -81,6 +81,4 @@ Feature: [SPARTA][DCOS]Validate workflow in DCOS Kafka to Elastic
 
 
 # Example of execution with mvn :
-#  mvn verify -DHADOOP_DEFAULT_NAME='hdfs://10.200.1.5:8020' -DTABLEELASTIC='triggertickets' -DHADOOP_PRINCIPAL='hdfs/10.200.1.5@PERFORMANCE.STRATIO.COM' -DHADOOP_PATTERN='hdfs/*@PERFORMANCE.STRATIO.COM' -DELASTICIP=10.200.0.58 -DELASTICPORT='31504'  -DTOTALDATA='101' -DSPARTANAME='sparta' -DDCOS_IP='10.200.0.238' -DMARATHON_TIKI_TAKKA='http://10.200.0.21:8080' -DZK_URL='zk-0001-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0002-zookeeperstable.service.paas.labs.stratio.com:2181,zk-0003-zookeeperstable.service.paas.labs.stratio.com:2181' -DDCOS_CLI_HOST=172.17.0.2 -DSPARTA_DOCKER_IMAGE=qa.stratio.com/stratio/sparta:1.6.1 -DFORCEPULLIMAGE=false -Dit.test=com.stratio.sparta.testsAT.automated.dcos.ISAppValidateWorkflowinDcos_KafkatoElastic -DlogLevel=DEBUG -Dmaven.failsafe.debu
-
-
+# mvn verify -DCLUSTER_ID=nightly -DID_POLICY_SP=sparta -DID_POLICY_ZK=zp_sparta -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1162_Gosec_AddzookeperPolicy_IT -DlogLevel=DEBUG
