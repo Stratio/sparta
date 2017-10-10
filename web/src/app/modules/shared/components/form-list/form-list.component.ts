@@ -46,7 +46,7 @@ import { Subscription } from 'rxjs/Subscription';
 export class FormListComponent implements ControlValueAccessor, OnInit, OnDestroy {
 
     @Input() public formListData: any;
-    @Input() public label: string = '';
+    @Input() public label = '';
     @Input() public qaTag = '';
 
     @ViewChild('inputForm') public inputForm: NgForm;
@@ -85,7 +85,11 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
         this.items.push(this.createItem());
     }
 
-    getItemClass(): string {
+    getItemClass(type: string): string {
+
+        if(type === 'boolean') {
+            return 'check-column';
+        }
         const length = this.formListData.fields.length;
         if(length === 1) {
             return 'col-xs-6';
@@ -108,6 +112,7 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
             }
             this._cd.detectChanges();
         } else {
+            this.items.controls = [];
             this.addItem();
         }
     }
@@ -122,8 +127,12 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
         this.onTouched = fn;
     }
 
-    setDisabledState(isDisabled: boolean): void {
-
+    setDisabledState(isDisabled: boolean) {
+        if (isDisabled) {
+            this.form.disable();
+        } else {
+            this.form.enable();
+        }
     }
 
     changeValue(value: any): void {

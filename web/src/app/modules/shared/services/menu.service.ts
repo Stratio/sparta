@@ -31,8 +31,8 @@ export class MenuService {
         },
         {
             icon: 'icon-puzzle',
-            label: 'Presets',
-            link: DASHBOARD_ROUTES.PRESETS,
+            label: 'Templates',
+            link: DASHBOARD_ROUTES.TEMPLATES,
             subMenus: [
                 {
                     label: 'Inputs',

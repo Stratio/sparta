@@ -18,7 +18,7 @@
             <div class="egeo-title-giant" *ngIf="stepType === 'output'">{{ (editMode ? 'DASHBOARD.EDIT_OUTPUT' : 'DASHBOARD.CREATE_OUTPUT') | translate }}</div>
          </div>
          <br>
-         
+
 
          <!--<form-string-list [formListData]="listData[fragmentIndex].properties[0]"></form-string-list>-->
 
@@ -27,9 +27,11 @@
             <div class="row">
                <div class="col-xs-6">
                   <st-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
-                     qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors" class="input-field"></st-input>
+                     qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                     class="input-field"></st-input>
                   <st-input name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
-                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors" class="input-field"></st-input>
+                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                     class="input-field"></st-input>
                   <div *ngIf="!editMode">
                      <st-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.INPUT_TYPE' | translate}}"
                         name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></st-select>
@@ -37,9 +39,11 @@
                </div>
                <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
                   name="proper"></form-generator>
-               <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
-                      {{'DASHBOARD.SAVE_INPUT' | translate}}
+               <div class="col-sm-12">
+                  <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
+                      {{'DASHBOARD.SAVE' | translate}}
                   </button>
+               </div>
             </div>
          </form>
       </div>

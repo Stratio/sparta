@@ -10,7 +10,7 @@
          <div *ngFor="let item of items.controls; let i = index;">
             <div [formGroupName]="i" class="row">
                         <div class="list-field">
-               <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass()">
+               <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass(field.propertyType)">
                  
                   <st-input *ngIf="field.propertyType == 'text' || field.propertyType == 'number'" label="{{field.propertyName | translate}}"
                      fieldType="{{field.propertyType}}" placeholder="Field name" formControlName="{{field.propertyId}}" qaTag="form-list-input"
@@ -20,7 +20,7 @@
                      tooltip="Select option from list" placeholder="Select option" (change)="changeValue($event)" [required]="field.required"
                      formControlName="{{field.propertyId}}"></st-select>
 
-                     <st-checkbox *ngIf="field.propertyType == 'boolean'" 
+                  <st-checkbox *ngIf="field.propertyType == 'boolean'" 
                      formControlName="{{field.propertyId}}"
                      [name]="field.propertyId" 
                      [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>

@@ -38,7 +38,7 @@
       [required]="field.required"
       [formControl]="stFormControl"></st-select>
 
-   <st-switch *ngIf="field.propertyType == 'boolean' && isVisible" 
+   <st-switch *ngIf="field.propertyType == 'switch' && isVisible" 
       label="{{field.propertyName | translate}}" 
       labelPosition="top" 
       [formControl]="stFormControl"
@@ -47,7 +47,7 @@
       [name]="field.propertyId" 
       qaTag="{{qa}}"></st-switch>
 
-    <st-checkbox *ngIf="field.propertyType == 'boolean2' && isVisible" 
+    <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible" 
       [formControl]="stFormControl"
       [name]="field.propertyId" 
       [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>

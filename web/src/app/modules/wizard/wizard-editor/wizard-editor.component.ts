@@ -47,7 +47,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     public svgPosition = {
         x: 10,
         y: 10,
-        k: 1.1
+        k: 0
     };
 
     public showConnector = false;
@@ -83,7 +83,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
         if (event.keyCode === this.RETURN_KEYCODE && this.selectedEntity.length) {
             this.store.dispatch(new wizardActions.UnselectEntityAction());
-        } else if(event.keyCode === this.SUPR_KEYCODE && this.selectedEntity && this.selectedEntity.length) {
+        } else if (event.keyCode === this.SUPR_KEYCODE && this.selectedEntity && this.selectedEntity.length) {
             this.store.dispatch(new wizardActions.DeleteEntityAction());
         }
     }
@@ -99,7 +99,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.creationMode = data;
         });
 
-        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData).subscribe((data)=> {
+        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData).subscribe((data) => {
             this.entitiesData = data;
         });
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
@@ -112,12 +112,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.workflowRelationsSubscription = this.store.select(fromRoot.getWorkflowRelations).subscribe((data: Array<any>) => {
             this.workflowRelations = data.map((relation: any) => {
                 return {
-                    origin: this.entities.filter((entity: any) => {
+                    origin: this.entities.find((entity: any) => {
                         return entity.name === relation.origin;
-                    })[0],
-                    destination: this.entities.filter((entity: any) => {
+                    }),
+                    destination: this.entities.find((entity: any) => {
                         return entity.name === relation.destination;
-                    })[0],
+                    }),
                 };
             });
         });
@@ -137,15 +137,26 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             .on('drag', undefined);
 
 
-        this.SVGParent.call(this.drag.on('drag', (e: any, f: any) => {
-            const event = d3.event;
-            this.svgPosition = {
-                x: this.svgPosition.x + event.dx,
-                y: this.svgPosition.y + event.dy,
-                k: this.svgPosition.k
-            };
-            this.setContainerPosition();
-        }));
+        this.SVGParent
+            .call(this.drag
+                .on('start', () => {
+                    const event = d3.event;
+                    const position = {
+                        offsetX: event.x,
+                        offsetY: event.y
+                    };
+                    this.clickDetected.call(this, position);
+                })
+                .on('drag', (e: any, f: any) => {
+                    const event = d3.event;
+                    this.svgPosition = {
+                        x: this.svgPosition.x + event.dx,
+                        y: this.svgPosition.y + event.dy,
+                        k: this.svgPosition.k
+                    };
+                    this.setContainerPosition();
+                }));
+
 
         this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
             const e: any = d3.event;
@@ -155,7 +166,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 k: e.transform.k
             };
             this.setContainerPosition();
-        })).on('dblclick.zoom', null);
+        }))
+            .on('dblclick.zoom', null);
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
             this.svgPosition = position;
@@ -182,15 +194,21 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     clickDetected($event: any) {
         if (this.creationMode.active) {
             const entityData = this.creationMode.data;
-            const entity = this.validateSchemaService.setDefaultEntityModel(this.creationMode.data.value);
-            entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
+            let entity: any = {};
+            if(entityData.type === 'template') {
+                entity = Object.assign({}, entityData.data);
+                entity.name = this.editorService.getNewEntityName(entityData.data.classPrettyName, this.entities);
+            }else {
+                entity = this.validateSchemaService.setDefaultEntityModel(this.creationMode.data.value);
+                entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
+            }
             entity.stepType = this.creationMode.data.stepType;
             entity.uiConfiguration = {
                 position: {
                     x: ($event.offsetX - this.svgPosition.x) / this.svgPosition.k,
                     y: ($event.offsetY - this.svgPosition.y) / this.svgPosition.k
                 }
-            }
+            };
             this.entities.push(entity);
         }
         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
@@ -281,15 +299,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }));
     }
 
-    ngOnDestroy(): void {
-        this.creationModeSubscription && this.creationModeSubscription.unsubscribe();
-        this.getSeletedEntitiesSubscription && this.getSeletedEntitiesSubscription.unsubscribe();
-        this.getWorflowNodesSubscription && this.getWorflowNodesSubscription.unsubscribe();
-        this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
-        this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
-        this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
-    }
-
     saveWorkflow(): void {
         // save entities position
         this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
@@ -301,5 +310,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     removeSegment($event: any) {
         this.store.dispatch(new wizardActions.DeleteNodeRelationAction($event));
     }
-
+    
+    ngOnDestroy(): void {
+        this.creationModeSubscription && this.creationModeSubscription.unsubscribe();
+        this.getSeletedEntitiesSubscription && this.getSeletedEntitiesSubscription.unsubscribe();
+        this.getWorflowNodesSubscription && this.getWorflowNodesSubscription.unsubscribe();
+        this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
+        this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
+        this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
+    }
 }

@@ -2,7 +2,10 @@
    <form [formGroup]="stFormGroup" class="form-generator">
       <ng-container *ngFor="let prop of formDataValues; let i = index;">
          <div *ngIf="prop.field.properties" class="form-container">
-            <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="prop.field.properties"></form-generator>
+            <div class="col-sm-12">
+               <h2 [ngClass]="'subform-title-' + subFormNumber">{{('WIZARD.' + (prop.field.name | uppercase)) | translate}}</h2>
+            </div>
+            <form-generator [subFormNumber]="subFormNumber+1" [formControl]="prop.formControl" class="col-sm-12" [forceValidations]="submitted" [formData]="prop.field.properties"></form-generator>
          </div>
          <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [ngClass]="getClass(prop.field.width)">
             <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup"></form-field>

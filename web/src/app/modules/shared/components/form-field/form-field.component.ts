@@ -80,21 +80,19 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     }
 
     getEmptyValue(): any {
-        if (this.field.default) {
-            return this.field.default;
-        } else {
-            switch (this.field.propertyType) {
-                case 'text':
-                    return '';
-                case 'select':
-                    return '';
-                case 'boolean':
-                    return false;
-                case 'list':
-                    return [];
-                default:
-                    return '';
-            }
+
+        switch (this.field.propertyType) {
+            case 'text':
+                return '';
+            case 'select':
+                return '';
+            case 'boolean':
+                return false;
+            case 'list':
+                return [];
+            default:
+                return '';
+
         }
     }
 

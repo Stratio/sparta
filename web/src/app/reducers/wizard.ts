@@ -15,6 +15,8 @@
 ///
 
 import * as wizardActions from 'actions/wizard';
+import * as inputActions from 'actions/input';
+import * as outputActions from 'actions/output';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { inputNames } from 'data-templates/inputs';
 import { transformationNames } from 'data-templates/transformations';
@@ -26,7 +28,7 @@ export interface State {
     workflowId: string;
     nodes: Array<any>;
     edges: Array<any>;
-    savedWorkflow:boolean;
+    savedWorkflow: boolean;
     selectedCreationEntity: any;
     entityCreationMode: boolean;
     editionConfig: boolean;
@@ -256,8 +258,36 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
-            return Object.assign({}, state , {
+            return Object.assign({}, state, {
                 savedWorkflow: true
+            });
+        }
+        case inputActions.actionTypes.LIST_INPUT_COMPLETE: {
+            const menuOptions: any = Object.assign([], state.menuOptions);
+            menuOptions[0].subMenus[0].subMenus = action.payload.map((template: any) => {
+                return {
+                    name: template.name,
+                    type: 'template',
+                    data: template,
+                    stepType: 'Input'
+                };
+            });
+            return Object.assign({}, state, {
+                menuOptions: menuOptions
+            });
+        }
+        case outputActions.actionTypes.LIST_OUTPUT_COMPLETE: {
+            const menuOptions: any = Object.assign([], state.menuOptions);
+            menuOptions[2].subMenus[0].subMenus = action.payload.map((template: any) => {
+                return {
+                    name: template.name,
+                    type: 'template',
+                    data: template,
+                    stepType: 'Output'
+                };
+            });
+            return Object.assign({}, state, {
+                menuOptions: menuOptions
             });
         }
         default:

@@ -30,7 +30,7 @@
           "propertyType": "select",
           "position": "left",
           "custom": false,
-          "width": 12,
+          "width": 6,
           "required": true,
           "values": [
              {

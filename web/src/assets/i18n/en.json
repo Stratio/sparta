@@ -2,7 +2,7 @@
    "GLOBAL": {
       "EXAMPLES": "Examples",
       "WORKFLOWS": "Workflows",
-      "PRESETS": "Presets",
+      "TEMPLATES": "Templates",
       "INPUTS": "Inputs",
       "INPUT": "Input",
       "OUTPUTS": "Outputs",
@@ -382,7 +382,12 @@
       "DONT_SAVE": "Don´ t save",
       "RETURN_WORKFLOW": "Return to workflow list",
       "CONFIRM_EXIT": "Save changes to the Ticket Management workflow?",
-      "CONFIRM_EXIT_ADVICE": "If you don´t save the changes, they will be lost."
+      "CONFIRM_EXIT_ADVICE": "If you don´t save the changes, they will be lost.",
+      "SUBMITARGUMENTS": "Submit Arguments",
+      "SPARKCONF": "Spark Configuration",
+      "SPARKRESOURCESCONF": "Spark Resources Configuration",
+      "SPARKDOCKERCONF": "Spark Docker Configuration",
+      "SPARKMESOSCONF": "Spark Mesos Configuration"
    },
    "ERRORS": {
       "404": "404: Page missing",

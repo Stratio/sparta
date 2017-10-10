@@ -23,6 +23,8 @@
 
 .form-container {
    width: 100%;
+   display: flex;
+   flex-wrap: wrap;
 }
 
 .col-xs-auto {
@@ -40,4 +42,19 @@
 .prop-container {
    width: 100%;
    display: flex;
+}
+
+.subform-title-0{
+    margin-top:20px;
+    font-size: 24px;
+}
+
+.subform-title-1{
+    margin-top:20px;
+    font-size: 20px;
+}
+
+.subform-title-2{
+    margin-top:20px;
+    font-size: 18px;
 }

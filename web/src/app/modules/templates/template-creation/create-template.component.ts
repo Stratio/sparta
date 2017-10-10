@@ -21,7 +21,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import * as inputActions from 'actions/input';
 import * as fromRoot from 'reducers';
 import * as inputTemplate from 'data-templates/input.json';
-import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
+import { BreadcrumbMenuService, ErrorMessagesService, ValidateSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 
 export abstract class CreateTemplateComponent implements OnInit {
@@ -47,7 +47,8 @@ export abstract class CreateTemplateComponent implements OnInit {
         public errorsService: ErrorMessagesService,
         private currentActivatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
-        public breadcrumbMenuService: BreadcrumbMenuService) {
+        public breadcrumbMenuService: BreadcrumbMenuService,
+        protected validateSchemaService: ValidateSchemaService) {
 
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         this.configuration = new FormGroup({});
@@ -62,6 +63,10 @@ export abstract class CreateTemplateComponent implements OnInit {
     changeTemplateType(event: string): void {
         this.inputFormModel.classPrettyName = event;
         this.setEditedTemplateIndex(event);
+        setTimeout(() => { // set default model and remove description
+            this.inputFormModel = this.validateSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex]);
+            this.inputFormModel.description = '';
+        }, 0);
     }
 
     cancelCreate() {
@@ -78,7 +83,9 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.editMode = true;
             this.getEditedTemplate();
         } else {
+            this.inputFormModel = this.validateSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex]);
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
+            this.inputFormModel.description = '';
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;
         }
     }
@@ -86,9 +93,9 @@ export abstract class CreateTemplateComponent implements OnInit {
     setEditedTemplateIndex(type: string) {
         for (let i = 0; i < this.listData.length; i++) {
             if (this.listData[i].classPrettyName === type) {
+                this.fragmentIndex = i;
                 this.inputFormModel.classPrettyName = type;
                 this.inputFormModel.className = this.listData[i].className;
-                this.fragmentIndex = i;
                 return;
             }
         }

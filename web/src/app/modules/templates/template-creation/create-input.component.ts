@@ -18,21 +18,21 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStra
 import { NgForm, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as outputActions from 'actions/output';
+import * as inputActions from 'actions/input';
 import * as fromRoot from 'reducers';
-import * as outputsTemplate from 'data-templates/outputs';
-import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
+import * as inputsTemplate from 'data-templates/inputs';
+import { BreadcrumbMenuService, ErrorMessagesService, ValidateSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 import { CreateTemplateComponent } from './create-template.component';
 import { Subscription } from 'rxjs/Rx';
 
 @Component({
-    selector: 'create-output',
+    selector: 'create-input',
     templateUrl: './create-template.template.html',
     styleUrls: ['./create-template.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CreateOutputComponent extends CreateTemplateComponent implements OnDestroy {
+export class CreateInputComponent extends CreateTemplateComponent implements OnDestroy {
 
     @Output() onCloseInputModal = new EventEmitter<string>();
     @ViewChild('inputForm') public inputForm: NgForm;
@@ -42,20 +42,19 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
     public fragmentName: any;
     public form: FormGroup;
     public fragmentTypes: StDropDownMenuItem[] = [];
-    public inputFormModel: any = {
-        element: {
-        }
-    };
+
     public configuration: FormGroup;
     public editMode = false;
-    public stepType = 'output';
+    public title = '';
+    public stepType = 'input';
     private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
-        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService) {
-        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService);
-        this.store.dispatch(new outputActions.ResetOutputFormAction());
-        this.listData = outputsTemplate.outputs;
+        currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
+        protected validateSchemaService: ValidateSchemaService) {
+        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, validateSchemaService);
+        this.store.dispatch(new inputActions.ResetInputFormAction());
+        this.listData = inputsTemplate.inputs;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
@@ -64,48 +63,45 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
             }
         });
 
-        this.saveSubscription = this.store.select(fromRoot.isOutputSaved).subscribe((isSaved) => {
-            if (isSaved) {
-                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
+        this.saveSubscription = this.store.select(fromRoot.isInputSaved).subscribe((isSaved) => {
+            if(isSaved) {
+                 this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
             }
         });
     }
 
+
     changeFragmentIndex(index: number): void {
+        this.submitted = false;
         this.inputFormModel.element.configuration = {};
         this.fragmentIndex = index;
     }
 
-
     onSubmitInputForm(): void {
         this.submitted = true;
         if (this.inputForm.valid) {
-            this.inputFormModel.templateType = 'output';
-
+            this.inputFormModel.templateType = 'input';
             if (this.editMode) {
-                this.store.dispatch(new outputActions.UpdateOutputAction(this.inputFormModel));
+                this.store.dispatch(new inputActions.UpdateInputAction(this.inputFormModel));
             } else {
-                this.store.dispatch(new outputActions.CreateOutputAction(this.inputFormModel));
+                this.store.dispatch(new inputActions.CreateInputAction(this.inputFormModel));
             }
         }
     }
 
-    changeFragment($event: any) {
-        console.log($event);
-    }
-
     getEditedTemplate() {
-        this.store.select(fromRoot.getEditedOutput).subscribe((editedOutput: any) => {
-            if (!editedOutput.id) {
+        this.store.select(fromRoot.getEditedInput).subscribe((editedInput: any) => {
+            if (!editedInput.id) {
                 return this.cancelCreate();
             }
-            this.setEditedTemplateIndex(editedOutput.type || 'kafka');
-            this.inputFormModel = editedOutput;
-            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedOutput.name);
+            this.setEditedTemplateIndex(editedInput.type || 'Kafka');
+            this.inputFormModel = editedInput;
+            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
         });
     }
 
     ngOnDestroy() {
         this.saveSubscription && this.saveSubscription.unsubscribe();
     }
+
 }

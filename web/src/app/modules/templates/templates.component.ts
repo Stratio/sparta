@@ -18,11 +18,11 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 
 @Component({
-    selector: 'presets',
-    templateUrl: 'presets.template.html'
+    selector: 'templates',
+    templateUrl: 'templates.template.html'
 })
 
-export class PresetsComponent {
+export class TemplatesComponent {
 
     constructor() { }
 

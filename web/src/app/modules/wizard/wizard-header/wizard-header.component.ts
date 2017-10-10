@@ -67,25 +67,14 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._modalService.container = this.target;
-        // this.store.dispatch(new inputActions.ListInputAction());
-        // this.store.dispatch(new outputActions.ListOutputAction());
+        this.store.dispatch(new inputActions.ListInputAction());
+        this.store.dispatch(new outputActions.ListOutputAction());
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
         this.nameSubscription = this.store.select(fromRoot.getWorkflowName).subscribe((name: string) => {
             this.workflowName = name;
         });
 
         this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
-        /*this.inputListSubscription = this.store.select(fromRoot.getInputList).subscribe((data: any) => {
-            this.inputList = data;
-            this.menuOptions[0].subMenus[0].subMenus = this.getTemplateMenuNames(data);
-            this._cd.detectChanges();
-        });
-
-        this.outputListSubscription = this.store.select(fromRoot.getOutputList).subscribe((data: any) => {
-            this.outputList = data;
-            this.menuOptions[2].subMenus[0].subMenus = this.getTemplateMenuNames(data);
-            this._cd.detectChanges();
-        });*/
 
     }
 
@@ -99,18 +88,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     onBlurWorkflowName(): void {
         this.store.dispatch(new wizardActions.ChangeWorkflowNameAction(this.workflowName));
-    }
-
-    getTemplateMenuNames(templateList: Array<any>) {
-        return templateList.map((template) => {
-            return {
-                name: template.name,
-                value: {
-                    type: 'template',
-                    name: template.name
-                }
-            };
-        });
     }
 
 

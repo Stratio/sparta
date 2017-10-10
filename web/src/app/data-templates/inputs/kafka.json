@@ -245,7 +245,7 @@
       {
         "propertyId": "vaultTLSEnable",
         "propertyName": "_TLS_ENABLE_",
-        "propertyType": "boolean",
+        "propertyType": "switch",
         "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
         "default": false,
         "qa": "fragment-details-kafka-tls"

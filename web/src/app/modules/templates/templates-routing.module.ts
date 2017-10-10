@@ -16,16 +16,16 @@
 
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PresetsComponent } from './presets.component';
+import { TemplatesComponent } from './templates.component';
 import { InputsComponent } from './template-list/inputs.component';
 import { OutputsComponent } from './template-list/outputs.component';
 import { CreateInputComponent } from './template-creation/create-input.component';
 import { CreateOutputComponent } from './template-creation/create-output.component';
 
-const presetsRoutes: Routes = [
+const templatesRoutes: Routes = [
     {
         path: '',
-        component: PresetsComponent,
+        component: TemplatesComponent,
         children: [
             {
                 path: '',
@@ -64,8 +64,8 @@ const presetsRoutes: Routes = [
         RouterModule
     ],
     imports: [
-        RouterModule.forChild(presetsRoutes)
+        RouterModule.forChild(templatesRoutes)
     ]
 })
 
-export class PresetsRoutingModule { }
+export class TemplatesRoutingModule { }

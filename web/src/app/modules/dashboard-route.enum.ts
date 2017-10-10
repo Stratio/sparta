@@ -16,11 +16,11 @@
 
 export const DASHBOARD_ROUTES = {
    WORKFLOWS: '/workflows',
-   PRESETS: '/presets',
+   TEMPLATES: '/templates',
    SETTINGS: '/settings',
-   INPUTS: '/presets/inputs',
-   OUTPUTS: '/presets/outputs',
-   TRANSFORMATIONS: '/presets/transformations',
+   INPUTS: '/templates/inputs',
+   OUTPUTS: '/templates/outputs',
+   TRANSFORMATIONS: '/templates/transformations',
   // RESOURCES: '/settings/resources',
    CROSSDATA: '/settings/crossdata',
    BACKUPS: '/settings/backups'

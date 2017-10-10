@@ -32,8 +32,8 @@ const layoutRoutes: Routes = [
                 loadChildren: '@app/workflows/workflows.module#WorkflowsModule'
             },
             {
-                path: 'presets',
-                loadChildren: '@app/presets/presets.module#PresetsModule'
+                path: 'templates',
+                loadChildren: '@app/templates/templates.module#TemplatesModule'
             },
             {
                 path: 'settings',

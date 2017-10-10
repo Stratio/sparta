@@ -41,6 +41,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     @Input() public formData: any; // data template
     @Input() public stFormGroup: FormGroup;
     @Input() forceValidations = false;
+    @Input() public subFormNumber = 0;
 
     @Input() public stModel: any = {};
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
@@ -112,10 +113,6 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     ngOnDestroy(): void {
         if (this.stFormGroupSubcription) {
             this.stFormGroupSubcription.unsubscribe();
-        }
-
-        if (this.notifyChangeSubject) {
-            this.notifyChangeSubject.unsubscribe();
         }
     }
 }

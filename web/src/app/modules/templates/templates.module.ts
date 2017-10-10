@@ -15,8 +15,8 @@
 ///
 
 import { NgModule } from '@angular/core';
-import { PresetsComponent} from './presets.component';
-import { PresetsRoutingModule } from './presets-routing.module';
+import { TemplatesComponent} from './templates.component';
+import { TemplatesRoutingModule } from './templates-routing.module';
 import { SharedModule } from '@app/shared';
 import { EgeoModule, StModalModule } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -28,7 +28,7 @@ import { TemplatesBaseComponent } from './template-list/templates-base.component
 
 @NgModule({
     declarations: [
-        PresetsComponent,
+        TemplatesComponent,
         InputsComponent,
         OutputsComponent,
         CreateInputComponent,
@@ -39,8 +39,8 @@ import { TemplatesBaseComponent } from './template-list/templates-base.component
         FormsModule,
         ReactiveFormsModule,
         SharedModule,
-        PresetsRoutingModule,
+        TemplatesRoutingModule,
         SharedModule,
     ]
 })
-export class PresetsModule { }
+export class TemplatesModule { }

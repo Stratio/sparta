@@ -20,8 +20,7 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 @Component({
     selector: 'menu-options',
     templateUrl: './menu-options.template.html',
-    styleUrls: ['./menu-options.styles.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./menu-options.styles.scss']
 })
 export class MenuOptionsComponent implements OnInit {
 

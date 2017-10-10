@@ -87,6 +87,20 @@ export class ValidateSchemaService {
         return model;
     }
 
+    setTemplateEntityModel(value: any): any {
+        let model: any = {};
+        model.configuration = {};
+        value.properties.map((prop: any) => {
+            model.configuration[prop.propertyId] = prop.default ? prop.default : null;
+        });
+        model.classPrettyName = value.classPrettyName;
+        model.className = value.className;
+        model.stepType = value.stepType;
+        model.description = value.description;
+
+        return model;
+    }
+
 
     constructor() {
 

@@ -19,7 +19,7 @@ body{
     background:#f3f6f8;
 }
 
-textarea.st-form-control{
+st-textarea {
     width:100%;
 }
 
@@ -32,4 +32,9 @@ textarea.st-form-control{
     &:before {
         min-width:160px;
     }
+}
+
+
+.custom-checkbox{
+    margin-right: 6px!important;
 }
