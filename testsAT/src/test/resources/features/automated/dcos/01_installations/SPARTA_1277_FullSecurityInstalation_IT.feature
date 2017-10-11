@@ -70,7 +70,9 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
     Then the service response status must be '201'
+
   #Remove Sparta
+  @ignore @manual
   Scenario: [SPARTA-1182][Scenario-4] Remove Instalation with full security in DCOS
     When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}' in the ssh connection
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | grep R | wc -l' contains '0'
@@ -82,7 +84,5 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
 
   @ignore @manual
   Scenario: [SPARTA-1182][Scenario-6]Delete Sparta Policy
-    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
-    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'

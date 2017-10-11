@@ -1,6 +1,6 @@
 {
-  "id": "07a1b029-9d34-4ac6-9bdd-2dcad05e82d5",
-  "name": "testinput-to-print.json",
+  "id": "97bc72e6-5a5d-4afb-96c2-9393acfe7759",
+  "name": "testinput-to-print",
   "description": "testinput-to-print.json",
   "settings": {
     "global": {
@@ -20,8 +20,8 @@
     },
     "checkpointSettings": {
       "checkpointPath": "sparta/checkpoint",
-      "enableCheckpointing": false,
-      "autoDeleteCheckpoint": false,
+      "enableCheckpointing": true,
+      "autoDeleteCheckpoint": true,
       "addTimeToCheckpointPath": false
     },
     "streamingSettings": {
@@ -30,8 +30,9 @@
     "sparkSettings": {
       "master": "mesos://leader.mesos:5050",
       "sparkKerberos": true,
-      "sparkDataStoreTls": false,
+      "sparkDataStoreTls": true,
       "sparkHome": "/opt/spark/dist",
+      "sparkUser": "root",
       "submitArguments": {
         "userArguments": [
           {
@@ -64,8 +65,12 @@
         },
         "userSparkConf": [
           {
-            "sparkConfKey": "",
-            "sparkConfValue": ""
+            "sparkConfKey": "spark.executor.extraJavaOptions",
+            "sparkConfValue": "-Dlog4j.logger.org.apache.spark=ERROR"
+          },
+          {
+            "sparkConfKey": "spark.launcher.childProcLoggerName",
+            "sparkConfValue": "com.stratio.sparta"
           }
         ],
         "coarse": true,
@@ -78,13 +83,12 @@
     "dataField": "ficheros",
     "timeField": "ficheros",
     "writer": {
-      "outputs": [
-        "print"
-      ],
+      "outputs": [],
       "autoCalculatedFields": [],
       "saveMode": "Append",
       "tableName": "ficheros",
-      "partitionBy": ""
+      "partitionBy": "",
+      "boolFailFast": false
     },
     "configuration": {}
   },
@@ -111,12 +115,11 @@
       }
     ],
     "writer": {
-      "outputs": [
-        "print"
-      ],
+      "outputs": [],
       "autoCalculatedFields": [],
       "saveMode": "Append",
-      "tableName": "datossave"
+      "tableName": "datossave",
+      "boolFailFast": false
     }
   },
   "streamTriggers": [
@@ -125,17 +128,52 @@
       "sql": "select * from stream",
       "writer": {
         "outputs": [
-          "print"
+          {
+            "primary": "print"
+          }
         ],
         "autoCalculatedFields": [],
-        "saveMode": "Append"
+        "saveMode": "Append",
+        "boolFailFast": false
       },
       "overLast": "30s",
       "configuration": {},
       "computeEvery": "30s"
     }
   ],
-  "cubes": [],
+  "cubes": [
+    {
+      "name": "cube1",
+      "dimensions": [
+        {
+          "name": "date",
+          "field": "date",
+          "precision": "identity",
+          "type": "Default"
+        }
+      ],
+      "operators": [
+        {
+          "type": "Count",
+          "name": "count",
+          "configuration": {}
+        }
+      ],
+      "writer": {
+        "outputs": [
+          {
+            "primary": "print"
+          }
+        ],
+        "dateType": "timestamp",
+        "autoCalculatedFields": [],
+        "saveMode": "Append",
+        "boolFailFast": false
+      },
+      "triggers": [],
+      "configuration": {}
+    }
+  ],
   "input": {
     "name": "datos",
     "type": "Test",
@@ -152,10 +190,10 @@
       "name": "print",
       "type": "Print",
       "configuration": {
-        "printMetadata": true,
-        "printData": true,
         "printSchema": true,
-        "logLevel": "warn"
+        "logLevel": "warn",
+        "printMetadata": true,
+        "printData": true
       }
     }
   ],

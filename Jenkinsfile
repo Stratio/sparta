@@ -136,6 +136,6 @@ hose {
             | -DCALICOENABLED=false
             """
     INSTALL = { config ->
-        doAT(conf: config, groups: ['dcos_instalation'])
+        doAT(conf: config, groups: ['dcos_instalation','dcos_executions'])
      }
 }

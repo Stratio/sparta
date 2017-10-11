@@ -40,7 +40,7 @@ public class SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT extends Ba
     public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_instalation"})
+    @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
