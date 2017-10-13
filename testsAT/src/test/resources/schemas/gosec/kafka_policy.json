@@ -40,7 +40,7 @@
             },
             {
               "resourceType": "Topic",
-              "name": "khermes",
+              "name": "sparta",
               "recursive": true,
               "actions": [
                 "Read",
