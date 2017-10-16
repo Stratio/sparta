@@ -65,7 +65,8 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers {
       }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 2)
 
@@ -119,7 +120,8 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers {
       }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 2)
 

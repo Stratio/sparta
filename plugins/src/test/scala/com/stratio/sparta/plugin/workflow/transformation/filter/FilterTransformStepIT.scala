@@ -64,7 +64,8 @@ class FilterTransformStepIT extends TemporalSparkContext with Matchers {
         streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 1)
 

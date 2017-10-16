@@ -100,18 +100,14 @@
           "propertyName": "SETTINGS._SPARK_STREAMING_WINDOW_",
           "propertyType": "text",
           "default": "2s",
-          "width": 3,
           "tooltip": "Streaming window assigned to Spark",
           "required": true,
-          "float": true,
           "qa": "spark-streaming-window"
         },
         {
           "propertyId": "remember",
           "propertyName": "SETTINGS._WORKFLOW_REMEMBER_FIELD_",
           "propertyType": "text",
-          "width": 3,
-          "float": true,
           "tooltip": "Maximum time a certain query will be executed before being aborted",
           "required": false,
           "qa": "spark-streaming-remember-number"
@@ -120,9 +116,9 @@
           "propertyId": "backpressure",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_",
           "propertyType": "boolean",
-          "required": false,
+          "required": true,
           "default": false,
-          "width": 3,
+           "float": true,
           "tooltip": "Enables or disables Spark Streaming's internal backpressure mechanism",
           "qa": "spark-streaming-backpressure"
         },
@@ -130,7 +126,6 @@
           "propertyId": "backpressureInitialRate",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_INITIAL_RATE_",
           "propertyType": "text",
-          "width": 3,
           "tooltip": "Maximum time a certain query will be executed before being aborted",
           "required": false,
           "qa": "spark-streaming-backpressure-initial-rate"
@@ -142,9 +137,7 @@
                   "propertyId": "checkpointPath",
                   "propertyName": "SETTINGS._CHECKPOINT_PATH_",
                   "propertyType": "text",
-                  "width": 6,
                   "default": "sparta/checkpoint",
-                  "newRow": true,
                   "required": false,
                   "tooltip": "Used only if the checkpointing feature is activated. When selecting Mesos or Marathon as deploy mode the checkpoint path must be one located in a HDFS node(sparta/checkpoint), when deploying in Local the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint)",
                   "qa": "workflow-checkpoint-path"
@@ -154,7 +147,6 @@
                   "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
                   "propertyType": "boolean",
                   "width": "auto",
-                  "newRow": true,
                   "required": true,
                   "default": true,
                   "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",

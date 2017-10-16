@@ -36,7 +36,7 @@ class ReceiverLimitedIT extends TemporalDataSuite {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val inputSentences = InputSentences(
       s"select * from $tableName",
-      OffsetConditions(OffsetField("idInt"), limitRecords = 1000),
+      OffsetConditions(OffsetField("idInt"), limitRecords = 500),
       initialStatements = Seq.empty[String]
     )
     val distributedStream = DatasourceUtils.createStream(ssc, inputSentences, datasourceParams)
@@ -50,7 +50,8 @@ class ReceiverLimitedIT extends TemporalDataSuite {
     })
 
     ssc.start() // Start the computation
-    ssc.awaitTerminationOrTimeout(20000L) // Wait for the computation to terminate
+    ssc.awaitTerminationOrTimeout(5000L) // Wait for the computation to terminate
+    ssc.stop()
 
     assert(totalEvents.value === totalRegisters.toLong)
   }

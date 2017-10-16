@@ -32,7 +32,6 @@ class RowDeserializerTest  extends WordSpec with Matchers {
     "return a correct values when intput format is string" in {
       val properties = Map(
         "value.deserializer.inputFormat" -> "STRING",
-        "value.deserializer.schema" -> "NONE",
         "value.deserializer.outputField" -> "rawField"
       )
       val desSerializer = new RowDeserializer
@@ -48,7 +47,7 @@ class RowDeserializerTest  extends WordSpec with Matchers {
     "return a correct values when intput format is json and the schema is not provided" in {
       val properties = Map(
         "value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.schema" -> "NONE"
+        "value.deserializer.json.schema.fromRow" -> "true"
       )
       val desSerializer = new RowDeserializer
       desSerializer.configure(properties, false)
@@ -61,10 +60,30 @@ class RowDeserializerTest  extends WordSpec with Matchers {
       result should be(expected)
     }
 
-    "return a correct values when intput format is json and the schema is provided" in {
+    "return a correct values when intput format is json and the schema is provided in spark format" in {
       val properties = Map(
         "value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.schema" -> "StructType((StructField(rawField,StringType,true)))"
+        "value.deserializer.json.schema.fromRow" -> "false",
+        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
+        "value.deserializer.schema.provided" -> "StructType((StructField(rawField,StringType,true)))"
+      )
+      val desSerializer = new RowDeserializer
+      desSerializer.configure(properties, false)
+      val message = "Stratio Sparta"
+      val dataToSerialize = s"""{"rawField": "$message"}"""
+      val result = desSerializer.deserialize("topic", dataToSerialize.getBytes)
+      val expectedSchema = StructType(Seq(StructField("rawField", StringType)))
+      val expected = new GenericRowWithSchema(Array(message), expectedSchema)
+
+      result should be(expected)
+    }
+
+    "return a correct values when intput format is json and the schema is provided in example" in {
+      val properties = Map(
+        "value.deserializer.inputFormat" -> "JSON",
+        "value.deserializer.json.schema.fromRow" -> "false",
+        "value.deserializer.json.schema.inputMode" -> "EXAMPLE",
+        "value.deserializer.schema.provided" -> """{"rawField":"foo"}"""
       )
       val desSerializer = new RowDeserializer
       desSerializer.configure(properties, false)

@@ -82,7 +82,7 @@ class JsonPathTransformStepIT extends TemporalSparkContext with Matchers {
       sparkSession,
       Map("queries" -> queries.asInstanceOf[JSerializable],
         "inputField" -> inputField,
-        "addAllInputFields" -> false)
+        "fieldsPreservationPolicy" -> "REPLACE")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -99,7 +99,8 @@ class JsonPathTransformStepIT extends TemporalSparkContext with Matchers {
         }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 1)
   }

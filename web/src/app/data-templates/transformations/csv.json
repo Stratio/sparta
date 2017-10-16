@@ -1,8 +1,8 @@
   {
-     "name": "CSV",
-     "icon": "CSV",
-     "className": "CSVTransformStep",
-     "classPrettyName": "CSV",
+     "name": "Csv",
+     "icon": "Csv",
+     "className": "CsvTransformStep",
+     "classPrettyName": "Csv",
      "description": "Parses an input field with csv format and returns all the obtained new fields or selected ones",
      "properties": [
         {
@@ -14,9 +14,77 @@
            "qa": "fragment-details-csv-fieldsString"
         },
         {
-           "propertyId": "fields",
+           "propertyId": "fieldsPreservationPolicy",
+           "propertyName": "_FIELDS_PRESERVATION_",
+           "required": true,
+           "propertyType": "select",
+           "default": "REPLACE",
+           "values": [
+              {
+                 "label": "Replacing input field",
+                 "value": "REPLACE"
+              },
+              {
+                 "label": "Appending extracted",
+                 "value": "APPEND"
+              },
+              {
+                 "label": "Keeping just extracted",
+                 "value": "JUST_EXTRACTED"
+              }
+           ],
+           "qa": "workflow-transformation-csv-fieldsPreservationPolicy"
+        },
+        {
+           "propertyId": "schema.inputMode",
+           "propertyName": "_INPUT_SCHEMA_FROM_",
+           "propertyType": "select",
+           "required": true,
+           "values": [
+              {
+                 "label": "Header",
+                 "value": "HEADER"
+              },
+              {
+                 "label": "Fields",
+                 "value": "FIELDS"
+              },
+              {
+                 "label": "Spark format",
+                 "value": "SPARKFORMAT"
+              }
+           ],
+           "default": "HEADER",
+           "qa": "fragment-details-input-schema-type"
+        },
+        {
+           "propertyId": "schema.header",
+           "propertyName": "_HEADER_",
+           "propertyType": "text",
+           "visible": [
+              [
+                 {
+                    "propertyId": "schema.inputMode",
+                    "value": "HEADER"
+                 }
+              ]
+           ],
+           "required": true,
+           "tooltip": "Header with the fields names",
+           "qa": "fragment-details-csv-header"
+        },
+        {
+           "propertyId": "schema.fields",
            "propertyName": "_FIELDS_DEFINITION_",
            "propertyType": "list",
+           "visible": [
+              [
+                 {
+                    "propertyId": "schema.inputMode",
+                    "value": "FIELDS"
+                 }
+              ]
+           ],
            "required": true,
            "tooltip": "Schema definition from list of fields",
            "qa": "fragment-details-csv-fields",
@@ -122,18 +190,27 @@
            ]
         },
         {
-           "propertyId": "addAllInputFields",
-           "propertyName": "_ADD_ALL_INPUT_FIELDS_",
-           "propertyType": "boolean",
-           "default": true,
-           "tooltip": "If checked, the output will contain all the input fields too",
-           "qa": "workflow-transformation-csv-addAllInputFields"
+           "propertyId": "schema.sparkSchema",
+           "propertyName": "_SPARK_SCHEMA_",
+           "propertyType": "text",
+           "visible": [
+              [
+                 {
+                    "propertyId": "schema.inputMode",
+                    "value": "SPARKFORMAT"
+                 }
+              ]
+           ],
+           "required": true,
+           "tooltip": "Spark schema for the fields in the csv",
+           "qa": "fragment-details-csv-spark-schema"
         },
         {
            "propertyId": "delimiter",
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
-           "required": false,
+           "required": true,
+           "default": ",",
            "tooltip": "Delimiter character in csv string",
            "qa": "fragment-details-csv-delimiter"
         },

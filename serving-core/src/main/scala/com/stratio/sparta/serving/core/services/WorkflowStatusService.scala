@@ -93,14 +93,22 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
           sparkUi = if (workflowStatusWithFields.status == WorkflowStatusEnum.Started) workflowStatusWithFields.sparkUi
           else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.sparkUi else None
         )
-        log.info(s"Updating status ${newStatus.id} with name ${newStatus.name.getOrElse("undefined")}:" +
-          s"\n\tSubmission Id:\t${newStatus.applicationId.getOrElse("undefined")}" +
-          s"\n\tMarathon Id:\t${newStatus.marathonId.getOrElse("undefined")}" +
-          s"\n\tStatus:\t${actualStatus.status}\t${newStatus.status}" +
-          s"\n\tStatus Information:\t${newStatus.statusInfo.getOrElse("undefined")} " +
-          s"\n\tLast Execution Mode:\t${newStatus.lastExecutionMode.getOrElse("undefined")}" +
-          s"\n\tLast Error:\t${newStatus.lastError.getOrElse("undefined")}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
+
+        //Print status information saved
+        val newStatusInformation = new StringBuilder
+        if (actualStatus.status != newStatus.status)
+          newStatusInformation.append(s"\tStatus -> ${actualStatus.status} to ${newStatus.status}")
+        if (actualStatus.statusInfo != newStatus.statusInfo)
+          newStatusInformation.append(
+            s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
+        if (actualStatus.lastError != newStatus.lastError)
+          newStatusInformation.append(
+            s"\tLast Error -> ${newStatus.lastError.getOrElse("No errors registered")}")
+        if (newStatusInformation.nonEmpty)
+          log.info(s"Updating status ${newStatus.name.getOrElse("No name registered")}: " +
+            s"$newStatusInformation")
+
         newStatus
       } else create(workflowStatus)
         .getOrElse(throw new ServerException(s"Unable to create workflow status with id ${workflowStatus.id}."))

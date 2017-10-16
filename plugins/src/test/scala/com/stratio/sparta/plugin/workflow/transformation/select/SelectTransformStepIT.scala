@@ -70,7 +70,8 @@ class SelectTransformStepIT extends TemporalSparkContext with Matchers {
         streamingRegisters.foreach(row => assert(dataDistinct.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 3)
 

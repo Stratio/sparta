@@ -2,7 +2,7 @@
      "name": "Json",
      "icon": "Json",
      "className": "JsonTransformStep",
-     "classPrettyName": "JsonTransformStep",
+     "classPrettyName": "Json",
      "description": "Parsing input field in text format to row",
      "properties": [
         {
@@ -16,6 +16,7 @@
         {
            "propertyId": "fieldsPreservationPolicy",
            "propertyName": "_FIELDS_PRESERVATION_",
+           "required": true,
            "propertyType": "select",
            "default": "REPLACE",
            "values": [
@@ -38,13 +39,14 @@
            "propertyId": "schema.fromRow",
            "propertyName": "_SCHEMA_FROM_ROW_",
            "propertyType": "boolean",
+           "required": true,
            "default": true,
            "tooltip": "If checked, each row schema will be inferred from its contents",
            "qa": "workflow-transformation-json-schema-fromRow"
         },
         {
            "propertyId": "schema.inputMode",
-           "propertyName": "_DESERIALIZER_SCHEMA_MODE_",
+           "propertyName": "_INPUT_SCHEMA_FROM_",
            "propertyType": "select",
            "float": true,
            "visible": [
@@ -57,15 +59,15 @@
            ],
            "values": [
               {
-                 "label": "Schema",
-                 "value": "SCHEMA"
+                 "label": "Spark format",
+                 "value": "SPARKFORMAT"
               },
               {
                  "label": "Example",
                  "value": "EXAMPLE"
               }
            ],
-           "default": "SCHEMA",
+           "default": "SPARKFORMAT",
            "required": true,
            "qa": "workflow-transformation-json-schema-mode"
         },

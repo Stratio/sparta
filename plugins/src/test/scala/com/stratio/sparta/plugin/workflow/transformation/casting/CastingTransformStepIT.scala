@@ -81,7 +81,8 @@ class CastingTransformStepIT extends TemporalSparkContext with Matchers {
         streamingRegisters.foreach(row => assert(dataCasting.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 2)
   }

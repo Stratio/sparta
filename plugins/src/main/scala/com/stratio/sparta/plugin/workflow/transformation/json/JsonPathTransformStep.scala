@@ -18,6 +18,8 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy.{APPEND, REPLACE}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, SchemaCasting, TransformStep}
@@ -38,9 +40,13 @@ class JsonPathTransformStep(name: String,
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorChecking with SchemaCasting {
 
   lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
+
   lazy val supportNullValues: Boolean = properties.getBoolean("supportNullValues", default = true)
+
   lazy val inputField: String = properties.getString("inputField")
-  lazy val addAllInputFields: Boolean = propertiesWithCustom.getBoolean("addAllInputFields", default = true)
+
+  lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
+    properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
 
   assert(inputField.nonEmpty)
 
@@ -52,42 +58,39 @@ class JsonPathTransformStep(name: String,
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] = returnSeqData {
-        val inputSchema = row.schema
-        getNewOutputSchema(inputSchema) match {
-          case Some(outputSchema) =>
-            val inputFieldIndex = inputSchema.fieldIndex(inputField)
-            val inputValue = Option(row.get(inputFieldIndex))
-            val newValues = inputValue match {
-              case Some(value) =>
-                if (value.toString.nonEmpty) {
-                  val valuesParsed = value match {
-                    case valueCast: Array[Byte] =>
-                      JsonPathTransformStep.jsonParse(new Predef.String(valueCast), queriesModel, supportNullValues)
-                    case valueCast: String =>
-                      JsonPathTransformStep.jsonParse(valueCast, queriesModel, supportNullValues)
-                    case _ =>
-                      JsonPathTransformStep.jsonParse(value.toString, queriesModel, supportNullValues)
-                  }
-                  outputSchema.map { outputField =>
-                    valuesParsed.get(outputField.name) match {
-                      case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
-                        castingToOutputSchema(outputField, valueParsed)
-                      case _ =>
-                        Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                          new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")))
-                    }
-                  }
-                } else throw new IllegalStateException(s"The input value is empty")
-              case None => throw new IllegalStateException(s"The input value is null")
+    val inputSchema = row.schema
+    val outputSchema = getNewOutputSchema(inputSchema)
+    val inputFieldIndex = inputSchema.fieldIndex(inputField)
+    val inputValue = Option(row.get(inputFieldIndex))
+    val newValues = inputValue match {
+      case Some(value) =>
+        if (value.toString.nonEmpty) {
+          val valuesParsed = value match {
+            case valueCast: Array[Byte] =>
+              JsonPathTransformStep.jsonParse(new Predef.String(valueCast), queriesModel, supportNullValues)
+            case valueCast: String =>
+              JsonPathTransformStep.jsonParse(valueCast, queriesModel, supportNullValues)
+            case _ =>
+              JsonPathTransformStep.jsonParse(value.toString, queriesModel, supportNullValues)
+          }
+          outputSchema.map { outputField =>
+            valuesParsed.get(outputField.name) match {
+              case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
+                castingToOutputSchema(outputField, valueParsed)
+              case _ =>
+                Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
+                  new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")))
             }
-            new GenericRowWithSchema(newValues.toArray, outputSchema)
-          case None => row
-        }
+          }
+        } else throw new IllegalStateException(s"The input value is empty")
+      case None => throw new IllegalStateException(s"The input value is null")
     }
+    new GenericRowWithSchema(newValues.toArray, outputSchema)
+  }
 
   //scalastyle:on
 
-  def getNewOutputSchema(inputSchema: StructType): Option[StructType] = {
+  def getNewOutputSchema(inputSchema: StructType): StructType = {
     val outputFieldsSchema = queriesModel.queries.map { queryField =>
       val outputType = queryField.`type`.notBlank.getOrElse("string")
       StructField(
@@ -99,10 +102,20 @@ class JsonPathTransformStep(name: String,
         nullable = queryField.nullable.getOrElse(true)
       )
     }
-    val inputFieldsSchema = if(addAllInputFields) inputSchema.fields.toSeq else Seq.empty[StructField]
-    if (outputFieldsSchema.nonEmpty || inputFieldsSchema.nonEmpty) {
-      Option(StructType(inputFieldsSchema ++ outputFieldsSchema))
-    } else None
+
+    preservationPolicy match {
+      case APPEND =>
+        StructType(inputSchema.fields ++ outputFieldsSchema)
+      case REPLACE =>
+        val inputFieldIdx = inputSchema.indexWhere(_.name == inputField)
+        assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
+        val (leftInputFields, rightInputFields) = inputSchema.fields.splitAt(inputFieldIdx)
+        val outputFields = leftInputFields ++ outputFieldsSchema ++ rightInputFields.tail
+
+        StructType(outputFields)
+      case _ =>
+        StructType(outputFieldsSchema)
+    }
   }
 }
 

@@ -16,15 +16,12 @@
 
 package com.stratio.sparta.plugin.workflow.input.kafka
 
-import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.kafka.clients.consumer.{RangeAssignor, RoundRobinAssignor}
 import org.apache.kafka.common.TopicPartition
-import org.apache.kafka.common.serialization.{ByteArrayDeserializer, StringDeserializer}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka010.LocationStrategies
@@ -105,33 +102,20 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
       result should be(Map.empty[TopicPartition, Long])
     }
 
-    "return serializer" in {
-      val properties = Map.empty[String, JSerializable]
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
-
-      val resultString = input.getSerializerByKey("string")
-      resultString should be(classOf[StringDeserializer])
-
-      val resultRow = input.getSerializerByKey("row")
-      resultRow should be(classOf[RowDeserializer])
-
-      val resultarrayByte = input.getSerializerByKey("arraybyte")
-      resultarrayByte should be(classOf[ByteArrayDeserializer])
-
-      val resultOther = input.getSerializerByKey("foo")
-      resultOther should be(classOf[StringDeserializer])
-    }
-
     "return row serializer properties" in {
       val properties = Map("value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.schema" -> "NONE",
+        "value.deserializer.json.schema.fromRow" -> "true",
+        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
+        "value.deserializer.json.schema.provided" -> "",
         "outputField" -> "rawTest",
         "key.deserializer.json.foo" -> "var",
         "test" -> "notinclude")
       val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
       val result = input.getRowSerializerProperties
       result should be(Map("value.deserializer.inputFormat" -> "JSON",
-        "value.deserializer.schema" -> "NONE",
+        "value.deserializer.json.schema.fromRow" -> "true",
+        "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
+        "value.deserializer.json.schema.provided" -> "",
         "value.deserializer.outputField" -> "rawTest",
         "key.deserializer.json.foo" -> "var"
       ))

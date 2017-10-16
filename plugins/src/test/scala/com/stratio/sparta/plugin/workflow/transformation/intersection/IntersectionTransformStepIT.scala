@@ -33,9 +33,6 @@ class IntersectionTransformStepIT extends TemporalSparkContext with Matchers {
 
   "A IntersectionTransformStep" should "intersect DStreams" in {
 
-    val inputStep1 = "step1"
-    val inputStep2 = "step2"
-    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val dataQueue2 = new mutable.Queue[RDD[Row]]()
     val data1 = Seq(Row.fromSeq(Seq("blue", 12.1)),Row.fromSeq(Seq("red", 12.2)))
@@ -45,7 +42,6 @@ class IntersectionTransformStepIT extends TemporalSparkContext with Matchers {
     val stream1 = ssc.queueStream(dataQueue1)
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
-    val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val result = new IntersectionTransformStep(
       "dummy",
@@ -66,7 +62,8 @@ class IntersectionTransformStepIT extends TemporalSparkContext with Matchers {
         streamingRegisters.foreach(row => assert(data1.contains(row)))
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 2)
 

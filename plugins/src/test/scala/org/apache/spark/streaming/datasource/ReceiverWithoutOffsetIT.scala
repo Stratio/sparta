@@ -51,9 +51,10 @@ class ReceiverWithoutOffsetIT extends TemporalDataSuite {
         assert(streamingEvents === totalRegisters.toLong)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(20000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
-    assert(totalEvents.value >= totalRegisters.toLong * 20)
+    assert(totalEvents.value >= totalRegisters.toLong * 3)
   }
 }
 

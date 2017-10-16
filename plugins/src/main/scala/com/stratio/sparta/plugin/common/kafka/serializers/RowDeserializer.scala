@@ -19,16 +19,17 @@ package com.stratio.sparta.plugin.common.kafka.serializers
 import java.util
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.SchemaInputMode
+import com.stratio.sparta.plugin.helper.JsonHelper
 import com.stratio.sparta.sdk.workflow.enumerators.InputFormatEnum
 import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.json.RowJsonHelper._
-import org.apache.spark.sql.types.{DataType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 import scala.collection.JavaConversions._
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 
 class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
@@ -41,21 +42,38 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
 
   //scalastyle:off
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = {
-    val format = {
-      if (isKey)
-        configs.getOrElse("key.deserializer.inputFormat", "STRING")
-      else configs.getOrElse("value.deserializer.inputFormat", "STRING")
-    }.asInstanceOf[String]
-
-    inputFormat = InputFormatEnum.withName(format)
+    inputFormat = InputFormatEnum.withName {
+      {
+        if (isKey)
+          configs.getOrElse("key.deserializer.inputFormat", "STRING")
+        else configs.getOrElse("value.deserializer.inputFormat", "STRING")
+      }.toString
+    }
 
     inputFormat match {
       case InputFormatEnum.JSON =>
-        val schemaConf = {
+        val useRowSchema = {
           if (isKey)
-            configs.getOrElse("key.deserializer.schema", "NONE")
-          else configs.getOrElse("value.deserializer.schema", "NONE")
-        }.asInstanceOf[String]
+            configs.getOrElse("key.deserializer.json.schema.fromRow", "true")
+          else configs.getOrElse("value.deserializer.json.schema.fromRow", "true")
+        }.toString.toBoolean
+        val schemaInputMode = SchemaInputMode.withName {
+          {
+            if (isKey)
+              configs.getOrElse("key.deserializer.json.schema.inputMode", "SPARKFORMAT")
+            else configs.getOrElse("value.deserializer.json.schema.inputMode", "SPARKFORMAT")
+          }.toString.toUpperCase
+        }
+        val schemaProvided = {
+          val inputSchema = {
+            if (isKey)
+              configs.getOrElse("key.deserializer.schema.provided", "")
+            else configs.getOrElse("value.deserializer.schema.provided", "")
+          }.toString
+
+          if (inputSchema.isEmpty) None
+          else Option(inputSchema)
+        }
 
         jsonConf = {
           if (isKey)
@@ -65,19 +83,7 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
             .map { case (key, value) => (key.replace("value.deserializer.json.", ""), value.toString) }
         }.toMap
 
-        jsonSchema = if (schemaConf != "NONE")
-          Try(Option(DataType.fromJson(schemaConf).asInstanceOf[StructType]))
-            .orElse(Try(Option(LegacyTypeStringParser.parse(schemaConf).asInstanceOf[StructType]))) match {
-            case Success(newSchema) =>
-              newSchema
-            case Failure(e) =>
-              log.warn(s"Impossible to parse the schema: $schemaConf, the system infer it from each json event", e)
-              None
-          }
-        else {
-          log.warn("The schema is not provided, the system will infer it from each json event")
-          None
-        }
+        jsonSchema = JsonHelper.getJsonSchema(useRowSchema, schemaInputMode, schemaProvided, jsonConf)
       case InputFormatEnum.STRING =>
         val outputFieldName = {
           if (isKey)

@@ -50,7 +50,8 @@ class TestInputStepIT extends TemporalSparkContext with Matchers {
       assert(rdd.first() === generatedRow)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(4000L)
+    ssc.stop()
+    ssc.awaitTerminationOrTimeout(3000L)
   }
 
   "TestInputStep " should "generate number records on each streaming batch" in {
@@ -79,7 +80,8 @@ class TestInputStepIT extends TemporalSparkContext with Matchers {
 
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(4000L)
+    ssc.stop()
+    ssc.awaitTerminationOrTimeout(3000L)
   }
 }
 

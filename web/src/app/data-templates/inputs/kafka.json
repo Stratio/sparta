@@ -71,41 +71,10 @@
           "tooltip": "Identifies the consumer group this consumer belongs to.",
           "qa": "fragment-details-stratio-kafkadirect-group-id"
        },
-      {
-        "propertyId": "value.deserializer",
-        "propertyName": "_VALUE_DESERIALIZER_",
-        "propertyType": "select",
-         "required": true,
-        "values": [
-          {
-            "label": "String",
-            "value": "string"
-          },
-          {
-            "label": "Row",
-            "value": "row"
-          },
-          {
-            "label": "Array Byte",
-            "value": "arraybyte"
-          }
-        ],
-        "default": "string",
-        "qa": "fragment-details-stratiokafkadirect-value-deserializer"
-      },
        {
           "propertyId": "value.deserializer.inputFormat",
           "propertyName": "_DESERIALIZER_INPUT_FORMAT_",
           "propertyType": "select",
-          "float": true,
-          "visible": [
-             [
-                {
-                   "propertyId": "value.deserializer",
-                   "value": "row"
-                }
-             ]
-          ],
           "values": [
              {
                 "label": "String",
@@ -118,24 +87,7 @@
           ],
           "default": "STRING",
           "required": true,
-          "qa": "fragment-details-stratiokafkadirect-deserializer-input-format"
-       },
-       {
-          "propertyId": "key.deserializer.schema",
-          "propertyName": "_DESERIALIZER_SCHEMA_",
-          "propertyType": "text",
-          "tooltip": "Schema in json or Spark format",
-          "default": "",
-          "visible": [
-             [
-                {
-                   "propertyId": "value.deserializer.inputFormat",
-                   "value": "JSON"
-                }
-             ]
-          ],
-          "required": false,
-          "qa": "fragment-details-stratiokafkadirect-deserializer-json"
+          "qa": "fragment-details-kafka-deserializer-input-format"
        },
        {
           "propertyId": "outputField",
@@ -146,14 +98,6 @@
           "visible": [
              [
                 {
-                   "propertyId": "value.deserializer",
-                   "value": "string"
-                },
-                {
-                   "propertyId": "value.deserializer",
-                   "value": "arraybyte"
-                },
-                {
                    "propertyId": "value.deserializer.inputFormat",
                    "value": "STRING"
                 }
@@ -161,6 +105,75 @@
           ],
           "tooltip": "Name assigned to the output field generated",
           "qa": "fragment-details-kafka-outputField"
+       },
+       {
+          "propertyId": "value.deserializer.json.schema.fromRow",
+          "propertyName": "_SCHEMA_FROM_ROW_",
+          "propertyType": "boolean",
+          "required": true,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "JSON"
+                }
+             ]
+          ],
+          "default": true,
+          "tooltip": "If checked, each row schema will be inferred from its contents",
+          "qa": "workflow-transformation-kafka-schema-fromRow"
+       },
+       {
+          "propertyId": "value.deserializer.json.schema.inputMode",
+          "propertyName": "_INPUT_SCHEMA_FROM_",
+          "propertyType": "select",
+          "float": true,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "JSON"
+                },
+                {
+                   "propertyId": "value.deserializer.json.schema.fromRow",
+                   "value": false
+                }
+             ]
+          ],
+          "values": [
+             {
+                "label": "Spark format",
+                "value": "SPARKFORMAT"
+             },
+             {
+                "label": "Example",
+                "value": "EXAMPLE"
+             }
+          ],
+          "default": "SPARKFORMAT",
+          "required": true,
+          "qa": "workflow-transformation-kafka-schema-mode"
+       },
+       {
+          "propertyId": "value.deserializer.json.schema.provided",
+          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyType": "text",
+          "tooltip": "Schema in json/Spark format or from example",
+          "default": "",
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "JSON"
+                },
+                {
+                   "propertyId": "value.deserializer.json.schema.fromRow",
+                   "value": false
+                }
+             ]
+          ],
+          "required": false,
+          "qa": "fragment-details-kafka-deserializer-json"
        },
       {
         "propertyId": "partition.assignment.strategy",

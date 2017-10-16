@@ -40,7 +40,7 @@ private[datasource] trait TemporalDataSuite extends DatasourceSuite
     StructField("id", StringType, nullable = true),
     StructField("idInt", IntegerType, nullable = true)
   ))
-  val totalRegisters = 10000
+  val totalRegisters = 1000
   val registers = for (a <- 1 to totalRegisters) yield Row(a.toString, a)
 
   after {

@@ -60,40 +60,17 @@ class KafkaInputStep(
   //scalastyle:off
   def initStream(): DStream[Row] = {
     val brokerList = getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
-    val serializerProperty = properties.getString("value.deserializer", "row")
     val serializers = Map(
       "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> getSerializerByKey(serializerProperty)
+      "value.deserializer" -> classOf[RowDeserializer]
     )
     val kafkaSecurityOptions = securityOptions(ssc.sparkContext.getConf)
+    val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
+      getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
+      getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
+    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc, getLocationStrategy, consumerStrategy)
+    val outputDStream = inputDStream.map(data => data.value())
 
-    val (inputDStream, outputDStream) = serializerProperty match {
-      case "arraybyte" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Array[Byte]](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ brokerList ++ getGroupId ++ getPartitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, getOffsets)
-        val inputStream = KafkaUtils.createDirectStream[String, Array[Byte]](ssc, getLocationStrategy, consumerStrategy)
-        val outputStream = inputStream.map(data =>
-          new GenericRowWithSchema(Array(new String(data.value())), outputSchema))
-
-        (inputStream, outputStream)
-      case "row" =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
-          getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
-        val inputStream = KafkaUtils.createDirectStream[String, Row](ssc, getLocationStrategy, consumerStrategy)
-        val outputStream = inputStream.map(data => data.value())
-
-        (inputStream, outputStream)
-      case _ =>
-        val consumerStrategy = ConsumerStrategies.Subscribe[String, String](extractTopics, getAutoCommit ++
-          getAutoOffset ++ serializers ++ brokerList ++ getGroupId ++ getPartitionStrategy ++
-          kafkaSecurityOptions ++ getCustomProperties, getOffsets)
-        val inputStream = KafkaUtils.createDirectStream[String, String](ssc, getLocationStrategy, consumerStrategy)
-        val outputStream = inputStream.map(data => new GenericRowWithSchema(Array(data.value()), outputSchema))
-
-        (inputStream, outputStream)
-    }
 
     if (!getAutoCommit.head._2 && getAutoCommitInKafka) {
       inputDStream.foreachRDD { rdd =>
@@ -158,28 +135,24 @@ class KafkaInputStep(
 
   /** SERIALIZERS **/
 
-  def getSerializerByKey(serializerKey: String): Class[_ >: StringDeserializer with ByteArrayDeserializer
-    with RowDeserializer <: Deserializer[_ >: String with Array[Byte] with Row]] =
-    serializerKey match {
-      case "string" => classOf[StringDeserializer]
-      case "arraybyte" => classOf[ByteArrayDeserializer]
-      case "row" => classOf[RowDeserializer]
-      case _ => classOf[StringDeserializer]
-    }
-
+  //scalastyle:off
   def getRowSerializerProperties: Map[String, String] =
     Map(
       "value.deserializer.inputFormat" -> properties.getString("value.deserializer.inputFormat", "STRING"),
-      "value.deserializer.schema" -> properties.getString("value.deserializer.schema", "NONE"),
+      "value.deserializer.json.schema.fromRow" -> properties.getBoolean("value.deserializer.json.schema.fromRow", true).toString,
+      "value.deserializer.json.schema.inputMode" -> properties.getString("value.deserializer.json.schema.inputMode", "SPARKFORMAT"),
+      "value.deserializer.json.schema.provided" -> properties.getString("value.deserializer.json.schema.provided", ""),
       "value.deserializer.outputField" -> outputField
     ) ++ properties.mapValues(_.toString).filterKeys(key => key.contains("key.deserializer.json"))
+
+  //scalastyle:on
 
   /** OFFSETS MANAGEMENT **/
 
   def getAutoOffset: Map[String, String] =
     Map("auto.offset.reset" -> properties.getString("auto.offset.reset", "latest"))
 
-  def getAutoCommit: Map[String, java.lang.Boolean] ={
+  def getAutoCommit: Map[String, java.lang.Boolean] = {
     val autoCommit = properties.getBoolean("enable.auto.commit", default = false)
     Map("enable.auto.commit" -> autoCommit)
   }

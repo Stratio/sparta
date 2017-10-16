@@ -34,6 +34,7 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.concurrent.duration._
 import scalax.collection.Graph
@@ -92,8 +93,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
     val window = AggregationTime.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
     val ssc = sparkStreamingInstance(Duration(window),
-      workflowCheckpointPath,
-      workflow.settings.streamingSettings.remember
+      workflowCheckpointPath.notBlank,
+      workflow.settings.streamingSettings.remember.notBlank
     )
     val xDSession = xdSessionInstance
 

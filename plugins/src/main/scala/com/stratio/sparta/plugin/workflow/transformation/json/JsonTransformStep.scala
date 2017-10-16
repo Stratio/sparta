@@ -19,65 +19,50 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.JsonHelper
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, TransformStep}
-import org.apache.spark.sql.json.RowJsonHelper.{toRow, extractSchemaFromJson}
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.json.RowJsonHelper.{extractSchemaFromJson, toRow}
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
-import org.apache.spark.sql.types.{DataType, StructType}
-
-import scala.util.{Failure, Try}
 
 class JsonTransformStep(
-                                 name: String,
-                                 outputOptions: OutputOptions,
-                                 ssc: StreamingContext,
-                                 xDSession: XDSession,
-                                 properties: Map[String, JSerializable]
-                               ) extends TransformStep(name, outputOptions, ssc, xDSession, properties)
+                         name: String,
+                         outputOptions: OutputOptions,
+                         ssc: StreamingContext,
+                         xDSession: XDSession,
+                         properties: Map[String, JSerializable]
+                       ) extends TransformStep(name, outputOptions, ssc, xDSession, properties)
   with ErrorChecking with SLF4JLogging {
 
+  lazy val inputFieldName: String = properties.getString("inputField")
 
-  val inputFieldName: String = properties.getString("inputField")
-  val rowUpdatePolicy: String = properties.getString("fieldsPreservationPolicy", default = "REPLACE")
+  lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
+    properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
 
-  val useRowSchema = properties.getBoolean("schema.fromRow", true)
+  lazy val useRowSchema: Boolean = properties.getBoolean("schema.fromRow", true)
 
-  val schemaByExample = !useRowSchema &&
-    properties.getString("schema.inputMode", None).map(_ == "EXAMPLE").getOrElse(false)
+  lazy val schemaInputMode: SchemaInputMode.Value = SchemaInputMode.withName(
+    properties.getString("schema.inputMode", "SPARKFORMAT").toUpperCase)
 
-  val providedSchema = properties.getString("schema.provided", None) flatMap { schemaStr =>
+  lazy val schemaProvided: Option[String] = properties.getString("schema.provided", None)
 
-    if(useRowSchema) None
-    else {
-      Try(extractSchemaFromJson(schemaStr, Map.empty)).filter(_ => schemaByExample) orElse
-      Try { // Try to deserialize the schema assuming it is in JSON format
-        DataType.fromJson(schemaStr)
-      } orElse Try { // If it wasn't a JSON, try assuming it is an string serialization of `StructType`
-        LegacyTypeStringParser.parse(schemaStr)
-      } flatMap { schema =>
-        Try(schema.asInstanceOf[StructType])
-      } recoverWith {
-        case e =>
-          log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each json event", e)
-          Failure(e)
-      } toOption
-    }
-
-  }
+  lazy val jsonSchema: Option[StructType] = JsonHelper.getJsonSchema(useRowSchema, schemaInputMode, schemaProvided)
 
   def updateRow(source: Row, extracted: Row, inputFieldIdx: Int): Row =
-    rowUpdatePolicy match {
-      case "APPEND" =>
+    preservationPolicy match {
+      case APPEND =>
         val values = (source.toSeq ++ extracted.toSeq).toArray
         val schema = StructType(source.schema ++ extracted.schema)
-        new GenericRowWithSchema(values , schema)
+        new GenericRowWithSchema(values, schema)
 
-      case "REPLACE" =>
+      case REPLACE =>
         val (leftInputFields, rightInputFields) = source.schema.fields.splitAt(inputFieldIdx)
         val (leftValues, rightValues) = source.toSeq.toArray.splitAt(inputFieldIdx)
 
@@ -102,11 +87,10 @@ class JsonTransformStep(
 
         val value = row(inputFieldIdx).asInstanceOf[String]
 
-        val embeddedRowSchema = providedSchema getOrElse extractSchemaFromJson(value, Map.empty)
+        val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
         val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
 
         updateRow(row, embeddedRow, inputFieldIdx)
-
       }
     }
   }

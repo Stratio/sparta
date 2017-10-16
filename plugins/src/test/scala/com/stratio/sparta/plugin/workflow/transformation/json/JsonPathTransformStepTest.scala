@@ -77,7 +77,8 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json", "addAllInputFields" -> false)
+        Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
       val expected = Seq(Row("red", 19.95))
 
@@ -107,7 +108,9 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "addAllInputFields" -> "true", "inputField" -> "json")
+        Map("queries" -> queries.asInstanceOf[JSerializable],
+          "fieldsPreservationPolicy" -> "APPEND",
+          "inputField" -> "json")
       ).parse(input)
       val expected = Seq(Row(JSON, "red", 19.95))
 
@@ -132,7 +135,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[IllegalArgumentException] should be thrownBy new JsonPathTransformStep(
+      an[AssertionError] should be thrownBy new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
@@ -200,7 +203,10 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
+        Map("queries" -> queries.asInstanceOf[JSerializable],
+          "whenError" -> WhenError.Null,
+          "fieldsPreservationPolicy" -> "APPEND",
+          "inputField" -> "json")
       ).parse(input)
       val expected = Seq(Row(JSON, "red", null))
 
@@ -238,7 +244,10 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Null, "inputField" -> "json")
+        Map("queries" -> queries.asInstanceOf[JSerializable],
+          "fieldsPreservationPolicy" -> "APPEND",
+          "whenError" -> WhenError.Null,
+          "inputField" -> "json")
       ).parse(input)
       val expected = Seq(Row(JSON, "red", null))
 
@@ -271,14 +280,19 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[PathNotFoundException] should be thrownBy new JsonPathTransformStep(
+      val transform = new JsonPathTransformStep(
         "json",
         outputOptions,
         null,
         null,
-        Map("queries" -> queries.asInstanceOf[JSerializable], "whenError" -> WhenError.Error, "inputField" -> "json",
-          "supportNullValues" -> "false")
-      ).parse(input)
+        Map("queries" -> queries.asInstanceOf[JSerializable],
+          "whenError" -> WhenError.Error,
+          "inputField" -> "json",
+          "supportNullValues" -> false,
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+      )
+
+      an[PathNotFoundException] should be thrownBy transform.parse(input)
     }
   }
 }

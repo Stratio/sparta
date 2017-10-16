@@ -53,7 +53,8 @@ class ReceiverBasicIT extends TemporalDataSuite {
         assert(streamingRegisters === registers.reverse)
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(20000L)
+    ssc.awaitTerminationOrTimeout(6000L)
+    ssc.stop()
 
     assert(totalEvents.value === totalRegisters.toLong)
   }

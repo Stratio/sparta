@@ -26,7 +26,7 @@ import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructTy
 import org.scalatest.{Matchers, WordSpecLike}
 
 
-class CSVTransformStepTest extends WordSpecLike
+class CsvTransformStepTest extends WordSpecLike
   with Matchers{
 
   val inputField = "csv"
@@ -48,14 +48,15 @@ class CSVTransformStepTest extends WordSpecLike
 
       val input = new GenericRowWithSchema(Array(CSV), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new CSVTransformStep(
+      val result = new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> false)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
 
       val expected = Seq(Row("red", 19.95))
@@ -75,14 +76,73 @@ class CSVTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      val result = new CSVTransformStep(
+      val result = new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> true)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "APPEND")
+      ).parse(input)
+
+      val expected = Seq(Row(CSV,"red", 19.95))
+      expected should be eq result
+    }
+
+    "parse a CSV string adding also the input fields with header schema" in {
+      val input = new GenericRowWithSchema(Array(CSV), schema)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
+      val header = "name,price"
+      val result = new CsvTransformStep(
+        inputField,
+        outputOptions,
+        null,
+        null,
+        Map("schema.header" -> header,
+          "inputField" -> inputField,
+          "schema.inputMode" -> "HEADER",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+      ).parse(input)
+
+      val expected = Seq(Row(CSV,"red", "19.95"))
+      expected should be eq result
+    }
+
+    "parse a CSV string adding the input fields with header schema and change the input field" in {
+      val input = new GenericRowWithSchema(Array("var", CSV),
+        StructType(Seq(StructField("foo", StringType), StructField(inputField, StringType))))
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
+      val header = "name,price"
+      val result = new CsvTransformStep(
+        inputField,
+        outputOptions,
+        null,
+        null,
+        Map("schema.header" -> header,
+          "inputField" -> inputField,
+          "schema.inputMode" -> "HEADER",
+          "fieldsPreservationPolicy" -> "REPLACE")
+      ).parse(input)
+
+      val expected = Seq(Row("var", "red", "19.95"))
+      expected should be eq result
+    }
+
+    "parse a CSV string adding also the input fields with spark schema" in {
+      val input = new GenericRowWithSchema(Array(CSV), schema)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
+      val sparkSchema = "StructType((StructField(name,StringType,true),StructField(age,DoubleType,true)))"
+      val result = new CsvTransformStep(
+        inputField,
+        outputOptions,
+        null,
+        null,
+        Map("schema.sparkSchema" -> sparkSchema,
+          "inputField" -> inputField,
+          "schema.inputMode" -> "SPARKFORMAT",
+          "fieldsPreservationPolicy" -> "APPEND")
       ).parse(input)
 
       val expected = Seq(Row(CSV,"red", 19.95))
@@ -103,14 +163,15 @@ class CSVTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalArgumentException] should be thrownBy new CSVTransformStep(
+      an[IllegalArgumentException] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> false)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
     }
 
@@ -130,14 +191,15 @@ class CSVTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalStateException] should be thrownBy new CSVTransformStep(
+      an[IllegalStateException] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> false)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
     }
 
@@ -154,14 +216,15 @@ class CSVTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new CSVTransformStep(
+      an[Exception] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> false)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
     }
 
@@ -179,14 +242,15 @@ class CSVTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalStateException] should be thrownBy new CSVTransformStep(
+      an[IllegalStateException] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
         null,
-        Map("fields" -> fields.asInstanceOf[JSerializable],
+        Map("schema.fields" -> fields.asInstanceOf[JSerializable],
           "inputField" -> inputField,
-          "addAllInputFields" -> false)
+          "schema.inputMode" -> "FIELDS",
+          "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
     }
   }

@@ -32,7 +32,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class CSVTransformStepIT extends TemporalSparkContext with Matchers {
+class CsvTransformStepIT extends TemporalSparkContext with Matchers {
 
   "A CSVTransformStepIT" should "transform csv events the input DStream" in {
 
@@ -64,14 +64,15 @@ class CSVTransformStepIT extends TemporalSparkContext with Matchers {
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 
-    val result = new CSVTransformStep(
+    val result = new CsvTransformStep(
       "dummy",
       outputOptions,
       ssc,
       sparkSession,
-      Map("fields" -> fields.asInstanceOf[JSerializable],
+      Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
-        "addAllInputFields" -> false)
+        "schema.inputMode" -> "FIELDS",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -88,7 +89,8 @@ class CSVTransformStepIT extends TemporalSparkContext with Matchers {
         }
     })
     ssc.start()
-    ssc.awaitTerminationOrTimeout(10000L)
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
     assert(totalEvents.value === 2)
   }

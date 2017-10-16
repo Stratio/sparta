@@ -1,6 +1,6 @@
   {
      "name": "JsonPath",
-     "icon": "Json",
+     "icon": "JsonPath",
      "className": "JsonPathTransformStep",
      "classPrettyName": "JsonPath",
      "description": "Parsing input field with json format to selected output fields",
@@ -12,6 +12,28 @@
            "required": true,
            "tooltip": "Filed that contains the json string",
            "qa": "fragment-details-casting-fieldsString"
+        },
+        {
+           "propertyId": "fieldsPreservationPolicy",
+           "propertyName": "_FIELDS_PRESERVATION_",
+           "required": true,
+           "propertyType": "select",
+           "default": "REPLACE",
+           "values": [
+              {
+                 "label": "Replacing input field",
+                 "value": "REPLACE"
+              },
+              {
+                 "label": "Appending extracted",
+                 "value": "APPEND"
+              },
+              {
+                 "label": "Keeping just extracted",
+                 "value": "JUST_EXTRACTED"
+              }
+           ],
+           "qa": "workflow-transformation-jsonpath-fieldsPreservationPolicy"
         },
         {
            "propertyId": "queries",
@@ -129,22 +151,6 @@
            ]
         },
         {
-           "propertyId": "supportNullValues",
-           "propertyName": "_SUPPORT_NULL_VALUES_",
-           "propertyType": "boolean",
-           "default": true,
-           "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
-           "qa": "workflow-transformation-json-supportNullValues"
-        },
-        {
-           "propertyId": "addAllInputFields",
-           "propertyName": "_ADD_ALL_INPUT_FIELDS_",
-           "propertyType": "boolean",
-           "default": true,
-           "tooltip": "If checked, the output fields contains all the input fields",
-           "qa": "workflow-transformation-json-addAllInputFields"
-        },
-        {
            "propertyId": "whenError",
            "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
            "propertyType": "select",
@@ -152,8 +158,8 @@
            "required": true,
            "values": [
               {
-              "label": "Error",
-              "value": "Error"
+                 "label": "Error",
+                 "value": "Error"
               },
               {
                  "label": "Discard",
@@ -165,6 +171,14 @@
               }
            ],
            "qa": "workflow-transformation-json-whenError"
+        },
+        {
+           "propertyId": "supportNullValues",
+           "propertyName": "_SUPPORT_NULL_VALUES_",
+           "propertyType": "boolean",
+           "default": true,
+           "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
+           "qa": "workflow-transformation-json-supportNullValues"
         }
      ]
   }
