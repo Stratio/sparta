@@ -16,33 +16,27 @@
 package com.stratio.sparta.testsAT.automated.dcos.installations;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
+import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
-import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1273_AddConfigurationForSparta_IT.feature",
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
+    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
+    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1273_AddConfigurationForSparta_IT.feature",
+    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
+    "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
 })
-public class SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT extends BaseTest {
 
-    @BeforeClass(groups = {"sparta_eos"})
-    public void setUp() {
-        ThreadProperty.set("Driver", "inst");
-
-    }
-
-    public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT() {this.browser = browser;
+public class SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT extends BaseTest  {
+    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+    public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT(String browser) {
+        this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})
-    public void AppWithoutSecurityTest() throws Exception {
+    public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
 }

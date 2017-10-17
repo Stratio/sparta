@@ -66,16 +66,10 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
   #Add Sparta Policy
   Scenario: [SPARTA-1182][Scenario-3] Add sparta policy for authorization in sparta with full security
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
-      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
+      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}_auto     | n/a |
+      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}_auto     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
-
-  #Remove Sparta
-  @ignore @manual
-  Scenario: [SPARTA-1182][Scenario-4] Remove Instalation with full security in DCOS
-    When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}' in the ssh connection
-    Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | grep R | wc -l' contains '0'
 
   #Remove Policy
   Scenario: [SPARTA-1182][Scenario-5]Delete zk-sparta Policy

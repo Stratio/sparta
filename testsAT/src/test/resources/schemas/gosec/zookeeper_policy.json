@@ -64,9 +64,15 @@
             {
               "resourceType": "zkNode",
               "name": "/",
-              "recursive": false,
+              "recursive": true,
               "actions": [
-                "Read"
+                "Read",
+                "Write",
+                "Delete",
+                "Create",
+                "Manage",
+                "Audit",
+                "ViewPolicies"
               ],
               "allActions": []
             }
