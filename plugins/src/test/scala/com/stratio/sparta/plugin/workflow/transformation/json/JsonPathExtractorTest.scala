@@ -17,9 +17,12 @@
 package com.stratio.sparta.plugin.workflow.transformation.json
 
 import com.jayway.jsonpath.PathNotFoundException
+import org.junit.runner.RunWith
 import org.scalatest._
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
+@RunWith(classOf[JUnitRunner])
 class JsonPathExtractorTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   val JSON = """{ "store": {

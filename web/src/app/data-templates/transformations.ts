@@ -16,6 +16,8 @@
 
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
+import * as csvTemplate from './transformations/csv.json';
+import * as explodeTemplate from './transformations/explode.json';
 import * as distinctTemplate from './transformations/distinct.json';
 import * as filterTemplate from './transformations/filter.json';
 import * as intersectionTemplate from './transformations/intersection.json';
@@ -26,13 +28,13 @@ import * as selectTemplate from './transformations/select.json';
 import * as triggerTemplate from './transformations/trigger.json';
 import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
-import * as csvTemplate from './transformations/csv.json';
 
 export const transformations: any = [
    castingTemplate,
    checkpointTemplate,
    csvTemplate,
    distinctTemplate,
+   explodeTemplate,
    filterTemplate,
    intersectionTemplate,
    jsonPathTemplate,

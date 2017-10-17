@@ -148,7 +148,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceUpdateList -> "Error updating workflows",
     WorkflowServiceDeleteAll -> "Error deleting all workflows",
     WorkflowServiceDeleteList -> "Error deleting workflows",
-    WorkflowServiceDeleteById -> "Error deleting workflows by ID's",
+    WorkflowServiceDeleteById -> "Error deleting workflows by ID",
     WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",
     WorkflowServiceRun -> "Error running workflow",
     WorkflowServiceDownload -> "Error downloading workflow",

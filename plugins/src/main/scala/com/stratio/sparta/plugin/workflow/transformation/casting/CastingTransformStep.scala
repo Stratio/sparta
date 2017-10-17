@@ -77,14 +77,14 @@ class CastingTransformStep(name: String,
     */
   def castingFields(streamData: DStream[Row]): DStream[Row] =
     streamData.flatMap { row =>
-      returnSeqData {
+      returnSeqDataFromRow {
         val inputSchema = row.schema
         (compareToOutputSchema(row.schema), outputFieldsSchema) match {
           case (false, Some(outputSchema)) =>
             val newValues = outputSchema.map { outputField =>
               Try {
                 inputSchema.find(_.name == outputField.name)
-                  .getOrElse(throw new IllegalStateException(
+                  .getOrElse(throw new Exception(
                     s"Output field: ${outputField.name} not found in the schema: $inputSchema"))
                   .dataType
               } match {
@@ -98,7 +98,7 @@ class CastingTransformStep(name: String,
                     case Success(dataRow) =>
                       dataRow
                     case Failure(e) =>
-                      returnWhenError(new IllegalStateException(
+                      returnWhenError(new Exception(
                         s"Impossible to find outputField: $outputField in the schema $inputSchema", e))
                   }
                 case Failure(e: Exception) =>

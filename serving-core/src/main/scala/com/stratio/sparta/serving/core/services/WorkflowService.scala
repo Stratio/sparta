@@ -112,7 +112,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         log.info(s"Deleting workflow with id: $id")
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
-      } else log.warn(s"No workflow with id $id")
+      } else throw new ServerException(s"No workflow with id $id")
     }
 
   def deleteList(workflowIds: Seq[String]): Try[Unit] =

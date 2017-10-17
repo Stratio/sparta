@@ -94,7 +94,7 @@ class CsvTransformStep(name: String,
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] =
-    returnSeqData {
+    returnSeqDataFromRow {
       val inputSchema = row.schema
       val outputSchema = getNewOutputSchema(inputSchema)
       val inputValue = Option(row.get(inputSchema.fieldIndex(inputField)))
@@ -127,17 +127,17 @@ class CsvTransformStep(name: String,
                       castingToOutputSchema(outputField, valueParsed)
                     case None =>
                       Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                        new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")))
+                        new Exception(s"Impossible to parse outputField: $outputField in the schema")))
                   }
                 }
               }
-              else returnWhenError(new IllegalStateException(s"The number of values splitted does not match the number of " +
+              else returnWhenError(new Exception(s"The number of values splitted does not match the number of " +
                 s"fields defined in the schema"))
             }
-            else returnWhenError(new IllegalStateException(s"The input value is empty"))
+            else returnWhenError(new Exception(s"The input value is empty"))
 
           case None =>
-            returnWhenError(new IllegalStateException(s"The input value is null"))
+            returnWhenError(new Exception(s"The input value is null"))
         }
       new GenericRowWithSchema(newValues.toArray, outputSchema)
     }

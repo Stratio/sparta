@@ -57,7 +57,7 @@ class JsonPathTransformStep(name: String,
     applyHeadTransform(inputData)(transformFunction)
 
   //scalastyle:off
-  def parse(row: Row): Seq[Row] = returnSeqData {
+  def parse(row: Row): Seq[Row] = returnSeqDataFromRow {
     val inputSchema = row.schema
     val outputSchema = getNewOutputSchema(inputSchema)
     val inputFieldIndex = inputSchema.fieldIndex(inputField)
@@ -79,11 +79,11 @@ class JsonPathTransformStep(name: String,
                 castingToOutputSchema(outputField, valueParsed)
               case _ =>
                 Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                  new IllegalStateException(s"Impossible to parse outputField: $outputField in the schema")))
+                  new Exception(s"Impossible to parse outputField: $outputField in the schema")))
             }
           }
-        } else throw new IllegalStateException(s"The input value is empty")
-      case None => throw new IllegalStateException(s"The input value is null")
+        } else throw new Exception(s"The input value is empty")
+      case None => throw new Exception(s"The input value is null")
     }
     new GenericRowWithSchema(newValues.toArray, outputSchema)
   }

@@ -24,17 +24,26 @@ import scala.util.{Failure, Success, Try}
 trait ErrorChecking {
   self: GraphStep =>
 
-  def returnSeqData(newData: => Row): Seq[Row] =
+  def returnSeqDataFromRow(newData: => Row): Seq[Row] = manageErrorWithTry(newData)
+
+  def returnSeqDataFromRows(newData: => Seq[Row]): Seq[Row] = manageErrorWithTry(newData)
+
+  private def manageErrorWithTry[T](newData: => T): Seq[Row] =
     Try(newData) match {
-      case Success(data: GenericRowWithSchema) => Seq(data)
-      case Success(_) => whenErrorDo match {
-        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
-        case _ => throw new IllegalStateException("Invalid new data in step")
-      }
+      case Success(data) => manageSuccess(data)
       case Failure(e) => whenErrorDo match {
         case WhenError.Discard => Seq.empty[GenericRowWithSchema]
         case _ => throw e
       }
     }
 
+  private def manageSuccess[T](newData: T): Seq[Row] =
+    newData match {
+      case data: Seq[GenericRowWithSchema] => data
+      case data: GenericRowWithSchema => Seq(data)
+      case _ => whenErrorDo match {
+        case WhenError.Discard => Seq.empty[GenericRowWithSchema]
+        case _ => throw new Exception("Invalid new data struct in step")
+      }
+    }
 }

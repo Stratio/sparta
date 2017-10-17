@@ -80,7 +80,7 @@ class JsonTransformStep(
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     inputStream flatMap { row =>
-      returnSeqData {
+      returnSeqDataFromRow {
         val inputSchema = row.schema
         val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
         assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
@@ -91,6 +91,7 @@ class JsonTransformStep(
         val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
 
         updateRow(row, embeddedRow, inputFieldIdx)
+
       }
     }
   }

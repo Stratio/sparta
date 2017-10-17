@@ -23,9 +23,11 @@ import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
-
+@RunWith(classOf[JUnitRunner])
 class CsvTransformStepTest extends WordSpecLike
   with Matchers{
 
@@ -163,7 +165,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalArgumentException] should be thrownBy new CsvTransformStep(
+      an[Exception] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
@@ -191,7 +193,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalStateException] should be thrownBy new CsvTransformStep(
+      an[Exception] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
@@ -242,7 +244,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[IllegalStateException] should be thrownBy new CsvTransformStep(
+      an[Exception] should be thrownBy new CsvTransformStep(
         inputField,
         outputOptions,
         null,
