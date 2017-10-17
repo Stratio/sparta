@@ -95,16 +95,18 @@ trait HttpServiceBaseTest extends WordSpec
   }
 
   protected def getWorkflowExecutionModel: WorkflowExecution =
-    WorkflowExecution(id = "id",
-      driverClass = "class",
-      driverFile = "driverFile",
-      master = "local[*]",
-      submitArguments = Map.empty[String, String],
-      sparkConfigurations = Map.empty[String, String],
-      driverArguments = Map.empty[String, String],
-      killUrl = "url",
-      sparkHome = None
-  )
+    WorkflowExecution(
+      id = "exec1",
+      sparkSubmitExecution = SparkSubmitExecution(
+        driverClass = "driver",
+        driverFile = "file",
+        master = "master",
+        submitArguments = Map(),
+        sparkConfigurations = Map(),
+        driverArguments = Map(),
+        sparkHome = "sparkHome"
+      )
+    )
 
   protected def getSpartaFiles: Seq[SpartaFile] =
     Seq(SpartaFile(fileName = "file.jar",

@@ -46,7 +46,7 @@ object SparkContextFactory extends SLF4JLogging {
             file
           case Failure(e) =>
             val refFile = "/reference.conf"
-            log.warn(s"Error loading Crossdata configuration file.", e)
+            log.debug(s"Error loading Crossdata configuration file.", e)
             log.info(s"Loading Crossdata configuration from resource file $refFile ...")
             new File(getClass.getResource("/reference.conf").getPath)
         }
@@ -87,7 +87,7 @@ object SparkContextFactory extends SLF4JLogging {
     sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
       synchronized {
         try {
-          log.info("Stopping SparkContext named: " + sparkContext.appName)
+          log.debug("Stopping SparkContext named: " + sparkContext.appName)
           sparkContext.stop()
           log.info("SparkContext named: " + sparkContext.appName + "stopped correctly")
         } finally {
@@ -150,7 +150,7 @@ object SparkContextFactory extends SLF4JLogging {
     ssc.fold(log.warn("Spark Streaming Context is empty")) { streamingContext =>
       try {
         synchronized {
-          log.info(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
+          log.debug(s"Stopping Streaming Context named: ${streamingContext.sparkContext.appName}")
           Try(streamingContext.stop(stopSparkContext = false, stopGracefully = false)) match {
             case Success(_) =>
               log.info("Streaming Context has been stopped")

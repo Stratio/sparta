@@ -223,10 +223,11 @@ class MarathonService(context: ActorContext,
     }
 
   private def addRequirements(app: CreateApp, workflowModel: Workflow, submitRequest: WorkflowExecution): CreateApp = {
-    val newCpus = submitRequest.sparkConfigurations.get("spark.driver.cores").map(_.toDouble).getOrElse(app.cpus)
-    val newMem = submitRequest.sparkConfigurations.get("spark.driver.memory").map(transformMemoryToInt)
-      .getOrElse(app.mem)
-    val envFromSubmit = submitRequest.sparkConfigurations.flatMap { case (key, value) =>
+    val newCpus = submitRequest.sparkSubmitExecution.sparkConfigurations.get("spark.driver.cores")
+      .map(_.toDouble).getOrElse(app.cpus)
+    val newMem = submitRequest.sparkSubmitExecution.sparkConfigurations.get("spark.driver.memory")
+      .map(transformMemoryToInt).getOrElse(app.mem)
+    val envFromSubmit = submitRequest.sparkSubmitExecution.sparkConfigurations.flatMap { case (key, value) =>
       if (key.startsWith("spark.mesos.driverEnv.")) {
         Option((key.split("spark.mesos.driverEnv.").tail.head, JsString(value)))
       } else None
@@ -316,8 +317,8 @@ class MarathonService(context: ActorContext,
       MesosNativeJavaLibraryEnv -> mesosNativeLibrary.orElse(Option(HostMesosNativeLib)),
       LdLibraryEnv -> ldNativeLibrary,
       AppJarEnv -> marathonJar,
-      ZookeeperConfigEnv -> submitRequest.driverArguments.get("zookeeperConfig"),
-      DetailConfigEnv -> submitRequest.driverArguments.get("detailConfig"),
+      ZookeeperConfigEnv -> submitRequest.sparkSubmitExecution.driverArguments.get("zookeeperConfig"),
+      DetailConfigEnv -> submitRequest.sparkSubmitExecution.driverArguments.get("detailConfig"),
       WorkflowIdEnv -> workflowModel.id,
       VaultEnableEnv -> Properties.envOrNone(VaultEnableEnv),
       VaultHostsEnv -> Properties.envOrNone(VaultHostsEnv),

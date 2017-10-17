@@ -19,7 +19,7 @@ import java.util
 
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.workflow.WorkflowExecution
+import com.stratio.sparta.serving.core.models.workflow.{SparkSubmitExecution, WorkflowExecution}
 import com.stratio.sparta.serving.core.services.ExecutionService
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
@@ -34,9 +34,9 @@ import scala.util.Success
 
 @RunWith(classOf[JUnitRunner])
 class ExecutionServiceTest extends WordSpecLike
-with BeforeAndAfter
+  with BeforeAndAfter
   with MockitoSugar
-  with Matchers{
+  with Matchers {
 
 
   val curatorFramework = mock[CuratorFramework]
@@ -51,18 +51,31 @@ with BeforeAndAfter
 
   val executionService = new ExecutionService(curatorFramework)
   val executionID = "exec1"
-  val exec = WorkflowExecution("exec1","driver", "file","mast", Map(), Map(), Map(), "", None)
+  val exec = WorkflowExecution(
+    id = "exec1",
+    sparkSubmitExecution = SparkSubmitExecution(
+      driverClass = "driver",
+      driverFile = "file",
+      master = "master",
+      submitArguments = Map(),
+      sparkConfigurations = Map(),
+      driverArguments = Map(),
+      sparkHome = "sparkHome"
+    )
+  )
   val executionRaw =
     """
       |{
       |"id": "exec1",
+      |"sparkSubmitExecution": {
       |"driverClass": "driver",
       |"driverFile": "file",
-      |"master": "mast",
+      |"master": "master",
       |"submitArguments": {},
       |"sparkConfigurations": {},
       |"driverArguments": {},
-      |"killUrl": ""
+      |"sparkHome": "sparkHome"
+      |}
       |}
     """.stripMargin
 
@@ -72,172 +85,172 @@ with BeforeAndAfter
   }
 
   "executionService" must {
-        "findById: returns success wrapping a workflowExecution with the matching ID" in {
-          when(curatorFramework
-            .checkExists())
-            .thenReturn(existsBuilder)
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
+    "findById: returns success wrapping a workflowExecution with the matching ID" in {
+      when(curatorFramework
+        .checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
 
-          when(curatorFramework.getData)
-            .thenReturn(getDataBuilder)
-          when(curatorFramework.getData
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(executionRaw.getBytes)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(executionRaw.getBytes)
 
-          val result = executionService.findById(executionID)
+      val result = executionService.findById(executionID)
 
-          result shouldBe Success(exec)
-        }
+      result shouldBe Success(exec)
+    }
 
-        "findById: returns a failure when there's no execution matching the ID" in {
-          when(curatorFramework
-            .checkExists())
-            .thenReturn(existsBuilder)
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            // scalastyle:off null
-            .thenReturn(null)
+    "findById: returns a failure when there's no execution matching the ID" in {
+      when(curatorFramework
+        .checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        // scalastyle:off null
+        .thenReturn(null)
 
-          val result = executionService.findById(executionID)
+      val result = executionService.findById(executionID)
 
-          result.isFailure shouldEqual true
-        }
+      result.isFailure shouldEqual true
+    }
 
-        "findAll: returns all the available executions" in {
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
-            .thenReturn(new Stat)
+    "findAll: returns all the available executions" in {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
+        .thenReturn(new Stat)
 
-          when(curatorFramework.getChildren)
-            .thenReturn(getChildrenBuilder)
-          when(curatorFramework.getChildren
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
-            .thenReturn(new util.ArrayList[String](){
-              add("execution1")
-            })
+      when(curatorFramework.getChildren)
+        .thenReturn(getChildrenBuilder)
+      when(curatorFramework.getChildren
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
+        .thenReturn(new util.ArrayList[String]() {
+          add("execution1")
+        })
 
-          when(curatorFramework.getData)
-            .thenReturn(getDataBuilder)
-          when(curatorFramework.getData
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
-            .thenReturn(executionRaw.getBytes)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
+        .thenReturn(executionRaw.getBytes)
 
-          val result = executionService.findAll()
+      val result = executionService.findAll()
 
-          result shouldBe Success(Seq(exec))
-        }
+      result shouldBe Success(Seq(exec))
+    }
 
-        "create: returns success with the execution workflow" in {
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            // scalastyle:off null
-            .thenReturn(null)
-          // scalastyle:on null
-          when(curatorFramework.create)
-            .thenReturn(createBuilder)
-          when(curatorFramework.create
-            .creatingParentsIfNeeded)
-            .thenReturn(protectedACL)
-          when(curatorFramework.create
-            .creatingParentsIfNeeded
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/newExec"))
-            .thenReturn(executionRaw)
+    "create: returns success with the execution workflow" in {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        // scalastyle:off null
+        .thenReturn(null)
+      // scalastyle:on null
+      when(curatorFramework.create)
+        .thenReturn(createBuilder)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded)
+        .thenReturn(protectedACL)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/newExec"))
+        .thenReturn(executionRaw)
 
-          val result = executionService.create(exec)
-          result shouldBe Success(exec)
-        }
+      val result = executionService.create(exec)
+      result shouldBe Success(exec)
+    }
 
-        "update: if the path exists it updates the execution in said path instead of creating it" in {
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            // scalastyle:off null
-            .thenReturn(new Stat)
-          // scalastyle:on null
-          when(curatorFramework.setData())
-            .thenReturn(setDataBuilder)
-          when(curatorFramework.setData()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
+    "update: if the path exists it updates the execution in said path instead of creating it" in {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        // scalastyle:off null
+        .thenReturn(new Stat)
+      // scalastyle:on null
+      when(curatorFramework.setData())
+        .thenReturn(setDataBuilder)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
 
-          val result = executionService.create(exec)
-          result shouldBe Success(exec)
-        }
-
-
-        "update: checks if a execution with a given id exists and updates it" in {
-          // scalastyle:off null
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
-          when(curatorFramework.setData())
-            .thenReturn(setDataBuilder)
-          when(curatorFramework.setData()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
-
-          val result = executionService.update(exec)
-          result shouldBe Success(exec)
-        }
-
-        "create: checks if an execution with a given id exists if not it creates it" in {
-          // scalastyle:off null
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(null)
-
-          when(curatorFramework.setData()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
-
-          val result = executionService.update(exec)
-          result shouldBe Success(exec)
-        }
-
-        "delete: removes the execution and returns and empty Success" in {
-          // scalastyle:off null
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(new Stat)
-          when(curatorFramework.delete)
-            .thenReturn(deleteBuilder)
-          when(curatorFramework.delete
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
-            .thenReturn(null)
+      val result = executionService.create(exec)
+      result shouldBe Success(exec)
+    }
 
 
-          val result = executionService.delete(executionID)
-          result shouldBe Success(())
-        }
+    "update: checks if a execution with a given id exists and updates it" in {
+      // scalastyle:off null
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
+      when(curatorFramework.setData())
+        .thenReturn(setDataBuilder)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
 
-        "deleteAll: deletes all the execution in a given path" in {
-          when(curatorFramework.checkExists()
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
-            .thenReturn(new Stat)
+      val result = executionService.update(exec)
+      result shouldBe Success(exec)
+    }
 
-          when(curatorFramework.getChildren)
-            .thenReturn(getChildrenBuilder)
-          when(curatorFramework.getChildren
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
-            .thenReturn(new util.ArrayList[String](){
-              add("execution1")
-            })
+    "create: checks if an execution with a given id exists if not it creates it" in {
+      // scalastyle:off null
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(null)
 
-          when(curatorFramework.getData)
-            .thenReturn(getDataBuilder)
-          when(curatorFramework.getData
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
-            .thenReturn(executionRaw.getBytes)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
 
-          when(curatorFramework.delete)
-            .thenReturn(deleteBuilder)
-          when(curatorFramework.delete
-            .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
-            .thenReturn(null)
+      val result = executionService.update(exec)
+      result shouldBe Success(exec)
+    }
 
-          val result = executionService.deleteAll()
-          result shouldBe Success()
-        }
+    "delete: removes the execution and returns and empty Success" in {
+      // scalastyle:off null
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(new Stat)
+      when(curatorFramework.delete)
+        .thenReturn(deleteBuilder)
+      when(curatorFramework.delete
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$executionID"))
+        .thenReturn(null)
+
+
+      val result = executionService.delete(executionID)
+      result shouldBe Success(())
+    }
+
+    "deleteAll: deletes all the execution in a given path" in {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
+        .thenReturn(new Stat)
+
+      when(curatorFramework.getChildren)
+        .thenReturn(getChildrenBuilder)
+      when(curatorFramework.getChildren
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}"))
+        .thenReturn(new util.ArrayList[String]() {
+          add("execution1")
+        })
+
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
+        .thenReturn(executionRaw.getBytes)
+
+      when(curatorFramework.delete)
+        .thenReturn(deleteBuilder)
+      when(curatorFramework.delete
+        .forPath(s"${AppConstant.WorkflowExecutionsZkPath}/execution1"))
+        .thenReturn(null)
+
+      val result = executionService.deleteAll()
+      result shouldBe Success()
+    }
   }
 }

@@ -9,7 +9,7 @@
       "start": "ng serve --proxy-config proxy.config.json --base-href=''",
       "templates": "node build/template-cache",
       "prebuild": "mkdirp ./target && mkdirp ./target/classes && mkdirp ./target/classes/web",
-      "build": "ng build --prod --progress=false",
+      "build": "ng build --prod --progress=false --base-href=''",
       "test": "ng test --sourcemap=false --watch=false",
       "test:watch": "ng test --sourcemap=false --watch=true",
       "lint": "ng lint --type-check",

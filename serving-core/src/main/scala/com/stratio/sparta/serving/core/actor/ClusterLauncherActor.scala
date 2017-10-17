@@ -53,7 +53,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       log.info(s"Initializing cluster options submitted by workflow: ${workflow.name}")
       val sparkSubmitService = new SparkSubmitService(workflow)
       val detailConfig = SpartaConfig.getDetailConfig.getOrElse {
-        val message = "Impossible to extract Detail Configuration"
+        val message = "Impossible to extract detail configuration"
         log.error(message)
         throw new RuntimeException(message)
       }
@@ -64,20 +64,23 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
       val executionSubmit = WorkflowExecution(
-        workflow.id.get,
-        SpartaDriverClass,
-        driverFile,
-        workflow.settings.sparkSettings.master,
-        sparkSubmitArgs,
-        sparkConfs,
-        driverArgs,
-        workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl),
-        Option(sparkHome)
+        id = workflow.id.get,
+        sparkSubmitExecution = SparkSubmitExecution(
+          driverClass = SpartaDriverClass,
+          driverFile = driverFile,
+          master = workflow.settings.sparkSettings.master,
+          submitArguments = sparkSubmitArgs,
+          sparkConfigurations = sparkConfs,
+          driverArguments = driverArgs,
+          sparkHome = sparkHome
+        ),
+        sparkDispatcherExecution = None,
+        marathonExecution = None
       )
       executionService.create(executionSubmit)
     } match {
       case Failure(exception) =>
-        val information = s"An error was encountered while initializing the Sparta submit options"
+        val information = s"An error was encountered while initializing the submit options"
         log.error(information, exception)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
@@ -85,7 +88,6 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
           statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
-        self ! PoisonPill
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating an execution submit in the persistence"
         log.error(information, exception)
@@ -95,9 +97,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
           statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
-        self ! PoisonPill
       case Success(Success(submitRequestCreated)) =>
-        val information = "Sparta submit options initialized correctly"
+        val information = "Submit options initialized correctly"
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
@@ -112,28 +113,31 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
 
   def launch(workflow: Workflow, submitRequest: WorkflowExecution): Unit = {
     Try {
-      log.info(s"Launching Sparta job with options ... \n\tWorkflow name: ${workflow.name}\n\t" +
-        s"Main Class: $SpartaDriverClass\n\tDriver file: ${submitRequest.driverFile}\n\t" +
-        s"Master: ${submitRequest.master}\n\tSpark submit arguments: ${submitRequest.submitArguments.mkString(",")}" +
-        s"\n\tSpark configurations: ${submitRequest.sparkConfigurations.mkString(",")}\n\t" +
-        s"Driver arguments: ${submitRequest.driverArguments}")
+      log.info(s"Launching Sparta workflow with options ... \n\t" +
+        s"Workflow name: ${workflow.name}\n\t" +
+        s"Main Class: $SpartaDriverClass\n\t" +
+        s"Driver file: ${submitRequest.sparkSubmitExecution.driverFile}\n\t" +
+        s"Master: ${submitRequest.sparkSubmitExecution.master}\n\t" +
+        s"Spark submit arguments: ${submitRequest.sparkSubmitExecution.submitArguments.mkString(",")}" +
+        s"\n\tSpark configurations: ${submitRequest.sparkSubmitExecution.sparkConfigurations.mkString(",")}\n\t" +
+        s"Driver arguments: ${submitRequest.sparkSubmitExecution.driverArguments}")
       val sparkLauncher = new SparkLauncher()
-        .setAppResource(submitRequest.driverFile)
-        .setMainClass(submitRequest.driverClass)
-        .setMaster(submitRequest.master)
+        .setAppResource(submitRequest.sparkSubmitExecution.driverFile)
+        .setMainClass(submitRequest.sparkSubmitExecution.driverClass)
+        .setMaster(submitRequest.sparkSubmitExecution.master)
 
       //Set Spark Home
-      submitRequest.sparkHome.foreach(home => sparkLauncher.setSparkHome(home))
+      sparkLauncher.setSparkHome(submitRequest.sparkSubmitExecution.sparkHome)
       //Spark arguments
-      submitRequest.submitArguments.filter(_._2.nonEmpty)
+      submitRequest.sparkSubmitExecution.submitArguments.filter(_._2.nonEmpty)
         .foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k, v) }
-      submitRequest.submitArguments.filter(_._2.isEmpty)
+      submitRequest.sparkSubmitExecution.submitArguments.filter(_._2.isEmpty)
         .foreach { case (k: String, v: String) => sparkLauncher.addSparkArg(k) }
       // Spark properties
-      submitRequest.sparkConfigurations.filter(_._2.nonEmpty)
+      submitRequest.sparkSubmitExecution.sparkConfigurations.filter(_._2.nonEmpty)
         .foreach { case (key: String, value: String) => sparkLauncher.setConf(key.trim, value.trim) }
       // Driver (Sparta) params
-      submitRequest.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
+      submitRequest.sparkSubmitExecution.driverArguments.toSeq.sortWith { case (a, b) => a._1 < b._1 }
         .foreach { case (_, argValue) => sparkLauncher.addAppArgs(argValue) }
       //Redirect Log
       sparkLauncher.redirectError()
@@ -141,7 +145,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
       sparkLauncher.startApplication(clusterListenerService.addSparkListener(workflow))
     } match {
       case Failure(exception) =>
-        val information = s"An error was encountered while launching the Sparta cluster job"
+        val information = s"An error was encountered while launching the workflow"
         log.error(information, exception)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
@@ -149,33 +153,20 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
           statusInfo = Option(information),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
-        self ! PoisonPill
       case Success(sparkHandler) =>
-        val information = "Sparta cluster job launched correctly"
+        val information = "Workflow launched correctly"
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
           status = Launched,
-          applicationId = Option(sparkHandler.getAppId),
           statusInfo = Option(information)
         ))
         if (workflow.settings.global.executionMode.contains(ConfigMesos))
-          clusterListenerService.addClusterContextListener(
-            workflow.id.get,
-            workflow.name,
-            submitRequest.killUrl, 
-            Option(self),
-            Option(context)
-          )
-        else clusterListenerService.addClientContextListener(
-          workflow.id.get,
-          workflow.name,
-          sparkHandler,
-          self, 
-          context
-        )
+          clusterListenerService.addMesosDispatcherListener(workflow.id.get)
+        if (workflow.settings.global.executionMode.contains(ConfigMarathon))
+          clusterListenerService.addSparkClientListener(workflow.id.get, sparkHandler)
         checkersWorkflowStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
-          launcherService.checkWorkflowStatus(workflow, self, context))
+          launcherService.checkWorkflowStatus(workflow))
     }
   }
 }

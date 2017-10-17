@@ -22,17 +22,9 @@ import org.joda.time.DateTime
 case class WorkflowStatus(
                            id: String,
                            status: WorkflowStatusEnum.Value,
-                           applicationId: Option[String] = None,
                            statusInfo: Option[String] = None,
-                           name: Option[String] = None,
-                           description: Option[String] = None,
                            lastExecutionMode: Option[String] = None,
                            lastError: Option[WorkflowError] = None,
-                           sparkUi: Option[String] = None,
-                           marathonId: Option[String] = None,
-                           killUrl: Option[String] = None,
                            creationDate: Option[DateTime] = None,
                            lastUpdateDate: Option[DateTime] = None
                          )
-
-case class SparkDispatcherStatus()

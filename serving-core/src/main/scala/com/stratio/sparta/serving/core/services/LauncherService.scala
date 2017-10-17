@@ -16,7 +16,6 @@
 
 package com.stratio.sparta.serving.core.services
 
-import akka.actor.{ActorContext, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
@@ -24,38 +23,49 @@ import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 class LauncherService(curatorFramework: CuratorFramework) extends SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
-  
-  def checkWorkflowStatus(workflow: Workflow, launcherActor: ActorRef, akkaContext: ActorContext): Unit = {
+
+  //scalastyle:off
+  def checkWorkflowStatus(workflow: Workflow): Unit = {
     statusService.findById(workflow.id.get) match {
       case Success(workflowStatus) =>
-        if (workflowStatus.status == Launched || workflowStatus.status == Starting ||
-          workflowStatus.status == Uploaded || workflowStatus.status == Stopping ||
-          workflowStatus.status == NotStarted) {
-          val information = s"CHECKER: the workflow did not start/stop correctly"
-          log.error(information)
-          statusService.update(WorkflowStatus(
-            id = workflow.id.get,
-            status = Failed,
-            statusInfo = Some(information)
-          ))
-          akkaContext.stop(launcherActor)
-        } else {
-          val information = s"CHECKER: the workflow started/stopped correctly"
-          log.info(information)
-          statusService.update(WorkflowStatus(id = workflow.id.get,
-            status = NotDefined,
-            statusInfo = Some(information)
-          ))
+        val wrongStartStates = Seq(Launched, Starting, Uploaded, NotStarted)
+        val validStartStates = Seq(Started)
+        val wrongStopStates = Seq(Stopping)
+        val validStopStates = Seq(Stopped, Failed, Killed, Finished)
+
+        workflowStatus.status match {
+          case status if wrongStartStates.contains(status) =>
+            val information = s"Checker: the workflow ${workflow.name} did not start correctly"
+            log.error(information)
+            statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Some(information)))
+          case status if wrongStopStates.contains(status) =>
+            val information = s"Checker: the workflow ${workflow.name} did not stop correctly"
+            log.error(information)
+            statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Some(information)))
+          case status if validStartStates.contains(status) =>
+            val information = s"Checker: the workflow ${workflow.name} started correctly"
+            log.info(information)
+            statusService.update(WorkflowStatus(id = workflow.id.get, status = NotDefined, statusInfo = Some(information)))
+          case status if validStopStates.contains(status) =>
+            val information = s"Checker: the workflow ${workflow.name} stopped correctly"
+            log.info(information)
+            statusService.update(WorkflowStatus(id = workflow.id.get, status = NotDefined, statusInfo = Some(information)))
+          case _ =>
+            val information = s"Checker: the workflow ${workflow.name} has invalid state ${workflowStatus.status}"
+            log.info(information)
+            statusService.update(WorkflowStatus(id = workflow.id.get, status = NotDefined, statusInfo = Some(information)))
         }
       case Failure(exception) =>
         log.error(s"Error when extracting workflow status in the scheduled task", exception)
     }
   }
+
+  //scalastyle:on
 
   def getZookeeperConfig: Config = SpartaConfig.getZookeeperConfig.getOrElse {
     val message = "Impossible to extract Zookeeper Configuration"

@@ -78,20 +78,12 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         val newStatus = workflowStatusWithFields.copy(
           status = if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.status
           else workflowStatusWithFields.status,
-          name = if (workflowStatusWithFields.name.isEmpty) actualStatus.name
-          else workflowStatusWithFields.name,
           lastError = if (workflowStatusWithFields.lastError.isDefined) workflowStatusWithFields.lastError
           else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.lastError,
-          applicationId = if (workflowStatusWithFields.applicationId.isDefined) workflowStatusWithFields.applicationId
-          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.applicationId,
-          marathonId = if (workflowStatusWithFields.marathonId.isDefined) workflowStatusWithFields.marathonId
-          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.marathonId,
           statusInfo = if (workflowStatusWithFields.statusInfo.isEmpty) actualStatus.statusInfo
           else workflowStatusWithFields.statusInfo,
           lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-          else workflowStatusWithFields.lastExecutionMode,
-          sparkUi = if (workflowStatusWithFields.status == WorkflowStatusEnum.Started) workflowStatusWithFields.sparkUi
-          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.sparkUi else None
+          else workflowStatusWithFields.lastExecutionMode
         )
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
 
@@ -100,14 +92,11 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         if (actualStatus.status != newStatus.status)
           newStatusInformation.append(s"\tStatus -> ${actualStatus.status} to ${newStatus.status}")
         if (actualStatus.statusInfo != newStatus.statusInfo)
-          newStatusInformation.append(
-            s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
+          newStatusInformation.append(s"\tInfo -> ${newStatus.statusInfo.getOrElse("No status information registered")}")
         if (actualStatus.lastError != newStatus.lastError)
-          newStatusInformation.append(
-            s"\tLast Error -> ${newStatus.lastError.getOrElse("No errors registered")}")
+          newStatusInformation.append(s"\tLast Error -> ${newStatus.lastError.getOrElse("No errors registered")}")
         if (newStatusInformation.nonEmpty)
-          log.info(s"Updating status ${newStatus.name.getOrElse("No name registered")}: " +
-            s"$newStatusInformation")
+          log.info(s"Updating status ${newStatus.id}: $newStatusInformation")
 
         newStatus
       } else create(workflowStatus)
@@ -152,32 +141,20 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = actualStatus.copy(lastError = None)
-        log.info(s"Clearing last error for status: ${actualStatus.id}")
+        log.debug(s"Clearing last error for status: ${actualStatus.id}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         Some(newStatus)
       } else None
     }
   }
 
-  private[sparta] def isAnyWorkflowStarted: Boolean =
+  private[sparta] def isAnyLocalWorkflowStarted: Boolean =
     findAll() match {
       case Success(statuses) =>
-        statuses.exists(_.status == WorkflowStatusEnum.Started) ||
-          statuses.exists(_.status == WorkflowStatusEnum.Starting) ||
-          statuses.exists(_.status == WorkflowStatusEnum.Launched)
+        statuses.exists(wStatus =>
+          wStatus.status == WorkflowStatusEnum.Started && wStatus.lastExecutionMode == Option(AppConstant.ConfigLocal))
       case Failure(e) =>
         log.error("An error was encountered while finding all the workflow statuses", e)
-        false
-    }
-
-  private[sparta] def isAvailableToRun(workflowModel: Workflow): Boolean =
-    (workflowModel.settings.global.executionMode == AppConstant.ConfigLocal, isAnyWorkflowStarted) match {
-      case (false, _) =>
-        true
-      case (true, false) =>
-        true
-      case (true, true) =>
-        log.warn(s"The workflow ${workflowModel.name} is already launched")
         false
     }
 

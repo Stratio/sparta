@@ -76,8 +76,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
     statusService.update(WorkflowStatus(
       id = workflowWithFields.id.get,
-      status = WorkflowStatusEnum.NotStarted,
-      name = Option(workflow.name)
+      status = WorkflowStatusEnum.NotStarted
     ))
     workflowWithFields
   }
@@ -96,8 +95,7 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
       statusService.update(WorkflowStatus(
         id = workflowId.id.get,
-        status = WorkflowStatusEnum.NotDefined,
-        name = Option(workflow.name)
+        status = WorkflowStatusEnum.NotDefined
       ))
       workflowId
     }

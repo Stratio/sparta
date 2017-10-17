@@ -93,7 +93,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
   }
 
   private[driver] def killLocalContextListener(workflow: Workflow, name: String): Unit = {
-    log.info(s"Listener added to ${workflow.name} with id: ${workflow.id.get}")
+    log.info(s"Listener added for workflow ${workflow.name}")
     listenerService.addWorkflowStatusListener(
       workflow.id.get,
       (workflowStatus: WorkflowStatus, nodeCache: NodeCache) =>

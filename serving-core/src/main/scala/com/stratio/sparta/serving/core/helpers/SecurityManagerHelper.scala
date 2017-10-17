@@ -32,7 +32,7 @@ object SecurityManagerHelper {
 
   lazy val securityManager: Option[SpartaSecurityManager] =
     if (!isSecurityManagerEnabled) {
-      log.warn("Authorization is not enabled, configure a security manager if needed")
+      log.info("Authorization is not enabled, configure a security manager if needed")
       None
     } else {
       val secManager = new GoSecSpartaSecurityManager().asInstanceOf[SpartaSecurityManager]

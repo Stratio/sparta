@@ -32,7 +32,7 @@ import org.apache.curator.framework.CuratorFramework
 import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
-  with SchedulerUtils{
+  with SchedulerUtils {
 
   private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
@@ -47,54 +47,64 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
 
   override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
 
+  //scalastyle:off
   def initializeSubmitRequest(workflow: Workflow): Unit = {
     Try {
       val sparkSubmitService = new SparkSubmitService(workflow)
       log.info(s"Initializing options to submit the Workflow App associated to workflow: ${workflow.name}")
       val detailConfig = SpartaConfig.getDetailConfig.getOrElse {
-        val message = "Impossible to extract Detail Configuration"
+        val message = "Impossible to extract detail configuration"
         log.error(message)
         throw new RuntimeException(message)
       }
       val zookeeperConfig = launcherService.getZookeeperConfig
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginsFiles = sparkSubmitService.userPluginsJars
+      val sparkHome = sparkSubmitService.validateSparkHome
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
       val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
       val executionSubmit = WorkflowExecution(
-        workflow.id.get,
-        SpartaDriverClass,
-        driverFile,
-        workflow.settings.sparkSettings.master,
-        sparkSubmitArgs,
-        sparkConfs,
-        driverArgs,
-        workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
+        id = workflow.id.get,
+        sparkSubmitExecution = SparkSubmitExecution(
+          driverClass = SpartaDriverClass,
+          driverFile = driverFile,
+          master = workflow.settings.sparkSettings.master,
+          submitArguments = sparkSubmitArgs,
+          sparkConfigurations = sparkConfs,
+          driverArguments = driverArgs,
+          sparkHome = sparkHome
+        ),
+        sparkDispatcherExecution = None,
+        marathonExecution = Option(MarathonExecution(marathonId = WorkflowHelper.getMarathonId(workflow)))
       )
 
       executionService.create(executionSubmit).getOrElse(
         throw new Exception("Unable to create an execution submit in Zookeeper"))
-
       new MarathonService(context, curatorFramework, workflow, executionSubmit)
     } match {
       case Failure(exception) =>
         val information = s"Error initializing Workflow App"
         log.error(information, exception)
-        statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed,
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = Failed,
           statusInfo = Option(information),
+          lastExecutionMode = Option(workflow.settings.global.executionMode),
           lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
         ))
         self ! PoisonPill
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
         log.info(information)
-        statusService.update(WorkflowStatus(id = workflow.id.get, status = NotStarted,
-          marathonId = Option(WorkflowHelper.getMarathonId(workflow)), statusInfo = Option(information),
-          lastExecutionMode = Option(workflow.settings.global.executionMode)))
+        statusService.update(WorkflowStatus(
+          id = workflow.id.get,
+          status = NotStarted,
+          lastExecutionMode = Option(workflow.settings.global.executionMode)
+        ))
         marathonApp.launch()
-        clusterListenerService.addMarathonContextListener(workflow.id.get, workflow.name, context, Option(self))
+        clusterListenerService.addMarathonListener(workflow.id.get, context)
         checkersPolicyStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
-          launcherService.checkWorkflowStatus(workflow, self, context))
+          launcherService.checkWorkflowStatus(workflow))
     }
   }
 }

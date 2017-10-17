@@ -33,13 +33,13 @@ trait CheckpointUtils extends SLF4JLogging {
 
   def deleteFromLocal(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
-    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
+    log.debug(s"Deleting checkpoint directory: $checkpointDirectory")
     FileUtils.deleteDirectory(new File(checkpointDirectory))
   }
 
   def deleteFromHDFS(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
-    log.info(s"Deleting checkpoint directory: $checkpointDirectory")
+    log.debug(s"Deleting checkpoint directory: $checkpointDirectory")
     HdfsUtils().delete(checkpointDirectory)
   }
 
@@ -93,7 +93,7 @@ trait CheckpointUtils extends SLF4JLogging {
 
   private def createFromLocal(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPathFromWorkflow(workflow)
-    log.info(s"Creating checkpoint directory: $checkpointDirectory")
+    log.debug(s"Creating checkpoint directory: $checkpointDirectory")
     FileUtils.forceMkdir(new File(checkpointDirectory))
   }
 }

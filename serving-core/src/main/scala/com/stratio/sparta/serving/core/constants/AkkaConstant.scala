@@ -24,6 +24,7 @@ object AkkaConstant {
   val ExecutionActorName = "executionActor"
   val ClusterLauncherActorName = "clusterLauncherActor"
   val LauncherActorName = "launcherActor"
+  val MarathonLauncherActorName = "marathonLauncherActor"
   val PluginActorName = "pluginActor"
   val DriverActorName = "driverActor"
   val ControllerActorName = "controllerActor"

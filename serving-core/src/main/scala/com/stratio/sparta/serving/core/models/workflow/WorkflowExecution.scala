@@ -16,13 +16,26 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class WorkflowExecution(id: String,
-                             driverClass: String,
-                             driverFile: String,
-                             master: String,
-                             submitArguments: Map[String, String],
-                             sparkConfigurations: Map[String, String],
-                             driverArguments: Map[String, String],
-                             killUrl: String,
-                             sparkHome: Option[String] = None
-                        )
+case class WorkflowExecution(
+                              id: String,
+                              sparkSubmitExecution: SparkSubmitExecution,
+                              sparkExecution: Option[SparkExecution] = None,
+                              sparkDispatcherExecution: Option[SparkDispatcherExecution] = None,
+                              marathonExecution: Option[MarathonExecution] = None
+                            )
+
+case class SparkSubmitExecution(
+                                 driverClass: String,
+                                 driverFile: String,
+                                 master: String,
+                                 submitArguments: Map[String, String],
+                                 sparkConfigurations: Map[String, String],
+                                 driverArguments: Map[String, String],
+                                 sparkHome: String
+                               )
+
+case class SparkDispatcherExecution(killUrl: String)
+
+case class MarathonExecution(marathonId: String)
+
+case class SparkExecution(applicationId: String)

@@ -32,7 +32,7 @@ object WorkflowHelper extends SLF4JLogging {
   lazy val classpathUtils = new ClasspathUtils
 
   def getSparkConfsReflec(elements: Seq[NodeGraph], methodName: String): Map[String, String] = {
-    log.info("Initializing reflection")
+    log.debug("Initializing reflection ...")
     elements.flatMap(o => {
       val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.className).toString
       val clazzToInstance = classpathUtils.getClasspathMap.getOrElse(classType, o.className)

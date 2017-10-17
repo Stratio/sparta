@@ -48,7 +48,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     jars.foreach(file => JarsHelper.addToClasspath(file))
 
     Try {
-      val startingInfo = s"Starting a Sparta local job for the workflow"
+      val startingInfo = s"Starting local job for the workflow"
       log.info(startingInfo)
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
@@ -59,24 +59,19 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
       val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(workflow, jars)
       spartaWorkflow.setup()
       ssc.start()
-      val startedInformation = s"Sparta local job was started correctly"
+      val startedInformation = s"Workflow started correctly"
       log.info(startedInformation)
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
         status = WorkflowStatusEnum.Started,
-        statusInfo = Some(startedInformation),
-        sparkUi = ResourceManagerLinkHelper.getLink(
-          workflow.settings.global.executionMode,
-          workflow.settings.sparkSettings.master,
-          workflow.settings.global.monitoringLink
-        )
+        statusInfo = Some(startedInformation)
       ))
       ssc.awaitTermination()
       spartaWorkflow.cleanUp()
     } match {
       case Success(_) =>
         SparkContextFactory.destroySparkContext()
-        val information = s"Sparta local job stopped correctly"
+        val information = s"Workflow stopped correctly"
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
@@ -85,7 +80,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         ))
         self ! PoisonPill
       case Failure(exception) =>
-        val information = s"Error initiating the Sparta local job"
+        val information = s"Error initiating the workflow"
         log.error(information, exception)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,

@@ -22,11 +22,11 @@ import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.helpers.PluginFilesHelper
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.workflow._
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
 
 import scala.util.{Failure, Properties, Success, Try}
@@ -66,37 +66,56 @@ object SparkDriver extends SLF4JLogging {
         PluginFilesHelper.addPluginsToClassPath(pluginsFiles)
         val workflowService = new WorkflowService(curatorInstance)
         val workflow = workflowService.findById(workflowId)
-        val startingInfo = s"Launching workflow in cluster..."
+        val executionService = new ExecutionService(curatorInstance)
+        val workflowStatus = statusService.findById(workflowId)
+        val workflowExecution = executionService.findById(workflowId)
+        val startingInfo = s"Launching workflow in Spark driver..."
         log.info(startingInfo)
-        statusService.update(WorkflowStatus(id = workflowId, status = Starting, statusInfo = Some(startingInfo)))
-        val streamingContextService = StreamingContextService(curatorInstance)
-        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
         statusService.update(WorkflowStatus(
           id = workflowId,
-          status = NotDefined,
-          applicationId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId))
+          status = Starting,
+          statusInfo = Some(startingInfo)
         ))
+        val streamingContextService = StreamingContextService(curatorInstance)
+        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
+
+        for {
+          status <- workflowStatus
+          execution <- workflowExecution
+          execMode <- status.lastExecutionMode
+        } if (execMode.contains(ConfigMesos))
+          executionService.update {
+            execution.copy(
+              sparkExecution = Option(SparkExecution(
+                applicationId = extractSparkApplicationId(ssc.sparkContext.applicationId))),
+              sparkDispatcherExecution = Option(SparkDispatcherExecution(
+                killUrl = workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
+              ))
+            )
+          }
+
         spartaWorkflow.setup()
         ssc.start
-        val startedInfo = s"Application with id: ${ssc.sparkContext.applicationId} was properly launched"
+        val startedInfo = s"Workflow in Spark driver was properly launched"
         log.info(startedInfo)
         statusService.update(WorkflowStatus(
           id = workflowId,
           status = Started,
-          applicationId = Option(extractSparkApplicationId(ssc.sparkContext.applicationId)),
-          statusInfo = Some(startedInfo),
-          sparkUi = ResourceManagerLinkHelper.getLink(
-            workflow.settings.global.executionMode, workflow.settings.sparkSettings.master)
+          statusInfo = Some(startedInfo)
         ))
         ssc.awaitTermination()
         spartaWorkflow.cleanUp()
       } match {
         case Success(_) =>
-          val information = s"Sparta job in cluster was properly stopped"
+          val information = s"Workflow in Spark driver was properly stopped"
           log.info(information)
-          statusService.update(WorkflowStatus(id = workflowId, status = Stopped, statusInfo = Some(information)))
+          statusService.update(WorkflowStatus(
+            id = workflowId,
+            status = Stopped,
+            statusInfo = Some(information)
+          ))
         case Failure(exception) =>
-          val information = s"Error initiating Sparta job in cluster"
+          val information = s"Error initiating workflow in Spark driver"
           log.error(information)
           statusService.update(WorkflowStatus(
             id = workflowId,
@@ -108,12 +127,12 @@ object SparkDriver extends SLF4JLogging {
       }
     } match {
       case Success(_) =>
-        log.info("Sparta job in cluster successfully finished")
+        log.info("Workflow in Spark driver successfully finished")
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
       case Failure(exception) =>
-        log.error(s"Error initiating Sparta environment: ${exception.getLocalizedMessage}", exception)
+        log.error(s"Error initiating Sparta environment in Spark driver: ${exception.getLocalizedMessage}", exception)
         throw exception
     }
   }
