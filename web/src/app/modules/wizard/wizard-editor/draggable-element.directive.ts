@@ -29,8 +29,8 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     private element: any;
 
     ngOnInit(): void {
-
-
+        const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
+        this.element.attr('transform', value);
     }
 
     ngAfterContentInit() {
@@ -45,6 +45,8 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
             x: this.position.x + event.dx,
             y: this.position.y + event.dy
         };
+        const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
+        this.element.attr('transform', value);
         this.positionChange.emit(this.position);
     }
 

@@ -11,7 +11,7 @@
 
             <svg:g wizard-box svg-draggable *ngFor="let entity of entities" [data]="entity" [selected]="selectedEntity === entity.name"
                [drawingConnectionStatus]="drawingConnectionStatus" (onDrawConnector)="drawConnector($event)" (onFinishConnector)="finishConnector($event)"
-               [(position)]="entity.uiConfiguration.position" [attr.transform]="getPosition(entity.uiConfiguration.position)"
+               [(position)]="entity.uiConfiguration.position"
                (onDoubleClickEvent)="editEntity(entity)" (onClickEvent)="selectEntity(entity)" />
          </svg:g>
          <svg:filter id="drop-shadow">

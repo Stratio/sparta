@@ -50,13 +50,13 @@ import { SpInputError } from './sp-input.error.model';
 
 export class SpInputComponent implements ControlValueAccessor, OnChanges, OnInit, OnDestroy {
 
-   @Input() placeholder: string = '';
-   @Input() name: string = '';
-   @Input() label: string = '';
+   @Input() placeholder = '';
+   @Input() name = '';
+   @Input() label = '';
    @Input() fieldType: 'text' | 'number' | 'password' = 'text';
    @Input() errors: SpInputError;
    @Input() qaTag: string;
-   @Input() forceValidations: boolean = false;
+   @Input() forceValidations = false;
    @Input() contextualHelp: string;
    @Input() maxLength: number;
    @Input() min: number;

@@ -55,7 +55,7 @@ export class MenuOptionsComponent implements OnInit {
         this.subscriptionSearch = this.searchBox
             .valueChanges
             .debounceTime(this.debounce)
-            .subscribe((event) => this.searchChange.emit(this.searchBox.value));  
+            .subscribe((event) => this.searchChange.emit(this.searchBox.value));
      }
 
     constructor() { }
