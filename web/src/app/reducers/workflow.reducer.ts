@@ -28,6 +28,7 @@ export interface State {
     validatedWorkflow: any
   };
   reload: boolean;
+  executionInfo: any;
   displayOptions: Array<any>;
   modalOpen: boolean;
   selectedDisplayOption: string;
@@ -39,6 +40,7 @@ const initialState: State = {
   selectedWorkflows: [],
   selectedWorkflowsIds: [],
   searchQuery: '',
+  executionInfo: null,
   modalOpen: false,
   workflowNameValidation: {
     validatedName: false,
@@ -143,6 +145,11 @@ export function reducer(state: State = initialState, action: any): State {
         reload: true
       });
     }
+    case workflowActions.actionTypes.GET_WORKFLOW_EXECUTION_INFO_COMPLETE: {
+      return Object.assign({}, state, {
+        executionInfo: action.payload
+      });
+    }
     default:
       return state;
   }
@@ -161,3 +168,4 @@ export const getSelectedDisplayOption: any = (state: State) => state.selectedDis
 export const getWorkflowNameValidation: any = (state: State) => state.workflowNameValidation;
 export const getWorkflowModalState: any = (state: State) => state.modalOpen;
 export const getReloadState: any = (state: State) => state.reload;
+export const getExecutionInfo: any = (state: State) => state.executionInfo;

@@ -47,9 +47,11 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onEditEntity = new EventEmitter();
 
     @Input() isNodeSelected = false;
+    @Input() selectedSegment: any;
 
+    @ViewChild('titleFocus') titleElement: any;
     @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
-    
+
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
     public workflowName: string = '';
@@ -57,10 +59,13 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     private inputListSubscription: Subscription;
     private outputListSubscription: Subscription;
+    private areUndoRedoEnabledSubscription: Subscription;
     private inputList: Array<any> = [];
     private outputList: Array<any> = [];
+    public editName = false;
 
-
+    public undoEnabled = false;
+    public redoEnabled = false;
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
         private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
@@ -74,6 +79,11 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
             this.workflowName = name;
         });
 
+        this.areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
+            this.undoEnabled = actions.undo;
+            this.redoEnabled = actions.redo;
+        });
+
         this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
 
     }
@@ -82,12 +92,28 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
     }
 
-    deleteWorkflow(): void {
-        this.store.dispatch(new wizardActions.DeleteEntityAction());
+    deleteSelection(): void {
+        if (this.isNodeSelected) {
+            this.store.dispatch(new wizardActions.DeleteEntityAction());
+        } else {
+            this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+        }
+    }
+
+    editWorkflowName(): void {
+        this.editName = true;
+        setTimeout(()=> {
+            this.titleElement.nativeElement.focus();
+        });
     }
 
     onBlurWorkflowName(): void {
+        this.editName = false;
         this.store.dispatch(new wizardActions.ChangeWorkflowNameAction(this.workflowName));
+    }
+
+    filterOptions($event: any) {
+       this.store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
     }
 
 
@@ -111,15 +137,24 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
-        if(event === '1') {
+        if (event === '1') {
             this.onSaveWorkflow.emit();
         } else {
             this.route.navigate(['']);
         }
     }
 
+    undoAction() {
+        this.store.dispatch(new wizardActions.UndoChangesAction());
+    }
+
+    redoAction() {
+        this.store.dispatch(new wizardActions.RedoChangesAction());
+    }
+
     ngOnDestroy(): void {
         this.nameSubscription && this.nameSubscription.unsubscribe();
+        this.areUndoRedoEnabledSubscription && this.areUndoRedoEnabledSubscription.unsubscribe();
     }
 
 

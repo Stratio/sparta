@@ -3,7 +3,7 @@
          
       <st-checkbox class="selected-fragment" [value]="fragmentData" (change)="onChecked.emit($event)" [checked]="isChecked"></st-checkbox>
       <span class="name">
-        <i [ngClass]="utilsService.getFragmentIcon(fragmentData.classPrettyName)" class="fragment-icon" title="{{fragmentData.classPrettyName}}"></i>
+        <i class="icons fragment-icon" title="{{fragmentData.classPrettyName}}">{{icons[fragmentData.classPrettyName]}}</i>
         {{fragmentData.name}}
         
         </span>

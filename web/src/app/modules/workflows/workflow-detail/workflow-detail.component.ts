@@ -25,6 +25,8 @@ import { StHorizontalTab } from '@stratio/egeo';
 export class WorkflowDetailComponent implements OnInit {
 
     @Input() workflowData: any;
+    @Output() showWorkflowExecutionInfo = new EventEmitter<any>();
+
     public inputs: Array<string> = [];
     public outputs: Array<string> = [];
     public transformations: Array<string> = [];

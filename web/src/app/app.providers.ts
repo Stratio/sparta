@@ -25,8 +25,9 @@ import {
     ErrorMessagesService,
     CrossdataService,
     BreadcrumbMenuService,
-    ValidateSchemaService,
-    InitializeWorkflowService
+    InitializeSchemaService,
+    InitializeWorkflowService,
+    ValidateSchemaService
 } from 'services';
 import { AppState } from './app.service';
 export const APP_PROVIDERS: Array<any> = [
@@ -39,9 +40,10 @@ export const APP_PROVIDERS: Array<any> = [
     BackupService,
     CrossdataService,
     ResourcesService,
-    ValidateSchemaService,
+    InitializeSchemaService,
     BreadcrumbMenuService,
     ApiService,
     ErrorMessagesService,
-    InitializeWorkflowService
+    InitializeWorkflowService,
+    ValidateSchemaService
 ];

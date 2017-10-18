@@ -21,13 +21,15 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 import { inputNames } from 'data-templates/inputs';
 import { transformationNames } from 'data-templates/transformations';
 import { outputNames } from 'data-templates/outputs';
-import { ValidateSchemaService } from 'services';
 import * as settingsTemplate from 'data-templates/settings.json';
+import { InitializeSchemaService } from 'app/services';
 
 export interface State {
     workflowId: string;
     nodes: Array<any>;
     edges: Array<any>;
+    redoStates: any;
+    undoStates: any;
     savedWorkflow: boolean;
     selectedCreationEntity: any;
     entityCreationMode: boolean;
@@ -38,11 +40,13 @@ export interface State {
     menuOptions: Array<FloatingMenuModel>;
     selectedEntity: string;
     showEntityDetails: boolean;
+    selectedRelation: any;
     svgPosition: any;
     settings: any;
+    floatingMenuSearch: string;
 };
 
-const defaultSettings = ValidateSchemaService.setDefaultWorkflowSettings(settingsTemplate);
+const defaultSettings = InitializeSchemaService.setDefaultWorkflowSettings(settingsTemplate);
 
 const initialState: State = {
     workflowId: '',
@@ -53,6 +57,8 @@ const initialState: State = {
         k: 0
     },
     edges: [],
+    redoStates: [],
+    undoStates: [],
     nodes: [],
     savedWorkflow: false,
     editionConfig: false,
@@ -61,8 +67,10 @@ const initialState: State = {
     editionSaved: false,
     selectedCreationEntity: null,
     entityCreationMode: false,
+    selectedRelation: null,
     selectedEntity: '',
     showEntityDetails: false,
+    floatingMenuSearch: '',
     menuOptions: [{
         name: 'Input',
         icon: 'icon-login',
@@ -104,10 +112,13 @@ export function reducer(state: State = initialState, action: any): State {
                 settings: Object.assign({}, defaultSettings),
                 nodes: [],
                 edges: [],
+                redoStates: [],
+                undoStates: [],
                 savedWorkflow: false,
                 selectedCreationEntity: null,
                 entityCreationMode: false,
                 editionConfig: false,
+                floatingMenuSearch: '',
                 editionConfigType: '',
                 editionConfigData: null,
                 editionSaved: false,
@@ -144,14 +155,18 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.actionTypes.CREATE_NODE_RELATION_COMPLETE: {
             return Object.assign({}, state, {
-                edges: [...state.edges, action.payload]
+                edges: [...state.edges, action.payload],
+                undoStates: getUndoState(state),
+                redoStates: []
             });
         }
         case wizardActions.actionTypes.DELETE_NODE_RELATION: {
             return Object.assign({}, state, {
                 edges: state.edges.filter((edge: any) => {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
-                })
+                }),
+                undoStates: getUndoState(state),
+                redoStates: []
             });
         }
         case wizardActions.actionTypes.DELETE_ENTITY: {
@@ -162,19 +177,29 @@ export function reducer(state: State = initialState, action: any): State {
                 }),
                 edges: state.edges.filter((edge: any) => {
                     return state.selectedEntity !== edge.origin && state.selectedEntity !== edge.destination;
-                })
+                }),
+                undoStates: getUndoState(state),
+                redoStates: []
             });
         }
         case wizardActions.actionTypes.SHOW_EDITOR_CONFIG: {
             return Object.assign({}, state, {
                 editionConfig: true,
                 editionConfigType: action.payload,
-                editionSaved: false
+                editionSaved: false,
+                selectedEntity: ''
             });
         }
         case wizardActions.actionTypes.HIDE_EDITOR_CONFIG: {
             return Object.assign({}, state, {
                 editionConfig: false
+            });
+        }
+        case wizardActions.actionTypes.CREATE_ENTITY: {
+            return Object.assign({}, state,{
+                nodes: [...state.nodes, action.payload],
+                undoStates: getUndoState(state),
+                redoStates: []
             });
         }
         case wizardActions.actionTypes.SAVE_WORKFLOW_POSITIONS: {
@@ -183,7 +208,6 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.actionTypes.SAVE_EDITOR_POSITION: {
-            console.log(action.payload);
             return Object.assign({}, state, {
                 svgPosition: action.payload
             });
@@ -208,6 +232,8 @@ export function reducer(state: State = initialState, action: any): State {
                         return edge;
                     }
                 }),
+                undoStates: getUndoState(state),
+                redoStates: [],
                 editionSaved: true
             });
         }
@@ -290,12 +316,99 @@ export function reducer(state: State = initialState, action: any): State {
                 menuOptions: menuOptions
             });
         }
+        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                savedWorkflow: true
+            });
+        }
+        case wizardActions.actionTypes.SELECT_SEGMENT: {
+            return Object.assign({}, state, {
+                selectedRelation: action.payload
+            });
+        }
+        case wizardActions.actionTypes.UNSELECT_SEGMENT: {
+            return Object.assign({}, state, {
+                selectedRelation: null
+            });
+        }
+        case wizardActions.actionTypes.SEARCH_MENU_OPTION: {
+            return Object.assign({}, state, {
+                floatingMenuSearch: action.payload
+            });
+        }
+        case wizardActions.actionTypes.UNDO_CHANGES: {
+            if(state.undoStates.length) {
+                const undoState = state.undoStates[0];
+                return  Object.assign({}, state, {
+                    nodes: JSON.parse(JSON.stringify(undoState.nodes)),
+                    edges: JSON.parse(JSON.stringify(undoState.edges)),
+                    redoStates: getRedoState(state),
+                    undoStates: state.undoStates.slice(1)
+                }); 
+            } else {
+                return Object.assign({}, state);
+            }
+        }
+        case wizardActions.actionTypes.REDO_CHANGES: {
+            if(state.redoStates.length) {
+                const redoState = state.redoStates[0];
+                return  Object.assign({}, state, {
+                    nodes: JSON.parse(JSON.stringify(redoState.nodes)),
+                    edges: JSON.parse(JSON.stringify(redoState.edges)),
+                    undoStates: getUndoState(state),
+                    redoStates: state.redoStates.slice(1)
+                });
+            } else {
+                return Object.assign({}, state);
+            }
+        }
         default:
             return state;
     }
 }
 
-export const getMenuOptions: any = (state: State) => state.menuOptions;
+function getUndoState(state: any) {
+    const undoState: any = {
+        nodes: JSON.parse(JSON.stringify(state.nodes)),
+        edges: JSON.parse(JSON.stringify(state.edges))
+    }
+    return  [undoState, ...state.undoStates.filter((value: any, index: number) => {
+        return index < 4;
+    })];
+}
+
+function getRedoState(state: any) {
+    const redoState: any = {
+        nodes: JSON.parse(JSON.stringify(state.nodes)),
+        edges: JSON.parse(JSON.stringify(state.edges))
+    }
+    return  [redoState, ...state.redoStates.filter((value: any, index: number) => {
+        return index < 4;
+    })];
+}
+
+export const getMenuOptions: any = (state: State) => {
+    // floatingMenuSearch state.menuOptions;
+    if (state.floatingMenuSearch.length) {
+        let menu: any = [];
+        const matchString = state.floatingMenuSearch.toLowerCase();
+        state.menuOptions.forEach((option: any) => {
+            const icon = option.icon;
+            const options: any = [];
+            option.subMenus.forEach((type: any) => {
+                if (!type.subMenus && type.name.toLowerCase().indexOf(matchString) != -1) {
+                    options.push(Object.assign({}, type, {
+                        icon: icon
+                    }))
+                }
+            });
+            menu = menu.concat(options);
+        });
+        return menu;
+    } else {
+        return state.menuOptions;
+    }
+};
 export const getSelectedEntities: any = (state: State) => state.selectedEntity;
 export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => {
     return node.name === state.selectedEntity;
@@ -308,6 +421,13 @@ export const getWorkflowSettings: any = (state: State) => state.settings;
 export const getWorkflowName: any = (state: State) => state.settings.basic.name;
 export const getWorkflowPosition: any = (state: State) => state.svgPosition;
 export const isSavedWorkflow: any = (state: State) => state.savedWorkflow;
+export const areUndoRedoEnabled: any = (state: State) => {
+    return {
+        undo: state.undoStates.length ? true : false,
+        redo: state.redoStates.length ? true : false
+    };
+};
+export const getSelectedRelation: any = (state: State) => state.selectedRelation;
 export const getEditionConfigMode: any = (state: State) => {
     return {
         isEdition: state.editionConfig,

@@ -21,6 +21,7 @@ import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
 import * as workflowActions from 'actions/workflow';
 import * as wizardActions from 'actions/wizard';
+import * as errorsActions from 'actions/errors';
 
 import { CustomAlert } from 'app/models/alert.model';
 import { STALERT_SEVERITY } from '@stratio/egeo';
@@ -156,6 +157,15 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'CREATE_OUTPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case errorsActions.actionTypes.SERVER_ERROR: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'SUCCESS',
+                    description: action.payload
                 }]
             });
         }

@@ -16,7 +16,7 @@
 
 import {
     Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ChangeDetectionStrategy,
-    ChangeDetectorRef, HostListener
+    ChangeDetectorRef, HostListener, ViewChild
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
@@ -27,7 +27,8 @@ import * as d3 from 'd3';
 import * as wizardActions from 'actions/wizard';
 import { D3ZoomEvent } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
-import { ValidateSchemaService } from 'services';
+import { InitializeSchemaService } from 'services';
+import { ValidateSchemaService } from 'app/services/validate-schema.service';
 
 
 @Component({
@@ -38,16 +39,16 @@ import { ValidateSchemaService } from 'services';
 
 export class WizardEditorComponent implements OnInit, OnDestroy {
 
-    RETURN_KEYCODE = 27;
+    ESC_KEYCODE = 27;
     SUPR_KEYCODE = 46;
 
     public entities: any = [];
     public entitiesData: any = [];
 
     public svgPosition = {
-        x: 10,
-        y: 10,
-        k: 0
+        x: 0,
+        y: 0,
+        k: 1
     };
 
     public showConnector = false;
@@ -62,8 +63,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     public SVGContainer: any;
     public selectedEntity: any = '';
+    public drawingConnectionStatus: any = {
+        status: false,
+        name: ''
+    };
     public isShowedEntityDetails$: Observable<boolean>;
     public workflowRelations: Array<any> = [];
+    public selectedSegment: any = null;
 
     /**** Subscriptions ****/
     private creationModeSubscription: Subscription;
@@ -72,6 +78,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private getWorflowNodesSubscription: Subscription;
     private workflowRelationsSubscription: Subscription;
     private workflowPositionSubscription: Subscription;
+    private selectedSegmentSubscription: Subscription;
 
     private creationMode: any;
     private documentRef: any;
@@ -79,17 +86,40 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     private zoom: any;
     private drag: any;
-
+    @ViewChild('editorArea') editorArea: ElementRef;
     @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-        if (event.keyCode === this.RETURN_KEYCODE && this.selectedEntity.length) {
-            this.store.dispatch(new wizardActions.UnselectEntityAction());
-        } else if (event.keyCode === this.SUPR_KEYCODE && this.selectedEntity && this.selectedEntity.length) {
-            this.store.dispatch(new wizardActions.DeleteEntityAction());
+        if (event.keyCode === this.ESC_KEYCODE) {
+            if (this.selectedEntity.length) {
+                this.store.dispatch(new wizardActions.UnselectEntityAction());
+            }
+            this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+
+        } else if (event.keyCode === this.SUPR_KEYCODE) {
+            if (this.selectedEntity && this.selectedEntity.length) {
+                this.store.dispatch(new wizardActions.DeleteEntityAction());
+            }
+            if (this.selectedSegment) {
+                this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+            }
         }
     }
 
-    constructor(private elementRef: ElementRef, private editorService: WizardEditorService,
-        private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private validateSchemaService: ValidateSchemaService) {
+
+    @HostListener('click', ['$event'])
+    clickout(event: any) {
+        if (this.editorArea.nativeElement.contains(event.target)) {
+            if (this.selectedSegment) {
+                this.store.dispatch(new wizardActions.UnselectSegmentAction());
+            }
+            if (this.selectedEntity) {
+                console.log(event.target);
+                this.store.dispatch(new wizardActions.UnselectEntityAction());
+            }
+        }
+    }
+
+    constructor(private elementRef: ElementRef, private editorService: WizardEditorService, private validateSchemaService: ValidateSchemaService,
+        private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private initializeSchemaService: InitializeSchemaService) {
 
     }
 
@@ -120,6 +150,10 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                     }),
                 };
             });
+        });
+
+        this.selectedSegmentSubscription = this.store.select(fromRoot.getSelectedRelation).subscribe((relation) => {
+            this.selectedSegment = relation;
         });
 
 
@@ -166,8 +200,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 k: e.transform.k
             };
             this.setContainerPosition();
-        }))
-            .on('dblclick.zoom', null);
+        })).on('dblclick.zoom', null);
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
             this.svgPosition = position;
@@ -195,11 +228,14 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         if (this.creationMode.active) {
             const entityData = this.creationMode.data;
             let entity: any = {};
-            if(entityData.type === 'template') {
+            if (entityData.type === 'template') {
                 entity = Object.assign({}, entityData.data);
+                if (this.creationMode.data.stepType !== 'Output') {
+                    entity.writer = this.initializeSchemaService.getDefaultWriterModel();
+                }
                 entity.name = this.editorService.getNewEntityName(entityData.data.classPrettyName, this.entities);
-            }else {
-                entity = this.validateSchemaService.setDefaultEntityModel(this.creationMode.data.value);
+            } else {
+                entity = this.initializeSchemaService.setDefaultEntityModel(this.creationMode.data.value, this.creationMode.data.stepType, true);
                 entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
             }
             entity.stepType = this.creationMode.data.stepType;
@@ -209,7 +245,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                     y: ($event.offsetY - this.svgPosition.y) / this.svgPosition.k
                 }
             };
-            this.entities.push(entity);
+            const errors = this.validateSchemaService.validateEntity(entity, this.creationMode.data.stepType, this.creationMode.data.value);
+
+            if (errors && errors.length) {
+                entity.hasErrors = true;
+                entity.errors = errors;
+            }
+
+            //this.entities.push(entity);
+            this.store.dispatch(new wizardActions.CreateEntityAction(entity));
         }
         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
     }
@@ -223,13 +267,24 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.connector.x2 = 0;
         this.connector.y2 = 0;
         this.showConnector = true;
+        this.drawingConnectionStatus = {
+            status: true,
+            name: event.name
+        };
 
         const w = this.documentRef
             .on('mousemove', drawConnector.bind(this))
             .on('mouseup', mouseup.bind(this));
 
         function mouseup() {
+           
+
+            console.log(event);
+             event.event.target.classList.remove('over-output2');
             this.showConnector = false;
+            this.drawingConnectionStatus = {
+                status: false
+            };
             w.on('mousemove', null).on('mouseup', null);
         }
 
@@ -273,9 +328,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     selectEntity(entity: any) {
-        if (this.selectedEntity === entity.name) {
-            this.store.dispatch(new wizardActions.UnselectEntityAction());
-        } else {
+        this.store.dispatch(new wizardActions.UnselectSegmentAction());
+        if (this.selectedEntity !== entity.name) {
             this.store.dispatch(new wizardActions.SelectEntityAction(entity.name));
         }
     }
@@ -298,19 +352,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             stepType: 'settings'
         }));
     }
-
     saveWorkflow(): void {
         // save entities position
         this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
         this.store.dispatch(new wizardActions.SaveEditorPosition(this.svgPosition));
-
         this.store.dispatch(new wizardActions.SaveWorkflowAction());
     }
 
-    removeSegment($event: any) {
-        this.store.dispatch(new wizardActions.DeleteNodeRelationAction($event));
-    }
-    
     ngOnDestroy(): void {
         this.creationModeSubscription && this.creationModeSubscription.unsubscribe();
         this.getSeletedEntitiesSubscription && this.getSeletedEntitiesSubscription.unsubscribe();
@@ -318,5 +366,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.workflowRelationsSubscription && this.workflowRelationsSubscription.unsubscribe();
         this.workflowPositionSubscription && this.workflowPositionSubscription.unsubscribe();
         this.getSeletedEntitiesDataSubscription && this.getSeletedEntitiesDataSubscription.unsubscribe();
+        this.selectedSegmentSubscription && this.selectedSegmentSubscription.unsubscribe();
     }
 }

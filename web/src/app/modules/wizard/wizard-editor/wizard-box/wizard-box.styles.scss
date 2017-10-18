@@ -1,10 +1,13 @@
+@import '~@stratio/egeo/theme/constants';
+
 .entity {
-    cursor: move;
-    &.active {
-        -webkit-filter: drop-shadow(193, 193, 193, 0.5);
-        filter: url(#drop-shadow);
-    }
+   cursor: move;
+   &.active {
+      -webkit-filter: drop-shadow(193, 193, 193, 0.5);
+      filter: url(#drop-shadow);
+   }
 }
+
 .entity-name {
    fill: #0f1b27;
    font-family: "Nunito Sans";
@@ -15,36 +18,94 @@
    user-select: none;
 }
 
-.entity-icon {
-    font-family: ico_stratio;
-    font-size:25px;
-    user-select: none;
-    cursor: move;
+.output-point,
+.entry-point {
+   user-select: none;
 }
 
-.output-point, .entry-point{
-    user-select: none;
+.output-point {
+   &:hover {
+      fill: white;
+      stroke: #777;
+      /*rx: 20;
+        ry: 20;
+        stroke-linecap: round;*/
+      transform: scale(1.2);
+   }
 }
 
-.Input{
-    stroke: #fcb66c;
-
-    &.active {
-        fill: #fbf3ec;
-    }
+.Input {
+   stroke: #fcb66c;
+   &.active {
+      fill: #fbf3ec;
+   }
 }
-
 
 .Output {
-    stroke:#78c7dd;
-    &.active {
-        fill: #f5fbfd;
-    }
+   stroke: #78c7dd;
+   &.active {
+      fill: #f5fbfd;
+   }
 }
 
 .Transformation {
-    stroke: #c59ddb;
-    &.active {
-        fill: #f5fbfd;
-    }
+   stroke: #c59ddb;
+   &.active {
+      fill: #f9f5fb;
+   }
+}
+
+.relation {
+   display: none;
+   stroke-width: 1;
+   stroke: #999;
+   fill: #e7f3fb;
+   transition: 0.15s all;
+   transform-origin: 4px 4px;
+}
+
+:host .relation.relation.over-output2 {
+      fill: white;
+      display: block;
+      stroke: #acc952;
+      stroke-width: 1;
+      -ms-transform: scale(1.2);
+      transform: scale(1.2);
+   }
+
+.active {
+
+  
+   .entry-point.relation {
+     display: block!important;
+      fill: white;
+     /* -ms-transform: scale(1.2);
+      transform: scale(1.2);*/
+   }
+   .relation.over-output{
+      fill: white;
+      display: block!important;
+      stroke: #acc952;
+      stroke-width: 1;
+      -ms-transform: scale(1.2);
+      transform: scale(1.2);
+   }
+}
+
+:host:hover {
+   .type-output {
+      .output-entry {
+         display: block;
+      }
+   }
+   .type-input {
+      .input-entry {
+         display: block;
+      }
+   }
+   .type-transformation {
+      .transformation-entry {
+         display: block;
+      }
+   }
 }

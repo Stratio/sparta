@@ -30,39 +30,51 @@ import {
     ViewChild
 } from '@angular/core';
 import {
-    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm
+    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
+import { ErrorMessagesService } from "app/services";
 
 @Component({
     selector: 'form-list',
     templateUrl: './form-list.template.html',
     styleUrls: ['./form-list.styles.scss'],
     providers: [
-        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => FormListComponent), multi: true }
-    ],
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FormListComponent),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => FormListComponent),
+            multi: true
+        }],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormListComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class FormListComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
     @Input() public formListData: any;
     @Input() public label = '';
     @Input() public qaTag = '';
+    @Input() required = false;
+    @Input() forceValidations = false;
 
     @ViewChild('inputForm') public inputForm: NgForm;
 
     public item: any = {};
     public form: FormGroup;
     public items: FormArray;
+    public hasErrors = false;
 
     onChange = (_: any) => { };
     onTouched = () => { };
 
-    constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef) { };
+    constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { };
 
     ngOnInit() {
-        for (let field of this.formListData.fields) {
-            this.item[field.propertyId] = '';
+        for (const field of this.formListData.fields) {
+            this.item[field.propertyId] = ['', Validators.required];
         }
 
         this.items = this.formBuilder.array([]);
@@ -85,35 +97,38 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
         this.items.push(this.createItem());
     }
 
-    getItemClass(type: string): string {
-
-        if(type === 'boolean') {
+    getItemClass(field: any): string {
+        if (field.width) {
+            return 'col-xs-' + field.width;
+        }
+        const type: string = field.propertyType;
+        if (type === 'boolean') {
             return 'check-column';
         }
         const length = this.formListData.fields.length;
-        if(length === 1) {
+        if (length === 1) {
             return 'col-xs-6';
-        } else if(length<4) {
-            return 'col-xs-' + 12/length;
+        } else if (length < 4) {
+            return 'col-xs-' + 12 / length;
         } else {
             return 'col-xs-4';
         }
     }
+
     writeValue(data: any): void {
         if (data && Array.isArray(data) && data.length) {
             this.items.controls = [];
-            for (let value of data) {
-                let item: any = {};
-                for (let field of this.formListData.fields) {
+            for (const value of data) {
+                const item: any = {};
+                for (const field of this.formListData.fields) {
                     item[field.propertyId] = [value[field.propertyId]];
                 }
-                let form: FormGroup = this.formBuilder.group(item);
+                const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);
             }
             this._cd.detectChanges();
         } else {
             this.items.controls = [];
-            this.addItem();
         }
     }
 
@@ -137,6 +152,32 @@ export class FormListComponent implements ControlValueAccessor, OnInit, OnDestro
 
     changeValue(value: any): void {
         this.onChange(this.items.value);
+    }
+
+    validate(c: FormGroup): { [key: string]: any; } {
+        if (this.required) {
+            if (!this.items.controls.length) {
+                return  {
+                    formListError: {
+                        valid: false
+                    }
+                };
+            }
+        }
+
+        let error = false;
+        this.items.controls.forEach((control: any) => {
+            if (control.invalid) {
+                error = true;
+            }
+        });
+
+        return error ? {
+            formListError: {
+                valid: false
+            }
+        } : null;
+
     }
 
     ngOnDestroy(): void {

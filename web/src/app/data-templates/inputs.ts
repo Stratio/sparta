@@ -41,8 +41,9 @@ export const inputs = [
     websocketTemplate
 ];
 
-
+export const inputsObject: any = {};
 export const inputNames = inputs.map((input: any) => {
+    inputsObject[input.classPrettyName] = input;
     return {
         name: input.name,
         value: input,

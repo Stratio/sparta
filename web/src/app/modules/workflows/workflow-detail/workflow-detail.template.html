@@ -7,11 +7,14 @@
    <div class="selected" *ngIf="workflowData && workflowData.name">
       <span class="status" [ngClass]="workflowData.context.status.toLowerCase()">{{('DASHBOARD.' + (workflowData.context.status | uppercase)) | translate}}</span>
       <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
+      <span class="description">{{workflowData.description}}</span>
       <div *ngIf="workflowData.context && workflowData.context.statusInfo && workflowData.context.statusInfo.length">
          <span class="title">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
          <span class="values">{{workflowData.context.statusInfo}}</span>
-        
+
       </div>
+      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})">Show execution info</a>
+
       <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
          <span class="title">Execution mode</span>
          <span class="">{{workflowData.context.lastExecutionMode}}</span>

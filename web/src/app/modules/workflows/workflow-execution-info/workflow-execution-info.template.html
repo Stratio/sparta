@@ -1,0 +1,46 @@
+<section class="execution-info-container" *ngIf="executionInfo">
+    <div class="execution-header">
+        <div class="container">
+            <div class="egeo-title-giant">
+            {{workflow.name}}
+            </div>
+        </div>
+
+    </div>
+   <div class="container">
+      <div class="row info-data">
+         <div class="col-sm-6" *ngIf="executionInfo.driverClass">
+            <div class="title">
+               driverClass
+            </div>
+            <div class="values">
+               {{executionInfo.driverClass}}
+
+            </div>
+         </div>
+         <div class="col-sm-6" *ngIf="executionInfo.driverClass">
+            <div class="title">
+               driverFile
+            </div>
+            <div class="values">
+               {{executionInfo.driverFile}}
+
+            </div>
+         </div>
+         <div class="col-sm-12" *ngIf="executionInfo.sparkConfigurations">
+            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)" class="spark-config-table">
+               <tr st-table-row *ngFor="let item of executionInfo.sparkConfigurations | keyobject">
+
+                  <td st-table-cell st-table-row-content>
+                     {{item.key}}
+                  </td>
+                  <td st-table-cell st-table-row-content>
+                     {{item.value}}
+                  </td>
+               </tr>
+            </st-table>
+         </div>
+      </div>
+   </div>
+
+</section>

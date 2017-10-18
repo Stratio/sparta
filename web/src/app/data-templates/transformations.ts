@@ -46,7 +46,9 @@ export const transformations: any = [
    windowTemplate
 ];
 
+export const transformationsObject: any = {};
 export const transformationNames = transformations.map((transformation: any) => {
+  transformationsObject[transformation.classPrettyName] = transformation;
   return {
         name: transformation.name,
         value: transformation,

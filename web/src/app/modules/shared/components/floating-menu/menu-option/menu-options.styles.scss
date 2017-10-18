@@ -16,10 +16,12 @@ ul{
     position:absolute;
     top:0;
     left:0;
-    box-shadow: 0px 0px 8px rgba(160, 160, 160, 0.45);
+    /*box-shadow: 0px 0px 8px rgba(160, 160, 160, 0.45);*/
+    border-radius:3px;
     position: absolute;
     background:white;
     margin-left:-3px;
+    border: 1px solid #a0d4f3;
     min-width:100%;
 
     &.right-position {
@@ -32,20 +34,41 @@ ul{
     display:none;
 }
 
-li{
-    position:relative;
-    display:block;
-    min-width:150px;
-    padding:7px 8px 7px 20px;
-    cursor:pointer;
-    padding-right:30px;
-    color:$neutral-09;
+
+
+    li.search {
+        border-bottom: 1px solid #a0d4f3;
+        margin:0;
+        padding:0;
+        position:relative;
+        input {
+            padding: 7px 14px;
+            outline:0;
+            width:100%;
+            min-width:200px;
+        }
+        .delete {
+            position: absolute;
+            right: 10px;
+            top:11px;
+        }
+    }
+
+    li.item{
+        position:relative;
+        display:block;
+        min-width:150px;
+        padding:7px 8px 7px 20px;
+        cursor:pointer;
+        padding-right:30px;
+        /*color:$neutral-09;*/
+        color:#192a3a;
 
     .has-submenu{
         position: absolute;
         right:10px;
-        font-size:11px;
-        top:11px;
+        font-size:12px;
+        top:12px;
     }
 
     .item-icon{
@@ -58,14 +81,14 @@ li{
     }
 
     &:hover {
-        background-color: $action-secondary-01;
+        background-color: #e7f3fb;
 
-        &>span {
-            color: $brand;
+        &>.item-icon {
+            color: #07a0e4;
         }
        
         &>.has-submenu{
-            color: $brand;
+            color: #07a0e4;
         }
 
         &>.submenu{

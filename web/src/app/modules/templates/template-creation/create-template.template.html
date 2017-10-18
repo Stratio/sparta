@@ -23,15 +23,15 @@
          <!--<form-string-list [formListData]="listData[fragmentIndex].properties[0]"></form-string-list>-->
 
 
-         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" (ngSubmit)="onSubmitInputForm()">
+         <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off">
             <div class="row">
                <div class="col-xs-6">
-                  <st-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                  <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
                      qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                     class="input-field"></st-input>
-                  <st-input name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
-                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                     class="input-field"></st-input>
+                     class="input-field"></sp-input>
+                  <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
+                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
+                     class="input-field"></sp-textarea>
                   <div *ngIf="!editMode">
                      <st-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.INPUT_TYPE' | translate}}"
                         name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></st-select>

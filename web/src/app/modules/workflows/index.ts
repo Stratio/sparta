@@ -21,3 +21,4 @@ export * from './resources-routing.module';
 export * from './workflow-creation-modal/workflow-creation-modal.component';
 export * from './workflow-json-modal/workflow-json-modal.component';
 export * from './workflow-detail/workflow-detail.component';
+export * from './workflow-execution-info/workflow-execution-info.component';

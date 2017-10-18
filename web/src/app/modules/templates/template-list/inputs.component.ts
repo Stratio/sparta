@@ -48,17 +48,17 @@ export class InputsComponent extends TemplatesBaseComponent {
         this.store.dispatch(new inputActions.ListInputAction());
     }
 
-    // abstract method implementation
+    // @Override: abstract method implementation
     duplicateTemplate(input: any) {
         this.store.dispatch(new inputActions.DuplicateInputAction(input));
     }
 
-    // abstract method implementation
+    // @Override: abstract method implementation
     deleteTemplates(input: any) {
         this.store.dispatch(new inputActions.DeleteInputAction(this.selectedTemplates));
     }
 
-    // abstract method implementation
+    // @Override: abstract method implementation
     onCheckedTemplate($event: any): void {
         if ($event.checked) {
             this.store.dispatch(new inputActions.SelectInputAction($event.value));
@@ -67,12 +67,12 @@ export class InputsComponent extends TemplatesBaseComponent {
         }
     }
 
-    // abstract method implementation
+    // @Override: abstract method implementation
     changeDisplayOption(): void {
         this.store.dispatch(new inputActions.DisplayModeAction());
     }
 
-    // abstract method implementation
+    // @Override: abstract method implementation
     editTemplateAction(input: any) {
         this.store.dispatch(new inputActions.EditInputAction(input));
     }

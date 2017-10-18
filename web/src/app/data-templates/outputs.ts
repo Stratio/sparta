@@ -49,7 +49,9 @@ export const outputs = [
   printTemplate
 ];
 
+export const outputsObject: any = {};
 export const outputNames = outputs.map((output: any) => {
+  outputsObject[output.classPrettyName] = output;
   return {
         name: output.name,
         value: output,

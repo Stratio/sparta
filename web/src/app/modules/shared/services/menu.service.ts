@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { StHeaderMenuOption  } from '@stratio/egeo';
+import { StHeaderMenuOption } from '@stratio/egeo';
 import { Injectable } from '@angular/core';
 import { DASHBOARD_ROUTES } from './../../dashboard-route.enum';
 
@@ -41,6 +41,10 @@ export class MenuService {
                 {
                     label: 'Outputs',
                     link: DASHBOARD_ROUTES.OUTPUTS
+                },
+                {
+                    label: 'Transformations',
+                    link: DASHBOARD_ROUTES.TRANSFORMATIONS
                 }
             ]
         },
@@ -49,21 +53,21 @@ export class MenuService {
             label: 'Settings',
             link: DASHBOARD_ROUTES.SETTINGS,
             subMenus: [
-               /* {
-                    label:'GENERAL',
-                    link: DASHBOARD_ROUTES.INPUTS,
-                    isActive:true
-                },*/
+                /* {
+                     label:'GENERAL',
+                     link: DASHBOARD_ROUTES.INPUTS,
+                     isActive:true
+                 },*/
                 {
-                    label:'Backups',
+                    label: 'Backups',
                     link: DASHBOARD_ROUTES.BACKUPS
                 },
-              /*  {
-                    label:'Resources',
-                    link: DASHBOARD_ROUTES.RESOURCES
-                },*/
+                /*  {
+                      label:'Resources',
+                      link: DASHBOARD_ROUTES.RESOURCES
+                  },*/
                 {
-                    label:'Crossdata',
+                    label: 'Crossdata',
                     link: DASHBOARD_ROUTES.CROSSDATA
                 }
             ]

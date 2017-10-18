@@ -21,7 +21,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import * as inputActions from 'actions/input';
 import * as fromRoot from 'reducers';
 import * as inputTemplate from 'data-templates/input.json';
-import { BreadcrumbMenuService, ErrorMessagesService, ValidateSchemaService } from 'services';
+import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 
 export abstract class CreateTemplateComponent implements OnInit {
@@ -33,6 +33,7 @@ export abstract class CreateTemplateComponent implements OnInit {
     public submitted = false;
     public fragmentName: any;
     public form: FormGroup;
+    public stepType = '';
     public fragmentTypes: StDropDownMenuItem[] = [];
     public breadcrumbOptions: string[] = [];
     public inputFormModel: any = {
@@ -48,7 +49,7 @@ export abstract class CreateTemplateComponent implements OnInit {
         private currentActivatedRoute: ActivatedRoute,
         private formBuilder: FormBuilder,
         public breadcrumbMenuService: BreadcrumbMenuService,
-        protected validateSchemaService: ValidateSchemaService) {
+        protected initializeSchemaService: InitializeSchemaService) {
 
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         this.configuration = new FormGroup({});
@@ -64,7 +65,7 @@ export abstract class CreateTemplateComponent implements OnInit {
         this.inputFormModel.classPrettyName = event;
         this.setEditedTemplateIndex(event);
         setTimeout(() => { // set default model and remove description
-            this.inputFormModel = this.validateSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex]);
+            this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex], this.stepType);
             this.inputFormModel.description = '';
         }, 0);
     }
@@ -83,7 +84,7 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.editMode = true;
             this.getEditedTemplate();
         } else {
-            this.inputFormModel = this.validateSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex]);
+            this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex], this.stepType);
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.description = '';
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;

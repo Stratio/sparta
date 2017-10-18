@@ -5,11 +5,18 @@
       <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
    </div>
    <div class="selected" *ngIf="entityData && entityData.name">
+      <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>
       <h3 class="egeo-title-giant">{{entityData.name}}</h3>
-      <div>
-         <span class="title">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
-         <span class="values"></span>
-
+      <span>{{entityData.description}}</span>
+      <div *ngFor="let item of templates[entityData.stepType][entityData.classPrettyName].properties">
+         <div *ngIf="(item.propertyType === 'text' || item.propertyType === 'select') && item && entityData.configuration[item.propertyId]">
+            <span class="title">{{item.propertyName | translate}}</span>
+            <span class="values">{{entityData.configuration[item.propertyId]}}</span>
+         </div>
+         <div *ngIf="item.propertyType === 'boolean' || item.propertyType === 'switch'">
+            <span class="title">{{item.propertyName | translate}}</span>
+            <span class="values">{{entityData.configuration[item.propertyId] ? 'true' : 'false'}}</span>
+         </div>
       </div>
    </div>
 </div>

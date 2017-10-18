@@ -19,7 +19,7 @@ body{
     background:#f3f6f8;
 }
 
-st-textarea {
+sp-textarea {
     width:100%;
 }
 
@@ -37,4 +37,11 @@ st-textarea {
 
 .custom-checkbox{
     margin-right: 6px!important;
+}
+
+.entity-icon {
+    font-family: ico_stratio;
+    font-size:25px;
+    user-select: none;
+    cursor: move;
 }

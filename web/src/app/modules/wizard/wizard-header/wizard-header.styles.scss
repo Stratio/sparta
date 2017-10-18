@@ -1,10 +1,8 @@
 @import '~@stratio/egeo/theme/constants';
-
 $cloudy-black: #cdd6df;
-
 .title-header {
    background-color: white;
-   border-bottom:1px solid $cloudy-black;
+   border-bottom: 1px solid $cloudy-black;
    padding: 9px 0 1px;
 }
 
@@ -14,51 +12,69 @@ $cloudy-black: #cdd6df;
    position: relative;
 }
 
-.tool-header{
-    padding:12px 0;
-    border-bottom:1px solid #ddd;
+.tool-header {
+   padding: 12px 0;
+   border-bottom: 1px solid #ddd;
 }
 
-.position-tools{
-    display:inline-block;
+.position-tools {
+   display: inline-block;
 }
 
 .show-options {
-    margin-right: 40px;
+   margin-right: 40px;
 }
+
 .header-info {
-    display:inline-block;
+   display: inline-block;
 }
 
 .st-logo {
-    float: left;
-    margin-top: 8px;
+   float: left;
+   margin-top: 8px;
 }
 
-.workflow-name{
-    float: left;
-    line-height: 27px;
-    vertical-align: bottom;
-    margin-top: 0px;
-    margin-left: 40px;
-    min-width: 400px;
+.undo-action{
+    margin-left:15px;
+}
 
-    &:focus {
-        border: 0;
-        outline: none;
-    }
+.workflow-name {
+   line-height: 27px;
+   vertical-align: bottom;
+   min-width: 400px;
+   margin-left: 35px;
+   margin-top: -2px;
+   margin-bottom: 9px;
+   padding: 0 5px;
+   &:focus {
+      border: 0;
+      outline: 1px solid $brand;
+   }
+}
+
+.workflow-name-container {
+   float: left;
+   margin-left: 40px;
+   margin-top: 4px;
+   margin-bottom: 6px;
+   .title {
+      margin-right: 10px;
+   }
+   .icon-edit {
+      font-size: 22px;
+      color: #bbb;
+      margin-top: 2px;
+   }
 }
 
 .header-links {
-    float:right;
-    
-    .link{
-        margin-right: 30px;
-        color: $action-primary-default;
-        cursor:pointer;
-
-        &:hover {
-            color: $action-primary-hover;
-        }
-    }
+   float: right;
+   .link {
+      margin-right: 30px;
+      color: $action-primary-default;
+      cursor: pointer;
+      &:hover {
+         color: $action-primary-hover;
+      }
+   }
 }

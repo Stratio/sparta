@@ -8,31 +8,35 @@
    <form class="items-list col-sm-12" [formGroup]="form" *ngIf="items.controls.length">
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index;">
-            <div [formGroupName]="i" class="row">
-                        <div class="list-field">
-               <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass(field.propertyType)">
-                 
-                  <st-input *ngIf="field.propertyType == 'text' || field.propertyType == 'number'" label="{{field.propertyName | translate}}"
-                     fieldType="{{field.propertyType}}" placeholder="Field name" formControlName="{{field.propertyId}}" qaTag="form-list-input"
-                     (change)="changeValue($event)" [required]="field.required" contextualHelp="{{field.tooltip | translate}}"></st-input>
+            <div [formGroup]="item" class="row">
+               <div class="list-field">
+                  <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass(field)">
 
-                  <st-select *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo" label="{{field.propertyName | translate}}"
-                     tooltip="Select option from list" placeholder="Select option" (change)="changeValue($event)" [required]="field.required"
-                     formControlName="{{field.propertyId}}"></st-select>
+                     <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
+                        label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
+                        [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" (change)="changeValue($event)"
+                        required="true" contextualHelp="{{field.tooltip | translate}}"></sp-input>
 
-                  <st-checkbox *ngIf="field.propertyType == 'boolean'" 
-                     formControlName="{{field.propertyId}}"
-                     [name]="field.propertyId" 
-                     [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
+                     <st-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
+                        label="{{field.propertyName | translate}}" tooltip="Select option from list" placeholder="{{field.propertyName | translate}}"
+                        (change)="changeValue($event)" required="true" [formControl]="item.controls[field.propertyId]"></st-select>
+
+                     <st-checkbox *ngIf="field.propertyType == 'boolean'" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
                   </div>
-           
+
                   <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>
- 
+
             </div>
          </div>
       </div>
+
    </form>
+   <div class="col-sm-12 error-message">
+    <div class="st-input-error-layout" *ngIf="required && !items.controls.length">
+        <span class="st-input-error-message">This field is required</span>
+    </div>
+   </div>
    <div class="add-element" (click)="addItem()">
       <i class="icon-circle-plus"></i>
       <span class="element-label">Add element</span>

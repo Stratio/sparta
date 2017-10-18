@@ -16,93 +16,84 @@
 
 import { Injectable } from '@angular/core';
 import { ValidationModel, ValidationErrorModel } from 'app/models/validation-schema.model';
+import { inputs } from 'data-templates/inputs';
+import { outputs } from 'data-templates/outputs';
+import { transformations } from 'data-templates/transformations';
+import * as settingsTemplate from 'data-templates/settings.json';
+import * as writerTemplate from 'data-templates/writer.json';
 
 @Injectable()
 export class ValidateSchemaService {
-    public errors: any;
 
+    private writerSchema: any;
 
-    public static setDefaultWorkflowSettings(value: any): any {
-        let model: any = {};
-        model.basic = {
-            name: 'Workflow-name',
-            description: 'workflow description'
-        };
-        model.advancedSettings = {};
-        value.advancedSettings.map((category: any) => {
-            model.advancedSettings[category.name] = this.getCategoryModel(category.properties);
-        });
-        return model;
+    constructor() {
+        this.writerSchema = writerTemplate;
     }
 
+    validateEntity(model: any, stepType: string, schema?: any) {
+        if (!schema) {
+            switch (stepType) {
+                case 'Input':
 
-    public static getCategoryModel(value: any): any {
-        let model: any = {};
-        value.map((prop: any) => {
-            if (prop.properties) {
-                model[prop.name] = this.getCategoryModel(prop.properties);
-            } else {
-                model[prop.propertyId] = prop.default ? prop.default : null;
+                case 'Output':
+
+                case 'Transformation':
+
+                default:
+                    break;
             }
-        });
-        return model;
-    }
-
-    validateModel(): ValidationModel {
-        return null;
-    }
-
-
-
-    getEntityRules() {
-
-
-    }
-
-
-
-
-
-    getErrors(): Array<ValidationErrorModel> {
-        return [];
-    }
-
-    private _validRequired(value: any): ValidationErrorModel {
-        if (value && value.toString().length > 0) {
-            return null;
+        } else {
+            if(stepType === 'Output') {
+                return this.validate(schema.properties, model.configuration);
+            } else {
+                return this.validate(schema.properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
+            }
         }
     }
 
-    setDefaultEntityModel(value: any): any {
-        let model: any = {};
-        model.configuration = {};
-        value.properties.map((prop: any) => {
-            model.configuration[prop.propertyId] = prop.default ? prop.default : null;
-        });
-        model.classPrettyName = value.classPrettyName;
-        model.className = value.className;
-        model.stepType = value.stepType;
-        model.description = value.description;
+    validateSettings() {
 
-        return model;
     }
 
-    setTemplateEntityModel(value: any): any {
-        let model: any = {};
-        model.configuration = {};
-        value.properties.map((prop: any) => {
-            model.configuration[prop.propertyId] = prop.default ? prop.default : null;
-        });
-        model.classPrettyName = value.classPrettyName;
-        model.className = value.className;
-        model.stepType = value.stepType;
-        model.description = value.description;
+    validate(schema: any, model: any): Array<any> {
+        const errors: Array<any> = [];
+        schema.forEach((prop: any) => {
+            const value = model[prop.propertyId];
 
-        return model;
+            if (prop.required) {
+                if (prop.propertyType === 'number') {
+                    if (!value) {
+                        errors.push({
+                            propertyName: prop.propertyId,
+                            type: 'required'
+                        });
+                    }
+                } else {
+                    if (!value || !value.length) {
+                        errors.push({
+                            propertyName: prop.propertyId,
+                            type: 'required'
+                        });
+                    }
+                }
+            }
+
+            if (prop.regexp) {
+                const re: RegExp = new RegExp(prop.regexp);
+                if (!re.test(value)) {
+                    errors.push({
+                        propertyName: prop.propertyId,
+                        type: 'regex'
+                    });
+                }
+            }
+        });
+
+        return errors;
     }
 
-
-    constructor() {
+    getTemplate(schema: any, templateType: string) {
 
     }
 }

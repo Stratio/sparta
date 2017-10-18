@@ -23,5 +23,6 @@ export * from './api/resources.service';
 export * from './api/crossdata.service';
 export * from './breadcrumb-menu.service';
 export * from './error-messages.service';
-export * from './validate-schema.service';
+export * from './initialize-schema.service';
 export * from './initialize-workflow.service';
+export * from './validate-schema.service';

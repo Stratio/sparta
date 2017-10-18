@@ -21,7 +21,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import * as inputActions from 'actions/input';
 import * as fromRoot from 'reducers';
 import * as inputsTemplate from 'data-templates/inputs';
-import { BreadcrumbMenuService, ErrorMessagesService, ValidateSchemaService } from 'services';
+import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 import { CreateTemplateComponent } from './create-template.component';
 import { Subscription } from 'rxjs/Rx';
@@ -46,13 +46,13 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
     public configuration: FormGroup;
     public editMode = false;
     public title = '';
-    public stepType = 'input';
+    public stepType = 'Input';
     private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected validateSchemaService: ValidateSchemaService) {
-        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, validateSchemaService);
+        protected initializeSchemaService: InitializeSchemaService) {
+        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new inputActions.ResetInputFormAction());
         this.listData = inputsTemplate.inputs;
 
@@ -94,7 +94,8 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
             if (!editedInput.id) {
                 return this.cancelCreate();
             }
-            this.setEditedTemplateIndex(editedInput.type || 'Kafka');
+            console.log(editedInput);
+            this.setEditedTemplateIndex(editedInput.classPrettyName);
             this.inputFormModel = editedInput;
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
         });

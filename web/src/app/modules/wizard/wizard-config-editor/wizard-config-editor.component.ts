@@ -21,13 +21,14 @@ import {
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
-import * as settingsTemplate from 'data-templates/settings.json';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as wizardActions from 'actions/wizard';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { inputs } from 'data-templates/inputs';
 import { outputs } from 'data-templates/outputs';
 import { transformations } from 'data-templates/transformations';
+import * as settingsTemplate from 'data-templates/settings.json';
+import * as writerTemplate from 'data-templates/writer.json';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 
@@ -44,9 +45,11 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     @ViewChild('entityForm') public entityForm: NgForm;
 
     public basicSettings: any = [];
+    public writerSettings: any = [];
     public advancedSettings: Array<any> = [];
     public submitted = false;
     public breadcrumbOptions: any = [];
+    public currentName = '';
 
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
@@ -84,6 +87,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     getFormTemplate() {
         if (this.config.editionType.stepType !== 'settings') {
             this.entityFormModel = Object.assign({}, this.config.editionType.data);
+            this.currentName = this.entityFormModel['name'];
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
         } else {
             this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((settings: any) => {
@@ -100,6 +104,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             case 'Input':
                 const selectedI: any = this._getEntityTemplate(inputs, this.config.editionType.data.classPrettyName);
                 this.basicSettings = selectedI.properties;
+                this.writerSettings = writerTemplate;
                 break;
             case 'Output':
                 const selectedO: any = this._getEntityTemplate(outputs, this.config.editionType.data.classPrettyName);
@@ -108,14 +113,19 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             case 'Transformation':
                 const selectedT: any = this._getEntityTemplate(transformations, this.config.editionType.data.classPrettyName);
                 this.basicSettings = selectedT.properties;
+                this.writerSettings = writerTemplate;
                 break;
         }
+        setTimeout(() => {
+            this.submitted = true;
+        });
     }
 
     public saveForm() {
         this.submitted = true;
         if (this.config.editionType.stepType !== 'settings') {
             if (this.entityForm.valid) {
+                this.entityFormModel.hasErrors = false;
                 this.store.dispatch(new wizardActions.SaveEntityAction({
                     oldName: this.config.editionType.data.name,
                     data: this.entityFormModel

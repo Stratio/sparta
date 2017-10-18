@@ -34,6 +34,7 @@ import { DragEventsService } from '@app/shared/directives/drag-events/drag-event
 import { FormGeneratorGroupComponent } from '@app/shared/components/form-generator/form-generator-group/form-generator-group.component';
 import { OrderByPipe } from '@app/shared/pipes/sort.pipe';
 import { FormListStringComponent } from '@app/shared/components/form-string-list/form-string-list.component';
+import { Keyobject } from '@app/shared/pipes/keyobject';
 
 export const sharedProvider = [
    MenuService,
@@ -58,5 +59,6 @@ export const shareComponents = [
     SpartaSidebarComponent,
     DragEventsDirective,
     FilterPipe,
+    Keyobject,
     OrderByPipe
 ];

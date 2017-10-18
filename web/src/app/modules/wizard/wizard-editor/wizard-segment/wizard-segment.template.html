@@ -1,8 +1,7 @@
 <svg:g class="segmentContainer">
-   <svg:path [attr.d]="getPosition(initialEntity, finalEntity)" class="segment">
+   <svg:path [attr.d]="getPosition(initialEntity, finalEntity)"  class="segment" marker-start="url(#UpArrowPrecise)" 
+   marker-end="url(#DownArrowPrecise)" [ngClass]="{'selected' : selectedSegment && selectedSegment.origin === initialEntity.name && selectedSegment.destination === finalEntity.name}">
    </svg:path>
-   <svg:path [attr.d]="getPosition(initialEntity, finalEntity)" class="segment-hover">
+   <svg:path [attr.d]="getPosition(initialEntity, finalEntity)" class="segment-hover" (click)="selectSegment($event)">
    </svg:path>
-   <svg:text class="delete-icon" text [attr.x]="closeIconPosition.x" [attr.y]="closeIconPosition.y" (click)="deleteSegment()"
-      fill="#0f1b27">&#xfE117;</svg:text>
 </svg:g>

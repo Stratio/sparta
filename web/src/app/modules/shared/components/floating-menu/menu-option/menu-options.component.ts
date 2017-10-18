@@ -16,6 +16,8 @@
 
 import { Component, OnInit, Output, EventEmitter, Input, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
+import { Subscription } from "rxjs/Rx";
+import { FormControl } from "@angular/forms";
 
 @Component({
     selector: 'menu-options',
@@ -24,15 +26,37 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 })
 export class MenuOptionsComponent implements OnInit {
 
+    @Input() debounce: number = 200;
     @Input() menuOptions: Array<FloatingMenuModel>;
     @Input() position: string = 'left';
+    @Input() search = false;
     @Output() selectedOption = new EventEmitter<any>();
+    @Output() searchChange = new EventEmitter<string>();
+
+    public searchBox: FormControl = new FormControl();
+
+    public searchOption = '';
+    private subscriptionSearch: Subscription | undefined = undefined;
+    private subscriptionSearchClearButton: Subscription | undefined = undefined;
 
     selectOption(option: any) {
        this.selectedOption.emit(option);
     }
 
-    ngOnInit() { }
+    ngOnInit() {
+        this.manageSubscription();
+    }
+
+    private manageSubscription(): void {
+        if (this.subscriptionSearch !== undefined) {
+           this.subscriptionSearch.unsubscribe();
+        }
+
+        this.subscriptionSearch = this.searchBox
+            .valueChanges
+            .debounceTime(this.debounce)
+            .subscribe((event) => this.searchChange.emit(this.searchBox.value));  
+     }
 
     constructor() { }
 }

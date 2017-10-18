@@ -42,7 +42,7 @@ export class WizardEffect {
             } else {
                 for (let i = 0; i < wizard.nodes.length; i++) {
                     if (payload.data.name === wizard.nodes[i].name) {
-                        return Observable.of(new wizardActions.SaveEntityErrorAction(""));
+                        return Observable.of(new wizardActions.SaveEntityErrorAction(''));
                     }
                 }
             }
@@ -70,12 +70,21 @@ export class WizardEffect {
                 settings: wizard.settings.advancedSettings
             }, wizard.settings.basic);
 
-            return (wizard.workflowId && wizard.workflowId.length ? this.workflowService.updateWorkflow(workflow) : this.workflowService.saveWorkflow(workflow))
-                .map(() => {
+            if (wizard.workflowId && wizard.workflowId.length) {
+                return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
                     return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
                 });
+            } else {
+                delete workflow.id;
+                return this.workflowService.saveWorkflow(workflow).map(() => {
+                    return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
+                }).catch(function (error) {
+                    return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
+                });
+            }
+
         });
 
 
@@ -86,7 +95,7 @@ export class WizardEffect {
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]) => {
             const filtered = wizard.edges.filter((edge: any) => {
-                return edge.origin === payload.origin && edge.destination === payload.destination;
+                return (edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin);
             });
             if (filtered.length || (payload.origin === payload.destination)) {
                 return Observable.of(new wizardActions.CreateNodeRelationErrorAction(''));

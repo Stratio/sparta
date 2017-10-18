@@ -34,6 +34,8 @@ export const actionTypes: any = {
     CREATE_NODE_RELATION_COMPLETE: type('[Wizard] Create node relation complete'),
     CREATE_NODE_RELATION_ERROR: type('[Wizard] Create node relation error'),
     DELETE_NODE_RELATION: type('[Wizard] delete node relation'),
+    CREATE_ENTITY: type('[Wizard] create entity'),
+    CREATE_ENTITY_COMPLETE: type('[Wizard] create entity complete'),
     DELETE_ENTITY: type('[Wizard] Delete entity'),
     SAVE_WORKFLOW_POSITIONS: type('[Wizard] Save workflow positions'),
     SAVE_EDITOR_POSITION: type('[Wizard] Save editor position'),
@@ -46,6 +48,12 @@ export const actionTypes: any = {
     SAVE_WORKFLOW: type('[Wizard] Save workflow'),
     SAVE_WORKFLOW_COMPLETE: type('[Wizard] Save workflow complete'),
     SAVE_WORKFLOW_ERROR: type('[Wizard] Save workflow error'),
+    SELECT_SEGMENT: type('[Wizard] select segment'),
+    UNSELECT_SEGMENT: type('[Wizard] Unselect segment'),
+    DELETE_SEGMENT: type('[Wizard] Delete segment'),
+    SEARCH_MENU_OPTION: type('[Wizard] Search floating menu option'),
+    UNDO_CHANGES: type('[Wizard] Undo changes'),
+    REDO_CHANGES: type('[Wizard] Redo changes')
 };
 
 export class ResetWizardAction implements Action {
@@ -126,6 +134,16 @@ export class DeleteEntityAction implements Action {
     type: any = actionTypes.DELETE_ENTITY;
 }
 
+export class CreateEntityAction implements Action {
+    type: any = actionTypes.CREATE_ENTITY;
+    constructor(public payload: any) { }
+}
+
+export class CreateEntityCompleteAction implements Action {
+    type: any = actionTypes.CREATE_ENTITY_COMPLETE;
+    constructor(public payload: any) { }
+}
+
 export class SaveWorkflowPositionsAction implements Action {
     type: any = actionTypes.SAVE_WORKFLOW_POSITIONS;
     constructor(public payload: any) { }
@@ -180,7 +198,27 @@ export class SaveWorkflowErrorAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class SelectSegmentAction implements Action {
+    type: any = actionTypes.SELECT_SEGMENT;
+    constructor(public payload: any) { }
+}
 
+export class UnselectSegmentAction implements Action {
+    type: any = actionTypes.UNSELECT_SEGMENT;
+}
+
+export class SearchFloatingMenuAction implements Action {
+    type: any = actionTypes.SEARCH_MENU_OPTION;
+    constructor(public payload: any) { }
+}
+
+export class UndoChangesAction implements Action {
+    type: any = actionTypes.UNDO_CHANGES;
+}
+
+export class RedoChangesAction implements Action {
+    type: any = actionTypes.REDO_CHANGES;
+}
 
 export type Actions =
     ResetWizardAction |
@@ -209,4 +247,9 @@ export type Actions =
     SaveSettingsAction |
     SaveWorkflowAction |
     SaveWorkflowCompleteAction |
-    SaveWorkflowErrorAction;
+    SaveWorkflowErrorAction |
+    SearchFloatingMenuAction |
+    UndoChangesAction |
+    RedoChangesAction |
+    CreateEntityAction |
+    CreateEntityCompleteAction;

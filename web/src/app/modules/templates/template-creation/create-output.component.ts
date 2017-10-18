@@ -21,7 +21,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import * as outputActions from 'actions/output';
 import * as fromRoot from 'reducers';
 import * as outputsTemplate from 'data-templates/outputs';
-import { BreadcrumbMenuService, ErrorMessagesService, ValidateSchemaService } from 'services';
+import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 import { CreateTemplateComponent } from './create-template.component';
 import { Subscription } from 'rxjs/Rx';
@@ -44,13 +44,13 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
     public fragmentTypes: StDropDownMenuItem[] = [];
     public configuration: FormGroup;
     public editMode = false;
-    public stepType = 'output';
+    public stepType = 'Output';
     private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
-        protected validateSchemaService: ValidateSchemaService) {
-        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, validateSchemaService);
+        protected initializeSchemaService: InitializeSchemaService) {
+        super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new outputActions.ResetOutputFormAction());
         this.listData = outputsTemplate.outputs;
 
@@ -96,7 +96,7 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
             if (!editedOutput.id) {
                 return this.cancelCreate();
             }
-            this.setEditedTemplateIndex(editedOutput.type || 'kafka');
+            this.setEditedTemplateIndex(editedOutput.classPrettyName);
             this.inputFormModel = editedOutput;
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedOutput.name);
         });

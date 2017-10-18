@@ -1,3 +1,4 @@
+import { SpInputComponent } from './components/sp-input/sp-input.component';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -21,17 +22,24 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { shareComponents, sharedProvider } from './share.declarations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
+import { SpTextareaModule } from "@app/shared/components/sp-textarea/sp-textarea.module";
+import { SpTextareaComponent } from "@app/shared/components/sp-textarea/sp-textarea.component";
 
 @NgModule({
    exports: [
       CommonModule,
       TranslateModule,
-      ...shareComponents
+      ...shareComponents,
+       SpInputComponent,
+       SpTextareaComponent
    ],
    imports: [
       CommonModule,
       FormsModule,
       ReactiveFormsModule,
+      SpInputModule,
+      SpTextareaModule,
       TranslateModule,
       EgeoModule
    ],

@@ -1,0 +1,47 @@
+@import '~@stratio/egeo/theme/constants';
+:host {
+   display: block;
+   position: fixed;
+   width: 100%;
+   top: 0;
+   left: 0;
+   background: #fafafa;
+   z-index: 1000;
+   height: 100%;
+   overflow-y: auto;
+}
+
+.title {
+   text-transform: uppercase;
+   font-size: $egeo-font-size-xxsmall;
+   font-weight: 600;
+   line-height: 1.43;
+   margin-top: 10px;
+   display: block;
+   color: #6c7b8b;
+}
+
+.values {
+   display: block;
+}
+
+.execution-info-container {
+   overflow-x: hidden;
+   overflow-y: auto;
+}
+
+.execution-header {
+   width: 100%;
+   background: #fff;
+   padding: 20px 0;
+   border-bottom: 1px solid #dedede;
+}
+
+.info-data {
+   margin-top: 25px;
+}
+
+.spark-config-table {
+   margin-top: 30px;
+   display: block;
+}

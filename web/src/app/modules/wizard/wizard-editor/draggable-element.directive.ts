@@ -24,7 +24,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     @Output() positionChange = new EventEmitter<any>();
     @Output() onClickEvent = new EventEmitter();
     @Output() onDoubleClickEvent = new EventEmitter();
-    
+
     private clicks = 0;
     private element: any;
 
@@ -49,9 +49,9 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
     onClick() {
+        d3.event.stopPropagation();
         this.clicks++;
         if (this.clicks == 1) {
-
             setTimeout(() => {
                 if (this.clicks == 1) {
                     this.onClickEvent.emit();

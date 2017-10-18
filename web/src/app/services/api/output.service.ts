@@ -20,13 +20,14 @@ import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { ApiService, ApiRequestOptions } from './api.service';
 import { Http } from '@angular/http';
-
+import { Store } from '@ngrx/store';
+import * as fromRoot from 'reducers';
 
 @Injectable()
 export class OutputService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService) {
-        super(_http);
+    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+        super(_http, _store);
     }
 
     getOutputList(): Observable<any> {
@@ -34,7 +35,7 @@ export class OutputService extends ApiService {
         const options: ApiRequestOptions = {
             method: 'get'
         };
-        return this.request(this.configService.config.API_URL + '/template/output', options);
+        return this.request('template/output', options);
     }
 
     deleteOutput(outputId: string): Observable<any> {

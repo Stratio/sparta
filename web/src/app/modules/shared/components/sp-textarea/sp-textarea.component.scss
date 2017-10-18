@@ -1,0 +1,26 @@
+ :host {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 20px;
+ }
+ 
+ .st-textarea-title {
+    padding: 0;
+    position: relative;
+    display: block;
+    float: left;
+    width: 100%;
+ }
+ 
+ .st-textarea {
+    min-width: 100%;
+    min-height: 100%;
+    display: inline-block;
+ }
+ 
+ .st-textarea-error-layout {
+    height: 15px;
+    position: absolute;
+    bottom: 0;
+ }
+ 

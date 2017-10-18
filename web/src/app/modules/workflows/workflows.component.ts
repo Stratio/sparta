@@ -51,7 +51,9 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     public breadcrumbOptions: string[] = [];
     public menuOptions: any = [];
     public orderBy = 'name';
+    public executionInfo = '';
     public sortOrder = true;
+    public showExecutionInfo = false;
 
     private tasksSubscription: Subscription;
     private modalSubscription: Subscription;
@@ -108,7 +110,8 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         this.showDetails = !this.showDetails;
     }
 
-    editSelectedWorkflow(workflowId: string) {
+    editSelectedWorkflow($event: any, workflowId: string) {
+        $event.stopPropagation();
         this.route.navigate(['wizard', workflowId]);
     }
 
@@ -145,6 +148,23 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         }
     }
 
+    public showStopButton(policyStatus: string) {
+        return policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
+            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
+            policyStatus.toLowerCase() !== 'finished';
+    }
+
+    public showWorkflowExecutionInfo(workflowEvent: any) {
+        this.executionInfo = workflowEvent;
+        this.showExecutionInfo = true;
+    }
+
+    checkRow(isChecked: boolean, value: any) {
+        this.checkValue({
+            checked: isChecked,
+            value: value
+        });
+    }
 
     checkValue($event: any) {
         if ($event.checked) {

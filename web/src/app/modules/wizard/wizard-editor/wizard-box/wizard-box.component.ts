@@ -26,6 +26,7 @@ import * as base from 'assets/images/workflow-base.svg';
 import * as d3 from 'd3';
 import { ENTITY_BOX } from '../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
+import { icons } from '@app/shared/constants/icons';
 
 @Component({
     selector: '[wizard-box]',
@@ -38,6 +39,10 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     @Input() data: any;
     @Input() selected: boolean;
+    @Input() drawingConnectionStatus: any = {
+        status: false,
+        name: ''
+    };
 
     @Output() onDrawConnector = new EventEmitter<any>();
     @Output() onFinishConnector = new EventEmitter<any>();
@@ -49,10 +54,6 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     private isSelected = false;
     public boxConfig = ENTITY_BOX;
-    public showConnector = false;
-    public icon = '';
-    public strokeColor = 'white';
-
     public relationClasses = '';
 
     constructor(elementRef: ElementRef, private utilsService: UtilsService, private _cd: ChangeDetectorRef) {
@@ -60,11 +61,29 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
         this.svg = d3.select(this.el);
     }
 
-    ngOnInit(): void {
-        this.icon = this.utilsService.getFragmentUnicodeIcon(this.data.modelType);
-    }
+    ngOnInit(): void { }
 
     ngAfterContentInit() {
+        const data = this.data;
+        const textContainer =  d3.select(this.el.querySelector('.text-container'));
+        textContainer.append('text')
+            .attr('x', 20)
+            .attr('y', 35)
+            .attr('class', 'entity-icon')
+            .style('font-size', '25')
+            .attr('fill', '#0f1b27')
+            .text(function (d) { return icons[data.classPrettyName] });
+
+        if (data.hasErrors) {
+
+            textContainer.append('text')
+                .attr('x', 116)
+                .attr('y', 22)
+                .attr('class', 'entity-icon')
+                .style('font-size', '16')
+                .attr('fill', '#ec445c')
+                .text(function (d) { return '\uE613'});
+        }
 
         this.relationSelector = d3.selectAll(this.el.querySelectorAll(('.relation')));
         switch (this.data.stepType) {
@@ -85,10 +104,13 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
     }
 
     generateEntry() {
-        this.relationSelector.on('mousedown', () => {
-            this.onDrawConnector.emit({
+        const that = this;
+        this.relationSelector.on('mousedown', function() {
+             d3.select(this)
+                .classed('over-output2', true)
+            that.onDrawConnector.emit({
                 event: d3.event,
-                name: this.data.name
+                name: that.data.name
             });
             d3.event.stopPropagation();
         });
@@ -97,7 +119,12 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     generateOutput() {
         this.relationSelector
-            .on('mouseup', () => {
+            .on('mouseover', function () {
+                d3.select(this)
+                .classed('over-output', true)
+            }).on('mouseout', function () {
+                d3.select(this).classed('over-output', false);
+            }).on('mouseup', () => {
                 this.onFinishConnector.emit(this.data.name);
             });
     }
@@ -111,3 +138,5 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     }
 }
+
+

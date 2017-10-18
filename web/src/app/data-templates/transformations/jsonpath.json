@@ -56,18 +56,21 @@
                  "propertyName": "_FIELD_",
                  "propertyType": "text",
                  "required": true,
+                 "width": 3,
                  "qa": "fragment-details-field-name"
               },
               {
                  "propertyId": "query",
                  "propertyName": "_QUERY_",
                  "propertyType": "text",
+                 "width": 6,
                  "required": true,
                  "qa": "fragment-details-field-query"
               },
               {
                  "propertyId": "type",
                  "propertyName": "_TYPE_",
+                 "width": 3,
                  "propertyType": "select",
                  "custom": true,
                  "required": true,

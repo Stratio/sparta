@@ -1,5 +1,4 @@
 @import '~@stratio/egeo/theme/constants';
-
 .field-row {
    margin-bottom: 14px;
 }
@@ -12,35 +11,42 @@
    color: #37B5E4;
    font-size: 15px;
    display: block;
-   margin-top: 10px;
-   padding: 1px 14px 10px;
+   margin: 11px 14px 10px;
+   display: inline-block;
    cursor: pointer;
    .element-label {
       line-height: 35px;
    }
 
+   &:hover{
+       color:#0979c4;
+   }
 }
 
-.list-field{
-    width: calc(100% - 5px);
-    display: flex;
-    font-size: 18px;
-    flex-wrap: wrap;
-    flex-direction: row;
-    line-height: 1.89;
-    margin-top: 12px;    
-    text-align: left;
-    color: $neutral-07;
-    position:relative;
-    .icon {
-        position:absolute;
-        bottom: 12px;
-        cursor: pointer;
-    }
+.list-field {
+   width: calc(100% - 5px);
+   display: flex;
+   font-size: 18px;
+   flex-wrap: wrap;
+   flex-direction: row;
+   line-height: 1.89;
+   margin-top: 12px;
+   text-align: left;
+   color: $neutral-07;
+   position: relative;
+   .icon {
+      position: absolute;
+      top: 29px;
+      cursor: pointer;
+   }
+}
+
+.error-message {
+    margin-top:10px;
 }
 
 .check-column {
-    margin-top: 23px;
-    margin-left: 20px;
-    margin-right: 20px;
+   margin-top: 23px;
+   margin-left: 20px;
+   margin-right: 20px;
 }

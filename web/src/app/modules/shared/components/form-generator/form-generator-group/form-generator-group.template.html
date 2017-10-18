@@ -1,5 +1,5 @@
 <form #groupForm="ngForm" class="form-group" novalidate autocomplete="off">
-   <st-horizontal-tabs [options]="options" [qaTag]="qaTag" (changedOption)="changeFormOption($event)" class="form-tabs">
+   <st-horizontal-tabs [options]="options" [style.width.px]="250*(options.length)" [qaTag]="qaTag" (changedOption)="changeFormOption($event)" class="form-tabs">
    </st-horizontal-tabs>
    <div *ngFor="let category of formData" class="subsections">
       <div [hidden]="activeOption !== category.name">

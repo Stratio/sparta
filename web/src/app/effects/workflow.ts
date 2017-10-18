@@ -72,7 +72,7 @@ export class WorkflowEffect {
             });
 
             return Observable.forkJoin(joinObservables).mergeMap(results => {
-               return [new workflowActions.DeleteWorkflowCompleteAction(workflows), new workflowActions.ListWorkflowAction()];
+                return [new workflowActions.DeleteWorkflowCompleteAction(workflows), new workflowActions.ListWorkflowAction()];
             }).catch(function (error: any) {
                 return Observable.of(new workflowActions.DeleteWorkflowErrorAction());
             });
@@ -142,6 +142,17 @@ export class WorkflowEffect {
             });
         });
 
+    @Effect()
+    getExecutionInfo$: Observable<Action> = this.actions$
+        .ofType(workflowActions.actionTypes.GET_WORKFLOW_EXECUTION_INFO)
+        .switchMap((data: any) => {
+            console.log(data);
+            return this.workflowService.getWorkflowExecutionInfo(data.payload).map((response: any) => {
+                return new workflowActions.GetExecutionInfoCompleteAction(response);
+            }).catch(function (error) {
+                return Observable.of(new workflowActions.GetExecutionInfoErrorAction());
+            });
+        });
 
     constructor(
         private actions$: Actions,

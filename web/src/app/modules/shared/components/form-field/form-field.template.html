@@ -1,6 +1,6 @@
 <div class="form-field">
    <!-- input text -->
-   <st-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
+   <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
       label="{{field.propertyName | translate}}" 
       fieldType="{{field.propertyType}}" 
       [formControl]="stFormControl"
@@ -11,10 +11,10 @@
       [errors]="errorsService.errors.inputErrors"
       qaTag="{{qa}}"
       [minlength]="field.minlength" 
-      [maxlength]="field.maxlength"></st-input>
+      [maxlength]="field.maxlength"></sp-input>
 
    <!-- textarea -->
-   <st-textarea *ngIf="field.propertyType == 'textarea' && isVisible" 
+   <sp-textarea *ngIf="field.propertyType == 'textarea' && isVisible" 
       [formControl]="stFormControl"
       label="{{field.propertyName | translate}}" 
       contextualHelp="{{field.tooltip}}" 
@@ -24,7 +24,7 @@
       [errors]="errorsService.errors.inputErrors"
       qaTag="{{qa}}"
       [minlength]="field.minlength"
-      [maxlength]="field.maxlength"></st-textarea>
+      [maxlength]="field.maxlength"></sp-textarea>
 
    <st-select *ngIf="field.propertyType == 'select' && isVisible" 
       [options]="field.values" 
@@ -49,14 +49,17 @@
 
     <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible" 
       [formControl]="stFormControl"
+      [checked]="stModel"
       [name]="field.propertyId" 
       [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
 
 
    <form-list *ngIf="field.propertyType == 'list'" 
       [formListData]="field"
-      qaTag="{{qa}}" 
+      qaTag="{{qa}}"
+      [required]="field.required" 
       [formControl]="stFormControl"
+      [forceValidations]="forceValidations" 
       label="{{field.propertyName | translate}}"></form-list>
 
 </div>

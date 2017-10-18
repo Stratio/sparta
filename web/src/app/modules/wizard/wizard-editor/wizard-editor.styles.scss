@@ -1,18 +1,23 @@
 .editor {
-    position: absolute;
-    bottom:0;
-    height:calc(100% - 127px);
-    width:100%;
+   position: absolute;
+   bottom: 0;
+   height: calc(100% - 127px);
+   width: 100%;
 }
 
 .composition {
    width: 100%;
    height: 100%;
+   user-select: none;
    position: absolute;
    top: 0;
    left: 0;
    background-image: url('/assets/images/workflow-base.png');
    background-position: 11px 8px;
+}
+
+.wizard-header {
+   user-select: none;
 }
 
 .center-workflow {
@@ -24,13 +29,13 @@
 }
 
 .wizard-sidebar {
-    position:absolute;
-    top:0;
-    right:0;
-    height:100%;
-    z-index:10;
+   position: absolute;
+   top: 0;
+   right: 0;
+   height: 100%;
+   z-index: 10;
 }
 
-.connector-line{
-    pointer-events:none;
+.connector-line {
+   pointer-events: none;
 }

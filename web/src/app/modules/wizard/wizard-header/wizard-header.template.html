@@ -10,7 +10,11 @@
                         />
                      </g>
                   </svg>
-                  <input type="text" (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant workflow-name"name="workflow-name" [(ngModel)]="workflowName"/>
+                  <div class="workflow-name-container" (click)="editWorkflowName()" [hidden]="editName">
+                    <span class="title egeo-title-giant">{{workflowName}}</span>
+                    <span class="icon-edit"></span>
+                  </div>
+                  <input type="text" #titleFocus [hidden]="!editName" (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant workflow-name" name="workflow-name" [(ngModel)]="workflowName"/>
                </div>
                <div class="header-links">
                   <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
@@ -27,7 +31,7 @@
       <div class="container">
          <div class="row">
             <div class="col-xs-6">
-               <floating-menu [menuOptions]="menuOptions$ | async" class="show-options" (selectedOption)="selectedMenuOption($event)">
+               <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options" (selectedOption)="selectedMenuOption($event)">
                   <div menu-action>
                      <button class="button button-toolbar">
                         <i class="icon-plus"></i>
@@ -42,17 +46,23 @@
                   <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()">
                     <i class="icon-zoom-out"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
+                <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
                     <i class="icon-move"></i>
                 </button>
+                <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()">
+                  <i class="icon-reload2"></i>
+              </button>
+              <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()">
+                <i class="icon-reload"></i>
+            </button>
                </div>
             </div>
             <div class="col-xs-6">
-               <div style="float:left" *ngIf="isNodeSelected">
-                  <button menu-action class="button button-toolbar" (click)="onEditEntity.emit()">
+               <div style="float:left">
+                  <button menu-action class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected">
                     <i class="icon-edit"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="deleteWorkflow()">
+                  <button menu-action class="button button-toolbar" (click)="deleteSelection()" *ngIf="isNodeSelected || selectedSegment">
                     <i class="icon-trash"></i>
                   </button>
                </div>

@@ -16,8 +16,10 @@
 
 import { Subject } from 'rxjs/Rx';
 import { OnDestroy } from '@angular/core/core';
-import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { ControlValueAccessor, FormGroup, FormControl, FormArray, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, 
+    ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { ControlValueAccessor, FormGroup, FormControl, FormArray, 
+    NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs/Rx';
 import { StHorizontalTab } from '@stratio/egeo';
 

@@ -122,6 +122,13 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         this.sortOrder = $event.type;
     }
 
+    checkRow(isChecked: boolean, value: any) {
+        this.onCheckedTemplate({
+            checked: isChecked,
+            value: value
+        });
+    }
+
     constructor(protected store: Store<fromRoot.State>, private _modalService: StModalService,
         private route: Router, private currentActivatedRoute: ActivatedRoute, protected _cd: ChangeDetectorRef,
         public breadcrumbMenuService: BreadcrumbMenuService) {

@@ -1,3 +1,4 @@
+import { WorkflowExecutionInfoComponent } from './workflow-execution-info/workflow-execution-info.component';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///

@@ -21,6 +21,10 @@
 .workflow-table {
    display: block;
    margin-top: 30px;
+
+   tr:hover {
+       cursor:pointer;
+   }
 }
 
 .display-options,
@@ -37,7 +41,8 @@
 .workflow-link {
    cursor: pointer;
    &:hover {
-      color:#0f1b27;
+      color: #0f1b27;
+      text-decoration: underline;
    }
 }
 

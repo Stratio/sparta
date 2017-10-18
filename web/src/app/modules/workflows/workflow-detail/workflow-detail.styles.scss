@@ -10,6 +10,12 @@
    }
 }
 
+.description {
+   font-size: $egeo-font-size-xsmall;
+   margin-bottom: 25px;
+   display: block;
+}
+
 .title {
    text-transform: uppercase;
    font-size: $egeo-font-size-xxsmall;
@@ -30,17 +36,16 @@
    font-size: $egeo-font-size-xsmall;
    .notstarted {}
    display: inline-block;
-   margin-bottom:5px;
+   margin-bottom: 5px;
    &.started {
       background: rgba(12, 170, 112, 0.15);
       color: #0baa70;
       padding: 3px 10px;
    }
-
    &.failed {
-       color:$status-critical-default;
-       padding: 3px 10px;
-           background: rgba(170, 12 , 112, 0.15);
+      color: $status-critical-default;
+      padding: 3px 10px;
+      background: rgba(170, 12, 112, 0.15);
    }
 }
 
@@ -48,4 +53,12 @@
    color: #0f1b27;
    font-size: 15px;
    margin-top: 20px;
+}
+
+.execution-info-link {
+    font-family: $egeo-nunito-sans-semiBold;
+    cursor:pointer;
+    color:$action-primary-default;
+    margin: 14px 0;
+    display: block;
 }

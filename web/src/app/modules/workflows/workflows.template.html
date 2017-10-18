@@ -1,4 +1,4 @@
-<div>
+<div [hidden]="showExecutionInfo">
    <div #newWorkflowModal qaTag="workflow-modal"></div>
    <tool-bar>
       <div breadcrumb>
@@ -6,8 +6,8 @@
       </div>
       <div selection-tools *ngIf="selectedWorkflows.length">
          <button class="button button-toolbar" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
-            <i class="icon-stop" *ngIf="selectedWorkflows[0].context.status === 'Started'"></i> 
-            <i class="icon-play" *ngIf="selectedWorkflows[0].context.status !== 'Started'"></i>
+            <i class="icon-stop" *ngIf="showStopButton(selectedWorkflows[0].context.status)"></i> 
+            <i class="icon-play" *ngIf="!showStopButton(selectedWorkflows[0].context.status)"></i>
         </button>
          <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
             <i class="icon-edit"></i>
@@ -39,12 +39,13 @@
       <div class="row">
          <div class="workflow-list">
             <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)">
-               <tr st-table-row *ngFor="let workflow of workflowList | orderBy:orderBy:sortOrder; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1">
+               <tr st-table-row *ngFor="let workflow of workflowList | orderBy:orderBy:sortOrder; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1" 
+                   (click)="checkRow(!((selectedWorkflowsIds.indexOf(workflow.id)) > -1), workflow)">
                   <td st-table-cell st-table-row-content>
-                     <st-checkbox [value]="workflow" (change)="checkValue($event)"></st-checkbox>
+                     <st-checkbox [value]="workflow" (change)="checkValue($event)" [checked]="selectedWorkflowsIds.indexOf(workflow.id) > -1"></st-checkbox>
                   </td>
                   <td st-table-cell st-table-row-content>
-                     <label class="workflow-link" (click)="editSelectedWorkflow(workflow.id)">{{workflow.name}}</label>
+                     <label class="workflow-link" (click)="editSelectedWorkflow($event, workflow.id)">{{workflow.name}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
                      <label class="status-field" [ngClass]="workflow.context.status">{{('DASHBOARD.' + (workflow.context.status | uppercase)) | translate}}</label>
@@ -57,9 +58,10 @@
          </div>
          <div class="workflow-detail-container">
             <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
-               <workflow-detail class="workflow-detail" [workflowData]="selectedWorkflows.length ? selectedWorkflows[0] : null"></workflow-detail>
+               <workflow-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)" [workflowData]="selectedWorkflows.length ? selectedWorkflows[0] : null"></workflow-detail>
             </sparta-sidebar>
          </div>
       </div>
    </div>
 </div>
+<workflow-execution-info *ngIf="showExecutionInfo" [workflow]="executionInfo"></workflow-execution-info>

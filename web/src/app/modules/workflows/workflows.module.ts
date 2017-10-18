@@ -17,7 +17,8 @@
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-    WorkflowsComponent, WorkflowsService, WorkflowCreationModal, WorkflowJsonModal,  WorkflowRoutingModule, WorkflowDetailComponent
+    WorkflowsComponent, WorkflowsService, WorkflowCreationModal, WorkflowJsonModal,  WorkflowRoutingModule, WorkflowDetailComponent,
+    WorkflowExecutionInfoComponent
 } from '.';
 import { SharedModule } from '@app/shared';
 import { EgeoModule, StModalModule } from '@stratio/egeo';
@@ -27,12 +28,13 @@ import { EgeoModule, StModalModule } from '@stratio/egeo';
         WorkflowsComponent,
         WorkflowCreationModal,
         WorkflowDetailComponent,
-        WorkflowJsonModal
+        WorkflowJsonModal,
+        WorkflowExecutionInfoComponent
     ],
     imports: [
         EgeoModule.forRoot(),
         FormsModule,
-        StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal]),
+        StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal, WorkflowExecutionInfoComponent]),
         WorkflowRoutingModule,
         SharedModule
     ],

@@ -14,11 +14,12 @@
 /// limitations under the License.
 ///
 
-import { ValidateSchemaService } from '../validate-schema.service';
+import { InitializeSchemaService } from '../initialize-schema.service';
 import * as settingsTemplate from 'data-templates/settings.json';
 import * as kafkaTemplate from 'data-templates/inputs/kafka.json';
+import * as printTemplate from 'data-templates/outputs/print.json';
 
-const validateSchemaService: ValidateSchemaService = new ValidateSchemaService();
+const initializeSchemaService: InitializeSchemaService = new InitializeSchemaService();
 const schema = [
     {
         propertyId: 'prop1',
@@ -39,27 +40,35 @@ const schema = [
     }
 ];
 
-describe('validate-schema.service', function () {
+describe('initialize-schema.service', function () {
 
-    it('should be able to initializa an entity', () => {
+    it('should be able to initialize an entity', () => {
         const template: any = <any>kafkaTemplate;
-        const model = validateSchemaService.setDefaultEntityModel(kafkaTemplate);
-
+        const model = initializeSchemaService.setDefaultEntityModel(kafkaTemplate, 'Input', true);
         expect(model.classPrettyName).toBe(template.classPrettyName);
         expect(model.description).toBe(template.description);
-        expect(model.stepType).toBe(template.stepType);
+    });
+
+    it('should be able to initialize entity writer if it is not an output', () => {
+        const model = initializeSchemaService.setDefaultEntityModel(kafkaTemplate, 'Input', true);
+        expect(model.writer).toBeDefined();
+    });
+
+    it('should not initialize the writer if it is an output', () => {
+        const model = initializeSchemaService.setDefaultEntityModel(printTemplate, 'Output', true);
+        expect(model.writer).toBeUndefined();
     });
 
     it('should be able to initize workflow settings model', () => {
         const template: any = <any>settingsTemplate;
-        spyOn(ValidateSchemaService, 'getCategoryModel');
-        const model = ValidateSchemaService.setDefaultWorkflowSettings(template);
+        spyOn(InitializeSchemaService, 'getCategoryModel');
+        const model = InitializeSchemaService.setDefaultWorkflowSettings(template);
         expect(Object.keys(model.advancedSettings).length).toBe(template.advancedSettings.length);
-        expect(ValidateSchemaService.getCategoryModel).toHaveBeenCalled();
+        expect(InitializeSchemaService.getCategoryModel).toHaveBeenCalled();
     });
 
     it('should initialize caterory settings model', () => {
-        const model = ValidateSchemaService.getCategoryModel(schema);
+        const model = InitializeSchemaService.getCategoryModel(schema);
         expect(model.prop1).toBeDefined();
         expect(model.prop2).toBeDefined();
         expect(model.subcategory).toBeDefined();

@@ -65,7 +65,9 @@ export class EntityWriterComponent implements Validator, ControlValueAccessor, O
     }
 
     registerOnChange(fn: any): void {
-        this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(fn);
+        this.stFormGroupSubcription = this.groupForm.valueChanges.subscribe(() => {
+            fn(this.writerModel);
+        });
     }
 
     registerOnTouched(fn: any): void {

@@ -79,6 +79,7 @@ export const getSelectedDisplayOption: any = createSelector(getWorkflowsState, f
 export const getWorkflowNameValidation: any = createSelector(getWorkflowsState, fromWorkflow.getWorkflowNameValidation);
 export const getReloadState: any = createSelector(getWorkflowsState, fromWorkflow.getReloadState);
 export const getWorkflowModalState: any = createSelector(getWorkflowsState, fromWorkflow.getWorkflowModalState);
+export const getExecutionInfo: any = createSelector(getWorkflowsState, fromWorkflow.getExecutionInfo);
 
 // inputs
 export const getInputList: any = createSelector(getInputListState, fromInput.getInputList);
@@ -123,3 +124,5 @@ export const getWorkflowSettings: any = createSelector(getWizardState, fromWizar
 export const getWorkflowName: any = createSelector(getWizardState, fromWizard.getWorkflowName);
 export const getWorkflowPosition: any = createSelector(getWizardState, fromWizard.getWorkflowPosition);
 export const isSavedWorkflow: any = createSelector(getWizardState, fromWizard.isSavedWorkflow);
+export const getSelectedRelation: any = createSelector(getWizardState, fromWizard.getSelectedRelation);
+export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard.areUndoRedoEnabled);
