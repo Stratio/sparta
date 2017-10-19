@@ -75,7 +75,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
 
             for (const prop of properties) {
                 const formControl = new FormControl();
-                this.stFormGroup.addControl(prop.propertyId, formControl);
+                this.stFormGroup.addControl(prop.propertyId ? prop.propertyId : prop.name, formControl);
                 this.formDataValues.push({
                     formControl: formControl,
                     field: prop

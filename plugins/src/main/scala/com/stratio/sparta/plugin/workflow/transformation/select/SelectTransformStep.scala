@@ -37,6 +37,8 @@ class SelectTransformStep(name: String,
 
   lazy val selectExpression: Option[String] = properties.getString("selectExp", None)
 
+  lazy val fieldsSeparator: String = properties.getString("delimiter", ",")
+
   assert(selectExpression.isDefined,
     "It's mandatory one select expression, such as colA, colB as newName, abs(colC)")
 
@@ -48,7 +50,7 @@ class SelectTransformStep(name: String,
           val schema = rdd.first().schema
           val df = xDSession.createDataFrame(rdd, schema)
 
-          df.selectExpr(expression).rdd
+          df.selectExpr(expression.split(fieldsSeparator):_*).rdd
         }
       }
     }

@@ -253,9 +253,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName.getOrElse(node.name),
-        node.writer.partitionBy,
-        node.writer.primaryKey
+        node.writer.tableName.notBlank.getOrElse(node.name),
+        node.writer.partitionBy.notBlank,
+        node.writer.primaryKey.notBlank
       )
       workflowContext.classUtils.tryToInstantiate[TransformStep](classType, (c) =>
         c.getDeclaredConstructor(
@@ -287,9 +287,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName.getOrElse(node.name),
-        node.writer.partitionBy,
-        node.writer.primaryKey
+        node.writer.tableName.notBlank.getOrElse(node.name),
+        node.writer.partitionBy.notBlank,
+        node.writer.primaryKey.notBlank
       )
       workflowContext.classUtils.tryToInstantiate[InputStep](classType, (c) =>
         c.getDeclaredConstructor(

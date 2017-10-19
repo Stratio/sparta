@@ -93,10 +93,10 @@ object TypeOp extends Enumeration {
   }
 
   /**
-   * TODO Refactor all functions names, change to privates and build tests
-   * check pattern matching without 'value if value.isInstanceOf[X]' and 'value : X'
-   * check if we can change [_, _] to [Any, Any]
-   */
+    * TODO Refactor all functions names, change to privates and build tests
+    * check pattern matching without 'value if value.isInstanceOf[X]' and 'value : X'
+    * check if we can change [_, _] to [Any, Any]
+    */
 
   def castingToSchemaType[T](dataTypeToCast: DataType, origValue: T): T = {
     dataTypeToCast match {
@@ -130,11 +130,11 @@ object TypeOp extends Enumeration {
   }
 
   /**
-   * Obtains the Spark SQL type based into the input value. The map types are passed to GenericRowWithSchema-StructType
-   *
-   * @param valueToCheck value to check
-   * @return The Spark type
-   */
+    * Obtains the Spark SQL type based into the input value. The map types are passed to GenericRowWithSchema-StructType
+    *
+    * @param valueToCheck value to check
+    * @return The Spark type
+    */
   def valueToSparkType(valueToCheck: Any): DataType =
     valueToCheck match {
       case _: Int => IntegerType
@@ -156,11 +156,11 @@ object TypeOp extends Enumeration {
     }
 
   /**
-   * Obtains the ArrayType associated to one array value
-   *
-   * @param valueToCheck The array value to check
-   * @return The ArrayType with the fields type
-   */
+    * Obtains the ArrayType associated to one array value
+    *
+    * @param valueToCheck The array value to check
+    * @return The ArrayType with the fields type
+    */
   def arrayValuesToSparkType(valueToCheck: Seq[_]): ArrayType = {
     valueToCheck.headOption match {
       case Some(firstElement) => ArrayType(valueToSparkType(firstElement))
@@ -169,11 +169,11 @@ object TypeOp extends Enumeration {
   }
 
   /**
-   * Obtains the StructType associated to one Map value
-   *
-   * @param valueToCheck The map value to check
-   * @return The StructType with the fields
-   */
+    * Obtains the StructType associated to one Map value
+    *
+    * @param valueToCheck The map value to check
+    * @return The StructType with the fields
+    */
   def mapValuesToStructType(valueToCheck: Map[_, _]): StructType =
     StructType(valueToCheck.map(value => StructField(value._1.toString, valueToSparkType(value._2))).toSeq)
 
@@ -186,14 +186,10 @@ object TypeOp extends Enumeration {
   def checkAnyStructType(origValue: Any): Any = origValue match {
     case value: util.Map[_, _] =>
       val inputValue = value.asScala.toMap.mapValues(checkAnyStructType)
-      val schema = mapValuesToStructType(inputValue)
-
-      new GenericRowWithSchema(inputValue.values.toArray, schema)
+      new GenericRowWithSchema(inputValue.values.toArray, mapValuesToStructType(inputValue))
     case value: Map[_, _] =>
       val inputValue = value.mapValues(checkAnyStructType)
-      val schema = mapValuesToStructType(inputValue)
-
-      new GenericRowWithSchema(inputValue.values.toArray, schema)
+      new GenericRowWithSchema(inputValue.values.toArray, mapValuesToStructType(inputValue))
     case value: GenericRowWithSchema => value
     case value if value == null => null
     case _ => origValue
@@ -205,8 +201,11 @@ object TypeOp extends Enumeration {
 
   def checkAnyArrayStructType(origValue: Any): Any = origValue match {
     case value: util.List[util.Map[_, _]] => value.asScala.map(mapValues => checkAnyStructType(mapValues))
-    case value: Seq[Map[_, _]] => value.map(mapValues => checkAnyStructType(mapValues))
-    case value: Seq[GenericRowWithSchema] => value
+    case value: Seq[_] => value.headOption match {
+      case Some(_: Map[_, _]) => value.map(mapValues => checkAnyStructType(mapValues))
+      case Some(_: GenericRowWithSchema) => value
+      case _ => throw new Exception("Impossible to casting Array of StructTypes")
+    }
     case value if value == null => null
     case _ => origValue.asInstanceOf[Seq[GenericRowWithSchema]]
   }
@@ -214,10 +213,8 @@ object TypeOp extends Enumeration {
   def checkArrayStringType[T](origValue: T): T = checkAnyArrayStringType(origValue).asInstanceOf[T]
 
   def checkAnyArrayStringType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString)
-    case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString)
+    case value: util.List[_] => value.asScala.map(value => if (value == null) null else value.toString)
+    case value: Seq[_] => value.map(value => if (value == null) null else value.toString)
     case value if value == null => null
     case _ => Seq(origValue.toString)
   }
@@ -225,10 +222,8 @@ object TypeOp extends Enumeration {
   def checkArrayIntType[T](origValue: T): T = checkAnyArrayIntType(origValue).asInstanceOf[T]
 
   def checkAnyArrayIntType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toInt)
-    case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toInt)
+    case value: util.List[_] => value.asScala.map(value => if (value == null) null else value.toString.toInt)
+    case value: Seq[_] => value.map(value => if (value == null) null else value.toString.toInt)
     case value if value == null => null
     case _ => Seq(origValue.toString.toInt)
   }
@@ -236,10 +231,8 @@ object TypeOp extends Enumeration {
   def checkArrayLongType[T](origValue: T): T = checkAnyArrayLongType(origValue).asInstanceOf[T]
 
   def checkAnyArrayLongType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toLong)
-    case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toLong)
+    case value: util.List[_] => value.asScala.map(value => if (value == null) null else value.toString.toLong)
+    case value: Seq[_] => value.map(value => if (value == null) null else value.toString.toLong)
     case value if value == null => null
     case _ => Seq(origValue.toString.toLong)
   }
@@ -247,10 +240,8 @@ object TypeOp extends Enumeration {
   def checkArrayDoubleType[T](origValue: T): T = checkAnyArrayDoubleType(origValue).asInstanceOf[T]
 
   def checkAnyArrayDoubleType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.List[_]] =>
-      value.asInstanceOf[util.List[_]].asScala.map(value => if (value == null) null else value.toString.toDouble)
-    case value if value.isInstanceOf[Seq[_]] =>
-      value.asInstanceOf[Seq[_]].map(value => if (value == null) null else value.toString.toDouble)
+    case value: util.List[_] => value.asScala.map(value => if (value == null) null else value.toString.toDouble)
+    case value: Seq[_] => value.map(value => if (value == null) null else value.toString.toDouble)
     case value if value == null => null
     case _ => Seq(origValue.toString.toDouble)
   }
@@ -258,20 +249,23 @@ object TypeOp extends Enumeration {
   def checkArrayMapStringStringType[T](origValue: T): T = checkAnyArrayMapStringStringType(origValue).asInstanceOf[T]
 
   def checkAnyArrayMapStringStringType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.List[util.Map[_, _]]] =>
-      value.asInstanceOf[util.List[util.Map[_, _]]].asScala
-        .map(value => value.asScala.map(cast =>
+    case value: util.List[util.Map[_, _]] =>
+      value.asScala.map { value =>
+        value.asScala.map { cast =>
           cast._1.toString -> {
             if (cast._2 == null) null else cast._2.toString
-          }).toMap)
-    case value if value.isInstanceOf[Seq[Map[_, _]]] =>
-      value.asInstanceOf[Seq[Map[_, _]]].map(_.map(cast =>
+          }
+        }.toMap
+      }
+    case value: Seq[_] => value.headOption match {
+      case Some(_: Map[_, _]) => value.asInstanceOf[Seq[Map[_, _]]].map(_.map(cast =>
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString
         }))
-    case value if value.isInstanceOf[Seq[GenericRowWithSchema]] =>
-      val valueRow = value.asInstanceOf[Seq[GenericRowWithSchema]]
-      valueRow.map(row => row.getValuesMap[String](row.schema.fieldNames))
+      case Some(_: GenericRowWithSchema) =>
+        value.asInstanceOf[Seq[GenericRowWithSchema]].map(row => row.getValuesMap[String](row.schema.fieldNames))
+      case _ => throw new Exception("Impossible to casting Array of Strings")
+    }
     case value if value == null => null
     case _ => origValue.asInstanceOf[Seq[Map[String, String]]]
   }
@@ -282,8 +276,11 @@ object TypeOp extends Enumeration {
 
   def checkAnyMapStringStructType(origValue: Any): Any = origValue match {
     case value: util.Map[_, util.Map[_, _]] => value.asScala.map(values => values._1.toString -> checkAnyStructType(values._2))
-    case value: Map[_, Map[_, _]] => value.map(values => values._1.toString -> checkAnyStructType(values._2))
-    case value: Map[_, GenericRowWithSchema] => value
+    case value: Map[_, _] => value.headOption match {
+      case Some((_, _: Map[_, _])) => value.map(values => values._1.toString -> checkAnyStructType(values._2))
+      case Some((_, _: GenericRowWithSchema)) => value
+      case _ => throw new Exception("Impossible to casting Map of StructType")
+    }
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, GenericRowWithSchema]]
   }
@@ -291,19 +288,15 @@ object TypeOp extends Enumeration {
   def checkMapStringStringType[T](origValue: T): T = checkAnyMapStringStringType(origValue).asInstanceOf[T]
 
   def checkAnyMapStringStringType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.Map[_, _]] =>
-      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString
-        }).toMap
-    case value if value.isInstanceOf[Map[_, _]] =>
-      value.asInstanceOf[Map[_, _]].map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString
-        })
-    case value if value.isInstanceOf[GenericRowWithSchema] =>
-      val valueRow = value.asInstanceOf[GenericRowWithSchema]
-      valueRow.getValuesMap[String](valueRow.schema.fieldNames)
+    case value: util.Map[_, _] => value.asScala.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString
+      }).toMap
+    case value: Map[_, _] => value.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString
+      })
+    case value: GenericRowWithSchema => value.getValuesMap[String](value.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, String]]
   }
@@ -311,19 +304,15 @@ object TypeOp extends Enumeration {
   def checkMapStringIntType[T](origValue: T): T = checkAnyMapStringIntType(origValue).asInstanceOf[T]
 
   def checkAnyMapStringIntType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.Map[_, _]] =>
-      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toInt
-        }).toMap
-    case value if value.isInstanceOf[Map[_, _]] =>
-      value.asInstanceOf[Map[_, _]].map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toInt
-        })
-    case value if value.isInstanceOf[GenericRowWithSchema] =>
-      val valueRow = value.asInstanceOf[GenericRowWithSchema]
-      valueRow.getValuesMap[Int](valueRow.schema.fieldNames)
+    case value: util.Map[_, _] => value.asScala.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toInt
+      }).toMap
+    case value: Map[_, _] => value.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toInt
+      })
+    case value: GenericRowWithSchema => value.getValuesMap[Int](value.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Int]]
   }
@@ -331,19 +320,15 @@ object TypeOp extends Enumeration {
   def checkMapStringLongType[T](origValue: T): T = checkAnyMapStringLongType(origValue).asInstanceOf[T]
 
   def checkAnyMapStringLongType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.Map[_, _]] =>
-      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toLong
-        }).toMap
-    case value if value.isInstanceOf[Map[_, Any]] =>
-      value.asInstanceOf[Map[_, Any]].map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toLong
-        })
-    case value if value.isInstanceOf[GenericRowWithSchema] =>
-      val valueRow = value.asInstanceOf[GenericRowWithSchema]
-      valueRow.getValuesMap[Long](valueRow.schema.fieldNames)
+    case value: util.Map[_, _] => value.asScala.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toLong
+      }).toMap
+    case value: Map[_, _] => value.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toLong
+      })
+    case value: GenericRowWithSchema => value.getValuesMap[Long](value.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Long]]
   }
@@ -351,24 +336,22 @@ object TypeOp extends Enumeration {
   def checkMapStringDoubleType[T](origValue: T): T = checkAnyMapStringDoubleType(origValue).asInstanceOf[T]
 
   def checkAnyMapStringDoubleType(origValue: Any): Any = origValue match {
-    case value if value.isInstanceOf[util.Map[_, _]] =>
-      value.asInstanceOf[util.Map[_, _]].asScala.map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toDouble
-        }).toMap
-    case value if value.isInstanceOf[Map[_, Any]] =>
-      value.asInstanceOf[Map[_, Any]].map(cast =>
-        cast._1.toString -> {
-          if (cast._2 == null) null else cast._2.toString.toDouble
-        })
-    case value if value.isInstanceOf[GenericRowWithSchema] =>
-      val valueRow = value.asInstanceOf[GenericRowWithSchema]
-      valueRow.getValuesMap[Double](valueRow.schema.fieldNames)
+    case value: util.Map[_, _] => value.asScala.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toDouble
+      }).toMap
+    case value: Map[_, _] => value.map(cast =>
+      cast._1.toString -> {
+        if (cast._2 == null) null else cast._2.toString.toDouble
+      })
+    case value: GenericRowWithSchema => value.getValuesMap[Double](value.schema.fieldNames)
     case value if value == null => null
     case _ => origValue.asInstanceOf[Map[String, Double]]
   }
 
   /* PRIMITIVE TYPES */
+
+  //TODO Change all if value.isInstanceOf[_] in primitive types
 
   def checkArrayByteType[T](origValue: T): T = checkAnyArrayByteType(origValue).asInstanceOf[T]
 

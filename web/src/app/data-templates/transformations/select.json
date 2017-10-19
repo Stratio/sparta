@@ -12,6 +12,15 @@
            "required": false,
            "tooltip": "Select the fields based in one expression, support UDFs, fixed fields and aliases",
            "qa": "fragment-details-select-expression"
+        },
+        {
+           "propertyId": "delimiter",
+           "propertyName": "_DELIMITER_",
+           "propertyType": "text",
+           "required": true,
+           "default": ",",
+           "tooltip": "Delimiter character in select expression ",
+           "qa": "fragment-details-select-delimiter"
         }
      ]
   }
