@@ -29,6 +29,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.crossdata.XDSession
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.util.{Properties, Try}
 
@@ -36,17 +37,27 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
 
   def listTables(dbName: Option[String], temporary: Boolean): Try[Array[Table]] =
     Try {
-      (dbName, temporary) match {
-        case (Some(database), true) => crossdataSession.catalog.listTables(database).collect().filter(_.isTemporary)
-        case (Some(database), false) => crossdataSession.catalog.listTables(database).collect().filterNot(_.isTemporary)
-        case (None, true) => crossdataSession.catalog.listTables.collect().filter(_.isTemporary)
-        case (None, false) => crossdataSession.catalog.listTables.collect().filterNot(_.isTemporary)
+      (dbName.notBlank, temporary) match {
+        case (Some(database), true) =>
+          crossdataSession.catalog.listTables(database).collect().filter(_.isTemporary)
+        case (Some(database), false) =>
+          crossdataSession.catalog.listTables(database).collect().filterNot(_.isTemporary)
+        case (None, true) =>
+          crossdataSession.catalog.listDatabases().collect().flatMap(db =>
+            crossdataSession.catalog.listTables(db.name).collect()
+          ).filter(_.isTemporary)
+        case (None, false) =>
+          crossdataSession.catalog.listDatabases().collect().flatMap(db =>
+            crossdataSession.catalog.listTables(db.name).collect()
+          ).filterNot(_.isTemporary)
       }
     }
 
   def listAllTables: Try[Array[Table]] =
     Try {
-      crossdataSession.catalog.listTables.collect()
+      crossdataSession.catalog.listDatabases().collect().flatMap(db =>
+        crossdataSession.catalog.listTables(db.name).collect()
+      )
     }
 
   def listDatabases(): Try[Array[Database]] =
@@ -55,8 +66,13 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
   def listColumns(tableName: String, dbName: Option[String]): Try[Array[Column]] =
     Try {
       dbName match {
-        case Some(database) => crossdataSession.catalog.listColumns(database, tableName).collect()
-        case None => crossdataSession.catalog.listColumns(tableName).collect()
+        case Some(database) =>
+          crossdataSession.catalog.listColumns(database, tableName).collect()
+        case None =>
+          val table = crossdataSession.catalog.listDatabases().collect().flatMap(db =>
+            crossdataSession.catalog.listTables(db.name).collect()
+          ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table ${tableName} in XDCatalog"))
+          crossdataSession.catalog.listColumns(table.database, table.name).collect()
       }
     }
 

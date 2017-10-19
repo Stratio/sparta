@@ -121,7 +121,7 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.crossdata</groupId>
-            <artifactId>crossdata-core_2.11</artifactId>
+            <artifactId>crossdata-core_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
@@ -130,7 +130,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>

@@ -51,7 +51,7 @@ object MarathonConstant {
   val HadoopLogLevelEnv = "HADOOP_LOG_LEVEL"
   val ParquetLogLevelEnv = "PARQUET_LOG_LEVEL"
   val AvroLogLevelEnv = "AVRO_LOG_LEVEL"
-  val NettyLogLevelEnv = "NETTY_LOG_LEVEL"
+  val CrossdataLogLevelEnv = "CROSSDATA_LOG_LEVEL"
   val DcosServiceName = "MARATHON_APP_LABEL_DCOS_SERVICE_NAME"
   val Constraints = "MESOS_CONSTRAINTS"
   val HdfsRpcProtectionEnv = "HADOOP_RPC_PROTECTION"

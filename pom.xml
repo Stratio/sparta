@@ -249,54 +249,8 @@
                 <classifier>tests</classifier>
             </dependency>
             <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-core_${scala.binary.version}</artifactId>
-                <version>${spark.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-core_${scala.binary.version}</artifactId>
-                <version>${spark.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-                <classifier>tests</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.spark</groupId>
+                <groupId>com.stratio.spark</groupId>
                 <artifactId>spark-sql_${scala.binary.version}</artifactId>
-                <version>${spark.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
                 <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
@@ -323,27 +277,11 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                 </exclusions>
-                <classifier>tests</classifier>
             </dependency>
             <dependency>
-                <groupId>org.apache.spark</groupId>
+                <groupId>com.stratio.spark</groupId>
                 <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-                <version>${spark.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-                <version>${spark.version}</version>
+                <version>${stratio.spark.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
@@ -358,16 +296,12 @@
             </dependency>
             <dependency>
                 <groupId>com.stratio.crossdata</groupId>
-                <artifactId>crossdata-core_2.11</artifactId>
+                <artifactId>crossdata-core_${scala.binary.version}</artifactId>
                 <version>${crossdata.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
                         <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.stratio.spark</groupId>
-                        <artifactId>spark-core_${scala.binary.version}</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.slf4j</groupId>

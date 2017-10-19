@@ -37,7 +37,6 @@
         <gson.version>2.8.0</gson.version>
         <mongodb.spark.version>0.12.0</mongodb.spark.version>
         <elastic.spark.version>5.3.0</elastic.spark.version>
-        <kafka.spark.version>2.1.0</kafka.spark.version>
         <avro.spark.version>3.2.0</avro.spark.version>
         <avro.version>1.7.6</avro.version>
         <rabbitmq.spark.version>0.5.1</rabbitmq.spark.version>
@@ -59,17 +58,44 @@
         <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.crossdata</groupId>
+            <artifactId>crossdata-core_${scala.binary.version}</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -80,10 +106,6 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.stratio.crossdata</groupId>
-            <artifactId>crossdata-core_2.11</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -100,9 +122,9 @@
             <version>${twitter.spark.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming-flume_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
+            <version>${stratio.spark.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -125,6 +147,16 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark-20_${scala.binary.version}</artifactId>
             <version>${elastic.spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-sql_${scala.binary.version}</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.spark</groupId>
+                    <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.datastax.spark</groupId>
@@ -216,9 +248,9 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.spark</groupId>
+            <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
-            <version>${kafka.spark.version}</version>
+            <version>${stratio.spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -246,12 +278,6 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
             <classifier>tests</classifier>
             <scope>test</scope>

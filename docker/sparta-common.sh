@@ -116,6 +116,7 @@ function logLevelOptions() {
     SERVICE_LOG_LEVEL="ERROR"
   fi
   sed -i "s|<root level.*|<root level = \""${SERVICE_LOG_LEVEL}"\">|" ${LOG_CONFIG_FILE}
+  sed -i "s|log4j.appender.console.layout.ConversionPattern.*|log4j.appender.console.layout.ConversionPattern=%d{dd MMM YYYY HH:mm:ss.SSS}\t%p\t%c{35}\t%m%n|" ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v SPARTA_LOG_LEVEL ]]; then
     SPARTA_LOG_LEVEL="INFO"
@@ -124,10 +125,18 @@ function logLevelOptions() {
   echo "" >> ${SPARK_CONF_LOG_FILE}
   echo "log4j.logger.com.stratio.sparta=${SPARTA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 
+  if [[ ! -v CROSSDATA_LOG_LEVEL ]]; then
+      CROSSDATA_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|com.stratio.crossdata.*|com.stratio.crossdata\" level= \""${CROSSDATA_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  echo "" >> ${SPARK_CONF_LOG_FILE}
+  echo "log4j.logger.com.stratio.crossdata=${CROSSDATA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+
   if [[ ! -v SPARK_LOG_LEVEL ]]; then
     SPARK_LOG_LEVEL="ERROR"
   fi
   sed -i "s|org.apache.spark.*|org.apache.spark\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
+  sed -i "s|org.apache.spark-project.*|org.apache.spark-project\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   sed -i "s|log4j.rootCategory.*|log4j.rootCategory= ${SPARK_LOG_LEVEL}, console|" ${SPARK_CONF_LOG_FILE}
   echo "log4j.logger.org.apache.spark=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
   echo "log4j.logger.org.spark-project=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
@@ -140,7 +149,7 @@ function logLevelOptions() {
   echo "log4j.logger.org.apache.hadoop=${HADOOP_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 
   if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
-    ZOOKEEPER_LOG_LEVEL="OFF"
+    ZOOKEEPER_LOG_LEVEL="ERROR"
   fi
   sed -i "s|org.apache.zookeeper.ClientCnxn.*|org.apache.zookeeper.ClientCnxn\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   sed -i "s|org.I0Itec.zkclient.*|org.I0Itec.zkclient\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
@@ -161,13 +170,6 @@ function logLevelOptions() {
   sed -i "s|org.apache.avro.*|org.apache.avro\" level= \""${AVRO_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
   echo "" >> ${SPARK_CONF_LOG_FILE}
   echo "log4j.logger.org.apache.avro=${AVRO_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
-
-  if [[ ! -v NETTY_LOG_LEVEL ]]; then
-    NETTY_LOG_LEVEL="ERROR"
-  fi
-  sed -i "s|io.netty.*|io.netty\" level= \""${NETTY_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.io.netty=${NETTY_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
 }
 
 function logLevelToStdout() {
