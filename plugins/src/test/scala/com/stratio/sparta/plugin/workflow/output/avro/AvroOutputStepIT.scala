@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.avro
+
+package com.stratio.sparta.plugin.workflow.output.avro
 
 import java.sql.Timestamp
 import java.time.Instant
 
 import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import org.apache.spark.sql.types._
+import com.stratio.sparta.sdk.pipeline.output.Output
+import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
@@ -31,9 +33,10 @@ import org.scalatest.junit.JUnitRunner
 import scala.reflect.io.File
 import scala.util.Random
 
-
 @RunWith(classOf[JUnitRunner])
-class AvroOutputIT extends TemporalSparkContext with Matchers {
+class AvroOutputStepIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+
+  self: FlatSpec =>
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
@@ -54,16 +57,15 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new AvroOutput("avro-test", sparkSession, properties)
+    val output = new AvroOutputStep("avro-test", sparkSession, properties)
   }
 
-
-  "AvroOutput" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", sparkSession, Map.empty)
+  "AvroOutputStep" should "throw an exception when path is not present" in {
+    an[Exception] should be thrownBy new AvroOutputStep("avro-test", sparkSession, Map.empty)
   }
 
   it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new AvroOutput("avro-test", sparkSession, Map("path" -> "    "))
+    an[Exception] should be thrownBy new AvroOutputStep("avro-test", sparkSession, Map("path" -> "    "))
   }
 
   it should "save a dataframe " in new WithEventData {
@@ -74,7 +76,4 @@ class AvroOutputIT extends TemporalSparkContext with Matchers {
     File(tmpPath).deleteRecursively
     File("spark-warehouse").deleteRecursively
   }
-
 }
-
-

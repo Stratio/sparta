@@ -35,6 +35,10 @@ abstract class OutputStep(
                            properties: Map[String, JSerializable]
                          ) extends Parameterizable(properties) with GraphStep with SLF4JLogging {
 
+  override lazy val customKey = "saveOptions"
+  override lazy val customPropertyKey = "saveOptionsKey"
+  override lazy val customPropertyValue = "saveOptionsValue"
+
   val PrimaryKey = "primaryKey"
   val TableNameKey = "tableName"
   val PartitionByKey = "partitionBy"

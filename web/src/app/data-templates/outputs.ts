@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-//import * as avroTemplate from './outputs/avro.json';
+import * as avroTemplate from './outputs/avro.json';
 //import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
 //import * as csvTemplate from './outputs/csv.json';
@@ -32,8 +32,8 @@ import * as redisTemplate from './outputs/redis.json';
 
 
 export const outputs = [
+  avroTemplate,
   crossdataTemplate,
-  //avroTemplate,
   //cassandraTemplate,
   //csvTemplate,
   //customTemplate,
