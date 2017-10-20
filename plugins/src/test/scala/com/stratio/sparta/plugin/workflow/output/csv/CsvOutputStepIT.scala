@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.output.csv
+
+package com.stratio.sparta.plugin.workflow.output.csv
 
 import java.sql.Timestamp
 import java.time.Instant
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
-import org.apache.spark.sql.types._
+import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
-import org.apache.spark.sql.crossdata.XDSession
-
 
 import scala.reflect.io.File
 import scala.util.Random
 
-
 @RunWith(classOf[JUnitRunner])
-class CsvOutputIT extends TemporalSparkContext with Matchers {
+class CsvOutputStepIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
+
+  self: FlatSpec =>
 
   trait CommonValues {
     val tmpPath: String = File.makeTemp().name
@@ -53,27 +53,24 @@ class CsvOutputIT extends TemporalSparkContext with Matchers {
 
   trait WithEventData extends CommonValues {
     val properties = Map("path" -> tmpPath)
-    val output = new CsvOutput("csv-test", sparkSession, properties)
+    val output = new CsvOutputStep("csv-test", sparkSession, properties)
   }
 
 
-  "CsvOutput" should "throw an exception when path is not present" in {
-    an[Exception] should be thrownBy new CsvOutput("csv-test", sparkSession, Map.empty)
+  "CsvOutputStep" should "throw an exception when path is not present" in {
+    an[Exception] should be thrownBy new CsvOutputStep("csv-test", sparkSession, Map.empty)
   }
 
   it should "throw an exception when empty path " in {
-    an[Exception] should be thrownBy new CsvOutput("csv-test", sparkSession, Map("path" -> "    "))
+    an[Exception] should be thrownBy new CsvOutputStep("csv-test", sparkSession, Map("path" -> "    "))
   }
 
   it should "save a dataframe " in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
     val read = sparkSession.read.csv(s"$tmpPath/person.csv")
     read.count should be(3)
     read should be eq data
     File(tmpPath).deleteRecursively
     File("spark-warehouse").deleteRecursively
   }
-
 }
-
-

@@ -1,11 +1,9 @@
   {
-    "name": "CSV",
+    "name": "Csv",
+    "icon": "Csv",
+    "className": "CsvOutputStep",
     "classPrettyName": "Csv",
-    "description": {
-      "short": "Persist your data in HDFS with CSV format.",
-      "long": "https://github.com/databricks/spark-csv",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-CSV"
-    },
+    "description": "Persist your data in HDFS with CSV format.",
     "properties": [
       {
         "propertyId": "path",
@@ -22,7 +20,7 @@
         "propertyType": "boolean",
         "regexp": "true|false",
         "default": false,
-        "required": false,
+        "required": true,
         "tooltip": "Sets if a header is attached to the output file.",
         "qa": "fragment-details-csv-header"
       },
@@ -32,7 +30,7 @@
         "propertyType": "boolean",
         "regexp": "true|false",
         "default": false,
-        "required": false,
+        "required": true,
         "tooltip": "If checked, the data schema will be attached to the output file.",
         "qa": "fragment-details-csv-inferSchema"
       },
@@ -45,7 +43,7 @@
         "maxlength": "1",
         "default": ",",
         "trim": false,
-        "required": false,
+        "required": true,
         "qa": "fragment-details-csv-delimiter"
       },
       {

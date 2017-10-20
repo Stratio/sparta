@@ -13,50 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.stratio.sparta.plugin.output.csv
+package com.stratio.sparta.plugin.workflow.output.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.pipeline.output.Output._
-import com.stratio.sparta.sdk.pipeline.output.{Output, SaveModeEnum}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTime
-import org.apache.spark.sql._
+import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.workflow.step.OutputStep
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
 import scala.util.Try
 
-/**
- * This output prints all AggregateOperations or DataFrames information on screen. Very useful to debug.
- *
- * @param name
- * @param properties
- */
-class CsvOutput(
-                 name: String,
-                 sparkSession: XDSession,
-                 properties: Map[String, JSerializable]
-               ) extends Output(name, sparkSession, properties) {
+class CsvOutputStep(
+                     name: String,
+                     xDSession: XDSession,
+                     properties: Map[String, JSerializable]
+                   ) extends OutputStep(name, xDSession, properties) {
 
-  val path = properties.getString("path", None).notBlank
+  lazy val path = properties.getString("path", None).notBlank
+  lazy val header = Try(properties.getString("header", "false").toBoolean).getOrElse(false)
+  lazy val inferSchema = Try(properties.getString("inferSchema", "false").toBoolean).getOrElse(false)
+  lazy val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
+  lazy val codecOption = properties.getString("codec", None).notBlank
+  lazy val compressExtension = properties.getString("compressExtension", None).notBlank.getOrElse(".gz")
+
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
 
-  val header = Try(properties.getString("header").toBoolean).getOrElse(false)
-  val inferSchema = Try(properties.getString("inferSchema").toBoolean).getOrElse(false)
-  val delimiter = getValidDelimiter(properties.getString("delimiter", ","))
-  val codecOption = properties.getString("codec", None)
-  val compressExtension = properties.getString("compressExtension", None).getOrElse(".gz")
-
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] =
+  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val pathParsed = if (path.get.endsWith("/")) path.get else path.get + "/"
     val tableName = getTableNameFromOptions(options)
     val optionsParsed =
-      Map("header" -> header.toString, "delimiter" -> delimiter, "inferSchema" -> inferSchema.toString) ++
-        codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
+      Map(
+        "header" -> header.toString,
+        "delimiter" -> delimiter,
+        "inferSchema" -> inferSchema.toString
+      ) ++ codecOption.fold(Map.empty[String, String]) { codec => Map("codec" -> codec) }
     val fullPath = s"$pathParsed$tableName.csv"
     val pathWithExtension = codecOption.fold(fullPath) { codec => fullPath + compressExtension }
 
@@ -75,7 +70,6 @@ class CsvOutput(
       log.warn(s"Invalid length for the delimiter: '$delimiter' . " +
         s"The system chose the first character: '$firstCharacter'")
       firstCharacter
-    }
-    else delimiter
+    } else delimiter
   }
 }

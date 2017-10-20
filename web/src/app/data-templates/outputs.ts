@@ -17,7 +17,7 @@
 import * as avroTemplate from './outputs/avro.json';
 //import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
-//import * as csvTemplate from './outputs/csv.json';
+import * as csvTemplate from './outputs/csv.json';
 //import * as customTemplate from './outputs/custom.json';
 //import * as elasticSearchTemplate from './outputs/elastic-search.json';
 //import * as filesystemTemplate from './outputs/filesystem.json';
@@ -35,7 +35,7 @@ export const outputs = [
   avroTemplate,
   crossdataTemplate,
   //cassandraTemplate,
-  //csvTemplate,
+  csvTemplate,
   //customTemplate,
   //elasticSearchTemplate,
   //filesystemTemplate,
