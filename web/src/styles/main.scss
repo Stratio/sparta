@@ -2,6 +2,8 @@ $egeo-sanitize: true;
 @import '~@stratio/egeo/theme/sanitize';
 @import '~@stratio/egeo/theme/grid.css';
 @import '~@stratio/egeo/theme/theme.css';
+@import '~codemirror/lib/codemirror.css';
+
 html {
    font-size: 16px;
 }
@@ -28,6 +30,7 @@ sp-textarea {
 .st-tooltip {
    min-height: 20px;
    line-height: 18px;
+
    &:before {
       min-width: 160px;
    }
@@ -44,3 +47,8 @@ sp-textarea {
    cursor: move;
 }
 
+.CodeMirror {
+   display: block;
+   width: 100%;
+   height: auto;
+}

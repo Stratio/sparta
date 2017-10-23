@@ -13,18 +13,34 @@
       [minlength]="field.minlength" 
       [maxlength]="field.maxlength"></sp-input>
 
-   <!-- textarea -->
-   <sp-textarea *ngIf="field.propertyType == 'textarea' && isVisible" 
-      [formControl]="stFormControl"
-      label="{{field.propertyName | translate}}" 
-      contextualHelp="{{field.tooltip}}" 
-      pattern="{{field.regexp}}" 
-      [required]="field.required"
-      [forceValidations]="forceValidations"
-      [errors]="errorsService.errors.inputErrors"
-      qaTag="{{qa}}"
-      [minlength]="field.minlength"
-      [maxlength]="field.maxlength"></sp-textarea>
+    <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
+      <!-- highlight textarea -->
+      <sp-textarea-highlight *ngIf="field.contentType" 
+          [formControl]="stFormControl"
+          [contentType]="field.contentType"
+          label="{{field.propertyName | translate}}" 
+          contextualHelp="{{field.tooltip}}" 
+          pattern="{{field.regexp}}" 
+          [required]="field.required"
+          [forceValidations]="forceValidations"
+          [errors]="errorsService.errors.inputErrors"
+          qaTag="{{qa}}"
+          [minlength]="field.minlength"
+          [maxlength]="field.maxlength"></sp-textarea-highlight>
+
+      <!-- regular textarea -->
+      <sp-textarea *ngIf="!field.contentType"
+          [formControl]="stFormControl"
+          label="{{field.propertyName | translate}}" 
+          contextualHelp="{{field.tooltip}}" 
+          pattern="{{field.regexp}}" 
+          [required]="field.required"
+          [forceValidations]="forceValidations"
+          [errors]="errorsService.errors.inputErrors"
+          qaTag="{{qa}}"
+          [minlength]="field.minlength"
+          [maxlength]="field.maxlength"></sp-textarea>
+    </div>
 
    <sp-select *ngIf="field.propertyType == 'select' && isVisible" 
       [options]="field.values" 

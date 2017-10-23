@@ -4,8 +4,7 @@
      "className": "JsonTransformStep",
      "classPrettyName": "Json",
      "description": "Parsing input field in text format to row",
-     "properties": [
-        {
+     "properties": [{
            "propertyId": "inputField",
            "propertyName": "_INPUT_FIELD_",
            "propertyType": "text",
@@ -19,8 +18,7 @@
            "required": true,
            "propertyType": "select",
            "default": "REPLACE",
-           "values": [
-              {
+           "values": [{
                  "label": "Replacing input field",
                  "value": "REPLACE"
               },
@@ -48,17 +46,13 @@
            "propertyId": "schema.inputMode",
            "propertyName": "_INPUT_SCHEMA_FROM_",
            "propertyType": "select",
-           "float": true,
            "visible": [
-              [
-                 {
-                    "propertyId": "schema.fromRow",
-                    "value": false
-                 }
-              ]
+              [{
+                 "propertyId": "schema.fromRow",
+                 "value": false
+              }]
            ],
-           "values": [
-              {
+           "values": [{
                  "label": "Spark format",
                  "value": "SPARKFORMAT"
               },
@@ -74,16 +68,16 @@
         {
            "propertyId": "schema.provided",
            "propertyName": "_DESERIALIZER_SCHEMA_",
-           "propertyType": "text",
+           "propertyType": "textarea",
+           "contentType": "JSON",
+           "width": 8,
            "tooltip": "Schema in json/Spark format or from example",
            "default": "",
            "visible": [
-              [
-                 {
-                    "propertyId": "schema.fromRow",
-                    "value": false
-                 }
-              ]
+              [{
+                 "propertyId": "schema.fromRow",
+                 "value": false
+              }]
            ],
            "required": false,
            "qa": "workflow-transformation-json-schema-provided"
@@ -94,10 +88,9 @@
            "propertyType": "select",
            "default": "Error",
            "required": true,
-           "values": [
-              {
-              "label": "Error",
-              "value": "Error"
+           "values": [{
+                 "label": "Error",
+                 "value": "Error"
               },
               {
                  "label": "Discard",
