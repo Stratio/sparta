@@ -338,6 +338,8 @@
    "_PARQUET_SAVE_PROPERTIES_": "Parquet save properties",
    "_CSV_SAVE_PROPERTIES_": "CSV save properties",
    "_AVRO_SAVE_PROPERTIES_": "Avro save properties",
+   "_JSON_SAVE_PROPERTIES_": "Json save properties",
+   "_TEXT_SAVE_PROPERTIES_": "Text save properties",
    "_VALUE_SERIALIZER_": "Value Serializer",
    "_ACKS_": "Acks",
    "_KAFKA_FORMAT_": "Format",

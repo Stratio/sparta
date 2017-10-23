@@ -13,45 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.workflow.output.parquet
+package com.stratio.sparta.plugin.workflow.output.json
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
 
+class JsonOutputStep(
+                      name: String,
+                      xDSession: XDSession,
+                      properties: Map[String, JSerializable]
+                    ) extends OutputStep(name, xDSession, properties) {
 
-/**
-  * This output saves as a parquet file the information received from the stream.
-  *
-  * @param name
-  * @param properties
-  */
-class ParquetOutputStep(
-                        name : String,
-                        xDSession: XDSession,
-                        properties: Map[String, JSerializable]
-                        ) extends OutputStep(name, xDSession, properties){
+  lazy val path: Option[String] = properties.getString("path", None).notBlank
 
-  val path = properties.getString("path", None).notBlank
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
 
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] = {
+  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
-  }
 
-  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String,String]): Unit = {
+
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
 
     validateSaveMode(saveMode)
 
     applyPartitionBy(
       options,
-      dataFrame.write.options(getCustomProperties).mode(getSparkSaveMode(saveMode)),
+      dataFrame.write.mode(getSparkSaveMode(saveMode)).options(getCustomProperties),
       dataFrame.schema.fields
-    ).parquet(s"${path.get}/$tableName")
+    ).json(s"${path.get}/$tableName")
+
   }
 }

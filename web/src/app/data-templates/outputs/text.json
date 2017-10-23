@@ -1,0 +1,60 @@
+  {
+    "name": "Text",
+     "icon": "Text",
+     "className": "TextOutputStep",
+    "classPrettyName": "Text",
+    "description": "Saves the processed data to text file into any storage service",
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-filesystem-path"
+      },
+      {
+        "propertyId": "delimiter",
+        "propertyName": "_DELIMITER_",
+        "propertyType": "text",
+        "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
+        "regexp": "[^\"#\\\\]",
+        "maxLength": "1",
+        "default": ",",
+        "trim": false,
+        "required": false,
+        "qa": "fragment-details-filesystem-delimiter"
+      },
+       {
+          "propertyId": "saveOptions",
+          "propertyName": "_TEXT_SAVE_PROPERTIES_",
+          "propertyType": "list",
+          "default": "",
+          "required": false,
+          "tooltip": "",
+          "qa": "fragment-details-parquet-save-properties",
+          "fields": [
+             {
+                "propertyId": "saveOptionsKey",
+                "propertyName": "_SAVE_OPTIONS_KEY_",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "required": false,
+                "qa": "fragment-details-parquet-saveOptionsKey"
+             },
+             {
+                "propertyId": "saveOptionsValue",
+                "propertyName": "_SAVE_OPTIONS_VALUE_",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "required": false,
+                "qa": "fragment-details-parquet-saveOptionsValue"
+             }
+          ]
+       }
+    ]
+  }

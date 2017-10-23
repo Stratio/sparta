@@ -13,45 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.plugin.workflow.output.parquet
+package com.stratio.sparta.plugin.workflow.output.text
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.sdk.workflow.step.OutputStep
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.functions.{col, concat_ws}
 
+import scala.util.Try
 
-/**
-  * This output saves as a parquet file the information received from the stream.
-  *
-  * @param name
-  * @param properties
-  */
-class ParquetOutputStep(
-                        name : String,
-                        xDSession: XDSession,
-                        properties: Map[String, JSerializable]
-                        ) extends OutputStep(name, xDSession, properties){
+class TextOutputStep(
+                      name: String,
+                      xDSession: XDSession,
+                      properties: Map[String, JSerializable]
+                    ) extends OutputStep(name, xDSession, properties) {
 
-  val path = properties.getString("path", None).notBlank
+  lazy val FieldName = "extractedData"
+  lazy val path: Option[String] = properties.getString("path", None).notBlank
+  lazy val delimiter: String = properties.getString("delimiter", ",")
+
   require(path.isDefined, "Destination path is required. You have to set 'path' on properties")
 
-  override def supportedSaveModes : Seq[SaveModeEnum.Value] = {
+  override def supportedSaveModes: Seq[SaveModeEnum.Value] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite)
-  }
 
-  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String,String]): Unit = {
+  override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
 
     validateSaveMode(saveMode)
 
+    val df = dataFrame.withColumn(
+        FieldName,
+        concat_ws(delimiter, dataFrame.schema.fields.flatMap(field => Some(col(field.name))).toSeq: _*)
+      ).select(FieldName)
+
     applyPartitionBy(
       options,
-      dataFrame.write.options(getCustomProperties).mode(getSparkSaveMode(saveMode)),
-      dataFrame.schema.fields
-    ).parquet(s"${path.get}/$tableName")
+      df.write.mode(getSparkSaveMode(saveMode)).options(getCustomProperties),
+      df.schema.fields
+    ).text(s"${path.get}/$tableName")
   }
 }

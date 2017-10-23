@@ -1,0 +1,48 @@
+  {
+    "name": "Json",
+     "icon": "Json",
+     "className": "JsonOutputStep",
+    "classPrettyName": "Json",
+    "description": "Saves the processed data to json file into any storage service",
+    "properties": [
+      {
+        "propertyId": "path",
+        "propertyName": "_PATH_",
+        "propertyType": "text",
+        "regexp": "",
+        "default": "",
+        "required": true,
+        "tooltip": "",
+        "qa": "fragment-details-filesystem-path"
+      },
+       {
+          "propertyId": "saveOptions",
+          "propertyName": "_JSON_SAVE_PROPERTIES_",
+          "propertyType": "list",
+          "default": "",
+          "required": false,
+          "tooltip": "",
+          "qa": "fragment-details-parquet-save-properties",
+          "fields": [
+             {
+                "propertyId": "saveOptionsKey",
+                "propertyName": "_SAVE_OPTIONS_KEY_",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "required": false,
+                "qa": "fragment-details-parquet-saveOptionsKey"
+             },
+             {
+                "propertyId": "saveOptionsValue",
+                "propertyName": "_SAVE_OPTIONS_VALUE_",
+                "propertyType": "text",
+                "regexp": "",
+                "default": "",
+                "required": false,
+                "qa": "fragment-details-parquet-saveOptionsValue"
+             }
+          ]
+       }
+    ]
+  }
