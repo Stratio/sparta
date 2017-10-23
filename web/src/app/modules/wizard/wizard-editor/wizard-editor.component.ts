@@ -112,7 +112,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 this.store.dispatch(new wizardActions.UnselectSegmentAction());
             }
             if (this.selectedEntity) {
-                console.log(event.target);
                 this.store.dispatch(new wizardActions.UnselectEntityAction());
             }
         }
@@ -120,7 +119,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     constructor(private elementRef: ElementRef, private editorService: WizardEditorService, private validateSchemaService: ValidateSchemaService,
         private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private initializeSchemaService: InitializeSchemaService) {
-
     }
 
     ngOnInit(): void {
@@ -277,10 +275,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             .on('mouseup', mouseup.bind(this));
 
         function mouseup() {
-           
-
-            console.log(event);
-             event.event.target.classList.remove('over-output2');
+            event.event.target.classList.remove('over-output2');
             this.showConnector = false;
             this.drawingConnectionStatus = {
                 status: false

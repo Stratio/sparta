@@ -1,14 +1,12 @@
 $egeo-sanitize: true;
-
 @import '~@stratio/egeo/theme/sanitize';
 @import '~@stratio/egeo/theme/grid.css';
 @import '~@stratio/egeo/theme/theme.css';
-
-html{
+html {
    font-size: 16px;
 }
 
-body{
+body {
    margin: 0;
    overflow-x: hidden;
    background: #fafafa;
@@ -16,32 +14,33 @@ body{
 }
 
 .selected-button {
-    background:#f3f6f8;
+   background: #f3f6f8;
 }
 
 sp-textarea {
-    width:100%;
+   width: 100%;
 }
 
-.sth-header{
-    z-index:999!important;
+.sth-header {
+   z-index: 999!important;
 }
 
 .st-tooltip {
-    min-height: 20px;
-    &:before {
-        min-width:160px;
-    }
+   min-height: 20px;
+   line-height: 18px;
+   &:before {
+      min-width: 160px;
+   }
 }
 
-
-.custom-checkbox{
-    margin-right: 6px!important;
+.custom-checkbox {
+   margin-right: 6px!important;
 }
 
 .entity-icon {
-    font-family: ico_stratio;
-    font-size:25px;
-    user-select: none;
-    cursor: move;
+   font-family: ico_stratio;
+   font-size: 25px;
+   user-select: none;
+   cursor: move;
 }
+

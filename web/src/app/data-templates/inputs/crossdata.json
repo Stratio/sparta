@@ -18,6 +18,7 @@
         "propertyName": "_STORAGELEVEL_",
         "propertyType": "select",
         "required": true,
+        "width": 4,
         "default": "MEMORY_ONLY_SER",
         "tooltip": "Default Storage Level assigned to Spark Streaming batches",
         "qa": "policy-storage-level",

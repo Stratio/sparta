@@ -5,7 +5,7 @@
    </div>
 
 
-   <form class="items-list col-sm-12" [formGroup]="form" *ngIf="items.controls.length">
+   <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index;">
             <div [formGroup]="item" class="row">
@@ -17,13 +17,12 @@
                         [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" (change)="changeValue($event)"
                         required="true" contextualHelp="{{field.tooltip | translate}}"></sp-input>
 
-                     <st-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
+                     <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
                         label="{{field.propertyName | translate}}" tooltip="Select option from list" placeholder="{{field.propertyName | translate}}"
-                        (change)="changeValue($event)" required="true" [formControl]="item.controls[field.propertyId]"></st-select>
+                        (change)="changeValue($event)" required="true" [formControl]="item.controls[field.propertyId]"></sp-select>
 
                      <st-checkbox *ngIf="field.propertyType == 'boolean'" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
                   </div>
-
                   <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>
 
@@ -33,8 +32,8 @@
 
    </form>
    <div class="col-sm-12 error-message">
-    <div class="st-input-error-layout" *ngIf="required && !items.controls.length">
-        <span class="st-input-error-message">This field is required</span>
+    <div class="st-input-error-layout" *ngIf="showError() && !items.controls.length">
+        <span class="st-input-error-message">{{errors.required}}</span>
     </div>
    </div>
    <div class="add-element" (click)="addItem()">

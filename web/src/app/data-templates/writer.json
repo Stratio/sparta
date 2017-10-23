@@ -14,7 +14,7 @@
        "propertyType": "select",
        "required": true,
        "default": "Append",
-       "width": 6,
+       "width": 3,
        "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
        "qa": "save-mode-writer",
        "values": [{

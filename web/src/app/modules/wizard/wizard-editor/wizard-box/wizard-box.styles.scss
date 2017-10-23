@@ -1,5 +1,4 @@
 @import '~@stratio/egeo/theme/constants';
-
 .entity {
    cursor: move;
    &.active {
@@ -16,22 +15,6 @@
    cursor: move;
    letter-spacing: -0.6px;
    user-select: none;
-}
-
-.output-point,
-.entry-point {
-   user-select: none;
-}
-
-.output-point {
-   &:hover {
-      fill: white;
-      stroke: #777;
-      /*rx: 20;
-        ry: 20;
-        stroke-linecap: round;*/
-      transform: scale(1.2);
-   }
 }
 
 .Input {
@@ -56,7 +39,7 @@
 }
 
 .relation {
-   display: none;
+   transform: scale(0);
    stroke-width: 1;
    stroke: #999;
    fill: #e7f3fb;
@@ -64,48 +47,40 @@
    transform-origin: 4px 4px;
 }
 
-:host .relation.relation.over-output2 {
-      fill: white;
-      display: block;
-      stroke: #acc952;
-      stroke-width: 1;
-      -ms-transform: scale(1.2);
-      transform: scale(1.2);
+:host:hover {
+   .type-input .input-entry {
+      transform: scale(1);
    }
-
-.active {
-
-  
-   .entry-point.relation {
-     display: block!important;
-      fill: white;
-     /* -ms-transform: scale(1.2);
-      transform: scale(1.2);*/
-   }
-   .relation.over-output{
-      fill: white;
-      display: block!important;
-      stroke: #acc952;
-      stroke-width: 1;
-      -ms-transform: scale(1.2);
-      transform: scale(1.2);
+   .type-transformation .transformation-entry {
+      transform: scale(1);
    }
 }
 
-:host:hover {
-   .type-output {
-      .output-entry {
-         display: block;
-      }
+%selected-relation {
+   fill: white;
+   display: block;
+   stroke: #acc952;
+   stroke-width: 1;
+   -ms-transform: scale(1.2);
+   cursor:pointer;
+   transform: scale(1.2)!important;
+}
+
+.relation.transformation-entry:hover,
+.relation.input-entry:hover {
+   @extend %selected-relation;
+}
+
+.active {
+   &.type-output .output-entry, &.type-transformation .transformation-entry {
+      transform: scale(1);
+      fill: white;
    }
-   .type-input {
-      .input-entry {
-         display: block;
-      }
+   .relation.over-output {
+      @extend %selected-relation;
    }
-   .type-transformation {
-      .transformation-entry {
-         display: block;
-      }
-   }
+}
+
+:host .relation.relation.over-output2 {
+   @extend %selected-relation;
 }

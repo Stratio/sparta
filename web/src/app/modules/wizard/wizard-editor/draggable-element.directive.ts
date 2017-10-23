@@ -55,9 +55,9 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
         this.clicks++;
         if (this.clicks == 1) {
             setTimeout(() => {
-                if (this.clicks == 1) {
+                if (this.clicks == 1) { //single click
                     this.onClickEvent.emit();
-                } else {
+                } else {                //double click
                     this.onDoubleClickEvent.emit();
                 }
                 this.clicks = 0;

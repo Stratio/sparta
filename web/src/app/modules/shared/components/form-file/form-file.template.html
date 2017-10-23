@@ -1,5 +1,5 @@
 <div>
-   <button class="button button-primary" (click)="file.click()">
+   <button class="button" [ngClass]="type" (click)="file.click()">
     <i class="icon-upload"></i>
     <span>{{text}}</span>
     </button>

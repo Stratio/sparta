@@ -33,7 +33,7 @@ import {
     ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
-import { ErrorMessagesService } from "app/services";
+import { ErrorMessagesService } from 'app/services';
 
 @Component({
     selector: 'form-list',
@@ -58,14 +58,17 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     @Input() public label = '';
     @Input() public qaTag = '';
     @Input() required = false;
+    @Input() errors: any = {};
+    @Input() tooltip = '';
     @Input() forceValidations = false;
 
     @ViewChild('inputForm') public inputForm: NgForm;
 
     public item: any = {};
-    public form: FormGroup;
+    public internalControl: FormGroup;
     public items: FormArray;
-    public hasErrors = false;
+    public isError = false;
+    public isDisabled = false;
 
     onChange = (_: any) => { };
     onTouched = () => { };
@@ -78,7 +81,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         }
 
         this.items = this.formBuilder.array([]);
-        this.form = new FormGroup({
+        this.internalControl = new FormGroup({
             items: this.items
         });
     }
@@ -95,6 +98,10 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     addItem(): void {
         this.items.push(this.createItem());
+    }
+
+    showError(): boolean {
+        return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;
     }
 
     getItemClass(field: any): string {
@@ -142,12 +149,14 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         this.onTouched = fn;
     }
 
-    setDisabledState(isDisabled: boolean) {
-        if (isDisabled) {
-            this.form.disable();
-        } else {
-            this.form.enable();
+    setDisabledState(disable: boolean): void {
+        this.isDisabled = disable;
+        if (this.isDisabled && this.internalControl && this.internalControl.enabled) {
+            this.internalControl.disable();
+        } else if (!this.isDisabled && this.internalControl && this.internalControl.disabled) {
+            this.internalControl.enable();
         }
+        this._cd.markForCheck();
     }
 
     changeValue(value: any): void {
@@ -157,7 +166,8 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     validate(c: FormGroup): { [key: string]: any; } {
         if (this.required) {
             if (!this.items.controls.length) {
-                return  {
+                this.isError = true;
+                return {
                     formListError: {
                         valid: false
                     }
@@ -171,7 +181,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
                 error = true;
             }
         });
-
+        this.isError = error;
         return error ? {
             formListError: {
                 valid: false

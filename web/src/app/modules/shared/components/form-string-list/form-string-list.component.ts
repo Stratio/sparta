@@ -32,7 +32,7 @@ import {
     HostListener
 } from '@angular/core';
 import {
-    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm
+    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
@@ -41,35 +41,54 @@ import { Subscription } from 'rxjs/Subscription';
     templateUrl: './form-string-list.template.html',
     styleUrls: ['./form-string-list.styles.scss'],
     providers: [
-        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => FormListStringComponent), multi: true }
-    ],
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => FormListStringComponent),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            useExisting: forwardRef(() => FormListStringComponent),
+            multi: true
+        }],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormListStringComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class FormListStringComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
 
     @Input() public formListData: any;
-    @Input() public label: string = '';
+    @Input() public label = '';
     @Input() public qaTag = '';
+    @Input() errors: any = {};
+    @Input() required = false;
+    @Input() forceValidations = false;
+    @Input() contextualHelp = '';
+    @Input() tooltip = '';
 
     @ViewChild('inputForm') public inputForm: NgForm;
     @ViewChild('newElement') newElementInput: ElementRef;
 
 
     public item: any = {};
-    public form: FormGroup;
+    public internalControl: FormGroup;
     public items: FormArray;
+    public focus: boolean = false;
+    public isDisabled = false;
+    public isError = false;
     public innerInputContent = '';
 
+
+    public fieldName = '';
 
     onChange = (_: any) => { };
     onTouched = () => { };
 
     addElementFocus() {
+        this.focus = true;
         this.newElementInput.nativeElement.focus();
     }
 
     onkeyPress($event: any) {
-        if($event.keyCode === 13) {
+        if ($event.keyCode === 13 && this.innerInputContent.length) {
             this.items.push(this.createItem(this.innerInputContent));
             this.innerInputContent = '';
         }
@@ -78,45 +97,55 @@ export class FormListStringComponent implements ControlValueAccessor, OnInit, On
     constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef) { };
 
     ngOnInit() {
-
+        this.fieldName = this.formListData.fields[0].propertyId;
         this.items = this.formBuilder.array([]);
-        this.form = new FormGroup({
+        this.internalControl = new FormGroup({
             items: this.items
+        });
+
+        this.internalControl.valueChanges.subscribe((value) => {
+            this.onChange(this.items.value);
         });
     }
 
     //create empty item
-    createItem(value: any): FormControl {
-        return this.formBuilder.control(value);
+    createItem(value: any): FormGroup {
+        const item: any = {};
+        item[this.fieldName] = value;
+        const form: FormGroup = this.formBuilder.group(item);
+        return this.formBuilder.group(item);
     }
 
     deleteItem(i: number) {
         this.items.removeAt(i);
     }
-    
+
     addItem(): void {
-       
+
     }
 
-    getItemClass(): string {
-        const length = this.formListData.fields.length;
-        if(length === 1) {
-            return 'col-xs-6';
-        } else if(length<4) {
-            return 'col-xs-' + 12/length;
-        } else {
-            return 'col-xs-4';
-        }
+    showError(): boolean {
+        return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.focus && !this.isDisabled;
     }
+
+    /** Style functions */
+    onFocus(event: Event): void {
+        this.focus = true;
+    }
+
+    onFocusOut(event: Event): void {
+        this.focus = false;
+    }
+
     writeValue(data: any): void {
         if (data && Array.isArray(data) && data.length) {
             this.items.controls = [];
-            for (let value of data) {
-                let item: any = {};
-                for (let field of this.formListData.fields) {
+            for (const value of data) {
+                const item: any = {};
+                for (const field of this.formListData.fields) {
                     item[field.propertyId] = [value[field.propertyId]];
                 }
-                let form: FormGroup = this.formBuilder.group(item);
+                const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);
             }
             this._cd.detectChanges();
@@ -135,12 +164,30 @@ export class FormListStringComponent implements ControlValueAccessor, OnInit, On
         this.onTouched = fn;
     }
 
-    setDisabledState(isDisabled: boolean): void {
-
+    setDisabledState(disable: boolean): void {
+        this.isDisabled = disable;
+        if (this.isDisabled && this.internalControl && this.internalControl.enabled) {
+            this.internalControl.disable();
+        } else if (!this.isDisabled && this.internalControl && this.internalControl.disabled) {
+            this.internalControl.enable();
+        }
+        this._cd.markForCheck();
     }
 
-    changeValue(value: any): void {
-        this.onChange(this.items.value);
+    validate(c: FormGroup): { [key: string]: any; } {
+
+        if (this.required) {
+            if (!this.items.controls.length) {
+                this.isError = true;
+                return {
+                    formStringListError: {
+                        valid: false
+                    }
+                };
+            } else {
+                this.isError = false;
+            }
+        }
     }
 
     ngOnDestroy(): void {

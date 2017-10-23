@@ -25,6 +25,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SpInputModule } from '@app/shared/components/sp-input/sp-input.module';
 import { SpTextareaModule } from "@app/shared/components/sp-textarea/sp-textarea.module";
 import { SpTextareaComponent } from "@app/shared/components/sp-textarea/sp-textarea.component";
+import { SpSelectModule } from "@app/shared/components/sp-select/sp-select.module";
 
 @NgModule({
    exports: [
@@ -32,7 +33,8 @@ import { SpTextareaComponent } from "@app/shared/components/sp-textarea/sp-texta
       TranslateModule,
       ...shareComponents,
        SpInputComponent,
-       SpTextareaComponent
+       SpTextareaComponent,
+       SpSelectModule
    ],
    imports: [
       CommonModule,
@@ -40,6 +42,7 @@ import { SpTextareaComponent } from "@app/shared/components/sp-textarea/sp-texta
       ReactiveFormsModule,
       SpInputModule,
       SpTextareaModule,
+      SpSelectModule,
       TranslateModule,
       EgeoModule
    ],

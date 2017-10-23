@@ -27,44 +27,43 @@
    </div>
    <div class="content">
       <div class="container">
-         <div class="row">
-            <form #entityForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off" (ngSubmit)="saveForm()">
-               <div *ngIf="!advancedSettings.length" class="col-sm-12">
-                  <st-horizontal-tabs class="entity-categories" *ngIf="config.editionType.stepType !== 'Output'" [options]="options" [qaTag]="qaTag"
-                     (changedOption)="changeFormOption($event)">
-                  </st-horizontal-tabs>
-                  <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-                     <div class="col-sm-6">
-                        <sp-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
-                           qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                           class="input-field"></sp-input>
-                     </div>
+         <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
+            <div *ngIf="!advancedSettings.length" class="col-sm-12">
+               <st-horizontal-tabs class="entity-categories" *ngIf="config.editionType.stepType !== 'Output'" [options]="options" [qaTag]="qaTag"
+                  (changedOption)="changeFormOption($event)">
+               </st-horizontal-tabs>
+               <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
+                  <div class="col-sm-6">
+                     <sp-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                        qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
+                        class="input-field"></sp-input>
                   </div>
-                  <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
-                     <div class="col-sm-6">
-                        <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
-                           fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="120"
-                           [errors]="errorsService.errors.inputErrors" class="input-field"></sp-textarea>
-                     </div>
+               </div>
+               <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
+                  <div class="col-sm-6">
+                     <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                        fieldType="text" [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="120"
+                        [errors]="errorsService.errors.inputErrors" class="input-field"></sp-textarea>
                   </div>
-                  <form-generator *ngIf="config.editionType.stepType !== 'Output'" [hidden]="activeOption !== 'Writer'" [forceValidations]="submitted"
-                     name="writer" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
-                  <form-generator [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')" [forceValidations]="submitted"
-                     name="global" [formData]="basicSettings" [(ngModel)]="entityFormModel.configuration"></form-generator>
                </div>
+               <form-generator *ngIf="config.editionType.stepType !== 'Output'" [hidden]="activeOption !== 'Writer'" [forceValidations]="submitted"
+                  name="writer" [formData]="writerSettings" [(ngModel)]="entityFormModel.writer"></form-generator>
+               <form-generator [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')" [forceValidations]="submitted"
+                  name="global" [formData]="basicSettings" [(ngModel)]="entityFormModel.configuration"></form-generator>
+            </div>
 
 
-               <!------- settings ----------- -->
-               <div *ngIf="advancedSettings.length" class="col-sm-12">
-                  <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel"></form-generator>
-                  <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
-                     class="advanced-settings" *ngIf="advancedSettings.length"></form-generator-group>
-               </div>
-               <!--- ---------------------------- -->
+            <!------- settings ----------- -->
+            <div *ngIf="advancedSettings.length" class="col-sm-12">
+               <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
+                  class="advanced-settings" *ngIf="advancedSettings.length">
+                  <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
+               </form-generator-group>
+            </div>
+            <!--- ---------------------------- -->
 
 
-            </form>
-         </div>
+         </form>
       </div>
    </div>
 </section>

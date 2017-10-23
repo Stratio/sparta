@@ -16,14 +16,15 @@
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { SpInputComponent } from './sp-input.component';
-import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
+import { SpSelectComponent } from './sp-select.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { SpLabelModule } from "@app/shared/components/sp-label/sp-label.module";
 
 @NgModule({
    imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
-   declarations: [SpInputComponent],
-   exports: [SpInputComponent]
+   declarations: [SpSelectComponent],
+   exports: [SpSelectComponent]
 })
-export class SpInputModule { }
+
+export class SpSelectModule { }

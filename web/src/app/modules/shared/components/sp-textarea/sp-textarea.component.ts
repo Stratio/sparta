@@ -119,26 +119,26 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Inpu
        }
        this.sub = control.statusChanges.subscribe(() => this.checkErrors(control));
     }
- 
+
     ngOnChanges(change: any): void {
-       if (this.forceValidations) {
+       if (this.forceValidations && this.internalControl) {
           this.writeValue(this.internalControl.value);
        }
        this._cd.markForCheck();
     }
- 
+
     ngOnInit(): void {
        this.internalControl = new FormControl(this.internalTextareaModel);
        this.valueChangeSub = this.internalControl.valueChanges.subscribe((value) => this.onChange(value));
     }
- 
+
     ngAfterViewInit(): void {
        if (this.isFocused) {
           this.focus = true;
           this.vc.first.nativeElement.focus();
        }
     }
- 
+
     ngOnDestroy(): void {
        if (this.valueChangeSub) {
           this.valueChangeSub.unsubscribe();
@@ -147,23 +147,23 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Inpu
           this.sub.unsubscribe();
        }
     }
- 
+
     // When value is received from outside
     writeValue(value: any): void {
        this.internalControl.setValue(value);
        this.internalTextareaModel = value;
     }
- 
+
     // Registry the change function to propagate internal model changes
     registerOnChange(fn: (_: any) => void): void {
        this.onChange = fn;
     }
- 
+
     // Registry the touch function to propagate internal touch events TODO: make this function.
     registerOnTouched(fn: () => void): void {
        this.onTouched = fn;
     }
- 
+
     setDisabledState(disable: boolean): void {
        this.isDisabled = disable;
        if (this.isDisabled && this.internalControl && this.internalControl.enabled) {
@@ -173,41 +173,40 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Inpu
        }
        this._cd.markForCheck();
     }
- 
+
     showError(): boolean {
        return this.errorMessage !== undefined && (!this.internalControl.pristine || this.forceValidations) && !this.focus && !this.isDisabled;
     }
- 
+
     /** Style functions */
     onFocus(event: Event): void {
        this.focus = true;
     }
- 
+
     onFocusOut(event: Event): void {
        this.focus = false;
     }
- 
+
     // When status change call this function to check if have errors
     private checkErrors(control: FormControl): void {
        let errors: { [key: string]: any } = control.errors;
        this.errorMessage = this.getErrorMessage(errors);
        this._cd.markForCheck();
     }
- 
+
     // Get error message in function of error list.
     private getErrorMessage(errors: { [key: string]: any }): string {
        if (!errors) {
           return undefined;
        }
- 
+
        if (!this.errors) {
           return '';
        }
- 
+
        if (errors.hasOwnProperty('required')) {
           return this.errors.required || this.errors.generic || '';
        }
        return '';
     }
- 
  }

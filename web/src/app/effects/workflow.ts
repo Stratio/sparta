@@ -150,6 +150,7 @@ export class WorkflowEffect {
             return this.workflowService.getWorkflowExecutionInfo(data.payload).map((response: any) => {
                 return new workflowActions.GetExecutionInfoCompleteAction(response);
             }).catch(function (error) {
+                console.log("a");
                 return Observable.of(new workflowActions.GetExecutionInfoErrorAction());
             });
         });

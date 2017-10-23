@@ -14,10 +14,10 @@
    <div class="container">
       <div class="row">
          <div>
-            <st-horizontal-tabs [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
+            <st-horizontal-tabs class="tabs" [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
          </div>
-         <crossdata-tables *ngIf="activeMenuOption === 'CATALOG'"></crossdata-tables>
-         <crossdata-queries *ngIf="activeMenuOption === 'QUERIES'"></crossdata-queries>
+         <crossdata-tables *ngIf="activeMenuOption.id === 'catalog'"></crossdata-tables>
+         <crossdata-queries *ngIf="activeMenuOption.id === 'queries'"></crossdata-queries>
       </div>
    </div>
 </section>

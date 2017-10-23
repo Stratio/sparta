@@ -32,18 +32,19 @@ import { BreadcrumbMenuService } from 'services';
 })
 export class SpartaCrossdata implements OnInit {
 
-    public activeMenuOption: string = 'CATALOG';
-    public breadcrumbOptions: Array<any>;
     public options: Array<StHorizontalTab> = [
-        /*  {
-              text: 'CATALOG',
-              isDisabled: false
-          },
-          {
-              text: 'QUERIES',
-              isDisabled: false
-          }*/
+        {
+            id: 'catalog',
+            text: 'CATALOG'
+        },
+        {
+            id: 'queries',
+            text: 'QUERIES'
+        }
     ];
+    public activeMenuOption: any = this.options[0];
+    public breadcrumbOptions: Array<any>;
+
 
     public onChangedOption(event: string) {
         this.activeMenuOption = event;

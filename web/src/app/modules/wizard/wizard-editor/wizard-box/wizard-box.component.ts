@@ -75,7 +75,6 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
             .text(function (d) { return icons[data.classPrettyName] });
 
         if (data.hasErrors) {
-
             textContainer.append('text')
                 .attr('x', 116)
                 .attr('y', 22)
@@ -107,7 +106,7 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
         const that = this;
         this.relationSelector.on('mousedown', function() {
              d3.select(this)
-                .classed('over-output2', true)
+                .classed('over-output2', true);
             that.onDrawConnector.emit({
                 event: d3.event,
                 name: that.data.name
@@ -128,11 +127,6 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
                 this.onFinishConnector.emit(this.data.name);
             });
     }
-
-    getEntityIcon() {
-
-    }
-
 
     ngOnDestroy(): void {
 

@@ -5,10 +5,15 @@
       <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
    </div>
    <div selection-tools>
-
+    <button class="button button-toolbar">
+        <i class="icon-play"></i>
+    </button>
+    <button class="button button-toolbar">
+        <i class="icon-trash"></i>
+    </button>
    </div>
    <div general-tools>
-      <form-file text="{{'DASHBOARD.UPLOAD_BACKUP' | translate}}" class="form-file" (onFileUpload)="uploadBackup($event)"></form-file>
+      <form-file class="form-file" type="button-toolbar" (onFileUpload)="uploadBackup($event)"></form-file>
       <button class="button button-toolbar" (click)="generatebackup()">
         <i class="icon-plus"></i>   
     </button>

@@ -25,11 +25,10 @@ import { ControlValueAccessor, FormGroup, FormControl } from '@angular/forms';
 export class FormFileComponent implements OnInit {
 
     @Input() text: any;
+    @Input() type: string = 'button-primary'
     @Output() onFileUpload = new EventEmitter<string>();
 
-    ngOnInit(): void {
-
-    }
+    ngOnInit(): void {}
 
     onChange(event: any) {
         this.onFileUpload.emit(event.srcElement.files);

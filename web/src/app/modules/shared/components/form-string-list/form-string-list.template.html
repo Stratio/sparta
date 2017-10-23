@@ -1,20 +1,27 @@
 <div class="form-list">
-   <div class="col-sm-12">
-      <span class="egeo-title-small">{{label}}</span>
-   </div>
-   <div class="string-list st-input" (click)="addElementFocus()">
-      <div>
+   <label sp-label class="st-input__label" [ngClass]="{'active' : focus, 'error': showError(), 'disabled': isDisabled}" name="name"
+      [attr.id]="qaTag" [attr.title]="tooltip">
+    {{label}}
+    </label>
+   <div class="string-list st-input" (click)="addElementFocus()" [ngClass]="{'active' : focus, 'error': showError(), 'disabled': isDisabled}">
+      <div class="list-container">
          <div *ngFor="let item of items.controls; let i = index;" class="list-field">
             <span class="value">                        
-                {{item.value}}
+                {{item.value[fieldName]}}
             </span>
             <span class="delete-icon">
                 <i class="icon-cross icon" (click)="deleteItem(i)"></i>
             </span>
 
          </div>
-         <input type="text" class="inner-input" #newElement (keypress)="onkeyPress($event)" [(ngModel)]="innerInputContent" />
+         <input type="text" class="inner-input" #newElement (keypress)="onkeyPress($event)" 
+         (focusout)="onFocusOut($event)" (blur)="onFocusOut($event)" [(ngModel)]="innerInputContent" />
       </div>
 
+   </div>
+   <div class="error-message" *ngIf="showError()">
+      <div class="st-input-error-layout">
+         <span class="st-input-error-message">{{errors.required}}</span>
+      </div>
    </div>
 </div>

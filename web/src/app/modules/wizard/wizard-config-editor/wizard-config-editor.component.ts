@@ -47,7 +47,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public basicSettings: any = [];
     public writerSettings: any = [];
     public advancedSettings: Array<any> = [];
-    public submitted = false;
+    public submitted = true;
     public breadcrumbOptions: any = [];
     public currentName = '';
 
@@ -86,6 +86,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     getFormTemplate() {
         if (this.config.editionType.stepType !== 'settings') {
+            console.log(this.config.editionType.data);
             this.entityFormModel = Object.assign({}, this.config.editionType.data);
             this.currentName = this.entityFormModel['name'];
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
@@ -116,9 +117,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.writerSettings = writerTemplate;
                 break;
         }
-        setTimeout(() => {
-            this.submitted = true;
-        });
     }
 
     public saveForm() {

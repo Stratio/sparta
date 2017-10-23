@@ -26,17 +26,16 @@
       [minlength]="field.minlength"
       [maxlength]="field.maxlength"></sp-textarea>
 
-   <st-select *ngIf="field.propertyType == 'select' && isVisible" 
+   <sp-select *ngIf="field.propertyType == 'select' && isVisible" 
       [options]="field.values" 
       label="{{field.propertyName | translate}}"
       [forceValidations]="forceValidations" 
-      [selectedValue]="selectValue"
       tooltip="{{field.tooltip}}"
       placeholder="Select option"
       qaTag="{{qa}}"
       [errorRequiredMessage]="errorsService.errors.selectRequiredError" 
       [required]="field.required"
-      [formControl]="stFormControl"></st-select>
+      [formControl]="stFormControl"></sp-select>
 
    <st-switch *ngIf="field.propertyType == 'switch' && isVisible" 
       label="{{field.propertyName | translate}}" 
@@ -58,8 +57,20 @@
       [formListData]="field"
       qaTag="{{qa}}"
       [required]="field.required" 
+      tooltip="{{field.tooltip}}"
       [formControl]="stFormControl"
+      [errors]="errorsService.errors.inputErrors"
       [forceValidations]="forceValidations" 
       label="{{field.propertyName | translate}}"></form-list>
+
+      
+    <form-string-list *ngIf="field.propertyType == 'stringlist'" 
+      [formListData]="field"
+      qaTag="{{qa}}" 
+      [required]="field.required"
+      [errors]="errorsService.errors.inputErrors"
+      [formControl]="stFormControl"
+      [forceValidations]="forceValidations"  
+      label="{{field.propertyName | translate}}"></form-string-list>
 
 </div>

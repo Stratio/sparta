@@ -118,7 +118,6 @@
           "propertyType": "boolean",
           "required": true,
           "default": false,
-           "float": true,
           "tooltip": "Enables or disables Spark Streaming's internal backpressure mechanism",
           "qa": "spark-streaming-backpressure"
         },

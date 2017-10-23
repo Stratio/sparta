@@ -43,7 +43,7 @@
       {
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
-        "propertyType": "list",
+        "propertyType": "stringlist",
         "width": 12,
         "default": "",
         "required": true,
