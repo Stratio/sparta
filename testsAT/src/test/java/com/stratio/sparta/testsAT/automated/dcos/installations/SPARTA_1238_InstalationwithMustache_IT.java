@@ -38,7 +38,7 @@ public class SPARTA_1238_InstalationwithMustache_IT extends BaseTest {
     public SPARTA_1238_InstalationwithMustache_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    @Test(enabled = true, groups = {"dcos_install_with_Mustache"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

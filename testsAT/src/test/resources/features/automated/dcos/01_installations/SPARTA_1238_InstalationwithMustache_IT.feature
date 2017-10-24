@@ -12,7 +12,9 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
       |   $.Hdfs.user_name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
       |   $.Zookeeper.address                                 |  UPDATE     | ${ZK_URL}                                                               |n/a |
       |   $.Marathon.uri                                      |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com/service/marathon                 |n/a |
-      |   $.Marathon-LB.haproxy_host                          |  UPDATE     | sparta.${CLUSTER_ID}.labs.stratio.com                                   |n/a |
+      #Commented to fix problem with universe [SPARTA-1288]
+      # | $.Marathon-LB.haproxy_host                          |  UPDATE     | sparta.${CLUSTER_ID}.labs.stratio.com                                   |n/a |
+      |   $.Marathon-LB.haproxy_host                          |  UPDATE     | ${CLUSTER_ID}.labs.stratio.com/service/${DCOS_SERVICE_NAME}             |n/a |
       |   $.Marathon-LB.haproxy_path                          |  UPDATE     | /${DCOS_SERVICE_NAME}                                                   |n/a |
       |   $.Marathon.sso_redirectUri                          |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com/acs/api/v1/auth/login            |n/a |
       |   $.Marathon.sparta_docker_image                      |  UPDATE     | ${DOCKER_URL}:${STRATIO_SPARTA_VERSION}                                 |n/a |

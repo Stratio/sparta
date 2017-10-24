@@ -130,10 +130,14 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=zk_sparta
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache_1.7.6.json
+            | -DSPARTA_JSON=spartamustache_1.7.7.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=false
             | -DCALICOENABLED=false
+            | -DCLIENTSECRET=cr7gDH6hX2-C3SBZYWj8F
+            | -DIDNODE=564        
+            | -DSELENIUM_GRID=selenium.cd:4444
+            | -DFORCE_BROWSER=chrome_48%%JUID
             """
     INSTALL = { config ->
         doAT(conf: config, groups: ['dcos_instalation','dcos_executions'])

@@ -30,7 +30,7 @@ public class SPARTA_1192_KhermesExecution_IT extends BaseTest {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"execution"})
+    @Test(enabled = true, groups = {"khermes"})
     public void execution() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

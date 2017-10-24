@@ -24,19 +24,18 @@ import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
     "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1273_AddConfigurationForSparta_IT.feature",
     "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
     "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
 })
 
 public class SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT extends BaseTest  {
-    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT(String browser) {
-        this.browser = browser;
+    //@Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
+
+    public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})
-    public void AppWithSecurityES() throws Exception {
+    public void ExecuteWorkflow() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
 }

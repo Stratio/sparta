@@ -1,5 +1,5 @@
 {
-  "id": "97bc72e6-5a5d-4afb-96c2-9393acfe7759",
+  "id": "5b2dc089-0c80-4099-a81b-57046872de11",
   "name": "testinput-to-print",
   "description": "testinput-to-print.json",
   "settings": {
@@ -178,10 +178,10 @@
     "name": "datos",
     "type": "Test",
     "configuration": {
-      "eventType": "RANDOM_NUMBER",
-      "maxNumber": "5000",
+      "eventType": "STRING",
+      "event": "{\"id\": \"00062016092205802134\",\"clientId\": \"4234\",\"date\": \"2017-01-01T11:10\",\"mallNumber\": \"004R\"}",
       "receiverType": "LIMITED",
-      "numEvents": "40000",
+      "numEvents": "4000",
       "storageLevel": "MEMORY_ONLY_SER"
     }
   },
