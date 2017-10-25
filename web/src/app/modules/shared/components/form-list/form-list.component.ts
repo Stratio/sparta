@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -70,7 +71,11 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     public isError = false;
     public isDisabled = false;
 
+    public visibleConditions: any = [];
+
     private internalControlSubscription: Subscription;
+
+    private itemssubscription: Array<Subscription> = [];
 
     onChange = (_: any) => { };
     onTouched = () => { };
@@ -80,6 +85,13 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     ngOnInit() {
         for (const field of this.formListData.fields) {
             this.item[field.propertyId] = ['', Validators.required];
+
+            if (field.visible && field.visible.length) {
+                this.visibleConditions.push({
+                    propertyId: field.propertyId,
+                    conditions: field.visible[0]
+                });
+            }
         }
 
         this.items = this.formBuilder.array([]);
@@ -104,6 +116,34 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     addItem(): void {
         this.items.push(this.createItem());
+        const i = this.items.length - 1;
+        this.addObservableVisibleRule(i);
+    }
+
+    addObservableVisibleRule(index: number) {
+        const subscriptionsHandler: any = [];
+        const itemGroup: any = this.items.controls[index];
+        this.visibleConditions.forEach((propertyConditions: any) => {
+            propertyConditions.conditions.forEach((condition: any) => {
+                const subscription: Subscription = itemGroup.controls[condition.propertyId].valueChanges.subscribe((value: any) => {
+                    this.checkDisabledField(value, condition.value, itemGroup.controls[propertyConditions.propertyId]);
+                });
+                this.checkDisabledField(itemGroup.controls[condition.propertyId].value,
+                    condition.value, itemGroup.controls[propertyConditions.propertyId]);
+                subscriptionsHandler.push(subscription);
+            });
+        });
+
+        this.itemssubscription.push(subscriptionsHandler);
+    }
+
+    checkDisabledField(value: any, conditionValue: any, property: any) {
+        console.log(value);
+        if (value === conditionValue) {
+            property.enable();
+        } else {
+            property.disable();
+        }
     }
 
     showError(): boolean {
@@ -138,6 +178,8 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
                 }
                 const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);
+                const i = this.items.length - 1;
+                this.addObservableVisibleRule(i);
             }
             this._cd.detectChanges();
         } else {
@@ -194,5 +236,13 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     ngOnDestroy(): void {
         this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
+
+        if(this.itemssubscription.length) {
+            this.itemssubscription.forEach((rowSubscriptions: any) => {
+                rowSubscriptions.forEach((subscription: any) => {
+                    subscription.unsubscribe();
+                });
+            });
+        }
     }
 }
