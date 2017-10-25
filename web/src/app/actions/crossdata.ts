@@ -21,13 +21,20 @@ export const actionTypes: any = {
     LIST_CROSSDATA_TABLES: type('[Crossdata] List crossdata tables'),
     LIST_CROSSDATA_TABLES_COMPLETE: type('[Crossdata] List crossdata tables complete'),
     LIST_CROSSDATA_TABLES_ERROR: type('[Crossdata] List crossdata tables error'),
+    GET_DATABASES: type('[Crossdata] Get databases'),
+    GET_DATABASES_COMPLETE: type('[Crossdata] Get databases complete'),
+    GET_DATABASES_ERROR: type('[Crossdata] Get databases error'),
     GET_TABLE_INFO: type('[Crossdata] Get Crossdata table info'),
     GET_TABLE_INFO_COMPLETE: type('[Crossdata] Get Crossdata table info complete'),
     GET_TABLE_INFO_ERROR: type('[Crossdata] Get Crossdata table info error'),
     EXECUTE_QUERY: type('[Crossdata] Execute query'),
     EXECUTE_QUERY_COMPLETE: type('[Crossdata] Execute query complete'),
-    EXECUTE_QUERY_ERROR: type('[Crossdata] Execute query error')
-
+    EXECUTE_QUERY_ERROR: type('[Crossdata] Execute query error'),
+    SHOW_TEMPORARY_TABLES: type('[Crossdata] Show temporary tables'),
+    LIST_DATABASE_TABLES:  type('[Crossdata] List database tables'),
+    LIST_DATABASE_TABLES_COMPLETE:  type('[Crossdata] List database tables complete'),
+    LIST_DATABASE_TABLES_ERROR:  type('[Crossdata] List database tables error'),
+    SELECT_DATABASE: type('[Crossdata] Select database')
 };
 
 export class ListCrossdataTablesAction implements Action {
@@ -89,6 +96,43 @@ export class GetTableInfoErrorAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class GetDatabasesAction implements Action {
+    type: any = actionTypes.GET_DATABASES;
+}
+
+export class GetDatabasesCompleteAction implements Action {
+    type: any = actionTypes.GET_DATABASES_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class GetDatabasesErrorAction implements Action {
+    type: any = actionTypes.GET_DATABASES_ERROR;
+}
+
+export class ShowTemporaryTablesAction implements Action {
+    type: any = actionTypes.SHOW_TEMPORARY_TABLES;
+    constructor(public payload: any) { }
+}
+
+export class SelectDatabaseAction implements Action {
+    type: any = actionTypes.SELECT_DATABASE;
+    constructor(public payload: any) { }
+}
+
+export class ListDatabaseTablesAction implements Action {
+    type: any = actionTypes.LIST_DATABASE_TABLES;
+    constructor(public payload: any) { }
+}
+
+export class ListDatabaseTablesCompleteAction implements Action {
+    type: any = actionTypes.LIST_DATABASE_TABLES_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class ListDatabaseTablesErrorAction implements Action {
+    type: any = actionTypes.LIST_DATABASE_TABLES_ERROR;
+}
+
 export type Actions =
     ListCrossdataTablesAction |
     ListCrossdataTablesCompleteAction |
@@ -98,4 +142,12 @@ export type Actions =
     GetTableInfoErrorAction |
     ExecuteQueryAction |
     ExecuteQueryCompleteAction |
-    ExecuteQueryErrorAction;
+    ExecuteQueryErrorAction |
+    GetDatabasesAction |
+    SelectDatabaseAction |
+    GetDatabasesCompleteAction |
+    GetDatabasesErrorAction |
+    ShowTemporaryTablesAction |
+    ListDatabaseTablesAction |
+    ListDatabaseTablesCompleteAction |
+    ListDatabaseTablesErrorAction;

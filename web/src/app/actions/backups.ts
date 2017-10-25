@@ -25,6 +25,8 @@ export const actionTypes: any = {
     GENERATE_BACKUP_COMPLETE: type('[Backups] Generate backup complete'),
     GENERATE_BACKUP_ERROR: type('[Backups] Generate backup error'),
     DELETE_BACKUP: type('[Backups] delete backup'),
+    SELECT_BACKUP: type('[Backups] select backup'),
+    UNSELECT_BACKUP: type('[Backups] unselect backup'),
     DELETE_BACKUP_COMPLETE: type('[Backups] delete backup complete'),
     DELETE_BACKUP_ERROR: type('[Backups] delete backup error'),
     DOWNLOAD_BACKUP: type('[Backups] download backup'),
@@ -54,6 +56,16 @@ export class ListBackupCompleteAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class SelectBackupAction implements Action {
+    type: any = actionTypes.SELECT_BACKUP;
+    constructor(public payload: any) { }
+}
+
+export class UnselectBackupAction implements Action {
+    type: any = actionTypes.UNSELECT_BACKUP;
+    constructor(public payload: any) { }
+}
+
 export class ListBackupErrorAction implements Action {
     type: any = actionTypes.LIST_BACKUP_ERROR;
     constructor(public payload: any) { }
@@ -76,12 +88,10 @@ export class GenerateBackupErrorAction implements Action {
 
 export class DeleteBackupAction implements Action {
     type: any = actionTypes.DELETE_BACKUP;
-    constructor(public payload: string) { }
 }
 
 export class DeleteBackupCompleteAction implements Action {
     type: any = actionTypes.DELETE_BACKUP_COMPLETE;
-    constructor(public payload: any) { }
 }
 
 export class DeleteBackupErrorAction implements Action {
@@ -91,7 +101,6 @@ export class DeleteBackupErrorAction implements Action {
 
 export class DownloadBackupAction implements Action {
     type: any = actionTypes.DOWNLOAD_BACKUP;
-    constructor(public payload: string) { }
 }
 
 export class DownloadBackupCompleteAction implements Action {
@@ -169,6 +178,8 @@ export type Actions =
     ListBackupAction |
     ListBackupCompleteAction |
     ListBackupErrorAction |
+    SelectBackupAction |
+    UnselectBackupAction |
     GenerateBackupAction |
     GenerateBackupCompleteAction |
     GenerateBackupErrorAction |

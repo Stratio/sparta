@@ -23,6 +23,10 @@
    }
 }
 
+.list-item {
+    margin-bottom:10px;
+}
+
 .list-field {
    width: calc(100% - 5px);
    display: flex;
@@ -35,9 +39,9 @@
    color: $neutral-07;
    position: relative;
    .icon {
-      position: absolute;
-      top: 29px;
-      cursor: pointer;
+    margin-top: 28px;
+    display: block;
+    cursor: pointer;
    }
 }
 

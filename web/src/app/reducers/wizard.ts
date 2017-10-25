@@ -409,6 +409,7 @@ export const getMenuOptions: any = (state: State) => {
         return state.menuOptions;
     }
 };
+
 export const getSelectedEntities: any = (state: State) => state.selectedEntity;
 export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => {
     return node.name === state.selectedEntity;

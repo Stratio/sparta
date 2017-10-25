@@ -44,7 +44,7 @@ export class ValidateSchemaService {
                     break;
             }
         } else {
-            if(stepType === 'Output') {
+            if (stepType === 'Output') {
                 return this.validate(schema.properties, model.configuration);
             } else {
                 return this.validate(schema.properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
@@ -93,7 +93,29 @@ export class ValidateSchemaService {
         return errors;
     }
 
+
     getTemplate(schema: any, templateType: string) {
+
+    }
+
+    validateWorkflow(nodes: any, edges: any) {
+
+        edges.map((edge: any) => {
+
+        });
+
+        // function validateNode()
+    }
+
+    validateTransformations(transformations: any, edges: any) {
+
+    }
+
+    validateInputs(inputs: any, edges: any) {
+
+    }
+
+    validateOutputs(outputs: any, edges: any) {
 
     }
 }

@@ -1,3 +1,5 @@
+import { OnDestroy } from '@angular/core/core';
+import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -14,7 +16,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 
 
@@ -30,25 +32,46 @@ import { StTableHeader } from '@stratio/egeo';
     styleUrls: ['./crossdata-queries.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CrossdataQueries implements OnInit {
+export class CrossdataQueries implements OnInit, OnDestroy {
 
-    public queryResults$: Observable<any>;
     public sqlQuery: string = '';
     public fields: StTableHeader[] = [];
+    public results: any[] = [];
+    public queryResultSubscription: Subscription;
 
     public executeQuery() {
+        this.fields = [];
         if (this.sqlQuery.length) {
             this.store.dispatch(new crossdataActions.ExecuteQueryAction(this.sqlQuery));
         }
     }
 
     ngOnInit() {
-
+        this.queryResultSubscription = this.store.select(fromRoot.getQueryResult).subscribe((result: any) => {
+            if (result && result.length) {
+                const row = result[0];
+                const fields: StTableHeader[] = [];
+                Object.keys(row).forEach(key => {
+                    fields.push({
+                        id: key,
+                        label: key,
+                        sortable: false
+                    });
+                });
+                this.fields = fields;
+                this.results = result;
+                this._cd.detectChanges();
+            }
+        });
     }
 
-    constructor(private store: Store<fromRoot.State>) {
+    constructor(private store: Store<fromRoot.State>,  private _cd: ChangeDetectorRef) {}
 
+    ngOnDestroy(): void {
+        this.queryResultSubscription && this.queryResultSubscription.unsubscribe();
     }
+
+
 
 
 

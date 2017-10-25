@@ -1,3 +1,4 @@
+import { ShowTemporaryTablesAction } from '../actions/crossdata';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -17,35 +18,59 @@
 import * as crossdataActions from 'actions/crossdata';
 
 export interface State {
+    databases: Array<any>;
     tableList: Array<any>;
     queryResult: Array<any>;
     queryError: '';
+    selectedDatabase: string;
+    showTemporaryTables: boolean;
 
 };
 
 const initialState: State = {
+    databases: [],
     tableList: [],
     queryResult: [],
+    selectedDatabase: 'default',
+    showTemporaryTables: false,
     queryError: ''
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
+        case crossdataActions.actionTypes.GET_DATABASES_COMPLETE: {
+            return Object.assign({}, state, {
+                databases: action.payload
+            });
+        }
         case crossdataActions.actionTypes.LIST_CROSSDATA_TABLES_COMPLETE: {
             return Object.assign({}, state, {
                 tableList: action.payload
             });
         }
         case crossdataActions.actionTypes.EXECUTE_QUERY_COMPLETE: {
-            console.log(action.payload);
             return Object.assign({}, state, {
                 queryResult: action.payload
             });
         }
         case crossdataActions.actionTypes.EXECUTE_QUERY_ERROR: {
-            console.log(action.payload);
             return Object.assign({}, state, {
                 queryError: action.payload
+            });
+        }
+        case crossdataActions.actionTypes.SHOW_TEMPORARY_TABLES: {
+            return Object.assign({}, state, {
+                showTemporaryTables: action.payload
+            });
+        }
+        case crossdataActions.actionTypes.SELECT_DATABASE: {
+            return Object.assign({}, state, {
+                selectedDatabase: action.payload
+            });
+        }
+        case crossdataActions.actionTypes.LIST_DATABASE_TABLES_COMPLETE: {
+            return Object.assign({}, state, {
+                tableList: action.payload
             });
         }
         default:
@@ -53,5 +78,16 @@ export function reducer(state: State = initialState, action: any): State {
     }
 }
 
-export const getTableList: any = (state: State) => state.tableList;
+export const getTableList: any = (state: State) => {
+    if (state.showTemporaryTables) {
+        return state.tableList;
+    } else {
+        return state.tableList.filter((table: any) => {
+            return !(table.isTemporary);
+        });
+    }
+};
+export const getSelectedDatabase: any = (state: State) => state.selectedDatabase;
+export const getDatabases: any = (state: State) => state.databases;
+export const getQueryResult: any = (state: State) => state.queryResult;
 

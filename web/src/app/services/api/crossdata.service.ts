@@ -30,17 +30,34 @@ export class CrossdataService extends ApiService {
         super(_http, _store);
     }
 
+    getCrossdataDatabases(): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'get'
+        };
+        return this.request('crossdata/databases', options);
+    }
+
     getCrossdataTables(): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'get'
+        };
+        return this.request('crossdata/tables', options);
+    }
+
+
+    getDatabaseTables(query: any): Observable<any> {
+
+        const options: ApiRequestOptions = {
+            method: 'post',
+            body: query
         };
         return this.request('crossdata/tables', options);
     }
 
     getCrossdataTableInfo(tableName: string): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'post',
             body: {
                 tableName: tableName
@@ -51,7 +68,7 @@ export class CrossdataService extends ApiService {
 
     executeCrossdataQuery(query: string): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'post',
             body: {
                 query: query

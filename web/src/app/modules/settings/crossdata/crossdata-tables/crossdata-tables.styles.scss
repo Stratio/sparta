@@ -1,18 +1,23 @@
 :host {
-    display: block;
-    width:100%;
+   display: block;
+   width: 100%;
 }
 
 .filters {
-    overflow:hidden;
-
    .search-input {
-      float:left;
-   }
-
-   .show-temporary {
-      float:left;
+      float: right;
+      margin-top: 30px;
       margin-left: 20px;
-      margin-top: 7px;
    }
+   .show-temporary {
+      float: right;
+      margin-top: 32px;
+   }
+}
+
+.database-selector {
+   display: block;
+   float: left;
+   width: 250px;
+   margin-bottom: 20px;
 }

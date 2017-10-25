@@ -33,7 +33,7 @@ export class BackupService extends ApiService {
 
     getBackupList(): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'get'
         };
         return this.request('metadata/backup', options);
@@ -41,7 +41,7 @@ export class BackupService extends ApiService {
 
     generateBackup(): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'get'
         };
         return this.request('metadata/backup/build', options);
@@ -49,15 +49,16 @@ export class BackupService extends ApiService {
 
     deleteBackup(fileName: string): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'delete'
         };
+        console.log("a")
         return this.request('metadata/backup/' + fileName, options);
     }
 
     downloadBackup(fileName: string): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'get'
         };
         return this.request('metadata/backup/' + fileName, options);
@@ -65,7 +66,7 @@ export class BackupService extends ApiService {
 
     executeBackup(fileName: string, removeData: boolean): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'post',
             body: {
                 fileName: fileName,
@@ -76,9 +77,9 @@ export class BackupService extends ApiService {
     }
 
     uploadBackup(file:any): Observable<any> {
-        let fd = new FormData();
+        const fd = new FormData();
         fd.append('file', file);
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'put',
             body: fd
         };
@@ -98,7 +99,7 @@ export class BackupService extends ApiService {
 
     deleteAllBackups(): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'delete'
         };
         return this.request('metadata/backup', options);
@@ -107,7 +108,7 @@ export class BackupService extends ApiService {
 
     deleteMetadata(): Observable<any> {
 
-        let options: ApiRequestOptions = {
+        const options: ApiRequestOptions = {
             method: 'delete'
         };
         return this.request('metadata', options);

@@ -20,11 +20,22 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import * as crossdataActions from 'actions/crossdata';
 import { CrossdataService } from 'app/services';
+import * as fromRoot from 'reducers';
 
 
 @Injectable()
 export class CrossdataEffect {
 
+    @Effect()
+    getCrossDataDatabases$: Observable<Action> = this.actions$
+        .ofType(crossdataActions.actionTypes.GET_DATABASES).switchMap((response: any) => {
+            return this.crossdataService.getCrossdataDatabases()
+                .map((crossdataList: any) => {
+                    return new crossdataActions.GetDatabasesCompleteAction(crossdataList);
+                }).catch(function (error) {
+                    return Observable.of(new crossdataActions.GetDatabasesErrorAction());
+                });
+        });
 
     @Effect()
     getCrossDataTables$: Observable<Action> = this.actions$
@@ -55,12 +66,26 @@ export class CrossdataEffect {
             return this.crossdataService.executeCrossdataQuery(data.payload)
                 .map((queryResponse: any) => {
                     return new crossdataActions.ExecuteQueryCompleteAction(queryResponse);
-                }).catch(function (error:Response) {
+                }).catch(function (error: Response) {
                     console.log(error)
                     return Observable.of(new crossdataActions.ExecuteQueryErrorAction(error));
                 });
         });
 
+
+    @Effect()
+    getDatabaseTables$: Observable<Action> = this.actions$
+        .ofType(crossdataActions.actionTypes.LIST_DATABASE_TABLES)
+        .map((action: any) => action.payload)
+        .switchMap((response: any) => {
+            return this.crossdataService.getDatabaseTables({
+                dbName: response
+            }).map((crossdataList: any) => {
+                    return new crossdataActions.ListDatabaseTablesCompleteAction(crossdataList);
+                }).catch(function (error) {
+                    return Observable.of(new crossdataActions.ListCrossdataTablesErrorAction(''));
+                });
+        });
 
     constructor(
         private actions$: Actions,

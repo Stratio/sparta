@@ -97,9 +97,9 @@ export class WizardSegmentComponent implements OnInit, OnDestroy {
                     y2 -= 0;
                 }
                 //linea recta cuando este muy proximo
-                if (Math.abs(y1 - y2) < 20) {
-                    console.log("cosas raras");
-                }
+               /* if (Math.abs(y1 - y2) < 20) {
+
+                } */
 
 
                 return 'M' + x2 + ',' + y2 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x1 + ',' + y1;

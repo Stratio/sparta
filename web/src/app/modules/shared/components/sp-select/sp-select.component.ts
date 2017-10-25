@@ -115,7 +115,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
 
     ngOnChanges(change: any): void {
         if (this.forceValidations && this.internalControl) {
-            this.writeValue(this.internalControl.value);
+            this.writeValue(this.internalControl.value.value);
         }
         this._cd.markForCheck();
     }
@@ -124,6 +124,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
         this.internalControl.setValue(option);
         this.onChange(option.value);
         this.active = false;
+        this.change.emit(option.value);
     }
 
     ngOnInit(): void {
@@ -150,7 +151,10 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     // When value is received from outside
     writeValue(newValue: any): void {
         const val = this.options.find((option: any) => option.value === newValue);
-        this.internalControl.setValue(val ? val : {});
+        this.internalControl.setValue(val ? val : {
+            label: newValue,
+            value: newValue
+        });
     }
 
     // Registry the change function to propagate internal model changes

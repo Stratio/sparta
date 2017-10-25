@@ -1,16 +1,22 @@
 <section>
-   <label>{{'DASHBOARD.SQL_QUERY' | translate}}</label>
-   <textarea class="sql" [(ngModel)]="sqlQuery"></textarea>{{sqlQuery}}
+   <sp-textarea-highlight [contentType]="'SQL'"
+          label="{{'DASHBOARD.SQL_QUERY' | translate}}" 
+          required="true"
+          [(ngModel)]="sqlQuery"
+          qaTag="sql-query-textarea"></sp-textarea-highlight>
    <div class="execution-container">
-        <button class="button button-toolbar" (click)="executeQuery()">
-            <i class="icon-stress"></i>
-        </button>
+    <button class="button button-primary" (click)="executeQuery()">
+        <i class="icon-stress"></i>
+        <span>Execute query</span>
+    </button>
    </div>
-   <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag">
-      <tr st-table-row *ngFor="let table of queryResults$ | async">
-         <td st-table-cell st-table-row-content>
-            <label>{{table.name}}</label>
-         </td>
-      </tr>
-   </st-table>
+   <div class="table-container">
+    <st-table [fields]="fields" qaTag="query-results" class="query-table" *ngIf="fields && fields.length" [style.width]="fields.length > 5 ? (fields.length * 220 + 'px') : '100%'">
+        <tr st-table-row *ngFor="let row of results">
+            <td st-table-cell st-table-row-content *ngFor="let field of row | keyobject"> 
+                <label>{{field.value}}</label>
+            </td>
+        </tr>
+    </st-table>
+   </div>
 </section>

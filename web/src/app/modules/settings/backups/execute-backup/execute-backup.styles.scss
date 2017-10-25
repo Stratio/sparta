@@ -12,8 +12,14 @@
    font-size: 15px;
 }
 
-.create-button, .cancel-button{
-    float:right;
-    margin-top:10px;
-    margin-left:10px;
+.action-buttons{
+    margin-top:100px;
+    overflow: hidden;
+    .button {
+        padding: .925rem 1.875rem;
+        min-width:9rem;
+    }
+    .save-button {
+        float:right;
+    }
 }

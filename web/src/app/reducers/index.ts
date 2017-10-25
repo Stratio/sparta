@@ -1,3 +1,4 @@
+import { createECDH } from 'crypto';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -98,6 +99,7 @@ export const isOutputSaved: any = createSelector(getOutputListState, fromOutput.
 
 // backups
 export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);
+export const getSelectedBackups: any =  createSelector(getBackupsState, fromBackups.getSelectedBackups);
 
 // resources
 export const getPluginsList: any = createSelector(getResourcesState, fromResources.getPluginsList);
@@ -105,6 +107,9 @@ export const getDriversList: any = createSelector(getResourcesState, fromResourc
 
 // crossdata
 export const getTablesList: any = createSelector(getCrossdataState, fromCrossdata.getTableList);
+export const getDatabases: any = createSelector(getCrossdataState, fromCrossdata.getDatabases);
+export const getSelectedDatabase: any =  createSelector(getCrossdataState, fromCrossdata.getSelectedDatabase);
+export const getQueryResult: any = createSelector(getCrossdataState, fromCrossdata.getQueryResult);
 
 // alerts
 export const getCurrentAlert: any = createSelector(getAlertsState, fromAlerts.getCurrentAlert);

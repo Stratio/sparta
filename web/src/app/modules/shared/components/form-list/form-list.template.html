@@ -11,15 +11,15 @@
             <div [formGroup]="item" class="row">
                <div class="list-field">
                   <div *ngFor="let field of formListData.fields; let j = index;" class="item-element" [className]="getItemClass(field)">
-
+                      
                      <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                         label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
-                        [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" (change)="changeValue($event)"
-                        required="true" contextualHelp="{{field.tooltip | translate}}"></sp-input>
+                        [formControl]="item.controls[field.propertyId]" qaTag="form-list-input"
+                        [required]="field.required" contextualHelp="{{field.tooltip | translate}}"></sp-input>
 
                      <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
                         label="{{field.propertyName | translate}}" tooltip="Select option from list" placeholder="{{field.propertyName | translate}}"
-                        (change)="changeValue($event)" required="true" [formControl]="item.controls[field.propertyId]"></sp-select>
+                        [required]="field.required" [formControl]="item.controls[field.propertyId]"></sp-select>
 
                      <st-checkbox *ngIf="field.propertyType == 'boolean'" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
                   </div>

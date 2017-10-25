@@ -19,11 +19,12 @@ import * as backupsActions from 'actions/backups';
 
 export interface State {
     backupList: Array<BackupType>;
-
+    selectedBackups: Array<string>;
 };
 
 const initialState: State = {
-    backupList: []
+    backupList: [],
+    selectedBackups: []
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -32,7 +33,23 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 backupList: action.payload
             });
-
+        }
+        case backupsActions.actionTypes.SELECT_BACKUP: {
+            return Object.assign({}, state, {
+                selectedBackups: [...state.selectedBackups, action.payload]
+            });
+        }
+        case backupsActions.actionTypes.UNSELECT_BACKUP: {
+            return Object.assign({}, state, {
+                selectedBackups: state.selectedBackups.filter(((backup: any) => {
+                    return backup !== action.payload;
+                }))
+            });
+        }
+        case backupsActions.actionTypes.DELETE_BACKUP_COMPLETE: {
+            return Object.assign({}, state, {
+                selectedBackups: []
+            });
         }
         default:
             return state;
@@ -40,4 +57,4 @@ export function reducer(state: State = initialState, action: any): State {
 }
 
 export const getBackupList: any = (state: State) => state.backupList;
-
+export const getSelectedBackups: any = (state: State) => state.selectedBackups;

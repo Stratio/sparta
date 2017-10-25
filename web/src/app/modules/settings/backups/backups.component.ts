@@ -50,6 +50,7 @@ export class SpartaBackups implements OnInit {
     public executeFileName: string;
     public deleteMetadataModalTitle: string;
     public breadcrumbOptions: any;
+    public selectedBackups: Array<string>;
     public fields: StTableHeader[] = [
         { id: '', label: '', sortable: false },
         { id: 'fileName', label: 'Name' },
@@ -61,9 +62,12 @@ export class SpartaBackups implements OnInit {
         this._modalService.container = this.target;
         this.store.dispatch(new backupsActions.ListBackupAction());
         this.backupList$ = this.store.select(fromRoot.getBackupList);
+        this.store.select(fromRoot.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
+            this.selectedBackups = selectedBackups;
+        });
     }
 
-    public deleteBackupConfirmModal(inputId: string): void {
+    public deleteBackupConfirmModal(): void {
         const buttons: StModalButton[] = [
             { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
             { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
@@ -80,20 +84,19 @@ export class SpartaBackups implements OnInit {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
-                //    this.store.dispatch(new inputActions.DeleteBackupAction(inputId));
+               this.store.dispatch(new backupsActions.DeleteBackupAction());
             }
         });
     }
 
-    public executeBackupModal(fileName: string): void {
-        this.executeFileName = fileName;
+    public executeBackupModal(): void {
         this._modalService.show({
             qaTag: 'duplicate-input-modal',
             modalTitle: this.executeBackupModalTitle,
             outputs: {
                 onCloseExecuteModal: this.onCloseExecuteBackupModal.bind(this)
             },
-            modalWidth: StModalWidth.REGULAR,
+            modalWidth: StModalWidth.COMPACT,
             mainText: StModalMainTextSize.BIG,
             modalType: StModalType.NEUTRAL
         }, ExecuteBackup);
@@ -104,12 +107,8 @@ export class SpartaBackups implements OnInit {
         this.store.dispatch(new backupsActions.GenerateBackupAction());
     }
 
-    public deleteBackup(fileName: string): void {
-        this.store.dispatch(new backupsActions.DeleteBackupAction(fileName));
-    }
-
-    public downloadBackup(fileName: string): void {
-        this.store.dispatch(new backupsActions.DownloadBackupAction(fileName));
+    public downloadBackup(): void {
+        this.store.dispatch(new backupsActions.DownloadBackupAction());
     }
 
     public uploadBackup(event: any) {
@@ -118,10 +117,7 @@ export class SpartaBackups implements OnInit {
 
     public onCloseExecuteBackupModal(res: any) {
         if (res && res.execute) {
-            this.store.dispatch(new backupsActions.ExecuteBackupAction({
-                fileName: this.executeFileName,
-                removeData: res.removeData
-            }));
+            this.store.dispatch(new backupsActions.ExecuteBackupAction(res.removeData));
         }
         this._modalService.close();
     }
@@ -169,11 +165,26 @@ export class SpartaBackups implements OnInit {
         });
     }
 
+    checkRow(isChecked: boolean, value: any) {
+        this.checkValue({
+            checked: isChecked,
+            value: value
+        });
+    }
+
+    checkValue($event: any): void {
+        if ($event.checked) {
+            this.store.dispatch(new backupsActions.SelectBackupAction($event.value.fileName));
+        } else {
+            this.store.dispatch(new backupsActions.UnselectBackupAction($event.value.fileName));
+        }
+    }
+
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
         public breadcrumbMenuService: BreadcrumbMenuService) {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
-        const deleteBackupModalTitle: string = 'DASHBOARD.DELETE_INPUT_TITLE';
-        const deleteBackupModalMessage: string = 'DASHBOARD.DELETE_INPUT_MESSAGE';
+        const deleteBackupModalTitle: string = 'DASHBOARD.DELETE_BACKUP_TITLE';
+        const deleteBackupModalMessage: string = 'DASHBOARD.DELETE_BACKUP_MESSAGE';
         const executeBackupModalTitle: string = 'DASHBOARD.EXECUTE_BACKUP_TITLE';
         const deleteMetadataModalTitle: string = 'DASHBOARD.DELETE_METADATA_TITLE';
         const deleteMetadataModalMessage: string = 'DASHBOARD.DELETE_METADATA_MESSAGE';

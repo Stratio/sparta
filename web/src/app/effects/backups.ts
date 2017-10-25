@@ -14,12 +14,13 @@
 /// limitations under the License.
 ///
 
-import { Action } from '@ngrx/store';
+import { Action, Store } from '@ngrx/store';
 import { Actions, Effect } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import * as backupsActions from 'actions/backups';
 import { BackupService } from 'app/services';
+import * as fromRoot from 'reducers';
 
 
 @Injectable()
@@ -50,31 +51,43 @@ export class BackupsEffect {
 
     @Effect()
     deleteBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DELETE_BACKUP).switchMap((data: any) => {
-            return this.backupService.deleteBackup(data.payload).mergeMap((res: any) => {
-                return [new backupsActions.DeleteBackupCompleteAction(data.payload), new backupsActions.ListBackupAction()];
-            }).catch(function (error) {
+        .ofType(backupsActions.actionTypes.DELETE_BACKUP)
+        .withLatestFrom(this.store.select(state => state.backups))
+        .switchMap(([payload, backups]) => {
+            const joinObservables: Observable<any>[] = [];
+            backups.selectedBackups.forEach((fileName: string) => {
+                joinObservables.push(this.backupService.deleteBackup(fileName));
+            });
+            return Observable.forkJoin(joinObservables).mergeMap(results => {
+                return [new backupsActions.DeleteBackupCompleteAction(), new backupsActions.ListBackupAction()];
+            }).catch(function (error: any) {
                 return Observable.of(new backupsActions.DeleteBackupErrorAction(''));
             });
         });
 
-
     @Effect()
     downloadBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DOWNLOAD_BACKUP).switchMap((data: any) => {
-            return this.backupService.downloadBackup(data.payload)
-                .map((response) => {
-                    this.backupService.createBackupFile(response, data.payload);
-                    return new backupsActions.DownloadBackupCompleteAction('');
-                }).catch(function (error) {
-                    return Observable.of(new backupsActions.DownloadBackupErrorAction(''));
-                });
+        .ofType(backupsActions.actionTypes.DOWNLOAD_BACKUP)
+        .withLatestFrom(this.store.select(state => state.backups))
+        .switchMap(([payload, backups]) => {
+            const joinObservables: Observable<any>[] = [];
+            backups.selectedBackups.forEach((fileName: string) => {
+                joinObservables.push(this.backupService.downloadBackup(fileName));
+            });
+            return Observable.forkJoin(joinObservables);
+        }).mergeMap((results: any[], index: number) => {
+            results.forEach((data: any) => {
+                 this.backupService.createBackupFile(data, 'backup');
+            });
+            return Observable.from([new backupsActions.DownloadBackupCompleteAction('')]);
         });
 
     @Effect()
     executeBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.EXECUTE_BACKUP).switchMap((data: any) => {
-            return this.backupService.executeBackup(data.payload.fileName, data.payload.removeData)
+        .ofType(backupsActions.actionTypes.EXECUTE_BACKUP)
+        .withLatestFrom(this.store.select(state => state.backups))
+        .switchMap(([data, backups]) => {
+            return this.backupService.executeBackup(backups.selectedBackups[0], data.payload)
                 .map((response) => {
                     return new backupsActions.ExecuteBackupCompleteAction('');
                 }).catch(function (error) {
@@ -116,6 +129,7 @@ export class BackupsEffect {
 
     constructor(
         private actions$: Actions,
-        private backupService: BackupService
+        private backupService: BackupService,
+        private store: Store<fromRoot.State>
     ) { }
 }

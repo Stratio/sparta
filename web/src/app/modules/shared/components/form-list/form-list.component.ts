@@ -70,6 +70,8 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     public isError = false;
     public isDisabled = false;
 
+    private internalControlSubscription: Subscription;
+
     onChange = (_: any) => { };
     onTouched = () => { };
 
@@ -83,6 +85,10 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         this.items = this.formBuilder.array([]);
         this.internalControl = new FormGroup({
             items: this.items
+        });
+
+        this.internalControlSubscription = this.internalControl.valueChanges.subscribe((form: FormGroup) => {
+            this.onChange(this.items.value);
         });
     }
 
@@ -106,19 +112,19 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     getItemClass(field: any): string {
         if (field.width) {
-            return 'col-xs-' + field.width;
+            return 'list-item col-xs-' + field.width;
         }
         const type: string = field.propertyType;
         if (type === 'boolean') {
-            return 'check-column';
+            return 'list-item check-column';
         }
         const length = this.formListData.fields.length;
         if (length === 1) {
-            return 'col-xs-6';
+            return 'list-item col-xs-6';
         } else if (length < 4) {
-            return 'col-xs-' + 12 / length;
+            return 'list-item col-xs-' + 12 / length;
         } else {
-            return 'col-xs-4';
+            return 'list-item col-xs-4';
         }
     }
 
@@ -159,10 +165,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         this._cd.markForCheck();
     }
 
-    changeValue(value: any): void {
-        this.onChange(this.items.value);
-    }
-
     validate(c: FormGroup): { [key: string]: any; } {
         if (this.required) {
             if (!this.items.controls.length) {
@@ -191,6 +193,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     }
 
     ngOnDestroy(): void {
-
+        this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
     }
 }

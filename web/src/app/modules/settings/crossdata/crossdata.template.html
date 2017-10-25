@@ -13,11 +13,15 @@
    </tool-bar>
    <div class="container">
       <div class="row">
-         <div>
+         <div class="col-sm-12">
             <st-horizontal-tabs class="tabs" [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
          </div>
-         <crossdata-tables *ngIf="activeMenuOption.id === 'catalog'"></crossdata-tables>
-         <crossdata-queries *ngIf="activeMenuOption.id === 'queries'"></crossdata-queries>
+         <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'catalog'">
+            <crossdata-tables></crossdata-tables>
+         </div>
+         <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'queries'">
+            <crossdata-queries></crossdata-queries>
+         </div>
       </div>
    </div>
 </section>

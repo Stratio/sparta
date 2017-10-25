@@ -163,7 +163,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.vc.first.nativeElement.focus();
     }
     this.codemirrorInit(this.config);
-    this.instance.setValue(this.internalControl.value);
+    this.instance.setValue(this.internalControl.value ? this.internalControl.value : '');
   }
 
   ngOnDestroy(): void {
