@@ -28,6 +28,7 @@ import * as outputActions from 'actions/output';
 import * as wizardActions from 'actions/wizard';
 import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
+import { NgForm } from "@angular/forms";
 
 
 @Component({
@@ -50,12 +51,15 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Input() selectedSegment: any;
 
     @ViewChild('titleFocus') titleElement: any;
+    @ViewChild('nameForm') public nameForm: NgForm;
     @ViewChild('wizardModal', { read: ViewContainerRef }) target: any;
 
+    public workflowNamePattern = '^[a-z0-9-]*$';
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
     public workflowName: string = '';
     public nameSubscription: Subscription;
+    
 
     private inputListSubscription: Subscription;
     private outputListSubscription: Subscription;
@@ -102,6 +106,15 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     editWorkflowName(): void {
         this.editName = true;
+        this._cd.markForCheck();
+        setTimeout(()=> {
+            this.titleElement.nativeElement.focus();
+        });
+    }
+
+    eventHandler() {
+        this.editName = true;
+        this._cd.markForCheck();
         setTimeout(()=> {
             this.titleElement.nativeElement.focus();
         });
@@ -135,10 +148,18 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         }, WizardModalComponent);
     }
 
+    public saveWorkflow(): void {
+        if (this.nameForm.valid) {
+            this.onSaveWorkflow.emit();
+        }
+    }
+
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if (event === '1') {
-            this.onSaveWorkflow.emit();
+            if(this.nameForm.valid) {
+                this.onSaveWorkflow.emit();
+            }
         } else {
             this.route.navigate(['']);
         }

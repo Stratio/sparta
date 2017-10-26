@@ -415,7 +415,7 @@
          "MAXLENGTH": "The field max length is",
          "MIN": "The number has to be higher than: ",
          "MAX": "The number has to be minor than: ",
-         "pattern": "Invalid value"
+         "PATTERN": "The value is invalid"
       }
    }
 }

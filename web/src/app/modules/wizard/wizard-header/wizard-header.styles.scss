@@ -41,15 +41,27 @@ $cloudy-black: #cdd6df;
 .workflow-name {
    line-height: 27px;
    vertical-align: bottom;
-   min-width: 400px;
+   display: inline-block;
    margin-left: 35px;
    margin-top: -2px;
    margin-bottom: 9px;
-   padding: 0 5px;
-   &:focus {
-      border: 0;
-      outline: 1px solid $brand;
+   input {
+        min-width: 400px;
+        padding: 0 5px;
+        border: 0;
+        &:focus {
+        border: 0;
+        outline: 1px solid $brand;
+        }
+    
+        &.error {
+            outline: 1px solid #f59ea9;
+        }
    }
+}
+
+[hidden] {
+    display: none;
 }
 
 .workflow-name-container {

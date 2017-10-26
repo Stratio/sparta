@@ -4,7 +4,11 @@
             <input type="text" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate"/>
             <span class="delete icon-cross" *ngIf="searchOption.length"></span>
         </li>
-        <li class="item" *ngFor="let item of menuOptions;" (click)="!item.subMenus && selectOption(item)">
+        <li class="item" *ngFor="let item of menuOptions;" 
+            (click)="!item.subMenus && selectOption(item)" 
+            [ngClass]="{'active' : item.active}"
+            (mouseenter)="showMenu(item)"
+            (mouseleave)="hideMenu(item)">
             <span>
                 <i [ngClass]="item.icon" *ngIf="item.icon" class="item-icon"></i>
                 {{item.name}}

@@ -3,6 +3,7 @@
       "propertyId": "name",
       "propertyName": "SETTINGS._NAME_",
       "propertyType": "text",
+      "regexp": "^[a-z0-9-]*$",
       "required": true,
       "qa": "workflow-name",
       "newRow": true,

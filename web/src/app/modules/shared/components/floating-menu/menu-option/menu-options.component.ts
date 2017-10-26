@@ -47,6 +47,14 @@ export class MenuOptionsComponent implements OnInit {
         this.manageSubscription();
     }
 
+    showMenu(item: any) {
+        item.active = true;
+    }
+
+    hideMenu(item: any) {
+        item.active =  false;
+    }
+
     private manageSubscription(): void {
         if (this.subscriptionSearch !== undefined) {
            this.subscriptionSearch.unsubscribe();

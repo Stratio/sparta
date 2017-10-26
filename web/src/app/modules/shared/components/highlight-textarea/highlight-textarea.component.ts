@@ -107,7 +107,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   ngOnChanges(change: any): void {
-    if (this.forceValidations) {
+    if (this.forceValidations && this.internalControl) {
       this.writeValue(this.internalControl.value);
     }
     this._cd.markForCheck();

@@ -10,15 +10,23 @@
                         />
                      </g>
                   </svg>
-                  <div class="workflow-name-container" (click)="editWorkflowName()" [hidden]="editName">
-                    <span class="title egeo-title-giant">{{workflowName}}</span>
+                  <div class="workflow-name-container" (click)="editWorkflowName()" [hidden]="(nameForm.invalid || editName)">
+                    <span class="title egeo-title-giant">{{workflowName}} </span>
                     <span class="icon-edit"></span>
                   </div>
-                  <input type="text" #titleFocus [hidden]="!editName" (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant workflow-name" name="workflow-name" [(ngModel)]="workflowName"/>
-               </div>
+                  <form #nameForm="ngForm" novalidate autocomplete="off" class="workflow-name" [hidden]="(nameForm.valid && !editName)">
+                      <input type="text" #titleFocus required="true" 
+                        [ngClass]="{'error': nameForm.invalid}" 
+                        [pattern]="workflowNamePattern"
+                        (ngModelChange)="eventHandler()"
+                        (blur)="onBlurWorkflowName()" 
+                        spellcheck="false" 
+                        class="egeo-title-giant" name="workflow-name" [(ngModel)]="workflowName"/>
+                  </form>
+                </div>
                <div class="header-links">
                   <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
-                  <button class="button button-primary" (click)="onSaveWorkflow.emit()">
+                  <button class="button button-primary" (click)="saveWorkflow()">
                     {{'WIZARD.SAVE' | translate}}
                 </button>
                </div>

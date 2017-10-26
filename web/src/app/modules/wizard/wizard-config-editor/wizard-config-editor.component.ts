@@ -86,7 +86,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     getFormTemplate() {
         if (this.config.editionType.stepType !== 'settings') {
-            console.log(this.config.editionType.data);
             this.entityFormModel = Object.assign({}, this.config.editionType.data);
             this.currentName = this.entityFormModel['name'];
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
