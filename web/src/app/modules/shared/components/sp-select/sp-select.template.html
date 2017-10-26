@@ -5,7 +5,7 @@
     </label>
 
    <div class="sp-select-data" [ngClass]="{error: showError(), disabled: disabled}">
-      <div class="st-input" (click)="active =! active">
+      <div class="st-input" (click)="showOptions()">
          <input readonly="readonly" [(ngModel)]="internalControl.value.label" type="text" class="select-value" name="fragmentType" placeholder="">
          <i class="icon-arrow2_down arrow"></i>
       </div>

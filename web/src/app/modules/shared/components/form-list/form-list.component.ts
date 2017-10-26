@@ -84,7 +84,11 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     ngOnInit() {
         for (const field of this.formListData.fields) {
-            this.item[field.propertyId] = ['', Validators.required];
+            if(field.propertyType === 'boolean' || !field.required) {
+                this.item[field.propertyId] = [''];
+            } else {
+                this.item[field.propertyId] = ['', Validators.required];
+            }
 
             if (field.visible && field.visible.length) {
                 this.visibleConditions.push({
@@ -133,12 +137,10 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
                 subscriptionsHandler.push(subscription);
             });
         });
-
         this.itemssubscription.push(subscriptionsHandler);
     }
 
     checkDisabledField(value: any, conditionValue: any, property: any) {
-        console.log(value);
         if (value === conditionValue) {
             property.enable();
         } else {
@@ -151,12 +153,13 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     }
 
     getItemClass(field: any): string {
-        if (field.width) {
-            return 'list-item col-xs-' + field.width;
-        }
+        
         const type: string = field.propertyType;
         if (type === 'boolean') {
             return 'list-item check-column';
+        }
+        if (field.width) {
+            return 'list-item col-xs-' + field.width;
         }
         const length = this.formListData.fields.length;
         if (length === 1) {
@@ -236,7 +239,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     ngOnDestroy(): void {
         this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
-
         if(this.itemssubscription.length) {
             this.itemssubscription.forEach((rowSubscriptions: any) => {
                 rowSubscriptions.forEach((subscription: any) => {

@@ -58,6 +58,21 @@ export class WizardEffect {
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]) => {
+            if(!wizard.nodes.length) {
+                return Observable.of(new wizardActions.SaveWorkflowErrorAction({
+                    title: 'NO_ENTITY_WORKFLOW_TITLE',
+                    description: 'NO_ENTITY_WORKFLOW_MESSAGE'
+                }));
+            }
+            for(let i=0; i<wizard.nodes.length; i++) {
+                if(wizard.nodes[i].hasErrors) { //At least one entity has errors
+                    return Observable.of (new wizardActions.SaveWorkflowErrorAction({
+                        title: 'VALIDATION_ERRORS_TITLE',
+                        description: 'VALIDATION_ERRORS_MESSAGE'
+                    }));
+                }
+            };
+            
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 uiSettings: {
@@ -81,7 +96,10 @@ export class WizardEffect {
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
+                    return Observable.of(new wizardActions.SaveWorkflowErrorAction({
+                        title: 'WORKFLOW_SERVER_ERROR_TITLE',
+                        description: 'WORKFLOW_SERVER_ERROR_DESCRIPTION'
+                    }));
                 });
             }
 

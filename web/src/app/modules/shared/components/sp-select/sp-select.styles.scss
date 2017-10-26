@@ -52,6 +52,8 @@
    }
 }
 
+
+
 .active {
    .st-input {
       border-color: #88c5ee;
@@ -60,6 +62,16 @@
    .arrow {
       color: #128bde;
    }
+}
+
+.disabled {
+    .st-input {
+        border-color:#dedede;
+    }
+
+    .arrow {
+        color: #dedede;
+     }
 }
 
 .sp-select .error .st-input {

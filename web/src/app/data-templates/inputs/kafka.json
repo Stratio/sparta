@@ -387,6 +387,7 @@
             "propertyType": "text",
             "regexp": "",
             "default": "",
+            "width": 5,
             "hidden": false,
             "required": false,
             "qa": "fragment-details-kafka-kafkaPropertyKey"

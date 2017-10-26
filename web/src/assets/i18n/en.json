@@ -385,7 +385,13 @@
       "UPDATE_INPUT_DESCRIPTION": "Input has been saved",
       "UPDATE_OUTPUT_DESCRIPTION": "Output has been saved",
       "CREATE_INPUT_DESCRIPTION": "Input has been created succesfully",
-      "CREATE_OUTPUT_DESCRIPTION": "Output has been created succesfully"
+      "CREATE_OUTPUT_DESCRIPTION": "Output has been created succesfully",
+      "NO_ENTITY_WORKFLOW_TITLE": "Validation error",
+      "NO_ENTITY_WORKFLOW_MESSAGE": "Workflow must have at least one entity",
+      "VALIDATION_ERRORS_MESSAGE": "At least one entity has errors",
+      "VALIDATION_ERRORS_TITLE": "Validation error",
+      "WORKFLOW_SERVER_ERROR_TITLE": "Server error",
+      "WORKFLOW_SERVER_ERROR_DESCRIPTION": "Workflow cannot be saved"
    },
    "WIZARD": {
       "INPUTS": "Inputs",

@@ -1,4 +1,3 @@
-import { Store } from '@ngrx/store';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -21,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StModalService } from '@stratio/egeo';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BreadcrumbMenuService } from 'services';
+import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import * as inputActions from 'actions/input';
 

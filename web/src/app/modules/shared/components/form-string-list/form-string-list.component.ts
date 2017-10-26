@@ -175,7 +175,6 @@ export class FormListStringComponent implements Validator, ControlValueAccessor,
     }
 
     validate(c: FormGroup): { [key: string]: any; } {
-
         if (this.required) {
             if (!this.items.controls.length) {
                 this.isError = true;

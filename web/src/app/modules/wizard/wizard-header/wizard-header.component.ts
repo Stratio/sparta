@@ -46,6 +46,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onShowSettings = new EventEmitter();
     @Output() onSaveWorkflow = new EventEmitter();
     @Output() onEditEntity = new EventEmitter();
+    @Output() deleteSelection = new EventEmitter();
 
     @Input() isNodeSelected = false;
     @Input() selectedSegment: any;
@@ -94,14 +95,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     selectedMenuOption($event: any): void {
         this.store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
-    }
-
-    deleteSelection(): void {
-        if (this.isNodeSelected) {
-            this.store.dispatch(new wizardActions.DeleteEntityAction());
-        } else {
-            this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-        }
     }
 
     editWorkflowName(): void {

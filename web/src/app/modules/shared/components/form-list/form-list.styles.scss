@@ -27,6 +27,11 @@
     margin-bottom:10px;
 }
 
+.list-title {
+    margin-bottom:14px;
+    display:block;
+}
+
 .list-field {
    width: calc(100% - 5px);
    display: flex;
@@ -34,7 +39,7 @@
    flex-wrap: wrap;
    flex-direction: row;
    line-height: 1.89;
-   margin-top: 12px;
+   margin-bottom: 30px;
    text-align: left;
    color: $neutral-07;
    position: relative;
@@ -42,6 +47,10 @@
     margin-top: 28px;
     display: block;
     cursor: pointer;
+   }
+
+   &.last {
+       margin-bottom:0;
    }
 }
 

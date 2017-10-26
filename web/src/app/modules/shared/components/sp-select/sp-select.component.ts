@@ -120,6 +120,14 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
         this._cd.markForCheck();
     }
 
+    showOptions() {
+        if(this.internalControl.disabled) {
+            this.active = false;
+        } else {
+            this.active = !this.active;
+        }
+    }
+
     selectOption(option: any) {
         this.internalControl.setValue(option);
         this.onChange(option.value);
@@ -168,8 +176,9 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     }
 
     setDisabledState(disable: boolean): void {
+        console.log(this.options, disable);
         this.disabled = disable;
-        if (this.disabled && this.selectedValue && this.internalControl.enabled) {
+        if (this.disabled && this.internalControl.enabled) {
             this.internalControl.disable();
         } else if (!this.disabled && this.internalControl && this.internalControl.disabled) {
             this.internalControl.enable();

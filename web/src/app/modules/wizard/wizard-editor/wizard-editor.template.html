@@ -1,7 +1,7 @@
 <section>
    <wizard-header class="wizard-header" (onZoomIn)="changeZoom(true)" [isNodeSelected]="selectedEntity && selectedEntity.length" [selectedSegment]="selectedSegment"
       (onZoomOut)="changeZoom(false)" (onCenter)="centerWorkflow()" (onShowSettings)="showSettings()" (onSaveWorkflow)="saveWorkflow()"
-      (onEditEntity)="editButtonEntity()"></wizard-header>
+      (onEditEntity)="editButtonEntity()" (deleteSelection)="deleteSelection()"></wizard-header>
    <div class="editor">
       <svg id="composition" class="composition" (click)="clickDetected($event)" #editorArea>
          <svg:g id="svg-container">

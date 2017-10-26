@@ -1,15 +1,15 @@
 <div class="form-list">
 
    <div class="col-sm-12">
-      <span class="egeo-title-small">{{label}}</span>
+      <span class="egeo-title-small list-title">{{label}}</span>
    </div>
 
 
    <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
       <div formArrayName="items">
-         <div *ngFor="let item of items.controls; let i = index;">
+         <div *ngFor="let item of items.controls; let i = index; let last = last;">
             <div [formGroup]="item" class="row">
-               <div class="list-field">
+               <div class="list-field"  [ngClass]="{'last' : last}">
                   <ng-container *ngFor="let field of formListData.fields; let j = index;">
                      <div *ngIf="item.controls[field.propertyId].enabled" [className]="getItemClass(field)">
                         <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
@@ -22,8 +22,8 @@
                            [required]="field.required" [formControl]="item.controls[field.propertyId]"></sp-select>
 
                         <st-checkbox *ngIf="field.propertyType == 'boolean'" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
-
                      </div>
+                     <div class="col-sm-12" *ngIf="field.float !== undefined && field.float === false"></div>
                   </ng-container>
                   <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>

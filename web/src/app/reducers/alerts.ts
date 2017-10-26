@@ -28,10 +28,12 @@ import { STALERT_SEVERITY } from '@stratio/egeo';
 
 export interface State {
     currentAlert: Array<CustomAlert>;
+    notification: any;
 }
 
 const initialState: State = {
-    currentAlert: []
+    currentAlert: [],
+    notification: null
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -164,8 +166,17 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
-                    title: 'SUCCESS',
+                    title: 'ERROR',
                     description: action.payload
+                }]
+            });
+        }
+        case wizardActions.actionTypes.SAVE_WORKFLOW_ERROR: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: action.payload.title,
+                    description: action.payload.description
                 }]
             });
         }

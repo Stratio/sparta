@@ -40,11 +40,11 @@ export class AppComponent {
     ngOnInit(): void {
         this.store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
             if (alerts && alerts.length) {
-                alerts.map((alert: any) => {
-                    const title = 'ALERTS.' + alert.title;
-                    const description = 'ALERTS.' + alert.description;
-                    this.translate.get([title, description], alert.params).subscribe((value: { [key: string]: string }) => {
-                        this._alertService.notifyAlert(value[title], value[description], alert.type, undefined, 1000);
+                alerts.map((alertNot: any) => {
+                    const title = 'ALERTS.' + alertNot.title;
+                    const description = 'ALERTS.' + alertNot.description;
+                    this.translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
+                        this._alertService.notifyAlert(value[title], value[description], alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
                     });
                 });
             }

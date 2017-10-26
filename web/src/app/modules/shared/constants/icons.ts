@@ -16,16 +16,26 @@
 
 export const icons: any = {
     Kafka: '\uE645',
-    Websocket: '\uE650',
+    WebSocket: '\ue078',
     Print: '\uE64A',
-    FileSystem: '\uE921',
+    FileSystem: '\ue960',
     Jdbc: '\uE602',
-    CSV: '\uE647',
-    Csv: '\uE647',
+    CSV: '\uE901',
+    Csv: '\uE901',
     MongoDb: '\uE623',
     Parquet: '\uE649',
     Postgres: '\uE968',
     Redis: '\uE64B',
     Filter: '\uE616',
-    Union: '\uE94E'
+    Union: '\ue9af',
+    Test: '\uE062',
+    Crossdata: '\ue98d',
+    Distinct: '\ue651',
+    Casting: '\ue96e',
+    Explode: '\ue982',
+    Intersection: '\ue97f',
+    JsonPath: '\ue900',
+    Select: '\ue948',
+    Persist: '\ue049',
+    Window: '\ue9a2'
 };

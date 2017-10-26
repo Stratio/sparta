@@ -29,6 +29,7 @@ import { D3ZoomEvent } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { ValidateSchemaService } from 'app/services/validate-schema.service';
+import { StModalButton, StModalMainTextSize, StModalType, StModalResponse, StModalService, StModalWidth } from '@stratio/egeo';
 
 
 @Component({
@@ -95,12 +96,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
 
         } else if (event.keyCode === this.SUPR_KEYCODE) {
-            if (this.selectedEntity && this.selectedEntity.length) {
-                this.store.dispatch(new wizardActions.DeleteEntityAction());
-            }
-            if (this.selectedSegment) {
-                this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-            }
+            this.deleteSelection();
         }
     }
 
@@ -117,7 +113,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    constructor(private elementRef: ElementRef, private editorService: WizardEditorService, private validateSchemaService: ValidateSchemaService,
+    constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService, private validateSchemaService: ValidateSchemaService,
         private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private initializeSchemaService: InitializeSchemaService) {
     }
 
@@ -352,6 +348,42 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
         this.store.dispatch(new wizardActions.SaveEditorPosition(this.svgPosition));
         this.store.dispatch(new wizardActions.SaveWorkflowAction());
+    }
+
+    deleteSelection() {
+        if (this.selectedEntity && this.selectedEntity.length) {      
+            this.deleteConfirmModal('Delete entity', '¿Are you sure?', ()=> {
+                this.store.dispatch(new wizardActions.DeleteEntityAction());
+            });
+        }
+        if (this.selectedSegment) {
+            this.deleteConfirmModal('Delete relation', '¿Are you sure?', ()=> {
+                this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+            });
+        }
+    }
+
+    public deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
+        const buttons: StModalButton[] = [
+            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
+            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+        ];
+
+        this._modalService.show({
+            qaTag: 'delete-template',
+            modalTitle: modalTitle,
+            buttons: buttons,
+            message: modalMessage,
+            mainText: StModalMainTextSize.BIG,
+            modalType: StModalType.NEUTRAL,
+            modalWidth: StModalWidth.COMPACT
+        }).subscribe((response) => {
+            if (response === 1) {
+                this._modalService.close();
+            } else if (response === 0) {
+               handler();
+            }
+        });
     }
 
     ngOnDestroy(): void {

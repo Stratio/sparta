@@ -70,7 +70,7 @@
                   <button menu-action class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected">
                     <i class="icon-edit"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="deleteSelection()" *ngIf="isNodeSelected || selectedSegment">
+                  <button menu-action class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment">
                     <i class="icon-trash"></i>
                   </button>
                </div>
