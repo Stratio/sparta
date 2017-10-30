@@ -110,6 +110,8 @@ export const getTablesList: any = createSelector(getCrossdataState, fromCrossdat
 export const getDatabases: any = createSelector(getCrossdataState, fromCrossdata.getDatabases);
 export const getSelectedDatabase: any =  createSelector(getCrossdataState, fromCrossdata.getSelectedDatabase);
 export const getQueryResult: any = createSelector(getCrossdataState, fromCrossdata.getQueryResult);
+export const getQueryError: any = createSelector(getCrossdataState, fromCrossdata.getQueryError);
+export const getSelectedTables: any = createSelector(getCrossdataState, fromCrossdata.getSelectedTables);
 
 // alerts
 export const getCurrentAlert: any = createSelector(getAlertsState, fromAlerts.getCurrentAlert);

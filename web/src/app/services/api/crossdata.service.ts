@@ -77,4 +77,14 @@ export class CrossdataService extends ApiService {
         return this.request('crossdata/queries', options);
     }
 
+    getCrossdataTablesInfo(tableName: string): Observable<any> {
+        const options: ApiRequestOptions = {
+            method: 'post',
+            body: {
+                tableName: tableName
+            }
+        };
+        return this.request('crossdata/tables/info', options);
+    }
+
 }

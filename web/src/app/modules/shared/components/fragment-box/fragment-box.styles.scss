@@ -47,6 +47,7 @@
       line-height: 1.13;
       text-align: left;
       color: #777777;
+      font-style: normal;
       vertical-align: middle;
    }
    .description {
@@ -63,5 +64,20 @@
         position: absolute;
         top: 7px;
         right: -5px;
+   }
+}
+
+@keyframes BoxAnimation {
+   0% {
+      opacity: 0;
+      transform: scale(0.5)
+   }
+   70% {
+      opacity: 1;
+      transform: scale(1.05)
+   }
+   100% {
+      opacity: 1;
+      transform: none;
    }
 }

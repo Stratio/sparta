@@ -25,7 +25,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import * as base from 'assets/images/workflow-base.svg';
 import * as d3 from 'd3';
 import * as wizardActions from 'actions/wizard';
-import { D3ZoomEvent } from 'd3';
+import { D3ZoomEvent, ZoomBehavior, DragBehavior } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { ValidateSchemaService } from 'app/services/validate-schema.service';
@@ -51,18 +51,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         y: 0,
         k: 1
     };
-
     public showConnector = false;
-    public connector = {
-        x1: 0,
-        y1: 0,
-        x2: 30,
-        y2: 30
-    };
 
     public SVGParent: any;
-
     public SVGContainer: any;
+    public connectorElement: any;
+
     public selectedEntity: any = '';
     public drawingConnectionStatus: any = {
         status: false,
@@ -85,8 +79,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private documentRef: any;
     private newOrigin: string = '';
 
-    private zoom: any;
-    private drag: any;
+    private zoom: ZoomBehavior<any, any>;
+    private drag: DragBehavior<any, any, any>;
+
     @ViewChild('editorArea') editorArea: ElementRef;
     @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
         if (event.keyCode === this.ESC_KEYCODE) {
@@ -113,9 +108,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService, private validateSchemaService: ValidateSchemaService,
-        private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>, private initializeSchemaService: InitializeSchemaService) {
-    }
+    constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService,
+        private validateSchemaService: ValidateSchemaService, private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
+        private initializeSchemaService: InitializeSchemaService) { }
 
     ngOnInit(): void {
         // ngrx
@@ -156,6 +151,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.documentRef = d3.select(document);
         this.SVGParent = d3.select(this.elementRef.nativeElement).select('#composition');
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
+        this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
 
         this.zoom = d3.zoom()
             .scaleExtent([1 / 8, 3])
@@ -245,8 +241,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 entity.hasErrors = true;
                 entity.errors = errors;
             }
-
-            //this.entities.push(entity);
+            entity.created = true;
             this.store.dispatch(new wizardActions.CreateEntityAction(entity));
         }
         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
@@ -255,16 +250,17 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     drawConnector(event: any) {
         const $event = event.event;
         this.newOrigin = event.name;
+        const connector: any = {};
+        connector.x1 = $event.clientX;
+        connector.y1 = $event.clientY - 127;
+        connector.x2 = 0;
+        connector.y2 = 0;
 
-        this.connector.x1 = $event.clientX;
-        this.connector.y1 = $event.clientY - 127;
-        this.connector.x2 = 0;
-        this.connector.y2 = 0;
-        this.showConnector = true;
         this.drawingConnectionStatus = {
             status: true,
             name: event.name
         };
+
 
         const w = this.documentRef
             .on('mousemove', drawConnector.bind(this))
@@ -277,11 +273,14 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 status: false
             };
             w.on('mousemove', null).on('mouseup', null);
+
         }
 
         function drawConnector() {
-            this.connector.x2 = d3.event.clientX - this.connector.x1;
-            this.connector.y2 = d3.event.clientY - this.connector.y1 - 127;
+            this.showConnector = true;
+            connector.x2 = d3.event.clientX - connector.x1;
+            connector.y2 = d3.event.clientY - connector.y1 - 127;
+            this.connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
         }
     }
 
@@ -290,10 +289,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             origin: this.newOrigin,
             destination: name
         }));
-    }
-
-    changedPosition() {
-
     }
 
     changeZoom(zoomIn: boolean) {
@@ -308,9 +303,11 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     centerWorkflow(): void {
         const container = this.elementRef.nativeElement.querySelector('#svg-container').getBoundingClientRect();
+        const svgParent = this.elementRef.nativeElement.querySelector('#composition').getBoundingClientRect();
+
         const containerWidth = container.width;
         const containerHeight = container.height;
-        const svgParent = this.elementRef.nativeElement.querySelector('#composition').getBoundingClientRect();
+
         const svgWidth = svgParent.width;
         const svgHeight = svgParent.height;
         const translateX = ((svgWidth - containerWidth) / 2 - container.left) / this.svgPosition.k;
@@ -343,6 +340,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             stepType: 'settings'
         }));
     }
+
     saveWorkflow(): void {
         // save entities position
         this.store.dispatch(new wizardActions.SaveWorkflowPositionsAction(this.entities));
@@ -350,14 +348,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.SaveWorkflowAction());
     }
 
+
     deleteSelection() {
-        if (this.selectedEntity && this.selectedEntity.length) {      
-            this.deleteConfirmModal('Delete entity', '¿Are you sure?', ()=> {
+        if (this.selectedEntity && this.selectedEntity.length) {
+            this.deleteConfirmModal('Delete entity', '¿Are you sure?', () => {
                 this.store.dispatch(new wizardActions.DeleteEntityAction());
             });
         }
         if (this.selectedSegment) {
-            this.deleteConfirmModal('Delete relation', '¿Are you sure?', ()=> {
+            this.deleteConfirmModal('Delete relation', '¿Are you sure?', () => {
                 this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
             });
         }
@@ -381,7 +380,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
-               handler();
+                handler();
             }
         });
     }

@@ -146,11 +146,10 @@ export class WorkflowEffect {
     getExecutionInfo$: Observable<Action> = this.actions$
         .ofType(workflowActions.actionTypes.GET_WORKFLOW_EXECUTION_INFO)
         .switchMap((data: any) => {
-            console.log(data);
-            return this.workflowService.getWorkflowExecutionInfo(data.payload).map((response: any) => {
+            return this.workflowService.getWorkflowExecutionInfo(data.payload.id).map((response: any) => {
+                response.name = data.payload.name;
                 return new workflowActions.GetExecutionInfoCompleteAction(response);
             }).catch(function (error) {
-                console.log("a");
                 return Observable.of(new workflowActions.GetExecutionInfoErrorAction());
             });
         });

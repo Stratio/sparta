@@ -31,10 +31,12 @@ export const actionTypes: any = {
     EXECUTE_QUERY_COMPLETE: type('[Crossdata] Execute query complete'),
     EXECUTE_QUERY_ERROR: type('[Crossdata] Execute query error'),
     SHOW_TEMPORARY_TABLES: type('[Crossdata] Show temporary tables'),
-    LIST_DATABASE_TABLES:  type('[Crossdata] List database tables'),
-    LIST_DATABASE_TABLES_COMPLETE:  type('[Crossdata] List database tables complete'),
-    LIST_DATABASE_TABLES_ERROR:  type('[Crossdata] List database tables error'),
-    SELECT_DATABASE: type('[Crossdata] Select database')
+    LIST_DATABASE_TABLES: type('[Crossdata] List database tables'),
+    LIST_DATABASE_TABLES_COMPLETE: type('[Crossdata] List database tables complete'),
+    LIST_DATABASE_TABLES_ERROR: type('[Crossdata] List database tables error'),
+    SELECT_DATABASE: type('[Crossdata] Select database'),
+    SELECT_TABLE: type('[Crossdata] Select table'),
+    UNSELECT_TABLE: type('[Crossdata] Unselect table')
 };
 
 export class ListCrossdataTablesAction implements Action {
@@ -133,6 +135,17 @@ export class ListDatabaseTablesErrorAction implements Action {
     type: any = actionTypes.LIST_DATABASE_TABLES_ERROR;
 }
 
+export class SelectTableAction implements Action {
+    type: any = actionTypes.SELECT_TABLE;
+    constructor(public payload: any) { }
+}
+
+export class UnselectTableAction implements Action {
+    type: any = actionTypes.UNSELECT_TABLE;
+    constructor(public payload: any) { }
+}
+
+
 export type Actions =
     ListCrossdataTablesAction |
     ListCrossdataTablesCompleteAction |
@@ -150,4 +163,6 @@ export type Actions =
     ShowTemporaryTablesAction |
     ListDatabaseTablesAction |
     ListDatabaseTablesCompleteAction |
-    ListDatabaseTablesErrorAction;
+    ListDatabaseTablesErrorAction |
+    UnselectTableAction |
+    SelectTableAction;

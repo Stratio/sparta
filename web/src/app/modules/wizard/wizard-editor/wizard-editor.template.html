@@ -5,14 +5,12 @@
    <div class="editor">
       <svg id="composition" class="composition" (click)="clickDetected($event)" #editorArea>
          <svg:g id="svg-container">
-
             <svg:g *ngFor="let relation of workflowRelations" wizard-segment [initialEntity]="relation.origin" [finalEntity]="relation.destination"
                [selectedSegment]="selectedSegment" (onRemoveSegment)="removeSegment($event)"></svg:g>
-
             <svg:g wizard-box svg-draggable *ngFor="let entity of entities" [data]="entity" [selected]="selectedEntity === entity.name"
                [drawingConnectionStatus]="drawingConnectionStatus" (onDrawConnector)="drawConnector($event)" (onFinishConnector)="finishConnector($event)"
                [(position)]="entity.uiConfiguration.position"
-               (onDoubleClickEvent)="editEntity(entity)" (onClickEvent)="selectEntity(entity)" />
+               (onDoubleClickEvent)="editEntity(entity)" (onClickEvent)="selectEntity(entity)" [ngClass]="{'current-created': entity.created}" />
          </svg:g>
          <svg:filter id="drop-shadow">
             <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
@@ -24,36 +22,6 @@
                <feMergeNode in="SourceGraphic" />
             </feMerge>
          </svg:filter>
-
-         <svg:filter id='inset' x='-10%' y='-10%' width='120%' height='120%'>
-            <!--outside-stroke-->
-            <feFlood flood-color="#999999" result="outside-color" />
-            <feMorphology in="SourceAlpha" operator="dilate" radius="2" />
-            <feComposite in="outside-color" operator="in" result="outside-stroke" />
-            <!--fill-area-->
-            <feMorphology in="SourceAlpha" operator="erode" radius="2" />
-            <feComposite in="SourceGraphic" operator="in" result="fill-area" />
-            <!--merge graphics-->
-            <feMerge>
-               <feMergeNode in="outside-stroke" />
-               <feMergeNode in="fill-area" />
-            </feMerge>
-         </svg:filter>
-         <svg:filter id='inset2' x='-50%' y='-50%' width='200%' height='200%'>
-            <!--outside-stroke-->
-            <feFlood flood-color="#777777" result="outside-color" />
-            <feMorphology in="SourceAlpha" operator="dilate" radius="2" />
-            <feComposite in="outside-color" operator="in" result="outside-stroke" />
-            <!--fill-area-->
-            <feMorphology in="SourceAlpha" operator="erode" radius="2" />
-            <feComposite in="SourceGraphic" operator="in" result="fill-area" />
-            <!--merge graphics-->
-            <feMerge>
-               <feMergeNode in="outside-stroke" />
-               <feMergeNode in="fill-area" />
-            </feMerge>
-         </svg:filter>
-
          <svg:defs>
             <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
                <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />
@@ -67,12 +35,13 @@
                <svg:path d="M0,0 L0,15 L15,7 z" fill="#777" />
             </svg:marker>
          </svg:defs>
-         <svg:path [attr.d]="'M ' + connector.x1 +' ' + connector.y1 +' l ' + connector.x2 + ' ' + connector.y2" stroke="#777" *ngIf="showConnector"
+         <svg:path stroke="#777" [ngClass]="{'show' : showConnector}"
             stroke-width="2" fill="none" class="connector-line" marker-end="url(#createConnectorMarker)"></svg:path>
       </svg>
 
       <sparta-sidebar [isVisible]="isShowedEntityDetails$ | async" class="wizard-sidebar" (onCloseSidebar)="closeSideBar()">
          <wizard-details [entityData]="entitiesData"></wizard-details>
       </sparta-sidebar>
+      
    </div>
 </section>

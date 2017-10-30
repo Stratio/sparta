@@ -16,13 +16,14 @@
 
 import { Component, OnInit, Output, EventEmitter, Input, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
-import { Subscription } from "rxjs/Rx";
-import { FormControl } from "@angular/forms";
+import { Subscription } from 'rxjs/Rx';
+import { FormControl } from '@angular/forms';
 
 @Component({
     selector: 'menu-options',
     templateUrl: './menu-options.template.html',
-    styleUrls: ['./menu-options.styles.scss']
+    styleUrls: ['./menu-options.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenuOptionsComponent implements OnInit {
 

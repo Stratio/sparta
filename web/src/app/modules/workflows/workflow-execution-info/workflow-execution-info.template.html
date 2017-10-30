@@ -1,35 +1,69 @@
 <section class="execution-info-container" *ngIf="executionInfo">
-    <div class="execution-header">
-        <div class="container">
-            <div class="egeo-title-giant">
-            {{workflow.name}}
+   <div class="execution-header">
+      <div class="container">
+         <div class="row">
+            <div class="col-sm-12">
+               <div class="egeo-title-giant workflow-name">
+                  {{executionInfo.name}}
+               </div>
+               <div class="return-link">
+                  <a class="link" (click)="closeWorkflowExecutinInfo()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
+               </div>
             </div>
-        </div>
-
-    </div>
+         </div>
+      </div>
+   </div>
    <div class="container">
       <div class="row info-data">
-         <div class="col-sm-6" *ngIf="executionInfo.driverClass">
+         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
             <div class="title">
                driverClass
             </div>
             <div class="values">
-               {{executionInfo.driverClass}}
+               {{executionInfo.sparkSubmitExecution.driverClass}}
 
             </div>
          </div>
-         <div class="col-sm-6" *ngIf="executionInfo.driverClass">
+         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
             <div class="title">
                driverFile
             </div>
             <div class="values">
-               {{executionInfo.driverFile}}
-
+               {{executionInfo.sparkSubmitExecution.driverFile}}
             </div>
          </div>
-         <div class="col-sm-12" *ngIf="executionInfo.sparkConfigurations">
-            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)" class="spark-config-table">
-               <tr st-table-row *ngFor="let item of executionInfo.sparkConfigurations | keyobject">
+         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
+            <div class="title">
+               master
+            </div>
+            <div class="values">
+               {{executionInfo.sparkSubmitExecution.master}}
+            </div>
+         </div>
+         <div class="col-sm-12 table-list" *ngIf="executionInfo.sparkSubmitExecution.submitArguments">
+            <div class="title">
+               Submit Arguments
+            </div>
+            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrderArguments($event)"
+               class="spark-config-table">
+               <tr st-table-row *ngFor="let item of executionInfo.sparkSubmitExecution.submitArguments | keyobject | orderBy:orderByArguments:sortOrderArguments; let i = index;">
+
+                  <td st-table-cell st-table-row-content>
+                     {{item.key}}
+                  </td>
+                  <td st-table-cell st-table-row-content>
+                     {{item.value}}
+                  </td>
+               </tr>
+            </st-table>
+         </div>
+         <div class="col-sm-12 table-list" *ngIf="executionInfo.sparkSubmitExecution.sparkConfigurations">
+            <div class="title">
+               Spark Configurations
+            </div>
+            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrderConfig($event)"
+               class="spark-config-table">
+               <tr st-table-row *ngFor="let item of executionInfo.sparkSubmitExecution.sparkConfigurations | keyobject | orderBy:orderByConfig:sortOrderConfig; let i = index;">
 
                   <td st-table-cell st-table-row-content>
                      {{item.key}}

@@ -64,6 +64,10 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
     ngOnInit(): void { }
 
     ngAfterContentInit() {
+
+        setTimeout(() => {
+            this.data.created = false;
+        }, 400); //delete created opacity effect
         const data = this.data;
         const textContainer =  d3.select(this.el.querySelector('.text-container'));
         textContainer.append('text')

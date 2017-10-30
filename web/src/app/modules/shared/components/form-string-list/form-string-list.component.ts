@@ -75,9 +75,9 @@ export class FormListStringComponent implements Validator, ControlValueAccessor,
     public isDisabled = false;
     public isError = false;
     public innerInputContent = '';
-
-
     public fieldName = '';
+
+    private internalControlSubscription: Subscription;
 
     onChange = (_: any) => { };
     onTouched = () => { };
@@ -103,7 +103,7 @@ export class FormListStringComponent implements Validator, ControlValueAccessor,
             items: this.items
         });
 
-        this.internalControl.valueChanges.subscribe((value) => {
+        this.internalControlSubscription = this.internalControl.valueChanges.subscribe((value) => {
             this.onChange(this.items.value);
         });
     }
@@ -190,6 +190,8 @@ export class FormListStringComponent implements Validator, ControlValueAccessor,
     }
 
     ngOnDestroy(): void {
-
+        if(this.internalControlSubscription) {
+            this.internalControlSubscription.unsubscribe();
+        }
     }
 }

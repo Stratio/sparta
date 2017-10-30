@@ -38,4 +38,9 @@
 
 .connector-line {
    pointer-events: none;
+   display:none;
+
+   &.show{
+       display:block;
+   }
 }

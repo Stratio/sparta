@@ -13,7 +13,8 @@
          <span class="values">{{workflowData.context.statusInfo}}</span>
 
       </div>
-      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})">Show execution info</a>
+      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})"
+      *ngIf="workflowData.context && workflowData.context.lastExecutionMode && workflowData.context.lastExecutionMode === 'marathon'">Show execution info</a>
 
       <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
          <span class="title">Execution mode</span>

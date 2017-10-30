@@ -1,6 +1,5 @@
 .editor {
    display: flex;
-
    .json-info {
       display: flex;
       font-size: 12px;
@@ -21,13 +20,13 @@
 
 .workflow-json-content {
    width: 100%;
+   font-size: 14px;
 }
 
-
 .edition-buttons {
-    float:right;
+   float: right;
 }
 
 .description {
-    margin-top:20px;
+   margin-top: 20px;
 }

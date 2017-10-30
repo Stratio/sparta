@@ -7,25 +7,37 @@
       <st-switch class="show-temporary" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [stModel]="showTemporaryTables"
          qaTag="temporary-tables-switch" (change)="onChangeValue($event)">
       </st-switch>
-
-
    </div>
-   <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag">
-      <tr st-table-row *ngFor="let table of tableList$ | async">
-         <td st-table-cell st-table-row-content>
-            <label>{{table.name}}</label>
-         </td>
-         <td st-table-cell st-table-row-content>
-            <label>{{table.database}}</label>
-         </td>
-         <td st-table-cell st-table-row-content>
-            <label>{{table.tableType | lowercase}}</label>
-         </td>
-         <td st-table-cell st-table-row-content>
-            <label>{{table.isTemporary}}</label>
-         </td>
-      </tr>
+   <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" (changeOrder)="changeOrder($event)">
+      <ng-container *ngFor="let table of tableList$ | async | orderBy:orderBy:sortOrder;">
+         <tr st-table-row [selected]="selectedTables.indexOf(table.name)>-1" (click)="checkRow(!((selectedTables.indexOf(table.name)) > -1), table)" class="select-row">
+            <td st-table-cell st-table-row-content>
+               <st-checkbox [value]="table" (change)="checkValue($event)" [checked]="selectedTables.indexOf(table.name) > -1"></st-checkbox>
+            </td>
+            <td st-table-cell st-table-row-content>
+               <label>{{table.name}}</label>
+            </td>
+            <td st-table-cell st-table-row-content>
+               <label>{{table.database}}</label>
+            </td>
+            <td st-table-cell st-table-row-content>
+               <label>{{table.tableType | lowercase}}</label>
+            </td>
+            <td st-table-cell st-table-row-content>
+               <label>{{table.isTemporary}}</label>
+            </td>
+         </tr>
+         <tr st-table-row *ngIf="selectedTables.indexOf(table.name)>-1 && table.info && table.info.length" class="fields-row">
+            <td st-table-cell st-table-row-content [attr.colspan]="fields.length">
+               <st-table [fields]="table.infoFields" [sortable]="false" qaTag="table.name + '-info-fields'" (changeOrder)="changeOrder($event)">
+                  <tr st-table-row *ngFor="let field of table.info">
+                     <td st-table-cell st-table-row-content *ngFor="let column of table.infoFields">
+                        <label>{{field[column.id]}}</label>
+                     </td>
+                  </tr>
+               </st-table>
+            </td>
+         </tr>
+      </ng-container>
    </st-table>
-
-
 </section>

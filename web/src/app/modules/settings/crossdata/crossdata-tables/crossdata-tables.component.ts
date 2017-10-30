@@ -18,7 +18,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStra
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import * as crossdataActions from 'actions/crossdata';
-import { Observable } from 'rxjs/Observable';
+import { Observable, SubscribableOrPromise } from 'rxjs/Observable';
 import { StTableHeader, StDropDownMenuItem } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 import { OnDestroy, ChangeDetectorRef } from '@angular/core';
@@ -34,8 +34,10 @@ export class CrossdataTables implements OnInit, OnDestroy {
     public tableList$: Observable<any>;
     public selectedDatabaseSubscription: Subscription;
     public databaseSubscription: Subscription;
+    public selectedTablesSubscription: Subscription;
     public databases: StDropDownMenuItem[] = [];
     public fields: StTableHeader[] = [
+        { id: 'order', label: '', sortable: false },
         { id: 'name', label: 'Name' },
         { id: 'database', label: 'Database' },
         { id: 'type', label: 'Type' },
@@ -43,6 +45,9 @@ export class CrossdataTables implements OnInit, OnDestroy {
     ];
     public showTemporaryTables = false;
     public selectedDatabase = '';
+    public selectedTables: Array<string> = [];
+    public orderBy = '';
+    public sortOrder = true;
     public onChangeValue(event: boolean) {
         this.store.dispatch(new crossdataActions.ShowTemporaryTablesAction(event));
     }
@@ -60,6 +65,11 @@ export class CrossdataTables implements OnInit, OnDestroy {
             });
         });
 
+        this.selectedTablesSubscription = this.store.select(fromRoot.getSelectedTables).subscribe((tables: Array<string>) => {
+            this.selectedTables = tables;
+        });
+
+
         this.selectedDatabaseSubscription = this.store.select(fromRoot.getSelectedDatabase).subscribe((database: string) => {
             if (this.selectedDatabase !== database) {
                 this.selectedDatabase = database;
@@ -71,12 +81,30 @@ export class CrossdataTables implements OnInit, OnDestroy {
         this.store.dispatch(new crossdataActions.ListDatabaseTablesAction(databasename));
     }
 
-    constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) {
-
-    }
+    constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
     onSearchResult(event: string) {
 
+    }
+
+    changeOrder($event: any): void {
+        this.orderBy = $event.orderBy;
+        this.sortOrder = $event.type;
+    }
+
+    checkRow(isChecked: boolean, value: any) {
+        this.checkValue({
+            checked: isChecked,
+            value: value
+        });
+    }
+
+    checkValue($event: any) {
+        if ($event.checked) {
+            this.store.dispatch(new crossdataActions.SelectTableAction($event.value));
+        } else {
+            this.store.dispatch(new crossdataActions.UnselectTableAction($event.value));
+        }
     }
 
     ngOnDestroy(): void {

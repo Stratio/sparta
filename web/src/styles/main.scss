@@ -22,18 +22,6 @@ sp-textarea {
    width: 100%;
 }
 
-.sth-header {
-   z-index: 999!important;
-}
-
-.st-tooltip {
-   min-height: 20px;
-   line-height: 18px;
-   &:before {
-      min-width: 160px;
-   }
-}
-
 .custom-checkbox {
    margin-right: 6px!important;
 }
@@ -48,16 +36,54 @@ sp-textarea {
 .CodeMirror {
    display: block;
    width: 100%;
-   height: auto;
+   box-sizing: border-box;
+   height: inherit;
+   cursor: text;
+   padding: 10px 12px 10px 15px;
 }
 
-.st-modal-title p{
+.CodeMirror-scroll {
+   min-height: 100px!important;
+}
+
+.workflow-json-content .CodeMirror-scroll {
+   min-height: 240px!important;
+}
+
+.CodeMirror-cursor {
+   height: 19px!important;
+}
+
+
+/***** override egeo theme styles ******/
+
+.st-modal-title p {
    text-transform: none !important;
 }
 
-.sth-modal-content{
-    background-color: #fff!important;
+.sth-modal-content {
+   background-color: #fff!important;
 }
-.sth-modal-header{
- background-color: #f5f5f5!important;
+
+.sth-modal-header {
+   background-color: #f5f5f5!important;
+}
+
+.st-search-input {
+   border: 1px solid #b5b5b5!important;
+   padding: 20px 24px 18px 12px;
+   color: inherit!important;
+   border-radius: 4px;
+}
+
+.sth-header {
+   z-index: 999!important;
+}
+
+.st-tooltip {
+   min-height: 20px;
+   line-height: 18px;
+   &:before {
+      min-width: 160px;
+   }
 }

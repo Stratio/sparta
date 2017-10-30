@@ -5,8 +5,8 @@
 
 .filters {
    .search-input {
-      float: right;
-      margin-top: 30px;
+      float: left;
+      margin-top: 21px;
       margin-left: 20px;
    }
    .show-temporary {
@@ -20,4 +20,12 @@
    float: left;
    width: 250px;
    margin-bottom: 20px;
+}
+
+.fields-row:hover {
+   background: none!important;
+}
+
+.select-row {
+   cursor: pointer;
 }

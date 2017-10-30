@@ -62,7 +62,7 @@
    stroke: #acc952;
    stroke-width: 1;
    -ms-transform: scale(1.2);
-   cursor:pointer;
+   cursor: pointer;
    transform: scale(1.2)!important;
 }
 
@@ -72,7 +72,8 @@
 }
 
 .active {
-   &.type-output .output-entry, &.type-transformation .transformation-entry {
+   &.type-output .output-entry,
+   &.type-transformation .transformation-entry {
       transform: scale(1);
       fill: white;
    }
@@ -83,4 +84,17 @@
 
 :host .relation.relation.over-output2 {
    @extend %selected-relation;
+}
+
+:host.current-created {
+   animation: BoxAnimation 0.3s;
+}
+
+@keyframes BoxAnimation {
+   0% {
+      opacity: 0;
+   }
+   100% {
+      opacity: 1;
+   }
 }

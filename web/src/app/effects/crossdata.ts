@@ -48,17 +48,6 @@ export class CrossdataEffect {
                 });
         });
 
-    @Effect()
-    getTableInfo$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.GET_TABLE_INFO).switchMap((data: any) => {
-            return this.crossdataService.getCrossdataTableInfo(data.payload)
-                .map((tableInfo: any) => {
-                    return new crossdataActions.GetTableInfoCompleteAction(tableInfo);
-                }).catch(function (error) {
-                    return Observable.of(new crossdataActions.GetTableInfoErrorAction(error));
-                });
-        });
-
 
     @Effect()
     executeQuery$: Observable<Action> = this.actions$
@@ -67,8 +56,12 @@ export class CrossdataEffect {
                 .map((queryResponse: any) => {
                     return new crossdataActions.ExecuteQueryCompleteAction(queryResponse);
                 }).catch(function (error: Response) {
-                    console.log(error)
-                    return Observable.of(new crossdataActions.ExecuteQueryErrorAction(error));
+                    try {
+                        const errorParsed: any = error.json();
+                        return Observable.of(new crossdataActions.ExecuteQueryErrorAction(errorParsed.exception));
+                    } catch (error) {
+                        return Observable.of(new crossdataActions.ExecuteQueryErrorAction('Unknow error'));
+                    }
                 });
         });
 
@@ -81,10 +74,25 @@ export class CrossdataEffect {
             return this.crossdataService.getDatabaseTables({
                 dbName: response
             }).map((crossdataList: any) => {
-                    return new crossdataActions.ListDatabaseTablesCompleteAction(crossdataList);
-                }).catch(function (error) {
-                    return Observable.of(new crossdataActions.ListCrossdataTablesErrorAction(''));
+                return new crossdataActions.ListDatabaseTablesCompleteAction(crossdataList);
+            }).catch(function (error) {
+                return Observable.of(new crossdataActions.ListCrossdataTablesErrorAction(''));
+            });
+        });
+
+    @Effect()
+    getTableInfo$: Observable<Action> = this.actions$
+        .ofType(crossdataActions.actionTypes.SELECT_TABLE)
+        .map((action: any) => action.payload)
+        .switchMap((data: any) => {
+            return this.crossdataService.getCrossdataTablesInfo(data.name).map((tableInfo: any) => {
+                return new crossdataActions.GetTableInfoCompleteAction({
+                    tableName: data.name,
+                    info: tableInfo
                 });
+            }).catch(function (error) {
+                return Observable.of(new crossdataActions.GetTableInfoErrorAction(''));
+            });
         });
 
     constructor(

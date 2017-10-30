@@ -14,8 +14,10 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, 
-    Input, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {
+    Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy,
+    Input, OnDestroy, ChangeDetectorRef
+} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as workflowActions from 'actions/workflow';
@@ -31,11 +33,17 @@ import { StTableHeader } from '@stratio/egeo';
 })
 export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
 
-    @Input() workflow: any;
-    public executionInfo: any;
-    private executionInfoSubscription: Subscription;
-    public fields : StTableHeader[] = [
-        { id: 'key', label: 'Key'},
+    @Input() executionInfo: any;
+
+
+    public sortOrderConfig = false;
+    public orderByConfig = 'key';
+
+    public orderByArguments = 'key';
+    public sortOrderArguments = false;
+
+    public fields: StTableHeader[] = [
+        { id: 'key', label: 'Key' },
         { id: 'value', label: 'Value' }
     ];
 
@@ -44,18 +52,23 @@ export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
     constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
 
+    changeOrderArguments($event: any): void {
+        this.orderByArguments = $event.orderBy;
+        this.sortOrderArguments = $event.type;
+    }
+
+    changeOrderConfig($event: any): void {
+        this.orderByConfig = $event.orderBy;
+        this.sortOrderConfig = $event.type;
+    }
     ngOnInit() {
-        this.store.dispatch(new workflowActions.GetExecutionInfoAction(this.workflow.id));
-        this.executionInfoSubscription = this.store.select(fromRoot.getExecutionInfo).subscribe((executionInfo: any) => {
-           this.executionInfo = executionInfo;
-           this._cd.detectChanges();
-        });
-
+        console.log(this.executionInfo);
     }
 
-
-    public ngOnDestroy(): void {
-       this.executionInfoSubscription && this.executionInfoSubscription.unsubscribe();
+    closeWorkflowExecutinInfo() {
+        this.store.dispatch(new workflowActions.CloseWorkflowExecutionInfoAction());
     }
+
+    public ngOnDestroy(): void { }
 }
 

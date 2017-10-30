@@ -14,8 +14,9 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, Input, ElementRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { MenuOptionsComponent } from "@app/shared/components/floating-menu/menu-option/menu-options.component";
+import { Component, OnInit, Output, EventEmitter, Input, ElementRef, 
+    ChangeDetectionStrategy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { MenuOptionsComponent } from '@app/shared/components/floating-menu/menu-option/menu-options.component';
 
 @Component({
     selector: 'floating-menu',
@@ -35,6 +36,7 @@ export class FloatingMenuComponent implements OnInit {
     set menuOptions(menuOptions: Array<FloatingMenuModel>) {
         this._menuOptions = menuOptions;
     }
+
     @Input() position = 'left';
     @Input() search =  false;
 
@@ -64,7 +66,7 @@ export class FloatingMenuComponent implements OnInit {
         this.menuOptionsComponent.searchBox.setValue('');
     }
 
-    constructor(private _eref: ElementRef) { }
+    constructor(private _eref: ElementRef, private _cd: ChangeDetectorRef) { }
 }
 
 

@@ -14,13 +14,29 @@
    <div class="container">
       <div class="row">
          <div class="col-sm-12">
-            <st-horizontal-tabs class="tabs" [options]="options" [qaTag]="'crossdata-menu'" [activeOption]="activeMenuOption" (changedOption)="onChangedOption($event)"></st-horizontal-tabs>
-         </div>
-         <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'catalog'">
-            <crossdata-tables></crossdata-tables>
-         </div>
-         <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'queries'">
-            <crossdata-queries></crossdata-queries>
+            <div class="crossdata">
+               <div class="left-bar">
+                  <span class="egeo-title-small">{{'DASHBOARD.CROSSDATA' | translate}}</span>
+                  <div class="list-container">
+                     <ul>
+                        <li *ngFor="let option of options; let i = index;" (click)="onChangedOption(option)" [ngClass]="{'active' : activeMenuOption.id == option.id}">{{'DASHBOARD.' + option.text | translate}}</li>
+                     </ul>
+                     <span class="mark" [style.top]="(activeMenuOption.i * (100/options.length)) + '%'"></span>
+                  </div>
+               </div>
+               <div class="content">
+                  <span class="egeo-title-extra-large current-section">{{'DASHBOARD.' + activeMenuOption.text | translate}}</span>
+                  <span class="description">{{'DASHBOARD.' + activeMenuOption.description | translate}}</span>
+                  <div class="row">
+                     <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'catalog'">
+                        <crossdata-tables></crossdata-tables>
+                     </div>
+                     <div class="col-sm-12" [hidden]="activeMenuOption.id !== 'queries'">
+                        <crossdata-queries></crossdata-queries>
+                     </div>
+                  </div>
+               </div>
+            </div>
          </div>
       </div>
    </div>

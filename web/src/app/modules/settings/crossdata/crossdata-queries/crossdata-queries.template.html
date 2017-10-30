@@ -7,8 +7,8 @@
    <div class="execution-container">
     <button class="button button-primary" (click)="executeQuery()">
         <i class="icon-stress"></i>
-        <span>Execute query</span>
-    </button>
+        <span>Execute query</span> 
+    </button><span class="error st-input-error-message">{{queryError}}</span>
    </div>
    <div class="table-container">
     <st-table [fields]="fields" qaTag="query-results" class="query-table" *ngIf="fields && fields.length" [style.width]="fields.length > 5 ? (fields.length * 220 + 'px') : '100%'">

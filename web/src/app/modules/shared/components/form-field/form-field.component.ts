@@ -51,7 +51,6 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     public disableSubscription: Subscription[] = [];
     public stModel: any = false;
     public errors: StInputError = {};
-    
 
     private registeredOnChange: (_: any) => void;
 
@@ -62,7 +61,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
             if (this.field.visible && this.field.visible.length) {
                 for (const field of this.field.visible[0]) {
                     this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
-                        this.disableField(value, field);
+                        this.disableField();
                     });
                 }
             }
@@ -72,8 +71,14 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
         });
     }
 
-    disableField(value: any, field: any): void {
-        if (value === field.value) {
+    disableField(): void {
+        let enable = true;
+        this.field.visible[0].forEach((rule: any) => {
+            if(rule.value != this.stFormGroup.controls[rule.propertyId].value){
+                enable = false;
+            }
+        });
+        if (enable) {
             this.stFormGroup.controls[this.field.propertyId].enable();
         } else {
             this.stFormGroup.controls[this.field.propertyId].disable();

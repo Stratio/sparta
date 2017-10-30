@@ -37,6 +37,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     public sqlQuery: string = '';
     public fields: StTableHeader[] = [];
     public results: any[] = [];
+    public queryError: string = '';
     public queryResultSubscription: Subscription;
 
     public executeQuery() {
@@ -62,6 +63,11 @@ export class CrossdataQueries implements OnInit, OnDestroy {
                 this.results = result;
                 this._cd.detectChanges();
             }
+        });
+
+        this.store.select(fromRoot.getQueryError).subscribe((error: any) => {
+            this.queryError = error;
+            this._cd.detectChanges();
         });
     }
 

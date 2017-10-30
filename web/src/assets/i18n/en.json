@@ -105,7 +105,12 @@
       "SHOW_TEMPORARY": "Show temporary tables",
       "EXECUTE_QUERY": "Execute query",
       "SQL_QUERY": "SQL query",
-      "INPUT_TYPE": "Input type"
+      "INPUT_TYPE": "Input type",
+      "CATALOG": "Catalog",
+      "CATALOG_DESCRIPTION": "Retrieve crossdata databases and tables catalog.",
+      "QUERIES": "Queries",
+      "QUERIES_DESCRIPTION": "Execute queries in crossdata.",
+      "CROSSDATA": "Crossdata"
    },
    "SETTINGS": {
       "_NAME_": "Name",

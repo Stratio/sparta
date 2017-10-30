@@ -177,7 +177,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
   // When value is received from outside
   writeValue(value: any): void {
-    this.instance && this.instance.setValue(value);
+    this.instance && this.instance.setValue(value ? value : '');
     this.internalControl.setValue(value);
   }
 

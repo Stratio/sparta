@@ -176,7 +176,6 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     }
 
     setDisabledState(disable: boolean): void {
-        console.log(this.options, disable);
         this.disabled = disable;
         if (this.disabled && this.internalControl.enabled) {
             this.internalControl.disable();

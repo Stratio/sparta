@@ -49,6 +49,7 @@ export const actionTypes: any = {
   GET_WORKFLOW_EXECUTION_INFO: type('[Worflow] Get Workflow execution info'),
   GET_WORKFLOW_EXECUTION_INFO_COMPLETE: type('[Worflow] Get Workflow execution info complete'),
   GET_WORKFLOW_EXECUTION_INFO_ERROR: type('[Worflow] Get Workflow execution info error'),
+  CLOSE_WORKFLOW_EXECUTION_INFO: type('[Worflow] Close workflow execution info')
 };
 
 export class ListWorkflowAction implements Action {
@@ -223,6 +224,12 @@ export class GetExecutionInfoErrorAction implements Action {
   constructor() { }
 }
 
+export class CloseWorkflowExecutionInfoAction implements Action {
+  type: any = actionTypes.CLOSE_WORKFLOW_EXECUTION_INFO;
+
+  constructor() {};
+}
+
 export type Actions =
   ListWorkflowAction |
   ListWorkflowFailAction |
@@ -250,4 +257,5 @@ export type Actions =
   SearchAction |
   GetExecutionInfoAction |
   GetExecutionInfoCompleteAction |
-  GetExecutionInfoErrorAction;
+  GetExecutionInfoErrorAction |
+  CloseWorkflowExecutionInfoAction;

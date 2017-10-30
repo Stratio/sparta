@@ -150,6 +150,11 @@ export function reducer(state: State = initialState, action: any): State {
         executionInfo: action.payload
       });
     }
+    case workflowActions.actionTypes.CLOSE_WORKFLOW_EXECUTION_INFO: {
+      return Object.assign({}, state, {
+        executionInfo: null
+      });
+    }
     default:
       return state;
   }

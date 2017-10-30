@@ -1,3 +1,4 @@
+import { IUsePropertyDecoratorConfig } from 'codelyzer/propertyDecoratorBase';
 import { Observable } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
@@ -84,7 +85,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     ngOnInit() {
         for (const field of this.formListData.fields) {
-            if(field.propertyType === 'boolean' || !field.required) {
+            if (field.propertyType === 'boolean' || !field.required) {
                 this.item[field.propertyId] = [''];
             } else {
                 this.item[field.propertyId] = ['', Validators.required];
@@ -127,24 +128,40 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     addObservableVisibleRule(index: number) {
         const subscriptionsHandler: any = [];
         const itemGroup: any = this.items.controls[index];
-        this.visibleConditions.forEach((propertyConditions: any) => {
-            propertyConditions.conditions.forEach((condition: any) => {
-                const subscription: Subscription = itemGroup.controls[condition.propertyId].valueChanges.subscribe((value: any) => {
-                    this.checkDisabledField(value, condition.value, itemGroup.controls[propertyConditions.propertyId]);
+
+        this.visibleConditions.forEach((propertyConditions: any) => {   // each property
+            propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
+                const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
+                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId);
                 });
-                this.checkDisabledField(itemGroup.controls[condition.propertyId].value,
-                    condition.value, itemGroup.controls[propertyConditions.propertyId]);
+                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId);
                 subscriptionsHandler.push(subscription);
             });
         });
+
+       /* this.visibleConditions.forEach((propertyConditions: any) => {
+            propertyConditions.conditions.forEach((condition: any) => {
+                const subscription: Subscription = itemGroup.controls[condition.propertyId].valueChanges.subscribe((value: any) => {
+                    this.checkDisabledField(propertyConditions.conditions,  this.items.controls[index]);
+                });
+                this.checkDisabledField(propertyConditions.conditions,  itemGroup.controls[condition.propertyId]);
+                subscriptionsHandler.push(subscription);
+            });
+        });*/
         this.itemssubscription.push(subscriptionsHandler);
     }
 
-    checkDisabledField(value: any, conditionValue: any, property: any) {
-        if (value === conditionValue) {
-            property.enable();
+    checkDisabledField(propertyConditions: any, group: any, propertyId: string) {
+        let enable = true;
+        propertyConditions.forEach((rule: any) => {
+            if (rule.value != group.controls[rule.propertyId].value) {
+                enable = false;
+            }
+        });
+        if (enable) {
+            group.controls[propertyId].enable();
         } else {
-            property.disable();
+            group.controls[propertyId].disable();
         }
     }
 
@@ -153,13 +170,12 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     }
 
     getItemClass(field: any): string {
-        
+        if (field.width) {
+            return 'list-item col-xs-' + field.width;
+        }
         const type: string = field.propertyType;
         if (type === 'boolean') {
             return 'list-item check-column';
-        }
-        if (field.width) {
-            return 'list-item col-xs-' + field.width;
         }
         const length = this.formListData.fields.length;
         if (length === 1) {
@@ -239,7 +255,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
 
     ngOnDestroy(): void {
         this.internalControlSubscription && this.internalControlSubscription.unsubscribe();
-        if(this.itemssubscription.length) {
+        if (this.itemssubscription.length) {
             this.itemssubscription.forEach((rowSubscriptions: any) => {
                 rowSubscriptions.forEach((subscription: any) => {
                     subscription.unsubscribe();

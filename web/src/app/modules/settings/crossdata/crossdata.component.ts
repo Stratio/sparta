@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BackupType } from 'app/models/backup.model';
 import * as fromRoot from 'reducers';
@@ -32,14 +32,18 @@ import { BreadcrumbMenuService } from 'services';
 })
 export class SpartaCrossdata implements OnInit {
 
-    public options: Array<StHorizontalTab> = [
+    public options: Array<any> = [
         {
+            i: 0,
             id: 'catalog',
-            text: 'CATALOG'
+            text: 'CATALOG',
+            description: 'CATALOG_DESCRIPTION'
         },
         {
+            i: 1,
             id: 'queries',
-            text: 'QUERIES'
+            text: 'QUERIES',
+            description: 'QUERIES_DESCRIPTION'
         }
     ];
     public activeMenuOption: any = this.options[0];
@@ -48,6 +52,7 @@ export class SpartaCrossdata implements OnInit {
 
     public onChangedOption(event: string) {
         this.activeMenuOption = event;
+        this._cd.detectChanges();
     }
 
 
@@ -55,7 +60,7 @@ export class SpartaCrossdata implements OnInit {
 
     }
 
-    constructor(public breadcrumbMenuService: BreadcrumbMenuService) {
+    constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
     }
 }

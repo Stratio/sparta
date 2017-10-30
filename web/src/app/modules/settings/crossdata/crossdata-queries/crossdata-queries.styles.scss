@@ -1,23 +1,28 @@
 :host {
-    display: block;
-    width:100%;
+   display: block;
+   width: 100%;
 }
 
-.sql{
-    display:block;
-    background:#efefef;
-    width:100%;
+.sql {
+   display: block;
+   background: #efefef;
+   width: 100%;
 }
 
-.execution-container{
-    margin-bottom:20px;
+.execution-container {
+   margin-bottom: 20px;
 }
 
 .query-table {
-    display: block;
+   display: block;
 }
 
-.table-container{
-    width:100%;
-    overflow: auto;
+.table-container {
+   width: 100%;
+   overflow: auto;
+}
+
+.error {
+   display: block;
+   margin-top: 20px;
 }

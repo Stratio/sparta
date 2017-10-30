@@ -57,6 +57,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
     private tasksSubscription: Subscription;
     private modalSubscription: Subscription;
+    private executionInfoSubscription: Subscription;
     private timer: any;
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService,
@@ -82,6 +83,10 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
         this.modalSubscription = this.store.select(fromRoot.getWorkflowModalState).subscribe(() => {
             this._modalService.close();
+        });
+
+        this.executionInfoSubscription = this.store.select(fromRoot.getExecutionInfo).subscribe((executionInfo: any) => {
+            this.executionInfo = executionInfo;
         });
 
         this.menuOptions = [{
@@ -155,8 +160,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     }
 
     public showWorkflowExecutionInfo(workflowEvent: any) {
-        this.executionInfo = workflowEvent;
-        this.showExecutionInfo = true;
+        this.store.dispatch(new workflowActions.GetExecutionInfoAction({id:workflowEvent.id, name: workflowEvent.name}));
     }
 
     checkRow(isChecked: boolean, value: any) {
@@ -174,10 +178,15 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         }
     }
 
+    hideExecutionInfo() {
+        this.showExecutionInfo = false;
+    }
+
 
     public ngOnDestroy(): void {
-        this.workflowListSubscription.unsubscribe();
-        this.modalSubscription.unsubscribe();
+        this.workflowListSubscription && this.workflowListSubscription.unsubscribe();
+        this.modalSubscription && this.modalSubscription.unsubscribe();
+        this.executionInfoSubscription && this.executionInfoSubscription.unsubscribe();
         clearInterval(this.timer);
         this.store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
     }

@@ -289,7 +289,7 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case inputActions.actionTypes.LIST_INPUT_COMPLETE: {
-            const menuOptions: any = Object.assign([], state.menuOptions);
+            const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
             menuOptions[0].subMenus[0].subMenus = action.payload.map((template: any) => {
                 return {
                     name: template.name,
@@ -303,7 +303,7 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case outputActions.actionTypes.LIST_OUTPUT_COMPLETE: {
-            const menuOptions: any = Object.assign([], state.menuOptions);
+            const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
             menuOptions[2].subMenus[0].subMenus = action.payload.map((template: any) => {
                 return {
                     name: template.name,

@@ -79,6 +79,6 @@ export class ApiService {
             if (error.body && error.body.message) {
                   this.store.dispatch(new errorsActions.ServerErrorAction(error.body.message));
             }
-            return Observable.throw(error.json().message || 'Server error');
+            return Observable.throw(error);
       }
 }

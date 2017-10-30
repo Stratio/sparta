@@ -12,12 +12,10 @@
             <span class="delete-icon">
                 <i class="icon-cross icon" (click)="deleteItem(i)"></i>
             </span>
-
          </div>
          <input type="text" class="inner-input" #newElement (keypress)="onkeyPress($event)" 
          (focusout)="onFocusOut($event)" (blur)="onFocusOut($event)" [(ngModel)]="innerInputContent" />
       </div>
-
    </div>
    <div class="error-message" *ngIf="showError()">
       <div class="st-input-error-layout">
