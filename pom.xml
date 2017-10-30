@@ -109,6 +109,15 @@
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.11.5</scala.graph.version>
+        <sonar.exclusions>
+            **/*.js,
+            **/*.scss,
+            **/*.html,
+            **/*.json,
+            **/*.png,
+            **/*.svg,
+            **/*.ts
+        </sonar.exclusions>
     </properties>
 
     <dependencyManagement>
