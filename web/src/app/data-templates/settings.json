@@ -48,15 +48,6 @@
           "qa": "workflow-execution-mode"
         },
         {
-          "propertyId": "monitoringLink",
-          "propertyName": "SETTINGS._MONITORING_LINK_",
-          "required": false,
-          "width": 4,
-          "propertyType": "text",
-          "tooltip": "User defined URI to monitor the workflows when they are launched in the view",
-          "qa": "monitoring-link"
-        },
-        {
           "propertyId": "userPluginsJars",
           "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
           "propertyType": "list",
@@ -68,7 +59,6 @@
             "propertyType": "text",
             "regexp": "",
             "default": "",
-            "hidden": false,
             "required": false,
             "qa": "workflow-jar-path"
           }]
@@ -85,7 +75,6 @@
             "propertyType": "text",
             "regexp": "",
             "default": "",
-            "hidden": false,
             "required": false,
             "tooltip": "SQL sentence",
             "qa": "workflow-sql-sentence"
@@ -103,6 +92,7 @@
           "default": "2s",
           "tooltip": "Streaming window assigned to Spark",
           "required": true,
+           "width": 4,
           "qa": "spark-streaming-window"
         },
         {
@@ -111,6 +101,7 @@
           "propertyType": "text",
           "tooltip": "Maximum time a certain query will be executed before being aborted",
           "required": false,
+           "width": 4,
           "qa": "spark-streaming-remember-number"
         },
         {
@@ -119,6 +110,7 @@
           "propertyType": "boolean",
           "required": true,
           "default": false,
+           "width": "auto",
           "tooltip": "Enables or disables Spark Streaming's internal backpressure mechanism",
           "qa": "spark-streaming-backpressure"
         },
@@ -128,11 +120,30 @@
           "propertyType": "text",
           "tooltip": "Maximum time a certain query will be executed before being aborted",
           "required": false,
+           "visible": [
+              [
+                 {
+                    "propertyId": "backpressure",
+                    "value": true
+                 }
+              ]
+           ],
+           "width": 4,
           "qa": "spark-streaming-backpressure-initial-rate"
         },
         {
           "name" : "checkpointSettings",
           "properties": [
+             {
+                "propertyId": "enableCheckpointing",
+                "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
+                "propertyType": "boolean",
+                "width": "auto",
+                "required": true,
+                "default": true,
+                "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",
+                "qa": "workflow-enable-checkpoint"
+             },
                {
                   "propertyId": "checkpointPath",
                   "propertyName": "SETTINGS._CHECKPOINT_PATH_",
@@ -140,18 +151,17 @@
                   "default": "sparta/checkpoint",
                   "required": false,
                   "tooltip": "Used only if the checkpointing feature is activated. When selecting Mesos or Marathon as deploy mode the checkpoint path must be one located in a HDFS node(sparta/checkpoint), when deploying in Local the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint)",
+                  "visible": [
+                     [
+                        {
+                           "propertyId": "enableCheckpointing",
+                           "value": true
+                        }
+                     ]
+                  ],
                   "qa": "workflow-checkpoint-path"
                },
-               {
-                  "propertyId": "enableCheckpointing",
-                  "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
-                  "propertyType": "boolean",
-                  "width": "auto",
-                  "required": true,
-                  "default": true,
-                  "tooltip": "Enable checkpointing in the streaming process, the Spark job will save the RDDs in the specified path in HDFS. It is mandatory when the workflow has cubes",
-                  "qa": "workflow-enable-checkpoint"
-               },
+
                {
                   "propertyId": "autoDeleteCheckpoint",
                   "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
@@ -159,7 +169,16 @@
                   "width": "auto",
                   "required": true,
                   "default": true,
+                  "float": true,
                   "tooltip": "Only used when the checkpointing feature is enabled. Auto delete checkpoint path in HDFS when running policies",
+                  "visible": [
+                     [
+                        {
+                           "propertyId": "enableCheckpointing",
+                           "value": true
+                        }
+                     ]
+                  ],
                   "qa": "workflow-delete-checkpoint"
                },
                {
@@ -170,6 +189,14 @@
                   "required": true,
                   "default": false,
                   "tooltip": "Only used when the checkpointing feature is enabled. Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
+                  "visible": [
+                     [
+                        {
+                           "propertyId": "enableCheckpointing",
+                           "value": true
+                        }
+                     ]
+                  ],
                   "qa": "workflow-add-timestamp-checkpoint"
                }
           ]
@@ -192,9 +219,9 @@
           "propertyId": "sparkKerberos",
           "propertyName": "SETTINGS._SPARK_KERBEROS_ENABLE_",
           "propertyType": "boolean",
-          "newRow": true,
           "width": "auto",
           "default": false,
+          "float": true,
           "tooltip": "Enables Kerberos integration and send the principal and keytab arguments if  available through the spark submit",
           "qa": "workflow-spark-kerberos"
         },
@@ -202,19 +229,10 @@
           "propertyId": "sparkDataStoreTls",
           "propertyName": "SETTINGS._SPARK_DATASTORE_TLS_ENABLE_",
           "propertyType": "boolean",
-          "newRow": false,
           "width": "auto",
           "default": false,
           "tooltip": "Enables dataStore with TLS integration and send options through the spark submit",
           "qa": "workflow-spark-datastore-tls"
-        },
-        {
-          "propertyId": "killUrl",
-          "propertyName": "SETTINGS._SPARK_KILL_URL_",
-          "width": 4,
-          "propertyType": "text",
-          "tooltip": "Sets the spark home in Mesos deployments",
-          "qa": "workflow-spark-home"
         },
         {
            "name": "submitArguments",
@@ -235,7 +253,7 @@
                        "propertyType": "text",
                        "regexp": "",
                        "default": "",
-                       "hidden": false,
+                        "width": 4,
                        "required": false,
                        "tooltip": "Spark submit argument with the structure --xxx",
                        "qa": "workflow-spark-submit-argument-key"
@@ -247,7 +265,7 @@
                        "propertyType": "text",
                        "regexp": "",
                        "default": "",
-                       "hidden": false,
+                        "width": 4,
                        "required": false,
                        "qa": "workflow-spark-submit-argument-value"
                      }
@@ -273,36 +291,38 @@
                   "qa": "workflow-spark-deploy-mode"
                },
                {
-                  "propertyId": "supervise",
-                  "propertyName": "SETTINGS._SPARK_SUPERVISE_",
-                  "propertyType": "boolean",
-                  "newRow": true,
-                  "width": "auto",
-                  "default": false,
-                  "tooltip": "Sets if the driver restarts on a possible failure. Supervised mode available in Mesos executions with a Spark dispatcher",
-                  "qa": "workflow-spark-supervise"
-               },
-               {
-                  "propertyId": "jars",
-                  "propertyName": "SETTINGS._SPARK_JARS_",
+                  "propertyId": "driverJavaOptions",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
                   "propertyType": "text",
                   "width": 4,
-                  "tooltip": "Comma-separated list of local jars to include on the driver and executor classPaths",
-                  "qa": "workflow-spark-jars"
+                  "float": true,
+                  "default": "-XX:+UseConcMarkSweepGC",
+                  "tooltip": "Extra Java options to pass to the driver",
+                  "qa": "workflow-spark-driverJavaOptions"
                },
                {
-                  "propertyId": "propertiesFile",
-                  "propertyName": "SETTINGS._SPARK_PROPERTIES_FILE_",
+                  "propertyId": "driverLibraryPath",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_LIBRARY_PATH_",
                   "propertyType": "text",
                   "width": 4,
-                  "tooltip": "Path to a file from which to load extra properties. If not specified, this will look for conf/spark-defaults.conf",
-                  "qa": "workflow-spark-propertiesFile"
+                  "float": true,
+                  "tooltip": "Extra library path entries to be passed to the driver",
+                  "qa": "workflow-spark-driverLibraryPath"
+               },
+               {
+                  "propertyId": "driverClassPath",
+                  "propertyName": "SETTINGS._SPARK_DRIVER_CLASS_PATH_",
+                  "propertyType": "text",
+                  "width": 4,
+                  "tooltip": "Extra class path entries to passed to the driver. Note that jars added with --jars are automatically included in the classpath",
+                  "qa": "workflow-spark-driverClassPath"
                },
                {
                   "propertyId": "packages",
                   "propertyName": "SETTINGS._SPARK_PACKAGES_",
                   "propertyType": "text",
                   "width": 4,
+                  "float": true,
                   "tooltip": "Comma-separated list of jars expressed as maven coordinates to include in the driver and executor classPaths. This will search first in the local maven repo, then in maven central and any additional remote repositories given by --repositories. The format for the coordinates should be groupId:artifactId:version",
                   "qa": "workflow-spark-packages"
                },
@@ -311,6 +331,7 @@
                   "propertyName": "SETTINGS._SPARK_EXCLUDE_PACKAGES_",
                   "propertyType": "text",
                   "width": 4,
+                  "float": true,
                   "tooltip": "Comma-separated list of groupId:artifactId coordinates to exclude while resolving the dependencies provided in --packages in order to avoid dependency conflicts",
                   "qa": "workflow-spark-excludePackages"
                },
@@ -323,37 +344,21 @@
                   "qa": "workflow-spark-repositories"
                },
                {
-                  "propertyId": "proxyUser",
-                  "propertyName": "SETTINGS._SPARK_PROXY_USER_",
+                  "propertyId": "jars",
+                  "propertyName": "SETTINGS._SPARK_JARS_",
                   "propertyType": "text",
                   "width": 4,
-                  "tooltip": "User to impersonate when submitting the application. This argument does not work with --principal / --keytab",
-                  "qa": "workflow-spark-proxyUser"
+                  "float": true,
+                  "tooltip": "Comma-separated list of local jars to include on the driver and executor classPaths",
+                  "qa": "workflow-spark-jars"
                },
                {
-                  "propertyId": "driverJavaOptions",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
+                  "propertyId": "propertiesFile",
+                  "propertyName": "SETTINGS._SPARK_PROPERTIES_FILE_",
                   "propertyType": "text",
                   "width": 4,
-                  "default": "-XX:+UseConcMarkSweepGC",
-                  "tooltip": "Extra Java options to pass to the driver",
-                  "qa": "workflow-spark-driverJavaOptions"
-               },
-               {
-                  "propertyId": "driverLibraryPath",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_LIBRARY_PATH_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Extra library path entries to be passed to the driver",
-                  "qa": "workflow-spark-driverLibraryPath"
-               },
-               {
-                  "propertyId": "driverClassPath",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_CLASS_PATH_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Extra class path entries to passed to the driver. Note that jars added with --jars are automatically included in the classpath",
-                  "qa": "workflow-spark-driverClassPath"
+                  "tooltip": "Path to a file from which to load extra properties. If not specified, this will look for conf/spark-defaults.conf",
+                  "qa": "workflow-spark-propertiesFile"
                }
             ]
          },
@@ -371,26 +376,17 @@
                       "propertyType": "text",
                       "default": "2",
                       "width": 4,
+                      "float": true,
                       "tooltip": "Maximum amount of CPU cores to request for the application",
                       "qa": "workflow-spark-coresMax"
                    },
                    {
-                      "propertyId": "executorMemory",
-                      "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
-                      "propertyType": "text",
-                      "default": "2G",
-                      "width": 4,
-                      "tooltip": "Amount of memory to use per executor process",
-                      "qa": "workflow-spark-executorMemory"
-                   },
-                   {
-                      "propertyId": "executorCores",
-                      "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
+                      "propertyId": "mesosExtraCores",
+                      "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "1",
-                      "tooltip": "Number of cores to use on each executor",
-                      "qa": "workflow-spark-executorCores"
+                      "tooltip": "Extra amount of CPUs to request per task",
+                      "qa": "workflow-spark-mesosExtraCores"
                    },
                    {
                       "propertyId": "driverCores",
@@ -398,6 +394,7 @@
                       "propertyType": "text",
                       "width": 4,
                       "default": "1",
+                      "float": true,
                       "tooltip": "Number of cores assigned to the Spark Driver",
                       "qa": "workflow-spark-driverCores"
                    },
@@ -411,19 +408,30 @@
                       "qa": "workflow-spark-driverMemory"
                    },
                    {
-                      "propertyId": "mesosExtraCores",
-                      "propertyName": "SETTINGS._SPARK_EXTRA_CORES_",
+                      "propertyId": "executorCores",
+                      "propertyName": "SETTINGS._SPARK_EXECUTOR_CORES_",
                       "propertyType": "text",
                       "width": 4,
-                      "tooltip": "Extra amount of CPUs to request per task",
-                      "qa": "workflow-spark-mesosExtraCores"
+                      "default": "1",
+                      "float": true,
+                      "tooltip": "Number of cores to use on each executor",
+                      "qa": "workflow-spark-executorCores"
+                   },
+                   {
+                      "propertyId": "executorMemory",
+                      "propertyName": "SETTINGS._SPARK_EXECUTOR_MEMORY_",
+                      "propertyType": "text",
+                      "default": "2G",
+                      "width": 4,
+                      "tooltip": "Amount of memory to use per executor process",
+                      "qa": "workflow-spark-executorMemory"
                    },
                    {
                       "propertyId": "localityWait",
                       "propertyName": "SETTINGS._SPARK_LOCALITY_WAIT_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "0",
+                      "default": "100",
                       "tooltip": "Period of time to wait to launch a data-local task before giving up and launching it on a less-local node",
                       "qa": "workflow-spark-localityWait"
                    },
@@ -456,7 +464,7 @@
                       "propertyId": "executorDockerImage",
                       "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
                       "propertyType": "text",
-                      "width": 6,
+                      "width": 4,
                       "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
                       "tooltip": "Run over Mesos Clusters with Docker containers",
                       "qa": "workflow-spark-executorDockerImage"
@@ -465,7 +473,7 @@
                       "propertyId": "executorDockerVolumes",
                       "propertyName": "SETTINGS._SPARK_DOCKER_VOLUMES_",
                       "propertyType": "text",
-                      "width": 6,
+                      "width": 4,
                       "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
                       "tooltip": "Mount volumes from host machine in the executor docker container",
                       "qa": "workflow-spark-executorDockerVolumes"
@@ -520,7 +528,7 @@
                    "propertyType": "text",
                    "regexp": "",
                    "default": "",
-                   "hidden": false,
+                    "width": 4,
                    "required": false,
                    "tooltip": "Spark configuration property with the structure spark.xxx",
                    "qa": "workflow-sparkConfKey"
@@ -532,12 +540,38 @@
                    "propertyType": "text",
                    "regexp": "",
                    "default": "",
-                   "hidden": false,
+                    "width": 4,
                    "required": false,
                    "qa": "workflow-sparkConfValue"
                  }
               ]
             },
+             {
+                "propertyId": "executorExtraJavaOptions",
+                "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
+                "propertyType": "text",
+                "width": 4,
+                "default": "-XX:+UseConcMarkSweepGC",
+                "tooltip": "Extra Java options to pass to the executors",
+                "qa": "workflow-spark-executorJavaOptions"
+             },
+             {
+                "propertyId": "sparkLocalDir",
+                "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
+                "propertyType": "text",
+                "width": 4,
+                "default": "/opt/spark/dist",
+                "tooltip": "Set the spark home in Mesos deployments",
+                "qa": "workflow-spark-home"
+             },
+             {
+                "propertyId": "sparkUser",
+                "propertyName": "SETTINGS._SPARK_USER_",
+                "propertyType": "text",
+                "width": 4,
+                "tooltip": "Sets the spark user in Mesos deployments",
+                "qa": "workflow-spark-user"
+             },
             {
                 "propertyId": "coarse",
                 "propertyName": "SETTINGS._SPARK_COARSE_",
@@ -548,6 +582,16 @@
                 "default": true,
                 "tooltip": "Coarse mode is recommended in Streaming Applications over Mesos Clusters. If assigned to false is used the Spark fine grained mode",
                 "qa": "workflow-spark-coarse"
+             },
+             {
+                "propertyId": "parquetBinaryAsString",
+                "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Tells Spark SQL to treat binary-encoded data as strings",
+                "qa": "workflow-spark-parquetBinaryAsString"
              },
             {
                 "propertyId": "stopGracefully",
@@ -564,1417 +608,22 @@
               "propertyName": "SETTINGS._SPARK_STOP_GRACEFUL_TIMEOUT_",
               "propertyType": "text",
               "width": 4,
+               "visible": [
+                  [
+                     {
+                        "propertyId": "stopGracefully",
+                        "value": true
+                     }
+                  ]
+               ],
               "tooltip": "Turn this down to prevent long blocking at shutdown",
               "qa": "workflow-spark-stopGracefulTimeout"
-            },
-            {
-                "propertyId": "sparkUser",
-                "propertyName": "SETTINGS._SPARK_USER_",
-                "propertyType": "text",
-                "width": 4,
-                "tooltip": "Sets the spark user in Mesos deployments",
-                "qa": "workflow-spark-user"
-             },
-            {
-                "propertyId": "sparkLocalDir",
-                "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
-                "propertyType": "text",
-                "width": 4,
-                "default": "/opt/spark/dist",
-                "tooltip": "Set the spark home in Mesos deployments",
-                "qa": "workflow-spark-home"
-             },
-            {
-                "propertyId": "parquetBinaryAsString",
-                "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "Tells Spark SQL to treat binary-encoded data as strings",
-                "qa": "workflow-spark-parquetBinaryAsString"
-             },
-            {
-                "propertyId": "executorExtraJavaOptions",
-                "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
-                "propertyType": "text",
-                "width": 4,
-                "default": "-XX:+UseConcMarkSweepGC",
-                "tooltip": "Extra Java options to pass to the executors",
-                "qa": "workflow-spark-executorJavaOptions"
-             }
+            }
           ]
         }
       ]
     }
   ],
   "helpLinks": [
-  ],
-  "model": {
-    "outputs": {
-      "writer": {
-        "properties": [
-          {
-            "propertyId": "tableName",
-            "propertyName": "SETTINGS._TABLE_NAME_",
-            "propertyType": "text",
-            "required": true,
-            "qa": "trigger-tableName",
-            "tooltip": "If is assigned the result data is saved in one table, topic or queue with this name, if is not assigned then the output name is the trigger name",
-            "position": "left",
-            "width": 6
-          },
-          {
-            "propertyId": "saveMode",
-            "propertyName": "SETTINGS._SAVE_MODE_",
-            "propertyType": "select",
-            "required": true,
-            "default": "Append",
-            "qa": "trigger-save-mode",
-            "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-            "values": [{
-                "label": "_APPEND_",
-                "value": "Append"
-              },
-              {
-                "label": "_ERROR_IF_EXISTS_",
-                "value": "ErrorIfExists"
-              },
-              {
-                "label": "_IGNORE_",
-                "value": "Ignore"
-              },
-              {
-                "label": "_OVERWRITE_",
-                "value": "Overwrite"
-              },
-              {
-                "label": "_UPSERT_",
-                "value": "Upsert"
-              }
-            ],
-            "width": 6,
-            "position": "right"
-          },
-          {
-            "propertyId": "partitionBy",
-            "propertyName": "SETTINGS._PARTITION_BY_",
-            "propertyType": "text",
-            "regexp": "",
-            "required": false,
-            "position": "left",
-            "width": 6,
-            "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
-            "qa": "cube-partitionBy"
-          }
-        ]
-      }
-    },
-    "types": [
-      {
-        "iconName": "filter",
-        "name": "Filter"
-      },
-      {
-        "iconName": "json",
-        "name": "Json"
-      },
-      {
-        "iconName": "xml",
-        "name": "Xml"
-      },
-      {
-        "iconName": "csv",
-        "name": "Csv"
-      },
-      {
-        "iconName": "kite",
-        "name": "Morphlines"
-      },
-      {
-        "iconName": "facets",
-        "name": "Explode"
-      },
-      {
-        "iconName": "datetime",
-        "name": "DateTime"
-      },
-      {
-        "iconName": "split",
-        "name": "Split"
-      },
-      {
-        "iconName": "globe",
-        "name": "Geo"
-      },
-      {
-        "iconName": "puzzle",
-        "name": "Custom"
-      }
-    ],
-    "defaultOutputFieldTypes": [{
-        "label": "String",
-        "value": "string"
-      },
-      {
-        "label": "Long",
-        "value": "long"
-      },
-      {
-        "label": "Double",
-        "value": "double"
-      },
-      {
-        "label": "Integer",
-        "value": "integer"
-      },
-      {
-        "label": "Boolean",
-        "value": "boolean"
-      },
-      {
-        "label": "Date",
-        "value": "date"
-      },
-      {
-        "label": "Datetime",
-        "value": "datetime"
-      },
-      {
-        "label": "Timestamp",
-        "value": "timestamp"
-      },
-      {
-        "label": "Array(Double)",
-        "value": "arraydouble"
-      },
-      {
-        "label": "Array(String)",
-        "value": "arraystring"
-      },
-      {
-        "label": "Array(Map(String, String))",
-        "value": "arraymapstringstring"
-      },
-      {
-        "label": "Map(String, Long)",
-        "value": "mapstringlong"
-      },
-      {
-        "label": "Map(String, Double)",
-        "value": "mapstringdouble"
-      },
-      {
-        "label": "Map(String, Integer)",
-        "value": "mapstringint"
-      },
-      {
-        "label": "Map(String, String)",
-        "value": "mapstringstring"
-      }
-    ],
-    "defaultInput": {
-      "label": "_attachment_body",
-      "value": "_attachment_body"
-    },
-    "Json": {
-      "properties": [
-        {
-          "propertyId": "supportNullValues",
-          "propertyName": "SETTINGS._SUPPORT_NULL_VALUES_",
-          "propertyType": "boolean",
-          "position": "left",
-          "width": 3,
-          "default": true,
-          "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
-          "qa": "workflow-transformation-json-supportNullValues"
-        },
-        {
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-json-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "workflow-transformation-json-removeInputField"
-        }
-      ],
-      "defaultConfiguration": {
-        "queries": [{
-            "field": "field1",
-            "query": "$.field1-in-json"
-          },
-          {
-            "field": "field2",
-            "query": "$.field2-in-json"
-          }
-        ]
-      }
-    },
-    "Csv": {
-      "properties": [
-        {
-          "propertyId": "delimiter",
-          "propertyName": "SETTINGS._CSV_DELIMITER_",
-          "propertyType": "text",
-          "position": "left",
-          "width": 3,
-          "default": ",",
-          "required": false,
-          "qa": "workflow-transformation-csv-delimiter"
-        },
-        {
-          "propertyId": "delimiterType",
-          "propertyName": "SETTINGS._CSV_DELIMITER_TYPE_",
-          "propertyType": "select",
-          "values": [
-            {
-              "label": "Character",
-              "value": "CHARACTER"
-            },
-            {
-              "label": "Regex",
-              "value": "REGEX"
-            }
-          ],
-          "default": "CHARACTER",
-          "required": true,
-          "qa": "workflow-transformation-csv-delimiter-type"
-        },
-        {
-          "propertyId": "splitLimit",
-          "propertyName": "SETTINGS._CSV_SPLIT_LIMIT_",
-          "propertyType": "text",
-          "position": "left",
-          "width": 3,
-          "default": "-1",
-          "required": false,
-          "qa": "workflow-transformation-csv-delimiter"
-        },
-        {
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-csv-whenError"
-        },
-
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "workflow-transformation-json-removeInputField"
-        }
-      ],
-      "defaultConfiguration": {
-        "fields": [{
-            "name": "field1"
-          },
-          {
-            "name": "field2"
-          }
-        ]
-      }
-    },
-    "Explode": {
-      "properties": [{
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-            "label": "Error",
-            "value": "Error"
-          },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "width": 3,
-          "default": "Error",
-          "position": "left",
-          "required": true,
-          "qa": "workflow-transformation-explode-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available in the following transformations.",
-          "qa": "workflow-transformation-explode-removeInputField"
-        }
-      ]
-    },
-    "Filter": {
-      "properties": [{
-        "propertyId": "whenError",
-        "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-        "propertyType": "select",
-        "values": [{
-            "label": "Error",
-            "value": "Error"
-          },
-          {
-            "label": "Discard",
-            "value": "Discard"
-          },
-          {
-            "label": "Null",
-            "value": "Null"
-          }
-        ],
-        "position": "left",
-        "width": 3,
-        "default": "Error",
-        "required": true,
-        "qa": "workflow-transformation-filter-whenError"
-      }],
-      "defaultConfiguration": {
-        "tooltip": "A previously defined transformation is required in order to define filtering rules over a given field.",
-        "filters": [{
-            "field": "field1",
-            "type": "<",
-            "value": 1
-          },
-          {
-            "field": "field2",
-            "type": "=",
-            "value": "sparta"
-          }
-        ]
-      }
-    },
-    "Xml": {
-      "properties": [{
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-xml-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "workflow-transformation-xml-removeInputField"
-        }
-      ],
-      "defaultConfiguration": {
-        "queries": [{
-            "field": "field1",
-            "query": "//element_path/@field1_in_xml"
-          },
-          {
-            "field": "field2",
-            "query": "//element_path/@field1_in_xml"
-          }
-        ]
-      }
-    },
-    "Morphlines": {
-      "properties": [{
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-morphline-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "required": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "workflow-transformation-morphlines-removeInputField"
-        }
-      ],
-      "defaultConfiguration": {
-        "morphline": {
-          "id": "morphline1",
-          "importCommands": [
-            "org.kitesdk.**"
-          ],
-          "commands": [{
-              "readJson": {}
-            },
-            {
-              "extractJsonPaths": {
-                "paths": {
-                  "field1": "/field-in-json1",
-                  "field2": "/field-in-json2"
-                }
-              }
-            }
-          ]
-        }
-      }
-    },
-    "DateTime": {
-      "properties": [
-        {
-          "propertyId": "formatFrom",
-          "propertyName": "SETTINGS._FORMAT_FROM_",
-          "propertyType": "select",
-          "width": 3,
-          "qa": "workflow-model-dateTime-formatFrom",
-          "values": [{
-            "label": "Auto Generated",
-            "value": "AUTOGENERATED"
-          },
-            {
-              "label": "Standard",
-              "value": "STANDARD"
-            },
-            {
-              "label": "User",
-              "value": "USER"
-            }
-            ],
-          "default": "AUTOGENERATED",
-          "required": true
-        },
-        {
-          "propertyId": "userFormat",
-          "propertyName": "SETTINGS._USER_FORMAT_",
-          "propertyType": "text",
-          "width": 3,
-          "required": false,
-          "visible": [
-            [
-              {
-                "propertyId": "formatFrom",
-                "value": "USER"
-              }
-            ]
-          ],
-          "qa": "workflow-cube-dimension-dateTime-userFormat"
-        },
-        {
-          "propertyId": "standardFormat",
-          "propertyName": "SETTINGS._STANDARD_FORMAT_",
-          "propertyType": "select",
-          "width": 3,
-          "qa": "workflow-model-dateTime-standardFormat",
-          "values": [{
-              "label": "Unix",
-              "value": "unix"
-            },
-            {
-              "label": "Unix millis",
-              "value": "unixMillis"
-            },
-            {
-              "label": "yyyy-MM-dd HH:mm:ss",
-              "value": "hive"
-            },
-            {
-              "label": "yyyyMMdd",
-              "value": "basicDate"
-            },
-            {
-              "label": "yyyyMMdd'T'HHmmss.SSSZ",
-              "value": "basicDateTime"
-            },
-            {
-              "label": "yyyyMMdd'T'HHmmssZ",
-              "value": "basicDateTimeNoMillis"
-            },
-            {
-              "label": "yyyyDDD",
-              "value": "basicOrdinalDate"
-            },
-            {
-              "label": "yyyyDDD'T'HHmmss.SSSZ",
-              "value": "basicOrdinalDateTime"
-            },
-            {
-              "label": "yyyyDDD'T'HHmmssZ",
-              "value": "basicOrdinalDateTimeNoMillis"
-            },
-            {
-              "label": "HHmmss.SSSZ",
-              "value": "basicTime"
-            },
-            {
-              "label": "HHmmssZ",
-              "value": "basicTimeNoMillis"
-            },
-            {
-              "label": "'T'HHmmss.SSSZ",
-              "value": "basicTTime"
-            },
-            {
-              "label": "'T'HHmmssZ",
-              "value": "basicTTimeNoMillis"
-            },
-            {
-              "label": "xxxx'W'wwe",
-              "value": "basicWeekDate"
-            },
-            {
-              "label": "xxxx'W'wwe'T'HHmmss.SSSZ",
-              "value": "basicWeekDateTime"
-            },
-            {
-              "label": "xxxx'W'wwe'T'HHmmssZ",
-              "value": "basicWeekDateTimeNoMillis"
-            },
-            {
-              "label": "yyyy-MM-dd",
-              "value": "date"
-            },
-            {
-              "label": "yyyy-MM-dd'T'HH:mm:ss.SSS",
-              "value": "dateHourMinuteSecondMillis"
-            },
-            {
-              "label": "yyyy-MM-dd'T'HH:mm:ss.SSSZZ",
-              "value": "dateTime"
-            },
-            {
-              "label": "yyyy-MM-dd'T'HH:mm:ssZZ",
-              "value": "dateTimeNoMillis"
-            },
-            {
-              "label": "HH:mm:ss.SSS",
-              "value": "hourMinuteSecondFraction"
-            },
-            {
-              "label": "yyyy-DDD",
-              "value": "ordinalDate"
-            },
-            {
-              "label": "yyyy-DDD'T'HH:mm:ssZZ",
-              "value": "ordinalDateTimeNoMillis"
-            },
-            {
-              "label": "HH:mm:ss.SSSZZ",
-              "value": "time"
-            },
-            {
-              "label": "'T'HH:mm:ss.SSSZZ",
-              "value": "tTime"
-            },
-            {
-              "label": "'T'HH:mm:ssZZ",
-              "value": "tTimeNoMillis"
-            },
-            {
-              "label": "xxxx-'W'ww-e",
-              "value": "weekDate"
-            },
-            {
-              "label": "xxxx-'W'ww-e'T'HH:mm:ss.SSSZZ",
-              "value": "weekDateTime"
-            },
-            {
-              "label": "xxxx-'W'ww-e'T'HH:mm:ssZZ",
-              "value": "weekDateTimeNoMillis"
-            }
-          ],
-          "visible": [
-            [
-              {
-                "propertyId": "formatFrom",
-                "value": "STANDARD"
-              }
-            ]
-          ],
-          "required": false
-        },
-        {
-          "propertyId": "granularityNumber",
-          "propertyName": "SETTINGS._GRANULARITY_",
-          "propertyType": "text",
-          "width": 3,
-          "position": "left",
-          "required": false,
-          "qa": "workflow-cube-dimension-dateTime-granularityNumber"
-        },
-        {
-          "propertyId": "granularityTime",
-          "propertyName": "SETTINGS._WHITE_SPACE_",
-          "propertyType": "select",
-          "width": 3,
-          "required": false,
-          "qa": "workflow-cube-dimension-dateTime-granularityTime",
-          "values": [{
-              "label": "Millisecond(s)",
-              "value": "ms"
-            },
-            {
-              "label": "Second(s)",
-              "value": "s"
-            },
-            {
-              "label": "Minute(s)",
-              "value": "m"
-            },
-            {
-              "label": "Hour(s)",
-              "value": "h"
-            },
-            {
-              "label": "Day(s)",
-              "value": "d"
-            },
-            {
-              "label": "Week(s)",
-              "value": "w"
-            },
-            {
-              "label": "Millisecond",
-              "value": "millisecond"
-            },
-            {
-              "label": "Second",
-              "value": "second"
-            },
-            {
-              "label": "Minute",
-              "value": "minute"
-            },
-            {
-              "label": "Hour",
-              "value": "hour"
-            },
-            {
-              "label": "Day",
-              "value": "day"
-            },
-            {
-              "label": "Week",
-              "value": "week"
-            },
-            {
-              "label": "Month",
-              "value": "month"
-            },
-            {
-              "label": "Year",
-              "value": "year"
-            }
-          ]
-        },
-        {
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-datetime-whenError"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available for the following transformations.",
-          "qa": "workflow-transformation-datetime-removeInputField"
-        }
-      ]
-    },
-    "Split": {
-      "properties": [{
-        "propertyId": "splitMethod",
-        "propertyName": "SETTINGS._SPLIT_METHOD_",
-        "propertyType": "select",
-        "width": 3,
-        "qa": "workflow-transformation-split-splitMethod",
-        "values": [{
-          "label": "_BYINDEX_",
-          "value": "BYINDEX"
-        },
-          {
-            "label": "_BYREGEX_",
-            "value": "BYREGEX"
-          },
-          {
-            "label": "_BYCHAR_",
-            "value": "BYCHAR"
-          }
-        ],
-        "default": "BYINDEX",
-        "required": true
-      },
-        {
-          "propertyId": "byRegexPattern",
-          "propertyName": "SETTINGS._BYREGEX_PATTERN_",
-          "propertyType": "text",
-          "width": 3,
-          "required": false,
-          "tooltip": "Insert the regular expression that should be used to split the field (e.g. [.])",
-          "visible": [
-            [{
-              "propertyId": "splitMethod",
-              "value": "BYREGEX"
-            }]
-          ],
-          "qa": "workflow-transformation-split-byRegexPattern"
-        },
-        {
-          "propertyId": "byCharPattern",
-          "propertyName": "SETTINGS._BYCHAR_PATTERN_",
-          "propertyType": "text",
-          "width": 3,
-          "required": false,
-          "tooltip": "Insert the character that should be used to split the field (e.g. \\t, |, $)",
-          "visible": [
-            [{
-              "propertyId": "splitMethod",
-              "value": "BYCHAR"
-            }]
-          ],
-          "qa": "workflow-transformation-split-byCharPattern"
-        },
-        {
-          "propertyId": "byIndexPattern",
-          "propertyName": "SETTINGS._BYINDEX_PATTERN_",
-          "propertyType": "text",
-          "width": 3,
-          "required": false,
-          "tooltip": "Insert the comma-separated indices that should be used to split the field (e.g. 1,3,7)[NOTE: indexes start at 0]",
-          "visible": [
-            [{
-              "propertyId": "splitMethod",
-              "value": "BYINDEX"
-            }]
-          ],
-          "qa": "workflow-transformation-split-byIndexPattern"
-        },
-        {
-          "propertyId": "excludeIndexes",
-          "propertyName": "SETTINGS._EXCLUDE_INDEXES_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the chars found at the positions specified for the splitting will be discarded",
-          "visible": [
-            [{
-              "propertyId": "splitMethod",
-              "value": "BYINDEX"
-            }]
-          ],
-          "qa": "policy-transformation-split-excludeIndexes"
-        },
-        {
-          "propertyId": "removeInputField",
-          "propertyName": "SETTINGS._REMOVE_INPUT_FIELD_",
-          "propertyType": "boolean",
-          "width": 3,
-          "default": false,
-          "tooltip": "If checked, the input field will be removed and won't be available in the following transformations.",
-          "qa": "workflow-transformation-split-removeInputField"
-        },
-        {
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-            "label": "Error",
-            "value": "Error"
-          },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-split-whenError"
-        }]
-    },
-    "Geo": {
-      "properties": [{
-          "propertyId": "latitude",
-          "propertyName": "SETTINGS._LATITUDE_",
-          "propertyType": "text",
-          "position": "left",
-          "width": 3,
-          "default": "lat",
-          "required": true,
-          "qa": "workflow-transformation-geo-latitude"
-        },
-        {
-          "propertyId": "longitude",
-          "propertyName": "SETTINGS._LONGITUDE_",
-          "propertyType": "text",
-          "width": 3,
-          "default": "long",
-          "required": true,
-          "qa": "workflow-transformation-geo-longitude"
-        },
-        {
-          "propertyId": "delimiter",
-          "propertyName": "SETTINGS._GEO_DELIMITER_",
-          "propertyType": "text",
-          "newRow": true,
-          "width": 3,
-          "default": "--",
-          "required": true,
-          "qa": "workflow-transformation-geo-delimiter"
-        },
-        {
-          "propertyId": "whenError",
-          "propertyName": "SETTINGS._TRANSFORMATION_WHEN_ERROR_",
-          "propertyType": "select",
-          "values": [{
-              "label": "Error",
-              "value": "Error"
-            },
-            {
-              "label": "Discard",
-              "value": "Discard"
-            },
-            {
-              "label": "Null",
-              "value": "Null"
-            }
-          ],
-          "position": "left",
-          "width": 3,
-          "default": "Error",
-          "required": true,
-          "qa": "workflow-transformation-geo-whenError"
-        }
-      ],
-      "outputFieldTypes": [{
-        "label": "String",
-        "value": "string"
-      }]
-    },
-    "Custom": {
-      "properties": [{
-          "propertyId": "classPrettyName",
-          "propertyName": "SETTINGS._MODEL_TYPE_",
-          "propertyType": "text",
-          "default": "Custom",
-          "width": 6,
-          "required": true,
-          "tooltip": "Transformation type is related to the user class extended by SDK",
-          "qa": "custom-transformation-modelType"
-        },
-        {
-          "propertyId": "transformationOptions",
-          "propertyName": "SETTINGS._OPTION_PROPERTIES_",
-          "propertyType": "list",
-          "default": "",
-          "required": false,
-          "tooltip": "",
-          "width": 12,
-          "qa": "custom-transformation-properties",
-          "fields": [{
-              "propertyId": "transformationOptionsKey",
-              "propertyName": "SETTINGS._OPTION_KEY_",
-              "propertyType": "text",
-              "regexp": "",
-              "default": "",
-              "width": 6,
-              "hidden": false,
-              "required": false,
-              "qa": "custom-transformation-properties-key"
-            },
-            {
-              "propertyId": "transformationOptionsValue",
-              "propertyName": "SETTINGS._OPTION_VALUE_",
-              "propertyType": "text",
-              "regexp": "",
-              "default": "",
-              "width": 6,
-              "position": "right",
-              "hidden": false,
-              "required": false,
-              "qa": "custom-transformation-properties-value"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  "cube": {
-    "defaultName": "cube",
-    "types": [{
-        "label": "Default",
-        "value": "Default"
-      },
-      {
-        "label": "DateTime",
-        "value": "DateTime"
-      },
-      {
-        "label": "GeoHash",
-        "value": "GeoHash"
-      }
-    ],
-    "precisionOptions": [{
-        "type": "GeoHash",
-        "precisions": [{
-            "label": "_PRECISION_1_",
-            "value": "precision1"
-          },
-          {
-            "label": "_PRECISION_2_",
-            "value": "precision2"
-          },
-          {
-            "label": "_PRECISION_3_",
-            "value": "precision3"
-          },
-          {
-            "label": "_PRECISION_4_",
-            "value": "precision4"
-          },
-          {
-            "label": "_PRECISION_5_",
-            "value": "precision5"
-          },
-          {
-            "label": "_PRECISION_6_",
-            "value": "precision6"
-          },
-          {
-            "label": "_PRECISION_7_",
-            "value": "precision7"
-          },
-          {
-            "label": "_PRECISION_8_",
-            "value": "precision8"
-          },
-          {
-            "label": "_PRECISION_9_",
-            "value": "precision9"
-          },
-          {
-            "label": "_PRECISION_10_",
-            "value": "precision10"
-          },
-          {
-            "label": "_PRECISION_11_",
-            "value": "precision11"
-          },
-          {
-            "label": "_PRECISION_12_",
-            "value": "precision12"
-          }
-        ]
-      },
-      {
-        "type": "Default",
-        "precisions": []
-      }
-    ],
-    "DateTime": [{
-        "propertyId": "precisionNumber",
-        "propertyName": "SETTINGS._PRECISION_",
-        "propertyType": "text",
-        "width": 6,
-        "position": "left",
-        "tooltip": "Sets the value used to group by the incoming data. Only valid if the metric chosen is  between Millisecon(s) and Day(s).",
-        "required": false,
-        "qa": "workflow-cube-dimension-dateTime-precisionNumber"
-      },
-      {
-        "propertyId": "precisionTime",
-        "propertyName": "SETTINGS._WHITE_SPACE_",
-        "propertyType": "select",
-        "width": 6,
-        "position": "right",
-        "qa": "workflow-cube-dimension-dateTime-precisionTime",
-        "default": "minute",
-        "required": true,
-        "values": [{
-            "label": "Millisecond(s)",
-            "value": "ms"
-          },
-          {
-            "label": "Second(s)",
-            "value": "s"
-          },
-          {
-            "label": "Minute(s)",
-            "value": "m"
-          },
-          {
-            "label": "Hour(s)",
-            "value": "h"
-          },
-          {
-            "label": "Day(s)",
-            "value": "d"
-          },
-          {
-            "label": "Week(s)",
-            "value": "w"
-          },
-          {
-            "label": "Millisecond",
-            "value": "millisecond"
-          },
-          {
-            "label": "Second",
-            "value": "second"
-          },
-          {
-            "label": "Minute",
-            "value": "minute"
-          },
-          {
-            "label": "Hour",
-            "value": "hour"
-          },
-          {
-            "label": "Day",
-            "value": "day"
-          },
-          {
-            "label": "Week",
-            "value": "week"
-          },
-          {
-            "label": "Month",
-            "value": "month"
-          },
-          {
-            "label": "Year",
-            "value": "year"
-          }
-        ]
-      },
-      {
-        "propertyId": "isTimeDimension",
-        "propertyName": "SETTINGS._IS_TIME_DIMENSION_",
-        "propertyType": "boolean",
-        "required": false,
-        "qa": "workflow-cube-dimension-dateTime-isTimeDimension"
-      },
-      {
-        "propertyId": "computeLastNumber",
-        "propertyName": "SETTINGS._COMPUTE_LAST_",
-        "propertyType": "number",
-        "width": 6,
-        "position": "left",
-        "default": 10,
-        "required": true,
-        "qa": "workflow-cube-dimension-dateTime-computeLastNumber",
-        "visible": [
-          [{
-            "propertyId": "isTimeDimension",
-            "value": true
-          }]
-        ]
-      },
-      {
-        "propertyId": "computeLastTime",
-        "propertyName": "SETTINGS._WHITE_SPACE_",
-        "propertyType": "select",
-        "width": 6,
-        "position": "right",
-        "tooltip": "Sets the time window for aggregation operations.",
-        "qa": "workflow-cube-dimension-dateTime-computeLastTime",
-        "default": "m",
-        "required": true,
-        "values": [{
-            "label": "Millisecond(s)",
-            "value": "ms"
-          },
-          {
-            "label": "Second(s)",
-            "value": "s"
-          },
-          {
-            "label": "Minute(s)",
-            "value": "m"
-          },
-          {
-            "label": "Hour(s)",
-            "value": "h"
-          },
-          {
-            "label": "Day(s)",
-            "value": "d"
-          },
-          {
-            "label": "Week(s)",
-            "value": "w"
-          }
-        ],
-        "visible": [
-          [{
-            "propertyId": "isTimeDimension",
-            "value": true
-          }]
-        ]
-      }
-    ],
-    "properties": [
-      {
-      "propertyId": "name",
-      "propertyName": "SETTINGS._NAME_",
-      "propertyType": "text",
-      "required": true,
-      "qa": "cube-name",
-      "width": 12,
-      "position": "left",
-      "regexp": "^[a-zA-Z0-9 ]*$",
-      "validateValue": "true",
-      "invalidValues": [
-        "select",
-        "project",
-        "group",
-        "default",
-        "by",
-        "as",
-        "filter",
-        "where",
-        "insert",
-        "delete",
-        "update",
-        "where"
-      ]
-    },
-      {
-        "propertyId": "avoidNullvalues",
-        "propertyName": "SETTINGS._AVOID_NULL_VALUES_",
-        "propertyType": "boolean",
-        "required": true,
-        "default": true,
-        "qa": "workflow-cube-avoidNullvalues"
-      },
-      {
-        "propertyId": "rememberPartitioner",
-        "propertyName": "SETTINGS._REMEMBER_PARTITIONER_",
-        "propertyType": "boolean",
-        "required": true,
-        "default": true,
-        "qa": "workflow-cube-rememberPartitioner"
-      }
-    ],
-    "writer": {
-      "properties": [{
-          "propertyId": "tableName",
-          "propertyName": "SETTINGS._TABLE_NAME_",
-          "propertyType": "text",
-          "required": false,
-          "qa": "cube-tableName",
-          "tooltip": "If is assigned the output data are saved in one table, topic or queue with this name, if is not assigned then the output name is the cube name",
-          "position": "left",
-          "width": 6
-        },
-        {
-          "propertyId": "saveMode",
-          "propertyName": "SETTINGS._SAVE_MODE_",
-          "propertyType": "select",
-          "required": true,
-          "default": "Append",
-          "qa": "cube-save-mode",
-          "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
-          "values": [{
-              "label": "_APPEND_",
-              "value": "Append"
-            },
-            {
-              "label": "_ERROR_IF_EXISTS_",
-              "value": "ErrorIfExists"
-            },
-            {
-              "label": "_IGNORE_",
-              "value": "Ignore"
-            },
-            {
-              "label": "_OVERWRITE_",
-              "value": "Overwrite"
-            },
-            {
-              "label": "_UPSERT_",
-              "value": "Upsert"
-            }
-          ],
-          "width": 6,
-          "position": "right"
-        },
-        {
-          "propertyId": "partitionBy",
-          "propertyName": "SETTINGS._PARTITION_BY_",
-          "propertyType": "text",
-          "regexp": "",
-          "required": false,
-          "position": "left",
-          "width": 6,
-          "tooltip": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
-          "qa": "cube-partitionBy"
-        },
-        {
-          "propertyId": "dateType",
-          "propertyName": "SETTINGS._DATE_TYPE_",
-          "propertyType": "select",
-          "required": true,
-          "default": "timestamp",
-          "tooltip": "Before save the data, transform time fields to other type in order to prevent errors in some outputs",
-          "qa": "cube-date-type",
-          "values": [{
-              "label": "_TIMESTAMP_",
-              "value": "timestamp"
-            },
-            {
-              "label": "_DATE_",
-              "value": "date"
-            },
-            {
-              "label": "_DATE_TIME_",
-              "value": "datetime"
-            },
-            {
-              "label": "_LONG_",
-              "value": "long"
-            },
-            {
-              "label": "_STRING_",
-              "value": "string"
-            }
-          ],
-          "width": 6,
-          "position": "right"
-        },
-        {
-          "propertyId": "primaryKey",
-          "propertyName": "SETTINGS._TRIGGER_PRIMARY_KEY_",
-          "propertyType": "text",
-          "required": false,
-          "qa": "primaryKey-cube",
-          "tooltip": "Field or fields separated by tag ',' that indicate the primary key fields in the temporal table. This is useful when select upsert mode and save the data in MongoDb or Elasticsearch",
-          "width": 6,
-          "position": "left"
-        }
-      ]
-    },
-    "functionNames": [
-      "Accumulator",
-      "Count",
-      "EntityCount",
-      "FirstValue",
-      "FullText",
-      "LastValue",
-      "Max",
-      "Mean",
-      "MeanAssociative",
-      "Median",
-      "Min",
-      "Mode",
-      "Range",
-      "Stddev",
-      "Sum",
-      "Variance",
-      "TotalEntityCount"
-    ],
-    "defaultOperatorConfiguration": {
-      "inputField": "field1"
-    }
-  }
+  ]
 }

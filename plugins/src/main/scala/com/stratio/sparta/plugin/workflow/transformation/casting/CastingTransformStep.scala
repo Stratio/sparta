@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.workflow.transformation.casting.OutputFieldsFrom.OutputFieldsFrom
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, SchemaCasting, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -35,7 +35,7 @@ class CastingTransformStep(name: String,
                            ssc: StreamingContext,
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorChecking with SchemaCasting {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
 
   lazy val outputFieldsFrom = OutputFieldsFrom.withName(properties.getString("outputFieldsFrom", "FIELDS").toUpperCase)
   lazy val fieldsString = properties.getString("fieldsString", None).notBlank

@@ -22,13 +22,13 @@ import akka.util.Timeout
 import com.stratio.sparta.driver.error._
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory._
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.{AggregationTimeUtils, ClasspathUtils}
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
-import com.stratio.sparta.serving.core.utils.{CheckpointUtils, ClasspathUtils}
+import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -91,7 +91,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     //Prepare Workflow Context variables with the Spark Contexts used in steps
     val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
       .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-    val window = AggregationTime.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
+    val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
     val ssc = sparkStreamingInstance(Duration(window),
       workflowCheckpointPath.notBlank,
       workflow.settings.streamingSettings.remember.notBlank

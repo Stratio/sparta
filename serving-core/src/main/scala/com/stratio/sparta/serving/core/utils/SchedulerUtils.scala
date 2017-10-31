@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.Cancellable
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 
@@ -33,7 +33,7 @@ trait SchedulerUtils extends SLF4JLogging {
       .flatMap(x => if (x == "") None else Some(x)).getOrElse(defaultTime)
 
     log.info(s"Starting scheduler task in $timeProperty with time: $delay")
-    SchedulerSystem.scheduler.scheduleOnce(AggregationTime.parseValueToMilliSeconds(delay) milli)(f)
+    SchedulerSystem.scheduler.scheduleOnce(AggregationTimeUtils.parseValueToMilliSeconds(delay) milli)(f)
   }
 
   def scheduleTask(initTimeProperty: String,
@@ -52,7 +52,7 @@ trait SchedulerUtils extends SLF4JLogging {
       s"$intervalTimeProperty with time: $interval")
 
     SchedulerSystem.scheduler.schedule(
-      AggregationTime.parseValueToMilliSeconds(initialDelay) milli,
-      AggregationTime.parseValueToMilliSeconds(interval) milli)(f)
+      AggregationTimeUtils.parseValueToMilliSeconds(initialDelay) milli,
+      AggregationTimeUtils.parseValueToMilliSeconds(interval) milli)(f)
   }
 }

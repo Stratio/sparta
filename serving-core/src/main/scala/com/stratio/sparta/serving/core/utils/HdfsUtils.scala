@@ -20,7 +20,7 @@ import java.io._
 import java.security.PrivilegedExceptionAction
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import org.apache.commons.io.IOUtils
@@ -133,7 +133,7 @@ object HdfsUtils extends SLF4JLogging {
       log.info(s"Initializing keyTab reload task with time: $reloadKeyTabTime")
 
       AppConstant.SchedulerSystem.scheduler.schedule(0 seconds,
-        AggregationTime.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
+        AggregationTimeUtils.parseValueToMilliSeconds(reloadKeyTabTime) milli)(hdfsUtils.reLogin())
     }
   }
 

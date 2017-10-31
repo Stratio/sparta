@@ -19,7 +19,7 @@ package com.stratio.sparta.driver.factory
 import java.io.File
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
@@ -111,7 +111,7 @@ object SparkContextFactory extends SLF4JLogging {
                                             ): StreamingContext = {
     val ssc = new StreamingContext(sc.get, batchDuration)
     checkpointDir.foreach(ssc.checkpoint)
-    remember.foreach(value => ssc.remember(Duration(AggregationTime.parseValueToMilliSeconds(value))))
+    remember.foreach(value => ssc.remember(Duration(AggregationTimeUtils.parseValueToMilliSeconds(value))))
     ssc
   }
 

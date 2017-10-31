@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.checkpointing
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -37,7 +37,7 @@ class CheckpointTransformStep(name: String,
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val interval: Option[Duration] = properties.getString("interval", None).map(time =>
-    Milliseconds(AggregationTime.parseValueToMilliSeconds(time)))
+    Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(time)))
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     interval match {

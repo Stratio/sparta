@@ -19,12 +19,11 @@ package com.stratio.sparta.serving.core.helpers
 import java.io.Serializable
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
-import com.stratio.sparta.serving.core.utils.ClasspathUtils
 
-import scala.collection.JavaConversions._
 import scala.util.Properties
 
 object WorkflowHelper extends SLF4JLogging {
@@ -35,7 +34,7 @@ object WorkflowHelper extends SLF4JLogging {
     log.debug("Initializing reflection ...")
     elements.flatMap(o => {
       val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.className).toString
-      val clazzToInstance = classpathUtils.getClasspathMap.getOrElse(classType, o.className)
+      val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, o.className)
       val clazz = Class.forName(clazzToInstance)
       clazz.getMethods.find(p => p.getName == methodName) match {
         case Some(method) =>

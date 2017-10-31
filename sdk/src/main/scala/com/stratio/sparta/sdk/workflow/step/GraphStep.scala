@@ -66,7 +66,7 @@ trait GraphStep extends CustomProperties {
   def cleanUp(options: Map[String, String] = Map.empty[String, String]): Unit = {}
 
 
-  /* METHODS TO IMPLEMENTED */
+  /* METHODS IMPLEMENTED */
 
   def schemaFromString(raw: String): DataType =
     Try(DataType.fromJson(raw)).getOrElse(LegacyTypeStringParser.parse(raw))

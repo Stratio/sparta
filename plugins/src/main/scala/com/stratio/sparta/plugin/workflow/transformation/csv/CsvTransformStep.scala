@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, SchemaCasting, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import org.apache.spark.sql.Row
@@ -38,7 +38,7 @@ class CsvTransformStep(name: String,
                        ssc: StreamingContext,
                        xDSession: XDSession,
                        properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorChecking with SchemaCasting {
+  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
 
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "HEADER").toUpperCase)
 

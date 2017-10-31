@@ -19,9 +19,8 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import com.jayway.jsonpath.PathNotFoundException
-import com.stratio.sparta.sdk.pipeline.transformation.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}

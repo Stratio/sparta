@@ -129,7 +129,6 @@
           "propertyId": "value.deserializer.json.schema.inputMode",
           "propertyName": "_INPUT_SCHEMA_FROM_",
           "propertyType": "select",
-          "float": true,
           "visible": [
              [
                 {
@@ -159,7 +158,8 @@
        {
           "propertyId": "value.deserializer.json.schema.provided",
           "propertyName": "_DESERIALIZER_SCHEMA_",
-          "propertyType": "text",
+          "propertyType": "textarea",
+          "contentType": "JSON",
           "tooltip": "Schema in json/Spark format or from example",
           "default": "",
           "visible": [

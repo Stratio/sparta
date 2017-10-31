@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.window
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.utils.AggregationTime
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -36,9 +36,9 @@ class WindowTransformStep(name: String,
   extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
 
   lazy val overLast: Option[Duration] = properties.getString("overLast", None)
-    .notBlank.map(over => Milliseconds(AggregationTime.parseValueToMilliSeconds(over)))
+    .notBlank.map(over => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(over)))
   lazy val computeEvery: Option[Duration] = properties.getString("computeEvery", None)
-    .notBlank.map(every => Milliseconds(AggregationTime.parseValueToMilliSeconds(every)))
+    .notBlank.map(every => Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(every)))
 
   def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
     (overLast, computeEvery) match {

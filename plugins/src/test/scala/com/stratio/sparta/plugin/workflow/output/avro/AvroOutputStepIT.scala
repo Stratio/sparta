@@ -21,7 +21,6 @@ import java.time.Instant
 
 import com.databricks.spark.avro._
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.pipeline.output.Output
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -69,7 +68,7 @@ class AvroOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
   }
 
   it should "save a dataframe " in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(Output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map(output.TableNameKey -> "person"))
     val read = xdSession.read.avro(s"$tmpPath/person")
     read.count should be(3)
     read should be eq data

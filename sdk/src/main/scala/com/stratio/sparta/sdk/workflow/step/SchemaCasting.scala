@@ -15,7 +15,7 @@
  */
 package com.stratio.sparta.sdk.workflow.step
 
-import com.stratio.sparta.sdk.pipeline.schema.TypeOp
+import com.stratio.sparta.sdk.utils.CastingUtils
 import org.apache.spark.sql.types.StructField
 
 import scala.util.{Failure, Success, Try}
@@ -25,10 +25,10 @@ trait SchemaCasting {
 
   def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
     Try {
-      TypeOp.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
+      CastingUtils.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
     } match {
       case Success(result) => result
-      case Failure(e) => returnWhenError(new IllegalStateException(
+      case Failure(e) => returnWhenError(new Exception(
         s"Error casting to output type the value: ${inputValue.toString}", e))
     }
 

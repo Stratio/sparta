@@ -26,7 +26,7 @@ export class InitializeSchemaService {
         let model: any = {};
         model.basic = {
             name: 'workflow-name',
-            description: 'workflow description'
+            description: ''
         };
         model.advancedSettings = {};
         value.advancedSettings.map((category: any) => {
@@ -59,7 +59,7 @@ export class InitializeSchemaService {
         model.className = value.className;
         model.description = value.description;
         model.stepType = stepType;
-    
+
         if(writerOptions && stepType !== 'Output') {
             model.writer = this.getDefaultWriterModel();
         }

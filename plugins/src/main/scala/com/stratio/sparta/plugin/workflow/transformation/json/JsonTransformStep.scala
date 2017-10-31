@@ -23,7 +23,7 @@ import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.JsonHelper
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorChecking, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -39,7 +39,7 @@ class JsonTransformStep(
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
                        ) extends TransformStep(name, outputOptions, ssc, xDSession, properties)
-  with ErrorChecking with SLF4JLogging {
+  with ErrorCheckingStepRow with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")
 

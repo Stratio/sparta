@@ -55,7 +55,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Dependency needed by Spark. We should check why now is needed -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+        </dependency>
         <dependency>
             <groupId>commons-configuration</groupId>
             <artifactId>commons-configuration</artifactId>

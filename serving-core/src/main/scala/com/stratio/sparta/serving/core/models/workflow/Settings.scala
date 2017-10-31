@@ -24,6 +24,7 @@ case class Settings(
 
 case class GlobalSettings(
                            executionMode: String = "marathon",
+                           //TODO remove or change when nginx was merged
                            monitoringLink: Option[String] = None,
                            userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                            initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
@@ -89,7 +90,7 @@ case class SparkResourcesConf(
                                driverCores: Option[String] = Option("1"),
                                driverMemory: Option[String] = Option("2G"),
                                mesosExtraCores: Option[String] = None,
-                               localityWait: Option[String] = Option("0"),
+                               localityWait: Option[String] = Option("100"),
                                taskMaxFailures: Option[String] = Option("8"),
                                sparkMemoryFraction: Option[String] = Option("0.6")
                              )
