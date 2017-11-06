@@ -87,6 +87,11 @@ export class CrossdataTables implements OnInit, OnDestroy {
 
     }
 
+    reloadDatabases() {
+        this.store.dispatch(new crossdataActions.GetDatabasesAction());
+        this.store.dispatch(new crossdataActions.ListDatabaseTablesAction(this.selectedDatabase));
+    }
+
     changeOrder($event: any): void {
         this.orderBy = $event.orderBy;
         this.sortOrder = $event.type;

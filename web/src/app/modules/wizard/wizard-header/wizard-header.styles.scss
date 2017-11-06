@@ -4,6 +4,8 @@ $cloudy-black: #cdd6df;
    background-color: white;
    border-bottom: 1px solid $cloudy-black;
    padding: 9px 0 1px;
+   height: 62px;
+   overflow: hidden;
 }
 
 .main-title {
@@ -47,15 +49,15 @@ $cloudy-black: #cdd6df;
    margin-bottom: 9px;
    input {
         min-width: 400px;
-        padding: 0 5px;
+        padding: 0 4px;
         border: 0;
+        outline: 0;
         &:focus {
-        border: 0;
-        outline: 1px solid $brand;
+        border: 1px solid $brand;
         }
     
         &.error {
-            outline: 1px solid #f59ea9;
+            border: 1px solid #f59ea9;
         }
    }
 }
@@ -67,7 +69,7 @@ $cloudy-black: #cdd6df;
 .workflow-name-container {
    float: left;
    margin-left: 40px;
-   margin-top: 4px;
+   margin-top: 3px;
    margin-bottom: 6px;
    .title {
       margin-right: 10px;

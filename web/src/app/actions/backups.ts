@@ -17,159 +17,158 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-    LIST_BACKUP: type('[Backups] List backups'),
-    LIST_BACKUP_COMPLETE: type('[Backups] List backups complete'),
-    LIST_BACKUP_ERROR: type('[Backups] List backups error'),
-    GENERATE_BACKUP: type('[Backups] Generate backup'),
-    GENERATE_BACKUP_COMPLETE: type('[Backups] Generate backup complete'),
-    GENERATE_BACKUP_ERROR: type('[Backups] Generate backup error'),
-    DELETE_BACKUP: type('[Backups] delete backup'),
-    SELECT_BACKUP: type('[Backups] select backup'),
-    UNSELECT_BACKUP: type('[Backups] unselect backup'),
-    DELETE_BACKUP_COMPLETE: type('[Backups] delete backup complete'),
-    DELETE_BACKUP_ERROR: type('[Backups] delete backup error'),
-    DOWNLOAD_BACKUP: type('[Backups] download backup'),
-    DOWNLOAD_BACKUP_COMPLETE: type('[Backups] download backup complete'),
-    DOWNLOAD_BACKUP_ERROR: type('[Backups] download backup error'),
-    EXECUTE_BACKUP: type('[Backups] execute backup'),
-    EXECUTE_BACKUP_COMPLETE: type('[Backups] execute backup complete'),
-    EXECUTE_BACKUP_ERROR: type('[Backups] execute backup error'),
-    DELETE_ALL_BACKUPS: type('[Backups] delete all backups'),
-    DELETE_ALL_BACKUPS_COMPLETE: type('[Backups] delete all backups complete'),
-    DELETE_ALL_BACKUPS_ERROR: type('[Backups] delete all backups error'),
-    DELETE_METADATA: type('[Backups] delete metadata'),
-    DELETE_METADATA_COMPLETE: type('[Backups] delete metadata complete'),
-    DELETE_METADATA_ERROR: type('[Backups] delete metadata error'),
-    UPLOAD_BACKUP: type('[Backups] upload backup'),
-    UPLOAD_BACKUP_COMPLETE: type('[Backups] upload backup complete'),
-    UPLOAD_BACKUP_ERROR: type('[Backups] upload backup error')
-};
+export const LIST_BACKUP = '[Backups] List backups';
+export const LIST_BACKUP_COMPLETE = '[Backups] List backups complete';
+export const LIST_BACKUP_ERROR = '[Backups] List backups error';
+export const GENERATE_BACKUP = '[Backups] Generate backup';
+export const GENERATE_BACKUP_COMPLETE = '[Backups] Generate backup complete';
+export const GENERATE_BACKUP_ERROR = '[Backups] Generate backup error';
+export const DELETE_BACKUP = '[Backups] delete backup';
+export const SELECT_BACKUP = '[Backups] select backup';
+export const UNSELECT_BACKUP = '[Backups] unselect backup';
+export const DELETE_BACKUP_COMPLETE = '[Backups] delete backup complete';
+export const DELETE_BACKUP_ERROR = '[Backups] delete backup error';
+export const DOWNLOAD_BACKUP = '[Backups] download backup';
+export const DOWNLOAD_BACKUP_COMPLETE = '[Backups] download backup complete';
+export const DOWNLOAD_BACKUP_ERROR = '[Backups] download backup error';
+export const EXECUTE_BACKUP = '[Backups] execute backup';
+export const EXECUTE_BACKUP_COMPLETE = '[Backups] execute backup complete';
+export const EXECUTE_BACKUP_ERROR = '[Backups] execute backup error';
+export const DELETE_ALL_BACKUPS = '[Backups] delete all backups';
+export const DELETE_ALL_BACKUPS_COMPLETE = '[Backups] delete all backups complete';
+export const DELETE_ALL_BACKUPS_ERROR = '[Backups] delete all backups error';
+export const DELETE_METADATA = '[Backups] delete metadata';
+export const DELETE_METADATA_COMPLETE = '[Backups] delete metadata complete';
+export const DELETE_METADATA_ERROR = '[Backups] delete metadata error';
+export const UPLOAD_BACKUP = '[Backups] upload backup';
+export const UPLOAD_BACKUP_COMPLETE = '[Backups] upload backup complete';
+export const UPLOAD_BACKUP_ERROR = '[Backups] upload backup error'
+
 
 export class ListBackupAction implements Action {
-    type: any = actionTypes.LIST_BACKUP;
+    readonly type = LIST_BACKUP;
     constructor() { }
 }
 
 export class ListBackupCompleteAction implements Action {
-    type: any = actionTypes.LIST_BACKUP_COMPLETE;
+    readonly type = LIST_BACKUP_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class SelectBackupAction implements Action {
-    type: any = actionTypes.SELECT_BACKUP;
+    readonly type = SELECT_BACKUP;
     constructor(public payload: any) { }
 }
 
 export class UnselectBackupAction implements Action {
-    type: any = actionTypes.UNSELECT_BACKUP;
+    readonly type = UNSELECT_BACKUP;
     constructor(public payload: any) { }
 }
 
 export class ListBackupErrorAction implements Action {
-    type: any = actionTypes.LIST_BACKUP_ERROR;
+    readonly type = LIST_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
 export class GenerateBackupAction implements Action {
-    type: any = actionTypes.GENERATE_BACKUP;
+    readonly type = GENERATE_BACKUP;
     constructor() { }
 }
 
 export class GenerateBackupCompleteAction implements Action {
-    type: any = actionTypes.GENERATE_BACKUP_COMPLETE;
+    readonly type = GENERATE_BACKUP_COMPLETE;
     constructor() { }
 }
 
 export class GenerateBackupErrorAction implements Action {
-    type: any = actionTypes.GENERATE_BACKUP_ERROR;
+    readonly type = GENERATE_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
 export class DeleteBackupAction implements Action {
-    type: any = actionTypes.DELETE_BACKUP;
+    readonly type = DELETE_BACKUP;
 }
 
 export class DeleteBackupCompleteAction implements Action {
-    type: any = actionTypes.DELETE_BACKUP_COMPLETE;
+    readonly type = DELETE_BACKUP_COMPLETE;
 }
 
 export class DeleteBackupErrorAction implements Action {
-    type: any = actionTypes.DELETE_BACKUP_ERROR;
+    readonly type = DELETE_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
 export class DownloadBackupAction implements Action {
-    type: any = actionTypes.DOWNLOAD_BACKUP;
+    readonly type = DOWNLOAD_BACKUP;
 }
 
 export class DownloadBackupCompleteAction implements Action {
-    type: any = actionTypes.DOWNLOAD_BACKUP_COMPLETE;
+    readonly type = DOWNLOAD_BACKUP_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class DownloadBackupErrorAction implements Action {
-    type: any = actionTypes.DOWNLOAD_BACKUP_ERROR;
+    readonly type = DOWNLOAD_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
 export class ExecuteBackupAction implements Action {
-    type: any = actionTypes.EXECUTE_BACKUP;
+    readonly type = EXECUTE_BACKUP;
     constructor(public payload: any) { }
 }
 
 export class ExecuteBackupCompleteAction implements Action {
-    type: any = actionTypes.EXECUTE_BACKUP_COMPLETE;
+    readonly type = EXECUTE_BACKUP_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class ExecuteBackupErrorAction implements Action {
-    type: any = actionTypes.EXECUTE_BACKUP_ERROR;
+    readonly type = EXECUTE_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
 export class DeleteAllBackupsAction implements Action {
-    type: any = actionTypes.DELETE_ALL_BACKUPS;
+    readonly type = DELETE_ALL_BACKUPS;
     constructor() { }
 }
 
 export class DeleteAllBackupsCompleteAction implements Action {
-    type: any = actionTypes.DELETE_ALL_BACKUPS_COMPLETE;
+    readonly type = DELETE_ALL_BACKUPS_COMPLETE;
     constructor() { }
 }
 
 export class DeleteAllBackupsErrorAction implements Action {
-    type: any = actionTypes.DELETE_ALL_BACKUPS_ERROR;
+    readonly type = DELETE_ALL_BACKUPS_ERROR;
     constructor(public payload: any) { }
 }
 
 export class DeleteMetadataAction implements Action {
-    type: any = actionTypes.DELETE_METADATA;
+    readonly type = DELETE_METADATA;
     constructor() { }
 }
 
 export class DeleteMetadataCompleteAction implements Action {
-    type: any = actionTypes.DELETE_METADATA_COMPLETE;
+    readonly type = DELETE_METADATA_COMPLETE;
     constructor() { }
 }
 
 export class DeleteMetadataErrorAction implements Action {
-    type: any = actionTypes.DELETE_METADATA_ERROR;
+    readonly type = DELETE_METADATA_ERROR;
     constructor(public payload: any) { }
 }
 
 export class UploadBackupAction implements Action {
-    type: any = actionTypes.UPLOAD_BACKUP;
+    readonly type = UPLOAD_BACKUP;
     constructor(public payload: any) { }
 }
 
 export class UploadBackupCompleteAction implements Action {
-    type: any = actionTypes.UPLOAD_BACKUP_COMPLETE;
+    readonly type = UPLOAD_BACKUP_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class UploadBackupErrorAction implements Action {
-    type: any = actionTypes.UPLOAD_BACKUP_ERROR;
+    readonly type = UPLOAD_BACKUP_ERROR;
     constructor(public payload: any) { }
 }
 
@@ -183,13 +182,13 @@ export type Actions =
     GenerateBackupAction |
     GenerateBackupCompleteAction |
     GenerateBackupErrorAction |
-    DeleteBackupAction | 
+    DeleteBackupAction |
     DeleteBackupCompleteAction |
     DeleteBackupErrorAction |
-    DownloadBackupAction | 
+    DownloadBackupAction |
     DownloadBackupCompleteAction |
     DownloadBackupErrorAction |
-    ExecuteBackupAction | 
+    ExecuteBackupAction |
     ExecuteBackupCompleteAction |
     ExecuteBackupErrorAction |
     DeleteAllBackupsAction |

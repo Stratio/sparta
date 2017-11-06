@@ -19,8 +19,10 @@ import { ValidationModel, ValidationErrorModel } from 'app/models/validation-sch
 import { inputs } from 'data-templates/inputs';
 import { outputs } from 'data-templates/outputs';
 import { transformations } from 'data-templates/transformations';
-import * as settingsTemplate from 'data-templates/settings.json';
-import * as writerTemplate from 'data-templates/writer.json';
+import {settingsTemplate, writerTemplate} from 'data-templates/index';
+import { inputsObject } from 'data-templates/inputs';
+import { outputsObject } from 'data-templates/outputs';
+import { transformationsObject } from 'data-templates/transformations';
 
 @Injectable()
 export class ValidateSchemaService {
@@ -35,11 +37,11 @@ export class ValidateSchemaService {
         if (!schema) {
             switch (stepType) {
                 case 'Input':
-
+                    return this.validate(inputsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
                 case 'Output':
-
+                    return this.validate(outputsObject[model.classPrettyName].properties, model.configuration);
                 case 'Transformation':
-
+                    return this.validate(transformationsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
                 default:
                     break;
             }

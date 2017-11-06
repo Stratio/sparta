@@ -4,6 +4,9 @@
          (change)="getTablesFromDatabase($event)" class="database-selector" [(ngModel)]="selectedDatabase"></sp-select>
       <st-search class="search-input" [placeholder]="'DASHBOARD.FILTER_TABLES' | translate" [qaTag]="'filter-tables'" (onSearch)="onSearchResult($event)">
       </st-search>
+      <button class="button button-toolbar reload" (click)="reloadDatabases()">
+          <i class="icon-repeat"></i>
+      </button>
       <st-switch class="show-temporary" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [stModel]="showTemporaryTables"
          qaTag="temporary-tables-switch" (change)="onChangeValue($event)">
       </st-switch>

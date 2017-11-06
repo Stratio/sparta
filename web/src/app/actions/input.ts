@@ -17,143 +17,144 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-  LIST_INPUT: type('[Input] List inputs'),
-  LIST_INPUT_COMPLETE: type('[Input] List inputs complete'),
-  SELECT_INPUT: type('[Input] Select input'),
-  DESELECT_INPUT: type('[Input] Deselect input'),
-  DELETE_INPUT: type('[Input] Delete input'),
-  DELETE_INPUT_COMPLETE: type('[Input] Delete input complete'),
-  DELETE_INPUT_ERROR: type('[Input] Delete input error'),
-  DISPLAY_MODE: type('[Input] change display mode'),
-  DUPLICATE_INPUT: type('[Input] duplicate selected input'),
-  DUPLICATE_INPUT_COMPLETE: type('[Input] Duplicate input complete'),
-  DUPLICATE_INPUT_ERROR: type('[Input] duplicate input error'),
-  EDIT_INPUT: type('[Input] Edit input'),
-  CREATE_INPUT: type('[Input] Create input'),
-  CREATE_INPUT_COMPLETE: type('[Input] Create input complete'),
-  CREATE_INPUT_ERROR: type('[Input] Create input error'),
-  UPDATE_INPUT: type('[Input] Update input'),
-  UPDATE_INPUT_COMPLETE: type('[Input] Update input complete'),
-  UPDATE_INPUT_ERROR: type('[Input] Update input error'),
-  RESET_INPUT_FORM: type('[Input] Reset input form')
-};
+export const LIST_INPUT = '[Input] List inputs';
+export const LIST_INPUT_COMPLETE = '[Input] List inputs complete';
+export const LIST_INPUT_FAIL = '[Input] List inputs fail';
+export const SELECT_INPUT = '[Input] Select input';
+export const DESELECT_INPUT = '[Input] Deselect input';
+export const DELETE_INPUT = '[Input] Delete input';
+export const DELETE_INPUT_COMPLETE = '[Input] Delete input complete';
+export const DELETE_INPUT_ERROR = '[Input] Delete input error';
+export const DISPLAY_MODE = '[Input] change display mode';
+export const DUPLICATE_INPUT = '[Input] duplicate selected input';
+export const DUPLICATE_INPUT_COMPLETE = '[Input] Duplicate input complete';
+export const DUPLICATE_INPUT_ERROR = '[Input] duplicate input error';
+export const EDIT_INPUT = '[Input] Edit input';
+export const CREATE_INPUT = '[Input] Create input';
+export const CREATE_INPUT_COMPLETE = '[Input] Create input complete';
+export const CREATE_INPUT_ERROR = '[Input] Create input error';
+export const UPDATE_INPUT = '[Input] Update input';
+export const UPDATE_INPUT_COMPLETE = '[Input] Update input complete';
+export const UPDATE_INPUT_ERROR = '[Input] Update input error';
+export const RESET_INPUT_FORM = '[Input] Reset input form';
+export const VALIDATE_INPUT_NAME = '[Input] Validate input name';
+
 
 export class ListInputAction implements Action {
-  type: any = actionTypes.LIST_INPUT;
+  readonly type = LIST_INPUT;
 
   constructor() { }
 }
 export class ListInputFailAction implements Action {
-  type: any = actionTypes.LIST_INPUT_FAIL;
+  readonly type = LIST_INPUT_FAIL;
 
   constructor(public payload: any) { }
 }
 
 export class ListInputCompleteAction implements Action {
-  type: any = actionTypes.LIST_INPUT_COMPLETE;
+  readonly type = LIST_INPUT_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class SelectInputAction implements Action {
-  type: any = actionTypes.SELECT_INPUT;
+  readonly type = SELECT_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeselectInputAction implements Action {
-  type: any = actionTypes.DESELECT_INPUT;
+  readonly type = DESELECT_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteInputAction implements Action {
-  type: any = actionTypes.DELETE_INPUT;
+  readonly type = DELETE_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteInputCompleteAction implements Action {
-  type: any = actionTypes.DELETE_INPUT_COMPLETE;
+  readonly type = DELETE_INPUT_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteInputErrorAction implements Action {
-  type: any = actionTypes.DELETE_INPUT_ERROR;
+  readonly type = DELETE_INPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class DisplayModeAction implements Action {
-  type: any = actionTypes.DISPLAY_MODE;
+  readonly type = DISPLAY_MODE;
 
   constructor() { }
 }
 
 export class ValidateInputNameAction implements Action {
-  type: any = actionTypes.VALIDATE_INPUT_NAME;
+  readonly type = VALIDATE_INPUT_NAME;
 
   constructor(public payload: String) { }
 }
 
 export class DuplicateInputAction implements Action {
-  type: any = actionTypes.DUPLICATE_INPUT;
+  readonly type = DUPLICATE_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DuplicateInputCompleteAction implements Action {
-  type: any = actionTypes.DUPLICATE_INPUT_COMPLETE;
+  readonly type = DUPLICATE_INPUT_COMPLETE;
 }
 
 export class DuplicateInputErrorAction implements Action {
-  type: any = actionTypes.DUPLICATE_INPUT_ERROR;
+  readonly type = DUPLICATE_INPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class EditInputAction implements Action {
-  type: any = actionTypes.EDIT_INPUT;
+  readonly type = EDIT_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class CreateInputAction implements Action {
-  type: any = actionTypes.CREATE_INPUT;
+  readonly type = CREATE_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class CreateInputCompleteAction implements Action {
-  type: any = actionTypes.CREATE_INPUT_COMPLETE;
+  readonly type = CREATE_INPUT_COMPLETE;
 }
 
 export class CreateInputErrorAction implements Action {
-  type: any = actionTypes.CREATE_INPUT_ERROR;
+  readonly type = CREATE_INPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class UpdateInputAction implements Action {
-  type: any = actionTypes.UPDATE_INPUT;
+  readonly type = UPDATE_INPUT;
 
   constructor(public payload: any) { }
 }
 
 export class UpdateInputCompleteAction implements Action {
-  type: any = actionTypes.UPDATE_INPUT_COMPLETE;
+  readonly type = UPDATE_INPUT_COMPLETE;
 }
 
 export class UpdateInputErrorAction implements Action {
-  type: any = actionTypes.UPDATE_INPUT_ERROR;
+  readonly type = UPDATE_INPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class ResetInputFormAction implements Action {
-  type: any = actionTypes.RESET_INPUT_FORM;
+  readonly type = RESET_INPUT_FORM;
 }
 
 export type Actions =

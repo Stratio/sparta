@@ -88,7 +88,6 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
     }
 
     changeFragment($event: any) {
-        console.log($event);
     }
 
     getEditedTemplate() {

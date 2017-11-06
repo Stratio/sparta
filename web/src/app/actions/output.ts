@@ -17,141 +17,141 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-  LIST_OUTPUT: type('[Output] List outputs'),
-  LIST_OUTPUT_COMPLETE: type('[Output] List outputs complete'),
-  SELECT_OUTPUT: type('[Output] Select output'),
-  DESELECT_OUTPUT: type('[Output] Deselect output'),
-  DELETE_OUTPUT: type('[Output] Delete output'),
-  DELETE_OUTPUT_COMPLETE: type('[Output] Delete output complete'),
-  DELETE_OUTPUT_ERROR: type('[Output] Delete output error'),
-  DISPLAY_MODE: type('[Output] change display mode'),
-  DUPLICATE_OUTPUT: type('[Output] duplicate selected output'),
-  DUPLICATE_OUTPUT_COMPLETE: type('[Output] Duplicate output complete'),
-  DUPLICATE_OUTPUT_ERROR: type('[Output] duplicate output error'),
-  EDIT_OUTPUT: type('[Output] Edit output'),
-  CREATE_OUTPUT: type('[Output] Create output'),
-  CREATE_OUTPUT_COMPLETE: type('[Output] Create output complete'),
-  CREATE_OUTPUT_ERROR: type('[Output] Create output error'),
-  UPDATE_OUTPUT: type('[Output] Update output'),
-  UPDATE_OUTPUT_COMPLETE: type('[Output] Update output complete'),
-  UPDATE_OUTPUT_ERROR: type('[Output] Update output error'),
-  RESET_OUTPUT_FORM: type('[Output] Reset output form')
-};
+export const LIST_OUTPUT = '[Output] List outputs';
+export const LIST_OUTPUT_COMPLETE = '[Output] List outputs complete';
+export const LIST_OUTPUT_FAIL = '[Output] List outputs fail';
+export const SELECT_OUTPUT = '[Output] Select output';
+export const DESELECT_OUTPUT = '[Output] Deselect output';
+export const DELETE_OUTPUT = '[Output] Delete output';
+export const DELETE_OUTPUT_COMPLETE = '[Output] Delete output complete';
+export const DELETE_OUTPUT_ERROR = '[Output] Delete output error';
+export const DISPLAY_MODE = '[Output] change display mode';
+export const DUPLICATE_OUTPUT = '[Output] duplicate selected output';
+export const DUPLICATE_OUTPUT_COMPLETE = '[Output] Duplicate output complete';
+export const DUPLICATE_OUTPUT_ERROR = '[Output] duplicate output error';
+export const EDIT_OUTPUT = '[Output] Edit output';
+export const CREATE_OUTPUT = '[Output] Create output';
+export const CREATE_OUTPUT_COMPLETE = '[Output] Create output complete';
+export const CREATE_OUTPUT_ERROR = '[Output] Create output error';
+export const UPDATE_OUTPUT = '[Output] Update output';
+export const UPDATE_OUTPUT_COMPLETE = '[Output] Update output complete';
+export const UPDATE_OUTPUT_ERROR = '[Output] Update output error';
+export const RESET_OUTPUT_FORM = '[Output] Reset output form';
+export const VALIDATE_OUTPUT_NAME = '[Output] Validate output name';
 
 export class ListOutputAction implements Action {
-  type: any = actionTypes.LIST_OUTPUT;
+  readonly type = LIST_OUTPUT;
 
   constructor() { }
 }
 export class ListOutputFailAction implements Action {
-  type: any = actionTypes.LIST_OUTPUT_FAIL;
+  readonly type = LIST_OUTPUT_FAIL;
 
   constructor(public payload: any) { }
 }
 
 export class ListOutputCompleteAction implements Action {
-  type: any = actionTypes.LIST_OUTPUT_COMPLETE;
+  readonly type = LIST_OUTPUT_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class SelectOutputAction implements Action {
-  type: any = actionTypes.SELECT_OUTPUT;
+  readonly type = SELECT_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeselectOutputAction implements Action {
-  type: any = actionTypes.DESELECT_OUTPUT;
+  readonly type = DESELECT_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteOutputAction implements Action {
-  type: any = actionTypes.DELETE_OUTPUT;
+  readonly type = DELETE_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteOutputCompleteAction implements Action {
-  type: any = actionTypes.DELETE_OUTPUT_COMPLETE;
+  readonly type = DELETE_OUTPUT_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteOutputErrorAction implements Action {
-  type: any = actionTypes.DELETE_OUTPUT_ERROR;
+  readonly type = DELETE_OUTPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class DisplayModeAction implements Action {
-  type: any = actionTypes.DISPLAY_MODE;
+  readonly type = DISPLAY_MODE;
 }
 
 export class ValidateOutputNameAction implements Action {
-  type: any = actionTypes.VALIDATE_OUTPUT_NAME;
+  readonly type = VALIDATE_OUTPUT_NAME;
 
   constructor(public payload: String) { }
 }
 
 export class DuplicateOutputAction implements Action {
-  type: any = actionTypes.DUPLICATE_OUTPUT;
+  readonly type = DUPLICATE_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class DuplicateOutputCompleteAction implements Action {
-  type: any = actionTypes.DUPLICATE_OUTPUT_COMPLETE;
+  readonly type = DUPLICATE_OUTPUT_COMPLETE;
 }
 
 export class DuplicateOutputErrorAction implements Action {
-  type: any = actionTypes.DUPLICATE_OUTPUT_ERROR;
+  readonly type = DUPLICATE_OUTPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class EditOutputAction implements Action {
-  type: any = actionTypes.EDIT_OUTPUT;
+  readonly type = EDIT_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class CreateOutputAction implements Action {
-  type: any = actionTypes.CREATE_OUTPUT;
+  readonly type = CREATE_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class CreateOutputCompleteAction implements Action {
-  type: any = actionTypes.CREATE_OUTPUT_COMPLETE;
+  readonly type = CREATE_OUTPUT_COMPLETE;
 }
 
 export class CreateOutputErrorAction implements Action {
-  type: any = actionTypes.CREATE_OUTPUT_ERROR;
+  readonly type = CREATE_OUTPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class UpdateOutputAction implements Action {
-  type: any = actionTypes.UPDATE_OUTPUT;
+  readonly type = UPDATE_OUTPUT;
 
   constructor(public payload: any) { }
 }
 
 export class UpdateOutputCompleteAction implements Action {
-  type: any = actionTypes.UPDATE_OUTPUT_COMPLETE;
+  readonly type = UPDATE_OUTPUT_COMPLETE;
 }
 
 export class UpdateOutputErrorAction implements Action {
-  type: any = actionTypes.UPDATE_OUTPUT_ERROR;
+  readonly type = UPDATE_OUTPUT_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class ResetOutputFormAction implements Action {
-  type: any = actionTypes.RESET_OUTPUT_FORM;
+  readonly type = RESET_OUTPUT_FORM;
 }
 
 export type Actions =

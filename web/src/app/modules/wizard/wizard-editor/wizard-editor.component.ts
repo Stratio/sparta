@@ -16,7 +16,7 @@
 
 import {
     Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ChangeDetectionStrategy,
-    ChangeDetectorRef, HostListener, ViewChild
+    ChangeDetectorRef, HostListener, ViewChild, NgZone
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
@@ -110,7 +110,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService,
         private validateSchemaService: ValidateSchemaService, private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
-        private initializeSchemaService: InitializeSchemaService) { }
+        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) { }
 
     ngOnInit(): void {
         // ngrx
@@ -160,28 +160,29 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.drag = d3.drag()
             .on('drag', undefined);
 
+        this._ngZone.runOutsideAngular(() => {
 
-        this.SVGParent
-            .call(this.drag
-                .on('start', () => {
-                    const event = d3.event;
-                    const position = {
-                        offsetX: event.x,
-                        offsetY: event.y
-                    };
-                    this.clickDetected.call(this, position);
-                })
-                .on('drag', (e: any, f: any) => {
-                    const event = d3.event;
-                    this.svgPosition = {
-                        x: this.svgPosition.x + event.dx,
-                        y: this.svgPosition.y + event.dy,
-                        k: this.svgPosition.k
-                    };
-                    this.setContainerPosition();
-                }));
+            this.SVGParent
+                .call(this.drag
+                    .on('start', () => {
+                        const event = d3.event;
+                        const position = {
+                            offsetX: event.x,
+                            offsetY: event.y
+                        };
+                        this.clickDetected.call(this, position);
+                    })
+                    .on('drag', (e: any, f: any) => {
+                        const event = d3.event;
+                        this.svgPosition = {
+                            x: this.svgPosition.x + event.dx,
+                            y: this.svgPosition.y + event.dy,
+                            k: this.svgPosition.k
+                        };
+                        this.setContainerPosition();
+                    }));
 
-
+        });
         this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
             const e: any = d3.event;
             this.svgPosition = {
@@ -284,10 +285,11 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-    finishConnector(name: string) {
+    finishConnector(destinationEntity: any) {
         this.store.dispatch(new wizardActions.CreateNodeRelationAction({
             origin: this.newOrigin,
-            destination: name
+            destination: destinationEntity.name,
+            destinationData: destinationEntity
         }));
     }
 
@@ -351,12 +353,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     deleteSelection() {
         if (this.selectedEntity && this.selectedEntity.length) {
-            this.deleteConfirmModal('Delete entity', '¿Are you sure?', () => {
+            this.deleteConfirmModal('Delete entity', 'This entity and its relations will be deleted.', () => {
                 this.store.dispatch(new wizardActions.DeleteEntityAction());
             });
         }
         if (this.selectedSegment) {
-            this.deleteConfirmModal('Delete relation', '¿Are you sure?', () => {
+            this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
                 this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
             });
         }
@@ -383,6 +385,14 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 handler();
             }
         });
+    }
+
+    trackBySegmentFn(index:number, item: any) {
+        return index; // or item.id
+    }
+
+    trackByBoxFn(index:number, item: any) {
+        return item.name;
     }
 
     ngOnDestroy(): void {

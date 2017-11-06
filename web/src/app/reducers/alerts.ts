@@ -38,7 +38,7 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case inputActions.actionTypes.UPDATE_INPUT_COMPLETE: {
+        case inputActions.UPDATE_INPUT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -47,7 +47,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case outputActions.actionTypes.UPDATE_OUTPUT_COMPLETE: {
+        case outputActions.UPDATE_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -56,7 +56,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case backupsActions.actionTypes.GENERATE_BACKUP_COMPLETE: {
+        case backupsActions.GENERATE_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -65,7 +65,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case backupsActions.actionTypes.DELETE_BACKUP_COMPLETE: {
+        case backupsActions.DELETE_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -74,7 +74,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case workflowActions.actionTypes.SAVE_JSON_WORKFLOW_COMPLETE: {
+        case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -83,7 +83,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case workflowActions.actionTypes.RUN_WORKFLOW_COMPLETE: {
+        case workflowActions.RUN_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -95,7 +95,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case workflowActions.actionTypes.DELETE_WORKFLOW_COMPLETE: {
+        case workflowActions.DELETE_WORKFLOW_COMPLETE: {
             let names = '';
             const workflows = action.payload;
             for (let i = 0; i < workflows.length; i++) {
@@ -117,7 +117,7 @@ export function reducer(state: State = initialState, action: any): State {
                 })
             });
         }
-        case inputActions.actionTypes.LIST_INPUT_FAIL: {
+        case inputActions.LIST_INPUT_FAIL: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
@@ -126,7 +126,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case workflowActions.actionTypes.LIST_WORKFLOW_FAIL: {
+        case workflowActions.LIST_WORKFLOW_FAIL: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
@@ -135,7 +135,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+        case wizardActions.SAVE_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -144,7 +144,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case inputActions.actionTypes.CREATE_INPUT_COMPLETE: {
+        case inputActions.CREATE_INPUT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -153,7 +153,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case outputActions.actionTypes.CREATE_OUTPUT_COMPLETE: {
+        case outputActions.CREATE_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -162,7 +162,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case errorsActions.actionTypes.SERVER_ERROR: {
+        case errorsActions.SERVER_ERROR: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
@@ -171,7 +171,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case wizardActions.actionTypes.SAVE_WORKFLOW_ERROR: {
+        case wizardActions.SAVE_WORKFLOW_ERROR: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,

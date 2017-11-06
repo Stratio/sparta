@@ -14,11 +14,11 @@
 /// limitations under the License.
 ///
 
-import { Http } from '@angular/http';
 import { TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient } from "@angular/common/http";
 
-export function createTranslateLoader(http:Http):any {
+export function createTranslateLoader(http: HttpClient):any {
    return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
@@ -26,6 +26,6 @@ export const TRANSLATE_CONFIG:any = {
    loader: {
       provide: TranslateLoader,
       useFactory: (createTranslateLoader),
-      deps: [ Http ]
+      deps: [ HttpClient ]
    }
 };

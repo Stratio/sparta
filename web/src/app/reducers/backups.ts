@@ -29,24 +29,24 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case backupsActions.actionTypes.LIST_BACKUP_COMPLETE: {
+        case backupsActions.LIST_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
                 backupList: action.payload
             });
         }
-        case backupsActions.actionTypes.SELECT_BACKUP: {
+        case backupsActions.SELECT_BACKUP: {
             return Object.assign({}, state, {
                 selectedBackups: [...state.selectedBackups, action.payload]
             });
         }
-        case backupsActions.actionTypes.UNSELECT_BACKUP: {
+        case backupsActions.UNSELECT_BACKUP: {
             return Object.assign({}, state, {
                 selectedBackups: state.selectedBackups.filter(((backup: any) => {
                     return backup !== action.payload;
                 }))
             });
         }
-        case backupsActions.actionTypes.DELETE_BACKUP_COMPLETE: {
+        case backupsActions.DELETE_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
                 selectedBackups: []
             });

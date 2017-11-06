@@ -1,4 +1,3 @@
-import { createECDH } from 'crypto';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -17,11 +16,12 @@ import { createECDH } from 'crypto';
 
 import { createSelector } from 'reselect';
 import { ActionReducer, combineReducers } from '@ngrx/store';
-import { compose } from '@ngrx/core/compose';
+import { compose, ActionReducerMap } from '@ngrx/store';
 import { WorkflowsType as WorkflowsTypeState } from '../models/workflow.model';
 import { InputType as InputTypeState } from '../models/input.model';
 import { OutputType as OutputTypeState } from '../models/output.model';
 import { BackupType as BackupTypeState } from '../models/backup.model';
+import { createECDH } from 'crypto';
 
 import * as fromWorkflow from './workflow.reducer';
 import * as fromInput from './input';
@@ -33,17 +33,17 @@ import * as fromAlerts from './alerts';
 import * as fromWizard from './wizard';
 
 export interface State {
-    workflows: any;
-    inputList: any;
-    outputList: any;
-    backups: any;
-    resources: any;
-    crossdata: any;
-    alerts: any;
-    wizard: any;
+    workflows: fromWorkflow.State;
+    inputList: fromInput.State;
+    outputList: fromOutput.State;
+    backups: fromBackups.State;
+    resources: fromResources.State;
+    crossdata: fromCrossdata.State;
+    alerts: fromAlerts.State;
+    wizard: fromWizard.State;
 }
 
-const reducers: any = {
+export const reducers: ActionReducerMap<State> = {
     workflows: fromWorkflow.reducer,
     inputList: fromInput.reducer,
     outputList: fromOutput.reducer,
@@ -54,7 +54,7 @@ const reducers: any = {
     wizard: fromWizard.reducer
 };
 
-const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
+// const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
 const productionReducer: ActionReducer<State> = combineReducers(reducers);
 
 export function reducer(state: any, action: any): any {

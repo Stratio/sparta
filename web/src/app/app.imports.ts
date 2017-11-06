@@ -16,14 +16,12 @@
 
 import { AppRouter } from 'app';
 import { EgeoModule, StModalModule } from '@stratio/egeo';
-import { HttpModule } from '@angular/http';
 import { SharedModule } from '@app/shared';
 import { TranslateModule } from '@ngx-translate/core';
 import { StoreModule} from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-import { StoreLogMonitorModule, useLogMonitor } from '@ngrx/store-log-monitor';
 import { TRANSLATE_CONFIG } from '@app/core';
-import { reducer } from './reducers';
+import { reducer, reducers } from './reducers';
 
 import { BrowserModule } from '@angular/platform-browser';
 import { WorkflowCreationModal } from '@app/workflows';
@@ -36,25 +34,30 @@ import { OutputEffect } from './effects/output';
 import { ResourcesEffect } from './effects/resources';
 import { CrossdataEffect } from './effects/crossdata';
 import { WizardEffect } from './effects/wizard';
+import { HttpClientModule } from '@angular/common/http';
+import { HttpModule } from '@angular/http';
 
 export function instrumentOptions(): any {
    return {
-      monitor: useLogMonitor({ visible: false, position: 'right' })
+     // monitor: useLogMonitor({ visible: false, position: 'right' })
    };
 }
 export const APP_IMPORTS: Array<any> = [
         AppRouter,
         BrowserModule,
         EgeoModule.forRoot(),
+        HttpClientModule,
         HttpModule,
         SharedModule,
         TranslateModule.forRoot(TRANSLATE_CONFIG),
-        StoreModule.provideStore(reducer),
-        EffectsModule.run(WorkflowEffect),
-        EffectsModule.run(InputEffect),
-        EffectsModule.run(OutputEffect),
-        EffectsModule.run(BackupsEffect),
-        EffectsModule.run(ResourcesEffect),
-        EffectsModule.run(CrossdataEffect),
-        EffectsModule.run(WizardEffect)
+        StoreModule.forRoot(reducers),
+        EffectsModule.forRoot([
+                WorkflowEffect,
+                InputEffect,
+                OutputEffect,
+                BackupsEffect,
+                ResourcesEffect,
+                CrossdataEffect,
+                WizardEffect
+        ])
 ];

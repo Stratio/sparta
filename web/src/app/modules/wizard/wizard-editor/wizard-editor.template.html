@@ -5,13 +5,33 @@
    <div class="editor">
       <svg id="composition" class="composition" (click)="clickDetected($event)" #editorArea>
          <svg:g id="svg-container">
-            <svg:g *ngFor="let relation of workflowRelations" wizard-segment [initialEntity]="relation.origin" [finalEntity]="relation.destination"
-               [selectedSegment]="selectedSegment" (onRemoveSegment)="removeSegment($event)"></svg:g>
-            <svg:g wizard-box svg-draggable *ngFor="let entity of entities" [data]="entity" [selected]="selectedEntity === entity.name"
-               [drawingConnectionStatus]="drawingConnectionStatus" (onDrawConnector)="drawConnector($event)" (onFinishConnector)="finishConnector($event)"
+
+            <g *ngFor="let relation of workflowRelations; trackBy: trackBySegmentFn; let i=index;" 
+               wizard-segment 
+               [initialEntityName]="relation.origin.name" 
+               [finalEntityName]="relation.destination.name"
+               [selectedSegment]="selectedSegment" 
+               [x1]="relation.origin.uiConfiguration.position.x"
+               [y1]="relation.origin.uiConfiguration.position.y"
+               [x2]="relation.destination.uiConfiguration.position.x"
+               [y2]="relation.destination.uiConfiguration.position.y"
+               [index]="i"
+               (onRemoveSegment)="removeSegment($event)"/>
+
+            <g wizard-box svg-draggable *ngFor="let entity of entities;" 
+               [data]="entity" 
+               [selected]="selectedEntity === entity.name"
+               [drawingConnectionStatus]="drawingConnectionStatus" 
+               (onDrawConnector)="drawConnector($event)" 
+               (onFinishConnector)="finishConnector($event)"
                [(position)]="entity.uiConfiguration.position"
-               (onDoubleClickEvent)="editEntity(entity)" (onClickEvent)="selectEntity(entity)" [ngClass]="{'current-created': entity.created}" />
+               (onDoubleClickEvent)="editEntity(entity)" 
+               (onClickEvent)="selectEntity(entity)" 
+               [ngClass]="{'current-created': entity.created}" />
+
          </svg:g>
+
+
          <svg:filter id="drop-shadow">
             <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
             <feOffset dx="0" dy="0" result="offsetblur" />
@@ -22,6 +42,7 @@
                <feMergeNode in="SourceGraphic" />
             </feMerge>
          </svg:filter>
+
          <svg:defs>
             <svg:marker id="UpArrowPrecise" orient="auto" markerUnits="userSpaceOnUse" markerWidth="100" markerHeight="20" refX="-1" refY="4">
                <svg:path d="M9,0 L9,8 L0,4 Z" fill="#777" />

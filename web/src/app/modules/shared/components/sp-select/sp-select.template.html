@@ -9,7 +9,7 @@
          <input readonly="readonly" [(ngModel)]="internalControl.value.label" type="text" class="select-value" name="fragmentType" placeholder="">
          <i class="icon-arrow2_down arrow"></i>
       </div>
-      <ul class="options" *ngIf="active">
+      <ul class="options" *ngIf="active && options.length">
          <li *ngFor="let option of options" (click)="selectOption(option)">
             <span>{{option.label}}</span>
          </li>

@@ -2,11 +2,13 @@
    display: block;
 }
 
+path {
+    fill: inherit;
+}
+
 .segment {
    fill: none;
-   stroke: 2px;
    stroke: #999;
-   stroke-width: 1px;
    &.selected {
       stroke: #128bde!important;
       stroke-width: 1px;
@@ -15,7 +17,7 @@
    }
 }
 
-.segment-hover {
+use.segment-hover {
    fill: none;
    stroke: transparent;
    cursor: pointer;

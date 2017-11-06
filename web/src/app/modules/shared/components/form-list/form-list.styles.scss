@@ -62,3 +62,16 @@
    margin-left: 20px;
    margin-right: 20px;
 }
+
+.disabled {
+    .list-title{
+        color:#cbcbcb;
+    }
+
+    &.add-element{
+        color:#cbcbcb;
+        &:hover {
+            color: #cbcbcb;
+        }
+    }
+}

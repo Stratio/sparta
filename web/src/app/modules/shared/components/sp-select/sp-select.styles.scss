@@ -9,6 +9,7 @@
    top: 100%;
    left: 0;
    width: 100%;
+   margin-bottom: 30px;
    max-height: 265px;
    overflow: auto;
    overflow-x: hidden;
@@ -52,8 +53,6 @@
    }
 }
 
-
-
 .active {
    .st-input {
       border-color: #88c5ee;
@@ -65,16 +64,15 @@
 }
 
 .disabled {
-    .st-input {
-        border-color:#dedede;
-        color: #dedede;
-    }
-
-    .arrow {
-        color: #dedede;
-     }
+   .st-input {
+      border-color: #dedede;
+      color: #dedede;
+   }
+   .arrow {
+      color: #dedede;
+   }
 }
 
 .sp-select .error .st-input {
-    border-color: #f59ea9;
+   border-color: #f59ea9;
 }

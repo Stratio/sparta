@@ -23,7 +23,8 @@ import { transformationsObject } from 'data-templates/transformations';
 @Component({
     selector: 'wizard-details',
     templateUrl: './wizard-details.template.html',
-    styleUrls: ['./wizard-details.styles.scss']
+    styleUrls: ['./wizard-details.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WizardDetailsComponent implements OnInit {
 

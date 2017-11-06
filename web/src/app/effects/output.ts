@@ -29,7 +29,7 @@ export class OutputEffect {
 
     @Effect()
     getOutputList$: Observable<Action> = this.actions$
-        .ofType(outputActions.actionTypes.LIST_OUTPUT).switchMap((response: any) => {
+        .ofType(outputActions.LIST_OUTPUT).switchMap((response: any) => {
 
             return this.outputService.getOutputList()
                 .map((outputList: any) => {
@@ -41,7 +41,7 @@ export class OutputEffect {
 
     @Effect()
     deleteOutput$: Observable<Action> = this.actions$
-        .ofType(outputActions.actionTypes.DELETE_OUTPUT)
+        .ofType(outputActions.DELETE_OUTPUT)
         .map((action: any) => action.payload.selected)
         .switchMap((outputs: any) => {
             const joinObservables: Observable<any>[] = [];
@@ -57,9 +57,11 @@ export class OutputEffect {
 
     @Effect()
     duplicateOutput$: Observable<Action> = this.actions$
-        .ofType(outputActions.actionTypes.DUPLICATE_OUTPUT)
+        .ofType(outputActions.DUPLICATE_OUTPUT)
         .switchMap((data: any) => {
-            return this.outputService.createFragment(data.payload).mergeMap((data: any) => {
+            let output = Object.assign(data.payload);
+            delete output.id;
+            return this.outputService.createFragment(output).mergeMap((data: any) => {
                 return [new outputActions.DuplicateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
                 return Observable.of(new outputActions.DuplicateOutputErrorAction(''));
@@ -69,7 +71,7 @@ export class OutputEffect {
 
     @Effect()
     createOutput$: Observable<Action> = this.actions$
-        .ofType(outputActions.actionTypes.CREATE_OUTPUT)
+        .ofType(outputActions.CREATE_OUTPUT)
         .switchMap((data: any) => {
             return this.outputService.createFragment(data.payload).mergeMap((data: any) => {
                 return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
@@ -80,7 +82,7 @@ export class OutputEffect {
 
     @Effect()
     updateOutput$: Observable<Action> = this.actions$
-        .ofType(outputActions.actionTypes.UPDATE_OUTPUT)
+        .ofType(outputActions.UPDATE_OUTPUT)
         .switchMap((data: any) => {
             return this.outputService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];

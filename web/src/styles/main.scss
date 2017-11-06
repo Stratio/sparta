@@ -32,6 +32,13 @@ sp-textarea {
    user-select: none;
    cursor: move;
 }
+.entity-icon2 {
+    font-family: ico_stratio;
+    user-select: none;
+    cursor: move;
+ }
+
+ /* codemirror overrides */
 
 .CodeMirror {
    display: block;
@@ -42,6 +49,12 @@ sp-textarea {
    padding: 10px 12px 10px 15px;
 }
 
+.CodeMirror-focused {
+    .CodeMirror-cursor {
+        height: 19px!important;
+     }
+}
+
 .CodeMirror-scroll {
    min-height: 100px!important;
 }
@@ -50,15 +63,25 @@ sp-textarea {
    min-height: 240px!important;
 }
 
-.CodeMirror-cursor {
-   height: 19px!important;
+
+.disabled {
+    .CodeMirror-cursor {
+        display:none;
+    }
 }
 
 
 /***** override egeo theme styles ******/
 
-.st-modal-title p {
-   text-transform: none !important;
+// TODO delete this styles when Egeo launch new release
+.st-modal-title {
+    margin-bottom: 16px!important;
+    p {
+        text-transform: none !important;
+        font-family: 'Nunito Sans ExtraBold'!important;
+        font-size:18px!important;
+        color: #111111;
+    }
 }
 
 .sth-modal-content {

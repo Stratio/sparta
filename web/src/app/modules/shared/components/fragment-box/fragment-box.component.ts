@@ -15,7 +15,6 @@
 ///
 
 import { Component, OnDestroy, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { UtilsService } from '@app/shared/services/utils.service';
 import { icons } from '@app/shared/constants/icons';
 
 
@@ -33,12 +32,9 @@ export class FragmentBoxComponent implements OnInit, OnDestroy {
     @Output() onChecked = new EventEmitter<any>();
 
     public icons: any = icons;
-    
-    ngOnInit(): void {
+    ngOnInit(): void {}
 
-    }
-
-    constructor(public utilsService: UtilsService, private _cd: ChangeDetectorRef) { }
+    constructor(private _cd: ChangeDetectorRef) { }
 
 
 

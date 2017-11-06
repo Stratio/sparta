@@ -18,73 +18,66 @@ import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService, ApiRequestOptions } from './api.service';
+import { ApiService} from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class CrossdataService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
     getCrossdataDatabases(): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('crossdata/databases', options);
+        const options: any = {};
+        return this.request('crossdata/databases', 'get', options);
     }
 
     getCrossdataTables(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('crossdata/tables', options);
+        const options: any = {};
+        return this.request('crossdata/tables', 'get', options);
     }
 
 
     getDatabaseTables(query: any): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: query
         };
-        return this.request('crossdata/tables', options);
+        return this.request('crossdata/tables', 'post', options);
     }
 
     getCrossdataTableInfo(tableName: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: {
                 tableName: tableName
             }
         };
-        return this.request('crossdata/tables/info', options);
+        return this.request('crossdata/tables/info', 'post', options);
     }
 
     executeCrossdataQuery(query: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: {
                 query: query
             }
         };
-        return this.request('crossdata/queries', options);
+        return this.request('crossdata/queries', 'post', options);
     }
 
     getCrossdataTablesInfo(tableName: string): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: {
                 tableName: tableName
             }
         };
-        return this.request('crossdata/tables/info', options);
+        return this.request('crossdata/tables/info', 'post', options);
     }
 
 }

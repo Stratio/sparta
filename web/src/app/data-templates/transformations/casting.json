@@ -61,6 +61,7 @@
                  "propertyName": "_NAME_",
                  "propertyType": "text",
                  "required": true,
+                 "width": 4,
                  "qa": "fragment-details-field-name"
               },
               {
@@ -68,7 +69,7 @@
                  "propertyName": "_TYPE_",
                  "propertyType": "select",
                  "custom": true,
-                 "width": 12,
+                 "width": 3,
                  "required": true,
                  "values": [
                     {

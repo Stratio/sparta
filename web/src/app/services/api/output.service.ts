@@ -18,57 +18,45 @@ import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService, ApiRequestOptions } from './api.service';
+import { ApiService} from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class OutputService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
     getOutputList(): Observable<any> {
-
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('template/output', options);
+        const options: any = {};
+        return this.request('template/output', 'get', options);
     }
 
     deleteOutput(outputId: string): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'delete'
-        };
-
-        return this.request('template/output/id/' + outputId, options);
+        const options: any = {};
+        return this.request('template/output/id/' + outputId, 'delete', options);
     }
 
     validateOutputName(outputName: string): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-
-        return this.request('template/output/name/' + outputName, options);
+        const options: any = {};
+        return this.request('template/output/name/' + outputName, 'get', options);
     }
 
     createFragment(fragmentData: any): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: fragmentData
         };
-
-        return this.request('template', options);
+        return this.request('template', 'post', options);
     }
 
     updateFragment(fragmentData: any): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: fragmentData
         };
-
-        return this.request('template', options);
+        return this.request('template', 'put', options);
     }
 }

@@ -16,7 +16,7 @@
 
 import { Injectable } from '@angular/core';
 import { ValidationModel, ValidationErrorModel } from 'app/models/validation-schema.model';
-import * as writerTemplate from 'data-templates/writer.json';
+import { writerTemplate} from 'data-templates/index';
 
 
 @Injectable()
@@ -57,7 +57,7 @@ export class InitializeSchemaService {
         });
         model.classPrettyName = value.classPrettyName;
         model.className = value.className;
-        model.description = value.description;
+        //model.description = value.description;
         model.stepType = stepType;
 
         if(writerOptions && stepType !== 'Output') {

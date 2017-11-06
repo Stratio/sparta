@@ -28,7 +28,7 @@ export class CrossdataEffect {
 
     @Effect()
     getCrossDataDatabases$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.GET_DATABASES).switchMap((response: any) => {
+        .ofType(crossdataActions.GET_DATABASES).switchMap((response: any) => {
             return this.crossdataService.getCrossdataDatabases()
                 .map((crossdataList: any) => {
                     return new crossdataActions.GetDatabasesCompleteAction(crossdataList);
@@ -39,7 +39,7 @@ export class CrossdataEffect {
 
     @Effect()
     getCrossDataTables$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.LIST_CROSSDATA_TABLES).switchMap((response: any) => {
+        .ofType(crossdataActions.LIST_CROSSDATA_TABLES).switchMap((response: any) => {
             return this.crossdataService.getCrossdataTables()
                 .map((crossdataList: any) => {
                     return new crossdataActions.ListCrossdataTablesCompleteAction(crossdataList);
@@ -51,13 +51,13 @@ export class CrossdataEffect {
 
     @Effect()
     executeQuery$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.EXECUTE_QUERY).switchMap((data: any) => {
+        .ofType(crossdataActions.EXECUTE_QUERY).switchMap((data: any) => {
             return this.crossdataService.executeCrossdataQuery(data.payload)
                 .map((queryResponse: any) => {
                     return new crossdataActions.ExecuteQueryCompleteAction(queryResponse);
-                }).catch(function (error: Response) {
+                }).catch(function (error: any) {
                     try {
-                        const errorParsed: any = error.json();
+                        const errorParsed: any = JSON.parse(error.error);
                         return Observable.of(new crossdataActions.ExecuteQueryErrorAction(errorParsed.exception));
                     } catch (error) {
                         return Observable.of(new crossdataActions.ExecuteQueryErrorAction('Unknow error'));
@@ -68,7 +68,7 @@ export class CrossdataEffect {
 
     @Effect()
     getDatabaseTables$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.LIST_DATABASE_TABLES)
+        .ofType(crossdataActions.LIST_DATABASE_TABLES)
         .map((action: any) => action.payload)
         .switchMap((response: any) => {
             return this.crossdataService.getDatabaseTables({
@@ -82,7 +82,7 @@ export class CrossdataEffect {
 
     @Effect()
     getTableInfo$: Observable<Action> = this.actions$
-        .ofType(crossdataActions.actionTypes.SELECT_TABLE)
+        .ofType(crossdataActions.SELECT_TABLE)
         .map((action: any) => action.payload)
         .switchMap((data: any) => {
             return this.crossdataService.getCrossdataTablesInfo(data.name).map((tableInfo: any) => {

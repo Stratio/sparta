@@ -19,110 +19,89 @@ import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService, ApiRequestOptions } from './api.service';
+import { ApiService} from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class WorkflowService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
     getWorkflowList(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflows', options);
+        const options: any = {};
+        return this.request('workflows', 'get', options);
     }
 
     getWorkFlowContextList(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflowStatuses', options);
+        const options: any = {};
+        return this.request('workflowStatuses', 'get', options);
     }
 
     getWorkflowByName(name: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflows/findByName/' + name, options);
+        const options: any = {};
+        return this.request('workflows/findByName/' + name, 'get', options);
     }
 
     getWorkflowById(id: string): Observable<any> {
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflows/findById/' + id, options);
+        const options: any = {};
+        return this.request('workflows/findById/' + id,  'get', options);
     }
 
     saveWorkflow(json: any): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: json
         };
-        return this.request('workflows', options);
+        return this.request('workflows', 'post', options);
     }
 
     updateWorkflow(json: any): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: json
         };
-        return this.request('workflows', options);
+        return this.request('workflows', 'put', options);
     }
 
     downloadWorkflow(id: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflows/download/' + id, options);
+        const options: any = {};
+        return this.request('workflows/download/' + id, 'get', options);
     }
 
 
     runWorkflow(id: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflows/run/' + id, options);
+        const options: any = {};
+        return this.request('workflows/run/' + id, 'get', options);
     }
 
     stopWorkflow(status: any): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: status
-
         };
-        return this.request('workflowStatuses', options);
+        return this.request('workflowStatuses', 'put', options);
     }
 
 
 
     deleteWorkflow(id: string): Observable<any> {
-
-        const options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        return this.request('workflows/' + id, options);
+        const options: any = {};
+        return this.request('workflows/' + id, 'delete', options);
     }
 
     getWorkflowExecutionInfo(id: string) {
-
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('workflowExecutions/' + id, options);
+        const options: any = {};
+        return this.request('workflowExecutions/' + id, 'get', options);
     }
 
 

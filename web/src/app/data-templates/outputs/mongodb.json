@@ -29,6 +29,7 @@
             "propertyType": "text",
             "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
             "default": "27017",
+            "width": 4,
             "required": true,
             "qa": "fragment-details-mongoDb-port"
           }

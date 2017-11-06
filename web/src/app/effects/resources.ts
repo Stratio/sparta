@@ -28,7 +28,7 @@ export class ResourcesEffect {
 
     @Effect()
     getPluginsList$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.LIST_PLUGINS).switchMap((response: any) => {
+        .ofType(resourcesActions.LIST_PLUGINS).switchMap((response: any) => {
             return this.resourcesService.getPluginsList()
                 .map((pluginsList: any) => {
                     return new resourcesActions.ListPluginsCompleteAction(pluginsList);
@@ -39,7 +39,7 @@ export class ResourcesEffect {
 
     @Effect()
     getDriversList$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.LIST_DRIVERS).switchMap((response: any) => {
+        .ofType(resourcesActions.LIST_DRIVERS).switchMap((response: any) => {
             return this.resourcesService.getDriversList()
                 .map((driversList: any) => {
                     return new resourcesActions.ListDriversCompleteAction(driversList);
@@ -50,7 +50,7 @@ export class ResourcesEffect {
 
     @Effect()
     uploadDriver$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.UPLOAD_DRIVER).switchMap((data: any) => {
+        .ofType(resourcesActions.UPLOAD_DRIVER).switchMap((data: any) => {
             return this.resourcesService.uploadDriver(data.payload)
                 .mergeMap(() => {
                     return [new resourcesActions.UploadDriverCompleteAction(''), new resourcesActions.ListDriversAction()];
@@ -61,7 +61,7 @@ export class ResourcesEffect {
 
     @Effect()
     uploadPlugin$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.UPLOAD_PLUGIN).switchMap((data: any) => {
+        .ofType(resourcesActions.UPLOAD_PLUGIN).switchMap((data: any) => {
             return this.resourcesService.uploadPlugin(data.payload)
                 .mergeMap(() => {
                     return [new resourcesActions.UploadPluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
@@ -72,7 +72,7 @@ export class ResourcesEffect {
         
     @Effect()
     deletePlugin$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.DELETE_PLUGIN).switchMap((data: any) => {
+        .ofType(resourcesActions.DELETE_PLUGIN).switchMap((data: any) => {
             return this.resourcesService.deletePlugin(data.payload)
                 .mergeMap(() => {
                     return [new resourcesActions.DeletePluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
@@ -83,7 +83,7 @@ export class ResourcesEffect {
 
     @Effect()
     deleteDriver$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.actionTypes.DELETE_DRIVER).switchMap((data: any) => {
+        .ofType(resourcesActions.DELETE_DRIVER).switchMap((data: any) => {
             return this.resourcesService.deleteDriver(data.payload)
                 .mergeMap(() => {
                     return [new resourcesActions.DeleteDriverCompleteAction(''), new resourcesActions.ListDriversAction()];

@@ -1,4 +1,3 @@
-import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -15,8 +14,8 @@ import { Subscription } from 'rxjs/Rx';
 /// limitations under the License.
 ///
 
-
-import * as writerTemplate from 'data-templates/writer.json';
+import { Subscription } from 'rxjs/Rx';
+import {writerTemplate} from 'data-templates/index';
 import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, Input, forwardRef, OnDestroy, ViewChild } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NG_VALIDATORS, Validator, ControlValueAccessor, FormGroup, NgForm } from '@angular/forms';
 

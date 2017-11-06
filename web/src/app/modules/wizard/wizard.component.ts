@@ -40,7 +40,7 @@ export class WizardComponent implements OnInit, OnDestroy {
         private _cd: ChangeDetectorRef,
         private store: Store<fromRoot.State>,
         private translate: TranslateService,
-         private router: Router,
+        private router: Router,
         private route: ActivatedRoute) {
     }
 
@@ -62,6 +62,7 @@ export class WizardComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.paramSubscription.unsubscribe();
+        this.paramSubscription && this.paramSubscription.unsubscribe();
+        this.saveSubscription && this.saveSubscription.unsubscribe();
     }
 }

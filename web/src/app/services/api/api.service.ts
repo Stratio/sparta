@@ -19,6 +19,7 @@ import { Injectable } from '@angular/core';
 import { Http, Response, RequestOptions, URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Store } from '@ngrx/store';
+import { HttpClient } from '@angular/common/http';
 import * as fromRoot from 'reducers';
 import * as errorsActions from 'actions/errors';
 
@@ -34,13 +35,11 @@ export interface ApiRequestOptions {
 export class ApiService {
 
       private params: URLSearchParams = new URLSearchParams();
-      private requestOptions: RequestOptions = new RequestOptions();
+      private requestOptions: any = {};
 
-      constructor(private http: Http, private store: Store<fromRoot.State>) { }
+      constructor(private http: HttpClient, private store: Store<fromRoot.State>) { }
 
-      request(url: string, options: ApiRequestOptions): Observable<any> {
-
-            this.requestOptions.method = options.method;
+      request(url: string, method: string, options: any): Observable<any> {
 
             if (options.params) {
                   this.requestOptions.search = this.generateParams(options.params);
@@ -50,17 +49,16 @@ export class ApiService {
                   this.requestOptions.body = options.body;
             }
 
-            return this.http.request(url, this.requestOptions)
-                  .map((res: Response) => {
-                        let response;
-                        try {
-                              response = res.json();
-                        } catch (error) {
-                              response = res.text();
-                        }
-                        return response;
-                  })
-                  .catch(this.handleError);
+            this.requestOptions.responseType = 'text';
+
+            return this.http.request(method, url, this.requestOptions).map((res: any) => {
+                  try {
+                        return JSON.parse(res);
+                  } catch (error) {
+                        return res;
+                  }
+
+            }).catch(this.handleError);
 
       }
 

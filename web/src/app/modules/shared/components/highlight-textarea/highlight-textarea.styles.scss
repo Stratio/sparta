@@ -37,11 +37,21 @@
    margin-bottom: 20px;
 }
 
+.error {
+   .textarea-scroll {
+      border-color: #f59ea9;
+   }
+}
+
+.disabled {
+   .textarea-scroll {
+      border-color: #dedede;
+   }
+}
+
 .text-container {
    height: auto;
-
    background: white;
-
 }
 
 .textarea-container {

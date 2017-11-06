@@ -25,6 +25,8 @@ import * as fromRoot from 'reducers';
 
 import * as wizardActions from 'actions/wizard';
 import { InitializeWorkflowService } from 'services/initialize-workflow.service';
+import { outputsObject } from 'data-templates/outputs';
+import { transformationsObject } from 'data-templates/transformations';
 
 
 @Injectable()
@@ -32,32 +34,33 @@ export class WizardEffect {
 
     @Effect()
     saveEntity$: Observable<Action> = this.actions$
-        .ofType(wizardActions.actionTypes.SAVE_ENTITY)
+        .ofType(wizardActions.SAVE_ENTITY)
         .map(toPayload)
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
-        .switchMap(([payload, wizard]) => {
+        .map(([payload, wizard]: [any, any]) => {
+
             if (payload.oldName === payload.data.name) {
-                return Observable.of(new wizardActions.SaveEntityCompleteAction(payload));
+                return new wizardActions.SaveEntityCompleteAction(payload);
             } else {
                 for (let i = 0; i < wizard.nodes.length; i++) {
                     if (payload.data.name === wizard.nodes[i].name) {
-                        return Observable.of(new wizardActions.SaveEntityErrorAction(''));
+                        return new wizardActions.SaveEntityErrorAction('');
                     }
                 }
             }
-            return Observable.of(new wizardActions.SaveEntityCompleteAction(payload));
+            return new wizardActions.SaveEntityCompleteAction(payload);
         });
 
 
 
     @Effect()
     saveWorkflow$: Observable<Action> = this.actions$
-        .ofType(wizardActions.actionTypes.SAVE_WORKFLOW)
+        .ofType(wizardActions.SAVE_WORKFLOW)
         .map(toPayload)
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
-        .switchMap(([payload, wizard]) => {
+        .switchMap(([payload, wizard]: [any, any]) => {
             if(!wizard.nodes.length) {
                 return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                     title: 'NO_ENTITY_WORKFLOW_TITLE',
@@ -72,7 +75,7 @@ export class WizardEffect {
                     }));
                 }
             };
-            
+
             const workflow = Object.assign({
                 id: wizard.workflowId,
                 uiSettings: {
@@ -108,23 +111,40 @@ export class WizardEffect {
 
     @Effect()
     createNodeRelation$: Observable<Action> = this.actions$
-        .ofType(wizardActions.actionTypes.CREATE_NODE_RELATION)
+        .ofType(wizardActions.CREATE_NODE_RELATION)
         .map(toPayload)
         .withLatestFrom(this.store.select(state => state.wizard))
-        .switchMap(([payload, wizard]) => {
+        .map(([payload, wizard]: [any, any]) => {
+            let relationExist = false;
+            // get number of connected entities in destionation and check if relation exists
             const filtered = wizard.edges.filter((edge: any) => {
-                return (edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin);
+                if((edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin)) {
+                    relationExist = true;
+                }
+                return edge.destination === payload.destination;
             });
-            if (filtered.length || (payload.origin === payload.destination)) {
-                return Observable.of(new wizardActions.CreateNodeRelationErrorAction(''));
+            // throw error if relation exist or destination is the same than the origin
+            if (relationExist || (payload.origin === payload.destination)) {
+                return new wizardActions.CreateNodeRelationErrorAction('');
             } else {
-                return Observable.of(new wizardActions.CreateNodeRelationCompleteAction(payload));
+                /***** get number of max connections, if it exists */
+                let maxConnections;
+                if(payload.destinationData.stepType === 'Transformation') {
+                    maxConnections = transformationsObject[payload.destinationData.classPrettyName].maxEdges;
+                } else {
+                    maxConnections = outputsObject[payload.destinationData.classPrettyName].maxEdges;
+                }/****** */
+
+                if(maxConnections && maxConnections <= filtered.length) {
+                    return new wizardActions.CreateNodeRelationErrorAction('');
+                }
+                return new wizardActions.CreateNodeRelationCompleteAction(payload);
             }
         });
 
     @Effect()
     getEditedWorkflow$: Observable<Action> = this.actions$
-        .ofType(wizardActions.actionTypes.MODIFY_WORKFLOW)
+        .ofType(wizardActions.MODIFY_WORKFLOW)
         .map((action: any) => action.payload)
         .switchMap((id: any) => {
             return this.workflowService.getWorkflowById(id)
@@ -142,4 +162,6 @@ export class WizardEffect {
         private initializeWorkflowService: InitializeWorkflowService
     ) { }
 
+
 }
+

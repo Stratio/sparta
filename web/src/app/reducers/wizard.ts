@@ -21,7 +21,7 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 import { inputNames } from 'data-templates/inputs';
 import { transformationNames } from 'data-templates/transformations';
 import { outputNames } from 'data-templates/outputs';
-import * as settingsTemplate from 'data-templates/settings.json';
+import {settingsTemplate} from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 
 export interface State {
@@ -54,7 +54,7 @@ const initialState: State = {
     svgPosition: {
         x: 0,
         y: 0,
-        k: 0
+        k: 1
     },
     edges: [],
     redoStates: [],
@@ -101,7 +101,7 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case wizardActions.actionTypes.RESET_WIZARD: {
+        case wizardActions.RESET_WIZARD: {
             return Object.assign({}, state, {
                 workflowId: '',
                 svgPosition: {
@@ -126,41 +126,41 @@ export function reducer(state: State = initialState, action: any): State {
                 showEntityDetails: false
             });
         }
-        case wizardActions.actionTypes.SELECTED_CREATION_ENTITY: {
+        case wizardActions.SELECTED_CREATION_ENTITY: {
             return Object.assign({}, state, {
                 selectedCreationEntity: action.payload,
                 entityCreationMode: true
             });
         }
-        case wizardActions.actionTypes.DESELECTED_CREATION_ENTITY: {
+        case wizardActions.DESELECTED_CREATION_ENTITY: {
             return Object.assign({}, state, {
                 selectedCreationEntity: null,
                 entityCreationMode: false
             });
         }
-        case wizardActions.actionTypes.SELECT_ENTITY: {
+        case wizardActions.SELECT_ENTITY: {
             return Object.assign({}, state, {
                 selectedEntity: action.payload
             });
         }
-        case wizardActions.actionTypes.UNSELECT_ENTITY: {
+        case wizardActions.UNSELECT_ENTITY: {
             return Object.assign({}, state, {
                 selectedEntity: ''
             });
         }
-        case wizardActions.actionTypes.TOGGLE_ENTITY_DETAILS: {
+        case wizardActions.TOGGLE_ENTITY_DETAILS: {
             return Object.assign({}, state, {
                 showEntityDetails: !state.showEntityDetails
             });
         }
-        case wizardActions.actionTypes.CREATE_NODE_RELATION_COMPLETE: {
+        case wizardActions.CREATE_NODE_RELATION_COMPLETE: {
             return Object.assign({}, state, {
                 edges: [...state.edges, action.payload],
                 undoStates: getUndoState(state),
                 redoStates: []
             });
         }
-        case wizardActions.actionTypes.DELETE_NODE_RELATION: {
+        case wizardActions.DELETE_NODE_RELATION: {
             return Object.assign({}, state, {
                 edges: state.edges.filter((edge: any) => {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
@@ -169,7 +169,7 @@ export function reducer(state: State = initialState, action: any): State {
                 redoStates: []
             });
         }
-        case wizardActions.actionTypes.DELETE_ENTITY: {
+        case wizardActions.DELETE_ENTITY: {
             return Object.assign({}, state, {
                 selectedEntity: '',
                 nodes: state.nodes.filter((node: any) => {
@@ -182,7 +182,7 @@ export function reducer(state: State = initialState, action: any): State {
                 redoStates: []
             });
         }
-        case wizardActions.actionTypes.SHOW_EDITOR_CONFIG: {
+        case wizardActions.SHOW_EDITOR_CONFIG: {
             return Object.assign({}, state, {
                 editionConfig: true,
                 editionConfigType: action.payload,
@@ -190,29 +190,29 @@ export function reducer(state: State = initialState, action: any): State {
                 selectedEntity: ''
             });
         }
-        case wizardActions.actionTypes.HIDE_EDITOR_CONFIG: {
+        case wizardActions.HIDE_EDITOR_CONFIG: {
             return Object.assign({}, state, {
                 editionConfig: false
             });
         }
-        case wizardActions.actionTypes.CREATE_ENTITY: {
+        case wizardActions.CREATE_ENTITY: {
             return Object.assign({}, state,{
                 nodes: [...state.nodes, action.payload],
                 undoStates: getUndoState(state),
                 redoStates: []
             });
         }
-        case wizardActions.actionTypes.SAVE_WORKFLOW_POSITIONS: {
+        case wizardActions.SAVE_WORKFLOW_POSITIONS: {
             return Object.assign({}, state, {
                 nodes: action.payload
             });
         }
-        case wizardActions.actionTypes.SAVE_EDITOR_POSITION: {
+        case wizardActions.SAVE_EDITOR_POSITION: {
             return Object.assign({}, state, {
                 svgPosition: action.payload
             });
         }
-        case wizardActions.actionTypes.SAVE_ENTITY_COMPLETE: {
+        case wizardActions.SAVE_ENTITY_COMPLETE: {
             return Object.assign({}, state, {
                 nodes: state.nodes.map((node: any) => {
                     return node.name === action.payload.oldName ? action.payload.data : node;
@@ -237,12 +237,12 @@ export function reducer(state: State = initialState, action: any): State {
                 editionSaved: true
             });
         }
-        case wizardActions.actionTypes.SAVE_SETTINGS: {
+        case wizardActions.SAVE_SETTINGS: {
             return Object.assign({}, state, {
                 settings: action.payload
             });
         }
-        case wizardActions.actionTypes.EDIT_ENTITY: {
+        case wizardActions.EDIT_ENTITY: {
             const findEntity = state.nodes.find((node) => {
                 return node.name === state.selectedEntity;
             });
@@ -255,7 +255,7 @@ export function reducer(state: State = initialState, action: any): State {
                 editionSaved: false
             });
         }
-        case wizardActions.actionTypes.CHANGE_WORKFLOW_NAME: {
+        case wizardActions.CHANGE_WORKFLOW_NAME: {
             return {
                 ...state,
                 settings: {
@@ -267,7 +267,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }
             };
         }
-        case wizardActions.actionTypes.MODIFY_WORKFLOW_COMPLETE: {
+        case wizardActions.MODIFY_WORKFLOW_COMPLETE: {
             const workflow = action.payload;
             return Object.assign({}, state, {
                 svgPosition: workflow.uiSettings.position,
@@ -283,12 +283,12 @@ export function reducer(state: State = initialState, action: any): State {
                 }
             });
         }
-        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+        case wizardActions.SAVE_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 savedWorkflow: true
             });
         }
-        case inputActions.actionTypes.LIST_INPUT_COMPLETE: {
+        case inputActions.LIST_INPUT_COMPLETE: {
             const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
             menuOptions[0].subMenus[0].subMenus = action.payload.map((template: any) => {
                 return {
@@ -302,7 +302,7 @@ export function reducer(state: State = initialState, action: any): State {
                 menuOptions: menuOptions
             });
         }
-        case outputActions.actionTypes.LIST_OUTPUT_COMPLETE: {
+        case outputActions.LIST_OUTPUT_COMPLETE: {
             const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
             menuOptions[2].subMenus[0].subMenus = action.payload.map((template: any) => {
                 return {
@@ -316,27 +316,27 @@ export function reducer(state: State = initialState, action: any): State {
                 menuOptions: menuOptions
             });
         }
-        case wizardActions.actionTypes.SAVE_WORKFLOW_COMPLETE: {
+        case wizardActions.SAVE_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 savedWorkflow: true
             });
         }
-        case wizardActions.actionTypes.SELECT_SEGMENT: {
+        case wizardActions.SELECT_SEGMENT: {
             return Object.assign({}, state, {
                 selectedRelation: action.payload
             });
         }
-        case wizardActions.actionTypes.UNSELECT_SEGMENT: {
+        case wizardActions.UNSELECT_SEGMENT: {
             return Object.assign({}, state, {
                 selectedRelation: null
             });
         }
-        case wizardActions.actionTypes.SEARCH_MENU_OPTION: {
+        case wizardActions.SEARCH_MENU_OPTION: {
             return Object.assign({}, state, {
                 floatingMenuSearch: action.payload
             });
         }
-        case wizardActions.actionTypes.UNDO_CHANGES: {
+        case wizardActions.UNDO_CHANGES: {
             if(state.undoStates.length) {
                 const undoState = state.undoStates[0];
                 return  Object.assign({}, state, {
@@ -349,7 +349,7 @@ export function reducer(state: State = initialState, action: any): State {
                 return Object.assign({}, state);
             }
         }
-        case wizardActions.actionTypes.REDO_CHANGES: {
+        case wizardActions.REDO_CHANGES: {
             if(state.redoStates.length) {
                 const redoState = state.redoStates[0];
                 return  Object.assign({}, state, {

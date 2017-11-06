@@ -9,7 +9,7 @@
       <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
       <span class="description">{{workflowData.description}}</span>
       <div *ngIf="workflowData.context && workflowData.context.statusInfo && workflowData.context.statusInfo.length">
-         <span class="title">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
+         <span class="title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
          <span class="values">{{workflowData.context.statusInfo}}</span>
 
       </div>
@@ -17,7 +17,7 @@
       *ngIf="workflowData.context && workflowData.context.lastExecutionMode && workflowData.context.lastExecutionMode === 'marathon'">Show execution info</a>
 
       <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
-         <span class="title">Execution mode</span>
+         <span class="title2">Execution mode</span>
          <span class="">{{workflowData.context.lastExecutionMode}}</span>
       </div>
       <div *ngIf="inputs && inputs.length">

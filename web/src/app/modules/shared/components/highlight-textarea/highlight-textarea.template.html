@@ -1,12 +1,12 @@
-<label st-label [attr.title]="contextualHelp" class="st-textarea-title" [ngClass]="{error: showError(), active: focus, disabled: isDisabled}"
+<label sp-label [attr.title]="contextualHelp" class="st-textarea-title" [ngClass]="{error: showError(), active: focus, disabled: isDisabled}"
    [attr.for]="name">
 {{label}}
 </label>
-<div class="textarea-container">
+<div class="textarea-container" [ngClass]="{'error': showError(), 'disabled': isDisabled}">
     <div class="textarea-scroll">
         <div class="text-container">
         <textarea class="st-textarea" #textarea (focus)="onFocus($event)" (focusout)="onFocusOut($event)" (blur)="onFocusOut($event)"
-            [formControl]="internalControl" [ngClass]="{error: showError(), disabled: isDisabled}" [placeholder]="placeholder" [name]="name"
+            [formControl]="internalControl" [placeholder]="placeholder" [name]="name"
             [cols]="cols" [rows]="rows" [wrap]="wrap" [attr.maxlength]="maxLength" [attr.id]="qaTag">
         </textarea>
         </div>

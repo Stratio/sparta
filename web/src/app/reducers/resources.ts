@@ -28,12 +28,12 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case resourcesActions.actionTypes.LIST_PLUGINS_COMPLETE: {
+        case resourcesActions.LIST_PLUGINS_COMPLETE: {
             return Object.assign({}, state, {
                 pluginsList: action.payload
             });
         }
-        case resourcesActions.actionTypes.LIST_DRIVERS_COMPLETE: {
+        case resourcesActions.LIST_DRIVERS_COMPLETE: {
             return Object.assign({}, state, {
                 driversList: action.payload
             });

@@ -62,28 +62,28 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
   switch (action.type) {
-    case workflowActions.actionTypes.LIST_WORKFLOW: {
+    case workflowActions.LIST_WORKFLOW: {
       return Object.assign({}, state, {});
     }
-    case workflowActions.actionTypes.LIST_WORKFLOW_COMPLETE: {
+    case workflowActions.LIST_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
         workflowList: action.payload,
         reload: true
       });
     }
-    case workflowActions.actionTypes.REMOVE_WORKFLOW_SELECTION: {
+    case workflowActions.REMOVE_WORKFLOW_SELECTION: {
       return Object.assign({}, state, {
         selectedWorkflows: [],
         selectedWorkflowsIds: []
       });
     }
-    case workflowActions.actionTypes.SELECT_WORKFLOW: {
+    case workflowActions.SELECT_WORKFLOW: {
       return Object.assign({}, state, {
         selectedWorkflows: [...state.selectedWorkflows, action.payload],
         selectedWorkflowsIds: [...state.selectedWorkflowsIds, action.payload.id]
       });
     }
-    case workflowActions.actionTypes.DESELECT_WORKFLOW: {
+    case workflowActions.DESELECT_WORKFLOW: {
       const newSelection = state.selectedWorkflows.filter((workflow: any) => {
         if (workflow.id !== action.payload.id) {
           return workflow;
@@ -96,7 +96,7 @@ export function reducer(state: State = initialState, action: any): State {
         })
       });
     }
-    case workflowActions.actionTypes.UPDATE_WORKFLOWS_COMPLETE: {
+    case workflowActions.UPDATE_WORKFLOWS_COMPLETE: {
       const context = action.payload;
       return Object.assign({}, state, {
         workflowList: state.workflowList.map((workflow: any) => {
@@ -108,23 +108,23 @@ export function reducer(state: State = initialState, action: any): State {
         })
       });
     }
-    case workflowActions.actionTypes.DELETE_WORKFLOW_COMPLETE: {
+    case workflowActions.DELETE_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
         selectedWorkflows: [],
         selectedWorkflowsIds: []
       });
     }
-    case workflowActions.actionTypes.FILTER_WORKFLOWS: {
+    case workflowActions.FILTER_WORKFLOWS: {
       return Object.assign({}, state, {
         searchQuery: action.payload
       });
     }
-    case workflowActions.actionTypes.DISPLAY_MODE: {
+    case workflowActions.DISPLAY_MODE: {
       return Object.assign({}, state, {
         selectedDisplayOption: action.payload
       });
     }
-    case workflowActions.actionTypes.VALIDATE_WORKFLOW_NAME: {
+    case workflowActions.VALIDATE_WORKFLOW_NAME: {
       return Object.assign({}, state, {
         workflowNameValidation: {
           validatedName: false,
@@ -132,25 +132,25 @@ export function reducer(state: State = initialState, action: any): State {
         }
       });
     }
-    case workflowActions.actionTypes.VALIDATE_WORKFLOW_NAME_COMPLETE: {
+    case workflowActions.VALIDATE_WORKFLOW_NAME_COMPLETE: {
       return Object.assign({}, state, {
         workflowNameValidation: {
           validatedName: true
         }
       });
     }
-    case workflowActions.actionTypes.SAVE_JSON_WORKFLOW_COMPLETE: {
+    case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
         modalOpen: true,
         reload: true
       });
     }
-    case workflowActions.actionTypes.GET_WORKFLOW_EXECUTION_INFO_COMPLETE: {
+    case workflowActions.GET_WORKFLOW_EXECUTION_INFO_COMPLETE: {
       return Object.assign({}, state, {
         executionInfo: action.payload
       });
     }
-    case workflowActions.actionTypes.CLOSE_WORKFLOW_EXECUTION_INFO: {
+    case workflowActions.CLOSE_WORKFLOW_EXECUTION_INFO: {
       return Object.assign({}, state, {
         executionInfo: null
       });

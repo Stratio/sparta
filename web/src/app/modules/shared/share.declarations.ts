@@ -36,6 +36,7 @@ import { OrderByPipe } from '@app/shared/pipes/sort.pipe';
 import { FormListStringComponent } from '@app/shared/components/form-string-list/form-string-list.component';
 import { Keyobject } from '@app/shared/pipes/keyobject';
 import { SpHighlightTextareaComponent } from '@app/shared/components/highlight-textarea/highlight-textarea.component';
+import { InfoFragmentComponent } from '@app/shared/components/fragment-box/info-fragment/info-fragment.component';
 
 export const sharedProvider = [
     MenuService,
@@ -56,6 +57,7 @@ export const shareComponents = [
     FormGeneratorGroupComponent,
     MessageNotificationComponent,
     FragmentBoxComponent,
+    InfoFragmentComponent,
     FormFileComponent,
     ToolBarComponent,
     SpartaSidebarComponent,

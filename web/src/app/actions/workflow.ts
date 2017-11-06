@@ -17,217 +17,218 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-  LIST_WORKFLOW: type('[Workflow] List workflows'),
-  LIST_WORKFLOW_COMPLETE: type('[Workflow] List workflows complete'),
-  LIST_WORKFLOW_FAIL: type('[Workflow] List workflow fail'),
-  SELECT_WORKFLOW: type('[Workflow] Select workflow'),
-  DESELECT_WORKFLOW: type('[Workflow] Deselect workflow'),
-  REMOVE_WORKFLOW_SELECTION: type('[Workflow] Remove workflow selection'),
-  UPDATE_WORKFLOWS: type('[Workflow] Update workflows status'),
-  UPDATE_WORKFLOWS_COMPLETE: type('[Worflow] Update workflows status complete'),
-  UPDATE_WORKFLOWS_ERROR: type('[Worflow] Update workflows error'),
-  DELETE_WORKFLOW: type('[Workflow] Delete workflow'),
-  DELETE_WORKFLOW_COMPLETE: type('[Workflow] Delete workflow complete'),
-  DELETE_WORKFLOW_ERROR: type('[Workflow] Delete workflow error'),
-  DOWNLOAD_WORKFLOWS: type('[Workflow] Download workflows'),
-  DOWNLOAD_WORKFLOWS_COMPLETE: type('[Workflow] Download workflows complete'),
-  DOWNLOAD_WORKFLOWS_ERROR: type('[Workflow] Download workflows error'),
-  RUN_WORKFLOW: type('[Workflow] Run workflow'),
-  RUN_WORKFLOW_COMPLETE: type('[Workflow] Run workflow complete'),
-  RUN_WORKFLOW_ERROR: type('[Workflow] Run workflow error'),
-  STOP_WORKFLOW: type('[Workflow] Stop workflow'),
-  STOP_WORKFLOW_COMPLETE: type('[Workflow] Stop workflow complete'),
-  STOP_WORKFLOW_ERROR: type('[Workflow] Stop workflow error'),
-  FILTER_WORKFLOWS: type('[Workflow] Search workflows'),
-  DISPLAY_MODE: type('[Workflow] Display mode workflows'),
-  VALIDATE_WORKFLOW_NAME: type('[Workflow] Validate workflow name'),
-  VALIDATE_WORKFLOW_NAME_COMPLETE: type('[Workflow] Correct worflow name validation'),
-  VALIDATE_WORKFLOW_NAME_ERROR: type(['[Workflow] Incorrect workflow name validation']),
-  SAVE_JSON_WORKFLOW: type('[Workflow] Save workflow'),
-  SAVE_JSON_WORKFLOW_COMPLETE: type('[Worflow] Save workflow complete'),
-  GET_WORKFLOW_EXECUTION_INFO: type('[Worflow] Get Workflow execution info'),
-  GET_WORKFLOW_EXECUTION_INFO_COMPLETE: type('[Worflow] Get Workflow execution info complete'),
-  GET_WORKFLOW_EXECUTION_INFO_ERROR: type('[Worflow] Get Workflow execution info error'),
-  CLOSE_WORKFLOW_EXECUTION_INFO: type('[Worflow] Close workflow execution info')
-};
+
+export const LIST_WORKFLOW = '[Workflow] List workflows';
+export const LIST_WORKFLOW_COMPLETE = '[Workflow] List workflows complete';
+export const LIST_WORKFLOW_FAIL = '[Workflow] List workflow fail';
+export const SELECT_WORKFLOW = '[Workflow] Select workflow';
+export const DESELECT_WORKFLOW = '[Workflow] Deselect workflow';
+export const REMOVE_WORKFLOW_SELECTION = '[Workflow] Remove workflow selection';
+export const UPDATE_WORKFLOWS = '[Workflow] Update workflows status';
+export const UPDATE_WORKFLOWS_COMPLETE = '[Worflow] Update workflows status complete';
+export const UPDATE_WORKFLOWS_ERROR = '[Worflow] Update workflows error';
+export const DELETE_WORKFLOW = '[Workflow] Delete workflow';
+export const DELETE_WORKFLOW_COMPLETE = '[Workflow] Delete workflow complete';
+export const DELETE_WORKFLOW_ERROR = '[Workflow] Delete workflow error';
+export const DOWNLOAD_WORKFLOWS = '[Workflow] Download workflows';
+export const DOWNLOAD_WORKFLOWS_COMPLETE = '[Workflow] Download workflows complete';
+export const DOWNLOAD_WORKFLOWS_ERROR = '[Workflow] Download workflows error';
+export const RUN_WORKFLOW = '[Workflow] Run workflow';
+export const RUN_WORKFLOW_COMPLETE = '[Workflow] Run workflow complete';
+export const RUN_WORKFLOW_ERROR = '[Workflow] Run workflow error';
+export const STOP_WORKFLOW = '[Workflow] Stop workflow';
+export const STOP_WORKFLOW_COMPLETE = '[Workflow] Stop workflow complete';
+export const STOP_WORKFLOW_ERROR = '[Workflow] Stop workflow error';
+export const FILTER_WORKFLOWS = '[Workflow] Search workflows';
+export const DISPLAY_MODE = '[Workflow] Display mode workflows';
+export const VALIDATE_WORKFLOW_NAME = '[Workflow] Validate workflow name';
+export const VALIDATE_WORKFLOW_NAME_COMPLETE = '[Workflow] Correct worflow name validation';
+export const VALIDATE_WORKFLOW_NAME_ERROR = '[Workflow] Incorrect workflow name validation';
+export const SAVE_JSON_WORKFLOW = '[Workflow] Save workflow';
+export const SAVE_JSON_WORKFLOW_COMPLETE = '[Worflow] Save workflow complete';
+export const SAVE_JSON_WORKFLOW_ERROR = '[Workflow] Save json workflow error';
+export const GET_WORKFLOW_EXECUTION_INFO = '[Worflow] Get Workflow execution info';
+export const GET_WORKFLOW_EXECUTION_INFO_COMPLETE = '[Worflow] Get Workflow execution info complete';
+export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow execution info error';
+export const CLOSE_WORKFLOW_EXECUTION_INFO = '[Worflow] Close workflow execution info';
+
 
 export class ListWorkflowAction implements Action {
-  type: any = actionTypes.LIST_WORKFLOW;
+  readonly type = LIST_WORKFLOW;
 }
 
 export class ListWorkflowFailAction implements Action {
-  type: any = actionTypes.LIST_WORKFLOW_FAIL;
+  readonly type = LIST_WORKFLOW_FAIL;
 }
 
 export class ListWorkflowCompleteAction implements Action {
-  type: any = actionTypes.LIST_WORKFLOW_COMPLETE;
+  readonly type = LIST_WORKFLOW_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class SelectWorkflowAction implements Action {
-  type: any = actionTypes.SELECT_WORKFLOW;
+  readonly type = SELECT_WORKFLOW;
 
   constructor(public payload: any) { }
 }
 
 export class DeselectWorkflowAction implements Action {
-  type: any = actionTypes.DESELECT_WORKFLOW;
+  readonly type = DESELECT_WORKFLOW;
 
   constructor(public payload: any) { }
 }
 
 export class RemoveWorkflowSelectionAction implements Action {
-  type: any = actionTypes.REMOVE_WORKFLOW_SELECTION;
+  readonly type = REMOVE_WORKFLOW_SELECTION;
 }
 
 
 export class UpdateWorkflowStatusAction implements Action {
-  type: any = actionTypes.UPDATE_WORKFLOWS;
+  readonly type = UPDATE_WORKFLOWS;
 }
 
 
 export class UpdateWorkflowStatusCompleteAction implements Action {
-  type: any = actionTypes.UPDATE_WORKFLOWS_COMPLETE;
+  readonly type = UPDATE_WORKFLOWS_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class UpdateWorkflowStatusErrorAction implements Action {
-  type: any = actionTypes.UPDATE_WORKFLOWS_ERROR;
+  readonly type = UPDATE_WORKFLOWS_ERROR;
 }
 
 export class DeleteWorkflowAction implements Action {
-  type: any = actionTypes.DELETE_WORKFLOW;
+  readonly type = DELETE_WORKFLOW;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteWorkflowCompleteAction implements Action {
-  type: any = actionTypes.DELETE_WORKFLOW_COMPLETE;
+  readonly type = DELETE_WORKFLOW_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class DeleteWorkflowErrorAction implements Action {
-  type: any = actionTypes.DELETE_WORKFLOW_ERROR;
+  readonly type = DELETE_WORKFLOW_ERROR;
 }
 
 export class DownloadWorkflowsAction implements Action {
-  type: any = actionTypes.DOWNLOAD_WORKFLOWS;
+  readonly type = DOWNLOAD_WORKFLOWS;
 
   constructor(public payload: any) { }
 }
 
 export class DownloadWorkflowsCompleteAction implements Action {
-  type: any = actionTypes.DOWNLOAD_WORKFLOWS_COMPLETE;
+  readonly type = DOWNLOAD_WORKFLOWS_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class DownloadWorkflowsErrorAction implements Action {
-  type: any = actionTypes.DOWNLOAD_WORKFLOWS_ERROR;
+  readonly type = DOWNLOAD_WORKFLOWS_ERROR;
 }
 
 export class RunWorkflowAction implements Action {
-  type: any = actionTypes.RUN_WORKFLOW;
+  readonly type = RUN_WORKFLOW;
   constructor(public payload: any) { }
 }
 
 export class RunWorkflowCompleteAction implements Action {
-  type: any = actionTypes.RUN_WORKFLOW_COMPLETE;
+  readonly type = RUN_WORKFLOW_COMPLETE;
   constructor(public payload: any) { }
 }
 
 
 export class RunWorkflowErrorAction implements Action {
-  type: any = actionTypes.RUN_WORKFLOW_ERROR;
+  readonly type = RUN_WORKFLOW_ERROR;
 }
 
 export class StopWorkflowAction implements Action {
-  type: any = actionTypes.STOP_WORKFLOW;
+  readonly type = STOP_WORKFLOW;
   constructor(public payload: any) { }
 }
 
 export class StopWorkflowCompleteAction implements Action {
-  type: any = actionTypes.STOP_WORKFLOW_COMPLETE;
+  readonly type = STOP_WORKFLOW_COMPLETE;
   constructor(public payload: any) { }
 }
 
 export class StopWorkflowErrorAction implements Action {
-  type: any = actionTypes.STOP_WORKFLOW_ERROR;
+  readonly type = STOP_WORKFLOW_ERROR;
 }
 
 export class SearchAction implements Action {
-  type: any = actionTypes.FILTER_WORKFLOWS;
+  readonly type = FILTER_WORKFLOWS;
 
   constructor(public payload: String) { }
 }
 
 export class DisplayModeAction implements Action {
-  type: any = actionTypes.DISPLAY_MODE;
+  readonly type = DISPLAY_MODE;
 
   constructor(public payload: String) { }
 }
 
 export class ValidateWorkflowNameAction implements Action {
-  type: any = actionTypes.VALIDATE_WORKFLOW_NAME;
+  readonly type = VALIDATE_WORKFLOW_NAME;
 
   constructor(public payload: any) { }
 }
 
 export class ValidateWorkflowNameComplete implements Action {
-  type: any = actionTypes.VALIDATE_WORKFLOW_NAME_COMPLETE;
+  readonly type = VALIDATE_WORKFLOW_NAME_COMPLETE;
 
   constructor() { }
 }
 
 export class ValidateWorkflowNameError implements Action {
-  type: any = actionTypes.VALIDATE_WORKFLOW_NAME_ERROR;
+  readonly type = VALIDATE_WORKFLOW_NAME_ERROR;
 
   constructor() { }
 }
 
 export class SaveJsonWorkflowAction implements Action {
-  type: any = actionTypes.SAVE_JSON_WORKFLOW;
+  readonly type = SAVE_JSON_WORKFLOW;
 
   constructor(public payload: any) { }
 }
 
 export class SaveJsonWorkflowActionComplete implements Action {
-  type: any = actionTypes.SAVE_JSON_WORKFLOW_COMPLETE;
+  readonly type = SAVE_JSON_WORKFLOW_COMPLETE;
 
   constructor() { }
 }
 
 export class SaveJsonWorkflowActionError implements Action {
-  type: any = actionTypes.SAVE_JSON_WORKFLOW_ERROR;
+  readonly type = SAVE_JSON_WORKFLOW_ERROR;
 
   constructor() { }
 }
 
 export class GetExecutionInfoAction implements Action {
-  type: any = actionTypes.GET_WORKFLOW_EXECUTION_INFO;
+  readonly type = GET_WORKFLOW_EXECUTION_INFO;
 
   constructor(public payload: any) { }
 }
 
 export class GetExecutionInfoCompleteAction implements Action {
-  type: any = actionTypes.GET_WORKFLOW_EXECUTION_INFO_COMPLETE;
+  readonly type = GET_WORKFLOW_EXECUTION_INFO_COMPLETE;
 
   constructor(public payload: any) { }
 }
 export class GetExecutionInfoErrorAction implements Action {
-  type: any = actionTypes.GET_WORKFLOW_EXECUTION_INFO_ERROR;
+  readonly type = GET_WORKFLOW_EXECUTION_INFO_ERROR;
 
   constructor() { }
 }
 
 export class CloseWorkflowExecutionInfoAction implements Action {
-  type: any = actionTypes.CLOSE_WORKFLOW_EXECUTION_INFO;
+  readonly type = CLOSE_WORKFLOW_EXECUTION_INFO;
 
-  constructor() {};
+  constructor() { };
 }
 
 export type Actions =

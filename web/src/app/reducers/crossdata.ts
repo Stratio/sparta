@@ -40,56 +40,57 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case crossdataActions.actionTypes.GET_DATABASES_COMPLETE: {
+        case crossdataActions.GET_DATABASES_COMPLETE: {
             return Object.assign({}, state, {
                 databases: action.payload
             });
         }
-        case crossdataActions.actionTypes.LIST_CROSSDATA_TABLES_COMPLETE: {
+        case crossdataActions.LIST_CROSSDATA_TABLES_COMPLETE: {
             return Object.assign({}, state, {
                 tableList: action.payload
             });
         }
-        case crossdataActions.actionTypes.EXECUTE_QUERY_COMPLETE: {
+        case crossdataActions.EXECUTE_QUERY_COMPLETE: {
             return Object.assign({}, state, {
-                queryResult: action.payload
+                queryResult: action.payload,
+                 queryError: ''
             });
         }
-        case crossdataActions.actionTypes.EXECUTE_QUERY_ERROR: {
+        case crossdataActions.EXECUTE_QUERY_ERROR: {
             return Object.assign({}, state, {
                 queryError: action.payload
             });
         }
-        case crossdataActions.actionTypes.SHOW_TEMPORARY_TABLES: {
+        case crossdataActions.SHOW_TEMPORARY_TABLES: {
             return Object.assign({}, state, {
                 showTemporaryTables: action.payload
             });
         }
-        case crossdataActions.actionTypes.SELECT_DATABASE: {
+        case crossdataActions.SELECT_DATABASE: {
             return Object.assign({}, state, {
                 selectedDatabase: action.payload
             });
         }
-        case crossdataActions.actionTypes.LIST_DATABASE_TABLES_COMPLETE: {
+        case crossdataActions.LIST_DATABASE_TABLES_COMPLETE: {
             return Object.assign({}, state, {
                 tableList: action.payload,
                 selectedTables: []
             });
         }
-        case crossdataActions.actionTypes.SELECT_TABLE: {
+        case crossdataActions.SELECT_TABLE: {
             console.log(action.payload);
             return Object.assign({}, state, {
                 selectedTables: [...state.selectedTables, action.payload.name]
             });
         }
-        case crossdataActions.actionTypes.UNSELECT_TABLE: {
+        case crossdataActions.UNSELECT_TABLE: {
             return Object.assign({}, state, {
                 selectedTables: state.selectedTables.filter((table: string) => {
                     return table !== action.payload.name;
                 })
             });
         }
-        case crossdataActions.actionTypes.GET_TABLE_INFO_COMPLETE: {
+        case crossdataActions.GET_TABLE_INFO_COMPLETE: {
             const info = action.payload.info;
             const fields: any = [];
 

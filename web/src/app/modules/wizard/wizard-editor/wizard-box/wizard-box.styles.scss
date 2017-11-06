@@ -87,10 +87,10 @@
 }
 
 :host.current-created {
-   animation: BoxAnimation 0.3s;
+   animation: BoxAnimation2 0.3s;
 }
 
-@keyframes BoxAnimation {
+@keyframes BoxAnimation2 {
    0% {
       opacity: 0;
    }

@@ -32,7 +32,7 @@ export class WorkflowEffect {
 
     @Effect()
     getWorkflowList$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.LIST_WORKFLOW).switchMap((response: any) => {
+        .ofType(workflowActions.LIST_WORKFLOW).switchMap((response: any) => {
 
             const context$ = this.workflowService.getWorkFlowContextList();
             const workflows$ = this.workflowService.getWorkflowList();
@@ -51,7 +51,7 @@ export class WorkflowEffect {
 
     @Effect()
     updateWorkflowStatus$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.UPDATE_WORKFLOWS)
+        .ofType(workflowActions.UPDATE_WORKFLOWS)
         .switchMap((r: any) => {
             return this.workflowService.getWorkFlowContextList().map((response: any) => {
                 return new workflowActions.UpdateWorkflowStatusCompleteAction(response);
@@ -63,7 +63,7 @@ export class WorkflowEffect {
 
     @Effect()
     deleteWorkflow$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.DELETE_WORKFLOW)
+        .ofType(workflowActions.DELETE_WORKFLOW)
         .map((action: any) => action.payload)
         .switchMap((workflows: any) => {
             const joinObservables: Observable<any>[] = [];
@@ -80,7 +80,7 @@ export class WorkflowEffect {
 
     @Effect()
     downloadWorkflow$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.DOWNLOAD_WORKFLOWS)
+        .ofType(workflowActions.DOWNLOAD_WORKFLOWS)
         .map((action: any) => action.payload)
         .switchMap((payload: any) => {
             const $downloadsSubscriptions = [];
@@ -98,7 +98,7 @@ export class WorkflowEffect {
 
     @Effect()
     runWorkflow$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.RUN_WORKFLOW)
+        .ofType(workflowActions.RUN_WORKFLOW)
         .switchMap((data: any) => {
             return this.workflowService.runWorkflow(data.payload.id).map((response: any) => {
                 return new workflowActions.RunWorkflowCompleteAction(data.payload.name);
@@ -109,7 +109,7 @@ export class WorkflowEffect {
 
     @Effect()
     stopWorkflow$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.STOP_WORKFLOW)
+        .ofType(workflowActions.STOP_WORKFLOW)
         .switchMap((data: any) => {
             return this.workflowService.stopWorkflow(data.payload).map((response: any) => {
                 return new workflowActions.StopWorkflowCompleteAction(data.payload);
@@ -120,7 +120,7 @@ export class WorkflowEffect {
 
     @Effect()
     validateWorkflowName$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.VALIDATE_WORKFLOW_NAME)
+        .ofType(workflowActions.VALIDATE_WORKFLOW_NAME)
         .switchMap((response: any) => {
             return this.workflowService.getWorkflowByName(response.payload.name).map((response: any) => {
                 return new workflowActions.ValidateWorkflowNameError();
@@ -132,7 +132,7 @@ export class WorkflowEffect {
 
     @Effect()
     saveJsonWorkflow$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.SAVE_JSON_WORKFLOW)
+        .ofType(workflowActions.SAVE_JSON_WORKFLOW)
         .switchMap((response: any) => {
             delete response.payload.id;
             return this.workflowService.saveWorkflow(response.payload).mergeMap((response: any) => {
@@ -144,7 +144,7 @@ export class WorkflowEffect {
 
     @Effect()
     getExecutionInfo$: Observable<Action> = this.actions$
-        .ofType(workflowActions.actionTypes.GET_WORKFLOW_EXECUTION_INFO)
+        .ofType(workflowActions.GET_WORKFLOW_EXECUTION_INFO)
         .switchMap((data: any) => {
             return this.workflowService.getWorkflowExecutionInfo(data.payload.id).map((response: any) => {
                 response.name = data.payload.name;

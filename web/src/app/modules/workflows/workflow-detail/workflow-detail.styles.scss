@@ -12,7 +12,7 @@
 
 .description {
    font-size: $egeo-font-size-xsmall;
-   margin-bottom: 25px;
+   margin-bottom: 15px;
    display: block;
 }
 
@@ -26,8 +26,18 @@
    color: #6c7b8b;
 }
 
+.title2 {
+   font-size: $egeo-font-size-xxsmall;
+   font-weight: 600;
+   line-height: 1.43;
+   margin-top: 10px;
+   display: block;
+   color: #6c7b8b;
+}
+
 .values {
    display: block;
+   font-size: $egeo-font-size-xxsmall;
 }
 
 .status {

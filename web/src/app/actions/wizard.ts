@@ -17,207 +17,206 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-    RESET_WIZARD: type('[Wizard] Reset wizard'),
-    MODIFY_WORKFLOW: type('[Wizard] Modify workflow'),
-    MODIFY_WORKFLOW_COMPLETE: type('[Wizard] Modify workflow complete'),
-    MODIFY_WORKFLOW_ERROR: type('[Wizard] Modify workflow error'),
-    SELECTED_CREATION_ENTITY: type('[Wizard] Selected creation entity'),
-    DESELECTED_CREATION_ENTITY: type('[Wizard] Deselected creation entity'),
-    TOGGLE_ENTITY_DETAILS: type('[Wizard] Toggle entity details'),
-    CHANGE_WORKFLOW_NAME: type('[Wizard] Change workflow name'),
-    SELECT_ENTITY: type('[Wizard] Select entity'),
-    UNSELECT_ENTITY: type('[Wizard] Unselect entity'),
-    EDIT_ENTITY: type('[Wizard] Edit entity'),
-    HIDE_EDIT_ENTITY: type('[Wizard] Hide edit entity'),
-    CREATE_NODE_RELATION: type('[Wizard] Create node relation'),
-    CREATE_NODE_RELATION_COMPLETE: type('[Wizard] Create node relation complete'),
-    CREATE_NODE_RELATION_ERROR: type('[Wizard] Create node relation error'),
-    DELETE_NODE_RELATION: type('[Wizard] delete node relation'),
-    CREATE_ENTITY: type('[Wizard] create entity'),
-    CREATE_ENTITY_COMPLETE: type('[Wizard] create entity complete'),
-    DELETE_ENTITY: type('[Wizard] Delete entity'),
-    SAVE_WORKFLOW_POSITIONS: type('[Wizard] Save workflow positions'),
-    SAVE_EDITOR_POSITION: type('[Wizard] Save editor position'),
-    SHOW_EDITOR_CONFIG: type('[Wizard] Show editor config'),
-    HIDE_EDITOR_CONFIG: type('[Wizard] Hide editor config'),
-    SAVE_ENTITY: type('[Wizard] Save entity'),
-    SAVE_ENTITY_COMPLETE: type('[Wizard] Save entity complete'),
-    SAVE_ENTITY_ERROR: type('[Wizard] Save entity error'),
-    SAVE_SETTINGS: type('[Wizard] Save settings'),
-    SAVE_WORKFLOW: type('[Wizard] Save workflow'),
-    SAVE_WORKFLOW_COMPLETE: type('[Wizard] Save workflow complete'),
-    SAVE_WORKFLOW_ERROR: type('[Wizard] Save workflow error'),
-    SELECT_SEGMENT: type('[Wizard] select segment'),
-    UNSELECT_SEGMENT: type('[Wizard] Unselect segment'),
-    DELETE_SEGMENT: type('[Wizard] Delete segment'),
-    SEARCH_MENU_OPTION: type('[Wizard] Search floating menu option'),
-    UNDO_CHANGES: type('[Wizard] Undo changes'),
-    REDO_CHANGES: type('[Wizard] Redo changes')
-};
+export const RESET_WIZARD = '[Wizard] Reset wizard';
+export const MODIFY_WORKFLOW = '[Wizard] Modify workflow';
+export const MODIFY_WORKFLOW_COMPLETE = '[Wizard] Modify workflow complete';
+export const MODIFY_WORKFLOW_ERROR = '[Wizard] Modify workflow error';
+export const SELECTED_CREATION_ENTITY = '[Wizard] Selected creation entity';
+export const DESELECTED_CREATION_ENTITY = '[Wizard] Deselected creation entity';
+export const TOGGLE_ENTITY_DETAILS = '[Wizard] Toggle entity details';
+export const CHANGE_WORKFLOW_NAME = '[Wizard] Change workflow name';
+export const SELECT_ENTITY = '[Wizard] Select entity';
+export const UNSELECT_ENTITY = '[Wizard] Unselect entity';
+export const EDIT_ENTITY = '[Wizard] Edit entity';
+export const HIDE_EDIT_ENTITY = '[Wizard] Hide edit entity';
+export const CREATE_NODE_RELATION = '[Wizard] Create node relation';
+export const CREATE_NODE_RELATION_COMPLETE = '[Wizard] Create node relation complete';
+export const CREATE_NODE_RELATION_ERROR = '[Wizard] Create node relation error';
+export const DELETE_NODE_RELATION = '[Wizard] delete node relation';
+export const CREATE_ENTITY = '[Wizard] create entity';
+export const CREATE_ENTITY_COMPLETE = '[Wizard] create entity complete';
+export const DELETE_ENTITY = '[Wizard] Delete entity';
+export const SAVE_WORKFLOW_POSITIONS = '[Wizard] Save workflow positions';
+export const SAVE_EDITOR_POSITION = '[Wizard] Save editor position';
+export const SHOW_EDITOR_CONFIG = '[Wizard] Show editor config';
+export const HIDE_EDITOR_CONFIG = '[Wizard] Hide editor config';
+export const SAVE_ENTITY = '[Wizard] Save entity';
+export const SAVE_ENTITY_COMPLETE = '[Wizard] Save entity complete';
+export const SAVE_ENTITY_ERROR = '[Wizard] Save entity error';
+export const SAVE_SETTINGS = '[Wizard] Save settings';
+export const SAVE_WORKFLOW = '[Wizard] Save workflow';
+export const SAVE_WORKFLOW_COMPLETE = '[Wizard] Save workflow complete';
+export const SAVE_WORKFLOW_ERROR = '[Wizard] Save workflow error';
+export const SELECT_SEGMENT = '[Wizard] select segment';
+export const UNSELECT_SEGMENT = '[Wizard] Unselect segment';
+export const DELETE_SEGMENT = '[Wizard] Delete segment';
+export const SEARCH_MENU_OPTION = '[Wizard] Search floating menu option';
+export const UNDO_CHANGES = '[Wizard] Undo changes';
+export const REDO_CHANGES = '[Wizard] Redo changes';
+export const HIDE_EDIT = '[Wizard] Hide edit';
 
 export class ResetWizardAction implements Action {
-    type: any = actionTypes.RESET_WIZARD;
+    readonly type = RESET_WIZARD;
 }
 
 export class ModifyWorkflowAction implements Action {
-    type: any = actionTypes.MODIFY_WORKFLOW;
+    readonly type = MODIFY_WORKFLOW;
     constructor(public payload: any) { }
 }
 
 export class ModifyWorkflowCompleteAction implements Action {
-    type: any = actionTypes.MODIFY_WORKFLOW_COMPLETE;
+    readonly type = MODIFY_WORKFLOW_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class ModifyWorkflowErrorAction implements Action {
-    type: any = actionTypes.MODIFY_WORKFLOW_ERROR;
+    readonly type = MODIFY_WORKFLOW_ERROR;
     constructor(public payload: any) { }
 }
 
 export class SelectedCreationEntityAction implements Action {
-    type: any = actionTypes.SELECTED_CREATION_ENTITY;
+    readonly type = SELECTED_CREATION_ENTITY;
     constructor(public payload: any) { }
 }
 
 export class DeselectedCreationEntityAction implements Action {
-    type: any = actionTypes.DESELECTED_CREATION_ENTITY;
+    readonly type = DESELECTED_CREATION_ENTITY;
 }
 
 export class ChangeWorkflowNameAction implements Action {
-    type: any = actionTypes.CHANGE_WORKFLOW_NAME;
+    readonly type = CHANGE_WORKFLOW_NAME;
     constructor(public payload: any) { }
 }
 
 export class EditEntityAction implements Action {
-    type: any = actionTypes.EDIT_ENTITY;
+    readonly type = EDIT_ENTITY;
 }
 
 export class HideEditEntityAction implements Action {
-    type: any = actionTypes.HIDE_EDIT;
+    readonly type = HIDE_EDIT;
 }
 
 export class SelectEntityAction implements Action {
-    type: any = actionTypes.SELECT_ENTITY;
+    readonly type = SELECT_ENTITY;
     constructor(public payload: any) { }
 }
 
 export class UnselectEntityAction implements Action {
-    type: any = actionTypes.UNSELECT_ENTITY;
+    readonly type = UNSELECT_ENTITY;
 }
 
 export class ToggleDetailSidebarAction implements Action {
-    type: any = actionTypes.TOGGLE_ENTITY_DETAILS;
+    readonly type = TOGGLE_ENTITY_DETAILS;
 }
 
 export class CreateNodeRelationAction implements Action {
-    type: any = actionTypes.CREATE_NODE_RELATION;
+    readonly type = CREATE_NODE_RELATION;
     constructor(public payload: any) { }
 }
 
 export class CreateNodeRelationCompleteAction implements Action {
-    type: any = actionTypes.CREATE_NODE_RELATION_COMPLETE;
+    readonly type = CREATE_NODE_RELATION_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class CreateNodeRelationErrorAction implements Action {
-    type: any = actionTypes.CREATE_NODE_RELATION_ERROR;
+    readonly type = CREATE_NODE_RELATION_ERROR;
     constructor(public payload: any) { }
 }
 
 export class DeleteNodeRelationAction implements Action {
-    type: any = actionTypes.DELETE_NODE_RELATION;
+    readonly type = DELETE_NODE_RELATION;
     constructor(public payload: any) { }
 }
 
 export class DeleteEntityAction implements Action {
-    type: any = actionTypes.DELETE_ENTITY;
+    readonly type = DELETE_ENTITY;
 }
 
 export class CreateEntityAction implements Action {
-    type: any = actionTypes.CREATE_ENTITY;
+    readonly type = CREATE_ENTITY;
     constructor(public payload: any) { }
 }
 
 export class CreateEntityCompleteAction implements Action {
-    type: any = actionTypes.CREATE_ENTITY_COMPLETE;
+    readonly type = CREATE_ENTITY_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class SaveWorkflowPositionsAction implements Action {
-    type: any = actionTypes.SAVE_WORKFLOW_POSITIONS;
+    readonly type = SAVE_WORKFLOW_POSITIONS;
     constructor(public payload: any) { }
 }
 
 export class SaveEditorPosition implements Action {
-    type: any = actionTypes.SAVE_EDITOR_POSITION;
+    readonly type = SAVE_EDITOR_POSITION;
     constructor(public payload: any) { }
 }
 
 export class ShowEditorConfigAction implements Action {
-    type: any = actionTypes.SHOW_EDITOR_CONFIG;
+    readonly type = SHOW_EDITOR_CONFIG;
     constructor(public payload: any) { }
 }
 
 export class HideEditorConfigAction implements Action {
-    type: any = actionTypes.HIDE_EDITOR_CONFIG;
+    readonly type = HIDE_EDITOR_CONFIG;
 }
 
 export class SaveSettingsAction implements Action {
-    type: any = actionTypes.SAVE_SETTINGS;
+    readonly type = SAVE_SETTINGS;
     constructor(public payload: any) { }
 }
 
 export class SaveEntityAction implements Action {
-    type: any = actionTypes.SAVE_ENTITY;
+    readonly type = SAVE_ENTITY;
     constructor(public payload: any) { }
 }
 
 export class SaveEntityCompleteAction implements Action {
-    type: any = actionTypes.SAVE_ENTITY_COMPLETE;
+    readonly type = SAVE_ENTITY_COMPLETE;
     constructor(public payload: any) { }
 }
 
 
 export class SaveEntityErrorAction implements Action {
-    type: any = actionTypes.SAVE_ENTITY_ERROR;
+    readonly type = SAVE_ENTITY_ERROR;
     constructor(public payload: any) { }
 }
 
 export class SaveWorkflowAction implements Action {
-    type: any = actionTypes.SAVE_WORKFLOW;
+    readonly type = SAVE_WORKFLOW;
 }
 
 export class SaveWorkflowCompleteAction implements Action {
-    type: any = actionTypes.SAVE_WORKFLOW_COMPLETE;
+    readonly type = SAVE_WORKFLOW_COMPLETE;
     constructor(public payload: any) { }
 }
 
 export class SaveWorkflowErrorAction implements Action {
-    type: any = actionTypes.SAVE_WORKFLOW_ERROR;
+    readonly type = SAVE_WORKFLOW_ERROR;
     constructor(public payload: any) { }
 }
 
 export class SelectSegmentAction implements Action {
-    type: any = actionTypes.SELECT_SEGMENT;
+    readonly type = SELECT_SEGMENT;
     constructor(public payload: any) { }
 }
 
 export class UnselectSegmentAction implements Action {
-    type: any = actionTypes.UNSELECT_SEGMENT;
+    readonly type = UNSELECT_SEGMENT;
 }
 
 export class SearchFloatingMenuAction implements Action {
-    type: any = actionTypes.SEARCH_MENU_OPTION;
+    readonly type = SEARCH_MENU_OPTION;
     constructor(public payload: any) { }
 }
 
 export class UndoChangesAction implements Action {
-    type: any = actionTypes.UNDO_CHANGES;
+    readonly type = UNDO_CHANGES;
 }
 
 export class RedoChangesAction implements Action {
-    type: any = actionTypes.REDO_CHANGES;
+    readonly type = REDO_CHANGES;
 }
 
 export type Actions =

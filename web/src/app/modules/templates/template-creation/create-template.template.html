@@ -25,7 +25,7 @@
                      qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
                      class="input-field"></sp-input>
                   <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
-                     [required]="true" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
+                     [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
                      class="input-field"></sp-textarea>
                   <div *ngIf="!editMode">
                      <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.INPUT_TYPE' | translate}}"

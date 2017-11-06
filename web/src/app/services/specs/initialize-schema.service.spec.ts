@@ -15,10 +15,12 @@
 ///
 
 import { InitializeSchemaService } from '../initialize-schema.service';
-import * as settingsTemplate from 'data-templates/settings.json';
-import * as kafkaTemplate from 'data-templates/inputs/kafka.json';
-import * as printTemplate from 'data-templates/outputs/print.json';
+import { inputsObject } from 'data-templates/inputs';
+import { outputsObject } from 'data-templates/outputs';
+import { settingsTemplate } from 'data-templates/index';
 
+const kafkaTemplate = inputsObject['Kafka'];
+const printTemplate = outputsObject['Print'];
 const initializeSchemaService: InitializeSchemaService = new InitializeSchemaService();
 const schema = [
     {
@@ -46,7 +48,6 @@ describe('initialize-schema.service', function () {
         const template: any = <any>kafkaTemplate;
         const model = initializeSchemaService.setDefaultEntityModel(kafkaTemplate, 'Input', true);
         expect(model.classPrettyName).toBe(template.classPrettyName);
-        expect(model.description).toBe(template.description);
     });
 
     it('should be able to initialize entity writer if it is not an output', () => {

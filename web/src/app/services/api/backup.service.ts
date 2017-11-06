@@ -23,71 +23,61 @@ import { ApiService, ApiRequestOptions } from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class BackupService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
     getBackupList(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('metadata/backup', options);
+        const options: any = {};
+        return this.request('metadata/backup', 'get', options);
     }
 
     generateBackup(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('metadata/backup/build', options);
+        const options: any = {};
+        return this.request('metadata/backup/build', 'get', options);
     }
 
     deleteBackup(fileName: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        console.log("a")
-        return this.request('metadata/backup/' + fileName, options);
+        const options: any = {};
+
+        return this.request('metadata/backup/' + fileName, 'delete', options);
     }
 
     downloadBackup(fileName: string): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('metadata/backup/' + fileName, options);
+        const options: any = {};
+        return this.request('metadata/backup/' + fileName, 'get', options);
     }
 
     executeBackup(fileName: string, removeData: boolean): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'post',
+        const options: any = {
             body: {
                 fileName: fileName,
                 deleteAllBefore: removeData
             }
         };
-        return this.request('metadata/backup', options);
+        return this.request('metadata/backup', 'post', options);
     }
 
     uploadBackup(file:any): Observable<any> {
         const fd = new FormData();
         fd.append('file', file);
-        const options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: fd
         };
-        return this.request('metadata/backup', options);
+        return this.request('metadata/backup', 'put', options);
     }
 
     createBackupFile(data: any, fileName: string): void {
-        console.log(data);
         const backupData = 'text/json;charset=utf-8,' + JSON.stringify(data);
         const a = document.createElement('a');
         a.href = 'data:' + backupData;
@@ -99,18 +89,14 @@ export class BackupService extends ApiService {
 
     deleteAllBackups(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        return this.request('metadata/backup', options);
+        const options: any = {};
+        return this.request('metadata/backup', 'delete', options);
     }
 
 
     deleteMetadata(): Observable<any> {
 
-        const options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        return this.request('metadata', options);
+        const options: any = {};
+        return this.request('metadata', 'delete', options);
     }
 }

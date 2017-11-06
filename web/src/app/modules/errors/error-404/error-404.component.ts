@@ -15,7 +15,7 @@
 ///
 
 import { Component } from '@angular/core';
-import { ConfigService } from '@app/core';
+import { ConfigService } from "@app/core/config/config.service";
 
 @Component({
    templateUrl: 'error-404.template.html'

@@ -17,191 +17,189 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-  LIST_DRIVERS: type('[Resources] List drivers'),
-  LIST_DRIVERS_COMPLETE: type('[Resources] List drivers complete'),
-  LIST_DRIVERS_ERROR: type('[Resources] List drivers error'),
-  LIST_PLUGINS: type('[Resources] List plugins'),
-  LIST_PLUGINS_COMPLETE: type('[Resources] List plugins complete'),
-  LIST_PLUGINS_ERROR: type('[Resources] List plugins error'),
-  UPLOAD_PLUGIN: type('[Resources] Upload plugin'),
-  UPLOAD_PLUGIN_COMPLETE: type('[Resources] Upload plugin complete'),
-  UPLOAD_PLUGIN_ERROR: type('[Resources] Upload plugin error'),
-  DELETE_PLUGIN: type('[Resources] Delete plugin'),
-  DELETE_PLUGIN_COMPLETE: type('[Resources] Delete plugin complete'),
-  DELETE_PLUGIN_ERROR: type('[Resources] Delete plugin error'),
-  UPLOAD_DRIVER: type('[Resources] Upload driver'),
-  UPLOAD_DRIVER_COMPLETE: type('[Resources] Upload driver complete'),
-  UPLOAD_DRIVER_ERROR: type('[Resources] Upload driver error'),
-  DELETE_DRIVER: type('[Resources] Delete driver'),
-  DELETE_DRIVER_COMPLETE: type('[Resources] Delete driver complete'),
-  DELETE_DRIVER_ERROR: type('[Resources] Delete driver error'),
-  DOWNLOAD_DRIVER: type('[Resources] Download driver'),
-  DOWNLOAD_DRIVER_COMPLETE: type('[Resources] Download driver complete'),
-  DOWNLOAD_DRIVER_ERROR: type('[Resources] Download driver error'),
-  DOWNLOAD_PLUGIN: type('[Resources] Download plugin'),
-  DOWNLOAD_PLUGIN_COMPLETE: type('[Resources] Download plugin complete'),
-  DOWNLOAD_PLUGIN_ERROR: type('[Resources] Download plugin error')
-};
+export const LIST_DRIVERS = '[Resources] List drivers';
+export const LIST_DRIVERS_COMPLETE = '[Resources] List drivers complete';
+export const LIST_DRIVERS_ERROR = '[Resources] List drivers error';
+export const LIST_PLUGINS = '[Resources] List plugins';
+export const LIST_PLUGINS_COMPLETE = '[Resources] List plugins complete';
+export const LIST_PLUGINS_ERROR = '[Resources] List plugins error';
+export const UPLOAD_PLUGIN = '[Resources] Upload plugin';
+export const UPLOAD_PLUGIN_COMPLETE = '[Resources] Upload plugin complete';
+export const UPLOAD_PLUGIN_ERROR = '[Resources] Upload plugin error';
+export const DELETE_PLUGIN = '[Resources] Delete plugin';
+export const DELETE_PLUGIN_COMPLETE = '[Resources] Delete plugin complete';
+export const DELETE_PLUGIN_ERROR = '[Resources] Delete plugin error';
+export const UPLOAD_DRIVER = '[Resources] Upload driver';
+export const UPLOAD_DRIVER_COMPLETE = '[Resources] Upload driver complete';
+export const UPLOAD_DRIVER_ERROR = '[Resources] Upload driver error';
+export const DELETE_DRIVER = '[Resources] Delete driver';
+export const DELETE_DRIVER_COMPLETE = '[Resources] Delete driver complete';
+export const DELETE_DRIVER_ERROR = '[Resources] Delete driver error';
+export const DOWNLOAD_DRIVER = '[Resources] Download driver';
+export const DOWNLOAD_DRIVER_COMPLETE = '[Resources] Download driver complete';
+export const DOWNLOAD_DRIVER_ERROR = '[Resources] Download driver error';
+export const DOWNLOAD_PLUGIN = '[Resources] Download plugin';
+export const DOWNLOAD_PLUGIN_COMPLETE = '[Resources] Download plugin complete';
+export const DOWNLOAD_PLUGIN_ERROR = '[Resources] Download plugin error';
 
 export class ListDriversAction implements Action {
-  type: any = actionTypes.LIST_DRIVERS;
+  readonly type = LIST_DRIVERS;
 
   constructor() { }
 }
 
 export class ListDriversCompleteAction implements Action {
-  type: any = actionTypes.LIST_DRIVERS_COMPLETE;
+  readonly type = LIST_DRIVERS_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class ListDriversErrorAction implements Action {
-  type: any = actionTypes.LIST_DRIVERS_ERROR;
+  readonly type = LIST_DRIVERS_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class ListPluginsAction implements Action {
-  type: any = actionTypes.LIST_PLUGINS;
+  readonly type = LIST_PLUGINS;
 
   constructor() { }
 }
 
 export class ListPluginsCompleteAction implements Action {
-  type: any = actionTypes.LIST_PLUGINS_COMPLETE;
+  readonly type = LIST_PLUGINS_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 export class ListPluginsErrorAction implements Action {
-  type: any = actionTypes.LIST_PLUGINS_ERROR;
+  readonly type = LIST_PLUGINS_ERROR;
 
   constructor(public payload: any) { }
 }
 
 export class UploadPluginAction implements Action {
-  type: any = actionTypes.UPLOAD_PLUGIN;
+  readonly type = UPLOAD_PLUGIN;
 
   constructor(public payload: any) { }
 }
 
 
 export class UploadPluginCompleteAction implements Action {
-  type: any = actionTypes.UPLOAD_PLUGIN_COMPLETE;
+  readonly type = UPLOAD_PLUGIN_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class UploadPluginErrorAction implements Action {
-  type: any = actionTypes.UPLOAD_PLUGIN_ERROR;
+  readonly type = UPLOAD_PLUGIN_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeletePluginAction implements Action {
-  type: any = actionTypes.DELETE_PLUGIN;
+  readonly type = DELETE_PLUGIN;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeletePluginCompleteAction implements Action {
-  type: any = actionTypes.DELETE_PLUGIN_COMPLETE;
+  readonly type = DELETE_PLUGIN_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeletePluginErrorAction implements Action {
-  type: any = actionTypes.DELETE_PLUGIN_ERROR;
+  readonly type = DELETE_PLUGIN_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class UploadDriverAction implements Action {
-  type: any = actionTypes.UPLOAD_DRIVER;
+  readonly type = UPLOAD_DRIVER;
 
   constructor(public payload: any) { }
 }
 
 
 export class UploadDriverCompleteAction implements Action {
-  type: any = actionTypes.UPLOAD_DRIVER_COMPLETE;
+  readonly type = UPLOAD_DRIVER_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class UploadDriverErrorAction implements Action {
-  type: any = actionTypes.UPLOAD_DRIVER_ERROR;
+  readonly type = UPLOAD_DRIVER_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeleteDriverAction implements Action {
-  type: any = actionTypes.DELETE_DRIVER;
+  readonly type = DELETE_DRIVER;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeleteDriverCompleteAction implements Action {
-  type: any = actionTypes.DELETE_DRIVER_COMPLETE;
+  readonly type = DELETE_DRIVER_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class DeleteDriverErrorAction implements Action {
-  type: any = actionTypes.DELETE_DRIVER_ERROR;
+  readonly type = DELETE_DRIVER_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadDriverAction implements Action {
-  type: any = actionTypes.DOWNLOAD_DRIVER;
+  readonly type = DOWNLOAD_DRIVER;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadDriverCompleteAction implements Action {
-  type: any = actionTypes.DOWNLOAD_DRIVER_COMPLETE;
+  readonly type = DOWNLOAD_DRIVER_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadDriverErrorAction implements Action {
-  type: any = actionTypes.DOWNLOAD_DRIVER_ERROR;
+  readonly type = DOWNLOAD_DRIVER_ERROR;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadPluginAction implements Action {
-  type: any = actionTypes.DOWNLOAD_PLUGIN;
+  readonly type = DOWNLOAD_PLUGIN;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadPluginCompleteAction implements Action {
-  type: any = actionTypes.DOWNLOAD_PLUGIN_COMPLETE;
+  readonly type = DOWNLOAD_PLUGIN_COMPLETE;
 
   constructor(public payload: any) { }
 }
 
 
 export class DownloadPluginErrorAction implements Action {
-  type: any = actionTypes.DOWNLOAD_PLUGIN_ERROR;
+  readonly type = DOWNLOAD_PLUGIN_ERROR;
 
   constructor(public payload: any) { }
 }

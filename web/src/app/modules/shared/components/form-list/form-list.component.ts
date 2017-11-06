@@ -1,5 +1,3 @@
-import { IUsePropertyDecoratorConfig } from 'codelyzer/propertyDecoratorBase';
-import { Observable } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -31,6 +29,7 @@ import {
     ViewChildren,
     ViewChild
 } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 import {
     ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
@@ -139,15 +138,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
             });
         });
 
-       /* this.visibleConditions.forEach((propertyConditions: any) => {
-            propertyConditions.conditions.forEach((condition: any) => {
-                const subscription: Subscription = itemGroup.controls[condition.propertyId].valueChanges.subscribe((value: any) => {
-                    this.checkDisabledField(propertyConditions.conditions,  this.items.controls[index]);
-                });
-                this.checkDisabledField(propertyConditions.conditions,  itemGroup.controls[condition.propertyId]);
-                subscriptionsHandler.push(subscription);
-            });
-        });*/
         this.itemssubscription.push(subscriptionsHandler);
     }
 

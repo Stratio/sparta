@@ -30,7 +30,7 @@ export class InputEffect {
 
     @Effect()
     getInputList$: Observable<Action> = this.actions$
-        .ofType(inputActions.actionTypes.LIST_INPUT).switchMap((response: any) => {
+        .ofType(inputActions.LIST_INPUT).switchMap((response: any) => {
             return this.inputService.getInputList()
                 .map((inputList: any) => {
                     return new inputActions.ListInputCompleteAction(inputList);
@@ -41,7 +41,7 @@ export class InputEffect {
 
     @Effect()
     deleteInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.actionTypes.DELETE_INPUT)
+        .ofType(inputActions.DELETE_INPUT)
         .map((action: any) => action.payload.selected)
         .switchMap((inputs: any) => {
             const joinObservables: Observable<any>[] = [];
@@ -57,9 +57,11 @@ export class InputEffect {
 
     @Effect()
     duplicateInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.actionTypes.DUPLICATE_INPUT)
+        .ofType(inputActions.DUPLICATE_INPUT)
         .switchMap((data: any) => {
-            return this.inputService.createFragment(data.payload).mergeMap((data: any) => {
+            let input = Object.assign(data.payload);
+            delete input.id;
+            return this.inputService.createFragment(input).mergeMap((data: any) => {
                 return [new inputActions.DuplicateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
                 return Observable.of(new inputActions.DuplicateInputErrorAction(''));
@@ -68,7 +70,7 @@ export class InputEffect {
 
     @Effect()
     createInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.actionTypes.CREATE_INPUT)
+        .ofType(inputActions.CREATE_INPUT)
         .switchMap((data: any) => {
             return this.inputService.createFragment(data.payload).mergeMap((data: any) => {
                 return [new inputActions.CreateInputCompleteAction(), new inputActions.ListInputAction];
@@ -79,7 +81,7 @@ export class InputEffect {
 
     @Effect()
     updateInput$: Observable<Action> = this.actions$
-        .ofType(inputActions.actionTypes.UPDATE_INPUT)
+        .ofType(inputActions.UPDATE_INPUT)
         .switchMap((data: any) => {
             return this.inputService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new inputActions.UpdateInputCompleteAction(), new inputActions.ListInputAction];

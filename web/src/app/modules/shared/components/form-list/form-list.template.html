@@ -1,15 +1,13 @@
 <div class="form-list">
 
-   <div class="col-sm-12">
+   <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
       <span class="egeo-title-small list-title">{{label}}</span>
    </div>
-
-
-   <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length">
+   <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length && !isDisabled">
       <div formArrayName="items">
          <div *ngFor="let item of items.controls; let i = index; let last = last;">
             <div [formGroup]="item" class="row">
-               <div class="list-field"  [ngClass]="{'last' : last}">
+               <div class="list-field" [ngClass]="{'last' : last}">
                   <ng-container *ngFor="let field of formListData.fields; let j = index;">
                      <div *ngIf="item.controls[field.propertyId].enabled" [className]="getItemClass(field)">
                         <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
@@ -38,7 +36,7 @@
          <span class="st-input-error-message">{{errors.required}}</span>
       </div>
    </div>
-   <div class="add-element" (click)="addItem()">
+   <div class="add-element" (click)="!isDisabled && addItem()" [ngClass]="{'disabled' : isDisabled}">
       <i class="icon-circle-plus"></i>
       <span class="element-label">Add element</span>
    </div>

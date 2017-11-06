@@ -29,7 +29,7 @@ export class BackupsEffect {
 
     @Effect()
     getBackupsList$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.LIST_BACKUP).switchMap((response: any) => {
+        .ofType(backupsActions.LIST_BACKUP).switchMap((response: any) => {
             return this.backupService.getBackupList()
                 .map((inputList: any) => {
                     return new backupsActions.ListBackupCompleteAction(inputList);
@@ -41,7 +41,7 @@ export class BackupsEffect {
 
     @Effect()
     generateBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.GENERATE_BACKUP).switchMap((data: any) => {
+        .ofType(backupsActions.GENERATE_BACKUP).switchMap((data: any) => {
             return this.backupService.generateBackup().mergeMap((data: any) => {
                 return [new backupsActions.GenerateBackupCompleteAction(), new backupsActions.ListBackupAction()];
             }).catch(function (error) {
@@ -51,9 +51,9 @@ export class BackupsEffect {
 
     @Effect()
     deleteBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DELETE_BACKUP)
+        .ofType(backupsActions.DELETE_BACKUP)
         .withLatestFrom(this.store.select(state => state.backups))
-        .switchMap(([payload, backups]) => {
+        .switchMap(([payload, backups]: [any, any]) => {
             const joinObservables: Observable<any>[] = [];
             backups.selectedBackups.forEach((fileName: string) => {
                 joinObservables.push(this.backupService.deleteBackup(fileName));
@@ -67,9 +67,9 @@ export class BackupsEffect {
 
     @Effect()
     downloadBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DOWNLOAD_BACKUP)
+        .ofType(backupsActions.DOWNLOAD_BACKUP)
         .withLatestFrom(this.store.select(state => state.backups))
-        .switchMap(([payload, backups]) => {
+        .switchMap(([payload, backups]: [any, any]) => {
             const joinObservables: Observable<any>[] = [];
             backups.selectedBackups.forEach((fileName: string) => {
                 joinObservables.push(this.backupService.downloadBackup(fileName));
@@ -84,9 +84,10 @@ export class BackupsEffect {
 
     @Effect()
     executeBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.EXECUTE_BACKUP)
+        .ofType(backupsActions.EXECUTE_BACKUP)
+        .map((action: backupsActions.ExecuteBackupAction) => action.payload)
         .withLatestFrom(this.store.select(state => state.backups))
-        .switchMap(([data, backups]) => {
+        .switchMap(([data, backups]: [any, any]) => {
             return this.backupService.executeBackup(backups.selectedBackups[0], data.payload)
                 .map((response) => {
                     return new backupsActions.ExecuteBackupCompleteAction('');
@@ -97,7 +98,7 @@ export class BackupsEffect {
 
     @Effect()
     deleteAllBackups$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DELETE_ALL_BACKUPS).switchMap((data: any) => {
+        .ofType(backupsActions.DELETE_ALL_BACKUPS).switchMap((data: any) => {
             return this.backupService.deleteAllBackups().mergeMap((res: any) => {
                 return [new backupsActions.DeleteAllBackupsCompleteAction(), new backupsActions.ListBackupAction()];
             }).catch(function (error) {
@@ -107,7 +108,7 @@ export class BackupsEffect {
 
     @Effect()
     deleteMetadata$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.DELETE_METADATA).switchMap((data: any) => {
+        .ofType(backupsActions.DELETE_METADATA).switchMap((data: any) => {
             return this.backupService.deleteMetadata()
                 .map(() => {
                     return new backupsActions.DeleteMetadataCompleteAction();
@@ -118,7 +119,7 @@ export class BackupsEffect {
 
     @Effect()
     uploadBackup$: Observable<Action> = this.actions$
-        .ofType(backupsActions.actionTypes.UPLOAD_BACKUP).switchMap((data: any) => {
+        .ofType(backupsActions.UPLOAD_BACKUP).switchMap((data: any) => {
             return this.backupService.uploadBackup(data.payload)
                 .mergeMap(() => {
                     return [new backupsActions.UploadBackupCompleteAction(''), new backupsActions.ListBackupAction()];

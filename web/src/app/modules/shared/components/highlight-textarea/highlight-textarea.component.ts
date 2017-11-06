@@ -129,7 +129,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
           smartIndent: true,
           lineNumbers: false,
           matchBrackets: true,
-          autofocus: true,
           extraKeys: { 'Ctrl-Space': 'autocomplete' }
         };
       case 'JSON': {
@@ -154,7 +153,6 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.internalControl.setValue(value);
       this.onChange(value);
     });
-
   }
 
   ngAfterViewInit(): void {

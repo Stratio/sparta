@@ -110,7 +110,8 @@
       "CATALOG_DESCRIPTION": "Retrieve crossdata databases and tables catalog.",
       "QUERIES": "Queries",
       "QUERIES_DESCRIPTION": "Execute queries in crossdata.",
-      "CROSSDATA": "Crossdata"
+      "CROSSDATA": "Crossdata",
+      "EXECUTE_QUERY_OK": "Executed SQL: ({{rows}} rows returned)"
    },
    "SETTINGS": {
       "_NAME_": "Name",

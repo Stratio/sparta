@@ -19,66 +19,57 @@ import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService, ApiRequestOptions } from './api.service';
+import { ApiService} from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class ResourcesService extends ApiService {
 
-    constructor(private _http: Http, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
     getPluginsList(): Observable<any> {
 
-        let options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('plugins', options);
+        const options: any = {};
+        return this.request('plugins', 'get', options);
     }
 
     getDriversList(): Observable<any> {
 
-        let options: ApiRequestOptions = {
-            method: 'get'
-        };
-        return this.request('driver', options);
+        const options: any = {};
+        return this.request('driver', 'get', options);
     }
 
     uploadDriver(file: any): Observable<any> {
         let fd = new FormData();
         fd.append('file', file);
-        let options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: fd
         };
-        return this.request('driver', options);
+        return this.request('driver', 'put', options);
     }
 
 
     uploadPlugin(file: any): Observable<any> {
         let fd = new FormData();
         fd.append('file', file);
-        let options: ApiRequestOptions = {
-            method: 'put',
+        const options: any = {
             body: fd
         };
-        return this.request('plugins', options);
+        return this.request('plugins', 'put', options);
     }
 
     deleteDriver(fileName: string): Observable<any> {
-        let options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        return this.request('driver/' + fileName, options);
+        const options: any = {};
+        return this.request('driver/' + fileName, 'delete', options);
     }
 
     deletePlugin(fileName: string): Observable<any> {
-        let options: ApiRequestOptions = {
-            method: 'delete'
-        };
-        return this.request('plugins/' + fileName, options);
+        const options: any = {};
+        return this.request('plugins/' + fileName, 'delete', options);
     }
 }

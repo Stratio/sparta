@@ -15,7 +15,7 @@
 ///
 
 import { APP_INITIALIZER } from '@angular/core';
-import { ConfigService } from '@app/core';
+import { ConfigService } from "./config.service";
 
 export function getConfigJson(config:ConfigService):any {
    return () => config.load('config.json');

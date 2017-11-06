@@ -14,24 +14,9 @@
 /// limitations under the License.
 ///
 
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { WorkflowsComponent } from './workflows.component';
+import * as writer from './writer.json';
+import * as settings from './settings.json';
 
-const workflowRoutes:Routes = [
-   {
-      path: '',
-      component: WorkflowsComponent
-   }
-];
 
-@NgModule({
-   exports: [
-      RouterModule
-   ],
-   imports: [
-      RouterModule.forChild(workflowRoutes)
-   ]
-})
-
-export class WorkflowRoutingModule { }
+export const writerTemplate = writer;
+export const settingsTemplate = settings;

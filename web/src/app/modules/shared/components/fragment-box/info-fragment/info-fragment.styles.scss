@@ -1,0 +1,46 @@
+:host {
+   position: relative;
+}
+
+.info-icon {
+   color: #777777;
+}
+
+.fragment-info {
+   position: absolute;
+   width: 140px;
+   padding: 5px 8px;
+   font-size: 10px;
+   background: white;
+   font-size: 10px;
+   border: 1px solid #aaa;
+   background-color: white;
+   bottom: 30px;
+   right: 50%;
+   color: #444;
+   z-index: 1;
+   margin-right: -69px;
+   &:after,
+   &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 100%;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      top: 100%;
+   }
+   &:after {
+      border-color: #fff transparent transparent transparent;
+      border-width: 6px;
+      left: 50%;
+      margin-left: -5px;
+   }
+   &:before {
+      border-color: #aaa transparent transparent transparent;
+      border-width: 7px;
+      left: 50%;
+      margin-left: -6px;
+   }
+}

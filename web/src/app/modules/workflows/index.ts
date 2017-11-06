@@ -15,7 +15,6 @@
 ///
 
 export * from './workflows.component';
-export * from './workflows.module';
 export * from './workflows.service';
 export * from './resources-routing.module';
 export * from './workflow-creation-modal/workflow-creation-modal.component';

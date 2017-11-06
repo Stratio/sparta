@@ -37,23 +37,23 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case outputActions.actionTypes.LIST_OUTPUT: {
+        case outputActions.LIST_OUTPUT: {
             return Object.assign({}, state, {});
 
         }
-        case outputActions.actionTypes.LIST_OUTPUT_COMPLETE: {
+        case outputActions.LIST_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
                 outputList: action.payload
             });
 
         }
-        case outputActions.actionTypes.SELECT_OUTPUT: {
+        case outputActions.SELECT_OUTPUT: {
             return Object.assign({}, state, {
                 selectedOutputs: [...state.selectedOutputs, action.payload],
                 selectedOutputsIds: [...state.selectedOutputsIds, action.payload.id]
             });
         }
-        case outputActions.actionTypes.DESELECT_OUTPUT: {
+        case outputActions.DESELECT_OUTPUT: {
             const newSelection = state.selectedOutputs.filter((output: any) => {
                 if (output.id !== action.payload.id) {
                     return output;
@@ -66,34 +66,34 @@ export function reducer(state: State = initialState, action: any): State {
                 })
             });
         }
-        case outputActions.actionTypes.DELETE_OUTPUT_COMPLETE: {
+        case outputActions.DELETE_OUTPUT_COMPLETE: {
             const outputId = action.payload;
             return Object.assign({}, state, {
                 selectedOutputs: [],
                 selectedOutputsIds: []
             });
         }
-        case outputActions.actionTypes.DISPLAY_MODE: {
+        case outputActions.DISPLAY_MODE: {
             return Object.assign({}, state, {
                 selectedDisplayOption: state.selectedDisplayOption === 'BLOCKS' ? 'ROWS' : 'BLOCKS'
             });
         }
-        case outputActions.actionTypes.EDIT_OUTPUT: {
+        case outputActions.EDIT_OUTPUT: {
             return Object.assign({}, state, {
                 editedOutput: action.payload
             });
         }
-        case outputActions.actionTypes.UPDATE_OUTPUT_COMPLETE: {
+        case outputActions.UPDATE_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
                 isSaved: true
             });
         }
-        case outputActions.actionTypes.CREATE_OUTPUT_COMPLETE: {
+        case outputActions.CREATE_OUTPUT_COMPLETE: {
             return Object.assign({}, state, {
                 isSaved: true
             });
         }
-        case outputActions.actionTypes.RESET_OUTPUT_FORM: {
+        case outputActions.RESET_OUTPUT_FORM: {
             return Object.assign({}, state, {
                 isSaved: false,
                 selectedOutputs: [],

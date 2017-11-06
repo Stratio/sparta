@@ -94,7 +94,6 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
             if (!editedInput.id) {
                 return this.cancelCreate();
             }
-            console.log(editedInput);
             this.setEditedTemplateIndex(editedInput.classPrettyName);
             this.inputFormModel = editedInput;
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);

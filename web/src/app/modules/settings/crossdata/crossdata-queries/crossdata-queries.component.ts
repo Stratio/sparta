@@ -39,6 +39,9 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     public results: any[] = [];
     public queryError: string = '';
     public queryResultSubscription: Subscription;
+    public queryErrorSubscription: Subscription;
+
+    public showResult = false;
 
     public executeQuery() {
         this.fields = [];
@@ -50,6 +53,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     ngOnInit() {
         this.queryResultSubscription = this.store.select(fromRoot.getQueryResult).subscribe((result: any) => {
             if (result && result.length) {
+                this.showResult = true;
                 const row = result[0];
                 const fields: StTableHeader[] = [];
                 Object.keys(row).forEach(key => {
@@ -65,9 +69,8 @@ export class CrossdataQueries implements OnInit, OnDestroy {
             }
         });
 
-        this.store.select(fromRoot.getQueryError).subscribe((error: any) => {
+        this.queryErrorSubscription = this.store.select(fromRoot.getQueryError).subscribe((error: any) => {
             this.queryError = error;
-            this._cd.detectChanges();
         });
     }
 
@@ -75,6 +78,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.queryResultSubscription && this.queryResultSubscription.unsubscribe();
+        this.queryErrorSubscription && this.queryErrorSubscription.unsubscribe();
     }
 
 

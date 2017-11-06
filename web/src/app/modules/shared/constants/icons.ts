@@ -22,6 +22,7 @@ export const icons: any = {
     Jdbc: '\uE602',
     CSV: '\uE901',
     Csv: '\uE901',
+    Cube: '\ue079',
     MongoDb: '\uE623',
     Parquet: '\uE649',
     Postgres: '\ue9a7',

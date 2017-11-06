@@ -75,7 +75,6 @@ export abstract class CreateTemplateComponent implements OnInit {
     }
 
     changeFragment($event: any) {
-        console.log($event);
     }
 
     ngOnInit() {

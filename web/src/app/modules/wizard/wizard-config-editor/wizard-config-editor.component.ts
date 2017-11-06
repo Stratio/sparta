@@ -24,11 +24,10 @@ import { Subscription } from 'rxjs/Rx';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as wizardActions from 'actions/wizard';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
-import { inputs } from 'data-templates/inputs';
-import { outputs } from 'data-templates/outputs';
-import { transformations } from 'data-templates/transformations';
-import * as settingsTemplate from 'data-templates/settings.json';
-import * as writerTemplate from 'data-templates/writer.json';
+import { inputsObject } from 'data-templates/inputs';
+import { outputsObject } from 'data-templates/outputs';
+import { transformationsObject } from 'data-templates/transformations';
+import {settingsTemplate, writerTemplate} from 'data-templates/index';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 
@@ -36,7 +35,8 @@ import { StHorizontalTab } from '@stratio/egeo';
 @Component({
     selector: 'wizard-config-editor',
     styleUrls: ['wizard-config-editor.styles.scss'],
-    templateUrl: 'wizard-config-editor.template.html'
+    templateUrl: 'wizard-config-editor.template.html',
+    changeDetection: ChangeDetectionStrategy.OnPush    
 })
 
 export class WizardConfigEditorComponent implements OnInit, OnDestroy {
@@ -102,16 +102,16 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.advancedSettings = settings.advancedSettings;
                 break;
             case 'Input':
-                const selectedI: any = this._getEntityTemplate(inputs, this.config.editionType.data.classPrettyName);
+                const selectedI: any = inputsObject[this.config.editionType.data.classPrettyName];
                 this.basicSettings = selectedI.properties;
                 this.writerSettings = writerTemplate;
                 break;
             case 'Output':
-                const selectedO: any = this._getEntityTemplate(outputs, this.config.editionType.data.classPrettyName);
+                const selectedO: any = outputsObject[this.config.editionType.data.classPrettyName];
                 this.basicSettings = selectedO.properties;
                 break;
             case 'Transformation':
-                const selectedT: any = this._getEntityTemplate(transformations, this.config.editionType.data.classPrettyName);
+                const selectedT: any = transformationsObject[this.config.editionType.data.classPrettyName];
                 this.basicSettings = selectedT.properties;
                 this.writerSettings = writerTemplate;
                 break;
@@ -135,14 +135,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                     advancedSettings: this.settingsFormModel
                 }));
                 this.store.dispatch(new wizardActions.HideEditorConfigAction());
-            }
-        }
-    }
-
-    private _getEntityTemplate(entityList: Array<any>, classPrettyName: string) {
-        for (let i = 0; i < entityList.length; i++) {
-            if (entityList[i].classPrettyName === classPrettyName) {
-                return entityList[i];
             }
         }
     }

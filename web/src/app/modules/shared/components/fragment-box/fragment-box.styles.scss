@@ -4,7 +4,7 @@
    width: 282px;
    height: 282px;
    border-radius: 4px;
-   cursor:pointer;
+   cursor: pointer;
    position: relative;
    border: solid 1px #cdd6df;
    &.checked {
@@ -59,11 +59,15 @@
    .actions {
       float: right;
    }
-
-   .selected-fragment{
-        position: absolute;
-        top: 7px;
-        right: -5px;
+   .selected-fragment {
+      position: absolute;
+      top: 7px;
+      right: -5px;
+   }
+   .info-icon {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
    }
 }
 

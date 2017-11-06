@@ -24,7 +24,8 @@ import {
 } from '@stratio/egeo';
 import * as fromRoot from 'reducers';
 import * as workflowActions from 'actions/workflow';
-import { WorkflowCreationModal, WorkflowJsonModal } from './';
+import { WorkflowCreationModal } from './workflow-creation-modal/workflow-creation-modal.component';
+import { WorkflowJsonModal } from './workflow-json-modal/workflow-json-modal.component';
 import { Subscription } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 

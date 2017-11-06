@@ -17,12 +17,10 @@
 import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
-export const actionTypes: any = {
-  SERVER_ERROR: type('[Errors] Server error')
-};
+export const SERVER_ERROR = '[Errors] Server error';
 
 export class ServerErrorAction implements Action {
-  type: any = actionTypes.SERVER_ERROR;
+  readonly type = SERVER_ERROR;
   constructor(public payload: any) { }
 }
 

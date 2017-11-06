@@ -11,19 +11,15 @@
                      </g>
                   </svg>
                   <div class="workflow-name-container" (click)="editWorkflowName()" [hidden]="(nameForm.invalid || editName)">
-                    <span class="title egeo-title-giant">{{workflowName}} </span>
-                    <span class="icon-edit"></span>
+                     <span class="title egeo-title-giant">{{workflowName}} </span>
+                     <span class="icon-edit"></span>
                   </div>
                   <form #nameForm="ngForm" novalidate autocomplete="off" class="workflow-name" [hidden]="(nameForm.valid && !editName)">
-                      <input type="text" #titleFocus required="true" 
-                        [ngClass]="{'error': nameForm.invalid}" 
-                        [pattern]="workflowNamePattern"
-                        (ngModelChange)="eventHandler()"
-                        (blur)="onBlurWorkflowName()" 
-                        spellcheck="false" 
-                        class="egeo-title-giant" name="workflow-name" [(ngModel)]="workflowName"/>
+                     <input type="text" #titleFocus required="true" [ngClass]="{'error': nameForm.invalid}" [pattern]="workflowNamePattern" (ngModelChange)="eventHandler()"
+                        (blur)="onBlurWorkflowName()" spellcheck="false" class="egeo-title-giant" name="workflow-name" [(ngModel)]="workflowName"
+                     />
                   </form>
-                </div>
+               </div>
                <div class="header-links">
                   <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
                   <button class="button button-primary" (click)="saveWorkflow()">
@@ -39,7 +35,8 @@
       <div class="container">
          <div class="row">
             <div class="col-xs-6">
-               <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options" (selectedOption)="selectedMenuOption($event)">
+               <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
+                  (selectedOption)="selectedMenuOption($event)">
                   <div menu-action>
                      <button class="button button-toolbar">
                         <i class="icon-plus"></i>
@@ -54,13 +51,13 @@
                   <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()">
                     <i class="icon-zoom-out"></i>
                 </button>
-                <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
+                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
                     <i class="icon-move"></i>
                 </button>
-                <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()">
+                  <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()">
                   <i class="icon-reload2"></i>
               </button>
-              <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()">
+                  <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()">
                 <i class="icon-reload"></i>
             </button>
                </div>
@@ -75,6 +72,9 @@
                   </button>
                </div>
                <div class="" style="float:right">
+                  <button menu-action class="button button-toolbar">
+                    <i class="icon-alert"></i>
+                </button>
                   <button menu-action class="button button-toolbar" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
                      <i class="icon-info1"></i>
                   </button>
