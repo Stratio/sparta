@@ -108,7 +108,7 @@ object KafkaOutput extends SLF4JLogging {
                    securityOptions: Map[String, AnyRef],
                    additionalProperties: Map[String, String]
                  ): KafkaProducer[String, Row] =
-    synchronized(getInstance(producerKey, securityOptions, properties, additionalProperties))
+  synchronized(getInstance(producerKey, securityOptions, properties, additionalProperties))
 
   def closeProducers(): Unit = {
     producers.values.foreach(producer => producer.close())
@@ -150,12 +150,11 @@ object KafkaOutput extends SLF4JLogging {
       producers.put(key, producer)
       producer
     })
+}
 
-
-  /** METHOD TO SPARK SUBMIT **/
+object KafkaOutputStep{
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     SecurityHelper.kafkaSecurityConf(configuration)
   }
-
 }

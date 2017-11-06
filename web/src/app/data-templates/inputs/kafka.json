@@ -43,7 +43,7 @@
       {
         "propertyId": "topics",
         "propertyName": "_TOPICS_",
-        "propertyType": "stringlist",
+        "propertyType": "list",
         "width": 6,
         "default": "",
         "required": true,
@@ -64,7 +64,7 @@
           }
         ]
       },
-       {
+      {
           "propertyId": "group.id",
           "propertyName": "_GROUP_ID_",
           "propertyType": "text",
@@ -73,7 +73,7 @@
           "tooltip": "Identifies the consumer group this consumer belongs to.",
           "qa": "fragment-details-stratio-kafkadirect-group-id"
        },
-       {
+      {
           "propertyId": "value.deserializer.inputFormat",
           "propertyName": "_DESERIALIZER_INPUT_FORMAT_",
           "propertyType": "select",
@@ -91,7 +91,7 @@
           "required": true,
           "qa": "fragment-details-kafka-deserializer-input-format"
        },
-       {
+      {
           "propertyId": "outputField",
           "propertyName": "_OUTPUT_FIELD_",
           "propertyType": "text",
@@ -108,7 +108,7 @@
           "tooltip": "Name assigned to the output field generated",
           "qa": "fragment-details-kafka-outputField"
        },
-       {
+      {
           "propertyId": "value.deserializer.json.schema.fromRow",
           "propertyName": "_SCHEMA_FROM_ROW_",
           "propertyType": "boolean",
@@ -125,7 +125,7 @@
           "tooltip": "If checked, each row schema will be inferred from its contents",
           "qa": "workflow-transformation-kafka-schema-fromRow"
        },
-       {
+      {
           "propertyId": "value.deserializer.json.schema.inputMode",
           "propertyName": "_INPUT_SCHEMA_FROM_",
           "propertyType": "select",
@@ -155,7 +155,7 @@
           "required": true,
           "qa": "workflow-transformation-kafka-schema-mode"
        },
-       {
+      {
           "propertyId": "value.deserializer.json.schema.provided",
           "propertyName": "_DESERIALIZER_SCHEMA_",
           "propertyType": "textarea",
@@ -258,118 +258,12 @@
         "qa": "fragment-details-kafka-offset-in-kafka"
       },
       {
-        "propertyId": "vaultTLSEnable",
+        "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "switch",
         "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
         "default": false,
         "qa": "fragment-details-kafka-tls"
-      },
-      {
-        "propertyId": "vaultRole",
-        "propertyName": "_KAFKA_VAULT_ROLE_",
-        "propertyType": "text",
-        "tooltip": "Example: sparta-job",
-        "regexp": "",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultRole"
-      },
-      {
-        "propertyId": "vaultCertPath",
-        "propertyName": "_KAFKA_CERT_PATH_",
-        "propertyType": "text",
-        "tooltip": "Example: /v1/userland/certificates/sparta",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultCertPath"
-      },
-      {
-        "propertyId": "vaultCertPassPath",
-        "propertyName": "_KAFKA_CERT_PASS_PATH_",
-        "propertyType": "text",
-        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultCertPassPath"
-      },
-      {
-        "propertyId": "vaultKeyPassPath",
-        "propertyName": "_KAFKA_KEY_PASS_PATH_",
-        "propertyType": "text",
-        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
-        "regexp": "",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultKeyPassPath"
-      },
-      {
-        "propertyId": "vaultTrustStorePath",
-        "propertyName": "_KAFKA_TRUSTSTORE_PATH_",
-        "propertyType": "text",
-        "tooltip": "Example: /v1/userland/certificates/sparta",
-        "regexp": "",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultTrustStorePath"
-      },
-      {
-        "propertyId": "vaultTrustStorePassPath",
-        "propertyName": "_KAFKA_TRUSTSTORE_PASS_PATH_",
-        "propertyType": "text",
-        "tooltip": "Example: /v1/userland/passwords/sparta/keystore",
-        "regexp": "",
-        "default": "",
-        "visible": [
-          [
-            {
-              "propertyId": "vaultTLSEnable",
-              "value": true
-            }
-          ]
-        ],
-        "required": false,
-        "qa": "fragment-details-kafka-vaultTrustStorePath"
       },
       {
         "propertyId": "kafkaProperties",

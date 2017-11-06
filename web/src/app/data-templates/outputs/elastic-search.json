@@ -1,92 +1,115 @@
-  {
-    "name": "Elasticsearch",
-    "classPrettyName": "ElasticSearch",
-    "description": {
-      "short": "The Elasticsearch output uses the generic implementation with DataFrames.",
-      "long": "Elasticsearch is a search server based on Lucene. It provides a distributed, multitenant-capable full-text search engine with a RESTful web interface and schema-free JSON documents.",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/Outputs#Outputs-Elasticsearch"
-    },
-    "properties": [
+{
+   "name": "Elasticsearch",
+   "classPrettyName": "ElasticSearch",
+   "className": "ElasticSearchOutputStep",
+   "icon": "Elasticsearch",
+   "description": "Elasticsearch is a search server based on Lucene. This output uses the generic implementation with DataFrames.",
+   "properties": [
       {
-        "propertyId": "nodes",
-        "propertyName": "_NODES_",
-        "propertyType": "list",
-        "default": "",
-        "required": true,
-        "hidden": false,
-        "limit": 0,
-        "tooltip": "",
-        "qa": "fragment-details-elasticSearch-nodes",
-        "fields": [
-          {
-            "propertyId": "node",
-            "propertyName": "_HOST_",
-            "propertyType": "text",
-            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-            "default": "localhost",
-            "required": true,
-            "qa": "fragment-details-elasticSearch-node"
-          },
-          {
-            "propertyId": "httpPort",
-            "propertyName": "_HTTP_PORT_",
-            "propertyType": "text",
-            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-            "default": "9200",
-            "required": true,
-            "qa": "fragment-details-elasticSearch-httpPort"
-          }
-        ]
+         "propertyId": "nodes",
+         "propertyName": "_NODES_",
+         "propertyType": "list",
+         "default": "",
+         "required": true,
+         "hidden": false,
+         "limit": 0,
+         "tooltip": "",
+         "qa": "fragment-details-elasticSearch-nodes",
+         "fields": [
+            {
+               "propertyId": "node",
+               "propertyName": "_HOST_",
+               "propertyType": "text",
+               "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
+               "default": "localhost",
+               "required": true,
+               "qa": "fragment-details-elasticSearch-node"
+            },
+            {
+               "propertyId": "httpPort",
+               "propertyName": "_HTTP_PORT_",
+               "propertyType": "text",
+               "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
+               "default": "9200",
+               "required": true,
+               "qa": "fragment-details-elasticSearch-httpPort"
+            }
+         ]
       },
       {
-        "propertyId": "clusterName",
-        "propertyName": "_CLUSTERNAME_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "elasticsearch",
-        "required": true,
-        "qa": "fragment-details-elasticSearch-clusterName"
+         "propertyId": "clusterName",
+         "propertyName": "_CLUSTER_NAME_",
+         "propertyType": "text",
+         "regexp": "",
+         "default": "elasticsearch",
+         "required": true,
+         "qa": "fragment-details-elasticSearch-clusterName"
       },
       {
-        "propertyId": "indexMapping",
-        "propertyName": "_INDEX_MAPPING_",
-        "propertyType": "text",
-        "regexp": "",
-        "default": "sparta",
-        "tooltip": "Value will be used as mapping name for indexing.",
-        "required": false,
-        "qa": "fragment-details-elasticSearch-indexMapping"
+         "propertyId": "indexMapping",
+         "propertyName": "_INDEX_MAPPING_",
+         "propertyType": "text",
+         "regexp": "",
+         "default": "sparta",
+         "tooltip": "Value will be used as mapping name for indexing.",
+         "required": false,
+         "qa": "fragment-details-elasticSearch-indexMapping"
       },
       {
-        "propertyId": "saveOptions",
-        "propertyName": "_ELASTICSEARCH_SAVE_PROPERTIES_",
-        "propertyType": "list",
-        "default": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "fragment-details-elasticsearch-save-properties",
-        "fields": [
-          {
-            "propertyId": "saveOptionsKey",
-            "propertyName": "_SAVE_OPTIONS_KEY_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "fragment-details-elasticsearch-saveOptionsKey"
-          },
-          {
-            "propertyId": "saveOptionsValue",
-            "propertyName": "_SAVE_OPTIONS_VALUE_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "fragment-details-elasticsearch-saveOptionsValue"
-          }
-        ]
+         "propertyId": "enableAutoCreateIndex",
+         "propertyName": "_ENABLE_INDEX_AUTO_CREATE_",
+         "propertyType": "boolean",
+         "tooltip": "Enable index auto creation",
+         "default": true,
+         "qa": "fragment-details-elasticSearch-index-auto-create"
+      },
+      {
+         "propertyId": "tlsEnabled",
+         "propertyName": "_TLS_ENABLE_",
+         "propertyType": "boolean",
+         "tooltip": "Enable TLS connection to ElasticSearch getting certificates from vault in Spark job",
+         "default": false,
+         "qa": "fragment-details-elasticSearch-tls"
+      },
+      {
+         "propertyId": "timeStampMapperFormat",
+         "propertyName": "_TIME_STAMP_MAPPING_",
+         "propertyType": "text",
+         "regexp": "",
+         "tooltip": "Specify the format the timestamp will have",
+         "required": false,
+         "qa": "fragment-details-elasticSearch-clusterName"
+      },
+      {
+         "propertyId": "saveOptions",
+         "propertyName": "_ELASTICSEARCH_SAVE_PROPERTIES_",
+         "propertyType": "list",
+         "default": "",
+         "required": false,
+         "tooltip": "",
+         "qa": "fragment-details-elasticsearch-save-properties",
+         "fields": [
+            {
+               "propertyId": "saveOptionsKey",
+               "propertyName": "_SAVE_OPTIONS_KEY_",
+               "propertyType": "text",
+               "regexp": "",
+               "default": "",
+               "hidden": false,
+               "required": false,
+               "qa": "fragment-details-elasticsearch-saveOptionsKey"
+            },
+            {
+               "propertyId": "saveOptionsValue",
+               "propertyName": "_SAVE_OPTIONS_VALUE_",
+               "propertyType": "text",
+               "regexp": "",
+               "default": "",
+               "hidden": false,
+               "required": false,
+               "qa": "fragment-details-elasticsearch-saveOptionsValue"
+            }
+         ]
       }
-    ]
-  }
+   ]
+}

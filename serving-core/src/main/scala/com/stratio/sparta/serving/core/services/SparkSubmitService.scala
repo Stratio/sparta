@@ -232,6 +232,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     }
   }
 
+  //scalastyle:off
   private[sparta] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val tlsEnable = workflow.settings.sparkSettings.sparkDataStoreTls
     val tlsOptions = {
@@ -245,22 +246,43 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
           .notBlank
           .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
+        val vaultCertPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH").notBlank
+        val vaultCertPassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH").notBlank
+        val vaultKeyPassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
+        val vaultTrustStorePath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
+        val vaultTrustStorePassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
 
-        (vaultHost, vaultPort, appName) match {
-          case (Some(host), Some(port), Some(name)) =>
+        (vaultHost, vaultPort, appName, vaultCertPath, vaultCertPassPath, vaultKeyPassPath, vaultTrustStorePath,
+          vaultTrustStorePassPath) match {
+          case (Some(host), Some(port), Some(name),Some(certPath), Some(certPassPath), Some(keyPassPath),
+          Some(trustStorePath), Some(trustStorePassPath)) =>
             Seq(
+              ("spark.mesos.executor.docker.volumes",
+                "/etc/pki/ca-trust/extracted/java/cacerts/:/etc/ssl/certs/java/cacerts:ro"),
               ("spark.mesos.driverEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
               ("spark.mesos.driverEnv.VAULT_HOST", host),
               ("spark.mesos.driverEnv.VAULT_PORT", port),
               ("spark.mesos.driverEnv.VAULT_PROTOCOL", "https"),
               ("spark.mesos.driverEnv.APP_NAME", name),
               ("spark.mesos.driverEnv.CA_NAME", "ca"),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH", trustStorePath),
+              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH", trustStorePassPath),
               ("spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
               ("spark.executorEnv.VAULT_HOST", host),
               ("spark.executorEnv.VAULT_PORT", port),
               ("spark.executorEnv.VAULT_PROTOCOL", "https"),
               ("spark.executorEnv.APP_NAME", name),
               ("spark.executorEnv.CA_NAME", "ca"),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH", trustStorePath),
+              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH", trustStorePassPath),
               ("spark.secret.vault.host", host),
               ("spark.secret.vault.hosts", host),
               ("spark.secret.vault.port", port),
@@ -270,7 +292,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
                 val tempToken = getTemporalToken(s"https://$host:$port", vaultToken.get)
                 Seq(
                   ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken)
-                  //("spark.secret.vault.tempToken", tempToken)
                 )
               } else Seq.empty[(String, String)]
             }

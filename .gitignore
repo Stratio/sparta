@@ -11,6 +11,7 @@ syntax: glob
 *.tmp
 *.swp
 *.lock
+*.st
 output.txt
 
 # eclipse conf file

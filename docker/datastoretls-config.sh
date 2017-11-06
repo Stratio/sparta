@@ -28,3 +28,12 @@ fold -w64 "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key" >> "${SPARK_SSL_CERT_PATH}/
 mv "${SPARK_SSL_CERT_PATH}/aux.key" "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key"
 openssl pkcs8 -topk8 -inform pem -in "${SPARK_SSL_CERT_PATH}/${SERVICE_ID}.key" -outform der -nocrypt -out "${SPARK_SSL_CERT_PATH}/key.pkcs8"
 mv $SPARK_SSL_CERT_PATH/${SERVICE_ID}.pem $SPARK_SSL_CERT_PATH/cert.crt
+
+
+#Datastore TLS  settings
+export SPARK_SECURITY_DATASTORE_ENABLE="true"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/ca"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwords/default/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="/v1/userland/certificates/$SERVICE_ID"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="/v1/userland/passwords/$SERVICE_ID/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH=$SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH
