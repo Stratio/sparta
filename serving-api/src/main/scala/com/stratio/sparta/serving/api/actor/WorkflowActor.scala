@@ -21,8 +21,8 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.Workflow
-import com.stratio.sparta.serving.core.services.WorkflowService
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
+import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.zookeeper.KeeperException.NoNodeException
@@ -39,7 +39,9 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   val ResourcePol = "policy"
   val ResourceCP = "checkpoint"
   val ResourceContext = "context"
+
   private val workflowService = new WorkflowService(curatorFramework)
+  private val workflowValidatorService = new WorkflowValidatorService
 
   //scalastyle:off
   override def receive: Receive = {
@@ -57,10 +59,16 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
     case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
     case DeleteCheckpoint(name, user) => deleteCheckpoint(name, user)
+    case ValidateWorkflow(workflow, user) => validate(workflow, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
   //scalastyle:on
+
+  def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourcePol -> Describe)) {
+      Try(workflowValidatorService.validate(workflow))
+    }
 
   def findAll(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
@@ -152,6 +160,8 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
 
 object WorkflowActor extends SLF4JLogging {
 
+  case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
+
   case class CreateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
   case class CreateWorkflows(workflows: Seq[Workflow], user: Option[LoggedUser])
@@ -185,5 +195,7 @@ object WorkflowActor extends SLF4JLogging {
   type ResponseWorkflows = Try[Seq[Workflow]]
 
   type ResponseWorkflow = Try[Workflow]
+
+  type ResponseWorkflowValidation = Try[WorkflowValidation]
 
 }

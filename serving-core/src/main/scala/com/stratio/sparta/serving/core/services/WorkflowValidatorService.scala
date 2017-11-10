@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.workflow
+package com.stratio.sparta.serving.core.services
 
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
-case class WriterGraph(
-                             saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                             tableName: Option[String] = None,
-                             partitionBy: Option[String] = None,
-                             primaryKey: Option[String] = None
-                           )
+class WorkflowValidatorService {
+
+  def validate(workflow: Workflow): WorkflowValidation = {
+
+    implicit val workflowToValidate: Workflow = workflow
+
+    new WorkflowValidation()
+      .validateNonEmptyNodes
+      .validateNonEmptyEdges
+      .validateEdgesNodesExists
+  }
+
+}

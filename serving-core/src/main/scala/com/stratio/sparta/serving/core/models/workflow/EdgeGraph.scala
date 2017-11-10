@@ -16,5 +16,8 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class EdgeGraph(origin: String, destination: String)
+case class EdgeGraph(origin: String, destination: String) {
+
+  override def toString: String = s"$origin ---> $destination"
+}
 

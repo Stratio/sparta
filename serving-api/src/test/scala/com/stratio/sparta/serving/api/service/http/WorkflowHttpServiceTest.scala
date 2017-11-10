@@ -128,8 +128,34 @@ with HttpServiceBaseTest {
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Put(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[Update]
+      Post(s"/${HttpConstant.WorkflowsPath}", getWorkflowModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[CreateWorkflow]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.validate" should {
+    "return the validation result with valid workflow" in {
+      startAutopilot(Left(Success(getValidWorkflowValidation())))
+      Post(s"/${HttpConstant.WorkflowsPath}/validate", getWorkflowModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[ValidateWorkflow]
+        responseAs[WorkflowValidation] should equal(getValidWorkflowValidation())
+      }
+    }
+
+    "return the validation result with not valid workflow" in {
+      startAutopilot(Left(Success(getNotValidWorkflowValidation())))
+      Post(s"/${HttpConstant.WorkflowsPath}/validate", getWorkflowModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[ValidateWorkflow]
+        responseAs[WorkflowValidation] should equal(getNotValidWorkflowValidation())
+      }
+    }
+
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Post(s"/${HttpConstant.WorkflowsPath}/validate", getWorkflowModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[ValidateWorkflow]
         status should be(StatusCodes.InternalServerError)
       }
     }

@@ -76,6 +76,14 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getWorkflowStatusModel(): WorkflowStatus =
     WorkflowStatus("id", WorkflowStatusEnum.Launched)
 
+  protected def getValidWorkflowValidation(): WorkflowValidation = {
+    new WorkflowValidation(valid = true)
+  }
+
+  protected def getNotValidWorkflowValidation(): WorkflowValidation = {
+    WorkflowValidation(valid = false, Seq("Invalid workflow"))
+  }
+
   protected def getWorkflowModel(): Workflow = {
     val settingsModel = Settings(
       GlobalSettings(),

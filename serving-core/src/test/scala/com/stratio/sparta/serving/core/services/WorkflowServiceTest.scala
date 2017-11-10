@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.service
+package com.stratio.sparta.serving.core.services
 
 import java.util
 
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.models.workflow.{PipelineGraph, Settings, Workflow}
+import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowService
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
@@ -46,13 +47,23 @@ with BeforeAndAfter
   val deleteBuilder = mock[DeleteBuilder]
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
   val settings = mock[Settings]
-  val pipeGraph = mock[PipelineGraph]
+  val nodes = Seq(
+    NodeGraph("a", "", "", "", WriterGraph()),
+    NodeGraph("b", "", "", "", WriterGraph())
+  )
+  val edges = Seq(
+    EdgeGraph("a", "b")
+  )
+  val pipeGraph = PipelineGraph(nodes , edges)
+  val wrongPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
 
   val workflowService = new WorkflowService(curatorFramework)
   val workflowID = "wf1"
   val newWorkflowID = "wf2"
-  val testWorkflow =  Workflow(Option(workflowID),"wfTest","", settings ,pipeGraph)
-  val newWorkflow = Workflow(Option(newWorkflowID),"wfTest2","", settings ,pipeGraph)
+  val testWorkflow =  Workflow(Option(workflowID),"wfTest","", settings , pipeGraph)
+  val newWorkflow = Workflow(Option(newWorkflowID),"wfTest2","", settings , pipeGraph)
+  val wrongWorkflow = Workflow(Option(newWorkflowID),"wfTest3","", settings ,wrongPipeGraph)
+
   val workflowRaw =
     """
       |{
@@ -204,6 +215,22 @@ with BeforeAndAfter
 
       result.id.get shouldBe "wf2"
 
+    }
+
+    "create: given a certain wrong workflow model one exception should be generated" in {
+      an[ServerException] should be thrownBy workflowService.create(wrongWorkflow)
+    }
+
+    "update: given a certain wrong workflow model one exception should be generated" in {
+      an[ServerException] should be thrownBy workflowService.update(wrongWorkflow)
+    }
+
+    "createList: given a certain wrong workflow model one exception should be generated" in {
+      an[ServerException] should be thrownBy workflowService.createList(Seq(wrongWorkflow))
+    }
+
+    "updateList: given a certain wrong workflow model one exception should be generated" in {
+      an[ServerException] should be thrownBy workflowService.updateList(Seq(wrongWorkflow))
     }
 
     "createList: given a certain workflow list a new workflows should be created" in {

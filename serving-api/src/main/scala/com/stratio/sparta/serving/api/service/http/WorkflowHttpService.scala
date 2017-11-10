@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidator}
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
@@ -52,7 +52,7 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
   override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~
       update(user) ~ updateList(user) ~ remove(user) ~ run(user) ~ download(user) ~ findByName(user) ~
-      removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user)
+      removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -182,7 +182,6 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
         post {
           entity(as[Workflow]) { workflow =>
             complete {
-              WorkflowValidator.validateDto(workflow)
               for {
                 response <- (supervisor ? CreateWorkflow(workflow, user))
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
@@ -212,7 +211,6 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
         post {
           entity(as[Seq[Workflow]]) { workflows =>
             complete {
-              workflows.foreach(WorkflowValidator.validateDto)
               for {
                 response <- (supervisor ? CreateWorkflows(workflows, user))
                   .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
@@ -241,12 +239,10 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
         put {
           entity(as[Workflow]) { workflow =>
             complete {
-              WorkflowValidator.validateDto(workflow)
               for {
                 response <- (supervisor ? Update(workflow, user))
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceUpdate, response, genericError, StatusCodes.OK)
-
             }
           }
         }
@@ -271,7 +267,6 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
         put {
           entity(as[Seq[Workflow]]) { workflows =>
             complete {
-              workflows.foreach(WorkflowValidator.validateDto)
               for {
                 response <- (supervisor ? UpdateList(workflows, user))
                   .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
@@ -392,6 +387,35 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               .mapTo[Either[Response, UnauthorizedResponse]]
           } yield {
             deletePostPutResponse(WorkflowServiceDeleteCheckpoint, response, genericError, StatusCodes.OK)
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/validate")
+  @ApiOperation(value = "Validate a workflow.",
+    notes = "Validate a workflow.",
+    httpMethod = "POST",
+    response = classOf[WorkflowValidation])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "workflow",
+      defaultValue = "",
+      value = "workflow json",
+      dataType = "Workflow",
+      required = true,
+      paramType = "body")))
+  def validate(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "validate") {
+      pathEndOrSingleSlash {
+        post {
+          entity(as[Workflow]) { workflow =>
+            complete {
+              for {
+                response <- (supervisor ? ValidateWorkflow(workflow, user))
+                  .mapTo[Either[ResponseWorkflowValidation, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceValidate, response, genericError)
+            }
           }
         }
       }

@@ -115,6 +115,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDeleteCheckpoint = "712"
   val WorkflowServiceRun = "713"
   val WorkflowServiceDownload = "714"
+  val WorkflowServiceValidate = "715"
 
   /* Metadata Service 725-749 */
   val MetadataServiceUnexpected = "725"
@@ -152,6 +153,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",
     WorkflowServiceRun -> "Error running workflow",
     WorkflowServiceDownload -> "Error downloading workflow",
+    WorkflowServiceValidate -> "Error validating workflow",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",

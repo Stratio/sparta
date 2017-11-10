@@ -36,6 +36,7 @@ import scala.util._
 class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val validatorService = new WorkflowValidatorService
 
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
@@ -68,6 +69,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
   }
 
   def create(workflow: Workflow): Workflow = {
+
+    validateWorkflow(workflow)
+
     existsByName(workflow.name, workflow.id).foreach(searchWorkflow => throw new ServerException(
       s"Workflow with name ${workflow.name} exists. The actual workflow is: ${searchWorkflow.id}"))
 
@@ -85,6 +89,9 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     workflows.map(create)
 
   def update(workflow: Workflow): Workflow = {
+
+    validateWorkflow(workflow)
+
     val searchWorkflow = existsByName(workflow.name, workflow.id)
 
     if (searchWorkflow.isEmpty) {
@@ -160,6 +167,12 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
     }
 
   /** PRIVATE METHODS **/
+
+  private[sparta] def validateWorkflow(workflow: Workflow): Unit = {
+    val validationResult = validatorService.validate(workflow)
+    if (!validationResult.valid)
+      throw new ServerException(s"Workflow not valid. Cause: ${validationResult.messages.mkString("-")}")
+  }
 
   private[sparta] def existsByName(name: String, id: Option[String] = None): Option[Workflow] =
     Try {
