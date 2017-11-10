@@ -29,6 +29,7 @@ class WorkflowValidatorService {
       .validateNonEmptyNodes
       .validateNonEmptyEdges
       .validateEdgesNodesExists
+      .validateGraphIsAcyclic
   }
 
 }

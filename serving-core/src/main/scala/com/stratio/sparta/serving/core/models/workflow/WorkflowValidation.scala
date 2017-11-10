@@ -16,6 +16,9 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import scalax.collection.immutable.Graph
+import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
+
 case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
   def this(valid: Boolean) = this(valid, messages = Seq.empty[String])
@@ -42,5 +45,15 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
       valid = false,
       messages = messages :+ s"The workflow has relations that not exists in nodes: ${wrongEdges.mkString(" , ")}"
     )
+  }
+
+  def validateGraphIsAcyclic(implicit workflow: Workflow): WorkflowValidation = {
+    val edges = workflow.pipelineGraph.edges.map(x => DiEdge(x.origin, x.destination))
+    val graph = Graph.from(workflow.pipelineGraph.nodes, edges)
+    val cycle = graph.findCycle
+    if(cycle.isEmpty && valid) this
+    else this.copy(valid = false, messages =
+      messages :+ s"The workflow contains one or more cycles" +
+        s"${if(cycle.isDefined) ": " + cycle.get.mkString(",") else "!"}")
   }
 }
