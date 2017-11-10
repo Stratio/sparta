@@ -1,51 +1,43 @@
-  {
-    "name": "Custom",
-    "classPrettyName": "Custom",
-    "description": {
-      "short": "Custom output defined by user",
-      "long": "User can extend the Sparta SDK with his own implementation of Input class",
-      "learnMore": "https://stratio.atlassian.net/wiki/display/SPARTA0x11/SDK"
-    },
-    "properties": [
+{
+   "name": "Custom",
+   "icon": "Custom",
+   "className": "CustomOutputStep",
+   "classPrettyName": "Custom",
+   "description": "Custom output defined by user. User can extend the Sparta SDK with his own implementation of Output class",
+   "properties": [
       {
-        "propertyId": "classPrettyName",
-        "propertyName": "_MODEL_TYPE_",
-        "propertyType": "text",
-        "default": "Custom",
-        "required": true,
-        "tooltip": "Output type is related to the user class extended by SDK",
-        "qa": "custom-output-modelType"
+         "propertyId": "customClassType",
+         "propertyName": "_MODEL_TYPE_",
+         "propertyType": "text",
+         "default": "Custom",
+         "required": true,
+         "tooltip": "Output class type that implements the input SDK step",
+         "qa": "custom-output-modelType"
       },
       {
-        "propertyId": "saveOptions",
-        "propertyName": "_OPTION_PROPERTIES_",
-        "propertyType": "list",
-        "default": "",
-        "required": false,
-        "tooltip": "",
-        "qa": "custom-output-properties",
-        "fields": [
-          {
-            "propertyId": "saveOptionsKey",
-            "propertyName": "_OPTION_KEY_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "custom-output-properties-key"
-          },
-          {
-            "propertyId": "saveOptionsValue",
-            "propertyName": "_OPTION_VALUE_",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
-            "required": false,
-            "qa": "custom-output-properties-value"
-          }
-        ]
+         "propertyId": "saveOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-output-properties",
+         "fields": [
+            {
+               "propertyId": "saveOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-output-properties-key"
+            },
+            {
+               "propertyId": "saveOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-output-properties-value"
+            }
+         ]
       }
-    ]
-  }
+   ]
+}

@@ -98,6 +98,7 @@ object ErrorModel extends SpartaSerializer {
   val PluginsServiceFindAll = "687"
   val PluginsServiceDeleteAll = "688"
   val PluginsServiceDeleteByName = "689"
+  val PluginsServiceDownload = "690"
 
   /* Workflow Service 700-724 */
   val WorkflowServiceUnexpected = "700"
@@ -188,6 +189,7 @@ object ErrorModel extends SpartaSerializer {
     PluginsServiceFindAll -> "Error obtaining all plugins",
     PluginsServiceDeleteAll -> "Error deleting all plugins",
     PluginsServiceDeleteByName -> "Error deleting plugins by name",
+    PluginsServiceDownload -> "Error downloading plugin",
     MetadataServiceUnexpected -> "Unexpected behaviour in metadata service",
     MetadataServiceBuildBackup -> "Error building backup",
     MetadataServiceExecuteBackup -> "Error executing backup",

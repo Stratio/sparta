@@ -16,14 +16,11 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import java.util.regex.Pattern
-
 import akka.actor.Actor
 import com.github.nscala_time.time.Imports.{DateTime, DateTimeFormat}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
-import com.stratio.sparta.serving.api.actor.MetadataActor.ExecuteBackup
-import com.stratio.sparta.serving.api.actor.MetadataActor._
+import com.stratio.sparta.serving.api.actor.MetadataActor.{ExecuteBackup, _}
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.utils.{BackupRestoreUtils, FileActorUtils}
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -37,7 +34,7 @@ import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Try}
 
 class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
   with Json4sJacksonSupport
@@ -48,8 +45,8 @@ class MetadataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) e
 
   //The dir where the backups will be saved
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(BackupsLocation)).getOrElse(DefaultBackupsLocation)
-  override val apiPath = HttpConstant.MetadataPath
-  override val patternFileName = Option(Pattern.compile(""".*\.json""").asPredicate())
+  val temporalDir = "/tmp/sparta/backups"
+  override val apiPath = s"${HttpConstant.MetadataPath}/backup"
 
   //The dir where the jars will be saved
   val zkConfig = Try(SpartaConfig.getZookeeperConfig.get)

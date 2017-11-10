@@ -75,37 +75,17 @@
         "qa": "fragment-details-postgres-tls"
       },
       {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
-      },
-      {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",
         "propertyType": "list",
-        "default": "",
-        "required": false,
-        "tooltip": "",
+         "required": false,
         "qa": "fragment-details-jdbc-save-properties",
         "fields": [
           {
             "propertyId": "saveOptionsKey",
             "propertyName": "_SAVE_OPTIONS_KEY_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
+             "width": 4,
             "required": false,
             "qa": "fragment-details-jdbc-saveOptionsKey"
           },
@@ -113,8 +93,7 @@
             "propertyId": "saveOptionsValue",
             "propertyName": "_SAVE_OPTIONS_VALUE_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
+             "width": 4,
             "required": false,
             "qa": "fragment-details-jdbc-saveOptionsValue"
           }

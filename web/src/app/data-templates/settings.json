@@ -48,22 +48,6 @@
           "qa": "workflow-execution-mode"
         },
         {
-          "propertyId": "userPluginsJars",
-          "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
-          "propertyType": "list",
-          "tooltip": "Custom jars with plugins created by the user that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
-          "qa": "workflow-user-plugins-jars",
-          "fields": [{
-            "propertyId": "jarPath",
-            "propertyName": "SETTINGS._JAR_PATH",
-            "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "required": false,
-            "qa": "workflow-jar-path"
-          }]
-        },
-        {
           "propertyId": "initSqlSentences",
           "propertyName": "SETTINGS._SQL_SENTENCES_",
           "propertyType": "list",
@@ -79,7 +63,33 @@
             "tooltip": "SQL sentence",
             "qa": "workflow-sql-sentence"
           }]
-        }
+        },
+         {
+            "propertyId": "userPluginsJars",
+            "propertyName": "SETTINGS._USER_PLUGINS_JARS_",
+            "propertyType": "list",
+            "tooltip": "Custom jars with plugins created by the user that will be used in the Spark Jobs. It's possible to add library jars or Sparta plugins that extend the Sparta SDK",
+            "qa": "workflow-user-plugins-jars",
+            "fields": [{
+               "propertyId": "jarPath",
+               "propertyName": "SETTINGS._JAR_PATH",
+               "propertyType": "text",
+               "regexp": "",
+               "default": "",
+               "required": false,
+               "qa": "workflow-jar-path"
+            }]
+         },
+         {
+            "propertyId": "addAllUploadedPlugins",
+            "propertyName": "SETTINGS._ADD_ALL_UPLOADED_PLUGINS_",
+            "propertyType": "switch",
+            "required": true,
+            "default": true,
+            "width": "auto",
+            "tooltip": "Enables or disables all the uploaded plugins for this workflow",
+            "qa": "spark-streaming-addplugins"
+         }
       ]
     },
     {
@@ -107,7 +117,7 @@
         {
           "propertyId": "backpressure",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_",
-          "propertyType": "boolean",
+          "propertyType": "switch",
           "required": true,
           "default": false,
            "width": "auto",
@@ -137,7 +147,7 @@
              {
                 "propertyId": "enableCheckpointing",
                 "propertyName": "SETTINGS._ENABLE_CHECKPOINT_",
-                "propertyType": "boolean",
+                "propertyType": "switch",
                 "width": "auto",
                 "required": true,
                 "default": true,
@@ -165,7 +175,7 @@
                {
                   "propertyId": "autoDeleteCheckpoint",
                   "propertyName": "SETTINGS._AUTO_DELETE_CHECKPOINT_",
-                  "propertyType": "boolean",
+                  "propertyType": "switch",
                   "width": "auto",
                   "required": true,
                   "default": true,
@@ -185,7 +195,7 @@
                   "propertyId": "addTimeToCheckpointPath",
                   "propertyName": "SETTINGS._ADD_TIME_TO_CHECKPOINT_",
                   "width": "auto",
-                  "propertyType": "boolean",
+                  "propertyType": "switch",
                   "required": true,
                   "default": false,
                   "tooltip": "Only used when the checkpointing feature is enabled. Add the current time to checkpoint path. Be careful if you need HA in your streaming process",
@@ -218,7 +228,7 @@
         {
           "propertyId": "sparkKerberos",
           "propertyName": "SETTINGS._SPARK_KERBEROS_ENABLE_",
-          "propertyType": "boolean",
+          "propertyType": "switch",
           "width": "auto",
           "default": false,
           "float": true,
@@ -228,7 +238,7 @@
         {
           "propertyId": "sparkDataStoreTls",
           "propertyName": "SETTINGS._SPARK_DATASTORE_TLS_ENABLE_",
-          "propertyType": "boolean",
+          "propertyType": "switch",
           "width": "auto",
           "default": false,
           "tooltip": "Enables dataStore with TLS integration and send options through the spark submit",
@@ -465,7 +475,7 @@
                       "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
+                      "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.4",
                       "tooltip": "Run over Mesos Clusters with Docker containers",
                       "qa": "workflow-spark-executorDockerImage"
                    },
@@ -481,7 +491,7 @@
                    {
                       "propertyId": "executorForcePullImage",
                       "propertyName": "SETTINGS._SPARK_DOCKER_FORCE_PULL_IMAGE_",
-                      "propertyType": "boolean",
+                      "propertyType": "switch",
                       "default": false,
                       "width": "auto",
                       "newRow": true,
@@ -575,7 +585,7 @@
             {
                 "propertyId": "coarse",
                 "propertyName": "SETTINGS._SPARK_COARSE_",
-                "propertyType": "boolean",
+                "propertyType": "switch",
                 "newRow": true,
                 "required": true,
                 "width": "auto",
@@ -586,7 +596,7 @@
              {
                 "propertyId": "parquetBinaryAsString",
                 "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
-                "propertyType": "boolean",
+                "propertyType": "switch",
                 "required": true,
                 "width": "auto",
                 "default": true,
@@ -596,7 +606,7 @@
             {
                 "propertyId": "stopGracefully",
                 "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
-                "propertyType": "boolean",
+                "propertyType": "switch",
                 "required": true,
                 "width": "auto",
                 "default": true,

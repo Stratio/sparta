@@ -18,7 +18,7 @@ import * as avroTemplate from './outputs/avro.json';
 //import * as cassandraTemplate from './outputs/cassandra.json';
 import * as crossdataTemplate from './outputs/crossdata.json';
 import * as csvTemplate from './outputs/csv.json';
-//import * as customTemplate from './outputs/custom.json';
+import * as customTemplate from './outputs/custom.json';
 import * as elasticSearchTemplate from './outputs/elastic-search.json';
 //import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
@@ -26,7 +26,7 @@ import * as jsonTemplate from './outputs/json.json';
 import * as kafkaTemplate from './outputs/kafka.json';
 import * as mongodbTemplate from './outputs/mongodb.json';
 import * as parquetTemplate from './outputs/parquet.json';
-import * as postgressTemplate from './outputs/postgress.json';
+import * as postgresTemplate from './outputs/postgres.json';
 import * as printTemplate from './outputs/print.json';
 import * as redisTemplate from './outputs/redis.json';
 import * as textTemplate from './outputs/text.json';
@@ -37,7 +37,7 @@ export const outputs = [
   crossdataTemplate,
   //cassandraTemplate,
   csvTemplate,
-  //customTemplate,
+  customTemplate,
   elasticSearchTemplate,
   //httpTemplate,
   jdbcTemplate,
@@ -45,7 +45,7 @@ export const outputs = [
   kafkaTemplate,
   mongodbTemplate,
   parquetTemplate,
-  postgressTemplate,
+  postgresTemplate,
   redisTemplate,
   printTemplate,
   textTemplate

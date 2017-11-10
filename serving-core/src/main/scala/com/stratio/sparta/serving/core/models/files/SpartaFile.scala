@@ -16,10 +16,8 @@
 
 package com.stratio.sparta.serving.core.models.files
 
-import com.stratio.sparta.serving.core.models.info.AppInfo
-
-case class SpartaFile(fileName: String,
-                      uri: String,
-                      localPath: String,
-                      size: String,
-                      version: Option[AppInfo] = None)
+case class SpartaFile(
+                       fileName: String,
+                       uri: String,
+                       path: String
+                     )

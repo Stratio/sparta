@@ -19,22 +19,23 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import com.stratio.sparta.serving.api.actor.DriverActor.SpartaFilesResponse
 import com.stratio.sparta.serving.api.actor.PluginActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.spray.oauth2.client.OauthClient
 import com.wordnik.swagger.annotations._
-import spray.http._
+import spray.http.HttpHeaders.`Content-Disposition`
+import spray.http.{StatusCodes, _}
 import spray.httpx.unmarshalling.{FormDataUnmarshallers, Unmarshaller}
 import spray.routing.Route
 
-import scala.util.Try
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.PluginsPath, description = "Upload or download jars plugins")
 trait PluginsHttpService extends BaseHttpService with OauthClient {
@@ -64,37 +65,20 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   ))
   def upload(user: Option[LoggedUser]): Route = {
     path(HttpConstant.PluginsPath) {
-      put {
-        entity(as[MultipartFormData]) { form =>
-          complete {
-            for {
-              response <- (supervisor ? UploadPlugins(form.fields, user))
-                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
-            } yield deletePostPutResponse(PluginsServiceUpload, response, genericError, StatusCodes.OK)
+      pathEndOrSingleSlash {
+        put {
+          entity(as[MultipartFormData]) { form =>
+            complete {
+              for {
+                response <- (supervisor ? UploadPlugins(form.fields, user))
+                  .mapTo[Either[PluginResponse, UnauthorizedResponse]]
+              } yield deletePostPutResponse(PluginsServiceUpload, response, genericError, StatusCodes.OK)
+            }
           }
         }
       }
     }
   }
-
-  @Path("/{fileName}")
-  @ApiOperation(value = "Downloads a file from the plugin directory.",
-    httpMethod = "GET")
-  @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "fileName",
-      value = "Name of the jar",
-      dataType = "String",
-      required = true,
-      paramType = "path")
-  ))
-  def download(user: Option[LoggedUser]): Route =
-    get {
-      pathPrefix(HttpConstant.PluginsPath) {
-        getFromDirectory(
-          Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.PluginsPackageLocation))
-            .getOrElse(AppConstant.DefaultPluginsPackageLocation))
-      }
-    }
 
   @Path("")
   @ApiOperation(value = "Browses all plugins uploaded",
@@ -106,12 +90,14 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   ))
   def getAll(user: Option[LoggedUser]): Route =
     path(HttpConstant.PluginsPath) {
-      get {
-        context =>
-          for {
-            response <- (supervisor ? ListPlugins(user))
-              .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
-          } yield getResponse(context, PluginsServiceFindAll, response, genericError)
+      pathEndOrSingleSlash {
+        get {
+          context =>
+            for {
+              response <- (supervisor ? ListPlugins(user))
+                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+            } yield getResponse(context, PluginsServiceFindAll, response, genericError)
+        }
       }
     }
 
@@ -125,12 +111,14 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
   ))
   def deleteAllFiles(user: Option[LoggedUser]): Route =
     path(HttpConstant.PluginsPath) {
-      delete {
-        complete {
-          for {
-            response <- (supervisor ? DeletePlugins)
-              .mapTo[Either[PluginResponse, UnauthorizedResponse]]
-          } yield deletePostPutResponse(PluginsServiceDeleteAll, response, genericError, StatusCodes.OK)
+      pathEndOrSingleSlash {
+        delete {
+          complete {
+            for {
+              response <- (supervisor ? DeletePlugins(user))
+                .mapTo[Either[SpartaFilesResponse, UnauthorizedResponse]]
+            } yield deletePostPutResponse(PluginsServiceDeleteAll, response, genericError, StatusCodes.OK)
+          }
         }
       }
     }
@@ -160,6 +148,50 @@ trait PluginsHttpService extends BaseHttpService with OauthClient {
           } yield deletePostPutResponse(PluginsServiceDeleteByName, response, genericError, StatusCodes.OK)
         }
       }
+    }
+  }
+
+  @Path("/{fileName}")
+  @ApiOperation(value = "Downloads a file from the plugin directory.",
+    httpMethod = "GET")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "fileName",
+      value = "Name of the jar",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  def download(user: Option[LoggedUser]): Route =
+    path(HttpConstant.PluginsPath / "download" / Segment) { file =>
+      get {
+        onComplete(pluginTempFile(file, user)) {
+          case Success(tempFile: SpartaFile) =>
+            respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> tempFile.fileName))) {
+              getFromFile(tempFile.path)
+            }
+          case Failure(ex) => throw ex
+        }
+      }
+    }
+
+  private def pluginTempFile(file: String, user: Option[LoggedUser]): Future[SpartaFile] = {
+    for {
+      response <- (supervisor ? DownloadPlugin(file, user)).mapTo[Either[SpartaFileResponse, UnauthorizedResponse]]
+    } yield response match {
+      case Left(Failure(e)) =>
+        throw new ServerException(ErrorModel.toString(ErrorModel(
+          StatusCodes.InternalServerError.intValue,
+          PluginsServiceDownload,
+          ErrorCodesMessages.getOrElse(PluginsServiceDownload, UnknownError),
+          None,
+          Option(e.getLocalizedMessage)
+        )))
+      case Left(Success(file: SpartaFile)) =>
+        file
+      case Right(UnauthorizedResponse(exception)) =>
+        throw exception
+      case _ =>
+        throw new ServerException(ErrorModel.toString(genericError))
     }
   }
 }

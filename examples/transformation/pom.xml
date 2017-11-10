@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.stratio.sparta</groupId>
-    <artifactId>custom-date-parser</artifactId>
+    <artifactId>custom-repartition-transformation</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
     <properties>
@@ -13,33 +13,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.11</scala.binary.version>
-        <scala.version>2.11.8</scala.version>
-        <spark.version>1.6.2</spark.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>sdk</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_${scala.binary.version}</artifactId>
-            <version>${spark.version}</version>
+            <version>1.8.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

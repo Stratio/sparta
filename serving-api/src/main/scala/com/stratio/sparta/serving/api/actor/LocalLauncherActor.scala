@@ -16,16 +16,18 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import java.io.File
+
 import akka.actor.{Actor, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
@@ -33,7 +35,8 @@ import scala.util.{Failure, Success, Try}
 class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging {
 
-  private val statusService = new WorkflowStatusService(curatorFramework)
+  lazy private val statusService = new WorkflowStatusService(curatorFramework)
+  lazy private val hdfsFilesService = HdfsFilesService()
 
   override def receive: PartialFunction[Any, Unit] = {
     case Start(workflow: Workflow) => doInitSpartaContext(workflow)
@@ -42,8 +45,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
 
   //scalastyle:off
   private def doInitSpartaContext(workflow: Workflow): Unit = {
-    val sparkSubmitService = new SparkSubmitService(workflow)
-    val jars = sparkSubmitService.userPluginsFiles
+    val jars = userPluginsFiles(workflow)
 
     jars.foreach(file => JarsHelper.addToClasspath(file))
 
@@ -92,4 +94,26 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         self ! PoisonPill
     }
   }
+
+  private def userPluginsFiles(workflow: Workflow): Seq[File] = {
+    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
+      Try {
+        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar")){
+            val fileName = fileStatus.getPath.toUri.toString.replace("file://", "")
+            Option(new File(fileName))
+          } else None
+        }
+      }.getOrElse(Seq.empty[File])
+    else Seq.empty[File]
+
+    val userPlugins = workflow.settings.global.userPluginsJars
+      .filter(userJar => userJar.jarPath.nonEmpty && userJar.jarPath.endsWith(".jar"))
+      .map(_.jarPath)
+      .distinct
+      .map(filePath => new File(filePath))
+
+    uploadedPlugins ++ userPlugins
+  }
+
 }

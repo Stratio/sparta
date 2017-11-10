@@ -18,13 +18,16 @@ import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
+import * as customTemplate from './transformations/custom.json';
 import * as explodeTemplate from './transformations/explode.json';
 import * as distinctTemplate from './transformations/distinct.json';
 import * as filterTemplate from './transformations/filter.json';
 import * as intersectionTemplate from './transformations/intersection.json';
 import * as jsonPathTemplate from './transformations/jsonpath.json';
 import * as jsonTemplate from './transformations/json.json';
+import * as orderByTemplate from './transformations/orderBy.json';
 import * as persistTemplate from './transformations/persist.json';
+import * as repartitionTemplate from './transformations/repartition.json';
 import * as selectTemplate from './transformations/select.json';
 import * as triggerTemplate from './transformations/trigger.json';
 import * as unionTemplate from './transformations/union.json';
@@ -35,13 +38,16 @@ export const transformations: any = [
    checkpointTemplate,
    csvTemplate,
    cubeTemplate,
+   customTemplate,
    distinctTemplate,
    explodeTemplate,
    filterTemplate,
    intersectionTemplate,
    jsonPathTemplate,
    jsonTemplate,
+   orderByTemplate,
    persistTemplate,
+   repartitionTemplate,
    selectTemplate,
    triggerTemplate,
    unionTemplate,

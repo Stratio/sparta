@@ -37,6 +37,10 @@ abstract class InputStep(
 
   /* GLOBAL VARIABLES */
 
+  override lazy val customKey = "inputOptions"
+  override lazy val customPropertyKey = "inputOptionsKey"
+  override lazy val customPropertyValue = "inputOptionsValue"
+
   lazy val StorageDefaultValue = "MEMORY_ONLY"
   lazy val DefaultRawDataField = "raw"
   lazy val DefaultRawDataType = "string"

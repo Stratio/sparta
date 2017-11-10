@@ -60,7 +60,6 @@ class CrossdataInputStep(
   lazy val forcedBeginning = Try(properties.getBoolean("forcedBeginning")).toOption
   lazy val limitRecords = properties.getLong("limitRecords", None)
   lazy val stopContexts = properties.getBoolean("stopContexts", default = false)
-  lazy val stopGracefully = properties.getBoolean("stopGracefully", default = true)
   lazy val zookeeperPath = Properties.envOrElse("SPARTA_ZOOKEEPER_PATH", "/stratio/sparta") + {
     val path = properties.getString("zookeeperPath", "/crossdata/offsets")
     if (path.startsWith("/"))
@@ -96,7 +95,7 @@ class CrossdataInputStep(
     CrossdataInputStep.lastFinishTask = Option(schedulerSystem.scheduler.schedule(1000 milli, 1000 milli)({
       if (CrossdataInputStep.stopSparkContexts) {
         log.info("Stopping Spark contexts")
-        ssc.stop(stopSparkContext = true, stopGracefully)
+        ssc.stop(stopSparkContext = true, stopGracefully = true)
         CrossdataInputStep.stopSparkContexts = false
         CrossdataInputStep.lastFinishTask.foreach(_.cancel())
         CrossdataInputStep.lastFinishTask = None

@@ -16,7 +16,7 @@
 
 import * as kafkaTemplate from './inputs/kafka.json';
 import * as crossdataTemplate from './inputs/crossdata.json';
-//import * as customTemplate from './inputs/custom.json';
+import * as customTemplate from './inputs/custom.json';
 import * as filesystemTemplate from './inputs/filesystem.json';
 //import * as flumeTemplate from './inputs/flume.json';
 //import * as rabbitmqDistributedTemplate from './inputs/rabbitmq-distributed-node.json';
@@ -29,8 +29,9 @@ import * as testTemplate from './inputs/test.json';
 
 export const inputs = [
     crossdataTemplate,
+    customTemplate,
     kafkaTemplate,
-    //customTemplate,
+
     filesystemTemplate,
     //flumeTemplate,
     //rabbitmqDistributedTemplate,

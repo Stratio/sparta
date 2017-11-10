@@ -59,15 +59,16 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Acto
       }
       val zookeeperConfig = launcherService.getZookeeperConfig
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
-      val pluginsFiles = sparkSubmitService.userPluginsJars
+      val pluginJars = sparkSubmitService.userPluginsJars
       val sparkHome = sparkSubmitService.validateSparkHome
-      val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginsFiles, detailConfig)
-      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginsFiles)
+      val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)
+      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
         sparkSubmitExecution = SparkSubmitExecution(
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
+          pluginFiles = pluginJars,
           master = workflow.settings.sparkSettings.master,
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,

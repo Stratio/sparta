@@ -61,7 +61,7 @@
                  "propertyName": "_NAME_",
                  "propertyType": "text",
                  "required": true,
-                 "width": 4,
+                 "width": 3,
                  "qa": "fragment-details-field-name"
               },
               {
@@ -154,6 +154,7 @@
                  "propertyType": "boolean",
                  "default": true,
                  "required": true,
+                 "width": 3,
                  "qa": "fragment-details-field-nullable"
               }
            ]

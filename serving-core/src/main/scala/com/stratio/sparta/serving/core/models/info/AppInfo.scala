@@ -15,10 +15,12 @@
  */
 package com.stratio.sparta.serving.core.models.info
 
-case class AppInfo(pomVersion: String,
-                   profileId: String,
-                   buildTimestamp: String,
-                   devContact: String,
-                   supportContact: String,
-                   description: String,
-                   license: String)
+case class AppInfo(
+                    pomVersion: String,
+                    profileId: String,
+                    buildTimestamp: String,
+                    devContact: String,
+                    supportContact: String,
+                    description: String,
+                    license: String
+                  )

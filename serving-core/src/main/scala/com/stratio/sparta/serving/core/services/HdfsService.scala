@@ -1,0 +1,241 @@
+/*
+ * Copyright (C) 2015 Stratio (http://stratio.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.stratio.sparta.serving.core.services
+
+import java.io._
+import java.security.PrivilegedExceptionAction
+
+import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.typesafe.config.Config
+import org.apache.commons.io.IOUtils
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs._
+import org.apache.hadoop.security.UserGroupInformation
+
+import scala.concurrent.duration._
+import scala.util.{Failure, Properties, Success, Try}
+
+case class HdfsService(dfs: FileSystem, ugiOption: Option[UserGroupInformation]) extends SLF4JLogging {
+
+  lazy private val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig
+
+  def reLogin(): Unit = ugiOption.foreach(ugi => ugi.checkTGTAndReloginFromKeytab())
+
+  def runFunction(function: ⇒ Unit): Unit =
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Unit]() {
+          override def run(): Unit = {
+            log.debug(s"Executing function with HDFS security")
+            function
+          }
+        })
+      case None =>
+        log.debug(s"Executing function without HDFS security")
+        function
+    }
+
+  def getFiles(path: String): Array[FileStatus] =
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Array[FileStatus]]() {
+          override def run(): Array[FileStatus] = {
+            log.debug(s"Listing Hdfs statuses with security: $path")
+            dfs.listStatus(new Path(path))
+          }
+        })
+      case None =>
+        log.debug(s"Listing Hdfs statuses without security: $path")
+        dfs.listStatus(new Path(path))
+    }
+
+  def getFile(filename: String): InputStream =
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[FSDataInputStream]() {
+          override def run(): FSDataInputStream = {
+            log.debug(s"Getting Hdfs with security: $filename")
+            dfs.open(new Path(filename))
+          }
+        })
+      case None =>
+        log.debug(s"Getting Hdfs without security: $filename")
+        dfs.open(new Path(filename))
+    }
+
+  def delete(path: String): Unit =
+    ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[Boolean]() {
+          override def run(): Boolean = {
+            log.debug(s"Deleting Hdfs with security: $path")
+            dfs.delete(new Path(path), true)
+          }
+        })
+      case None =>
+        log.debug(s"Deleting Hdfs without security: $path")
+        dfs.delete(new Path(path), true)
+    }
+
+  def write(path: String, destPath: String, overwrite: Boolean = false): Int = {
+    val file = new File(path)
+    val out = ugiOption match {
+      case Some(ugi) =>
+        ugi.doAs(new PrivilegedExceptionAction[FSDataOutputStream]() {
+          override def run(): FSDataOutputStream = {
+            log.debug(s"Creating Hdfs file with security from path: $path and destination: $destPath")
+            dfs.create(new Path(s"$destPath${file.getName}"))
+          }
+        })
+      case None =>
+        log.debug(s"Creating Hdfs file without security from path: $path and destination: $destPath")
+        dfs.create(new Path(s"$destPath${file.getName}"))
+    }
+
+    val in = new BufferedInputStream(new FileInputStream(file))
+
+    try {
+      IOUtils.copy(in, out)
+    } finally {
+      IOUtils.closeQuietly(out)
+      IOUtils.closeQuietly(in)
+    }
+  }
+
+  def runReloaderKeyTab(): Unit = {
+    val reloadKeyTab = Try(hdfsConfig.get.getBoolean(ReloadKeyTab)).getOrElse(DefaultReloadKeyTab)
+
+    if (reloadKeyTab) {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      val reloadTime = Try(hdfsConfig.get.getString(ReloadKeyTabTime)).toOption.notBlank
+        .getOrElse(DefaultReloadKeyTabTime)
+
+      log.debug(s"Initializing keyTab reload task with time: $reloadTime")
+
+      SchedulerSystem.scheduler.schedule(0 seconds,
+        AggregationTimeUtils.parseValueToMilliSeconds(reloadTime) milli)(reLogin())
+    }
+  }
+}
+
+object HdfsService extends SLF4JLogging {
+
+  def getPrincipalName(hdfsConfig: Option[Config]): Option[String] =
+    Option(System.getenv(SystemPrincipalName)).orElse(Try(hdfsConfig.get.getString(PrincipalName)).toOption.notBlank)
+
+
+  def getKeyTabPath(hdfsConfig: Option[Config]): Option[String] =
+    Option(System.getenv(SystemKeyTabPath)).orElse(Try(hdfsConfig.get.getString(KeytabPath)).toOption.notBlank)
+
+  def apply(): HdfsService = {
+    val hdfsConfig = SpartaConfig.getHdfsConfig
+    val configuration = hdfsConfiguration(hdfsConfig)
+
+    log.debug("Creating HDFS connection ...")
+
+    Option(System.getenv(SystemHadoopConfDir)).foreach { hadoopConfDir =>
+      Try {
+        val hdfsCoreSitePath = s"$hadoopConfDir/$CoreSite"
+
+        log.debug(s"Adding resource $CoreSite from path: $hdfsCoreSitePath")
+
+        configuration.addResource(new Path(hdfsCoreSitePath))
+      } match {
+        case Success(_) =>
+          log.debug(s"Resource $CoreSite added correctly")
+        case Failure(e) =>
+          log.error(s"Resource $CoreSite not added", e)
+          throw e
+      }
+
+      Try {
+        val hdfsHDFSSitePath = s"$hadoopConfDir/$HDFSSite"
+
+        log.debug(s"Adding resource $HDFSSite from path: $hdfsHDFSSitePath")
+
+        configuration.addResource(new Path(hdfsHDFSSitePath))
+      } match {
+        case Success(_) =>
+          log.debug(s"Resource $HDFSSite added correctly")
+        case Failure(e) =>
+          log.error(s"Resource $HDFSSite not added", e)
+          throw e
+      }
+    }
+
+    val ugi = (getPrincipalName(hdfsConfig), getKeyTabPath(hdfsConfig)) match {
+      case (Some(principalName), Some(keyTabPath)) =>
+        log.debug("Obtaining UGI from principal, keyTab and configuration files")
+        Option(getUGI(principalName, keyTabPath, configuration))
+      case _ => None
+    }
+
+    val hdfsService = new HdfsService(FileSystem.get(configuration), ugi)
+
+    ugi.foreach(_ => hdfsService.runReloaderKeyTab())
+
+    hdfsService
+  }
+
+  private def hdfsConfiguration(hdfsConfig: Option[Config]): Configuration = {
+    log.debug("Creating HDFS configuration...")
+
+    val conf = new Configuration()
+
+    Option(System.getenv(SystemHadoopConfDir)) match {
+      case Some(confDir) =>
+        log.debug(s"The HDFS configuration was read from directory files located at: $confDir")
+      case None =>
+        hdfsConfig.foreach { config =>
+          val master = Try(config.getString(HdfsMaster))
+            .getOrElse(throw new Exception("Wrong HDFS master configuration"))
+          val port = Try(config.getInt(HdfsPort))
+            .getOrElse(throw new Exception("Wrong HDFS port configuration"))
+          val hdfsPath = s"hdfs://$master:$port"
+
+          Properties.envOrNone(SystemHadoopUserName)
+            .orElse(Try(config.getString(HadoopUserName)).toOption.notBlank)
+            .foreach { user =>
+              System.setProperty(SystemHadoopUserName, user)
+            }
+
+          conf.set(DefaultFSProperty, hdfsPath)
+
+          log.debug(s"The HDFS configuration was assigned with $DefaultFSProperty and located at: $hdfsPath")
+        }
+    }
+    conf
+  }
+
+  private def getUGI(principalName: String, keyTabPath: String, conf: Configuration): UserGroupInformation = {
+    log.debug("Setting configuration for Hadoop with secured connection")
+
+    UserGroupInformation.setConfiguration(conf)
+
+    log.debug(s"Login user with principal name: $principalName and keyTab: $keyTabPath")
+
+    val ugi = UserGroupInformation.loginUserFromKeytabAndReturnUGI(principalName, keyTabPath)
+
+    UserGroupInformation.setLoginUser(ugi)
+
+    ugi
+  }
+}

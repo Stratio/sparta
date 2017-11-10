@@ -23,11 +23,14 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
 
 import scala.util.{Failure, Success, Try}
 
 trait CheckpointUtils extends SLF4JLogging {
+
+  lazy private val hdfsService = HdfsService()
 
   /* PUBLIC METHODS */
 
@@ -40,14 +43,8 @@ trait CheckpointUtils extends SLF4JLogging {
   def deleteFromHDFS(workflow: Workflow): Unit = {
     val checkpointDirectory = checkpointPathFromWorkflow(workflow, checkTime = false)
     log.debug(s"Deleting checkpoint directory: $checkpointDirectory")
-    HdfsUtils().delete(checkpointDirectory)
+    hdfsService.delete(checkpointDirectory)
   }
-
-  def isHadoopEnvironmentDefined: Boolean =
-    Option(System.getenv(SystemHadoopConfDir)) match {
-      case Some(_) => true
-      case None => false
-    }
 
   def deleteCheckpointPath(workflow: Workflow): Unit =
     Try {

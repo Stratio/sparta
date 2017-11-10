@@ -24,10 +24,9 @@ case class Settings(
 
 case class GlobalSettings(
                            executionMode: String = "marathon",
-                           //TODO remove or change when nginx was merged
-                           monitoringLink: Option[String] = None,
                            userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
-                           initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence]
+                           initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
+                           addAllUploadedPlugins: Boolean = true
                          )
 
 case class CheckpointSettings(

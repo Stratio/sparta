@@ -16,7 +16,7 @@
                "propertyName": "_INPUT_FIELD_",
                "propertyType": "text",
                "required": true,
-               "width": 3,
+               "width": 6,
                "tooltip": "Dimension name. This name must be present in the fields that contains the input rows",
                "qa": "fragment-details-cube-dimension-name"
             }

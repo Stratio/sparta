@@ -12,23 +12,6 @@
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
-      },
-      {
-        "propertyId": "caName",
-        "propertyName": "_CA_NAME_",
-        "propertyType": "text",
-        "visible": [
-          [
-            {
-              "propertyId": "tlsEnable",
-              "value": true
-            }
-          ]
-        ],
-        "default": "",
-        "required": false,
-        "tooltip": "CA name used in Spark nodes to get certificates from Vault",
-        "qa": "fragment-details-postgres-ca-name"
       }
     ]
   }

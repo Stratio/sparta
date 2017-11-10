@@ -1,0 +1,43 @@
+{
+   "name": "Custom",
+   "icon": "Custom",
+   "className": "CustomTransformStep",
+   "classPrettyName": "Custom",
+   "description": "Custom transform defined by user. User can extend the Sparta SDK with his own implementation of Output class",
+   "properties": [
+      {
+         "propertyId": "customClassType",
+         "propertyName": "_MODEL_TYPE_",
+         "propertyType": "text",
+         "default": "Custom",
+         "required": true,
+         "tooltip": "Transformation class type that implements the input SDK step",
+         "qa": "custom-transform-modelType"
+      },
+      {
+         "propertyId": "transformationOptions",
+         "propertyName": "_OPTION_PROPERTIES_",
+         "propertyType": "list",
+         "required": false,
+         "qa": "custom-transform-properties",
+         "fields": [
+            {
+               "propertyId": "transformationOptionsKey",
+               "propertyName": "_OPTION_KEY_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-transform-properties-key"
+            },
+            {
+               "propertyId": "transformationOptionsValue",
+               "propertyName": "_OPTION_VALUE_",
+               "propertyType": "text",
+               "required": false,
+               "width": 4,
+               "qa": "custom-transform-properties-value"
+            }
+         ]
+      }
+   ]
+}

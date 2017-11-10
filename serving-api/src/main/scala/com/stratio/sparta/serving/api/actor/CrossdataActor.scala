@@ -24,8 +24,8 @@ import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.services.CrossdataService
 import com.stratio.sparta.serving.core.models.crossdata.{QueryRequest, TableInfoRequest, TablesRequest}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.services.HdfsService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import com.stratio.sparta.serving.core.utils.HdfsUtils
 
 import scala.util.Try
 
@@ -36,8 +36,8 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
   lazy val crossdataService = new CrossdataService
   val ResourceType = "catalog"
 
-  lazy val hdfsUtils = Try(HdfsUtils()).toOption
-    .flatMap(utils => if(utils.ugiOption.isDefined) Option(utils) else None)
+  lazy val hdfsWithUgiService = Try(HdfsService()).toOption
+    .flatMap(utils => utils.ugiOption.flatMap( _ => Option(utils)))
 
   override def receive: Receive = {
     case FindAllDatabases(user) => findAllDatabases(user)
@@ -52,34 +52,34 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
     * Runs `f` using `HdfsUtils#runFunction` if possible.
     * otherwise, just invoke `f`
     */
-  def maybeWithHdfsUtils(f: => Unit): Unit = hdfsUtils.map(_.runFunction(f)).getOrElse(f)
+  def maybeWithHdfsUgiService(f: => Unit): Unit = hdfsWithUgiService.map(_.runFunction(f)).getOrElse(f)
 
-  def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+  def findAllDatabases(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
       crossdataService.listDatabases
     }
   }
 
-  def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+  def findAllTables(user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
       crossdataService.listAllTables
     }
   }
 
-  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+  def findTables(tablesRequest: TablesRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> View)) {
       crossdataService.listTables(tablesRequest.dbName.notBlank, tablesRequest.temporary)
     }
   }
 
 
-  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+  def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> Describe)) {
       crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
     }
   }
 
-  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUtils {
+  def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
     securityActionAuthorizer(user, Map(ResourceType -> Execute)) {
       crossdataService.executeQuery(queryRequest.query)
     }

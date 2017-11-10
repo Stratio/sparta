@@ -1,7 +1,7 @@
  {
     "name": "MongoDb",
-    "icon": "Jdbc",
-    "className": "JdbcOutputStep",
+    "icon": "MongoDb",
+    "className": "MongoDbOutputStep",
     "classPrettyName": "MongoDb",
     "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "properties": [
@@ -21,6 +21,7 @@
             "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
             "default": "localhost",
             "required": true,
+             "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
           },
           {
@@ -31,6 +32,7 @@
             "default": "27017",
             "width": 4,
             "required": true,
+             "width": 2,
             "qa": "fragment-details-mongoDb-port"
           }
         ]

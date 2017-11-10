@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.api.actor
 import java.nio.file.{Files, Path}
 
 import akka.actor.{ActorSystem, Props}
+import akka.event.slf4j.SLF4JLogging
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
@@ -46,7 +47,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
   with Matchers
   with BeforeAndAfterAll
   with BeforeAndAfterEach
-  with MockitoSugar with SpartaSerializer {
+  with MockitoSugar with SpartaSerializer with SLF4JLogging {
 
   val tempDir: Path = Files.createTempDirectory("test")
   tempDir.toFile.deleteOnExit()
@@ -60,7 +61,7 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
        |   }
        |}
        |
-       |sparta.config.pluginPackageLocation = "$tempDir"
+       |sparta.config.pluginsLocation = "$tempDir"
     """.stripMargin)
 
 
@@ -82,25 +83,11 @@ class PluginActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   "PluginActor " must {
 
-    "Not save files with wrong extension" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadPlugins(fileList, rootUser)
-      expectMsgPF() {
-        case Left(Success(f: Seq[SpartaFile])) => f shouldBe empty
-      }
-    }
     "Not upload empty files" in {
       val pluginActor = system.actorOf(Props(new PluginActor()))
       pluginActor ! UploadPlugins(Seq.empty, rootUser)
       expectMsgPF() {
         case Left(Failure(f)) => f.getMessage shouldBe "At least one file is expected"
-      }
-    }
-    "Save a file" in {
-      val pluginActor = system.actorOf(Props(new PluginActor()))
-      pluginActor ! UploadPlugins(Seq(BodyPart("reference.conf", "file.jar")), rootUser)
-      expectMsgPF() {
-        case Left(Success(f: Seq[SpartaFile])) => f.head.fileName.endsWith("file.jar") shouldBe true
       }
     }
   }

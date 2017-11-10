@@ -56,6 +56,7 @@ class ExecutionServiceTest extends WordSpecLike
     sparkSubmitExecution = SparkSubmitExecution(
       driverClass = "driver",
       driverFile = "file",
+      pluginFiles = Seq(),
       master = "master",
       submitArguments = Map(),
       sparkConfigurations = Map(),

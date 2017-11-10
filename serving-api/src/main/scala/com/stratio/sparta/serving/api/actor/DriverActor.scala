@@ -16,8 +16,6 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import java.util.regex.Pattern
-
 import akka.actor.Actor
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.api.actor.DriverActor._
@@ -27,21 +25,22 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import com.stratio.sparta.serving.core.models.files.SpartaFile
+import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import spray.http.BodyPart
 import spray.httpx.Json4sJacksonSupport
 
 import scala.util.{Failure, Try}
 
 class DriverActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) extends Actor
-  with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize{
+  with Json4sJacksonSupport with FileActorUtils with SpartaSerializer with ActionUserAuthorize {
 
   //The dir where the jars will be saved
   val targetDir = Try(SpartaConfig.getDetailConfig.get.getString(AppConstant.DriverPackageLocation))
     .getOrElse(AppConstant.DefaultDriverPackageLocation)
-  override val apiPath = HttpConstant.DriverPath
-  override val patternFileName = Option(Pattern.compile(""".*\.jar""").asPredicate())
+  val temporalDir = "/tmp/sparta/drivers"
+
+  override val apiPath = s"${HttpConstant.DriverPath}/download"
 
   val ResourceType = "driver"
 

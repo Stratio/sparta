@@ -23,13 +23,13 @@ import javax.xml.bind.DatatypeConverter
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.api.services.CrossdataService._
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.utils.HdfsUtils
+import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.spark.SparkConf
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.crossdata.XDSession
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.util.{Properties, Try}
 
@@ -60,7 +60,7 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
       )
     }
 
-  def listDatabases(): Try[Array[Database]] =
+  def listDatabases: Try[Array[Database]] =
     Try(crossdataSession.catalog.listDatabases().collect())
 
   def listColumns(tableName: String, dbName: Option[String]): Try[Array[Column]] =
@@ -71,7 +71,7 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
         case None =>
           val table = crossdataSession.catalog.listDatabases().collect().flatMap(db =>
             crossdataSession.catalog.listTables(db.name).collect()
-          ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table ${tableName} in XDCatalog"))
+          ).find(_.name == tableName).getOrElse(throw new Exception(s"Unable to find table $tableName in XDCatalog"))
           crossdataSession.catalog.listColumns(table.database, table.name).collect()
       }
     }
@@ -90,7 +90,7 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
   private def validateQuery(query: String): Boolean = {
     val upperQuery = query.toUpperCase
 
-    upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP") ||  upperQuery.startsWith("TRUNCATE") ||
+    upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP") || upperQuery.startsWith("TRUNCATE") ||
       upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE") ||
       upperQuery.startsWith("IMPORT") || upperQuery.startsWith("ALTER")
   }
@@ -98,22 +98,7 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
 
 object CrossdataService {
 
-  private def kerberosYarnDefaultVariables: Seq[(String, String)] = {
-    (HdfsUtils.getPrincipalName.notBlank, HdfsUtils.getKeyTabPath.notBlank) match {
-      case (Some(principal), Some(keyTabPath)) =>
-        val bytes = Files.readAllBytes(Paths.get(keyTabPath))
-        val keytabBase64 = DatatypeConverter.printBase64Binary(bytes)
-        val withKeytab = ("spark.mesos.kerberos.keytabBase64", keytabBase64)
-        val withManagerPpal = ("spark.hadoop.yarn.resourcemanager.principal", principal)
-        val withPpal = ("spark.yarn.principal", principal)
-
-        Seq(withKeytab, withPpal, withManagerPpal)
-      case _ =>
-        Seq.empty[(String, String)]
-    }
-  }
-
-  val crossdataSession = {
+  val crossdataSession: XDSession = {
     val reference = getClass.getResource("/reference.conf").getPath
     val sparkConf = new SparkConf()
       .setAll(kerberosYarnDefaultVariables)
@@ -143,4 +128,21 @@ object CrossdataService {
 
     xDSession
   }
+
+  //scalastyle:off
+  private def kerberosYarnDefaultVariables: Seq[(String, String)] = {
+    val hdfsConfig = SpartaConfig.getHdfsConfig
+    (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
+      case (Some(principal), Some(keyTabPath)) =>
+        Seq(
+          ("spark.mesos.kerberos.keytabBase64", DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(keyTabPath)))),
+          ("spark.yarn.principal", principal),
+          ("spark.hadoop.yarn.resourcemanager.principal", principal)
+        )
+      case _ =>
+        Seq.empty[(String, String)]
+    }
+  }
+
+  //scalastyle:on
 }

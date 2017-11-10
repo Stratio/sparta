@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.serving.core.utils
+package com.stratio.sparta.serving.core.service
 
 import java.io.{FileNotFoundException, InputStream}
 
+import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.hadoop.fs.{FileSystem, _}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
@@ -27,11 +28,11 @@ import org.scalatest.mock.MockitoSugar
 import scala.util.{Failure, Try}
 
 @RunWith(classOf[JUnitRunner])
-class HdfsUtilsTest extends FlatSpec with ShouldMatchers with MockitoSugar {
+class HdfsServiceTest extends FlatSpec with ShouldMatchers with MockitoSugar {
 
   val fileSystem: FileSystem = mock[FileSystem]
 
-  val utils = new HdfsUtils(fileSystem, "stratio")
+  val utils = new HdfsService(fileSystem, None)
 
   "hdfs utils" should "getfiles from a path" in {
     val expected = Array(mock[FileStatus])

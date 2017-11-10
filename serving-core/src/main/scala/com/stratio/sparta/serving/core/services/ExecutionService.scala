@@ -95,11 +95,9 @@ class ExecutionService(curatorFramework: CuratorFramework) extends SpartaSeriali
 
       if (CuratorFactoryHolder.existsPath(executionPath)) {
         val children = curatorFramework.getChildren.forPath(executionPath)
-        val workflowExecutions = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[WorkflowExecution](new String(curatorFramework.getData.forPath(
-            s"${AppConstant.WorkflowExecutionsZkPath}/$element")))
-        )
-        workflowExecutions.foreach(execution => delete(execution.id))
+
+        JavaConversions.asScalaBuffer(children).toList.foreach(element =>
+          curatorFramework.delete().forPath(s"${AppConstant.WorkflowExecutionsZkPath}/$element"))
       }
     }
 }

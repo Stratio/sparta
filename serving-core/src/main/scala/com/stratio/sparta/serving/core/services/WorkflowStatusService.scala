@@ -120,18 +120,10 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val children = curatorFramework.getChildren.forPath(statusPath)
-        val policiesStatus = JavaConversions.asScalaBuffer(children).toList.map(element =>
-          read[WorkflowStatus](new String(curatorFramework.getData.forPath(
-            s"${AppConstant.WorkflowStatusesZkPath}/$element")))
-        )
 
-        policiesStatus.foreach(workflowStatus => {
-          val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
-          if (Option(curatorFramework.checkExists.forPath(statusPath)).isDefined) {
-            log.info(s"Deleting status ${workflowStatus.id} >")
-            curatorFramework.delete().forPath(statusPath)
-          } else throw new ServerException(s"No workflow status found with id: ${workflowStatus.id}.")
-        })
+        JavaConversions.asScalaBuffer(children).toList.foreach { element =>
+          curatorFramework.delete().forPath(s"${AppConstant.WorkflowStatusesZkPath}/$element")
+        }
       }
     }
 

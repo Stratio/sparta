@@ -82,13 +82,6 @@ class DriverActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   "DriverActor " must {
 
-    "Not save files with wrong extension" in {
-      val driverActor = system.actorOf(Props(new DriverActor()))
-      driverActor ! UploadDrivers(fileList, rootUser)
-      expectMsgPF() {
-        case Left(Success(f: Seq[SpartaFile])) => f shouldBe empty
-      }
-    }
     "Not upload empty files" in {
       val driverActor = system.actorOf(Props(new DriverActor()))
       driverActor ! UploadDrivers(Seq.empty, rootUser)

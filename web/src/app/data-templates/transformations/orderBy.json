@@ -1,0 +1,26 @@
+  {
+     "name": "OrderBy",
+     "icon": "OrderBy",
+     "className": "OrderByTransformStep",
+     "classPrettyName": "OrderBy",
+     "description": "Order fields from the events in the input DStream",
+     "properties": [
+        {
+           "propertyId": "orderExp",
+           "propertyName": "_ORDER_EXPRESSION_",
+           "propertyType": "text",
+           "required": false,
+           "tooltip": "Order the fields based in one expression",
+           "qa": "fragment-details-order-expression"
+        },
+        {
+           "propertyId": "delimiter",
+           "propertyName": "_DELIMITER_",
+           "propertyType": "text",
+           "required": true,
+           "default": ",",
+           "tooltip": "Delimiter character in order expression ",
+           "qa": "fragment-details-select-delimiter"
+        }
+     ]
+  }

@@ -27,6 +27,7 @@ case class WorkflowExecution(
 case class SparkSubmitExecution(
                                  driverClass: String,
                                  driverFile: String,
+                                 pluginFiles: Seq[String],
                                  master: String,
                                  submitArguments: Map[String, String],
                                  sparkConfigurations: Map[String, String],

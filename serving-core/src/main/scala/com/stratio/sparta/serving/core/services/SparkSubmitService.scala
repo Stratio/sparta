@@ -16,28 +16,30 @@
 
 package com.stratio.sparta.serving.core.services
 
-import java.io.{File, Serializable => JSerializable}
+
 import java.io.File
-import java.io.{Serializable => JSerializable}
 import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
-import com.stratio.sparta.serving.core.utils.{ArgumentsUtils, ClusterSparkFilesUtils, HdfsUtils}
+import com.stratio.sparta.serving.core.utils.ArgumentsUtils
 import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
 
-import scala.collection.JavaConversions._
 import scala.util.{Properties, Try}
 
 class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
+
+  lazy val hdfsConfig: Option[Config] = SpartaConfig.getHdfsConfig
+  lazy val hdfsFilesService = HdfsFilesService()
 
   // Spark submit arguments supported
   val SubmitArguments = Seq(SubmitDeployMode, SubmitName, SubmitPropertiesFile, SubmitTotalExecutorCores,
@@ -60,14 +62,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   )
 
   def extractDriverSubmit(detailConfig: Config): String = {
-    val driverStorageLocation = Try(detailConfig.getString("driverLocation"))
-      .getOrElse("/opt/sds/sparta/driver/sparta-driver.jar")
-    if (driverLocation(driverStorageLocation) == ConfigHdfs) {
-      val Hdfs = HdfsUtils()
-      val Uploader = ClusterSparkFilesUtils(workflow, Hdfs)
-
-      Uploader.uploadDriverFile(driverStorageLocation)
-    } else driverStorageLocation
+    val driverStorageLocation = Try(detailConfig.getString(AppConstant.DriverLocation))
+      .getOrElse(AppConstant.DefaultMarathonDriverURI)
+    if (driverLocation(driverStorageLocation) == ConfigHdfs)
+      hdfsFilesService.uploadDriverFile(driverStorageLocation)
+    else driverStorageLocation
   }
 
   /**
@@ -83,8 +82,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   def extractDriverArgs(zookeeperConfig: Config,
                         pluginsFiles: Seq[String],
                         detailConfig: Config): Map[String, String] = {
-    val hdfsConfig = SpartaConfig.getHdfsConfig
-
     Map(
       "detailConfig" -> keyConfigEncoded("config", detailConfig),
       "hdfsConfig" -> keyOptionConfigEncoded("hdfs", hdfsConfig),
@@ -94,20 +91,30 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     )
   }
 
-  def extractSubmitArgsAndSparkConf(pluginsFiles: Seq[String]): (Map[String, String], Map[String, String]) = {
+  def extractSubmitArgsAndSparkConf: (Map[String, String], Map[String, String]) = {
     val sparkConfs = getSparkClusterConfig
     val submitArgs = getSparkSubmitArgs
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
     (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
       addKerberosConfs(addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(
-        addMesosSecurityConf(addPluginsFilesToConf(sparkConfs ++ sparkConfFromSubmitArgs, pluginsFiles)))))))))
+        addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs))))))))
   }
 
-  def userPluginsJars: Seq[String] = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.trim)
+  def userPluginsJars: Seq[String] = {
+    val uploadedPlugins = if(workflow.settings.global.addAllUploadedPlugins)
+      Try {
+        hdfsFilesService.browsePlugins.flatMap { fileStatus =>
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar"))
+            Option(fileStatus.getPath.toUri.toString)
+          else None
+        }
+      }.getOrElse(Seq.empty[String])
+    else Seq.empty[String]
+    val userPlugins = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.trim)
 
-  def userPluginsFiles: Seq[File] = workflow.settings.global.userPluginsJars.filter(!_.jarPath.isEmpty)
-    .map(_.jarPath).distinct.map(filePath => new File(filePath))
+    uploadedPlugins ++ userPlugins
+  }
 
   def getSparkLocalConfig: Map[String, String] =
     Map(
@@ -127,7 +134,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   /** Private Methods **/
 
   //scalastyle:off
-  private[sparta] def getSparkClusterConfig: Map[String, String] = {
+  private[core] def getSparkClusterConfig: Map[String, String] = {
     Map(
       SubmitCoarseConf -> workflow.settings.sparkSettings.sparkConf.coarse.map(_.toString),
       SubmitGracefullyStopConf -> workflow.settings.sparkSettings.sparkConf.stopGracefully.map(_.toString),
@@ -157,14 +164,14 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   //scalastyle:on
 
-  private[sparta] def getUserSparkConfig: Map[String, String] =
+  private[core] def getUserSparkConfig: Map[String, String] =
     workflow.settings.sparkSettings.sparkConf.userSparkConf.flatMap { sparkProperty =>
       if (sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
         None
       else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))
     }.toMap
 
-  private[sparta] def getSparkSubmitArgs: Map[String, String] = {
+  private[core] def getSparkSubmitArgs: Map[String, String] = {
     Map(
       SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode,
       SubmitSupervise -> workflow.settings.sparkSettings.submitArguments.supervise.map(_.toString),
@@ -180,16 +187,16 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ userSubmitArgsFromWorkflow
   }
 
-  private[sparta] def extractSparkHome: Option[String] =
+  private[core] def extractSparkHome: Option[String] =
     Properties.envOrNone("SPARK_HOME").notBlank.orElse(Option("/opt/spark/dist"))
 
-  private[sparta] def addSparkUserConf(sparkConfs: Map[String, String]): Map[String, String] =
+  private[core] def addSparkUserConf(sparkConfs: Map[String, String]): Map[String, String] =
     if (!sparkConfs.contains(SubmitSparkUserConf) &&
       workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.isDefined) {
       sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.get)
     } else sparkConfs
 
-  private[sparta] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
+  private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
     Properties.envOrNone(CalicoNetworkEnv).notBlank match {
       case Some(calicoNetwork) =>
         sparkConfs ++ Map(
@@ -199,26 +206,20 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       case _ => sparkConfs
     }
 
-  private[sparta] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] = {
-    val mesosOptions = Map(
+  private[core] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] =
+    Map(
       SubmitMesosPrincipalConf -> Properties.envOrNone(MesosPrincipalEnv).notBlank,
       SubmitMesosSecretConf -> Properties.envOrNone(MesosSecretEnv).notBlank,
       SubmitMesosRoleConf -> Properties.envOrNone(MesosRoleEnv).notBlank
-    )
+    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs
 
-    mesosOptions.flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs
-  }
+  private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
+    sparkConfs ++ getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
 
-  private[sparta] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
-    val sparkConfsReflection = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
-
-    sparkConfs ++ sparkConfsReflection
-  }
-
-  private[sparta] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+  private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =
     (workflow.settings.sparkSettings.sparkKerberos,
-      HdfsUtils.getPrincipalName.notBlank,
-      HdfsUtils.getKeyTabPath.notBlank) match {
+      HdfsService.getPrincipalName(hdfsConfig).notBlank,
+      HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {
       case (true, Some(principalName), Some(keyTabPath)) =>
         val keyTabBase64 = DatatypeConverter.printBase64Binary(Files.readAllBytes(Paths.get(keyTabPath)))
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab configurations")
@@ -230,10 +231,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       case _ =>
         sparkConfs
     }
-  }
 
   //scalastyle:off
-  private[sparta] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+  private[core] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
     val tlsEnable = workflow.settings.sparkSettings.sparkDataStoreTls
     val tlsOptions = {
       if (tlsEnable) {
@@ -305,60 +305,45 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     sparkConfs ++ tlsOptions
   }
 
-  private[sparta] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] = {
+  private[core] def addAppNameConf(sparkConfs: Map[String, String]): Map[String, String] =
     if (!sparkConfs.contains(SubmitAppNameConf)) {
       sparkConfs ++ Map(SubmitAppNameConf -> s"${workflow.name}")
     } else sparkConfs
-  }
 
-  private[sparta] def driverLocation(driverPath: String): String = {
+  private[core] def driverLocation(driverPath: String): String = {
     val begin = 0
     val end = 4
 
     Try {
       driverPath.substring(begin, end) match {
         case "hdfs" => "hdfs"
-        case _ => "provided"
+        case _ => DefaultDriverLocation
       }
     }.getOrElse(DefaultDriverLocation)
   }
 
-  private[sparta] def userSubmitArgsFromWorkflow: Map[String, String] =
-    workflow.settings.sparkSettings.submitArguments.userArguments.flatMap(argument => {
+  private[core] def userSubmitArgsFromWorkflow: Map[String, String] =
+    workflow.settings.sparkSettings.submitArguments.userArguments.flatMap { argument =>
       if (argument.submitArgument.nonEmpty) {
         if (!SubmitArguments.contains(argument.submitArgument))
           log.warn(s"Spark submit argument added unrecognized by Sparta.\t" +
             s"Argument: ${argument.submitArgument}\tValue: ${argument.submitValue}")
         Some(argument.submitArgument.trim -> argument.submitValue.trim)
       } else None
-    }).toMap
+    }.toMap
 
-  private[sparta] def submitArgsToConf(submitArgs: Map[String, String]): Map[String, String] =
+  private[core] def submitArgsToConf(submitArgs: Map[String, String]): Map[String, String] =
     submitArgs.flatMap { case (argument, value) =>
       SubmitArgumentsToConfProperties.find { case (submitArgument, confProp) => submitArgument == argument }
         .map { case (_, confProp) => confProp -> value }
     }
 
-  private[sparta] def submitArgsFiltered(submitArgs: Map[String, String]): Map[String, String] =
+  private[core] def submitArgsFiltered(submitArgs: Map[String, String]): Map[String, String] =
     submitArgs.filter { case (argument, _) => !SubmitArgumentsToConfProperties.contains(argument) }
 
-  private[sparta] def addPluginsFilesToConf(sparkConfs: Map[String, String], pluginsFiles: Seq[String])
-  : Map[String, String] =
-    if (pluginsFiles.exists(_.trim.nonEmpty)) {
-      val confWithJars = addPropValueToConf(pluginsFiles.mkString(","), SubmitJarsConf, sparkConfs)
-      val pluginsFiltered = pluginsFiles.filter(file => !file.startsWith("hdfs") && !file.startsWith("http"))
-
-      if (pluginsFiltered.nonEmpty) {
-        val plugins = pluginsFiltered.mkString(",")
-        val confWithDriverClassPath = addPropValueToConf(plugins, SubmitDriverClassPathConf, confWithJars)
-
-        addPropValueToConf(plugins, SubmitExecutorClassPathConf, confWithDriverClassPath)
-      } else confWithJars
-    } else sparkConfs
-
-  private[sparta] def addPropValueToConf(pluginsFiles: String,
-                                         sparkConfKey: String,
-                                         sparkConfs: Map[String, String]): Map[String, String] =
+  private[core] def addPropValueToConf(pluginsFiles: String,
+                                       sparkConfKey: String,
+                                       sparkConfs: Map[String, String]): Map[String, String] =
     if (sparkConfs.contains(sparkConfKey))
       sparkConfs.map { case (confKey, value) =>
         if (confKey == sparkConfKey) confKey -> s"$value,$pluginsFiles"
@@ -366,10 +351,12 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       }
     else sparkConfs ++ Map(sparkConfKey -> pluginsFiles)
 
-  private[sparta] def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
-    (workflow.settings.sparkSettings.sparkKerberos,
-      HdfsUtils.getPrincipalName.notBlank,
-      HdfsUtils.getKeyTabPath.notBlank) match {
+  private[core] def addKerberosArguments(submitArgs: Map[String, String]): Map[String, String] =
+    (
+      workflow.settings.sparkSettings.sparkKerberos,
+      HdfsService.getPrincipalName(hdfsConfig).notBlank,
+      HdfsService.getKeyTabPath(hdfsConfig).notBlank
+    ) match {
       case (true, Some(principalName), Some(keyTabPath)) =>
         log.info(s"Launching Spark Submit with Kerberos security, adding principal and keyTab arguments")
         submitArgs ++ Map(SubmitPrincipal -> principalName, SubmitKeyTab -> keyTabPath)
@@ -377,14 +364,14 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         submitArgs
     }
 
-  private[sparta] def addSupervisedArgument(submitArgs: Map[String, String]): Map[String, String] =
+  private[core] def addSupervisedArgument(submitArgs: Map[String, String]): Map[String, String] =
     submitArgs.flatMap { case (argumentKey, value) =>
       if (argumentKey == SubmitSupervise)
         if (value == "true") Some(SubmitSupervise -> "") else None
       else Some(argumentKey -> value)
     }
 
-  private[sparta] def addJdbcDrivers(submitArgs: Map[String, String]): Map[String, String] = {
+  private[core] def addJdbcDrivers(submitArgs: Map[String, String]): Map[String, String] = {
     val jdbcDrivers = new File("/jdbc-drivers")
     if (jdbcDrivers.exists && jdbcDrivers.isDirectory) {
       val jdbcFiles = jdbcDrivers.listFiles()

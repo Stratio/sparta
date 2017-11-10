@@ -23,7 +23,7 @@
             "default": "localhost",
             "required": true,
             "tooltip": "Kafka's address.",
-            "hidden": false,
+             "width": 6,
             "qa": "fragment-details-kafka-host"
           },
           {
@@ -34,8 +34,7 @@
             "default": "9092",
             "required": true,
             "tooltip": "Kafka's port.",
-            "width": 4,
-            "hidden": false,
+             "width": 2,
             "qa": "fragment-details-kafka-port"
           }
         ]
@@ -148,18 +147,14 @@
         "propertyId": "kafkaProperties",
         "propertyName": "_KAFKA_PROPERTIES_",
         "propertyType": "list",
-        "default": "",
         "required": false,
-        "tooltip": "",
         "qa": "fragment-details-kafka-properties",
         "fields": [
           {
             "propertyId": "kafkaPropertyKey",
             "propertyName": "_KAFKA_PROPERTY_KEY_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
+             "width": 4,
             "required": false,
             "qa": "fragment-details-kafka-kafkaPropertyKey"
           },
@@ -167,9 +162,7 @@
             "propertyId": "kafkaPropertyValue",
             "propertyName": "_KAFKA_PROPERTY_VALUE_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
+             "width": 4,
             "required": false,
             "qa": "fragment-details-kafka-kafkaPropertyValue"
           }

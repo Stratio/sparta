@@ -63,7 +63,8 @@ object SparkDriver extends SLF4JLogging {
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
-        PluginFilesHelper.addPluginsToClassPath(pluginsFiles)
+        val localPlugins = PluginFilesHelper.downloadPlugins(pluginsFiles)
+        PluginFilesHelper.addPluginsToClasspath(localPlugins)
         val workflowService = new WorkflowService(curatorInstance)
         val workflow = workflowService.findById(workflowId)
         val executionService = new ExecutionService(curatorInstance)
@@ -77,7 +78,7 @@ object SparkDriver extends SLF4JLogging {
           statusInfo = Some(startingInfo)
         ))
         val streamingContextService = StreamingContextService(curatorInstance)
-        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, pluginsFiles)
+        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
 
         for {
           status <- workflowStatus

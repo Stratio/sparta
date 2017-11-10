@@ -47,8 +47,9 @@ object AppConstant extends ZookeeperUtils {
   val DriverURI = "driverURI"
   val DefaultMarathonDriverURI = "/opt/sds/sparta/driver/sparta-driver.jar"
   val DefaultDriverLocation = "provided"
-  val PluginsPackageLocation = "pluginPackageLocation"
-  val DefaultPluginsPackageLocation = "/opt/sds/sparta/plugins"
+  val DriverLocation = "driverLocation"
+  val PluginsLocation = "pluginsLocation"
+  val DefaultPluginsLocation = "plugins"
   val DefaultFrontEndTimeout = 20000
   val ConfigSecurity = "security"
   val AwaitWorkflowChangeStatus = "awaitWorkflowChangeStatus"
@@ -63,7 +64,6 @@ object AppConstant extends ZookeeperUtils {
   val HadoopUserName = "hadoopUserName"
   val HdfsMaster = "hdfsMaster"
   val HdfsPort = "hdfsPort"
-  val DefaultHdfsUser = "sparta"
   val KeytabPath = "keytabPath"
   val PrincipalName = "principalName"
   val ReloadKeyTabTime = "reloadKeyTabTime"
@@ -77,6 +77,7 @@ object AppConstant extends ZookeeperUtils {
   val SystemPrincipalName = "SPARTA_PRINCIPAL_NAME"
   val SystemKeyTabPath = "SPARTA_KEYTAB_PATH"
   val SystemHostName = "HOSTNAME"
+  val DefaultFSProperty = "fs.defaultFS"
 
   //Zookeeper
   val ZKConnection = "connectionString"
@@ -108,5 +109,5 @@ object AppConstant extends ZookeeperUtils {
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
-  val CustomTypeKey = "modelType"
+  val CustomTypeKey = "customClassType"
 }

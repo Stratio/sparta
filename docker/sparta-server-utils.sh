@@ -57,14 +57,14 @@ function initJavaOptions() {
 
 function hdfsOptions() {
 
- if [[ ! -v HADOOP_PORT ]]; then
-   HADOOP_PORT=9000
+ if [ -v HADOOP_PORT ] && [ ${#HADOOP_PORT} != 0 ]; then
+   sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HADOOP_PORT}|" ${SPARTA_CONF_FILE}
  fi
- sed -i "s|.*sparta.hdfs.hdfsPort.*|sparta.hdfs.hdfsPort = ${HADOOP_PORT}|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v HDFS_SECURITY_ENABLED ]]; then
    HDFS_SECURITY_ENABLED=false
  fi
+
  if [ $HDFS_SECURITY_ENABLED == "true" ] && [ -v SPARTA_PRINCIPAL_NAME ] && [ ${#SPARTA_PRINCIPAL_NAME} != 0 ]; then
    sed -i "s|.*sparta.hdfs.principalName .*|sparta.hdfs.principalName = \""${SPARTA_PRINCIPAL_NAME}"\"|" ${SPARTA_CONF_FILE}
  fi
@@ -203,9 +203,9 @@ function configOptions() {
  sed -i "s|.*sparta.config.driverPackageLocation.*|sparta.config.driverPackageLocation = \""${SPARTA_DRIVER_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_PLUGIN_PACKAGE_LOCATION ]]; then
-   SPARTA_PLUGIN_PACKAGE_LOCATION="/opt/sds/sparta/plugins"
+   SPARTA_PLUGIN_PACKAGE_LOCATION="plugins"
  fi
- sed -i "s|.*sparta.config.pluginPackageLocation.*|sparta.config.pluginPackageLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
+ sed -i "s|.*sparta.config.pluginsLocation.*|sparta.config.pluginsLocation = \""${SPARTA_PLUGIN_PACKAGE_LOCATION}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_BACKUP_LOCATION ]]; then
    SPARTA_BACKUP_LOCATION="/opt/sds/sparta/backups"

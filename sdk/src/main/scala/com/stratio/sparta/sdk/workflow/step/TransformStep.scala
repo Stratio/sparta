@@ -32,6 +32,10 @@ abstract class TransformStep(
                               properties: Map[String, JSerializable]
                             ) extends Parameterizable(properties) with GraphStep {
 
+  override lazy val customKey = "transformationOptions"
+  override lazy val customPropertyKey = "transformationOptionsKey"
+  override lazy val customPropertyValue = "transformationOptionsValue"
+
   /* METHODS TO IMPLEMENT */
 
   /**

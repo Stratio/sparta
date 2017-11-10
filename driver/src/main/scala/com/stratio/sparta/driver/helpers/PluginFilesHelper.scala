@@ -18,47 +18,54 @@ package com.stratio.sparta.driver.helpers
 
 import java.io.File
 import java.net.URL
-import java.util.{Calendar, UUID}
+import java.nio.file.Paths
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.utils.HdfsUtils
+import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
 
 object PluginFilesHelper extends SLF4JLogging {
 
-  def addPluginsToClassPath(pluginsFiles: Array[String]): Unit = {
+  lazy private val hdfsService = HdfsService()
+
+  def downloadPlugins(pluginsFiles: Seq[String], addToClasspath: Boolean = true): Seq[String] = {
     log.info(pluginsFiles.mkString(","))
-    pluginsFiles.foreach(filePath => {
-      log.info(s"Adding plugin file to classpath: $filePath")
-      if (filePath.startsWith("/") || filePath.startsWith("file://")) addFromLocal(filePath)
-      if (filePath.startsWith("hdfs")) addFromHdfs(filePath)
-      if (filePath.startsWith("http")) addFromHttp(filePath)
-    })
+    pluginsFiles.flatMap { filePath =>
+      if (filePath.startsWith("/") || filePath.startsWith("file://")) Option(filePath)
+      else if (filePath.startsWith("hdfs")) Option(downloadFromHdfs(filePath))
+      else if (filePath.startsWith("http")) Option(downloadFromHttp(filePath))
+      else None
+    }
   }
 
-  private[driver] def addFromLocal(filePath: String): Unit = {
-    log.info(s"Getting file from local: $filePath")
-    val file = new File(filePath.replace("file://", ""))
-    JarsHelper.addToClasspath(file)
+  def addPluginsToClasspath(localPluginsFiles: Seq[String]): Unit = {
+    localPluginsFiles.foreach { filePath =>
+      log.info(s"Getting file from local: $filePath")
+      val file = new File(filePath.replace("file://", ""))
+      log.info(s"Adding plugin file to classpath: ${file.getAbsolutePath}")
+      JarsHelper.addToClasspath(file)
+    }
   }
 
-  private[driver] def addFromHdfs(fileHdfsPath: String): Unit = {
+  private[driver] def downloadFromHdfs(fileHdfsPath: String): String = {
     log.info(s"Getting file from HDFS: $fileHdfsPath")
-    val inputStream = HdfsUtils().getFile(fileHdfsPath)
+    val inputStream = hdfsService.getFile(fileHdfsPath)
     val fileName = fileHdfsPath.split("/").last
     log.info(s"HDFS file name is $fileName")
-    val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/$fileName")
+    val file = new File(s"/tmp/sparta/plugins/$fileName")
     log.info(s"Downloading HDFS file to local file system: ${file.getAbsoluteFile}")
     FileUtils.copyInputStreamToFile(inputStream, file)
-    JarsHelper.addToClasspath(file)
+    file.getAbsolutePath
   }
 
-  private[driver] def addFromHttp(fileURI: String): Unit = {
+  private[driver] def downloadFromHttp(fileURI: String): String = {
     log.info(s"Getting file from HTTP: $fileURI")
-    val tempFile = File.createTempFile(s"sparta-plugin-${Calendar.getInstance().getTimeInMillis}", ".jar")
     val url = new URL(fileURI)
-    FileUtils.copyURLToFile(url, tempFile)
-    JarsHelper.addToClasspath(tempFile)
+    val fileName = Paths.get(url.getPath).getFileName
+    val file = new File(s"/tmp/sparta/plugins/$fileName")
+    log.info(s"Downloading HTTP file to local file system: ${file.getAbsoluteFile}")
+    FileUtils.copyURLToFile(url, file)
+    file.getAbsolutePath
   }
 }

@@ -33,6 +33,7 @@ object MarathonConstant {
   val WorkflowIdEnv = "SPARTA_WORKFLOW_ID"
   val ZookeeperConfigEnv = "SPARTA_ZOOKEEPER_CONFIG"
   val DetailConfigEnv = "SPARTA_DETAIL_CONFIG"
+  val PluginFiles = "SPARTA_PLUGIN_FILES"
   val AppHeapSizeEnv = "MARATHON_APP_HEAP_SIZE"
   val SpartaOSMemoryEnv = "SPARTA_MARATHON_OS_MEMORY"
   val SparkHomeEnv = "SPARK_HOME"

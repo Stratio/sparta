@@ -44,7 +44,7 @@ class DriverHttpServiceTest extends WordSpec
 
   "PluginsHttpService.upload" should {
     "Upload a file" in {
-      val response = Left(Success(Seq(SpartaFile("", "", "", ""))))
+      val response = Left(Success(Seq(SpartaFile("", "", ""))))
       startAutopilot(response)
       Put(s"/${HttpConstant.DriverPath}") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[UploadDrivers]

@@ -22,6 +22,7 @@ import java.util.UUID
 import com.github.nscala_time.time.Imports._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.sdk.workflow.step.OutputStep._
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.crossdata.XDSession
@@ -50,7 +51,7 @@ class FileOutputStepIT extends FlatSpec with ShouldMatchers with BeforeAndAfterA
 
     val sqlContext = XDSession.builder()
       .config(sc.getConf)
-      .create(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "dummyUser")))
+      .create("dummyUser")
 
     import sqlContext.implicits._
 
@@ -68,7 +69,7 @@ class FileOutputStepIT extends FlatSpec with ShouldMatchers with BeforeAndAfterA
   }
 
   "FileOutputIT" should "save a dataframe" in new WithEventData {
-    output.save(data, SaveModeEnum.Append, Map(Output.TimeDimensionKey -> "minute", Output.TableNameKey -> "person"))
+    output.save(data, SaveModeEnum.Append, Map())
 
     val source = new java.io.File(tmpPath).listFiles()
     val read = sqlContext.read.json(tmpPath).toDF

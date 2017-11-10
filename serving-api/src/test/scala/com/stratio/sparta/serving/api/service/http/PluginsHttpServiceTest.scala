@@ -52,7 +52,7 @@ class PluginsHttpServiceTest extends WordSpec
 
   "PluginsHttpService.upload" should {
     "Upload a file" in {
-      val response = Left(Success(Seq(SpartaFile("", "", "", ""))))
+      val response = Left(Success(Seq(SpartaFile("", "", ""))))
       startAutopilot(response)
       Put(s"/${HttpConstant.PluginsPath}") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[UploadPlugins]
@@ -88,7 +88,7 @@ class PluginsHttpServiceTest extends WordSpec
 
   "PluginsHttpService.remove" should {
     "return an OK because the sparta file was deleted" in {
-      startAutopilot(Left(Success(getSpartaFiles)))
+      startAutopilot(Left(Success()))
       Delete(s"/${HttpConstant.PluginsPath}/file.jar") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[DeletePlugin]
         status should be(StatusCodes.OK)
@@ -107,14 +107,14 @@ class PluginsHttpServiceTest extends WordSpec
     "return an OK because the sparta files was deleted" in {
       startAutopilot(Left(Success(())))
       Delete(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgClass(DeletePlugins.getClass)
+        testProbe.expectMsgType[DeletePlugins]
         status should be(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
       Delete(s"/${HttpConstant.PluginsPath}") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgClass(DeletePlugins.getClass)
+        testProbe.expectMsgType[DeletePlugins]
         status should be(StatusCodes.InternalServerError)
       }
     }

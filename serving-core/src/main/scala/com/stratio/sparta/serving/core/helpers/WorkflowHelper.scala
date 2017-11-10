@@ -24,30 +24,38 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
 
-import scala.util.Properties
+import scala.util.{Failure, Properties, Success, Try}
 
 object WorkflowHelper extends SLF4JLogging {
 
   lazy val classpathUtils = new ClasspathUtils
 
-  def getSparkConfsReflec(elements: Seq[NodeGraph], methodName: String): Map[String, String] = {
+  def getConfigurationsFromObjects(elements: Seq[NodeGraph], methodName: String): Map[String, String] = {
     log.debug("Initializing reflection ...")
-    elements.flatMap(o => {
-      val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.className).toString
-      val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, o.className)
-      val clazz = Class.forName(clazzToInstance)
-      clazz.getMethods.find(p => p.getName == methodName) match {
-        case Some(method) =>
-          method.setAccessible(true)
-          method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
-            .asInstanceOf[Seq[(String, String)]]
-        case None =>
+    elements.flatMap { o =>
+      Try {
+        val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.className).toString
+        val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, o.className)
+        val clazz = Class.forName(clazzToInstance)
+        clazz.getMethods.find(p => p.getName == methodName) match {
+          case Some(method) =>
+            method.setAccessible(true)
+            method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
+              .asInstanceOf[Seq[(String, String)]]
+          case None =>
+            Seq.empty[(String, String)]
+        }
+      } match {
+        case Success(configurations) =>
+          configurations
+        case Failure(e) =>
+          log.warn("Error obtaining configurations from singleton objects", e)
           Seq.empty[(String, String)]
       }
-    }).toMap
+    }.toMap
   }
 
-  def getMarathonId(workflowModel: Workflow) : String = {
+  def getMarathonId(workflowModel: Workflow): String = {
     val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
 
     s"sparta/$inputServiceName/workflows/${workflowModel.name}"

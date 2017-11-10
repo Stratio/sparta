@@ -50,18 +50,14 @@
         "propertyId": "saveOptions",
         "propertyName": "_CSV_SAVE_PROPERTIES_",
         "propertyType": "list",
-        "default": "",
         "required": false,
-        "tooltip": "",
         "qa": "fragment-details-csv-save-properties",
         "fields": [
           {
             "propertyId": "saveOptionsKey",
             "propertyName": "_SAVE_OPTIONS_KEY_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
+             "width": 4,
             "required": false,
             "qa": "fragment-details-csv-saveOptionsKey"
           },
@@ -69,9 +65,7 @@
             "propertyId": "saveOptionsValue",
             "propertyName": "_SAVE_OPTIONS_VALUE_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
-            "hidden": false,
+             "width": 4,
             "required": false,
             "qa": "fragment-details-csv-saveOptionsValue"
           }

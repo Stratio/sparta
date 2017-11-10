@@ -31,9 +31,9 @@ trait GraphStep extends CustomProperties {
 
   /* GLOBAL VARIABLES */
 
-  lazy val customKey = "transformationOptions"
-  lazy val customPropertyKey = "transformationOptionsKey"
-  lazy val customPropertyValue = "transformationOptionsValue"
+  lazy val customKey = "customOptions"
+  lazy val customPropertyKey = "customOptionsKey"
+  lazy val customPropertyValue = "customOptionsValue"
   lazy val propertiesWithCustom: Map[String, Serializable] = properties ++ getCustomProperties
   lazy val SparkTypes = Map(
     "long" -> LongType,

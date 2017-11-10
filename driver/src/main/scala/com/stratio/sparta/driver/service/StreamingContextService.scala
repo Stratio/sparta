@@ -48,7 +48,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
       createLocalCheckpointPath(workflow)
     }
 
-    val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
@@ -74,12 +74,12 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
         if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
         StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
           log.info(s"Nothing in checkpoint path: ${checkpointPathFromWorkflow(workflow)}")
-          val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+          val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
           sparkClusterContextInstance(stepsSparkConfig, files)
           spartaWorkflow.streamingStages()
         })
       } else {
-        val stepsSparkConfig = getSparkConfsReflec(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+        val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
         sparkClusterContextInstance(stepsSparkConfig, files)
         spartaWorkflow.streamingStages()
       }

@@ -108,6 +108,7 @@ trait HttpServiceBaseTest extends WordSpec
       sparkSubmitExecution = SparkSubmitExecution(
         driverClass = "driver",
         driverFile = "file",
+        pluginFiles = Seq(),
         master = "master",
         submitArguments = Map(),
         sparkConfigurations = Map(),
@@ -117,11 +118,10 @@ trait HttpServiceBaseTest extends WordSpec
     )
 
   protected def getSpartaFiles: Seq[SpartaFile] =
-    Seq(SpartaFile(fileName = "file.jar",
+    Seq(SpartaFile(
+      fileName = "file.jar",
       uri = "http://localhost:9090/driver/file.jar",
-      localPath = "/tmp/file.jar",
-      size = "0",
-      version = None
+      path = "/tmp/file.jar"
   ))
 
 

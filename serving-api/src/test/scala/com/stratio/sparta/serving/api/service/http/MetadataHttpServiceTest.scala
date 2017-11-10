@@ -53,8 +53,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.buildBackup" when {
     "everything goes right" should {
       "create a ZK backup" in {
-        val fileResponse = Seq(SpartaFile("backup",
-          "/etc/sds/sparta/backup","/etc/sds/sparta/backup","251"))
+        val fileResponse = Seq(SpartaFile("backup", "/etc/sds/sparta/backup","/etc/sds/sparta/backup"))
         startAutopilot(Left(Success(fileResponse)))
         Get(s"/${HttpConstant.MetadataPath}/backup/build") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[BuildBackup]
@@ -99,8 +98,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.uploadBackup" when {
     "everything goes right" should {
       "upload a ZK backup" in {
-        val fileResponse = Seq(SpartaFile("backup",
-          "/etc/sds/sparta/backup","/etc/sds/sparta/backup","251"))
+        val fileResponse = Seq(SpartaFile("backup", "/etc/sds/sparta/backup","/etc/sds/sparta/backup"))
         startAutopilot(Left(Success(fileResponse)))
         Put(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[UploadBackups]
@@ -123,7 +121,7 @@ class MetadataHttpServiceTest extends WordSpec
   "MetadataHttpService.getAllBackups" when {
     "everything goes right" should {
       "retrieve all the ZK backups" in {
-        val fileResponse = Seq(SpartaFile("a", "", "", ""), SpartaFile("b","","",""))
+        val fileResponse = Seq(SpartaFile("a", "", ""), SpartaFile("b","",""))
         startAutopilot(Left(Success(fileResponse)))
         Get(s"/${HttpConstant.MetadataPath}/backup") ~> routes(rootUser) ~> check {
           testProbe.expectMsgType[ListBackups]

@@ -19,7 +19,6 @@
         "propertyId": "saveOptions",
         "propertyName": "_PARQUET_SAVE_PROPERTIES_",
         "propertyType": "list",
-        "default": "",
         "required": false,
         "tooltip": "",
         "qa": "fragment-details-parquet-save-properties",
@@ -28,8 +27,7 @@
             "propertyId": "saveOptionsKey",
             "propertyName": "_SAVE_OPTIONS_KEY_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
+             "width": 4,
             "required": false,
             "qa": "fragment-details-parquet-saveOptionsKey"
           },
@@ -37,8 +35,7 @@
             "propertyId": "saveOptionsValue",
             "propertyName": "_SAVE_OPTIONS_VALUE_",
             "propertyType": "text",
-            "regexp": "",
-            "default": "",
+             "width": 4,
             "required": false,
             "qa": "fragment-details-parquet-saveOptionsValue"
           }

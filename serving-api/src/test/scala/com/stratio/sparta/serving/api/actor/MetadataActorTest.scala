@@ -112,17 +112,6 @@ class MetadataActorTest extends TestKit(ActorSystem("PluginActorSpec"))
 
   "MetadataActor " must {
 
-    "Not save files with wrong extension" in {
-      val metadataActor = system.actorOf(Props(new MetadataActor()))
-      metadataActor ! (UploadBackups(fileList, rootUser))
-      expectMsgPF() {
-        case Left(Success(f: Seq[SpartaFile])) => f.isEmpty shouldBe true
-      }
-      metadataActor ! (DeleteBackups(rootUser))
-      expectMsgPF() {
-        case Left(Success(_)) =>
-      }
-    }
     "Not upload empty files" in {
       val metadataActor = system.actorOf(Props(new MetadataActor()))
       metadataActor ! UploadBackups(Seq.empty, rootUser)
