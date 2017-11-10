@@ -1,8 +1,13 @@
 {
-  "id": "kafka-sec",
-  "name": "kafka-sec",
+  "id": "sparta-k",
+  "name": "sparta-k",
   "users": [
-    "user"
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
   ],
   "groups": [],
   "services": [
@@ -18,7 +23,7 @@
           "acls": [
             {
               "resourceType": "Topic",
-              "name": "datio",
+              "name": "*",
               "recursive": true,
               "actions": [
                 "Read",
@@ -35,17 +40,6 @@
                 "Read",
                 "Describe",
                 "Write"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "Topic",
-              "name": "sparta",
-              "recursive": true,
-              "actions": [
-                "Read",
-                "Write",
-                "Describe"
               ],
               "allActions": []
             }

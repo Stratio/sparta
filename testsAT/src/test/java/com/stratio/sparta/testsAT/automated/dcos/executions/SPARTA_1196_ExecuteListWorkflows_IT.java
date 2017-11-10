@@ -16,25 +16,31 @@
 package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
-import com.stratio.qa.data.BrowsersDataProvider;
 import com.stratio.qa.utils.BaseTest;
+import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.Factory;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_ExecuteListWorkflows_IT.feature"
 
 })
+public class SPARTA_1196_ExecuteListWorkflows_IT extends BaseTest {
 
-public class SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT extends BaseTest  {
-    @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT(String browser) {
-        this.browser = browser;
+    @BeforeClass(groups = {"sparta_eos"})
+    public void setUp() {
+        ThreadProperty.set("Driver", "inst");
+
     }
 
-    @Test(enabled = true, groups = {"dcos_execution"})
-    public void AppWithSecurityES() throws Exception {
+    public SPARTA_1196_ExecuteListWorkflows_IT() {this.browser = browser;
+    }
+
+    @Test(enabled = true, groups = {"execute_list_workflows"})
+    public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
 }

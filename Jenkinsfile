@@ -115,7 +115,7 @@ hose {
         ]  
     ]
     INSTALLPARAMETERS = """
-            | -DSTRATIO_SPARTA_VERSION=1.7.6
+            | -DSTRATIO_SPARTA_VERSION=1.7.8
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
@@ -126,9 +126,9 @@ hose {
             | -DHDFS_REALM=DEMO.STRATIO.COM
             | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.1.0.1
             | -DROLE_SPARTA=open
-            | -DID_POLICY_ZK=zk_sparta
+            | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache_1.7.7.json
+            | -DSPARTA_JSON=spartamustache_1.7.8.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=false
             | -DCALICOENABLED=false
@@ -136,6 +136,7 @@ hose {
             | -DIDNODE=564        
             | -DSELENIUM_GRID=selenium.cd:4444
             | -DFORCE_BROWSER=chrome_48%%JUID
+            | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             """
     INSTALL = { config ->
         doAT(conf: config, groups: ['dcos_instalation','dcos_executions'])

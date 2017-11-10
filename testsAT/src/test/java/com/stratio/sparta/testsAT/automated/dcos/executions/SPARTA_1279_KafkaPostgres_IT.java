@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos.installations;
+package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.data.BrowsersDataProvider;
@@ -23,18 +23,16 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
-    "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_GenerateAndExecuteWorkflowWithStreaming_IT.feature"
+
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
+
 })
 
-public class SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT extends BaseTest  {
-    //@Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-
-    public SPARTA_1278_InstalationwithMustacheAndExecuteWorkflow_IT() {this.browser = browser;
+public class SPARTA_1279_KafkaPostgres_IT extends BaseTest  {
+    public SPARTA_1279_KafkaPostgres_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})
+    @Test(enabled = true, groups = {"dcos_execution_postgres"})
     public void ExecuteWorkflow() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

@@ -5,14 +5,14 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-    #And  I securely send requests to '${DCOS_IP}:443'
-  Scenario: [SPARTA-1182][Scenario-1] Add zookeper-sparta policy to write in zookeper
+
+  Scenario: [SPARTA-1182][01]Add zookeper-sparta policy to write in zookeper
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.name                  |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
     Then the service response status must be '201'
-  Scenario: [SPARTA-1182][Scenario-2] Sparta Instalation with Mustache in DCOS
+  Scenario: [SPARTA-1182][02] Sparta Instalation with Mustache in DCOS
     #Modify json to install specific configuration forSparta
     Given I create file 'spartamustache.json' based on 'schemas/dcosFiles/${SPARTA_JSON}' as 'json' with:
       |   $.Framework.name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
@@ -53,18 +53,21 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
     #Copy DEPLOY JSON to DCOS-CLI
     And I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'
     #Start image from mustache
-    When I run 'dcos package install --yes --options=/dcos/spartamustache.json sparta' in the ssh connection
-    Then the command output contains 'Installing Marathon app for package [sparta]'
+    When I run 'dcos package describe --app --options=/dcos/spartamustache.json sparta >> /dcos/spartaBasicMarathon.json' in the ssh connection
+    Then I run 'sed -i -e 's|"image":.*|"image": "${DOCKER_URL}:${STRATIO_SPARTA_VERSION}",|g' /dcos/spartaBasicMarathon.json' in the ssh connection
+    And I run 'dcos marathon app add /dcos/spartaBasicMarathon.json' in the ssh connection
 
-    And in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME} | wc -l' contains '1'
+    And in less than '400' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME} | wc -l' contains '1'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}  | awk '{print $5}' | grep ${DCOS_SERVICE_NAME} ' in the ssh connection and save the value in environment variable 'spartaTaskId'
-    And I wait '1' seconds
     #Check sparta is runing in DCOS
-    And  I run 'echo !{spartaTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING | wc -l' contains '1'
+    When  I run 'echo !{spartaTaskId}' in the ssh connection
+    Then in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep TASK_RUNNING | wc -l' contains '1'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep healthCheckResults | wc -l' contains '1'
+    And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep  '"alive": true' | wc -l' contains '1'
+
   #Add Sparta Policy
-  Scenario: [SPARTA-1182][Scenario-3] Add sparta policy for authorization in sparta with full security
+  Scenario: [SPARTA-1182][03] Add sparta policy for authorization in sparta with full security
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
       |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
@@ -72,11 +75,11 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
     Then the service response status must be '201'
 
   #Remove Policy
-  Scenario: [SPARTA-1182][Scenario-5]Delete zk-sparta Policy
+  Scenario: [SPARTA-1182][04]Delete zk-sparta Policy
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_POLICY_ZK}'
     Then the service response status must be '200'
 
   @ignore @manual
-  Scenario: [SPARTA-1182][Scenario-6]Delete Sparta Policy
+  Scenario: [SPARTA-1182][05]Delete Sparta Policy
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'

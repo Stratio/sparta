@@ -1,7 +1,7 @@
 {
-  "id": "b2b5ae33-e535-4718-ace9-1ebe20120666",
-  "name": "kafka-postgres",
-  "description": "kafka-postgres",
+  "id": "4950f949-cecb-4bd1-a242-a73a5389d77f",
+  "name": "kaka-elastic",
+  "description": "kaka-elastic.json",
   "settings": {
     "global": {
       "executionMode": "marathon",
@@ -105,15 +105,15 @@
           }
         ],
         "configuration": {
-          "removeInputField": false,
-          "supportNullValues": true,
-          "whenError": "Error",
           "queries": [
             {
               "field": "id",
               "query": "$.id"
             }
-          ]
+          ],
+          "supportNullValues": true,
+          "whenError": "Error",
+          "removeInputField": false
         }
       }
     ],
@@ -127,12 +127,12 @@
   },
   "streamTriggers": [
     {
-      "name": "tabletest",
+      "name": "trigertest",
       "sql": "select id from stream",
       "writer": {
         "outputs": [
           {
-            "primary": "postgres"
+            "primary": "elastic-output"
           }
         ],
         "autoCalculatedFields": [],
@@ -165,7 +165,7 @@
       "writer": {
         "outputs": [
           {
-            "primary": "postgres"
+            "primary": "elastic-output"
           }
         ],
         "dateType": "timestamp",
@@ -196,9 +196,9 @@
       "vaultRole": "open",
       "offsets": [
         {
+          "topic": "",
           "partition": "",
-          "offsetValue": "",
-          "topic": ""
+          "offsetValue": ""
         }
       ],
       "tlsEnabled": true,
@@ -225,24 +225,25 @@
   },
   "outputs": [
     {
-      "name": "postgres",
-      "type": "Postgres",
+      "name": "elastic-output",
+      "type": "ElasticSearch",
       "configuration": {
-        "url": "jdbc:postgresql://pg_0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
-        "postgresSaveMode": "STATEMENT",
-        "batchsize": "",
-        "isolationLevel": "READ_UNCOMMITTED",
-        "driver": "",
-        "caName": "ca",
-        "bufferSize": "65536",
-        "tlsEnable": true,
-        "saveOptions": [
+        "tlsEnabled": true,
+        "nodes": [
           {
-            "saveOptionsValue": "",
-            "saveOptionsKey": ""
+            "node": "coordinator-0-node.elasticsearchstratio.mesos",
+            "httpPort": "31504"
           }
         ],
-        "numPartitions": ""
+        "indexMapping": "",
+        "enableAutoCreateIndex": true,
+        "clusterName": "elasticsearch",
+        "saveOptions": [
+          {
+            "saveOptionsKey": "",
+            "saveOptionsValue": ""
+          }
+        ]
       }
     }
   ],

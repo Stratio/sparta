@@ -23,18 +23,22 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_ExecuteWorkflowKafkaPostgres_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_StreamingListWorkflows_IT.feature"
 
 })
+public class SPARTA_1196_StreamingListWorkflows_IT extends BaseTest {
 
-public class SPARTA_1279_ExecuteWorkflowKafkaPostgres_IT extends BaseTest  {
     @Factory(enabled = false, dataProviderClass = BrowsersDataProvider.class, dataProvider = "availableUniqueBrowsers")
-    public SPARTA_1279_ExecuteWorkflowKafkaPostgres_IT(String browser) {
+    public SPARTA_1196_StreamingListWorkflows_IT(String browser) {
         this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos"})
+    //@Test(enabled = true,groups = {"dcos_streaming"}, dependsOnGroups = {"dcos_executions"})
+    @Test(enabled = true,groups = {"dcos_streaming"})
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
+
+
+
 }

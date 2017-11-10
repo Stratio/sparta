@@ -1,0 +1,103 @@
+{
+  "id": "sparta-kafka",
+  "name": "sparta-kafkaelastic",
+  "users": [
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "broker-0001.kafka-sec.mesos",
+      "name": "broker-0001.kafka-sec.mesos",
+      "email": "broker-0001.kafka-sec.mesos@demo.stratio.com",
+      "custom": false
+    },
+    {
+      "id": "elasticsearch",
+      "name": "elasticsearch",
+      "email": "elasticsearch@demo.stratio.com",
+      "custom": false
+    }
+  ],
+  "groups": [],
+  "services": [
+    {
+      "type": "kafka",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "*"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Topic",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Describe",
+                "Write"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Group",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Read",
+                "Describe",
+                "Write"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "elasticsearchstratio",
+      "instancesAcl": [
+        {
+          "instances": [
+            {
+              "name": "*"
+            }
+          ],
+          "acls": [
+            {
+              "resourceType": "Index",
+              "name": "",
+              "recursive": true,
+              "actions": [
+                "Delete",
+                "Describe",
+                "Edit",
+                "View",
+                "Write"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "Index",
+              "name": "*",
+              "recursive": true,
+              "actions": [
+                "Delete",
+                "Describe",
+                "Edit",
+                "View",
+                "Write"
+              ],
+              "allActions": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

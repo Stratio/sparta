@@ -1,7 +1,7 @@
 {
-  "id": "b2b5ae33-e535-4718-ace9-1ebe20120666",
-  "name": "kafka-postgres",
-  "description": "kafka-postgres",
+  "id": "94d0ba25-59a6-4df1-aca5-c276ed94c829",
+  "name": "testinput-kafka",
+  "description": "testinput-to-print.json",
   "settings": {
     "global": {
       "executionMode": "marathon",
@@ -105,15 +105,15 @@
           }
         ],
         "configuration": {
-          "removeInputField": false,
-          "supportNullValues": true,
-          "whenError": "Error",
           "queries": [
             {
               "field": "id",
               "query": "$.id"
             }
-          ]
+          ],
+          "supportNullValues": true,
+          "whenError": "Error",
+          "removeInputField": false
         }
       }
     ],
@@ -127,12 +127,12 @@
   },
   "streamTriggers": [
     {
-      "name": "tabletest",
+      "name": "trigertest",
       "sql": "select id from stream",
       "writer": {
         "outputs": [
           {
-            "primary": "postgres"
+            "primary": "kafkaoutput"
           }
         ],
         "autoCalculatedFields": [],
@@ -144,105 +144,52 @@
       "computeEvery": "30s"
     }
   ],
-  "cubes": [
-    {
-      "name": "cube1",
-      "dimensions": [
-        {
-          "name": "id",
-          "field": "id",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "type": "Count",
-          "name": "count",
-          "configuration": {}
-        }
-      ],
-      "writer": {
-        "outputs": [
-          {
-            "primary": "postgres"
-          }
-        ],
-        "dateType": "timestamp",
-        "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "boolFailFast": false
-      },
-      "triggers": [],
-      "configuration": {}
-    }
-  ],
+  "cubes": [],
   "input": {
-    "name": "kafka",
-    "type": "Kafka",
+    "name": "cubetest",
+    "type": "Test",
     "configuration": {
-      "key.deserializer": "string",
-      "locationStrategy": "preferconsistent",
-      "vaultKeyPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "topics": [
-        {
-          "topic": "trigertest"
-        }
-      ],
-      "auto.offset.reset": "latest",
-      "partition.assignment.strategy": "range",
-      "vaultTLSEnable": true,
-      "vaultTrustStorePath": "/v1/ca-trust/certificates/ca",
-      "vaultRole": "open",
-      "offsets": [
-        {
-          "partition": "",
-          "offsetValue": "",
-          "topic": ""
-        }
-      ],
-      "tlsEnabled": true,
-      "group.id": "",
-      "bootstrap.servers": [
-        {
-          "port": "9092",
-          "host": "broker-0001.kafka-sec.mesos"
-        }
-      ],
-      "enable.auto.commit": false,
-      "vaultCertPath": "/v1/userland/certificates/sparta-server",
-      "value.deserializer": "string",
-      "kafkaProperties": [
-        {
-          "kafkaPropertyKey": "",
-          "kafkaPropertyValue": ""
-        }
-      ],
-      "vaultCertPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "vaultTrustStorePassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "storeOffsetInKafka": true
+      "maxNumbEvents": "400",
+      "eventType": "STRING",
+      "event": "{\"id\": \"00062016092205802134\",\"name\":\"ticket1\"}",
+      "receiverType": "LIMITED",
+      "numEvents": "400",
+      "storageLevel": "MEMORY_ONLY_SER"
     }
   },
   "outputs": [
     {
-      "name": "postgres",
-      "type": "Postgres",
+      "name": "kafkaoutput",
+      "type": "Kafka",
       "configuration": {
-        "url": "jdbc:postgresql://pg_0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
-        "postgresSaveMode": "STATEMENT",
-        "batchsize": "",
-        "isolationLevel": "READ_UNCOMMITTED",
-        "driver": "",
-        "caName": "ca",
-        "bufferSize": "65536",
-        "tlsEnable": true,
-        "saveOptions": [
+        "format": "JSON",
+        "vaultKeyPassPath": "/v1/userland/passwords/sparta-server/keystore",
+        "vaultTLSEnable": true,
+        "vaultTrustStorePath": "/v1/ca-trust/certificates/ca",
+        "vaultRole": "open",
+        "tlsEnabled": true,
+        "security.protocol": "PLAINTEXT",
+        "bootstrap.servers": [
           {
-            "saveOptionsValue": "",
-            "saveOptionsKey": ""
+            "host": "broker-0001.kafka-sec.mesos",
+            "port": "9092"
           }
         ],
-        "numPartitions": ""
+        "rowSeparator": ",",
+        "vaultCertPath": "/v1/userland/certificates/sparta-server",
+        "kafkaProperties": [
+          {
+            "kafkaPropertyKey": "",
+            "kafkaPropertyValue": ""
+          }
+        ],
+        "value.serializer": "org.apache.kafka.common.serialization.StringSerializer",
+        "acks": "0",
+        "ssl.client.auth": "required",
+        "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
+        "vaultCertPassPath": "/v1/userland/passwords/sparta-server/keystore",
+        "batch.size": "200",
+        "vaultTrustStorePassPath": "/v1/userland/passwords/sparta-server/keystore"
       }
     }
   ],

@@ -15,8 +15,8 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
   @ignore @manual
   Scenario: [SPARTA-1162][02]Add sparta policy for authorization in sparta
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
-      |   $.id                    |  UPDATE    | ${ID_POLICY_SP}          | n/a |
-      |   $.name                  |  UPDATE    | ${ID_POLICY_SP}          | n/a |
+      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}          | n/a |
+      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}         | n/a |
       |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
     Then the service response status must be '201'
   @ignore @manual
