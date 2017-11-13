@@ -45,6 +45,8 @@ class TestInputStep(
   lazy val maxNumber: Int = properties.getInt("maxNumber", 1)
   lazy val numEvents: Long = properties.getLong("numEvents", 1L)
   lazy val outputField: String = properties.getString("outputField", DefaultRawDataField)
+  private val stopAfterNumbEvents: Option[Long] =
+    Try(Option(properties.getString("maxNumbEvents")).notBlank.map(_.toLong)).getOrElse(None)
   lazy val numberSchema = StructType(Seq(StructField(outputField, IntegerType)))
   lazy val stringSchema = StructType(Seq(StructField(outputField, StringType)))
   lazy val outputSchema: StructType = {
@@ -52,14 +54,23 @@ class TestInputStep(
     else numberSchema
   }
 
+  val eventsToGenerate : Long =
+    if(stopAfterNumbEvents.isDefined)
+      math.min(numEvents, stopAfterNumbEvents.get)
+    else numEvents
+
   def initStream(): DStream[Row] = {
-    val registers = for (_ <- 1L to numEvents) yield {
+    val registers = for (_ <- 1L to eventsToGenerate) yield {
       if (eventType == EventType.STRING)
         new GenericRowWithSchema(Array(event), stringSchema).asInstanceOf[Row]
       else new GenericRowWithSchema(Array(Random.nextInt(maxNumber)), numberSchema).asInstanceOf[Row]
     }
     val defaultRDD = ssc.sparkContext.parallelize(registers)
 
-    new TestDStream(ssc, defaultRDD, Option(numEvents))
+    val testStream =
+      if(stopAfterNumbEvents.isDefined)
+        new TestDStream(ssc, defaultRDD, Option(numEvents), stopAfterNumbEvents)
+      else new TestDStream(ssc, defaultRDD, Option(numEvents))
+    testStream
   }
 }

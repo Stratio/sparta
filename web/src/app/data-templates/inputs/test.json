@@ -59,9 +59,22 @@
            "propertyId": "numEvents",
            "propertyName": "_NUMBER_EVENTS_",
            "propertyType": "text",
+           "regexp": "^[0-9]*$",
+           "validateValue": "true",
            "required": true,
            "tooltip": "Number of events generated on each window",
            "qa": "fragment-details-test-numEvents"
+        },
+        {
+           "propertyId": "maxNumbEvents",
+           "propertyName": "_MAX_NUMBER_EVENTS_",
+           "propertyType": "text",
+           "required": false,
+           "regexp": "^[0-9]*$",
+           "validateValue": "true",
+           "width": 6,
+           "tooltip": "Set a threshold for the generation of events, otherwise leave it empty.",
+           "qa": "fragment-details-test-maxNumEvents"
         },
         {
            "propertyId": "outputField",
