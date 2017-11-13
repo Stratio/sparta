@@ -3,6 +3,7 @@
    "classPrettyName": "ElasticSearch",
    "className": "ElasticSearchOutputStep",
    "icon": "Elasticsearch",
+  "arity": ["NaryToNullary"],
    "description": "Elasticsearch is a search server based on Lucene. This output uses the generic implementation with DataFrames.",
    "properties": [
       {

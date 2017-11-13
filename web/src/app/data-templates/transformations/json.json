@@ -3,6 +3,7 @@
      "icon": "Json",
      "className": "JsonTransformStep",
      "classPrettyName": "Json",
+     "arity": ["UnaryToNary"],
      "description": "Parsing input field in text format to row",
      "properties": [{
            "propertyId": "inputField",

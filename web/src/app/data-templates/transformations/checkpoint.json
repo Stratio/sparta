@@ -3,6 +3,7 @@
      "icon": "Checkpoint",
      "className": "CheckpointTransformStep",
      "classPrettyName": "Checkpoint",
+     "arity": ["UnaryToNary"],
      "description": "Creates a checkpoint for an incoming input DStream",
      "properties": [
         {

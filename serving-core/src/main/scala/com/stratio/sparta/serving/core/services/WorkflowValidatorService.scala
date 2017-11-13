@@ -16,20 +16,25 @@
 
 package com.stratio.sparta.serving.core.services
 
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.helpers.GraphHelper
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
+
+import scalax.collection.Graph
+import scalax.collection.GraphEdge.DiEdge
 
 class WorkflowValidatorService {
 
   def validate(workflow: Workflow): WorkflowValidation = {
 
     implicit val workflowToValidate: Workflow = workflow
+    implicit val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
 
     new WorkflowValidation()
       .validateNonEmptyNodes
       .validateNonEmptyEdges
       .validateEdgesNodesExists
       .validateGraphIsAcyclic
+      .validateArityOfNodes
   }
 
 }

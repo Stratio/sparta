@@ -3,6 +3,7 @@
      "icon": "Text",
      "className": "TextOutputStep",
     "classPrettyName": "Text",
+    "arity": ["NaryToNullary"],
     "description": "Saves the processed data to text file into any storage service",
     "properties": [
       {

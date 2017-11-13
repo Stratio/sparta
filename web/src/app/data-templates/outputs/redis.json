@@ -3,6 +3,7 @@
      "icon": "Redis",
      "className": "RedisOutputStep",
     "classPrettyName": "Redis",
+    "arity": ["NaryToNullary"],
     "description": "Redis is an open source (BSD licensed), in-memory data structure store, used as database, cache and message broker. The output doesn't use the generic implementation with DataFrames",
     "properties": [
       {

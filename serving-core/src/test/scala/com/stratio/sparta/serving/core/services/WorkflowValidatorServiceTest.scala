@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.serving.core.services
 
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import org.junit.runner.RunWith
@@ -27,8 +28,8 @@ import org.scalatest.{Matchers, WordSpec}
 class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSugar {
 
   val nodes = Seq(
-    NodeGraph("a", "", "", "", WriterGraph()),
-    NodeGraph("b", "", "", "", WriterGraph())
+    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
   )
   val edges = Seq(
     EdgeGraph("a", "b")
@@ -67,46 +68,6 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
       result.valid shouldBe false
     }
 
-    "validate an acyclic graph" in{
-      val nodes = Seq(
-        NodeGraph("a", "", "", "", WriterGraph()),
-        NodeGraph("b", "", "", "", WriterGraph()),
-        NodeGraph("c", "", "", "", WriterGraph()),
-        NodeGraph("d", "", "", "", WriterGraph())
-      )
-      val edges = Seq(
-        EdgeGraph("a", "b"),
-        EdgeGraph("b", "c"),
-        EdgeGraph("c", "d")
-      )
-
-      val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
-      val result = workflowValidatorService.validate(workflow)
-
-      result.valid shouldBe true
-
-    }
-
-    "not validate a graph with a cycle" in {
-      val nodes = Seq(
-        NodeGraph("a", "", "", "", WriterGraph()),
-        NodeGraph("b", "", "", "", WriterGraph()),
-        NodeGraph("c", "", "", "", WriterGraph()),
-        NodeGraph("d", "", "", "", WriterGraph())
-      )
-      val edges = Seq(
-        EdgeGraph("a", "b"),
-        EdgeGraph("b", "c"),
-        EdgeGraph("c", "d"),
-        EdgeGraph("d", "b")
-      )
-
-      val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
-      val result = workflowValidatorService.validate(workflow)
-
-      result.valid shouldBe false
-      assert(result.messages.exists(msg => msg.contains("cycle")))
-    }
   }
 }
 

@@ -3,6 +3,7 @@
     "classPrettyName": "WebSocket",
      "className": "WebSocketInputStep",
      "icon": "WebSocket",
+     "arity": ["NullaryToNary"],
     "description": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
     "properties": [
       {

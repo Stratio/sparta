@@ -3,6 +3,7 @@
      "icon": "Trigger",
      "className": "TriggerTransformStep",
      "classPrettyName": "Trigger",
+     "arity": ["BinaryToNary", "UnaryToNary"],
      "description": "Execute one trigger with one SQL query",
      "properties": [
         {

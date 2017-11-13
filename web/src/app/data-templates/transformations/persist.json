@@ -3,6 +3,7 @@
      "icon": "Persist",
      "className": "PersistTransformStep",
      "classPrettyName": "Persist",
+     "arity": ["UnaryToNary"],
      "description": "Persist the input DStream",
      "properties": [
         {

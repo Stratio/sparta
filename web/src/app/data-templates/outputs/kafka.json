@@ -3,6 +3,7 @@
     "classPrettyName": "Kafka",
     "className": "KafkaOutputStep",
     "icon": "Kafka",
+    "arity": ["NaryToNullary"],
     "description": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
     "properties": [
       {

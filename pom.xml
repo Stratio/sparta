@@ -108,7 +108,7 @@
         <crossdata.version>2.6.0</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
-        <scala.graph.version>1.11.5</scala.graph.version>
+        <scala.graph.version>1.12.1</scala.graph.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,

@@ -3,6 +3,7 @@
      "icon": "Select",
      "className": "SelectTransformStep",
      "classPrettyName": "Select",
+     "arity": ["UnaryToNary"],
      "description": "Select fields from the events in the input DStream",
      "properties": [
         {

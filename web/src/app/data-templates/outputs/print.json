@@ -3,6 +3,7 @@
      "icon": "Print",
      "className": "PrintOutputStep",
     "classPrettyName": "Print",
+    "arity": ["NaryToNullary"],
     "description": "Print the number of elements, schemas and data",
     "properties": [
       {

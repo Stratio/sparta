@@ -16,8 +16,11 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-import scalax.collection.immutable.Graph
-import scalax.collection.GraphPredef._, scalax.collection.GraphEdge._
+import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
+
+import scalax.collection.Graph
+import scalax.collection.GraphEdge.DiEdge
 
 case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
@@ -25,35 +28,141 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
   def this() = this(valid = true)
 
+  val InputMessage = "input"
+  val OutputMessage = "output"
+
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =
-    if (workflow.pipelineGraph.nodes.size >= 2 && valid) this
-    else this.copy(valid = false, messages = messages :+ "The workflow must contains almost two nodes")
+    if (workflow.pipelineGraph.nodes.size >= 2) this
+    else copy(valid = false, messages = messages :+ "The workflow must contains almost two nodes")
 
   def validateNonEmptyEdges(implicit workflow: Workflow): WorkflowValidation =
-    if (workflow.pipelineGraph.edges.nonEmpty && valid) this
-    else this.copy(valid = false, messages = messages :+ "The workflow must contains almost one relation")
+    if (workflow.pipelineGraph.edges.nonEmpty) this
+    else copy(valid = false, messages = messages :+ "The workflow must contains almost one relation")
 
   def validateEdgesNodesExists(implicit workflow: Workflow): WorkflowValidation = {
     val nodesNames = workflow.pipelineGraph.nodes.map(_.name)
     val wrongEdges = workflow.pipelineGraph.edges.flatMap(edge =>
-      if(nodesNames.contains(edge.origin) && nodesNames.contains(edge.destination)) None
+      if (nodesNames.contains(edge.origin) && nodesNames.contains(edge.destination)) None
       else Option(edge)
     )
 
-    if(wrongEdges.isEmpty && valid) this
-    else this.copy(
+    if (wrongEdges.isEmpty) this
+    else copy(
       valid = false,
       messages = messages :+ s"The workflow has relations that not exists in nodes: ${wrongEdges.mkString(" , ")}"
     )
   }
 
-  def validateGraphIsAcyclic(implicit workflow: Workflow): WorkflowValidation = {
-    val edges = workflow.pipelineGraph.edges.map(x => DiEdge(x.origin, x.destination))
-    val graph = Graph.from(workflow.pipelineGraph.nodes, edges)
+  def validateGraphIsAcyclic(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
     val cycle = graph.findCycle
-    if(cycle.isEmpty && valid) this
-    else this.copy(valid = false, messages =
-      messages :+ s"The workflow contains one or more cycles" +
-        s"${if(cycle.isDefined) ": " + cycle.get.mkString(",") else "!"}")
+
+    if (cycle.isEmpty) this
+    else copy(
+      valid = false,
+      messages = messages :+ s"The workflow contains one or more cycles" +
+        s"${if (cycle.isDefined) ": " + cycle.get.mkString(",") else "!"}"
+    )
   }
+
+  def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+    val arityNodesValidation = workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>
+      val nodeInGraph = graph.get(node)
+      val inDegree = nodeInGraph.inDegree
+      val outDegree = nodeInGraph.outDegree
+      val validation = {
+        if (node.arity.nonEmpty)
+          node.arity.foldLeft(new WorkflowValidation(valid = false)) { case (lastArityValidation, arity) =>
+            combineWithOr(lastArityValidation, validateArityDegrees(node, inDegree, outDegree, arity))
+          }
+        else new WorkflowValidation()
+      }
+
+      combineWithAnd(lastValidation, validation)
+    }
+
+    combineWithAnd(this, arityNodesValidation)
+  }
+
+  private[workflow] def combineWithAnd(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
+    if (first.valid && second.valid) new WorkflowValidation()
+    else WorkflowValidation(valid = false, messages = first.messages ++ second.messages)
+
+  private[workflow] def combineWithOr(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
+    if (first.valid || second.valid) new WorkflowValidation()
+    else WorkflowValidation(valid = false, messages = first.messages ++ second.messages)
+
+  private[workflow] def validateArityDegrees(
+                                              nodeGraph: NodeGraph,
+                                              inDegree: Int,
+                                              outDegree: Int,
+                                              arity: NodeArity
+                                            ): WorkflowValidation =
+    arity match {
+      case NullaryToNary =>
+        combineWithAnd(
+          validateDegree(inDegree, Nullary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case UnaryToUnary =>
+        combineWithAnd(
+          validateDegree(inDegree, Unary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Unary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case UnaryToNary =>
+        combineWithAnd(
+          validateDegree(inDegree, Unary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case BinaryToNary =>
+        combineWithAnd(
+          validateDegree(inDegree, Binary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case NaryToNullary =>
+        combineWithAnd(
+          validateDegree(inDegree, Nary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nullary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case NaryToNary =>
+        combineWithAnd(
+          validateDegree(inDegree, Nary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+    }
+
+  private[workflow] def validateDegree(
+                                        degree: Int,
+                                        arityDegree: ArityValue,
+                                        invalidMessage: InvalidMessage
+                                      ): WorkflowValidation =
+    arityDegree match {
+      case Nullary =>
+        validateDegreeValue(degree, 0, invalidMessage)
+      case Unary =>
+        validateDegreeValue(degree, 1, invalidMessage)
+      case Binary =>
+        validateDegreeValue(degree, 2, invalidMessage)
+      case Nary =>
+        if (degree > 0) new WorkflowValidation()
+        else WorkflowValidation(
+          valid = false,
+          messages = Seq(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
+            s" ${invalidMessage.relationType} relations and support 1 to N")
+        )
+    }
+
+  private[workflow] def validateDegreeValue(
+                                             degree: Int,
+                                             arityDegree: Int,
+                                             invalidMessage: InvalidMessage
+                                           ): WorkflowValidation =
+    if (degree == arityDegree) new WorkflowValidation()
+    else WorkflowValidation(
+      valid = false,
+      messages = Seq(s"Invalid number of relations, the node ${invalidMessage.nodeName} has $degree" +
+        s" ${invalidMessage.relationType} relations and support $arityDegree")
+    )
+
+  case class InvalidMessage(nodeName: String, relationType: String)
+
 }

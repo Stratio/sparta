@@ -3,6 +3,7 @@
     "icon": "Parquet",
     "className": "ParquetOutputStep",
     "classPrettyName": "Parquet",
+   "arity": ["NaryToNullary"],
     "description": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
     "properties": [
       {

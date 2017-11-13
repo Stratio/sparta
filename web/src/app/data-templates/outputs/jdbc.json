@@ -3,6 +3,7 @@
      "icon": "Jdbc",
      "className": "JdbcOutputStep",
     "classPrettyName": "Jdbc",
+    "arity": ["NaryToNullary"],
     "description": "With one jdbc connection it's possible to write data into relational SQL Databases.",
     "properties": [
       {

@@ -20,6 +20,7 @@ import java.util
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.WorkflowService
 import org.apache.curator.framework.CuratorFramework
@@ -48,8 +49,8 @@ with BeforeAndAfter
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
   val settings = mock[Settings]
   val nodes = Seq(
-    NodeGraph("a", "", "", "", WriterGraph()),
-    NodeGraph("b", "", "", "", WriterGraph())
+    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
   )
   val edges = Seq(
     EdgeGraph("a", "b")

@@ -3,6 +3,7 @@
      "icon": "Json",
      "className": "JsonOutputStep",
     "classPrettyName": "Json",
+    "arity": ["NaryToNullary"],
     "description": "Saves the processed data to json file into any storage service",
     "properties": [
       {

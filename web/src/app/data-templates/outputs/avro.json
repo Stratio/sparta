@@ -3,6 +3,7 @@
     "icon": "Avro",
     "className": "AvroOutputStep",
     "classPrettyName": "Avro",
+     "arity": ["NaryToNullary"],
     "description": "Serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
     "properties": [
       {

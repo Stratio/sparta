@@ -3,7 +3,8 @@
      "icon": "Csv",
      "className": "CsvTransformStep",
      "classPrettyName": "Csv",
-     "maxEdges": 3,     
+     "arity": ["UnaryToNary"],
+     "maxEdges": 3,
      "description": "Parses an input field with csv format and returns all the obtained new fields or selected ones",
      "properties": [
         {

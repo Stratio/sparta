@@ -16,6 +16,8 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.helpers.GraphHelper
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -26,8 +28,8 @@ import org.scalatest.{Matchers, WordSpec}
 class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
   val nodes = Seq(
-    NodeGraph("a", "", "", "", WriterGraph()),
-    NodeGraph("b", "", "", "", WriterGraph())
+    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
   )
   val edges = Seq(
     EdgeGraph("a", "b")
@@ -54,7 +56,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate non empty nodes" in {
       val pipeline = PipelineGraph(Seq.empty[NodeGraph], edges)
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyNodes
 
       result.valid shouldBe false
@@ -62,7 +64,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate one node" in {
       val pipeline = PipelineGraph(Seq(nodes.head), edges)
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyNodes
 
       result.valid shouldBe false
@@ -70,7 +72,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate correct nodes" in {
       val pipeline = PipelineGraph(nodes , edges)
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyNodes
 
       result.valid shouldBe true
@@ -78,7 +80,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate non empty edges" in {
       val pipeline = PipelineGraph(nodes, Seq.empty[EdgeGraph])
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyEdges
 
       result.valid shouldBe false
@@ -86,7 +88,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate one edge" in {
       val pipeline = PipelineGraph(nodes, Seq(edges.head))
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyEdges
 
       result.valid shouldBe true
@@ -94,7 +96,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
     "validate correct edges" in {
       val pipeline = PipelineGraph(nodes , edges)
-      implicit implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateNonEmptyEdges
 
       result.valid shouldBe true
@@ -114,6 +116,154 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val result = new WorkflowValidation().validateEdgesNodesExists
 
       result.valid shouldBe true
+    }
+
+    "validate an acyclic graph" in{
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateGraphIsAcyclic
+
+      result.valid shouldBe true
+
+    }
+
+    "not validate a graph with a cycle" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("d", "b")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateGraphIsAcyclic
+
+      result.valid shouldBe false
+      assert(result.messages.exists(msg => msg.contains("cycle")))
+    }
+
+    "validate a graph with correct arity" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToUnary), WriterGraph()),
+        NodeGraph("d", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("e", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
+        NodeGraph("f", "", "", "", Seq(NodeArityEnum.NullaryToNary, NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("j", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("d", "e"),
+        EdgeGraph("f", "e"),
+        EdgeGraph("e", "j")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateArityOfNodes
+
+      result.valid shouldBe true
+    }
+
+    "not validate a graph with invalid arity in input relation" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateArityOfNodes
+
+      result.valid shouldBe false
+    }
+
+    "not validate a graph with invalid arity in output relation" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateArityOfNodes
+
+      result.valid shouldBe false
+    }
+
+    "not validate a graph with invalid arity in transform relation" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.BinaryToNary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateArityOfNodes
+
+      result.valid shouldBe false
+    }
+
+    "not validate a graph with invalid arity two relations" in {
+      val nodes = Seq(
+        NodeGraph("a", "", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.UnaryToUnary), WriterGraph()),
+        NodeGraph("c", "", "", "", Seq(NodeArityEnum.UnaryToNary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateArityOfNodes
+
+      result.valid shouldBe false
     }
   }
 }

@@ -130,10 +130,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @param workflowContext The Spark Contexts used in the steps creation
     */
   private[driver] def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
-    val edgesModel = workflow.pipelineGraph.edges
     val nodesModel = workflow.pipelineGraph.nodes
-    val edges = creteEdges(nodesModel, edgesModel)
-    val graph: Graph[NodeGraph, DiEdge] = Graph.from(nodesModel, edges)
+    val graph: Graph[NodeGraph, DiEdge] = createGraph(workflow)
     val nodeOrdering = getGraphOrdering(graph)
     val parameters = Parameters(direction = Predecessors)
     val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData]

@@ -18,12 +18,14 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 
 case class NodeGraph(
                       name: String,
                       stepType: String,
                       className: String,
                       classPrettyName: String,
+                      arity: Seq[NodeArity],
                       writer: WriterGraph,
                       description: Option[String] = None,
                       createdFromTemplateId: Option[String] = None,
