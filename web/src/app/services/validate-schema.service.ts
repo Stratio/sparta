@@ -19,7 +19,7 @@ import { ValidationModel, ValidationErrorModel } from 'app/models/validation-sch
 import { inputs } from 'data-templates/inputs';
 import { outputs } from 'data-templates/outputs';
 import { transformations } from 'data-templates/transformations';
-import {settingsTemplate, writerTemplate} from 'data-templates/index';
+import { settingsTemplate, writerTemplate } from 'data-templates/index';
 import { inputsObject } from 'data-templates/inputs';
 import { outputsObject } from 'data-templates/outputs';
 import { transformationsObject } from 'data-templates/transformations';
@@ -27,29 +27,27 @@ import { transformationsObject } from 'data-templates/transformations';
 @Injectable()
 export class ValidateSchemaService {
 
-    private writerSchema: any;
 
-    constructor() {
-        this.writerSchema = writerTemplate;
-    }
+    constructor() { }
 
     validateEntity(model: any, stepType: string, schema?: any) {
         if (!schema) {
             switch (stepType) {
                 case 'Input':
-                    return this.validate(inputsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
+                    return this.validate(inputsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
                 case 'Output':
                     return this.validate(outputsObject[model.classPrettyName].properties, model.configuration);
                 case 'Transformation':
-                    return this.validate(transformationsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
+                    return this.validate(transformationsObject[model.classPrettyName].properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
                 default:
                     break;
             }
         } else {
-            if (stepType === 'Output') {
+            // if its an output skip writer validation (outputs has not writer)
+            if (stepType === 'Output') { 
                 return this.validate(schema.properties, model.configuration);
             } else {
-                return this.validate(schema.properties, model.configuration).concat(this.validate(this.writerSchema, model.writer));
+                return this.validate(schema.properties, model.configuration).concat(this.validate(writerTemplate, model.writer));
             }
         }
     }
@@ -60,10 +58,33 @@ export class ValidateSchemaService {
 
     validate(schema: any, model: any): Array<any> {
         const errors: Array<any> = [];
+
+
         schema.forEach((prop: any) => {
             const value = model[prop.propertyId];
+            let disabled = false;
 
-            if (prop.required) {
+
+            // if there are not validations skip this input
+            if (!prop.regexp && !prop.required) {
+                return;
+            }
+
+            // check if the input is disabled
+            if (prop.visible && prop.visible[0].length) {
+                prop.visible[0].forEach((condition: any) => {
+                    if (model[condition.propertyId] !== condition.value) {
+                        disabled = true;
+                    }
+                });
+            }
+
+            if (disabled) {
+                return;
+            }
+
+            // check required validation
+            if (prop.required && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
                 if (prop.propertyType === 'number') {
                     if (!value) {
                         errors.push({
@@ -81,7 +102,8 @@ export class ValidateSchemaService {
                 }
             }
 
-            if (prop.regexp) {
+            // check regex validation
+            if (prop.regexp && prop.propertyType !== 'boolean' && prop.propertyType !== 'switch') {
                 const re: RegExp = new RegExp(prop.regexp);
                 if (!re.test(value)) {
                     errors.push({
@@ -95,11 +117,6 @@ export class ValidateSchemaService {
         return errors;
     }
 
-
-    getTemplate(schema: any, templateType: string) {
-
-    }
-
     validateWorkflow(nodes: any, edges: any) {
 
         edges.map((edge: any) => {
@@ -107,18 +124,6 @@ export class ValidateSchemaService {
         });
 
         // function validateNode()
-    }
-
-    validateTransformations(transformations: any, edges: any) {
-
-    }
-
-    validateInputs(inputs: any, edges: any) {
-
-    }
-
-    validateOutputs(outputs: any, edges: any) {
-
     }
 }
 

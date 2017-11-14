@@ -1,0 +1,10 @@
+<section>
+   <div class="action-button">
+      <div class="action-link" (click)="showContent($event)">
+         <ng-content select="[popover-link]"></ng-content>
+      </div>
+      <div class="popover-content" *ngIf="active">
+         <ng-content select="[popover-content]"></ng-content>
+      </div>
+   </div>
+</section>

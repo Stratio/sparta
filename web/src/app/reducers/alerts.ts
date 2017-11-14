@@ -29,15 +29,27 @@ import { STALERT_SEVERITY } from '@stratio/egeo';
 export interface State {
     currentAlert: Array<CustomAlert>;
     notification: any;
+    showPersistentError: boolean;
 }
 
 const initialState: State = {
     currentAlert: [],
-    notification: null
+    notification: null,
+    showPersistentError: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
+        case errorsActions.CHANGE_ROUTE: {
+            return Object.assign({}, state, {
+                showPersistentError: false
+            });
+        }
+        case errorsActions.FORBIDDEN_ERROR: {
+            return Object.assign({}, state, {
+                showPersistentError: true
+            });
+        }
         case inputActions.UPDATE_INPUT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
@@ -166,8 +178,9 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
-                    title: 'ERROR',
-                    description: action.payload
+                    notranslate: true,
+                    title: action.payload.title,
+                    description: action.payload.description
                 }]
             });
         }
@@ -175,8 +188,8 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
-                    title: action.payload.title,
-                    description: action.payload.description
+                    title: action.payload.title ? action.payload.title : 'ERROR',
+                    description: action.payload.description ? action.payload.description : 'SERVER_ERROR'
                 }]
             });
         }
@@ -186,4 +199,4 @@ export function reducer(state: State = initialState, action: any): State {
 }
 
 export const getCurrentAlert: any = (state: State) => state.currentAlert;
-
+export const showPersistentError: any = (state: State) => state.showPersistentError;

@@ -19,7 +19,7 @@ import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { ApiService} from './api.service';
+import { ApiService } from './api.service';
 import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
@@ -52,7 +52,7 @@ export class WorkflowService extends ApiService {
 
     getWorkflowById(id: string): Observable<any> {
         const options: any = {};
-        return this.request('workflows/findById/' + id,  'get', options);
+        return this.request('workflows/findById/' + id, 'get', options);
     }
 
     saveWorkflow(json: any): Observable<any> {
@@ -102,6 +102,13 @@ export class WorkflowService extends ApiService {
     getWorkflowExecutionInfo(id: string) {
         const options: any = {};
         return this.request('workflowExecutions/' + id, 'get', options);
+    }
+
+    validateWorkflow(workflow: any) {
+        const options: any = {
+            body: workflow
+        };
+        return this.request('workflows/validate', 'post', options);
     }
 
 

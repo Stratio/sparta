@@ -12,11 +12,10 @@
 }
 
 .title {
-   text-transform: uppercase;
    font-size: $egeo-font-size-xxsmall;
    font-weight: 600;
    line-height: 1.43;
-   margin-top: 15px;
+   margin-top: 16px;
    display: block;
    color: #6c7b8b;
 }
@@ -39,7 +38,7 @@
 
 .info-data {
    margin-top: 25px;
-   margin-bottom:40px;
+   margin-bottom: 40px;
 }
 
 .table-list {
@@ -58,12 +57,18 @@
    cursor: pointer;
    font-size: 16px;
    margin-top: 4px;
-
    &:hover {
-           color: #0979c4;
+      color: #0979c4;
    }
 }
 
 .workflow-name {
    float: left;
+}
+
+.info-tables {
+   max-width: 500px;
+   display: block;
+   margin-bottom:20px;
+   margin-top: 50px;
 }

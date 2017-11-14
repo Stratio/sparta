@@ -51,6 +51,7 @@
       "JSON_INFO": "You must enter the new name and description before you can save the workflow, it will overwrite the fields of the json",
       "JSON_SAVE_ERROR": "There was an error. The name of the workflow already exists!",
       "STATUS_INFORMATION": "Status information",
+      "LAST_ERROR": "Last error",
       "NOTSTARTED": "Not started",
       "FAILED": "Failed",
       "LAUNCHED": "Launched",
@@ -275,7 +276,7 @@
    "_DELIMITER_": "Delimiter",
    "_ID_FIELD_": "Id field",
    "_INDEX_MAPPING_": "Index mapping",
-   "_ENABLE_INDEX_AUTO_CREATE_" : "Enable automatic index creation",
+   "_ENABLE_INDEX_AUTO_CREATE_": "Enable automatic index creation",
    "_DATEBASE_NAME_": "Database name",
    "_CONNECTIONS_PER_HOST_": "Connections per host",
    "_THREADS_ALLOWED_TO_BLOCK_": "Max threads allowed",
@@ -384,6 +385,11 @@
    "_SCHEMA_": "Schema",
    "_EXAMPLE_": "Example",
    "_FIELDS_PRESERVATION_": "Build output row by",
+   "FORM_TABS": {
+      "STREAMINGSETTINGS": "Streaming settings",
+      "SPARKSETTINGS": "Spark settings",
+      "GLOBAL": "Global"
+   },
    "ALERTS": {
       "SUCCESS": "Success",
       "ERROR": "Error",
@@ -405,7 +411,8 @@
       "VALIDATION_ERRORS_MESSAGE": "At least one entity has errors",
       "VALIDATION_ERRORS_TITLE": "Validation error",
       "WORKFLOW_SERVER_ERROR_TITLE": "Server error",
-      "WORKFLOW_SERVER_ERROR_DESCRIPTION": "Workflow cannot be saved"
+      "WORKFLOW_SERVER_ERROR_DESCRIPTION": "Workflow cannot be saved",
+      "SERVER_ERROR": "Server error"
    },
    "WIZARD": {
       "INPUTS": "Inputs",
@@ -424,9 +431,13 @@
       "SPARKMESOSCONF": "Mesos",
       "CHECKPOINTSETTINGS": "Checkpoint",
       "SETTINGS": "Workflow Settings",
-      "MENU_SEARCH": "Search..."
+      "MENU_SEARCH": "Search...",
+      "VALIDATION_ERROR_1": "There is a validation error:",
+      "VALIDATION_ERROR_N": "There are {{number}} validation errors:",
+      "NO_VALIDATION_ERROR": "No validation errors."
    },
    "ERRORS": {
+      "401": "You do not have permissions to perform this action",
       "404": "404: Page missing",
       "INPUTS": {
          "GENERIC": "Error",

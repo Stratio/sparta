@@ -23,7 +23,7 @@ import { Store } from '@ngrx/store';
 import * as workflowActions from 'actions/workflow';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
-import { StTableHeader } from '@stratio/egeo';
+import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 
 @Component({
     selector: 'workflow-execution-info',
@@ -41,6 +41,16 @@ export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
 
     public orderByArguments = 'key';
     public sortOrderArguments = false;
+    public options: StHorizontalTab[] = [{
+        id: 'spark',
+        text: 'Spark Configurations'
+    },
+    {
+        id: 'submit',
+        text: 'Submit Arguments'
+    }];
+
+    public selectedOption = 'spark';
 
     public fields: StTableHeader[] = [
         { id: 'key', label: 'Key' },
@@ -61,6 +71,11 @@ export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
         this.orderByConfig = $event.orderBy;
         this.sortOrderConfig = $event.type;
     }
+
+    changeTableInfo($event: any): void {
+        this.selectedOption = $event.id;
+    }
+
     ngOnInit() {
         console.log(this.executionInfo);
     }

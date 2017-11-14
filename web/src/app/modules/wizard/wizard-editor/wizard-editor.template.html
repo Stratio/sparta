@@ -20,6 +20,7 @@
 
             <g wizard-box svg-draggable *ngFor="let entity of entities;" 
                [data]="entity" 
+               [createdNew]="entity.createdNew"
                [selected]="selectedEntity === entity.name"
                [drawingConnectionStatus]="drawingConnectionStatus" 
                (onDrawConnector)="drawConnector($event)" 

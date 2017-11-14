@@ -9,5 +9,6 @@
    <div class="content">
         <router-outlet></router-outlet>
    </div>
+   <notification-alert *ngIf="showForbiddenError$ | async" (onClose)="hideAlert()"></notification-alert>
    <!--<st-footer [rightsText]="rightsText" [links]="links" qaTag="st-footer"></st-footer>-->
 </div>

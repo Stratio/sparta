@@ -2,7 +2,6 @@
        [attr.id]="labelQaTag" [attr.title]="contextualHelp">
    {{label}}
 </label>
-
 <input #input class="st-input" (focus)="onFocus($event)" (focusout)="onFocusOut($event)" (blur)="onFocusOut($event)"
        [formControl]="internalControl"
        [placeholder]="placeholder"

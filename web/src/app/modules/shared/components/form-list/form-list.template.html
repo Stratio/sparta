@@ -31,8 +31,8 @@
       </div>
 
    </form>
-   <div class="col-sm-12 error-message">
-      <div class="st-input-error-layout" *ngIf="showError() && !items.controls.length">
+   <div class="col-sm-12 error-message" *ngIf="showError() && !items.controls.length">
+      <div class="st-input-error-layout">
          <span class="st-input-error-message">{{errors.required}}</span>
       </div>
    </div>

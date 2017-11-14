@@ -78,7 +78,6 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case crossdataActions.SELECT_TABLE: {
-            console.log(action.payload);
             return Object.assign({}, state, {
                 selectedTables: [...state.selectedTables, action.payload.name]
             });

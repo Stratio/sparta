@@ -1,0 +1,34 @@
+.notification {
+   background: #EC7E13;
+   display: inline-block;
+   color: white;
+   padding: 11px 29px;
+   position: fixed;
+   top: 70px;
+   animation: NotificationAnimation 0.4s;
+   width: 100%;
+   font-size: 15px;
+   .icon-alert {
+      font-size: 20px;
+      float: left;
+      margin-right: 14px;
+   }
+}
+
+.close {
+   float: right;
+   font-size: 20px;
+   margin-right: 9px;
+   cursor: pointer;
+}
+
+@keyframes NotificationAnimation {
+   0% {
+      opacity: 0;
+      top: -20px;
+   }
+   100% {
+      opacity: 1;
+      top: 70px;
+   }
+}

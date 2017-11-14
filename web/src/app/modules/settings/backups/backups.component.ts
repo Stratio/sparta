@@ -1,3 +1,5 @@
+import { OnDestroy } from '@angular/core/core';
+import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -36,7 +38,7 @@ import { BreadcrumbMenuService } from 'services';
     styleUrls: ['./backups.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpartaBackups implements OnInit {
+export class SpartaBackups implements OnInit, OnDestroy {
 
     @ViewChild('backupsModal', { read: ViewContainerRef }) target: any;
 
@@ -57,12 +59,14 @@ export class SpartaBackups implements OnInit {
         { id: 'size', label: 'Size' },
     ];
 
+    private selectedBackupsSubscription: Subscription;
+
 
     ngOnInit() {
         this._modalService.container = this.target;
         this.store.dispatch(new backupsActions.ListBackupAction());
         this.backupList$ = this.store.select(fromRoot.getBackupList);
-        this.store.select(fromRoot.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
+        this.selectedBackupsSubscription = this.store.select(fromRoot.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
             this.selectedBackups = selectedBackups;
         });
     }
@@ -84,7 +88,7 @@ export class SpartaBackups implements OnInit {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
-               this.store.dispatch(new backupsActions.DeleteBackupAction());
+                this.store.dispatch(new backupsActions.DeleteBackupAction());
             }
         });
     }
@@ -208,6 +212,8 @@ export class SpartaBackups implements OnInit {
 
     }
 
-
+    ngOnDestroy(): void {
+        this.selectedBackupsSubscription && this.selectedBackupsSubscription.unsubscribe();
+    }
 
 }

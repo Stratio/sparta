@@ -25,6 +25,7 @@ import { Observable } from 'rxjs/Observable';
 import * as workflowActions from 'actions/workflow';
 import * as fromRoot from 'reducers';
 import { generateJsonFile } from 'utils';
+import * as errorsActions from 'actions/errors';
 
 
 @Injectable()
@@ -44,8 +45,8 @@ export class WorkflowEffect {
                     return workflow.context = (c && Array.isArray(c) && c.length) ? c[0] : {};
                 });
                 return new workflowActions.ListWorkflowCompleteAction(workflows);
-            }).catch(function (error) {
-                return Observable.of(new workflowActions.ListWorkflowFailAction());
+            }).catch((error: any) => {
+                return Observable.from([new workflowActions.ListWorkflowFailAction(), new errorsActions.HttpErrorAction(error)]);
             });
         });
 
@@ -56,7 +57,7 @@ export class WorkflowEffect {
             return this.workflowService.getWorkFlowContextList().map((response: any) => {
                 return new workflowActions.UpdateWorkflowStatusCompleteAction(response);
             }).catch(function (error) {
-                return Observable.of(new workflowActions.UpdateWorkflowStatusErrorAction());
+                return Observable.from([new workflowActions.UpdateWorkflowStatusErrorAction(), new errorsActions.HttpErrorAction(error)]);
             });
         });
 
@@ -74,7 +75,8 @@ export class WorkflowEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new workflowActions.DeleteWorkflowCompleteAction(workflows), new workflowActions.ListWorkflowAction()];
             }).catch(function (error: any) {
-                return Observable.of(new workflowActions.DeleteWorkflowErrorAction());
+                return Observable.from([new workflowActions.DeleteWorkflowErrorAction(), new errorsActions.HttpErrorAction(error)]);
+
             });
         });
 
@@ -103,7 +105,7 @@ export class WorkflowEffect {
             return this.workflowService.runWorkflow(data.payload.id).map((response: any) => {
                 return new workflowActions.RunWorkflowCompleteAction(data.payload.name);
             }).catch(function (error) {
-                return Observable.of(new workflowActions.RunWorkflowErrorAction());
+                return Observable.from([new workflowActions.RunWorkflowErrorAction(), new errorsActions.HttpErrorAction(error)]);
             });
         });
 
@@ -114,7 +116,8 @@ export class WorkflowEffect {
             return this.workflowService.stopWorkflow(data.payload).map((response: any) => {
                 return new workflowActions.StopWorkflowCompleteAction(data.payload);
             }).catch(function (error) {
-                return Observable.of(new workflowActions.StopWorkflowErrorAction());
+                return Observable.from([new workflowActions.StopWorkflowErrorAction(), new errorsActions.HttpErrorAction(error)]);
+
             });
         });
 
@@ -125,7 +128,8 @@ export class WorkflowEffect {
             return this.workflowService.getWorkflowByName(response.payload.name).map((response: any) => {
                 return new workflowActions.ValidateWorkflowNameError();
             }).catch(function (error) {
-                return Observable.of(new workflowActions.SaveJsonWorkflowAction(response.payload));
+                return Observable.from([new workflowActions.SaveJsonWorkflowAction(response.payload), new errorsActions.HttpErrorAction(error)]);
+
             });
         });
 
@@ -138,7 +142,8 @@ export class WorkflowEffect {
             return this.workflowService.saveWorkflow(response.payload).mergeMap((response: any) => {
                 return [new workflowActions.SaveJsonWorkflowActionComplete(), new workflowActions.ListWorkflowAction()];
             }).catch(function (error) {
-                return Observable.of(new workflowActions.SaveJsonWorkflowActionError());
+                return Observable.from([new workflowActions.SaveJsonWorkflowActionError(), new errorsActions.HttpErrorAction(error)]);
+
             });
         });
 
@@ -150,8 +155,36 @@ export class WorkflowEffect {
                 response.name = data.payload.name;
                 return new workflowActions.GetExecutionInfoCompleteAction(response);
             }).catch(function (error) {
-                return Observable.of(new workflowActions.GetExecutionInfoErrorAction());
+                return Observable.from([new workflowActions.GetExecutionInfoErrorAction(), new errorsActions.HttpErrorAction(error)]);
+
             });
+        });
+
+    @Effect() httpError$ = this.actions$
+        .ofType(errorsActions.HTTP_ERROR)
+        .map((action: any) => action.payload)
+        .switchMap((payload: any) => {
+            if (payload && payload.status) {
+                if (payload.status === 401) {
+                    return Observable.of(new errorsActions.ForbiddenErrorAction(''));
+                }
+            }
+
+            if (payload.error) {
+                try {
+                    const error = JSON.parse(payload.error);
+                    if (error.message && error.exception) {
+                        return Observable.of(new errorsActions.ServerErrorAction({
+                            title: error.message,
+                            description: error.exception
+                        }));
+                    }
+                } catch (e) {
+
+                }
+            }
+
+            return Observable.empty();
         });
 
     constructor(

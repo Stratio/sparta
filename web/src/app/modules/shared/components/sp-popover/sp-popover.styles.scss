@@ -1,0 +1,20 @@
+:host {
+   display: inline-block;
+   position:relative;
+}
+
+.action-button {}
+
+.popover-content {
+   position: absolute;
+   z-index: 1;
+   background: white;
+   padding: 10px;
+   border: 1px solid #a0d4f3;
+   top: 100%;
+   margin-top:4px;
+   border-radius:3px;
+   margin-right: -88px;
+   right:0;
+   width:360px;
+}

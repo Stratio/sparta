@@ -26,7 +26,6 @@ export class TemplatesComponent {
 
     constructor() { }
 
-    ngOnInit(): void {
-    }
+    ngOnInit(): void { }
 
 }

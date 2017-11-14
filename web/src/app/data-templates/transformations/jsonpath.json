@@ -57,7 +57,7 @@
                  "propertyName": "_FIELD_",
                  "propertyType": "text",
                  "required": true,
-                 "width": 3,
+                 "width": 2,
                  "qa": "fragment-details-field-name"
               },
               {

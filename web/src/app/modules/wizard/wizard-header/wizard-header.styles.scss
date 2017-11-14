@@ -36,8 +36,8 @@ $cloudy-black: #cdd6df;
    margin-top: 8px;
 }
 
-.undo-action{
-    margin-left:15px;
+.undo-action {
+   margin-left: 15px;
 }
 
 .workflow-name {
@@ -48,22 +48,21 @@ $cloudy-black: #cdd6df;
    margin-top: -2px;
    margin-bottom: 9px;
    input {
-        min-width: 400px;
-        padding: 0 4px;
-        border: 0;
-        outline: 0;
-        &:focus {
-        border: 1px solid $brand;
-        }
-    
-        &.error {
-            border: 1px solid #f59ea9;
-        }
+      min-width: 400px;
+      padding: 0 4px;
+      border: 0;
+      outline: 0;
+      &:focus {
+         border: 1px solid $brand;
+      }
+      &.error {
+         border: 1px solid #f59ea9;
+      }
    }
 }
 
 [hidden] {
-    display: none;
+   display: none;
 }
 
 .workflow-name-container {
@@ -91,4 +90,31 @@ $cloudy-black: #cdd6df;
          color: $action-primary-hover;
       }
    }
+}
+
+.validation-message {
+   font-size: 14px;
+   word-break: break-all;
+   padding: 2px 0;
+}
+
+.errors {
+   color: $status-critical-default;
+   border-color: $status-critical-default;
+   &:hover {
+      color: $status-critical-hover;
+      border-color: $status-critical-hover!important;
+   }
+}
+
+.errors-list {
+   color: #555;
+   list-style: none;
+   li {
+   }
+}
+
+.validation-title {
+   color: #333;
+   font-family: $egeo-nunito-sans-semiBold;
 }

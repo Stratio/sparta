@@ -27,6 +27,7 @@ import * as wizardActions from 'actions/wizard';
 import { InitializeWorkflowService } from 'services/initialize-workflow.service';
 import { outputsObject } from 'data-templates/outputs';
 import { transformationsObject } from 'data-templates/transformations';
+import * as errorsActions from 'actions/errors';
 
 
 @Injectable()
@@ -61,15 +62,15 @@ export class WizardEffect {
         // Retrieve part of the current state
         .withLatestFrom(this.store.select(state => state.wizard))
         .switchMap(([payload, wizard]: [any, any]) => {
-            if(!wizard.nodes.length) {
+            if (!wizard.nodes.length) {
                 return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                     title: 'NO_ENTITY_WORKFLOW_TITLE',
                     description: 'NO_ENTITY_WORKFLOW_MESSAGE'
                 }));
             }
-            for(let i=0; i<wizard.nodes.length; i++) {
-                if(wizard.nodes[i].hasErrors) { //At least one entity has errors
-                    return Observable.of (new wizardActions.SaveWorkflowErrorAction({
+            for (let i = 0; i < wizard.nodes.length; i++) {
+                if (wizard.nodes[i].hasErrors) { //At least one entity has errors
+                    return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                         title: 'VALIDATION_ERRORS_TITLE',
                         description: 'VALIDATION_ERRORS_MESSAGE'
                     }));
@@ -92,17 +93,17 @@ export class WizardEffect {
                 return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
+                    return Observable.from([new wizardActions.SaveWorkflowErrorAction(''), new errorsActions.HttpErrorAction(error)]);
                 });
             } else {
                 delete workflow.id;
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new wizardActions.SaveWorkflowErrorAction({
+                    return Observable.from([new wizardActions.SaveWorkflowErrorAction({
                         title: 'WORKFLOW_SERVER_ERROR_TITLE',
                         description: 'WORKFLOW_SERVER_ERROR_DESCRIPTION'
-                    }));
+                    }), new errorsActions.HttpErrorAction(error)]);
                 });
             }
 
@@ -118,7 +119,7 @@ export class WizardEffect {
             let relationExist = false;
             // get number of connected entities in destionation and check if relation exists
             const filtered = wizard.edges.filter((edge: any) => {
-                if((edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin)) {
+                if ((edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin)) {
                     relationExist = true;
                 }
                 return edge.destination === payload.destination;
@@ -129,13 +130,13 @@ export class WizardEffect {
             } else {
                 /***** get number of max connections, if it exists */
                 let maxConnections;
-                if(payload.destinationData.stepType === 'Transformation') {
+                if (payload.destinationData.stepType === 'Transformation') {
                     maxConnections = transformationsObject[payload.destinationData.classPrettyName].maxEdges;
                 } else {
                     maxConnections = outputsObject[payload.destinationData.classPrettyName].maxEdges;
                 }/****** */
 
-                if(maxConnections && maxConnections <= filtered.length) {
+                if (maxConnections && maxConnections <= filtered.length) {
                     return new wizardActions.CreateNodeRelationErrorAction('');
                 }
                 return new wizardActions.CreateNodeRelationCompleteAction(payload);
@@ -151,9 +152,33 @@ export class WizardEffect {
                 .map((workflow: any) => {
                     return new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow));
                 }).catch(function (error: any) {
-                    return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
+                    return Observable.from([new wizardActions.ModifyWorkflowErrorAction(''), new errorsActions.HttpErrorAction(error)]);
                 });
         });
+
+    @Effect()
+    validateWorkflow$: Observable<Action> = this.actions$
+        .ofType(wizardActions.VALIDATE_WORKFLOW)
+        .map(toPayload)
+        .withLatestFrom(this.store.select(state => state.wizard))
+        .switchMap(([payload, wizard]: [any, any]) => {
+            const workflow = Object.assign({
+                id: wizard.workflowId,
+                uiSettings: {
+                    position: wizard.svgPosition
+                },
+                pipelineGraph: {
+                    nodes: wizard.nodes,
+                    edges: wizard.edges
+                },
+                settings: wizard.settings.advancedSettings
+            }, wizard.settings.basic);
+            return this.workflowService.validateWorkflow(workflow).map((response: any) => {
+                return new wizardActions.ValidateWorkflowCompleteAction(response);
+            });
+
+        });
+
 
     constructor(
         private actions$: Actions,

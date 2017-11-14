@@ -20,6 +20,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import * as resourcesActions from 'actions/resources';
 import { ResourcesService } from 'app/services';
+import * as errorsActions from 'actions/errors';
 
 
 @Injectable()

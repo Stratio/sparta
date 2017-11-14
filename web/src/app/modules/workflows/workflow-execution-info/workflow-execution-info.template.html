@@ -40,31 +40,27 @@
                {{executionInfo.sparkSubmitExecution.master}}
             </div>
          </div>
-         <div class="col-sm-12 table-list" *ngIf="executionInfo.sparkSubmitExecution.submitArguments">
-            <div class="title">
-               Submit Arguments
-            </div>
+         <div class="col-sm-12">
+            <st-horizontal-tabs class="info-tables" [options]="options" [qaTag]="'execution-info-tabs'" (changedOption)="changeTableInfo($event)">
+            </st-horizontal-tabs>
+         </div>
+         <div class="col-sm-12 table-list" *ngIf="selectedOption === 'submit'">
             <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrderArguments($event)"
                class="spark-config-table">
                <tr st-table-row *ngFor="let item of executionInfo.sparkSubmitExecution.submitArguments | keyobject | orderBy:orderByArguments:sortOrderArguments; let i = index;">
-
                   <td st-table-cell st-table-row-content>
                      {{item.key}}
                   </td>
                   <td st-table-cell st-table-row-content>
-                     {{item.value}}
+                     <div>{{item.value}}</div>
                   </td>
                </tr>
             </st-table>
          </div>
-         <div class="col-sm-12 table-list" *ngIf="executionInfo.sparkSubmitExecution.sparkConfigurations">
-            <div class="title">
-               Spark Configurations
-            </div>
+         <div class="col-sm-12 table-list" *ngIf="selectedOption === 'spark'">
             <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrderConfig($event)"
                class="spark-config-table">
                <tr st-table-row *ngFor="let item of executionInfo.sparkSubmitExecution.sparkConfigurations | keyobject | orderBy:orderByConfig:sortOrderConfig; let i = index;">
-
                   <td st-table-cell st-table-row-content>
                      {{item.key}}
                   </td>

@@ -20,23 +20,25 @@ import { FormFileComponent } from './components/form-file/form-file.component';
 import { MenuService } from './services/menu.service';
 import { FileReaderComponent } from './components/file-reader/file-reader.component';
 import { FormListComponent } from './components/form-list/form-list.component';
-import { UtilsService } from '@app/shared/services/utils.service';
-import { FormGeneratorComponent } from '@app/shared/components/form-generator/form-generator.component';
-import { FloatingMenuComponent } from '@app/shared/components/floating-menu/floating-menu.component';
-import { MenuOptionsComponent } from '@app/shared/components/floating-menu/menu-option/menu-options.component';
-import { MessageNotificationComponent } from '@app/shared/components/message-notification/message-notification.component';
-import { FragmentBoxComponent } from '@app/shared/components/fragment-box/fragment-box.component';
-import { FilterPipe } from '@app/shared/pipes/filter.pipe';
-import { ToolBarComponent } from '@app/shared/components/tool-bar/tool-bar.component';
-import { SpartaSidebarComponent } from '@app/shared/components/sparta-sidebar/sparta-sidebar.component';
-import { DragEventsDirective } from '@app/shared/directives/drag-events/drag-events.directive';
-import { DragEventsService } from '@app/shared/directives/drag-events/drag-events.service';
-import { FormGeneratorGroupComponent } from '@app/shared/components/form-generator/form-generator-group/form-generator-group.component';
-import { OrderByPipe } from '@app/shared/pipes/sort.pipe';
-import { FormListStringComponent } from '@app/shared/components/form-string-list/form-string-list.component';
-import { Keyobject } from '@app/shared/pipes/keyobject';
-import { SpHighlightTextareaComponent } from '@app/shared/components/highlight-textarea/highlight-textarea.component';
-import { InfoFragmentComponent } from '@app/shared/components/fragment-box/info-fragment/info-fragment.component';
+import { UtilsService } from './services/utils.service';
+import { FormGeneratorComponent } from './components/form-generator/form-generator.component';
+import { FloatingMenuComponent } from './components/floating-menu/floating-menu.component';
+import { MenuOptionsComponent } from './components/floating-menu/menu-option/menu-options.component';
+import { MessageNotificationComponent } from './components/message-notification/message-notification.component';
+import { FragmentBoxComponent } from './components/fragment-box/fragment-box.component';
+import { FilterPipe } from './pipes/filter.pipe';
+import { ToolBarComponent } from './components/tool-bar/tool-bar.component';
+import { SpartaSidebarComponent } from './components/sparta-sidebar/sparta-sidebar.component';
+import { DragEventsDirective } from './directives/drag-events/drag-events.directive';
+import { DragEventsService } from './directives/drag-events/drag-events.service';
+import { FormGeneratorGroupComponent } from './components/form-generator/form-generator-group/form-generator-group.component';
+import { OrderByPipe } from './pipes/sort.pipe';
+import { FormListStringComponent } from './components/form-string-list/form-string-list.component';
+import { Keyobject } from './pipes/keyobject';
+import { SpHighlightTextareaComponent } from './components/highlight-textarea/highlight-textarea.component';
+import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
+import { NotificationAlertComponent } from './components/notification-alert/notification-alert.component';
+import { SpPopoverComponent } from './components/sp-popover/sp-popover.component';
 
 export const sharedProvider = [
     MenuService,
@@ -49,11 +51,13 @@ export const shareComponents = [
     FileReaderComponent,
     FormListComponent,
     FormListStringComponent,
+    SpPopoverComponent,
     FormFieldComponent,
     FloatingMenuComponent,
     SpHighlightTextareaComponent,
     MenuOptionsComponent,
     FormGeneratorComponent,
+    NotificationAlertComponent,
     FormGeneratorGroupComponent,
     MessageNotificationComponent,
     FragmentBoxComponent,

@@ -127,6 +127,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         });
         this.getWorflowNodesSubscription = this.store.select(fromRoot.getWorkflowNodes).subscribe((data: Array<any>) => {
             this.entities = data;
+            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
         this.workflowRelationsSubscription = this.store.select(fromRoot.getWorkflowRelations).subscribe((data: Array<any>) => {
             this.workflowRelations = data.map((relation: any) => {
@@ -139,6 +140,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                     }),
                 };
             });
+            this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
 
         this.selectedSegmentSubscription = this.store.select(fromRoot.getSelectedRelation).subscribe((relation) => {
@@ -241,7 +243,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             if (errors && errors.length) {
                 entity.hasErrors = true;
                 entity.errors = errors;
+                entity.createdNew = true;
             }
+
             entity.created = true;
             this.store.dispatch(new wizardActions.CreateEntityAction(entity));
         }
@@ -318,7 +322,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     selectEntity(entity: any) {
-        this.store.dispatch(new wizardActions.UnselectSegmentAction());
+        if (this.selectedSegment) {
+            this.store.dispatch(new wizardActions.UnselectSegmentAction());
+        }
         if (this.selectedEntity !== entity.name) {
             this.store.dispatch(new wizardActions.SelectEntityAction(entity.name));
         }
@@ -387,11 +393,11 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         });
     }
 
-    trackBySegmentFn(index:number, item: any) {
+    trackBySegmentFn(index: number, item: any) {
         return index; // or item.id
     }
 
-    trackByBoxFn(index:number, item: any) {
+    trackByBoxFn(index: number, item: any) {
         return item.name;
     }
 

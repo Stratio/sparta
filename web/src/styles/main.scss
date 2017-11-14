@@ -32,13 +32,15 @@ sp-textarea {
    user-select: none;
    cursor: move;
 }
-.entity-icon2 {
-    font-family: ico_stratio;
-    user-select: none;
-    cursor: move;
- }
 
- /* codemirror overrides */
+.entity-icon2 {
+   font-family: ico_stratio;
+   user-select: none;
+   cursor: move;
+}
+
+
+/* codemirror overrides */
 
 .CodeMirror {
    display: block;
@@ -50,24 +52,23 @@ sp-textarea {
 }
 
 .CodeMirror-focused {
-    .CodeMirror-cursor {
-        height: 19px!important;
-     }
+   .CodeMirror-cursor {
+      height: 19px!important;
+   }
 }
 
 .CodeMirror-scroll {
-   min-height: 100px!important;
+   /* min-height: 22px!important; */
 }
 
 .workflow-json-content .CodeMirror-scroll {
    min-height: 240px!important;
 }
 
-
 .disabled {
-    .CodeMirror-cursor {
-        display:none;
-    }
+   .CodeMirror-cursor {
+      display: none;
+   }
 }
 
 
@@ -75,13 +76,13 @@ sp-textarea {
 
 // TODO delete this styles when Egeo launch new release
 .st-modal-title {
-    margin-bottom: 16px!important;
-    p {
-        text-transform: none !important;
-        font-family: 'Nunito Sans ExtraBold'!important;
-        font-size:18px!important;
-        color: #111111;
-    }
+   margin-bottom: 16px!important;
+   p {
+      text-transform: none !important;
+      font-family: 'Nunito Sans ExtraBold'!important;
+      font-size: 18px!important;
+      color: #111111;
+   }
 }
 
 .sth-modal-content {
@@ -108,5 +109,11 @@ sp-textarea {
    line-height: 18px;
    &:before {
       min-width: 160px;
+   }
+}
+
+.sth-alert-box-message-body {
+   p {
+      word-break: break-word;
    }
 }

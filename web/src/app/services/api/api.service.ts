@@ -74,9 +74,6 @@ export class ApiService {
       }
 
       private handleError(error: any): Observable<any> {
-            if (error.body && error.body.message) {
-                  this.store.dispatch(new errorsActions.ServerErrorAction(error.body.message));
-            }
             return Observable.throw(error);
       }
 }

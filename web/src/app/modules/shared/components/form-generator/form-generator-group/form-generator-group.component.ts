@@ -16,12 +16,17 @@
 
 import { Subject } from 'rxjs/Rx';
 import { OnDestroy } from '@angular/core/core';
-import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef, 
-    ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { ControlValueAccessor, FormGroup, FormControl, FormArray, 
-    NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm } from '@angular/forms';
+import {
+    Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef,
+    ChangeDetectionStrategy, ViewChild
+} from '@angular/core';
+import {
+    ControlValueAccessor, FormGroup, FormControl, FormArray,
+    NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS, NgForm
+} from '@angular/forms';
 import { Subscription } from 'rxjs/Rx';
 import { StHorizontalTab } from '@stratio/egeo';
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
     selector: 'form-generator-group',
@@ -57,7 +62,7 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
     public activeOption = '';
     public formGroup: FormGroup;
 
-    constructor(private _cd: ChangeDetectorRef) {
+    constructor(private _cd: ChangeDetectorRef, private translate: TranslateService) {
     }
 
     public changeFormOption($event: StHorizontalTab) {
@@ -66,12 +71,25 @@ export class FormGeneratorGroupComponent implements Validator, ControlValueAcces
 
 
     ngOnInit(): void {
-
+        this._cd.detach();
         this.options = this.formData.map((category: any) => {
             return {
                 id: category.name,
-                text: category.name
+                text: ''
             };
+        });
+
+        const translateKey = 'FORM_TABS.';
+
+        this.translate.get(this.options.map((option: any) => {
+            return translateKey + option.id.toUpperCase();
+        })).subscribe((value: { [key: string]: string }) => {
+            this.options.map((option: any) => {
+                const key = value[translateKey + option.id.toUpperCase()];
+                option.text = key ? key : option.id;
+                return option;
+            });
+            this._cd.reattach();
         });
     }
 

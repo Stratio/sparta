@@ -87,6 +87,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
         this.executionInfoSubscription = this.store.select(fromRoot.getExecutionInfo).subscribe((executionInfo: any) => {
             this.executionInfo = executionInfo;
+            this._cd.detectChanges();
         });
 
         this.menuOptions = [{

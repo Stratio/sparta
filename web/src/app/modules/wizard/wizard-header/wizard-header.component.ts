@@ -60,7 +60,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
     public workflowName: string = '';
     public nameSubscription: Subscription;
-    
+    public validationSubscription: Subscription;
 
     private inputListSubscription: Subscription;
     private outputListSubscription: Subscription;
@@ -71,6 +71,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     public undoEnabled = false;
     public redoEnabled = false;
+    public validations: any = {};
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
         private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
@@ -89,6 +90,11 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
             this.redoEnabled = actions.redo;
         });
 
+        this.validationSubscription = this.store.select(fromRoot.getValidationErrors).subscribe((validations: any) => {
+            this.validations = validations;
+            this._cd.detectChanges();
+        });
+
         this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
 
     }
@@ -100,7 +106,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     editWorkflowName(): void {
         this.editName = true;
         this._cd.markForCheck();
-        setTimeout(()=> {
+        setTimeout(() => {
             this.titleElement.nativeElement.focus();
         });
     }
@@ -108,7 +114,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     eventHandler() {
         this.editName = true;
         this._cd.markForCheck();
-        setTimeout(()=> {
+        setTimeout(() => {
             this.titleElement.nativeElement.focus();
         });
     }
@@ -119,7 +125,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     }
 
     filterOptions($event: any) {
-       this.store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
+        this.store.dispatch(new wizardActions.SearchFloatingMenuAction($event));
     }
 
 
@@ -150,7 +156,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if (event === '1') {
-            if(this.nameForm.valid) {
+            if (this.nameForm.valid) {
                 this.onSaveWorkflow.emit();
             }
         } else {
@@ -169,6 +175,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.nameSubscription && this.nameSubscription.unsubscribe();
         this.areUndoRedoEnabledSubscription && this.areUndoRedoEnabledSubscription.unsubscribe();
+        this.validationSubscription && this.validationSubscription.unsubscribe();
     }
 
 

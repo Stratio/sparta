@@ -14,8 +14,10 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, Input, ElementRef, 
-    ChangeDetectionStrategy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import {
+    Component, OnInit, Output, EventEmitter, Input, ElementRef,
+    ChangeDetectionStrategy, ViewChild, ChangeDetectorRef
+} from '@angular/core';
 import { MenuOptionsComponent } from '@app/shared/components/floating-menu/menu-option/menu-options.component';
 
 @Component({
@@ -38,11 +40,11 @@ export class FloatingMenuComponent implements OnInit {
     }
 
     @Input() position = 'left';
-    @Input() search =  false;
+    @Input() search = false;
 
     @Output() selectedOption = new EventEmitter<any>();
     @Output() searchChange = new EventEmitter<string>();
-    @ViewChild(MenuOptionsComponent) menuOptionsComponent:MenuOptionsComponent;
+    @ViewChild(MenuOptionsComponent) menuOptionsComponent: MenuOptionsComponent;
 
     public showMenu = false;
     private _menuOptions: Array<FloatingMenuModel> = [];
@@ -54,13 +56,16 @@ export class FloatingMenuComponent implements OnInit {
     }
 
     onClick(event: any): void {
-        if (!this._eref.nativeElement.contains(event.target)) {// or some similar check
-            this.showMenu = false;
-            this.menuOptionsComponent.searchBox.setValue('');
+        if (this.showMenu) {
+            // const searchBox = this.menuOptionsComponent.searchBox;
+            if (!this._eref.nativeElement.contains(event.target)) {// or some similar check
+                this.showMenu = false;
+                this.menuOptionsComponent.searchBox.setValue('');
+            }
         }
     }
 
-    selectedMenuOption($event: any){
+    selectedMenuOption($event: any) {
         this.selectedOption.emit($event);
         this.showMenu = false;
         this.menuOptionsComponent.searchBox.setValue('');

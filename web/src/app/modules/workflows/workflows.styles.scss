@@ -46,6 +46,11 @@
    }
 }
 
+.check-column{
+    width:10px;
+    padding-right: 0;
+}
+
 .status-field {
    font-family: "Nunito Sans SemiBold";
    &.Started {

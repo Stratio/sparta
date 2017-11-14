@@ -2,12 +2,14 @@
    <st-horizontal-tabs [options]="options" [style.width.px]="250*(options.length)" [qaTag]="qaTag" (changedOption)="changeFormOption($event)"
       class="form-tabs">
    </st-horizontal-tabs>
-   <div [hidden]="activeOption !== formData[0].name">
-      <ng-content></ng-content>
-   </div>
-   <div *ngFor="let category of formData; let i = index;" class="subsections">
-      <div [hidden]="activeOption !== category.name">
-         <form-generator [forceValidations]="submitted" [(ngModel)]="stModel[category.name]" [name]="category.name" [formData]="category.properties"></form-generator>
+   <div class="subsections">
+      <div [hidden]="activeOption !== formData[0].name">
+         <ng-content></ng-content>
+      </div>
+      <div *ngFor="let category of formData; let i = index;">
+         <div [hidden]="activeOption !== category.name">
+            <form-generator [forceValidations]="submitted" [(ngModel)]="stModel[category.name]" [name]="category.name" [formData]="category.properties"></form-generator>
+         </div>
       </div>
    </div>
 </form>

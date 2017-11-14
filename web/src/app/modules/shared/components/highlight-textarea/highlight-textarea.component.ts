@@ -16,7 +16,7 @@
 
 import {
   ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input,
-  OnChanges, OnDestroy, OnInit, ViewChildren, ViewChild
+  OnChanges, OnDestroy, OnInit, ViewChildren, ViewChild, ElementRef, Renderer
 } from '@angular/core';
 import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
@@ -71,7 +71,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   @Input() cols: number;
 
   /** @Input {number} [rows=''] Define textarea number of rows */
-  @Input() rows: number;
+  @Input() rows: number = 3;
 
   /** @Input {string} [wrap='soft'] Define type of wrap as html standard */
   @Input() wrap: string = 'soft';
@@ -94,7 +94,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   private sub: Subscription;
   private valueChangeSub: Subscription;
 
-  constructor(private _cd: ChangeDetectorRef) { }
+  constructor(private _cd: ChangeDetectorRef, private elementRef: ElementRef, private renderer: Renderer) { }
 
   onChange = (_: any) => { };
   onTouched = () => { };
@@ -153,6 +153,8 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.internalControl.setValue(value);
       this.onChange(value);
     });
+
+    this.renderer.setElementStyle(this.elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
   }
 
   ngAfterViewInit(): void {
@@ -161,6 +163,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.vc.first.nativeElement.focus();
     }
     this.codemirrorInit(this.config);
+
     this.instance.setValue(this.internalControl.value ? this.internalControl.value : '');
   }
 
@@ -175,8 +178,12 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
   // When value is received from outside
   writeValue(value: any): void {
-    this.instance && this.instance.setValue(value ? value : '');
+    if (typeof value === 'object') {
+      value = JSON.stringify(value, null, 4);
+    }
     this.internalControl.setValue(value);
+    this.instance && this.instance.setValue(value ? value : '');
+
   }
 
   // Registry the change function to propagate internal model changes

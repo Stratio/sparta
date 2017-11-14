@@ -18,11 +18,31 @@ import { Action } from '@ngrx/store';
 import { type } from '../utils';
 
 export const SERVER_ERROR = '[Errors] Server error';
+export const FORBIDDEN_ERROR = '[Errors] Forbidden error';
+export const CHANGE_ROUTE = '[Errors] Change route';
+export const HTTP_ERROR = '[Errors] Http error';
 
 export class ServerErrorAction implements Action {
   readonly type = SERVER_ERROR;
   constructor(public payload: any) { }
 }
 
-export type Actions = ServerErrorAction;
+export class ForbiddenErrorAction implements Action {
+  readonly type = FORBIDDEN_ERROR;
+  constructor(public payload: any) { }
+}
+
+export class ChangeRouteAction implements Action {
+  readonly type = CHANGE_ROUTE;
+}
+
+export class HttpErrorAction implements Action {
+  readonly type = HTTP_ERROR;
+  constructor(public payload: any) { }
+}
+
+export type Actions = ServerErrorAction |
+  ForbiddenErrorAction |
+  ChangeRouteAction |
+  HttpErrorAction;
 

@@ -39,6 +39,7 @@ export const UPDATE_OUTPUT_ERROR = '[Output] Update output error';
 export const RESET_OUTPUT_FORM = '[Output] Reset output form';
 export const VALIDATE_OUTPUT_NAME = '[Output] Validate output name';
 
+
 export class ListOutputAction implements Action {
   readonly type = LIST_OUTPUT;
 

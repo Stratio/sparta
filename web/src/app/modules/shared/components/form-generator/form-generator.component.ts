@@ -42,6 +42,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     @Input() public stFormGroup: FormGroup;
     @Input() forceValidations = false;
     @Input() public subFormNumber = 0;
+    @Input() arity: any;
 
     @Input() public stModel: any = {};
     @Output() public stModelChange: EventEmitter<any> = new EventEmitter<any>();
@@ -53,9 +54,7 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     private registeredOnChange: (_: any) => void;
 
 
-    ngOnInit(): void {
-
-    }
+    ngOnInit(): void { }
 
     writeValue(value: any): void {
         if (value) {

@@ -21,7 +21,7 @@ import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating
 import { inputNames } from 'data-templates/inputs';
 import { transformationNames } from 'data-templates/transformations';
 import { outputNames } from 'data-templates/outputs';
-import {settingsTemplate} from 'data-templates/index';
+import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 
 export interface State {
@@ -31,6 +31,7 @@ export interface State {
     redoStates: any;
     undoStates: any;
     savedWorkflow: boolean;
+    validationErrors: any;
     selectedCreationEntity: any;
     entityCreationMode: boolean;
     editionConfig: boolean;
@@ -60,6 +61,7 @@ const initialState: State = {
     redoStates: [],
     undoStates: [],
     nodes: [],
+    validationErrors: {},
     savedWorkflow: false,
     editionConfig: false,
     editionConfigType: '',
@@ -103,6 +105,7 @@ export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case wizardActions.RESET_WIZARD: {
             return Object.assign({}, state, {
+                validationErrors: {},
                 workflowId: '',
                 svgPosition: {
                     x: 0,
@@ -166,6 +169,7 @@ export function reducer(state: State = initialState, action: any): State {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
                 }),
                 undoStates: getUndoState(state),
+                selectedRelation: null,
                 redoStates: []
             });
         }
@@ -196,7 +200,7 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.CREATE_ENTITY: {
-            return Object.assign({}, state,{
+            return Object.assign({}, state, {
                 nodes: [...state.nodes, action.payload],
                 undoStates: getUndoState(state),
                 redoStates: []
@@ -337,22 +341,22 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.UNDO_CHANGES: {
-            if(state.undoStates.length) {
+            if (state.undoStates.length) {
                 const undoState = state.undoStates[0];
-                return  Object.assign({}, state, {
+                return Object.assign({}, state, {
                     nodes: JSON.parse(JSON.stringify(undoState.nodes)),
                     edges: JSON.parse(JSON.stringify(undoState.edges)),
                     redoStates: getRedoState(state),
                     undoStates: state.undoStates.slice(1)
-                }); 
+                });
             } else {
                 return Object.assign({}, state);
             }
         }
         case wizardActions.REDO_CHANGES: {
-            if(state.redoStates.length) {
+            if (state.redoStates.length) {
                 const redoState = state.redoStates[0];
-                return  Object.assign({}, state, {
+                return Object.assign({}, state, {
                     nodes: JSON.parse(JSON.stringify(redoState.nodes)),
                     edges: JSON.parse(JSON.stringify(redoState.edges)),
                     undoStates: getUndoState(state),
@@ -361,6 +365,11 @@ export function reducer(state: State = initialState, action: any): State {
             } else {
                 return Object.assign({}, state);
             }
+        }
+        case wizardActions.VALIDATE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                validationErrors: action.payload
+            });
         }
         default:
             return state;
@@ -372,7 +381,7 @@ function getUndoState(state: any) {
         nodes: JSON.parse(JSON.stringify(state.nodes)),
         edges: JSON.parse(JSON.stringify(state.edges))
     }
-    return  [undoState, ...state.undoStates.filter((value: any, index: number) => {
+    return [undoState, ...state.undoStates.filter((value: any, index: number) => {
         return index < 4;
     })];
 }
@@ -382,7 +391,7 @@ function getRedoState(state: any) {
         nodes: JSON.parse(JSON.stringify(state.nodes)),
         edges: JSON.parse(JSON.stringify(state.edges))
     }
-    return  [redoState, ...state.redoStates.filter((value: any, index: number) => {
+    return [redoState, ...state.redoStates.filter((value: any, index: number) => {
         return index < 4;
     })];
 }
@@ -422,6 +431,7 @@ export const getWorkflowSettings: any = (state: State) => state.settings;
 export const getWorkflowName: any = (state: State) => state.settings.basic.name;
 export const getWorkflowPosition: any = (state: State) => state.svgPosition;
 export const isSavedWorkflow: any = (state: State) => state.savedWorkflow;
+export const getValidationErrors: any = (state: State) => state.validationErrors;
 export const areUndoRedoEnabled: any = (state: State) => {
     return {
         undo: state.undoStates.length ? true : false,

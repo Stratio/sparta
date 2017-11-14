@@ -16,7 +16,7 @@
 
 import { Injectable } from '@angular/core';
 import { ValidationModel, ValidationErrorModel } from 'app/models/validation-schema.model';
-import { writerTemplate} from 'data-templates/index';
+import { writerTemplate } from 'data-templates/index';
 
 
 @Injectable()
@@ -58,9 +58,14 @@ export class InitializeSchemaService {
         model.classPrettyName = value.classPrettyName;
         model.className = value.className;
         //model.description = value.description;
+        // arity property for workflow validation
+        if (value.arity) {
+            model.arity = value.arity;
+        }
+
         model.stepType = stepType;
 
-        if(writerOptions && stepType !== 'Output') {
+        if (writerOptions && stepType !== 'Output') {
             model.writer = this.getDefaultWriterModel();
         }
 
@@ -68,7 +73,7 @@ export class InitializeSchemaService {
     }
 
     getDefaultWriterModel(): any {
-        const writerTpl = <any> writerTemplate;
+        const writerTpl = <any>writerTemplate;
         const writer: any = {};
         writerTpl.map((prop: any) => {
             writer[prop.propertyId] = prop.default ? prop.default : null;

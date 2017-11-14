@@ -54,6 +54,9 @@ export const SEARCH_MENU_OPTION = '[Wizard] Search floating menu option';
 export const UNDO_CHANGES = '[Wizard] Undo changes';
 export const REDO_CHANGES = '[Wizard] Redo changes';
 export const HIDE_EDIT = '[Wizard] Hide edit';
+export const VALIDATE_WORKFLOW = '[Wizard] Validate workflow';
+export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
+export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
 
 export class ResetWizardAction implements Action {
     readonly type = RESET_WIZARD;
@@ -219,6 +222,19 @@ export class RedoChangesAction implements Action {
     readonly type = REDO_CHANGES;
 }
 
+export class ValidateWorkflowAction implements Action {
+    readonly type = VALIDATE_WORKFLOW;
+}
+
+export class ValidateWorkflowCompleteAction implements Action {
+    readonly type = VALIDATE_WORKFLOW_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class ValidateWorkflowErrorAction implements Action {
+    readonly type = VALIDATE_WORKFLOW_ERROR;
+}
+
 export type Actions =
     ResetWizardAction |
     ModifyWorkflowAction |
@@ -251,4 +267,7 @@ export type Actions =
     UndoChangesAction |
     RedoChangesAction |
     CreateEntityAction |
-    CreateEntityCompleteAction;
+    CreateEntityCompleteAction |
+    ValidateWorkflowAction |
+    ValidateWorkflowCompleteAction |
+    ValidateWorkflowErrorAction;

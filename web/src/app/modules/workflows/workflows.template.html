@@ -41,14 +41,14 @@
             <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)">
                <tr st-table-row *ngFor="let workflow of workflowList | orderBy:orderBy:sortOrder; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1" 
                    (click)="checkRow(!((selectedWorkflowsIds.indexOf(workflow.id)) > -1), workflow)">
-                  <td st-table-cell st-table-row-content>
+                  <td st-table-cell st-table-row-content class="check-column">
                      <st-checkbox [value]="workflow" (change)="checkValue($event)" [checked]="selectedWorkflowsIds.indexOf(workflow.id) > -1"></st-checkbox>
                   </td>
                   <td st-table-cell st-table-row-content>
                      <label class="workflow-link" (click)="editSelectedWorkflow($event, workflow.id)">{{workflow.name}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
-                     <label class="status-field" [ngClass]="workflow.context.status">{{('DASHBOARD.' + (workflow.context.status | uppercase)) | translate}}</label>
+                     <label class="status-field" [ngClass]="workflow.context.status">{{(workflow.context && workflow.context.status) ? (('DASHBOARD.' + (workflow.context.status | uppercase)) | translate) : ''}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
                      <label>{{workflow.context.lastExecutionMode}}</label>

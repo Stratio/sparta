@@ -82,6 +82,24 @@
    }
 }
 
+.created-new{
+    .entity {
+        stroke: #ddd;
+    }
+
+    .entity-name{
+        fill:#aaa;        
+    }
+
+    .entity-icon {
+        fill:#aaa;
+    }
+
+    .entity-icon2 {
+        display:none;
+    }
+}
+
 :host .relation.relation.over-output2 {
    @extend %selected-relation;
 }

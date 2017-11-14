@@ -14,16 +14,20 @@
 /// limitations under the License.
 ///
 
-export * from './api/workflow.service';
-export * from './api/input.service';
-export * from './api/output.service';
-export * from './api/api.service';
-export * from './api/backup.service';
-export * from './api/resources.service';
-export * from './api/crossdata.service';
-export * from './breadcrumb-menu.service';
-export * from './error-messages.service';
-export * from './initialize-schema.service';
-export * from './initialize-workflow.service';
-export * from './validate-schema.service';
+import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
+@Component({
+    selector: 'notification-alert',
+    templateUrl: './notification-alert.template.html',
+    styleUrls: ['./notification-alert.styles.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class NotificationAlertComponent implements OnInit {
+
+    @Output() onClose = new EventEmitter();
+
+    constructor() { }
+
+    ngOnInit() { }
+
+}

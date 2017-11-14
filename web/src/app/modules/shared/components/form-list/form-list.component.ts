@@ -142,10 +142,10 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     }
 
     checkDisabledField(propertyConditions: any, group: any, propertyId: string) {
-        let enable = true;
+        let enable = false;
         propertyConditions.forEach((rule: any) => {
-            if (rule.value != group.controls[rule.propertyId].value) {
-                enable = false;
+            if (rule.value == group.controls[rule.propertyId].value) {
+                enable = true;
             }
         });
         if (enable) {

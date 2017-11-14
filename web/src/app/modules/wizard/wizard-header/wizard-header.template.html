@@ -72,9 +72,28 @@
                   </button>
                </div>
                <div class="" style="float:right">
-                  <button menu-action class="button button-toolbar">
-                    <i class="icon-alert"></i>
-                </button>
+                  <sp-popover>
+                     <div popover-link>
+                        <button menu-action class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length}">
+                          <i class="icon-alert"></i>
+                        </button>
+                     </div>
+                     <div popover-content>
+                        <div *ngIf="!validations.valid && validations.messages">
+                           <span *ngIf="validations.messages.length > 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_N' | translate:({ number: validations.messages.length})}}</span>
+                           <span *ngIf="validations.messages.length === 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_1' | translate }}</span>
+                           <ol class="errors-list">
+                              <li *ngFor="let message of validations.messages" class="validation-message">
+                                 {{message}}
+                              </li>
+                           </ol>
+                        </div>
+                        <div *ngIf="validations.valid">
+                           <span>{{'WIZARD.NO_VALIDATION_ERROR' | translate}}</span>
+                        </div>
+                     </div>
+
+                  </sp-popover>
                   <button menu-action class="button button-toolbar" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
                      <i class="icon-info1"></i>
                   </button>

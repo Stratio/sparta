@@ -19,9 +19,11 @@ import { StHeaderMenuOption , StFooterLink, StAlertsService, STALERT_SEVERITY } 
 import { Store } from '@ngrx/store';
 import { MenuService } from './../shared/services/menu.service';
 import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription, Observable } from 'rxjs/Rx';
 import { CustomAlert } from 'app/models/alert.model';
 import { TranslateService } from '@ngx-translate/core';
+import { Router, NavigationStart } from '@angular/router';
+import * as errorsActions from 'actions/errors';
 
 @Component({
     selector: 'layout',
@@ -32,16 +34,29 @@ import { TranslateService } from '@ngx-translate/core';
 export class LayoutComponent implements OnInit, OnDestroy {
 
     public menu: Array<StHeaderMenuOption>;
+    public showForbiddenError$: Observable<any>;
 
-    constructor(
-        private menuService: MenuService) {
+    private routeSubscription: Subscription;
+
+    constructor(private menuService: MenuService, private router: Router, private store: Store<fromRoot.State>) {
+       this.routeSubscription = router.events.subscribe((event) => {
+            if (event instanceof NavigationStart) {
+               this.store.dispatch(new errorsActions.ChangeRouteAction());
+            }
+       });
+    }
+
+    hideAlert() {
+        this.store.dispatch(new errorsActions.ChangeRouteAction());
     }
 
     ngOnInit(): void {
         this.menu = this.menuService.getMenu();
+        this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
     }
 
-    ngOnDestroy(): void {
+    ngOnDestroy(): void { 
+        this.routeSubscription && this.routeSubscription.unsubscribe();
     }
 
 

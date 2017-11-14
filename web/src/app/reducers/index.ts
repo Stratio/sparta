@@ -115,7 +115,7 @@ export const getSelectedTables: any = createSelector(getCrossdataState, fromCros
 
 // alerts
 export const getCurrentAlert: any = createSelector(getAlertsState, fromAlerts.getCurrentAlert);
-
+export const showPersistentError: any = createSelector(getAlertsState, fromAlerts.showPersistentError);
 
 // wizard
 export const isCreationMode: any = createSelector(getWizardState, fromWizard.isCreationMode);
@@ -133,3 +133,4 @@ export const getWorkflowPosition: any = createSelector(getWizardState, fromWizar
 export const isSavedWorkflow: any = createSelector(getWizardState, fromWizard.isSavedWorkflow);
 export const getSelectedRelation: any = createSelector(getWizardState, fromWizard.getSelectedRelation);
 export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard.areUndoRedoEnabled);
+export const getValidationErrors: any = createSelector(getWizardState, fromWizard.getValidationErrors);

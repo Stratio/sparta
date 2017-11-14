@@ -27,7 +27,7 @@ import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { inputsObject } from 'data-templates/inputs';
 import { outputsObject } from 'data-templates/outputs';
 import { transformationsObject } from 'data-templates/transformations';
-import {settingsTemplate, writerTemplate} from 'data-templates/index';
+import { settingsTemplate, writerTemplate } from 'data-templates/index';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
 
@@ -36,7 +36,7 @@ import { StHorizontalTab } from '@stratio/egeo';
     selector: 'wizard-config-editor',
     styleUrls: ['wizard-config-editor.styles.scss'],
     templateUrl: 'wizard-config-editor.template.html',
-    changeDetection: ChangeDetectionStrategy.OnPush    
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class WizardConfigEditorComponent implements OnInit, OnDestroy {
@@ -50,6 +50,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public submitted = true;
     public breadcrumbOptions: any = [];
     public currentName = '';
+    public arity: any;
 
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
@@ -95,39 +96,45 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                 this.settingsFormModel = settings.advancedSettings;
             });
         }
+        let template: any;
         switch (this.config.editionType.stepType) {
             case 'settings':
                 const settings = <any>settingsTemplate;
                 this.basicSettings = settings.basicSettings;
                 this.advancedSettings = settings.advancedSettings;
-                break;
+                return;
             case 'Input':
-                const selectedI: any = inputsObject[this.config.editionType.data.classPrettyName];
-                this.basicSettings = selectedI.properties;
+                template = inputsObject[this.config.editionType.data.classPrettyName];
                 this.writerSettings = writerTemplate;
                 break;
             case 'Output':
-                const selectedO: any = outputsObject[this.config.editionType.data.classPrettyName];
-                this.basicSettings = selectedO.properties;
+                template = outputsObject[this.config.editionType.data.classPrettyName];
                 break;
             case 'Transformation':
-                const selectedT: any = transformationsObject[this.config.editionType.data.classPrettyName];
-                this.basicSettings = selectedT.properties;
+                template = transformationsObject[this.config.editionType.data.classPrettyName];
                 this.writerSettings = writerTemplate;
                 break;
+        }
+        this.basicSettings = template.properties;
+        if (template.arity) {
+            this.arity = template.arity;
         }
     }
 
     public saveForm() {
         this.submitted = true;
         if (this.config.editionType.stepType !== 'settings') {
-            if (this.entityForm.valid) {
-                this.entityFormModel.hasErrors = false;
-                this.store.dispatch(new wizardActions.SaveEntityAction({
-                    oldName: this.config.editionType.data.name,
-                    data: this.entityFormModel
-                }));
+
+            this.entityFormModel.hasErrors = this.entityForm.invalid;
+            if (this.arity) {
+                this.entityFormModel.arity = this.arity;
             }
+            this.entityFormModel.createdNew = false;
+            this.store.dispatch(new wizardActions.SaveEntityAction({
+                oldName: this.config.editionType.data.name,
+                data: this.entityFormModel
+            }));
+
         } else {
             if (this.entityForm.valid) {
                 this.store.dispatch(new wizardActions.SaveSettingsAction({

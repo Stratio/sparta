@@ -27,7 +27,7 @@ import * as d3 from 'd3';
 import { ENTITY_BOX } from '../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { icons } from '@app/shared/constants/icons';
-import { NgZone } from '@angular/core';
+import { NgZone, ViewEncapsulation } from '@angular/core';
 
 
 @Component({
@@ -36,10 +36,10 @@ import { NgZone } from '@angular/core';
     templateUrl: 'wizard-box.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     @Input() data: any;
+    @Input() createdNew: boolean;
     @Input() selected: boolean;
     @Input() drawingConnectionStatus: any = {
         status: false,
@@ -63,10 +63,13 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
         this.svg = d3.select(this.el);
     }
 
-    ngOnInit(): void { }
+    ngOnInit(): void { 
+        if(this.createdNew) {
+            this.el.querySelector('.box').setAttribute('class', 'created-new');
+        }
+    }
 
     ngAfterContentInit() {
-
         setTimeout(() => {
             this.data.created = false;
         }, 400); //delete created opacity effect
@@ -79,10 +82,10 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
                 .attr('y', 35)
                 .attr('class', 'entity-icon')
                 .style('font-size', '25')
-                .attr('fill', '#0f1b27')
+                .attr('fill', this.createdNew ? '#999' : '#0f1b27')
                 .text(function (d) { return icons[data.classPrettyName]});
 
-            if (data.hasErrors) {
+            if (data.hasErrors && !this.createdNew) {
                 textContainer.append('text')
                     .attr('x', 116)
                     .attr('y', 22)

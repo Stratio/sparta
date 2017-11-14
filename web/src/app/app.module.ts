@@ -14,7 +14,6 @@
 /// limitations under the License.
 ///
 
-import { APP_PROVIDERS } from './app.providers';
 import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { INITIAL_STATE, Store } from '@ngrx/store';
@@ -28,6 +27,7 @@ import { ConfigService, INITIALIZER, TRANSLATE_CONFIG } from '@app/core';
 import { AppState, InternalStateType } from './app.service';
 import { Error404Component } from '@app/errors/error-404/error-404.component';
 import { APP_IMPORTS } from 'app/app.imports';
+import { APP_PROVIDERS } from './app.providers';
 
 type StoreType = {
    state: InternalStateType,

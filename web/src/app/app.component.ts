@@ -30,7 +30,7 @@ import { StAlertsService } from '@stratio/egeo';
 })
 
 export class AppComponent {
-    constructor(private translate: TranslateService, private store: Store<fromRoot.State>, private _alertService: StAlertsService,) {
+    constructor(private translate: TranslateService, private store: Store<fromRoot.State>, private _alertService: StAlertsService, ) {
         let lang: string = navigator.language.split('-')[0];
         lang = /(es|en)/gi.test(lang) ? lang : 'en';
         translate.setDefaultLang('en');
@@ -41,11 +41,15 @@ export class AppComponent {
         this.store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
             if (alerts && alerts.length) {
                 alerts.map((alertNot: any) => {
-                    const title = 'ALERTS.' + alertNot.title;
-                    const description = 'ALERTS.' + alertNot.description;
-                    this.translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
-                        this._alertService.notifyAlert(value[title], value[description], alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
-                    });
+                    if (alertNot.notranslate) {
+                        this._alertService.notifyAlert(alertNot.title, alertNot.description, alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
+                    } else {
+                        const title = 'ALERTS.' + alertNot.title;
+                        const description = 'ALERTS.' + alertNot.description;
+                        this.translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
+                            this._alertService.notifyAlert(value[title], value[description], alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
+                        });
+                    }
                 });
             }
         });
