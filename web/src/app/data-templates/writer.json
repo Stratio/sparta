@@ -17,7 +17,8 @@
        "width": 3,
        "tooltip": "The save mode correspond with Spark save modes, but some outputs support upsert with primary key fields",
        "qa": "save-mode-writer",
-       "values": [{
+       "values": [
+          {
              "label": "Append",
              "value": "Append"
           },
@@ -38,6 +39,21 @@
              "value": "Upsert"
           }
        ]
+    },
+    {
+       "propertyId": "primaryKey",
+       "propertyName": "_PRIMARY_KEY_",
+       "propertyType": "text",
+       "regexp": "",
+       "required": false,
+       "visible": [
+          [{
+             "propertyId": "saveMode",
+             "value": "Upsert"
+          }]
+       ],
+       "tooltip": "Set the fields that indicates the where clause in upsert save mode",
+       "qa": "primaryKey-by-writer"
     },
     {
        "propertyId": "partitionBy",

@@ -270,6 +270,7 @@
    "_TIMEFIELD_": "Time Field",
    "_DATE_FORMAT_": "Date format",
    "_PATH_": "Path",
+   "_PRIMARY_KEY_": "Primary key",
    "_PARTITION_BY_": "Partition By",
    "_TRIGGER_PARTITION_BY_HELP_": "Partition the output by one or more fields, separated by ','. This property is supported by outputs that write on file systems",
    "_INFER_SCHEMA_": "Infer schema",

@@ -56,10 +56,14 @@ object RowJsonHelper {
     val configOptions = jsonOptions(extraOptions)
     val columnNameOfCorruptRecord = configOptions.columnNameOfCorruptRecord.getOrElse("_corrupt_record")
     val parser = new JacksonParser(schema, columnNameOfCorruptRecord, configOptions)
-
-    parser.parse(json).map { internalRow =>
+    val row = parser.parse(json).map { internalRow =>
       CatalystTypeConverters.convertToScala(internalRow, schema).asInstanceOf[GenericRowWithSchema]
     }.head
+
+    if(row.values.forall(value => Option(value).isEmpty))
+      throw new Exception(s"Error converting json to scala types with schema. json: $json\tschema: $schema")
+
+    row
   }
 
   def extractSchemaFromJson(json: String, extraOptions: Map[String, String]) : StructType = {
