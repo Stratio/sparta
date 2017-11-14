@@ -180,7 +180,8 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.ERROR,
                     notranslate: true,
                     title: action.payload.title,
-                    description: action.payload.description
+                    description: action.payload.description,
+                    duration: 1500
                 }]
             });
         }

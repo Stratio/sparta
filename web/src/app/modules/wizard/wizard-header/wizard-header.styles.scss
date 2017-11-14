@@ -101,6 +101,11 @@ $cloudy-black: #cdd6df;
 .errors {
    color: $status-critical-default;
    border-color: $status-critical-default;
+   background: #fff;
+   &.selected-button {
+      color: $status-critical-hover;
+      border-color: $status-critical-hover!important;
+   }
    &:hover {
       color: $status-critical-hover;
       border-color: $status-critical-hover!important;
@@ -110,8 +115,7 @@ $cloudy-black: #cdd6df;
 .errors-list {
    color: #555;
    list-style: none;
-   li {
-   }
+   li {}
 }
 
 .validation-title {

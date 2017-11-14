@@ -16,6 +16,7 @@
 
 import { WorkflowListType } from 'app/models/workflow.model';
 import * as workflowActions from 'actions/workflow';
+import { orderBy } from '../utils';
 
 export interface State {
   workflowList: Array<WorkflowListType>;
@@ -32,6 +33,8 @@ export interface State {
   displayOptions: Array<any>;
   modalOpen: boolean;
   selectedDisplayOption: string;
+  sortOrder: boolean;
+  orderBy: string;
 }
 
 const initialState: State = {
@@ -42,6 +45,8 @@ const initialState: State = {
   searchQuery: '',
   executionInfo: null,
   modalOpen: false,
+  sortOrder: true,
+  orderBy: 'name',
   workflowNameValidation: {
     validatedName: false,
     validatedWorkflow: undefined
@@ -139,9 +144,14 @@ export function reducer(state: State = initialState, action: any): State {
         }
       });
     }
+    case workflowActions.SAVE_JSON_WORKFLOW: {
+      return Object.assign({}, state, {
+        modalOpen: true
+      });
+    }
     case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
-        modalOpen: true,
+        modalOpen: false,
         reload: true
       });
     }
@@ -155,12 +165,20 @@ export function reducer(state: State = initialState, action: any): State {
         executionInfo: null
       });
     }
+    case workflowActions.CHANGE_ORDER: {
+      return Object.assign({}, state, {
+        orderBy: action.payload.orderBy,
+        sortOrder: action.payload.sortOrder
+      });
+    }
     default:
       return state;
   }
 }
 
-export const getWorkFlowList: any = (state: State) => state.workflowList;
+export const getWorkFlowList: any = (state: State) => {
+  return orderBy(Object.assign([], state.workflowList), state.orderBy, state.sortOrder);
+};
 export const getSelectedWorkflows: any = (state: State) => {
   return {
     selected: state.selectedWorkflows,

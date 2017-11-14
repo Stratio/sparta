@@ -128,7 +128,7 @@ export class WorkflowEffect {
             return this.workflowService.getWorkflowByName(response.payload.name).map((response: any) => {
                 return new workflowActions.ValidateWorkflowNameError();
             }).catch(function (error) {
-                return Observable.from([new workflowActions.SaveJsonWorkflowAction(response.payload), new errorsActions.HttpErrorAction(error)]);
+                return Observable.from([new workflowActions.SaveJsonWorkflowAction(response.payload)]);
 
             });
         });

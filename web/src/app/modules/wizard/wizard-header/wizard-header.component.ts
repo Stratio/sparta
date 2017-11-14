@@ -61,6 +61,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public workflowName: string = '';
     public nameSubscription: Subscription;
     public validationSubscription: Subscription;
+    public showErrors =  false;
 
     private inputListSubscription: Subscription;
     private outputListSubscription: Subscription;

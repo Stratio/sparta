@@ -126,8 +126,10 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     }
 
     changeOrder($event: any): void {
-        this.orderBy = $event.orderBy;
-        this.sortOrder = $event.type;
+        this.store.dispatch(new workflowActions.ChangeOrderAction({
+            orderBy: $event.orderBy,
+            sortOrder: $event.type
+        }));
     }
 
     selectedMenuOption(event: any) {

@@ -100,10 +100,7 @@ export class WizardEffect {
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.from([new wizardActions.SaveWorkflowErrorAction({
-                        title: 'WORKFLOW_SERVER_ERROR_TITLE',
-                        description: 'WORKFLOW_SERVER_ERROR_DESCRIPTION'
-                    }), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.from([new errorsActions.HttpErrorAction(error)]);
                 });
             }
 
@@ -175,6 +172,8 @@ export class WizardEffect {
             }, wizard.settings.basic);
             return this.workflowService.validateWorkflow(workflow).map((response: any) => {
                 return new wizardActions.ValidateWorkflowCompleteAction(response);
+            }).catch((error: any) => {
+                return Observable.of(new wizardActions.ValidateWorkflowErrorAction());
             });
 
         });

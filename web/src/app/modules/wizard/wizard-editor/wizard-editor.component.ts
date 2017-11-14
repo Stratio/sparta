@@ -359,14 +359,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     deleteSelection() {
         if (this.selectedEntity && this.selectedEntity.length) {
-            this.deleteConfirmModal('Delete entity', 'This entity and its relations will be deleted.', () => {
+            this.deleteConfirmModal('Delete node', 'This node and its relations will be deleted.', () => {
                 this.store.dispatch(new wizardActions.DeleteEntityAction());
             });
         }
         if (this.selectedSegment) {
-            this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
+             this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+           /* this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
                 this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-            });
+            });*/
         }
     }
 

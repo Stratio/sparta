@@ -51,7 +51,7 @@ export const GET_WORKFLOW_EXECUTION_INFO = '[Worflow] Get Workflow execution inf
 export const GET_WORKFLOW_EXECUTION_INFO_COMPLETE = '[Worflow] Get Workflow execution info complete';
 export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow execution info error';
 export const CLOSE_WORKFLOW_EXECUTION_INFO = '[Worflow] Close workflow execution info';
-
+export const CHANGE_ORDER = '[Workflow] Change order';
 
 export class ListWorkflowAction implements Action {
   readonly type = LIST_WORKFLOW;
@@ -231,6 +231,11 @@ export class CloseWorkflowExecutionInfoAction implements Action {
   constructor() { };
 }
 
+export class ChangeOrderAction implements Action {
+  readonly type = CHANGE_ORDER;
+  constructor(public payload: any) { }
+}
+
 export type Actions =
   ListWorkflowAction |
   ListWorkflowFailAction |
@@ -259,4 +264,5 @@ export type Actions =
   GetExecutionInfoAction |
   GetExecutionInfoCompleteAction |
   GetExecutionInfoErrorAction |
-  CloseWorkflowExecutionInfoAction;
+  CloseWorkflowExecutionInfoAction |
+  ChangeOrderAction;

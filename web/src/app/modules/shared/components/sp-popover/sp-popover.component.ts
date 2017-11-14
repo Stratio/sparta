@@ -27,9 +27,8 @@ import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy
 })
 export class SpPopoverComponent implements OnInit {
 
-    @Output() onClose = new EventEmitter();
-
-    public active = false;
+    @Input() active = false;
+    @Output() activeChange = new EventEmitter<boolean>();
 
     constructor(private _eref: ElementRef) { }
 
@@ -37,13 +36,15 @@ export class SpPopoverComponent implements OnInit {
 
     showContent($event: any) {
         this.active = !this.active;
+        this.activeChange.emit(this.active);
     }
 
-        onClick(event: any): void {
+    onClick(event: any): void {
         if (this.active) {
             // const searchBox = this.menuOptionsComponent.searchBox;
             if (!this._eref.nativeElement.contains(event.target)) {// or some similar check
                 this.active = false;
+                this.activeChange.emit(this.active);
             }
         }
     }

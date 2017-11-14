@@ -72,9 +72,9 @@
                   </button>
                </div>
                <div class="" style="float:right">
-                  <sp-popover>
+                  <sp-popover [(active)]="showErrors">
                      <div popover-link>
-                        <button menu-action class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length}">
+                        <button menu-action class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length, 'selected-button' : showErrors}">
                           <i class="icon-alert"></i>
                         </button>
                      </div>
@@ -82,11 +82,11 @@
                         <div *ngIf="!validations.valid && validations.messages">
                            <span *ngIf="validations.messages.length > 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_N' | translate:({ number: validations.messages.length})}}</span>
                            <span *ngIf="validations.messages.length === 1" class="validation-title">{{'WIZARD.VALIDATION_ERROR_1' | translate }}</span>
-                           <ol class="errors-list">
+                           <ul class="errors-list">
                               <li *ngFor="let message of validations.messages" class="validation-message">
-                                 {{message}}
+                                 - {{message}}
                               </li>
-                           </ol>
+                           </ul>
                         </div>
                         <div *ngIf="validations.valid">
                            <span>{{'WIZARD.NO_VALIDATION_ERROR' | translate}}</span>

@@ -34,3 +34,39 @@ export function generateJsonFile(name: string, content: any) {
   a.click();
   a.remove();
 }
+
+
+// order an array of objects/values by property
+export function orderBy(array: Array<any>, orderProperty: string, order: boolean): Array<any> {
+  const orderAux = order ? 1 : -1;
+  array.sort((a: any, b: any) => {
+    const avalue = getOrderProperyValue(a, orderProperty);
+    const bvalue = getOrderProperyValue(b, orderProperty);
+    if (avalue < bvalue) {
+      return -(orderAux);
+    } else if (avalue > bvalue) {
+      return orderAux;
+    } else {
+      return 0;
+    }
+  });
+  return array;
+}
+
+function getOrderProperyValue(value: any, orderProperty: string): any {
+  if (orderProperty) {
+    const properties: Array<any> = orderProperty.split('.');
+    if (properties.length > 1) {
+      let val = value;
+      for (let i = 0; i < properties.length; i++) {
+        val = val[properties[i]];
+      }
+      return val;
+    } else {
+      return value[orderProperty];
+    }
+  } else {
+    return '';
+  }
+}
+

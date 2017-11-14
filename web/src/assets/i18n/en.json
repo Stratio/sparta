@@ -408,8 +408,8 @@
       "CREATE_INPUT_DESCRIPTION": "Input has been created succesfully",
       "CREATE_OUTPUT_DESCRIPTION": "Output has been created succesfully",
       "NO_ENTITY_WORKFLOW_TITLE": "Validation error",
-      "NO_ENTITY_WORKFLOW_MESSAGE": "Workflow must have at least one entity",
-      "VALIDATION_ERRORS_MESSAGE": "At least one entity has errors",
+      "NO_ENTITY_WORKFLOW_MESSAGE": "Workflow must have at least one node",
+      "VALIDATION_ERRORS_MESSAGE": "At least one node has errors",
       "VALIDATION_ERRORS_TITLE": "Validation error",
       "WORKFLOW_SERVER_ERROR_TITLE": "Server error",
       "WORKFLOW_SERVER_ERROR_DESCRIPTION": "Workflow cannot be saved",
@@ -434,7 +434,7 @@
       "SETTINGS": "Workflow Settings",
       "MENU_SEARCH": "Search...",
       "VALIDATION_ERROR_1": "There is a validation error:",
-      "VALIDATION_ERROR_N": "There are {{number}} validation errors:",
+      "VALIDATION_ERROR_N": "Validation errors:",
       "NO_VALIDATION_ERROR": "No validation errors."
    },
    "ERRORS": {

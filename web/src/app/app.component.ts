@@ -30,15 +30,15 @@ import { StAlertsService } from '@stratio/egeo';
 })
 
 export class AppComponent {
-    constructor(private translate: TranslateService, private store: Store<fromRoot.State>, private _alertService: StAlertsService, ) {
+    constructor(private _translate: TranslateService, private _store: Store<fromRoot.State>, private _alertService: StAlertsService, ) {
         let lang: string = navigator.language.split('-')[0];
         lang = /(es|en)/gi.test(lang) ? lang : 'en';
-        translate.setDefaultLang('en');
-        translate.use(lang);
+        _translate.setDefaultLang('en');
+        _translate.use(lang);
     }
 
     ngOnInit(): void {
-        this.store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
+        this._store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
             if (alerts && alerts.length) {
                 alerts.map((alertNot: any) => {
                     if (alertNot.notranslate) {
@@ -46,7 +46,7 @@ export class AppComponent {
                     } else {
                         const title = 'ALERTS.' + alertNot.title;
                         const description = 'ALERTS.' + alertNot.description;
-                        this.translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
+                        this._translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
                             this._alertService.notifyAlert(value[title], value[description], alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
                         });
                     }
