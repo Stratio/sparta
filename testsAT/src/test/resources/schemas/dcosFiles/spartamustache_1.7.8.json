@@ -45,7 +45,7 @@
     "cert_file": "/etc/ssl/cert.pem",
     "ca_file": "/etc/ssl/ca.bundle",
     "verifyhost": "sparta.marathon.mesos",
-    "nginx_proxy": true
+    "nginx_proxy": false
   },
   "Hdfs": {
     "generate_hdfs_conf_from_dfs": true,

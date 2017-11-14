@@ -33,12 +33,9 @@ public class SPARTA_1196_StreamingListWorkflows_IT extends BaseTest {
         this.browser = browser;
     }
 
-    //@Test(enabled = true,groups = {"dcos_streaming"}, dependsOnGroups = {"dcos_executions"})
-    @Test(enabled = true,groups = {"dcos_streaming"})
+    @Test(enabled = true,groups = {"dcos_streaming"}, dependsOnGroups = {"dcos_executions"})
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
-
 
 }

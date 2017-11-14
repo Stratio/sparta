@@ -119,7 +119,7 @@ hose {
             | -DDOCKER_URL=qa.stratio.com/stratio/sparta
             | -DDCOS_SERVICE_NAME=sparta-server
             | -DFORCEPULLIMAGE=false    
-            | -DZK_URL=zk-0001-zkuserland.service.paas.labs.stratio.com:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181
+            | -DZK_URL=zk-0001.zkuserland.mesos:2181,zk-0002.zkuserland.mesos:2181,zk-0003.zkuserland.mesos:2181
             | -DMARATHON_SSO_CLIENT_ID=adminrouter_paas-master-1.node.paas.labs.stratio.com
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
@@ -137,8 +137,9 @@ hose {
             | -DSELENIUM_GRID=selenium.cd:4444
             | -DFORCE_BROWSER=chrome_48%%JUID
             | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
+            | -Dquietasdefault=false
             """
     INSTALL = { config ->
-        doAT(conf: config, groups: ['dcos_instalation','dcos_executions'])
+        doAT(conf: config, groups: ['dcos_instalation','dcos_executions','dcos_streaming'])
      }
 }
