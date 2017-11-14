@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0 (upcoming)
+
+* Pending changelog
+
 ## 1.8.0 (upcoming)
 
 * Front refactor.
