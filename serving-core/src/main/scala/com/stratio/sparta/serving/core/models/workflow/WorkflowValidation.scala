@@ -46,7 +46,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
       else Option(edge)
     )
 
-    if (wrongEdges.isEmpty) this
+    if (wrongEdges.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
     else copy(
       valid = false,
       messages = messages :+ s"The workflow has relations that not exists in nodes: ${wrongEdges.mkString(" , ")}"
@@ -56,11 +56,14 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
   def validateGraphIsAcyclic(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
     val cycle = graph.findCycle
 
-    if (cycle.isEmpty) this
+    if (cycle.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
     else copy(
       valid = false,
-      messages = messages :+ s"The workflow contains one or more cycles" +
-        s"${if (cycle.isDefined) ": " + cycle.get.mkString(",") else "!"}"
+      messages = messages :+ s"The workflow contains one or more cycles" + {
+        if (cycle.isDefined)
+          s"${": " + cycle.get.nodes.toList.map(node => node.value.asInstanceOf[NodeGraph].name).mkString(",")}"
+        else "!"
+      }
     )
   }
 
