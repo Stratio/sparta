@@ -4,7 +4,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    When I run 'dcos task | grep pg_0001 | awk '{print $2}'' in the ssh connection and save the value in environment variable 'pgIP'
+    When I run 'dcos task | grep pg-0001 | awk '{print $2}'' in the ssh connection and save the value in environment variable 'pgIP'
     Then I wait '10' seconds
 
   #********************
@@ -24,6 +24,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     Then I run 'docker ps | grep postgresql-community | awk '{print $1}'' in the ssh connection and save the value in environment variable 'postgresDocker'
     And I wait '10' seconds
+    And I run 'echo !{postgresDocker}' locally
 
   Scenario:[SPARTA-1279][03] Create sparta user in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
@@ -103,7 +104,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "select count(*) as total  from tabletest"' in the ssh connection and save the value in environment variable 'postgresresult'
 
 
-  @ignore @manual
+  @runOnEnv(DELETE_POSTGRES_INFO)
   Scenario:[SPARTA-1279][11] delete user and table in postgres
     #Delete postgres table
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'

@@ -228,7 +228,7 @@
       "name": "postgres",
       "type": "Postgres",
       "configuration": {
-        "url": "jdbc:postgresql://pg_0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
+        "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
         "postgresSaveMode": "STATEMENT",
         "batchsize": "",
         "isolationLevel": "READ_UNCOMMITTED",
