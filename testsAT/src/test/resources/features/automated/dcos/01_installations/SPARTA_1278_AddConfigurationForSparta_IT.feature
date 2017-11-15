@@ -1,18 +1,17 @@
 Feature: [SPARTA-1273]Add Initial Configuration for Sparta
 
   @loop(PRIVATE_AGENTS_LIST,AGENT_IP)
-  Scenario:[SPARTA-1273][Scenario-1][01][Setup]Create sparta-server user in all private agents
+  Scenario:[SPARTA-1273][01]Create sparta-server user in all private agents
     Given I open a ssh connection to '<AGENT_IP>' with user 'root' and password 'stratio'
     When I run 'echo $(useradd ${DCOS_SERVICE_NAME})' in the ssh connection
 
   @loop(MASTERS_LIST,MASTER_IP)
-  Scenario:[SPARTA-1273][Scenario-1][01][Setup]Modify registerService.xml for sparta Auth in all master agents
+  Scenario:[SPARTA-1273][02]Modify registerService.xml for sparta Auth in all master agents
     Given I open a ssh connection to '<MASTER_IP>' with user 'root' and password 'stratio'
     #add sparta-node in RegisterService.xml
     When I run 'sed -i '/<\/util:list>/i <bean class="org.jasig.cas.support.oauth.services.OAuthRegisteredService" p:id="${IDNODE}" p:name="${DCOS_SERVICE_NAME}" p:description="A service for sparta-server running in DCOS" p:serviceId="https://sparta.${CLUSTER_ID}.labs.stratio.com/${DCOS_SERVICE_NAME}/login" p:bypassApprovalPrompt="true" p:clientId="${DCOS_SERVICE_NAME}-oauth-id" p:clientSecret="${CLIENTSECRET}"/>' /etc/sds/gosec-sso/cas/spring-configuration/register-services.xml' in the ssh connection
     #Restart Gosec
-    And I run 'echo $(service gosec-sso restart)' in the ssh connection
-    Then the command output contains 'OK'
+    And I run 'echo $(systemctl restart  gosec-sso.service)' in the ssh connection
     And I wait '15' seconds
     # Mvn example:
     # mvn verify -DCLUSTER_ID=nightly -DDCOS_SERVICE_NAME=sparta-server -DMASTERS_LIST=10.200.0.156 -DPRIVATE_AGENTS_LIST=10.200.0.161,10.200.0.162,10.200.0.181,10.200.0.182,10.200.0.183,10.200.0.160 -DDCOS_CLI_HOST=dcos-nigthly.demo.stratio.com -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1273_AddConfigurationForSparta_IT -DIDNODE=525

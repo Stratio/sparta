@@ -79,7 +79,7 @@ Feature: [SPARTA-1182]Instalation sparta with mustache
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_POLICY_ZK}'
     Then the service response status must be '200'
 
-  @ignore @manual
+  @runOnEnv(DELETE_SPARTA_POLICY)
   Scenario: [SPARTA-1182][05]Delete Sparta Policy
     When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
     Then the service response status must be '200'
