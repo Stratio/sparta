@@ -187,13 +187,13 @@ export class SpartaBackups implements OnInit, OnDestroy {
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
         public breadcrumbMenuService: BreadcrumbMenuService) {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
-        const deleteBackupModalTitle: string = 'DASHBOARD.DELETE_BACKUP_TITLE';
-        const deleteBackupModalMessage: string = 'DASHBOARD.DELETE_BACKUP_MESSAGE';
-        const executeBackupModalTitle: string = 'DASHBOARD.EXECUTE_BACKUP_TITLE';
-        const deleteMetadataModalTitle: string = 'DASHBOARD.DELETE_METADATA_TITLE';
-        const deleteMetadataModalMessage: string = 'DASHBOARD.DELETE_METADATA_MESSAGE';
-        const deleteAllBackupsModalTitle: string = 'DASHBOARD.DELETE_ALL_BACKUPS_TITLE';
-        const deleteAllBackupsModalMessage: string = 'DASHBOARD.DELETE_ALL_BACKUPS_MESSAGE';
+        const deleteBackupModalTitle = 'DASHBOARD.DELETE_BACKUP_TITLE';
+        const deleteBackupModalMessage = 'DASHBOARD.DELETE_BACKUP_MESSAGE';
+        const executeBackupModalTitle = 'DASHBOARD.EXECUTE_BACKUP_TITLE';
+        const deleteMetadataModalTitle = 'DASHBOARD.DELETE_METADATA_TITLE';
+        const deleteMetadataModalMessage = 'DASHBOARD.DELETE_METADATA_MESSAGE';
+        const deleteAllBackupsModalTitle = 'DASHBOARD.DELETE_ALL_BACKUPS_TITLE';
+        const deleteAllBackupsModalMessage = 'DASHBOARD.DELETE_ALL_BACKUPS_MESSAGE';
 
         this.translate.get([deleteBackupModalTitle, deleteBackupModalMessage, executeBackupModalTitle,
             deleteAllBackupsModalTitle, deleteAllBackupsModalMessage, deleteMetadataModalTitle, deleteMetadataModalMessage]).subscribe(

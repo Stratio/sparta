@@ -46,6 +46,9 @@ export class CrossdataTables implements OnInit, OnDestroy {
     public showTemporaryTables = false;
     public selectedDatabase = '';
     public selectedTables: Array<string> = [];
+    public searchedTable = '';
+    public debounce = 100;
+    public minLength = 1;
     public orderBy = '';
     public sortOrder = true;
     public onChangeValue(event: boolean) {
@@ -84,7 +87,7 @@ export class CrossdataTables implements OnInit, OnDestroy {
     constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
     onSearchResult(event: string) {
-
+        this.store.dispatch(new crossdataActions.FilterTablesAction(event));
     }
 
     reloadDatabases() {
@@ -93,8 +96,10 @@ export class CrossdataTables implements OnInit, OnDestroy {
     }
 
     changeOrder($event: any): void {
-        this.orderBy = $event.orderBy;
-        this.sortOrder = $event.type;
+        this.store.dispatch(new crossdataActions.ChangeTablesOrderAction({
+            orderBy: $event.orderBy,
+            sortOrder: $event.type
+        }));
     }
 
     checkRow(isChecked: boolean, value: any) {

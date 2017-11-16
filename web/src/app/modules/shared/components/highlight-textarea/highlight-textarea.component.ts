@@ -178,6 +178,9 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
   // When value is received from outside
   writeValue(value: any): void {
+    if(!value) {
+      value = '';
+    }
     if (typeof value === 'object') {
       value = JSON.stringify(value, null, 4);
     }

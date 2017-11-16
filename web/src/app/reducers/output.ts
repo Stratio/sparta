@@ -16,11 +16,14 @@
 
 import { OutputType } from 'app/models/output.model';
 import * as outputActions from 'actions/output';
+import { orderBy } from '../utils';
 
 export interface State {
     outputList: Array<OutputType>;
     selectedDisplayOption: string;
     editedOutput: any;
+    sortOrder: boolean;
+    orderBy: string;
     selectedOutputs: Array<OutputType>;
     selectedOutputsIds: Array<string>;
     isSaved: boolean;
@@ -30,6 +33,8 @@ const initialState: State = {
     outputList: [],
     selectedDisplayOption: 'BLOCKS',
     editedOutput: {},
+    sortOrder: true,
+    orderBy: 'name',
     selectedOutputs: [],
     selectedOutputsIds: [],
     isSaved: false
@@ -97,7 +102,15 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 isSaved: false,
                 selectedOutputs: [],
-                selectedOutputsIds: []
+                selectedOutputsIds: [],
+                sortOrder: true,
+                orderBy: 'name'
+            });
+        }
+        case outputActions.CHANGE_ORDER: {
+            return Object.assign({}, state, {
+                orderBy: action.payload.orderBy,
+                sortOrder: action.payload.sortOrder
             });
         }
         default:
@@ -105,7 +118,9 @@ export function reducer(state: State = initialState, action: any): State {
     }
 }
 
-export const getOutputList: any = (state: State) => state.outputList;
+export const getOutputList: any = (state: State) => {
+    return orderBy(Object.assign([], state.outputList), state.orderBy, state.sortOrder);
+};
 export const getSelectedOutputs: any = (state: State) => {
     return {
         selected: state.selectedOutputs,

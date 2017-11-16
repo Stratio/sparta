@@ -40,20 +40,39 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     public queryError: string = '';
     public queryResultSubscription: Subscription;
     public queryErrorSubscription: Subscription;
+    public currentPage = 1;
+    public perPage = 10;
 
     public showResult = false;
 
     public executeQuery() {
         this.fields = [];
+        this.results = [];
+        this.currentPage = 1;
         if (this.sqlQuery.length) {
             this.store.dispatch(new crossdataActions.ExecuteQueryAction(this.sqlQuery));
         }
     }
 
+
+    public changePage($event: any) {
+        this.currentPage = $event.currentPage;
+    }
+
+    public toString(value: any) {
+        if (typeof value === 'object') {
+            return JSON.stringify(value);
+        } else {
+            return value;
+        }
+    }
+
     ngOnInit() {
         this.queryResultSubscription = this.store.select(fromRoot.getQueryResult).subscribe((result: any) => {
-            if (result && result.length) {
+            if (result) {
                 this.showResult = true;
+            }
+            if (result && result.length) {
                 const row = result[0];
                 const fields: StTableHeader[] = [];
                 Object.keys(row).forEach(key => {
@@ -65,24 +84,20 @@ export class CrossdataQueries implements OnInit, OnDestroy {
                 });
                 this.fields = fields;
                 this.results = result;
-                this._cd.detectChanges();
             }
+            this._cd.detectChanges();
         });
 
         this.queryErrorSubscription = this.store.select(fromRoot.getQueryError).subscribe((error: any) => {
             this.queryError = error;
+            this._cd.detectChanges();
         });
     }
 
-    constructor(private store: Store<fromRoot.State>,  private _cd: ChangeDetectorRef) {}
+    constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
     ngOnDestroy(): void {
         this.queryResultSubscription && this.queryResultSubscription.unsubscribe();
         this.queryErrorSubscription && this.queryErrorSubscription.unsubscribe();
     }
-
-
-
-
-
 }

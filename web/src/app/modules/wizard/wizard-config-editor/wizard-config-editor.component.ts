@@ -55,6 +55,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
     public settingsFormModel: any = {}; // advanced settings
+
     public activeOption = 'Global';
     public options: StHorizontalTab[] = [{
         id: 'Global',

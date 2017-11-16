@@ -20,13 +20,12 @@ import { EgeoModule, StModalModule } from '@stratio/egeo';
 import {
     WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
     WizardEditorComponent, WizardEditorService, WizardBoxComponent,
-    DraggableSvgDirective, WizardSegmentComponent, SelectedEntityComponent
+    DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
 import { DndModule } from 'ng2-dnd';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
-import { EntityWriterComponent } from '@app/wizard/wizard-config-editor/entity-writer/entity.writer.component';
 import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details/wizard-details.component';
 
 
@@ -38,11 +37,10 @@ import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details
         WizardBoxComponent,
         WizardDetailsComponent,
         DraggableSvgDirective,
-        WizardSegmentComponent,
+        WizardEdgeComponent,
         WizardConfigEditorComponent,
         SelectedEntityComponent,
-        WizardModalComponent,
-        EntityWriterComponent
+        WizardModalComponent
     ],
     imports: [
         EgeoModule.forRoot(),

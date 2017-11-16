@@ -28,7 +28,7 @@
                      [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
                      class="input-field"></sp-textarea>
                   <div *ngIf="!editMode">
-                     <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.INPUT_TYPE' | translate}}"
+                     <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{(stepType === 'Input' ? 'DASHBOARD.INPUT_TYPE' : 'DASHBOARD.OUTPUT_TYPE') | translate}}"
                         name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></sp-select>
                   </div>
                </div>

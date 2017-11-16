@@ -38,7 +38,7 @@ export const UPDATE_OUTPUT_COMPLETE = '[Output] Update output complete';
 export const UPDATE_OUTPUT_ERROR = '[Output] Update output error';
 export const RESET_OUTPUT_FORM = '[Output] Reset output form';
 export const VALIDATE_OUTPUT_NAME = '[Output] Validate output name';
-
+export const CHANGE_ORDER = '[Output] Change order';
 
 export class ListOutputAction implements Action {
   readonly type = LIST_OUTPUT;
@@ -155,6 +155,12 @@ export class ResetOutputFormAction implements Action {
   readonly type = RESET_OUTPUT_FORM;
 }
 
+export class ChangeOrderAction implements Action {
+  readonly type = CHANGE_ORDER;
+  constructor(public payload: any) { }
+}
+
+
 export type Actions =
   ListOutputAction |
   ListOutputFailAction |
@@ -175,5 +181,6 @@ export type Actions =
   UpdateOutputCompleteAction |
   UpdateOutputErrorAction |
   DisplayModeAction |
-  ResetOutputFormAction;
+  ResetOutputFormAction |
+  ChangeOrderAction;
 

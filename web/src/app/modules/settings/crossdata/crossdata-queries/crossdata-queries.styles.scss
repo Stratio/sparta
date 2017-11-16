@@ -1,3 +1,5 @@
+@import '~@stratio/egeo/theme/constants';
+
 :host {
    display: block;
    width: 100%;
@@ -25,4 +27,11 @@
 .error {
    display: block;
    margin-top: 20px;
+}
+
+.success{
+    margin-left:10px;
+    color:$status-success-hover;
+    font-family: "Nunito Sans Bold";
+    font-size: 15px;
 }

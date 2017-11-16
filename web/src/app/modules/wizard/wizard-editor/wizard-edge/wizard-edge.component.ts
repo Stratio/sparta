@@ -26,12 +26,12 @@ import { ENTITY_BOX } from '../../wizard.constants';
 import * as wizardActions from 'actions/wizard';
 
 @Component({
-    selector: '[wizard-segment]',
-    styleUrls: ['wizard-segment.styles.scss'],
-    templateUrl: 'wizard-segment.template.html',
+    selector: '[wizard-edge]',
+    styleUrls: ['wizard-edge.styles.scss'],
+    templateUrl: 'wizard-edge.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WizardSegmentComponent implements OnInit, OnDestroy {
+export class WizardEdgeComponent implements OnInit, OnDestroy {
 
     @Input() initialEntityName: string;
     @Input() finalEntityName: string;

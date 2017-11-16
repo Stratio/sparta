@@ -1,4 +1,3 @@
-import { ShowTemporaryTablesAction } from '../actions/crossdata';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -16,6 +15,7 @@ import { ShowTemporaryTablesAction } from '../actions/crossdata';
 ///
 
 import * as crossdataActions from 'actions/crossdata';
+import { orderBy } from '../utils';
 
 export interface State {
     databases: Array<any>;
@@ -25,17 +25,22 @@ export interface State {
     queryError: '';
     selectedDatabase: string;
     showTemporaryTables: boolean;
-
+    tablesSortOrder: boolean;
+    tablesOrderBy: string;
+    searchTables: string;
 };
 
 const initialState: State = {
     databases: [],
     tableList: [],
     selectedTables: [],
-    queryResult: [],
+    queryResult: null,
     selectedDatabase: 'default',
     showTemporaryTables: false,
-    queryError: ''
+    searchTables: '',
+    queryError: '',
+    tablesSortOrder: true,
+    tablesOrderBy: 'name'
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -53,7 +58,7 @@ export function reducer(state: State = initialState, action: any): State {
         case crossdataActions.EXECUTE_QUERY_COMPLETE: {
             return Object.assign({}, state, {
                 queryResult: action.payload,
-                 queryError: ''
+                queryError: ''
             });
         }
         case crossdataActions.EXECUTE_QUERY_ERROR: {
@@ -64,6 +69,17 @@ export function reducer(state: State = initialState, action: any): State {
         case crossdataActions.SHOW_TEMPORARY_TABLES: {
             return Object.assign({}, state, {
                 showTemporaryTables: action.payload
+            });
+        }
+        case crossdataActions.CHANGE_TABLES_ORDER: {
+            return Object.assign({}, state, {
+                tablesOrderBy: action.payload.orderBy,
+                tablesSortOrder: action.payload.sortOrder
+            });
+        }
+        case crossdataActions.FILTER_TABLES: {
+            return Object.assign({}, state, {
+                searchTables: action.payload
             });
         }
         case crossdataActions.SELECT_DATABASE: {
@@ -98,7 +114,7 @@ export function reducer(state: State = initialState, action: any): State {
                     if (info[0].hasOwnProperty(property)) {
                         fields.push({
                             id: property,
-                            label: property, 
+                            label: property,
                             sortable: false
                         });
                     }
@@ -124,12 +140,25 @@ export function reducer(state: State = initialState, action: any): State {
 }
 
 export const getTableList: any = (state: State) => {
-    if (state.showTemporaryTables) {
-        return state.tableList;
-    } else {
-        return state.tableList.filter((table: any) => {
+    const tables = orderBy(Object.assign([],
+        state.showTemporaryTables ? state.tableList : state.tableList.filter((table: any) => {
             return !(table.isTemporary);
+        })), state.tablesOrderBy, state.tablesSortOrder);
+
+    if (state.searchTables.length) {
+        const filterFields = ['name', 'database', 'tableType', 'isTemporary'];
+        return tables.filter((table: any) => {
+            for (let i = 0; i < filterFields.length; i++) {
+                let value = table[filterFields[i]];
+                value = value ? value.toString().toUpperCase() : '';
+                if (value.indexOf(state.searchTables.toUpperCase()) > -1) {
+                    return true;
+                }
+            };
+            return false;
         });
+    } else {
+        return tables;
     }
 };
 export const getSelectedTables: any = (state: State) => state.selectedTables;

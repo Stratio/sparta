@@ -67,6 +67,13 @@ export class InputsComponent extends TemplatesBaseComponent {
         }
     }
 
+    changeOrder($event: any): void {
+         this.store.dispatch(new inputActions.ChangeOrderAction({
+            orderBy: $event.orderBy,
+            sortOrder: $event.type
+        }));
+    }
+
     // @Override: abstract method implementation
     changeDisplayOption(): void {
         this.store.dispatch(new inputActions.DisplayModeAction());

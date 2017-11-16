@@ -20,6 +20,6 @@ export * from './wizard-editor/wizard-editor.component';
 export * from './wizard-editor/wizard-box/wizard-box.component';
 export * from './wizard-editor/draggable-element.directive';
 export * from './wizard-editor/wizard-editor.sevice';
-export * from './wizard-editor/wizard-segment/wizard-segment.component';
+export * from './wizard-editor/wizard-edge/wizard-edge.component';
 export * from './wizard-config-editor/wizard-config-editor.component';
 export * from './components';

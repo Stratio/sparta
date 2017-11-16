@@ -7,7 +7,7 @@
          <svg:g id="svg-container">
 
             <g *ngFor="let relation of workflowRelations; trackBy: trackBySegmentFn; let i=index;" 
-               wizard-segment 
+               wizard-edge
                [initialEntityName]="relation.origin.name" 
                [finalEntityName]="relation.destination.name"
                [selectedSegment]="selectedSegment" 

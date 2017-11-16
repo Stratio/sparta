@@ -154,9 +154,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.SVGParent = d3.select(this.elementRef.nativeElement).select('#composition');
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
         this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
-
+        function deltaFn () {
+            return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 7) / 2500;
+        }
         this.zoom = d3.zoom()
             .scaleExtent([1 / 8, 3])
+            .wheelDelta(deltaFn)
             .on('zoom', undefined);
 
         this.drag = d3.drag()
@@ -364,10 +367,10 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             });
         }
         if (this.selectedSegment) {
-             this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-           /* this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
-                this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-            });*/
+            this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+            /* this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
+                 this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
+             });*/
         }
     }
 

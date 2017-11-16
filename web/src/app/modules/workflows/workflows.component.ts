@@ -50,9 +50,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
     public menuOptions: any = [];
-    public orderBy = 'name';
     public executionInfo = '';
-    public sortOrder = true;
     public showExecutionInfo = false;
 
     private tasksSubscription: Subscription;

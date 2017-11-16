@@ -25,6 +25,8 @@ export const GET_DATABASES_COMPLETE = '[Crossdata] Get databases complete';
 export const GET_DATABASES_ERROR = '[Crossdata] Get databases error';
 export const GET_TABLE_INFO = '[Crossdata] Get Crossdata table info';
 export const GET_TABLE_INFO_COMPLETE = '[Crossdata] Get Crossdata table info complete';
+export const CHANGE_TABLES_ORDER = '[Crossdata] Change tables order';
+export const FILTER_TABLES = '[Crossdata] Filter tables';
 export const GET_TABLE_INFO_ERROR = '[Crossdata] Get Crossdata table info error';
 export const EXECUTE_QUERY = '[Crossdata] Execute query';
 export const EXECUTE_QUERY_COMPLETE = '[Crossdata] Execute query complete';
@@ -134,6 +136,16 @@ export class ListDatabaseTablesErrorAction implements Action {
     readonly type = LIST_DATABASE_TABLES_ERROR;
 }
 
+export class ChangeTablesOrderAction implements Action {
+  readonly type = CHANGE_TABLES_ORDER;
+  constructor(public payload: any) { }
+}
+
+export class FilterTablesAction implements Action {
+    readonly type = FILTER_TABLES;
+    constructor(public payload: any) {}
+}
+
 export class SelectTableAction implements Action {
     readonly type = SELECT_TABLE;
     constructor(public payload: any) { }
@@ -164,4 +176,6 @@ export type Actions =
     ListDatabaseTablesCompleteAction |
     ListDatabaseTablesErrorAction |
     UnselectTableAction |
-    SelectTableAction;
+    SelectTableAction |
+    ChangeTablesOrderAction |
+    FilterTablesAction;

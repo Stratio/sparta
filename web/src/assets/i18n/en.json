@@ -107,12 +107,14 @@
       "EXECUTE_QUERY": "Execute query",
       "SQL_QUERY": "SQL query",
       "INPUT_TYPE": "Input type",
+      "OUTPUT_TYPE": "Output type",
       "CATALOG": "Catalog",
       "CATALOG_DESCRIPTION": "Retrieve Crossdata databases and tables catalog.",
       "QUERIES": "Queries",
       "QUERIES_DESCRIPTION": "Execute queries in Crossdata.",
       "CROSSDATA": "Crossdata",
-      "EXECUTE_QUERY_OK": "Executed SQL: ({{rows}} rows returned)"
+      "EXECUTE_QUERY_OK": "Executed SQL: ({{rows}} rows returned)",
+      "EXECUTE_QUERY_OK_NO_LIST": "Query completed succesfully."
    },
    "SETTINGS": {
       "_NAME_": "Name",

@@ -41,11 +41,11 @@ export class MenuService {
                 {
                     label: 'Outputs',
                     link: DASHBOARD_ROUTES.OUTPUTS
-                },
+                }/*,
                 {
                     label: 'Transformations',
                     link: DASHBOARD_ROUTES.TRANSFORMATIONS
-                }
+                }*/
             ]
         },
         {

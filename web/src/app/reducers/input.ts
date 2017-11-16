@@ -16,11 +16,14 @@
 
 import { InputType } from 'app/models/input.model';
 import * as inputActions from 'actions/input';
+import { orderBy } from '../utils';
 
 export interface State {
     inputList: Array<InputType>;
     selectedDisplayOption: string;
     editedInput: any;
+    sortOrder: boolean;
+    orderBy: string;
     selectedInputs: Array<InputType>;
     selectedInputsIds: Array<string>;
     isSaved: boolean;
@@ -31,6 +34,8 @@ const initialState: State = {
     selectedDisplayOption: 'BLOCKS',
     editedInput: {},
     selectedInputs: [],
+    sortOrder: true,
+    orderBy: 'name',
     selectedInputsIds: [],
     isSaved: false
 };
@@ -97,7 +102,15 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 isSaved: false,
                 selectedInputs: [],
-                selectedInputsIds: []
+                selectedInputsIds: [],
+                sortOrder: true,
+                orderBy: 'name',
+            });
+        }
+        case inputActions.CHANGE_ORDER: {
+            return Object.assign({}, state, {
+                orderBy: action.payload.orderBy,
+                sortOrder: action.payload.sortOrder
             });
         }
         default:
@@ -105,7 +118,9 @@ export function reducer(state: State = initialState, action: any): State {
     }
 }
 
-export const getInputList: any = (state: State) => state.inputList;
+export const getInputList: any = (state: State) => {
+    return orderBy(Object.assign([], state.inputList), state.orderBy, state.sortOrder);
+};
 export const getSelectedInputs: any = (state: State) => {
     return {
         selected: state.selectedInputs,

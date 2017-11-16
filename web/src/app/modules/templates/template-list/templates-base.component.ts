@@ -117,11 +117,6 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         this.route.navigate(['edit'], { relativeTo: this.currentActivatedRoute });
     }
 
-    changeOrder($event: any): void {
-        this.orderBy = $event.orderBy;
-        this.sortOrder = $event.type;
-    }
-
     checkRow(isChecked: boolean, value: any) {
         this.onCheckedTemplate({
             checked: isChecked,

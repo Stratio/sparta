@@ -2,7 +2,12 @@
    <div class="filters">
       <sp-select [options]="databases" qaTag="database-selection" label="{{'DASHBOARD.DATABASE' | translate}}" name="fragmentType"
          (change)="getTablesFromDatabase($event)" class="database-selector" [(ngModel)]="selectedDatabase"></sp-select>
-      <st-search class="search-input" [placeholder]="'DASHBOARD.FILTER_TABLES' | translate" [qaTag]="'filter-tables'" (onSearch)="onSearchResult($event)">
+      <st-search class="search-input" [placeholder]="'DASHBOARD.FILTER_TABLES' | translate" 
+        [debounce]="debounce" 
+        [minLength]="minLength"
+        [value]="searchedTable"
+        (search)="onSearchResult($event)" 
+        [qaTag]="'filter-tables'">
       </st-search>
       <button class="button button-toolbar reload" (click)="reloadDatabases()">
           <i class="icon-repeat"></i>
@@ -12,7 +17,7 @@
       </st-switch>
    </div>
    <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" (changeOrder)="changeOrder($event)">
-      <ng-container *ngFor="let table of tableList$ | async | orderBy:orderBy:sortOrder;">
+      <ng-container *ngFor="let table of tableList$ | async">
          <tr st-table-row [selected]="selectedTables.indexOf(table.name)>-1" (click)="checkRow(!((selectedTables.indexOf(table.name)) > -1), table)" class="select-row">
             <td st-table-cell st-table-row-content>
                <st-checkbox [value]="table" (change)="checkValue($event)" [checked]="selectedTables.indexOf(table.name) > -1"></st-checkbox>

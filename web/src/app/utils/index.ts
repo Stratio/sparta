@@ -40,8 +40,12 @@ export function generateJsonFile(name: string, content: any) {
 export function orderBy(array: Array<any>, orderProperty: string, order: boolean): Array<any> {
   const orderAux = order ? 1 : -1;
   array.sort((a: any, b: any) => {
-    const avalue = getOrderProperyValue(a, orderProperty);
-    const bvalue = getOrderProperyValue(b, orderProperty);
+    let avalue = getOrderProperyValue(a, orderProperty);
+    let bvalue = getOrderProperyValue(b, orderProperty);
+
+    avalue = avalue ? avalue.toString().toUpperCase() : '';
+    bvalue = bvalue ? bvalue.toString().toUpperCase() : '';
+
     if (avalue < bvalue) {
       return -(orderAux);
     } else if (avalue > bvalue) {

@@ -79,7 +79,9 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.REMOVE_WORKFLOW_SELECTION: {
       return Object.assign({}, state, {
         selectedWorkflows: [],
-        selectedWorkflowsIds: []
+        selectedWorkflowsIds: [],
+        sortOrder: true,
+        orderBy: 'name'
       });
     }
     case workflowActions.SELECT_WORKFLOW: {

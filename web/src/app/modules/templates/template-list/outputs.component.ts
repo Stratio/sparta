@@ -66,6 +66,13 @@ export class OutputsComponent extends TemplatesBaseComponent {
         }
     }
 
+    changeOrder($event: any): void {
+         this.store.dispatch(new outputActions.ChangeOrderAction({
+            orderBy: $event.orderBy,
+            sortOrder: $event.type
+        }));
+    }
+
     // abstract method implementation
     changeDisplayOption(): void {
         this.store.dispatch(new outputActions.DisplayModeAction());

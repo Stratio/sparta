@@ -38,7 +38,7 @@ export const UPDATE_INPUT_COMPLETE = '[Input] Update input complete';
 export const UPDATE_INPUT_ERROR = '[Input] Update input error';
 export const RESET_INPUT_FORM = '[Input] Reset input form';
 export const VALIDATE_INPUT_NAME = '[Input] Validate input name';
-
+export const CHANGE_ORDER = '[Input] Change order';
 
 export class ListInputAction implements Action {
   readonly type = LIST_INPUT;
@@ -157,6 +157,11 @@ export class ResetInputFormAction implements Action {
   readonly type = RESET_INPUT_FORM;
 }
 
+export class ChangeOrderAction implements Action {
+  readonly type = CHANGE_ORDER;
+  constructor(public payload: any) { }
+}
+
 export type Actions =
   ListInputAction |
   ListInputFailAction |
@@ -177,4 +182,5 @@ export type Actions =
   UpdateInputCompleteAction |
   UpdateInputErrorAction |
   DisplayModeAction |
-  ResetInputFormAction;
+  ResetInputFormAction |
+  ChangeOrderAction;

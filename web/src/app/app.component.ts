@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
@@ -29,7 +29,10 @@ import { StAlertsService } from '@stratio/egeo';
     templateUrl: './app.template.html'
 })
 
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+
+    private _alertSubscription: Subscription;
+
     constructor(private _translate: TranslateService, private _store: Store<fromRoot.State>, private _alertService: StAlertsService, ) {
         let lang: string = navigator.language.split('-')[0];
         lang = /(es|en)/gi.test(lang) ? lang : 'en';
@@ -38,7 +41,7 @@ export class AppComponent {
     }
 
     ngOnInit(): void {
-        this._store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
+        this._alertSubscription = this._store.select(fromRoot.getCurrentAlert).subscribe((alerts: any) => {
             if (alerts && alerts.length) {
                 alerts.map((alertNot: any) => {
                     if (alertNot.notranslate) {
@@ -53,5 +56,9 @@ export class AppComponent {
                 });
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this._alertSubscription && this._alertSubscription.unsubscribe();
     }
 }
