@@ -16,16 +16,13 @@
 
 import { createSelector } from 'reselect';
 import { ActionReducer, combineReducers } from '@ngrx/store';
-import { compose, ActionReducerMap } from '@ngrx/store';
-import { WorkflowsType as WorkflowsTypeState } from '../models/workflow.model';
-import { InputType as InputTypeState } from '../models/input.model';
-import { OutputType as OutputTypeState } from '../models/output.model';
-import { BackupType as BackupTypeState } from '../models/backup.model';
-import { createECDH } from 'crypto';
+import { ActionReducerMap } from '@ngrx/store';
+
 
 import * as fromWorkflow from './workflow.reducer';
 import * as fromInput from './input';
 import * as fromOutput from './output';
+import * as fromTransformation from './transformation';
 import * as fromBackups from './backups';
 import * as fromResources from './resources';
 import * as fromCrossdata from './crossdata';
@@ -36,6 +33,7 @@ export interface State {
     workflows: fromWorkflow.State;
     inputList: fromInput.State;
     outputList: fromOutput.State;
+    transformationList: fromTransformation.State;
     backups: fromBackups.State;
     resources: fromResources.State;
     crossdata: fromCrossdata.State;
@@ -47,11 +45,12 @@ export const reducers: ActionReducerMap<State> = {
     workflows: fromWorkflow.reducer,
     inputList: fromInput.reducer,
     outputList: fromOutput.reducer,
+    transformationList: fromTransformation.reducer,
     backups: fromBackups.reducer,
     resources: fromResources.reducer,
     crossdata: fromCrossdata.reducer,
     alerts: fromAlerts.reducer,
-    wizard: fromWizard.reducer
+    wizard: fromWizard.reducer,
 };
 
 // const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
@@ -69,6 +68,7 @@ export const getResourcesState: any = (state: State) => state.resources;
 export const getCrossdataState: any = (state: State) => state.crossdata;
 export const getAlertsState: any = (state: State) => state.alerts;
 export const getWizardState: any = (state: State) => state.wizard;
+export const getTransformationState: any = (state: State) => state.transformationList;
 
 
 // workflows
@@ -96,6 +96,12 @@ export const getSelectedOutputDisplayOption: any = createSelector(getOutputListS
 export const getEditedOutput: any = createSelector(getOutputListState, fromOutput.getEditedOutput);
 export const isOutputSaved: any = createSelector(getOutputListState, fromOutput.isOutputSaved);
 
+// transformations
+export const getTransformationList: any = createSelector(getTransformationState, fromTransformation.getTransformationList);
+export const getSelectedTransformations: any = createSelector(getTransformationState, fromTransformation.getSelectedTransformations);
+export const getSelectedTransformationDisplayOption: any = createSelector(getTransformationState, fromTransformation.getSelectedDisplayOption);
+export const getEditedTransformation: any = createSelector(getTransformationState, fromTransformation.getEditedTransformation);
+export const isTransformationSaved: any = createSelector(getTransformationState, fromTransformation.isTransformationSaved);
 
 // backups
 export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);

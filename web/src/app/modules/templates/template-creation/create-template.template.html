@@ -13,9 +13,9 @@
    </tool-bar>
    <div class="container top-separation">
       <div class="row">
-         <div class="col-sm-12">
-            <div class="egeo-title-giant" *ngIf="stepType === 'Input'">{{ (editMode ? 'DASHBOARD.EDIT_INPUT' : 'DASHBOARD.CREATE_INPUT') | translate }}</div>
-            <div class="egeo-title-giant" *ngIf="stepType === 'Output'">{{ (editMode ? 'DASHBOARD.EDIT_OUTPUT' : 'DASHBOARD.CREATE_OUTPUT') | translate }}</div>
+         <div class="col-sm-12 title">
+            <div class="egeo-title-giant" *ngIf="!editMode">{{('DASHBOARD.CREATE_' + stepKey) | translate }}</div>
+            <div class="egeo-title-giant" *ngIf="editMode">{{ 'DASHBOARD.EDIT' | translate }} {{editedTemplateName}}</div>
          </div>
          <br>
          <form #inputForm="ngForm" class="form-group col-sm-12" novalidate autocomplete="off">
@@ -28,7 +28,7 @@
                      [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
                      class="input-field"></sp-textarea>
                   <div *ngIf="!editMode">
-                     <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{(stepType === 'Input' ? 'DASHBOARD.INPUT_TYPE' : 'DASHBOARD.OUTPUT_TYPE') | translate}}"
+                     <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.' + stepKey + '_TYPE' | translate}}"
                         name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></sp-select>
                   </div>
                </div>

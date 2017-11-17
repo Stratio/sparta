@@ -14,12 +14,11 @@
 /// limitations under the License.
 ///
 
-import { InputService } from 'services/input.service';
+import { TemplatesService } from 'services/templates.service';
 import { Injectable } from '@angular/core';
-import { Action, Store } from '@ngrx/store';
+import { Action } from '@ngrx/store';
 
-import { InputType } from 'app/models/input.model';
-import { Effect, Actions, toPayload } from '@ngrx/effects';
+import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as inputActions from 'actions/input';
@@ -32,7 +31,7 @@ export class InputEffect {
     @Effect()
     getInputList$: Observable<Action> = this.actions$
         .ofType(inputActions.LIST_INPUT).switchMap((response: any) => {
-            return this.inputService.getInputList()
+            return this.templatesService.getTemplateList('input')
                 .map((inputList: any) => {
                     return new inputActions.ListInputCompleteAction(inputList);
                 }).catch(function (error: any) {
@@ -47,7 +46,7 @@ export class InputEffect {
         .switchMap((inputs: any) => {
             const joinObservables: Observable<any>[] = [];
             inputs.map((input: any) => {
-                joinObservables.push(this.inputService.deleteInput(input.id));
+                joinObservables.push(this.templatesService.deleteTemplate('input', input.id));
             });
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new inputActions.DeleteInputCompleteAction(inputs), new inputActions.ListInputAction()];
@@ -62,7 +61,7 @@ export class InputEffect {
         .switchMap((data: any) => {
             let input = Object.assign(data.payload);
             delete input.id;
-            return this.inputService.createFragment(input).mergeMap((data: any) => {
+            return this.templatesService.createTemplate(input).mergeMap((data: any) => {
                 return [new inputActions.DuplicateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
                 return Observable.from([new inputActions.DuplicateInputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -73,7 +72,7 @@ export class InputEffect {
     createInput$: Observable<Action> = this.actions$
         .ofType(inputActions.CREATE_INPUT)
         .switchMap((data: any) => {
-            return this.inputService.createFragment(data.payload).mergeMap((data: any) => {
+            return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new inputActions.CreateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
                 return Observable.from([new inputActions.CreateInputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -84,7 +83,7 @@ export class InputEffect {
     updateInput$: Observable<Action> = this.actions$
         .ofType(inputActions.UPDATE_INPUT)
         .switchMap((data: any) => {
-            return this.inputService.updateFragment(data.payload).mergeMap((data: any) => {
+            return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new inputActions.UpdateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
                 return Observable.from([new inputActions.UpdateInputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -93,7 +92,7 @@ export class InputEffect {
 
     constructor(
         private actions$: Actions,
-        private inputService: InputService
+        private templatesService: TemplatesService
     ) { }
 
 }

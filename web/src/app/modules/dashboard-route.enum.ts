@@ -15,13 +15,13 @@
 ///
 
 export const DASHBOARD_ROUTES = {
-   WORKFLOWS: '/workflows',
-   TEMPLATES: '/templates',
-   SETTINGS: '/settings',
-   INPUTS: '/templates/inputs',
-   OUTPUTS: '/templates/outputs',
-   TRANSFORMATIONS: '/templates/transformations',
-  // RESOURCES: '/settings/resources',
-   CROSSDATA: '/settings/crossdata',
-   BACKUPS: '/settings/backups'
+    WORKFLOWS: '/workflows',
+    TEMPLATES: '/templates',
+    SETTINGS: '/settings',
+    INPUTS: '/templates/inputs',
+    OUTPUTS: '/templates/outputs',
+    TRANSFORMATIONS: '/templates/transformations',
+    RESOURCES: '/settings/resources',
+    CROSSDATA: '/settings/crossdata',
+    BACKUPS: '/settings/backups'
 };

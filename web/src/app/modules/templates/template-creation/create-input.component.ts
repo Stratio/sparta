@@ -14,8 +14,8 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
-import { NgForm, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as inputActions from 'actions/input';
@@ -47,6 +47,9 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
     public editMode = false;
     public title = '';
     public stepType = 'Input';
+    public stepKey = 'INPUT';
+    public editedTemplateName = '';
+
     private saveSubscription: Subscription;
 
     constructor(protected store: Store<fromRoot.State>, route: Router, errorsService: ErrorMessagesService,
@@ -64,8 +67,8 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
         });
 
         this.saveSubscription = this.store.select(fromRoot.isInputSaved).subscribe((isSaved) => {
-            if(isSaved) {
-                 this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
+            if (isSaved) {
+                this.route.navigate(['..'], { relativeTo: currentActivatedRoute });
             }
         });
     }
@@ -96,6 +99,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
             }
             this.setEditedTemplateIndex(editedInput.classPrettyName);
             this.inputFormModel = editedInput;
+            this.editedTemplateName = editedInput.name;
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(editedInput.name);
         });
     }

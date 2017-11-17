@@ -14,8 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
-import { StHorizontalTab } from '@stratio/egeo';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectorRef, Input } from '@angular/core';
 
 @Component({
     selector: 'workflow-detail',
@@ -32,26 +31,26 @@ export class WorkflowDetailComponent implements OnInit {
     public transformations: Array<string> = [];
 
     ngOnChanges() {
-       const inputs: Array<string> = [];
-       const outputs: Array<string> = [];
-       const transformations: Array<string> = [];
+        const inputs: Array<string> = [];
+        const outputs: Array<string> = [];
+        const transformations: Array<string> = [];
 
-       if(this.workflowData) {
-        this.workflowData.pipelineGraph.nodes.forEach((node: any) => {
-            if(node.stepType.indexOf('Input') > -1){
-                inputs.push(node.name);
-            } else if(node.stepType.indexOf('Output') > -1) {
-                outputs.push(node.name);
-            } else {
-                transformations.push(node.name);
-            }
-        });
-       }
+        if (this.workflowData) {
+            this.workflowData.pipelineGraph.nodes.forEach((node: any) => {
+                if (node.stepType.indexOf('Input') > -1) {
+                    inputs.push(node.name);
+                } else if (node.stepType.indexOf('Output') > -1) {
+                    outputs.push(node.name);
+                } else {
+                    transformations.push(node.name);
+                }
+            });
+        }
 
-       this.inputs = inputs;
-       this.outputs = outputs;
-       this.transformations = transformations;
-       this._cd.detectChanges();
+        this.inputs = inputs;
+        this.outputs = outputs;
+        this.transformations = transformations;
+        this._cd.detectChanges();
     }
 
     constructor(private _cd: ChangeDetectorRef) { }

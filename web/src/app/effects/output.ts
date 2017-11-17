@@ -14,16 +14,14 @@
 /// limitations under the License.
 ///
 
-import { OutputService } from 'services/output.service';
+import { TemplatesService } from 'services/templates.service';
 import { Injectable } from '@angular/core';
-import { Action, Store } from '@ngrx/store';
-import { OutputType } from 'app/models/output.model';
-import { Effect, Actions, toPayload } from '@ngrx/effects';
+import { Action } from '@ngrx/store';
+import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as outputActions from 'actions/output';
 import * as errorsActions from 'actions/errors';
-
 
 @Injectable()
 export class OutputEffect {
@@ -32,7 +30,7 @@ export class OutputEffect {
     getOutputList$: Observable<Action> = this.actions$
         .ofType(outputActions.LIST_OUTPUT).switchMap((response: any) => {
 
-            return this.outputService.getOutputList()
+            return this.templatesService.getTemplateList('output')
                 .map((outputList: any) => {
                     return new outputActions.ListOutputCompleteAction(outputList);
                 }).catch(function (error: any) {
@@ -47,7 +45,7 @@ export class OutputEffect {
         .switchMap((outputs: any) => {
             const joinObservables: Observable<any>[] = [];
             outputs.map((output: any) => {
-                joinObservables.push(this.outputService.deleteOutput(output.id));
+                joinObservables.push(this.templatesService.deleteTemplate('output', output.id));
             });
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new outputActions.DeleteOutputCompleteAction(outputs), new outputActions.ListOutputAction()];
@@ -62,7 +60,7 @@ export class OutputEffect {
         .switchMap((data: any) => {
             let output = Object.assign(data.payload);
             delete output.id;
-            return this.outputService.createFragment(output).mergeMap((data: any) => {
+            return this.templatesService.createTemplate(output).mergeMap((data: any) => {
                 return [new outputActions.DuplicateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
                 return Observable.from([new outputActions.DuplicateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -74,7 +72,7 @@ export class OutputEffect {
     createOutput$: Observable<Action> = this.actions$
         .ofType(outputActions.CREATE_OUTPUT)
         .switchMap((data: any) => {
-            return this.outputService.createFragment(data.payload).mergeMap((data: any) => {
+            return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
                 return Observable.from([new outputActions.CreateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -85,7 +83,7 @@ export class OutputEffect {
     updateOutput$: Observable<Action> = this.actions$
         .ofType(outputActions.UPDATE_OUTPUT)
         .switchMap((data: any) => {
-            return this.outputService.updateFragment(data.payload).mergeMap((data: any) => {
+            return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
                 return Observable.from([new outputActions.UpdateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
@@ -94,7 +92,7 @@ export class OutputEffect {
 
     constructor(
         private actions$: Actions,
-        private outputService: OutputService
+        private templatesService: TemplatesService
     ) { }
 
 }

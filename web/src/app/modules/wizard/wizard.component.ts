@@ -15,12 +15,13 @@
 ///
 
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { Observable, Subscription } from 'rxjs/Rx';
-import { TranslateService } from '@ngx-translate/core';
-import * as wizardActions from 'actions/wizard';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, Subscription } from 'rxjs/Rx';
+
+import * as fromRoot from 'reducers';
+import * as wizardActions from 'actions/wizard';
 
 
 @Component({
@@ -33,36 +34,36 @@ export class WizardComponent implements OnInit, OnDestroy {
 
     public creationMode$: Observable<any>;
     public editionConfigMode$: Observable<any>;
-    private paramSubscription: Subscription;
-    private saveSubscription: Subscription;
+    private _paramSubscription: Subscription;
+    private _saveSubscription: Subscription;
 
     constructor(
         private _cd: ChangeDetectorRef,
-        private store: Store<fromRoot.State>,
-        private translate: TranslateService,
-        private router: Router,
-        private route: ActivatedRoute) {
+        private _store: Store<fromRoot.State>,
+        private _translate: TranslateService,
+        private _router: Router,
+        private _route: ActivatedRoute) {
     }
 
     ngOnInit(): void {
-        this.store.dispatch(new wizardActions.ResetWizardAction());
-        this.creationMode$ = this.store.select(fromRoot.isCreationMode);
-        this.editionConfigMode$ = this.store.select(fromRoot.getEditionConfigMode);
-        this.paramSubscription = this.route.params.subscribe(params => {
-           if (params && params.id) {
-            this.store.dispatch(new wizardActions.ModifyWorkflowAction(params.id));
-           }
+        this._store.dispatch(new wizardActions.ResetWizardAction());
+        this.creationMode$ = this._store.select(fromRoot.isCreationMode);
+        this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);
+        this._paramSubscription = this._route.params.subscribe(params => {
+            if (params && params.id) {
+                this._store.dispatch(new wizardActions.ModifyWorkflowAction(params.id));
+            }
         });
 
-        this.saveSubscription =  this.store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
-            if(isSaved){
-                this.router.navigate(['']);
+        this._saveSubscription = this._store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
+            if (isSaved) {
+                this._router.navigate(['']);
             }
         });
     }
 
     ngOnDestroy(): void {
-        this.paramSubscription && this.paramSubscription.unsubscribe();
-        this.saveSubscription && this.saveSubscription.unsubscribe();
+        this._paramSubscription && this._paramSubscription.unsubscribe();
+        this._saveSubscription && this._saveSubscription.unsubscribe();
     }
 }

@@ -19,7 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EgeoModule, StModalModule } from '@stratio/egeo';
 import {
     WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
-    WizardEditorComponent, WizardEditorService, WizardBoxComponent,
+    WizardEditorComponent, WizardEditorService, WizardNodeComponent,
     DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
@@ -34,7 +34,7 @@ import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details
         WizardComponent,
         WizardHeaderComponent,
         WizardEditorComponent,
-        WizardBoxComponent,
+        WizardNodeComponent,
         WizardDetailsComponent,
         DraggableSvgDirective,
         WizardEdgeComponent,

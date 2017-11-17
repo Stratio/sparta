@@ -18,12 +18,14 @@ import { NgModule } from '@angular/core';
 import { TemplatesComponent} from './templates.component';
 import { TemplatesRoutingModule } from './templates-routing.module';
 import { SharedModule } from '@app/shared';
-import { EgeoModule, StModalModule } from '@stratio/egeo';
+import { EgeoModule } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputsComponent } from './template-list/inputs.component';
 import { OutputsComponent } from './template-list/outputs.component';
+import { TransformationsComponent } from './template-list/transformations.component';
 import { CreateInputComponent } from './template-creation/create-input.component';
 import { CreateOutputComponent } from './template-creation/create-output.component';
+import { CreateTransformationsComponent } from './template-creation/create-transformation.component';
 import { TemplatesBaseComponent } from './template-list/templates-base.component';
 
 @NgModule({
@@ -31,8 +33,10 @@ import { TemplatesBaseComponent } from './template-list/templates-base.component
         TemplatesComponent,
         InputsComponent,
         OutputsComponent,
+        TransformationsComponent,
         CreateInputComponent,
         CreateOutputComponent,
+        CreateTransformationsComponent
     ],
     imports: [
         EgeoModule.forRoot(),

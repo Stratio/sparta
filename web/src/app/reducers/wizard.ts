@@ -87,7 +87,11 @@ const initialState: State = {
         name: 'Transformation',
         value: 'action',
         icon: 'icon-shuffle',
-        subMenus: transformationNames
+        subMenus: [...[{
+            name: 'Templates',
+            value: '',
+            subMenus: []
+        }], ...transformationNames]
     },
     {
         name: 'Output',
@@ -292,9 +296,9 @@ export function reducer(state: State = initialState, action: any): State {
                 savedWorkflow: true
             });
         }
-        case inputActions.LIST_INPUT_COMPLETE: {
+        case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
             const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
-            menuOptions[0].subMenus[0].subMenus = action.payload.map((template: any) => {
+            menuOptions[0].subMenus[0].subMenus = action.payload.input.map((template: any) => {
                 return {
                     name: template.name,
                     type: 'template',
@@ -302,18 +306,20 @@ export function reducer(state: State = initialState, action: any): State {
                     stepType: 'Input'
                 };
             });
-            return Object.assign({}, state, {
-                menuOptions: menuOptions
-            });
-        }
-        case outputActions.LIST_OUTPUT_COMPLETE: {
-            const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
-            menuOptions[2].subMenus[0].subMenus = action.payload.map((template: any) => {
+            menuOptions[2].subMenus[0].subMenus = action.payload.output.map((template: any) => {
                 return {
                     name: template.name,
                     type: 'template',
                     data: template,
                     stepType: 'Output'
+                };
+            });
+            menuOptions[1].subMenus[0].subMenus = action.payload.transformation.map((template: any) => {
+                return {
+                    name: template.name,
+                    type: 'template',
+                    data: template,
+                    stepType: 'Transformation'
                 };
             });
             return Object.assign({}, state, {

@@ -15,22 +15,21 @@
 ///
 
 import { AppRouter } from 'app';
-import { EgeoModule, StModalModule } from '@stratio/egeo';
+import { EgeoModule } from '@stratio/egeo';
 import { SharedModule } from '@app/shared';
 import { TranslateModule } from '@ngx-translate/core';
 import { StoreModule} from '@ngrx/store';
-import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { TRANSLATE_CONFIG } from '@app/core';
-import { reducer, reducers } from './reducers';
+import { reducers } from './reducers';
 
 import { BrowserModule } from '@angular/platform-browser';
-import { WorkflowCreationModal } from '@app/workflows';
 import { EffectsModule } from '@ngrx/effects';
 
 import { InputEffect } from './effects/input';
 import { WorkflowEffect } from './effects/workflow';
 import { BackupsEffect } from './effects/backups';
 import { OutputEffect } from './effects/output';
+import { TransformationEffect } from './effects/transformation';
 import { ResourcesEffect } from './effects/resources';
 import { CrossdataEffect } from './effects/crossdata';
 import { WizardEffect } from './effects/wizard';
@@ -58,6 +57,7 @@ export const APP_IMPORTS: Array<any> = [
                 BackupsEffect,
                 ResourcesEffect,
                 CrossdataEffect,
-                WizardEffect
+                WizardEffect,
+                TransformationEffect
         ])
 ];

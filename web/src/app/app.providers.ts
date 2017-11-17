@@ -14,11 +14,10 @@
 /// limitations under the License.
 ///
 
-import { ConfigService, INITIALIZER, TRANSLATE_CONFIG } from '@app/core';
+import { ConfigService, INITIALIZER } from '@app/core';
 import {
     WorkflowService,
-    InputService,
-    OutputService,
+    TemplatesService,
     BackupService,
     ResourcesService,
     ApiService,
@@ -35,8 +34,7 @@ export const APP_PROVIDERS: Array<any> = [
     ConfigService,
     INITIALIZER,
     WorkflowService,
-    InputService,
-    OutputService,
+    TemplatesService,
     BackupService,
     CrossdataService,
     ResourcesService,

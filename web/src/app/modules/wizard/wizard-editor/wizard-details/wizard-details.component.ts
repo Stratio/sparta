@@ -14,8 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
-import { StHorizontalTab } from '@stratio/egeo';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
 import { inputsObject } from 'data-templates/inputs';
 import { outputsObject } from 'data-templates/outputs';
 import { transformationsObject } from 'data-templates/transformations';
@@ -36,7 +35,7 @@ export class WizardDetailsComponent implements OnInit {
 
     }
 
-    constructor(private _cd: ChangeDetectorRef) { 
+    constructor(private _cd: ChangeDetectorRef) {
         this.templates = {
             Input: inputsObject,
             Output: outputsObject,
@@ -46,5 +45,5 @@ export class WizardDetailsComponent implements OnInit {
 
     ngOnInit() {
 
-     }
+    }
 }

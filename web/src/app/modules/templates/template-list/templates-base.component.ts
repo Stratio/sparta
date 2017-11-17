@@ -14,19 +14,17 @@
 /// limitations under the License.
 ///
 
-import { Component, OnDestroy, OnInit, ViewContainerRef, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { OnDestroy, OnInit, ViewContainerRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService,
-    StModalType, StModalMainTextSize, StModalWidth
+    StModalType, StModalMainTextSize
 } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
-import { InputType } from 'app/models/input.model';
 
 import * as fromRoot from 'reducers';
 import { Observable } from 'rxjs/Observable';
-import { TranslateService } from '@ngx-translate/core';
 import { BreadcrumbMenuService } from 'services';
 
 export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
@@ -53,7 +51,6 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         { id: 'name', label: 'Name' },
         { id: 'description', label: 'Description' }
     ];
-    private tasksSubscription: Subscription;
 
     ngOnInit() {
         this._modalService.container = this.target;

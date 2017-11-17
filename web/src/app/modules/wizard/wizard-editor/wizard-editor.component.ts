@@ -15,17 +15,15 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ChangeDetectionStrategy,
+    Component, OnInit, OnDestroy, ElementRef,
     ChangeDetectorRef, HostListener, ViewChild, NgZone
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { Subscription, Observable } from 'rxjs/Rx';
-import { Router, ActivatedRoute } from '@angular/router';
-import * as base from 'assets/images/workflow-base.svg';
 import * as d3 from 'd3';
 import * as wizardActions from 'actions/wizard';
-import { D3ZoomEvent, ZoomBehavior, DragBehavior } from 'd3';
+import { ZoomBehavior, DragBehavior } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { ValidateSchemaService } from 'app/services/validate-schema.service';
@@ -77,7 +75,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     private creationMode: any;
     private documentRef: any;
-    private newOrigin: string = '';
+    private newOrigin = '';
 
     private zoom: ZoomBehavior<any, any>;
     private drag: DragBehavior<any, any, any>;
@@ -155,15 +153,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
         this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
         function deltaFn () {
-            return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 7) / 2500;
+            return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 7) / 3100;
         }
         this.zoom = d3.zoom()
             .scaleExtent([1 / 8, 3])
-            .wheelDelta(deltaFn)
-            .on('zoom', undefined);
+            .wheelDelta(deltaFn);
 
-        this.drag = d3.drag()
-            .on('drag', undefined);
+        this.drag = d3.drag();
 
         this._ngZone.runOutsideAngular(() => {
 
@@ -176,7 +172,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                             offsetY: event.y
                         };
                         this.clickDetected.call(this, position);
-                    })
+                    })/*
                     .on('drag', (e: any, f: any) => {
                         const event = d3.event;
                         this.svgPosition = {
@@ -185,7 +181,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                             k: this.svgPosition.k
                         };
                         this.setContainerPosition();
-                    }));
+                    })*/);
 
         });
         this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
@@ -301,7 +297,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     changeZoom(zoomIn: boolean) {
-        const oldZ = this.svgPosition.k;
         if (zoomIn) {
             this.svgPosition.k += this.svgPosition.k * 0.2;
         } else {

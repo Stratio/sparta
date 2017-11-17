@@ -16,14 +16,11 @@
 
 import {
     Component, ViewChild, ViewContainerRef, OnDestroy, OnInit, ChangeDetectorRef,
-    ChangeDetectionStrategy, HostListener
+    ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs/Observable';
-import { TranslateService } from '@ngx-translate/core';
-import { StTableHeader, StModalService, StModalType } from '@stratio/egeo';
+import { StTableHeader, StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
-import { WorkflowListType } from 'app/models/workflow.model';
 import { WorkflowsService } from './workflows.service';
 import * as workflowActions from 'actions/workflow';
 import * as fromRoot from 'reducers';
@@ -53,7 +50,6 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     public executionInfo = '';
     public showExecutionInfo = false;
 
-    private tasksSubscription: Subscription;
     private modalSubscription: Subscription;
     private executionInfoSubscription: Subscription;
     private timer: any;

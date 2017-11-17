@@ -15,14 +15,13 @@
 ///
 
 import {
-    Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy,
+    Component, OnInit, ViewChild, ChangeDetectionStrategy,
     Input, OnDestroy, ChangeDetectorRef
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import * as workflowActions from 'actions/workflow';
 import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Rx';
 import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 
 @Component({

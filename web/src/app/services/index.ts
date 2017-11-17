@@ -15,8 +15,7 @@
 ///
 
 export * from './api/workflow.service';
-export * from './api/input.service';
-export * from './api/output.service';
+export * from './api/templates.service';
 export * from './api/api.service';
 export * from './api/backup.service';
 export * from './api/resources.service';

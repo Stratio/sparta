@@ -15,13 +15,11 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, HostListener, ElementRef, Input,
+    Component, OnInit, OnDestroy, ElementRef, Input,
     ChangeDetectionStrategy, EventEmitter, Output
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Rx';
-import { Router, ActivatedRoute } from '@angular/router';
 import { ENTITY_BOX } from '../../wizard.constants';
 import * as wizardActions from 'actions/wizard';
 
@@ -37,7 +35,7 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
     @Input() finalEntityName: string;
     @Output() onRemoveSegment = new EventEmitter<any>();
     @Input() selectedSegment: any;
-    @Input() index: number = 0;
+    @Input() index = 0;
 
     // coords
     @Input() x1: any;
@@ -49,8 +47,6 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
 
     private h = ENTITY_BOX.height;
     private w = ENTITY_BOX.width;
-
-    private el: HTMLElement;
 
 
     constructor(elementRef: ElementRef, private store: Store<fromRoot.State>) { }
@@ -108,7 +104,6 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
                 destination: this.finalEntityName
             }));
         }
-
     }
 
     deleteSegment() {

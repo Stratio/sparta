@@ -15,16 +15,14 @@
 ///
 
 import { WorkflowService } from 'services/workflow.service';
-import { OutputService } from 'services/output.service';
 import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
-import { OutputType } from 'app/models/output.model';
 import { Effect, Actions, toPayload } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 import * as fromRoot from 'reducers';
 
 import * as wizardActions from 'actions/wizard';
-import { InitializeWorkflowService } from 'services/initialize-workflow.service';
+import { InitializeWorkflowService, TemplatesService } from 'services/initialize-workflow.service';
 import { outputsObject } from 'data-templates/outputs';
 import { transformationsObject } from 'data-templates/transformations';
 import * as errorsActions from 'actions/errors';
@@ -32,6 +30,26 @@ import * as errorsActions from 'actions/errors';
 
 @Injectable()
 export class WizardEffect {
+
+    @Effect()
+    getTemplates$: Observable<Action> = this.actions$
+        .ofType(wizardActions.GET_MENU_TEMPLATES)
+        .switchMap((toPayload: any) => {
+            return this.templatesService.getAllTemplates().map((results: any) => {
+                const templatesObj: any = {
+                    input: [],
+                    output: [],
+                    transformation: []
+                };
+                results.map((template: any) => {
+                    templatesObj[template.templateType].push(template);
+                });
+                return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
+            }).catch((error) => {
+                return Observable.of(new wizardActions.GetMenuTemplatesErrorAction());
+            });
+        });
+
 
     @Effect()
     saveEntity$: Observable<Action> = this.actions$
@@ -175,7 +193,6 @@ export class WizardEffect {
             }).catch((error: any) => {
                 return Observable.of(new wizardActions.ValidateWorkflowErrorAction());
             });
-
         });
 
 
@@ -183,6 +200,7 @@ export class WizardEffect {
         private actions$: Actions,
         private store: Store<fromRoot.State>,
         private workflowService: WorkflowService,
+        private templatesService: TemplatesService,
         private initializeWorkflowService: InitializeWorkflowService
     ) { }
 

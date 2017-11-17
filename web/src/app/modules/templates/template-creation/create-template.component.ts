@@ -14,13 +14,11 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { NgForm, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { NgForm, FormBuilder, FormGroup } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as inputActions from 'actions/input';
 import * as fromRoot from 'reducers';
-import * as inputTemplate from 'data-templates/input.json';
 import { BreadcrumbMenuService, ErrorMessagesService, InitializeSchemaService } from 'services';
 import { StDropDownMenuItem } from '@stratio/egeo';
 

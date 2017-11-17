@@ -32,7 +32,7 @@ export class WorkflowJsonModal implements OnInit {
 
     @ViewChild('jsonWorkflowForm') public jsonWorkflowForm: NgForm;
 
-    public workflowValidationError: boolean = false;
+    public workflowValidationError = false;
 
     public model: any = {
         name: '',

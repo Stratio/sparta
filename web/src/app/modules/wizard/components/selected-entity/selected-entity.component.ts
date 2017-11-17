@@ -14,10 +14,9 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, OnDestroy, HostListener, ElementRef, Input, AfterContentInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
-import * as wizardActions from 'actions/wizard';
 
 @Component({
     selector: 'selected-entity',

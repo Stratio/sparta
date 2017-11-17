@@ -15,28 +15,23 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, HostListener, ElementRef, Input, AfterContentInit,
-    ChangeDetectorRef, Output, EventEmitter, ChangeDetectionStrategy
+    Component, OnInit, OnDestroy, ElementRef, Input, AfterContentInit,
+    ChangeDetectorRef, Output, EventEmitter, ChangeDetectionStrategy, NgZone
 } from '@angular/core';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Rx';
-import { Router, ActivatedRoute } from '@angular/router';
-import * as base from 'assets/images/workflow-base.svg';
+
 import * as d3 from 'd3';
 import { ENTITY_BOX } from '../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { icons } from '@app/shared/constants/icons';
-import { NgZone, ViewEncapsulation } from '@angular/core';
 
 
 @Component({
-    selector: '[wizard-box]',
-    styleUrls: ['wizard-box.styles.scss'],
-    templateUrl: 'wizard-box.template.html',
+    selector: '[wizard-node]',
+    styleUrls: ['wizard-node.styles.scss'],
+    templateUrl: 'wizard-node.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
+export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit {
 
     @Input() data: any;
     @Input() createdNew: boolean;
@@ -51,10 +46,8 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
 
     private el: HTMLElement;
     private svg: any;
-    private dragrect: any;
     private relationSelector: any;
 
-    private isSelected = false;
     public boxConfig = ENTITY_BOX;
     public relationClasses = '';
 
@@ -63,8 +56,8 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
         this.svg = d3.select(this.el);
     }
 
-    ngOnInit(): void { 
-        if(this.createdNew) {
+    ngOnInit(): void {
+        if (this.createdNew) {
             this.el.querySelector('.box').setAttribute('class', 'created-new');
         }
     }
@@ -83,7 +76,7 @@ export class WizardBoxComponent implements OnInit, OnDestroy, AfterContentInit {
                 .attr('class', 'entity-icon')
                 .style('font-size', '25')
                 .attr('fill', this.createdNew ? '#999' : '#0f1b27')
-                .text(function (d) { return icons[data.classPrettyName]});
+                .text(function (d) { return icons[data.classPrettyName] });
 
             if (data.hasErrors && !this.createdNew) {
                 textContainer.append('text')

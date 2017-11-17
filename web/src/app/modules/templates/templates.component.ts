@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 
 
 @Component({

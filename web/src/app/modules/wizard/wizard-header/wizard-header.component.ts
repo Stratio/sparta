@@ -15,20 +15,18 @@
 ///
 
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild, ViewContainerRef } from '@angular/core';
-import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs/Rx';
+import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
 
-
-// actions
+import * as fromRoot from 'reducers';
 import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
 import * as wizardActions from 'actions/wizard';
-import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
+import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
-import { NgForm } from "@angular/forms";
 
 
 @Component({
@@ -58,46 +56,40 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public workflowNamePattern = '^[a-z0-9-]*$';
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
-    public workflowName: string = '';
-    public nameSubscription: Subscription;
-    public validationSubscription: Subscription;
-    public showErrors =  false;
+    public workflowName = '';
+    public showErrors = false;
 
-    private inputListSubscription: Subscription;
-    private outputListSubscription: Subscription;
-    private areUndoRedoEnabledSubscription: Subscription;
-    private inputList: Array<any> = [];
-    private outputList: Array<any> = [];
     public editName = false;
-
     public undoEnabled = false;
     public redoEnabled = false;
     public validations: any = {};
+
+    private _nameSubscription: Subscription;
+    private _validationSubscription: Subscription;
+    private _areUndoRedoEnabledSubscription: Subscription;
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
         private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
 
     ngOnInit(): void {
         this._modalService.container = this.target;
-        this.store.dispatch(new inputActions.ListInputAction());
-        this.store.dispatch(new outputActions.ListOutputAction());
+        this.store.dispatch(new wizardActions.GetMenuTemplatesAction());
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
-        this.nameSubscription = this.store.select(fromRoot.getWorkflowName).subscribe((name: string) => {
+        this._nameSubscription = this.store.select(fromRoot.getWorkflowName).subscribe((name: string) => {
             this.workflowName = name;
         });
 
-        this.areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
+        this._areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
             this.undoEnabled = actions.undo;
             this.redoEnabled = actions.redo;
         });
 
-        this.validationSubscription = this.store.select(fromRoot.getValidationErrors).subscribe((validations: any) => {
+        this._validationSubscription = this.store.select(fromRoot.getValidationErrors).subscribe((validations: any) => {
             this.validations = validations;
             this._cd.detectChanges();
         });
 
         this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
-
     }
 
     selectedMenuOption($event: any): void {
@@ -174,10 +166,8 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.nameSubscription && this.nameSubscription.unsubscribe();
-        this.areUndoRedoEnabledSubscription && this.areUndoRedoEnabledSubscription.unsubscribe();
-        this.validationSubscription && this.validationSubscription.unsubscribe();
+        this._nameSubscription && this._nameSubscription.unsubscribe();
+        this._areUndoRedoEnabledSubscription && this._areUndoRedoEnabledSubscription.unsubscribe();
+        this._validationSubscription && this._validationSubscription.unsubscribe();
     }
-
-
 }

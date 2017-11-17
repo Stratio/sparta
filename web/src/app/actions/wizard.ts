@@ -15,9 +15,11 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
 
 export const RESET_WIZARD = '[Wizard] Reset wizard';
+export const GET_MENU_TEMPLATES = '[Wizard] Get menu templates';
+export const GET_MENU_TEMPLATES_COMPLETE = '[Wizard] Get menu templates complete';
+export const GET_MENU_TEMPLATES_ERROR = '[Wizard] Get menu templates error';
 export const MODIFY_WORKFLOW = '[Wizard] Modify workflow';
 export const MODIFY_WORKFLOW_COMPLETE = '[Wizard] Modify workflow complete';
 export const MODIFY_WORKFLOW_ERROR = '[Wizard] Modify workflow error';
@@ -57,6 +59,19 @@ export const HIDE_EDIT = '[Wizard] Hide edit';
 export const VALIDATE_WORKFLOW = '[Wizard] Validate workflow';
 export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
 export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
+
+export class GetMenuTemplatesAction implements Action {
+    readonly type = GET_MENU_TEMPLATES;
+}
+
+export class GetMenuTemplatesCompleteAction implements Action {
+    readonly type = GET_MENU_TEMPLATES_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class GetMenuTemplatesErrorAction implements Action {
+    readonly type = GET_MENU_TEMPLATES_ERROR;
+}
 
 export class ResetWizardAction implements Action {
     readonly type = RESET_WIZARD;
@@ -237,6 +252,9 @@ export class ValidateWorkflowErrorAction implements Action {
 
 export type Actions =
     ResetWizardAction |
+    GetMenuTemplatesAction |
+    GetMenuTemplatesCompleteAction |
+    GetMenuTemplatesErrorAction |
     ModifyWorkflowAction |
     ModifyWorkflowCompleteAction |
     ModifyWorkflowErrorAction |

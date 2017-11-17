@@ -39,13 +39,13 @@ export class MenuService {
                     link: DASHBOARD_ROUTES.INPUTS
                 },
                 {
-                    label: 'Outputs',
-                    link: DASHBOARD_ROUTES.OUTPUTS
-                }/*,
-                {
                     label: 'Transformations',
                     link: DASHBOARD_ROUTES.TRANSFORMATIONS
-                }*/
+                },
+                {
+                    label: 'Outputs',
+                    link: DASHBOARD_ROUTES.OUTPUTS
+                }
             ]
         },
         {
@@ -62,10 +62,10 @@ export class MenuService {
                     label: 'Backups',
                     link: DASHBOARD_ROUTES.BACKUPS
                 },
-                /*  {
-                      label:'Resources',
-                      link: DASHBOARD_ROUTES.RESOURCES
-                  },*/
+                /*{
+                    label: 'Resources',
+                    link: DASHBOARD_ROUTES.RESOURCES
+                },*/
                 {
                     label: 'Crossdata',
                     link: DASHBOARD_ROUTES.CROSSDATA

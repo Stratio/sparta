@@ -18,7 +18,7 @@
                [index]="i"
                (onRemoveSegment)="removeSegment($event)"/>
 
-            <g wizard-box svg-draggable *ngFor="let entity of entities;" 
+            <g wizard-node svg-draggable *ngFor="let entity of entities;" 
                [data]="entity" 
                [createdNew]="entity.createdNew"
                [selected]="selectedEntity === entity.name"

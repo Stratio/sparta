@@ -16,43 +16,45 @@
 
 import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
-import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { ApiService} from './api.service';
-import { Http } from '@angular/http';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable()
-export class InputService extends ApiService {
+export class TemplatesService extends ApiService {
 
     constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 
-    getInputList(): Observable<any> {
+    getAllTemplates(): Observable<any> {
         const options: any = {};
-        return this.request('template/input', 'get', options);
+        return this.request('template', 'get', options);
     }
 
-    deleteInput(inputId: string): Observable<any> {
+    getTemplateList(templateType: string): Observable<any> {
         const options: any = {};
-        return this.request('template/input/id/' + inputId, 'delete', options);
+        return this.request('template/' + templateType, 'get', options);
     }
 
-    validateInputName(inputName: string): Observable<any> {
+    deleteTemplate(templateType: string, templateId: string): Observable<any> {
         const options: any = {};
-        return this.request('template/input/name/' + inputName, 'get', options);
+        return this.request('template/' + templateType + '/id/' + templateId, 'delete', options);
     }
 
-    createFragment(fragmentData: any): Observable<any> {
+    validateTemplateName(templateType: string, templateName: string): Observable<any> {
+        const options: any = {};
+        return this.request('template/' + templateType + '/name/' + templateName, 'get', options);
+    }
+
+    createTemplate(templateData: any): Observable<any> {
         const options: any = {
-            body: fragmentData
+            body: templateData
         };
         return this.request('template', 'post', options);
     }
-
 
     updateFragment(fragmentData: any): Observable<any> {
         const options: any = {

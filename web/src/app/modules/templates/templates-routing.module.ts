@@ -19,8 +19,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { TemplatesComponent } from './templates.component';
 import { InputsComponent } from './template-list/inputs.component';
 import { OutputsComponent } from './template-list/outputs.component';
+import { TransformationsComponent } from './template-list/transformations.component';
 import { CreateInputComponent } from './template-creation/create-input.component';
 import { CreateOutputComponent } from './template-creation/create-output.component';
+import { CreateTransformationsComponent } from './template-creation/create-transformation.component';
 
 const templatesRoutes: Routes = [
     {
@@ -54,6 +56,18 @@ const templatesRoutes: Routes = [
             {
                 path: 'outputs/edit',
                 component: CreateOutputComponent
+            },
+            {
+                path: 'transformations',
+                component: TransformationsComponent
+            },
+            {
+                path: 'transformations/create',
+                component: CreateTransformationsComponent
+            },
+            {
+                path: 'transformations/edit',
+                component: CreateTransformationsComponent
             },
         ]
     }
