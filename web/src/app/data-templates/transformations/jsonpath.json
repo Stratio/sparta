@@ -43,14 +43,6 @@
            "required": true,
            "tooltip": "Schema definition from list of fields",
            "qa": "fragment-details-casting-fields",
-           "visible": [
-              [
-                 {
-                    "propertyId": "outputFieldsFrom",
-                    "value": "FIELDS"
-                 }
-              ]
-           ],
            "fields": [
               {
                  "propertyId": "field",
