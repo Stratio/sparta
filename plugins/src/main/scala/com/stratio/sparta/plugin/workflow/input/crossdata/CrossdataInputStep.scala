@@ -42,7 +42,6 @@ import scala.util.{Properties, Try}
 
 class CrossdataInputStep(
                           name: String,
-                          outputFields: Seq[OutputFields],
                           outputOptions: OutputOptions,
                           ssc: StreamingContext,
                           xDSession: XDSession,

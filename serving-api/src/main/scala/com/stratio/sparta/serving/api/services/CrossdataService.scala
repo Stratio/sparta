@@ -92,7 +92,7 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
 
     upperQuery.startsWith("CREATE") || upperQuery.startsWith("DROP") || upperQuery.startsWith("TRUNCATE") ||
       upperQuery.startsWith("SELECT") || upperQuery.startsWith("SHOW") || upperQuery.startsWith("DESCRIBE") ||
-      upperQuery.startsWith("IMPORT") || upperQuery.startsWith("ALTER")
+      upperQuery.startsWith("IMPORT") || upperQuery.startsWith("ALTER") || upperQuery.startsWith("ANALYZE")
   }
 }
 

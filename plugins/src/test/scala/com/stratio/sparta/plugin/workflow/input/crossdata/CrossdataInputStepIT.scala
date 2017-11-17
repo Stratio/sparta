@@ -46,10 +46,9 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
       "offsetField" -> "id",
       "rememberDuration" -> "20000"
     )
-    val outputsFields = Seq(OutputFields("id", "int"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val crossdataInput = new CrossdataInputStep(
-      "crossdata", outputsFields, outputOptions, ssc, sparkSession, datasourceParams)
+      "crossdata", outputOptions, ssc, sparkSession, datasourceParams)
     val inputStream = crossdataInput.initStream
 
     inputStream.foreachRDD(rdd => {
