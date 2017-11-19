@@ -35,6 +35,7 @@ class WorkflowValidatorService {
       .validateEdgesNodesExists
       .validateGraphIsAcyclic
       .validateArityOfNodes
+      .validateExistenceCorrectPath
   }
 
 }

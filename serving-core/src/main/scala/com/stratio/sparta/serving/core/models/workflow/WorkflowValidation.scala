@@ -19,10 +19,13 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
 
-import scalax.collection.Graph
+import scalax.collection.{Graph, GraphTraversal}
+import scalax.collection.GraphPredef
 import scalax.collection.GraphEdge.DiEdge
+import scalax.collection.GraphTraversal.Visitor
+import scalax.collection.edge.WDiEdge
 
-case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
+case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
 
   def this(valid: Boolean) = this(valid, messages = Seq.empty[String])
 
@@ -66,6 +69,31 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
       }
     )
   }
+
+  def validateExistenceCorrectPath(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+
+    def node(outer: NodeGraph): graph.NodeT = (graph get outer).asInstanceOf[graph.NodeT]
+
+    val inputNodes: Seq[graph.NodeT] = workflow.pipelineGraph.nodes
+      .filter( node => node.stepType.equals("Input")).map(node(_))
+    val outputNodes: Seq[graph.NodeT] = workflow.pipelineGraph.nodes
+      .filter( node => node.stepType.equals("Output")).map(node(_))
+
+    val path = {
+      for {in <- inputNodes.toStream
+           out <- outputNodes.toStream
+      } yield {
+        in.pathTo(out)(Visitor.empty)
+      }
+    } exists(_.isDefined)
+
+
+    if(path) this else this.copy(
+      valid = false,
+      messages = messages :+ s"The workflow has no I->O path"
+    )
+  }
+
 
   def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
     val arityNodesValidation = workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>

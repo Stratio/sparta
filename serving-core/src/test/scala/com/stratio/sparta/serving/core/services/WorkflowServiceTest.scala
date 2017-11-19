@@ -35,7 +35,7 @@ import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowServiceTest extends WordSpecLike
-with BeforeAndAfter
+  with BeforeAndAfter
   with MockitoSugar
   with Matchers{
 
@@ -49,8 +49,8 @@ with BeforeAndAfter
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
   val settings = mock[Settings]
   val nodes = Seq(
-    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
-    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+    NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
   )
   val edges = Seq(
     EdgeGraph("a", "b")
@@ -66,15 +66,13 @@ with BeforeAndAfter
   val wrongWorkflow = Workflow(Option(newWorkflowID),"wfTest3","", settings ,wrongPipeGraph)
 
   val workflowRaw =
-    """
-      |{
-      |"id": "wf1",
-      |"name": "wfTest",
-      |"description": "",
-      |"settings": {},
-      |"pipelineGraph": {
-      |    "nodes": [
-      |      {
+    """{
+      |  "id": "wf1",
+      |  "name": "wfTest",
+      |  "description": "",
+      |  "settings": {},
+      |  "pipelineGraph": {
+      |    "nodes": [{
       |        "name": "kafka",
       |        "stepType": "Input",
       |        "className": "KafkaInputStep",
@@ -89,35 +87,52 @@ with BeforeAndAfter
       |          "outputType": "string",
       |          "key.deserializer": "string",
       |          "locationStrategy": "preferconsistent",
-      |          "topics": [
-      |            {
-      |              "topic": "offsetspr"
-      |            }
-      |          ],
+      |          "topics": [{
+      |            "topic": "offsetspr"
+      |          }],
       |          "auto.offset.reset": "latest",
       |          "partition.assignment.strategy": "range",
       |          "vaultTLSEnable": false,
       |          "offsets": [],
       |          "group.id": "sparta",
-      |          "bootstrap.servers": [
-      |            {
-      |              "host": "127.0.0.1",
-      |              "port": "9092"
-      |            }
-      |          ],
+      |          "bootstrap.servers": [{
+      |            "host": "127.0.0.1",
+      |            "port": "9092"
+      |          }],
       |          "enable.auto.commit": false,
       |          "value.deserializer": "string",
-      |          "kafkaProperties": [
-      |            {
-      |              "kafkaPropertyKey": "",
-      |              "kafkaPropertyValue": ""
-      |            }
-      |          ],
+      |          "kafkaProperties": [{
+      |            "kafkaPropertyKey": "",
+      |            "kafkaPropertyValue": ""
+      |          }],
       |          "storeOffsetInKafka": true
-      |         }
-      |       }
-      |     ]
-      |    }
+      |        }
+      |      },
+      |      {
+      |        "name": "Print",
+      |        "stepType": "Output",
+      |        "className": "PrintOutputStep",
+      |        "classPrettyName": "Print",
+      |        "arity": [],
+      |        "writer": {
+      |          "saveMode": "Append"
+      |        },
+      |        "description": "",
+      |        "uiConfiguration": {
+      |          "position": {
+      |            "x": 1207,
+      |            "y": 389
+      |          }
+      |        },
+      |        "configuration": {
+      |          "printMetadata": false,
+      |          "printData": true,
+      |          "printSchema": false,
+      |          "logLevel": "error"
+      |        }
+      |      }
+      |    ]
+      |  }
       |}
     """.stripMargin
 
@@ -187,7 +202,7 @@ with BeforeAndAfter
 
       val result = workflowService.findByTemplateType("KafkaInputStep")
 
-     result.head.pipelineGraph.nodes.head.stepType shouldBe "Input"
+      result.head.pipelineGraph.nodes.head.stepType shouldBe "Input"
     }
 
     "findByTemplateName: should return a list with all the workflow of a given type" in {

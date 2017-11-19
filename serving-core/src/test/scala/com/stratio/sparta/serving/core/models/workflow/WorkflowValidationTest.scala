@@ -265,6 +265,52 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
       result.valid shouldBe false
     }
+
+    "validate a graph containing at least one Input-to-Output path" in{
+      val nodes = Seq(
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("d", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph()),
+        NodeGraph("e", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c"),
+        EdgeGraph("b", "e"),
+        EdgeGraph("c", "d")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateExistenceCorrectPath
+
+      result.valid shouldBe true
+
+    }
+
+    "not validate a graph not containing any Input-to-Output path" in {
+      val nodes = Seq(
+        NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("c", "Transformation", "", "", Seq(NodeArityEnum.NaryToNary), WriterGraph()),
+        NodeGraph("d", "Transformation", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val edges = Seq(
+        EdgeGraph("a", "b"),
+        EdgeGraph("b", "c"),
+        EdgeGraph("c", "d"),
+        EdgeGraph("d", "b")
+      )
+
+      implicit val workflow = emptyWorkflow.copy(pipelineGraph = PipelineGraph(nodes , edges))
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val result = new WorkflowValidation().validateExistenceCorrectPath
+
+      result.valid shouldBe false
+    }
   }
 }
 
