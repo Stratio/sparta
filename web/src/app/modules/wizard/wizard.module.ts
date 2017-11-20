@@ -24,7 +24,6 @@ import {
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
-import { DndModule } from 'ng2-dnd';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
 import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details/wizard-details.component';
 

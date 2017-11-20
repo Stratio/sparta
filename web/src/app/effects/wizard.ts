@@ -143,17 +143,6 @@ export class WizardEffect {
             if (relationExist || (payload.origin === payload.destination)) {
                 return new wizardActions.CreateNodeRelationErrorAction('');
             } else {
-                /***** get number of max connections, if it exists */
-                let maxConnections;
-                if (payload.destinationData.stepType === 'Transformation') {
-                    maxConnections = transformationsObject[payload.destinationData.classPrettyName].maxEdges;
-                } else {
-                    maxConnections = outputsObject[payload.destinationData.classPrettyName].maxEdges;
-                }/****** */
-
-                if (maxConnections && maxConnections <= filtered.length) {
-                    return new wizardActions.CreateNodeRelationErrorAction('');
-                }
                 return new wizardActions.CreateNodeRelationCompleteAction(payload);
             }
         });
