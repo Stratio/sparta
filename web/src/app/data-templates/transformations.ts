@@ -19,6 +19,7 @@ import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as csvTemplate from './transformations/csv.json';
 import * as cubeTemplate from './transformations/cube.json';
 import * as customTemplate from './transformations/custom.json';
+import * as datetimeTemplate from './transformations/datetime.json';
 import * as explodeTemplate from './transformations/explode.json';
 import * as distinctTemplate from './transformations/distinct.json';
 import * as filterTemplate from './transformations/filter.json';
@@ -39,6 +40,7 @@ export const transformations: any = [
    csvTemplate,
    cubeTemplate,
    customTemplate,
+   datetimeTemplate,
    distinctTemplate,
    explodeTemplate,
    filterTemplate,
