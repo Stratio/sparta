@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{Actor, Cancellable, PoisonPill}
+import akka.actor.{Actor, ActorRef, Cancellable, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -31,13 +31,13 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonLauncherActor(val curatorFramework: CuratorFramework) extends Actor
+class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends Actor
   with SchedulerUtils {
 
   private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val launcherService = new LauncherService(curatorFramework)
-  private val clusterListenerService = new ListenerService(curatorFramework)
+  private val clusterListenerService = new ListenerService(curatorFramework, statusListenerActor)
   private val checkersPolicyStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 
   override def receive: PartialFunction[Any, Unit] = {

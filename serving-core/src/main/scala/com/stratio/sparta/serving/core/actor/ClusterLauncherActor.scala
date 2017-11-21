@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.{Actor, Cancellable, PoisonPill}
+import akka.actor.{Actor, ActorRef, Cancellable, PoisonPill}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -30,12 +30,12 @@ import org.apache.spark.launcher.SparkLauncher
 
 import scala.util.{Failure, Success, Try}
 
-class ClusterLauncherActor(val curatorFramework: CuratorFramework) extends Actor
+class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends Actor
   with SchedulerUtils{
 
   private val executionService = new ExecutionService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val clusterListenerService = new ListenerService(curatorFramework)
+  private val clusterListenerService = new ListenerService(curatorFramework, statusListenerActor)
   private val launcherService = new LauncherService(curatorFramework)
   private val checkersWorkflowStatus = scala.collection.mutable.ArrayBuffer.empty[Cancellable]
 

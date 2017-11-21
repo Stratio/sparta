@@ -24,16 +24,16 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import com.stratio.sparta.serving.core.services.{ListenerService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.Try
 
-class StatusActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class StatusActor(curatorFramework: CuratorFramework, statusListenerActor: ActorRef
+                 )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   private val ResourceType = "context"
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val listenerService = new ListenerService(curatorFramework)
+  private val listenerService = new ListenerService(curatorFramework, statusListenerActor)
 
   //scalastyle:off cyclomatic.complexity
   override def receive: Receive = {
@@ -43,7 +43,6 @@ class StatusActor(val curatorFramework: CuratorFramework)(implicit val secManage
     case FindAll(user) => findAll(user)
     case FindById(id, user) => findById(id, user)
     case DeleteAll(user) => deleteAll(user)
-    case AddListener(name, callback) => listenerService.addWorkflowStatusListener(name, callback)
     case AddClusterListeners => listenerService.addClusterListeners(statusService.findAll(), context)
     case DeleteStatus(id, user) => deleteStatus(id, user)
     case _ => log.info("Unrecognized message in Status Actor")
@@ -89,8 +88,6 @@ object StatusActor {
   case class Update(policyStatus: WorkflowStatus, user: Option[LoggedUser])
 
   case class CreateStatus(policyStatus: WorkflowStatus, user: Option[LoggedUser])
-
-  case class AddListener(name: String, callback: (WorkflowStatus, NodeCache) => Unit)
 
   case class DeleteStatus(id: String, user: Option[LoggedUser])
 

@@ -16,7 +16,7 @@
 package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorSystem, Props}
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.{ImplicitSender, TestActors, TestKit}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -40,7 +40,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   implicit val secManager = Option(new DummySecurityClass().asInstanceOf[SpartaSecurityManager])
   val curatorFramework = mock[CuratorFramework]
-  val streamingContextService = StreamingContextService(curatorFramework)
+  val streamingContextService = StreamingContextService(curatorFramework, system.actorOf(TestActors.echoActorProps))
 
   def this() =
     this(ActorSystem("ControllerActorSpec", SpartaConfig.daemonicAkkaConfig))

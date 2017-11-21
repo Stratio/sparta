@@ -16,11 +16,13 @@
 
 package com.stratio.sparta.driver
 
+import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.helpers.PluginFilesHelper
 import com.stratio.sparta.driver.service.StreamingContextService
+import com.stratio.sparta.serving.core.actor.{ListenerActor, StatusPublisherActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -77,9 +79,15 @@ object SparkDriver extends SLF4JLogging {
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
-        val streamingContextService = StreamingContextService(curatorInstance)
-        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
+      
+        val system = ActorSystem("WorkflowJob")
 
+        val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
+        val statusListenerActor = system.actorOf(Props(new ListenerActor))
+        
+        val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
+        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
+        
         for {
           status <- workflowStatus
           execution <- workflowExecution

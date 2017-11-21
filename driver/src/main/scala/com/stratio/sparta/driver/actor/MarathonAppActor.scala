@@ -16,25 +16,25 @@
 
 package com.stratio.sparta.driver.actor
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
+import com.stratio.sparta.serving.core.actor.ListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{ExecutionService, ListenerService, WorkflowService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.recipes.cache.NodeCache
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor with SLF4JLogging{
+class MarathonAppActor(val curatorFramework: CuratorFramework, listenerActor: ActorRef) extends Actor with SLF4JLogging{
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val listenerService = new ListenerService(curatorFramework)
+  private val listenerService = new ListenerService(curatorFramework, listenerActor)
   private val executionService = new ExecutionService(curatorFramework)
 
 
@@ -69,7 +69,7 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor wit
               case Success(executionSubmit) =>
                 log.debug(s"Starting execution: ${executionSubmit.toString}")
                 val clusterLauncherActor =
-                  context.actorOf(Props(new ClusterLauncherActor(curatorFramework)), ClusterLauncherActorName)
+                  context.actorOf(Props(new ClusterLauncherActor(curatorFramework, listenerActor)), ClusterLauncherActorName)
                 clusterLauncherActor ! StartWithRequest(workflow, executionSubmit)
               case Failure(exception) => throw exception
             }
@@ -106,25 +106,20 @@ class MarathonAppActor(val curatorFramework: CuratorFramework) extends Actor wit
 
   def closeChecker(workflowId: String, workflowName: String): Unit = {
     log.info(s"Listener added to $workflowName with id: $workflowId")
-    listenerService.addWorkflowStatusListener(workflowId, (workflowStatus: WorkflowStatus, nodeCache: NodeCache) => {
-      synchronized {
-        if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
-          try {
-            val information = s"Executing pre-close actions in Workflow App ..."
-            log.info(information)
-            preStopActions()
-          } finally {
-            Try(nodeCache.close()) match {
-              case Success(_) =>
-                log.info("Workflow App Listener node cache closed correctly")
-              case Failure(e) =>
-                log.error(s"Workflow App node cache not properly closed", e)
-            }
-          }
+
+    listenerActor ! OnWorkflowChangeDo(workflowId) { workflowStatus =>
+      if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
+        try {
+          val information = s"Executing pre-close actions in Workflow App ..."
+          log.info(information)
+          preStopActions()
+        } finally {
+          listenerActor ! ForgetWorkflowActions(workflowId)
         }
       }
-    })
+    }
   }
+
 }
 
 object MarathonAppActor {

@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor.{ExecutionActor, StatusActor, TemplateActor}
+import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -45,17 +45,19 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
 
   override implicit def actorRefFactory: ActorContext = context
 
+  val statusListenerActor = context.actorOf(Props(new ListenerActor()))
+
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusActor(curatorFramework))), StatusActorName)
+    .props(Props(new StatusActor(curatorFramework, statusListenerActor))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new WorkflowActor(curatorFramework, statusActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ExecutionActor(curatorFramework))), ExecutionActorName)
-  val scService = StreamingContextService(curatorFramework)
+  val scService = StreamingContextService(curatorFramework, statusListenerActor)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(scService, curatorFramework))), LauncherActorName)
+    .props(Props(new LauncherActor(scService, curatorFramework, statusListenerActor))), LauncherActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new PluginActor())), PluginActorName)
   val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -66,6 +68,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
+
+  val localPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
 
   statusActor ! AddClusterListeners
 

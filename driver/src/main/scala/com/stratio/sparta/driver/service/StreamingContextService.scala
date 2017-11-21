@@ -18,25 +18,23 @@ package com.stratio.sparta.driver.service
 
 import java.io.File
 
+import akka.actor.ActorRef
 import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
+import com.stratio.sparta.serving.core.actor.ListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ListenerService, SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import org.apache.curator.framework.CuratorFramework
-import org.apache.curator.framework.recipes.cache.NodeCache
 import org.apache.spark.streaming.StreamingContext
 
-import scala.util.{Failure, Success, Try}
-
-case class StreamingContextService(curatorFramework: CuratorFramework)
+case class StreamingContextService(curatorFramework: CuratorFramework, listenerActor: ActorRef)
   extends SchedulerUtils with CheckpointUtils {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val listenerService = new ListenerService(curatorFramework)
 
   def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow, StreamingContext) = {
     killLocalContextListener(workflow, workflow.name)
@@ -94,24 +92,17 @@ case class StreamingContextService(curatorFramework: CuratorFramework)
 
   private[driver] def killLocalContextListener(workflow: Workflow, name: String): Unit = {
     log.info(s"Listener added for workflow ${workflow.name}")
-    listenerService.addWorkflowStatusListener(
-      workflow.id.get,
-      (workflowStatus: WorkflowStatus, nodeCache: NodeCache) =>
-        synchronized {
-          if (workflowStatus.status == Stopping)
-            try {
-              log.info("Stopping message received from Zookeeper")
-              closeContexts(workflow.id.get)
-            } finally {
-              Try(nodeCache.close()) match {
-                case Success(_) =>
-                  log.info("Node cache correctly closed")
-                case Failure(e) =>
-                  log.error(s"The node cache in Zookeeper was noy  correctly closed", e)
-              }
-            }
+
+    listenerActor ! OnWorkflowChangeDo(workflow.id.get) { workflowStatus =>
+      if (workflowStatus.status == Stopping)
+        try {
+          log.info("Stopping message received from Zookeeper")
+          closeContexts(workflow.id.get)
+        } finally {
+          listenerActor ! ForgetWorkflowActions(workflow.id.get)
         }
-    )
+    }
+
   }
 
   private[driver] def closeContexts(workflowId: String): Unit = {

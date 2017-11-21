@@ -30,9 +30,9 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class LauncherActor(
-                     val streamingService: StreamingContextService,
-                     val curatorFramework: CuratorFramework
+class LauncherActor(streamingService: StreamingContextService,
+                    curatorFramework: CuratorFramework,
+                    statusListenerActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
@@ -42,9 +42,9 @@ class LauncherActor(
   private val workflowService = new WorkflowService(curatorFramework)
 
   private val marathonLauncherActor = context.actorOf(Props(
-    new MarathonLauncherActor(streamingService.curatorFramework)), MarathonLauncherActorName)
+    new MarathonLauncherActor(curatorFramework, statusListenerActor)), MarathonLauncherActorName)
   private val clusterLauncherActor = context.actorOf(Props(
-    new MarathonLauncherActor(streamingService.curatorFramework)), ClusterLauncherActorName)
+    new ClusterLauncherActor(curatorFramework, statusListenerActor)), ClusterLauncherActorName)
 
   override def receive: Receive = {
     case Launch(id, user) => launch(id, user)
