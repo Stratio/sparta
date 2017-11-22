@@ -166,6 +166,20 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
       }
     }
 
+  def resetAllStatuses(): Try[Unit] =
+    Try {
+      val workflowPath = s"${AppConstant.WorkflowsZkPath}"
+
+      if (CuratorFactoryHolder.existsPath(workflowPath)) {
+        log.info(s"Resetting the execution status for every workflow")
+        val children = curatorFramework.getChildren.forPath(workflowPath)
+
+        JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
+          statusService.update(WorkflowStatus(id = workflow, status = WorkflowStatusEnum.NotStarted))
+        )
+      }
+    }
+
   /** PRIVATE METHODS **/
 
   private[sparta] def validateWorkflow(workflow: Workflow): Unit = {

@@ -59,6 +59,7 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
     case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
     case DeleteCheckpoint(name, user) => deleteCheckpoint(name, user)
+    case ResetAllStatuses(user) => resetAllStatuses(user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
@@ -152,6 +153,13 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     }
   }
 
+  def resetAllStatuses(user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceContext -> Edit)
+    securityActionAuthorizer[Response](user, actions) {
+      workflowService.resetAllStatuses()
+    }
+  }
+
   def deleteCheckpoint(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourcePol -> View)) {
       Try(deleteCheckpointPath(workflowService.findByName(name)))
@@ -189,6 +197,8 @@ object WorkflowActor extends SLF4JLogging {
   case class FindByTemplateName(templateType: String, name: String, user: Option[LoggedUser])
 
   case class DeleteCheckpoint(name: String, user: Option[LoggedUser])
+
+  case class ResetAllStatuses(user: Option[LoggedUser])
 
   type Response = Try[Unit]
 

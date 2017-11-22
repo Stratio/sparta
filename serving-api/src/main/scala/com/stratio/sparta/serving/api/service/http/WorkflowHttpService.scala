@@ -52,7 +52,8 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
   override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~
       update(user) ~ updateList(user) ~ remove(user) ~ run(user) ~ download(user) ~ findByName(user) ~
-      removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user)
+      removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
+      resetAllStatuses(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -422,9 +423,29 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
     }
   }
 
+  @Path("/resetAllStatuses")
+  @ApiOperation(value = "Reset all workflow statuses.",
+    notes = "Reset all statuses",
+    httpMethod = "POST",
+    response = classOf[WorkflowValidation])
+  def resetAllStatuses(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "resetAllStatuses") {
+      pathEndOrSingleSlash {
+        post {
+          complete {
+            for {
+              response <- (supervisor ? ResetAllStatuses(user))
+                .mapTo[Either[Response, UnauthorizedResponse]]
+            } yield deletePostPutResponse(WorkflowServiceResetAllStatuses, response, genericError)
+          }
+        }
+      }
+    }
+  }
+
   @Path("/run/{id}")
-  @ApiOperation(value = "Runs a workflow from by name.",
-    notes = "Runs a workflow by its name.",
+  @ApiOperation(value = "Runs a workflow from by id.",
+    notes = "Runs a workflow by its id.",
     httpMethod = "GET")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
