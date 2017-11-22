@@ -14,25 +14,24 @@
 /// limitations under the License.
 ///
 
-import { StHeaderMenuOption  } from '@stratio/egeo';
 import { Injectable } from '@angular/core';
 
 @Injectable()
 export class WizardEditorService {
 
-    getNewEntityName(entityType: string, entities: Array<any>, index:number = 0): string{
+    getNewEntityName(entityType: string, entities: Array<any>, index: number = 0): string {
         let name = entityType;
-        if(index > 0) {
+        if (index > 0) {
             name += '(' + index + ')';
         }
         let valid = true;
-        entities.forEach((ent:any)=> {
-            if(ent.name === name) {
+        entities.forEach((ent: any) => {
+            if (ent.name === name) {
                 valid = false;
             }
         })
 
-        if(!valid){
+        if (!valid) {
             index++;
             return this.getNewEntityName(entityType, entities, index);
         } else {
@@ -42,6 +41,6 @@ export class WizardEditorService {
 
 
     setD3Events() {
-        
+
     }
 }

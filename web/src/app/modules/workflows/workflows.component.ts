@@ -52,6 +52,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
     private modalSubscription: Subscription;
     private executionInfoSubscription: Subscription;
+    private workflowSubscription: Subscription;
     private timer: any;
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService,
@@ -70,7 +71,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
             this._cd.detectChanges();
         });
 
-        this.store.select(fromRoot.getSelectedWorkflows).subscribe((data: any) => {
+        this.workflowSubscription = this.store.select(fromRoot.getSelectedWorkflows).subscribe((data: any) => {
             this.selectedWorkflows = data.selected;
             this.selectedWorkflowsIds = data.selectedIds;
         });
@@ -184,6 +185,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         this.workflowListSubscription && this.workflowListSubscription.unsubscribe();
         this.modalSubscription && this.modalSubscription.unsubscribe();
         this.executionInfoSubscription && this.executionInfoSubscription.unsubscribe();
+        this.workflowSubscription && this.workflowSubscription.unsubscribe();
         clearInterval(this.timer);
         this.store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
     }

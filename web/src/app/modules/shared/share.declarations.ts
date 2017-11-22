@@ -39,6 +39,7 @@ import { SpHighlightTextareaComponent } from './components/highlight-textarea/hi
 import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
 import { NotificationAlertComponent } from './components/notification-alert/notification-alert.component';
 import { SpPopoverComponent } from './components/sp-popover/sp-popover.component';
+import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 
 export const sharedProvider = [
     MenuService,
@@ -58,6 +59,7 @@ export const shareComponents = [
     MenuOptionsComponent,
     FormGeneratorComponent,
     NotificationAlertComponent,
+    LoadingSpinnerComponent,
     FormGeneratorGroupComponent,
     MessageNotificationComponent,
     FragmentBoxComponent,

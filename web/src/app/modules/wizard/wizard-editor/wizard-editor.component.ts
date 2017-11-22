@@ -152,7 +152,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.SVGParent = d3.select(this.elementRef.nativeElement).select('#composition');
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
         this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
-        function deltaFn () {
+        function deltaFn() {
             return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 7) / 3100;
         }
         this.zoom = d3.zoom()
@@ -215,37 +215,64 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
     }
 
+    duplicateNode(): void {
+        if (this.selectedEntity) {
+            const data = JSON.parse(JSON.stringify((this.entities.find((node: any) => {
+                return node.name === this.selectedEntity;
+            }))));
+            data.name = this.editorService.getNewEntityName(data.name, this.entities);
+            const newEntity: any = {
+                type: 'copy',
+                data: data
+            };
+            this.store.dispatch(new wizardActions.DuplicateNodeAction(newEntity));
+        }
+    }
+
 
     clickDetected($event: any) {
         if (this.creationMode.active) {
-            const entityData = this.creationMode.data;
+            // node creation types: template | copy | new node
             let entity: any = {};
-            if (entityData.type === 'template') {
-                entity = Object.assign({}, entityData.data);
-                if (this.creationMode.data.stepType !== 'Output') {
-                    entity.writer = this.initializeSchemaService.getDefaultWriterModel();
-                }
-                entity.name = this.editorService.getNewEntityName(entityData.data.classPrettyName, this.entities);
+            const entityData = this.creationMode.data;
+
+            // if its a copy, only sets the position
+            if (entityData.type === 'copy') {
+                entity = entityData.data;
             } else {
-                entity = this.initializeSchemaService.setDefaultEntityModel(this.creationMode.data.value, this.creationMode.data.stepType, true);
-                entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
+
+                if (entityData.type === 'template') {
+                    entity = Object.assign({}, entityData.data);
+                    // outputs havent got writer
+                    if (this.creationMode.data.stepType !== 'Output') {
+                        entity.writer = this.initializeSchemaService.getDefaultWriterModel();
+                    }
+                    entity.name = this.editorService.getNewEntityName(entityData.data.classPrettyName, this.entities);
+                } else {
+                    entity = this.initializeSchemaService.setDefaultEntityModel(this.creationMode.data.value,
+                        this.creationMode.data.stepType, true);
+                    entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
+                }
+                entity.stepType = this.creationMode.data.stepType;
+                // validation of the model
+                const errors = this.validateSchemaService.validateEntity(entity,
+                    this.creationMode.data.stepType, this.creationMode.data.value);
+
+                if (errors && errors.length) {
+                    entity.hasErrors = true;
+                    entity.errors = errors;
+                    entity.createdNew = true; // gray box
+                }
+                // 
+                entity.created = true; // shows created fadeIn animation
             }
-            entity.stepType = this.creationMode.data.stepType;
+
             entity.uiConfiguration = {
                 position: {
                     x: ($event.offsetX - this.svgPosition.x) / this.svgPosition.k,
                     y: ($event.offsetY - this.svgPosition.y) / this.svgPosition.k
                 }
             };
-            const errors = this.validateSchemaService.validateEntity(entity, this.creationMode.data.stepType, this.creationMode.data.value);
-
-            if (errors && errors.length) {
-                entity.hasErrors = true;
-                entity.errors = errors;
-                entity.createdNew = true;
-            }
-
-            entity.created = true;
             this.store.dispatch(new wizardActions.CreateEntityAction(entity));
         }
         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());

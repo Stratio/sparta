@@ -45,6 +45,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onSaveWorkflow = new EventEmitter();
     @Output() onEditEntity = new EventEmitter();
     @Output() deleteSelection = new EventEmitter();
+    @Output() onDuplicateNode =  new EventEmitter();
 
     @Input() isNodeSelected = false;
     @Input() selectedSegment: any;
@@ -155,6 +156,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         } else {
             this.route.navigate(['']);
         }
+    }
+
+    duplicateNode() {
+
     }
 
     undoAction() {

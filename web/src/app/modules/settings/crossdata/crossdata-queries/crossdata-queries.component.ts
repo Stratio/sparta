@@ -34,12 +34,13 @@ import { StTableHeader } from '@stratio/egeo';
 })
 export class CrossdataQueries implements OnInit, OnDestroy {
 
-    public sqlQuery: string = '';
+    public sqlQuery = '';
     public fields: StTableHeader[] = [];
     public results: any[] = [];
-    public queryError: string = '';
+    public queryError = '';
     public queryResultSubscription: Subscription;
     public queryErrorSubscription: Subscription;
+    public isLoadingQuery$: Observable<boolean>;
     public currentPage = 1;
     public perPage = 10;
 
@@ -47,6 +48,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
 
     public executeQuery() {
         this.fields = [];
+        this.showResult = false;
         this.results = [];
         this.currentPage = 1;
         if (this.sqlQuery.length) {
@@ -68,6 +70,7 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.isLoadingQuery$ = this.store.select(fromRoot.isLoadingQuery);
         this.queryResultSubscription = this.store.select(fromRoot.getQueryResult).subscribe((result: any) => {
             if (result) {
                 this.showResult = true;

@@ -28,6 +28,9 @@ export interface State {
     tablesSortOrder: boolean;
     tablesOrderBy: string;
     searchTables: string;
+    loadingDatabases: boolean;
+    loadingTables: boolean;
+    loadingQuery: boolean;
 };
 
 const initialState: State = {
@@ -40,30 +43,41 @@ const initialState: State = {
     searchTables: '',
     queryError: '',
     tablesSortOrder: true,
-    tablesOrderBy: 'name'
+    tablesOrderBy: 'name',
+    loadingDatabases: false,
+    loadingTables: false,
+    loadingQuery: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
-        case crossdataActions.GET_DATABASES_COMPLETE: {
+        case crossdataActions.GET_DATABASES: {
             return Object.assign({}, state, {
-                databases: action.payload
+                loadingDatabases: true
             });
         }
-        case crossdataActions.LIST_CROSSDATA_TABLES_COMPLETE: {
+        case crossdataActions.GET_DATABASES_COMPLETE: {
             return Object.assign({}, state, {
-                tableList: action.payload
+                databases: action.payload,
+                loadingDatabases: false
+            });
+        }
+        case crossdataActions.EXECUTE_QUERY: {
+            return Object.assign({}, state, {
+                loadingQuery: true
             });
         }
         case crossdataActions.EXECUTE_QUERY_COMPLETE: {
             return Object.assign({}, state, {
+                loadingQuery: false,
                 queryResult: action.payload,
                 queryError: ''
             });
         }
         case crossdataActions.EXECUTE_QUERY_ERROR: {
             return Object.assign({}, state, {
-                queryError: action.payload
+                queryError: action.payload,
+                loadingQuery: false
             });
         }
         case crossdataActions.SHOW_TEMPORARY_TABLES: {
@@ -87,8 +101,14 @@ export function reducer(state: State = initialState, action: any): State {
                 selectedDatabase: action.payload
             });
         }
+        case crossdataActions.LIST_DATABASE_TABLES: {
+            return Object.assign({}, state, {
+                loadingTables: true
+            });
+        }
         case crossdataActions.LIST_DATABASE_TABLES_COMPLETE: {
             return Object.assign({}, state, {
+                loadingTables: false,
                 tableList: action.payload,
                 selectedTables: []
             });
@@ -166,4 +186,6 @@ export const getSelectedDatabase: any = (state: State) => state.selectedDatabase
 export const getDatabases: any = (state: State) => state.databases;
 export const getQueryResult: any = (state: State) => state.queryResult;
 export const getQueryError: any = (state: State) => state.queryError;
-
+export const isLoadingDatabases: any = (state: State) => state.loadingDatabases;
+export const isLoadingTables: any = (state: State) => state.loadingTables;
+export const isLoadingQuery: any = (state: State) => state.loadingQuery;

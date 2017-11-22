@@ -15,23 +15,19 @@
 ///
 
 import {
-    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
     forwardRef,
     Input,
-    OnChanges,
     OnDestroy,
     OnInit,
-    SimpleChange,
-    SimpleChanges,
-    ViewChildren,
-    ViewChild
+    ViewChild,
+    OnChanges,
+    SimpleChanges
 } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
 import {
-    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
+    ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, FormBuilder, FormArray, FormGroup, NgForm, Validator, Validators
 } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 import { ErrorMessagesService } from 'app/services';
@@ -53,7 +49,7 @@ import { ErrorMessagesService } from 'app/services';
         }],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FormListComponent implements Validator, ControlValueAccessor, OnInit, OnDestroy {
+export class FormListComponent implements Validator, ControlValueAccessor, OnChanges, OnInit, OnDestroy {
 
     @Input() public formListData: any;
     @Input() public label = '';
@@ -72,10 +68,18 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
     public isDisabled = false;
 
     public visibleConditions: any = [];
+    public visibleConditionsOR: any = [];
 
     private internalControlSubscription: Subscription;
 
     private itemssubscription: Array<Subscription> = [];
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (this.forceValidations && this.internalControl) {
+            this.writeValue(this.internalControl.value);
+        }
+        this._cd.markForCheck();
+    }
 
     onChange = (_: any) => { };
     onTouched = () => { };
@@ -94,6 +98,13 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
                 this.visibleConditions.push({
                     propertyId: field.propertyId,
                     conditions: field.visible[0]
+                });
+            }
+
+            if (field.visibleOR && field.visibleOR.length) {
+                this.visibleConditionsOR.push({
+                    propertyId: field.propertyId,
+                    conditions: field.visibleOR[0]
                 });
             }
         }
@@ -131,9 +142,19 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         this.visibleConditions.forEach((propertyConditions: any) => {   // each property
             propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
                 const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
-                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId);
+                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'AND');
                 });
-                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId);
+                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'AND');
+                subscriptionsHandler.push(subscription);
+            });
+        });
+
+        this.visibleConditionsOR.forEach((propertyConditions: any) => {   // each property
+            propertyConditions.conditions.forEach((prop: any) => {      // each property conditions
+                const subscription: Subscription = itemGroup.controls[prop.propertyId].valueChanges.subscribe((value: any) => {
+                    this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'OR');
+                });
+                this.checkDisabledField(propertyConditions.conditions, itemGroup, propertyConditions.propertyId, 'OR');
                 subscriptionsHandler.push(subscription);
             });
         });
@@ -141,11 +162,15 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
         this.itemssubscription.push(subscriptionsHandler);
     }
 
-    checkDisabledField(propertyConditions: any, group: any, propertyId: string) {
-        let enable = false;
+    checkDisabledField(propertyConditions: any, group: any, propertyId: string, conditionType: string) {
+        let enable = (conditionType !== 'OR');
+        console.log(enable)
         propertyConditions.forEach((rule: any) => {
-            if (rule.value == group.controls[rule.propertyId].value) {
+            if (conditionType === 'OR' && rule.value == group.controls[rule.propertyId].value) {
                 enable = true;
+            }
+            if (conditionType !== 'OR' && rule.value != group.controls[rule.propertyId].value && group.controls[rule.propertyId].enabled) {
+                enable = false;
             }
         });
         if (enable) {
@@ -154,6 +179,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnIni
             group.controls[propertyId].disable();
         }
     }
+
 
     showError(): boolean {
         return this.isError && (!this.internalControl.pristine || this.forceValidations) && !this.isDisabled;

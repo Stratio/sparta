@@ -44,5 +44,6 @@ export const icons: any = {
     Text: '\ue034',
     Trigger: '\ue950',
     Checkpoint: '\ue61b',
-    Datetime: '\ue64d'
+    Datetime: '\ue64d',
+    Custom: '\ue60a'
 };

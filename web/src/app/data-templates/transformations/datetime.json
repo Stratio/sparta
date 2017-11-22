@@ -64,7 +64,7 @@
                "width": 3,
                "required": true,
                "qa": "fragment-details-datetime-field-name",
-               "visible": [
+               "visibleOR": [
                   [
                      {
                         "propertyId": "formatFrom",

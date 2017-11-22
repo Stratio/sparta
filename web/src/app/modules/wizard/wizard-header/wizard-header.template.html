@@ -64,10 +64,13 @@
             </div>
             <div class="col-xs-6">
                <div style="float:left">
-                  <button menu-action class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected">
+                  <button class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected">
                     <i class="icon-edit"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment">
+                  <button class="button button-toolbar" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected">
+                   <i class="icon-copy2"></i>
+                 </button>
+                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment">
                     <i class="icon-trash"></i>
                   </button>
                </div>

@@ -107,6 +107,15 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case workflowActions.STOP_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'STOP_WORKFLOW'
+                }]
+            });
+        }
         case workflowActions.DELETE_WORKFLOW_COMPLETE: {
             let names = '';
             const workflows = action.payload;

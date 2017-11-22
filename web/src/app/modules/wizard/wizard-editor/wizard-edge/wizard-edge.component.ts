@@ -65,9 +65,6 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
                 x2 -= 0;
             }
 
-            //  this.closeIconPosition.x = x1 - ((x1 - x2 + 25) / 2);
-            // this.closeIconPosition.y = y1 - ((y1 - y2 - 30) / 2);
-
             return 'M' + x2 + ',' + y2 + ' C' + x1 + ',' + y2 + ' ' + x2 + ',' + y1 + ' ' + x1 + ',' + y1;
 
         } else {
@@ -75,19 +72,13 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
             x1 += this.w / 2;
             x2 += this.w / 2;
 
-            // this.closeIconPosition.x = x1 - ((x1 - x2 + 26) / 2);
-            //  this.closeIconPosition.y = y1 - ((y1 - y2 - 100) / 2);
-
             if (y1 > y2) {
                 y2 += this.h;
             } else {
                 y1 += this.h;
                 y2 -= 0;
             }
-            //linea recta cuando este muy proximo
-            /* if (Math.abs(y1 - y2) < 20) {
 
-            } */
             return 'M' + x2 + ',' + y2 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x1 + ',' + y1;
         }
     }

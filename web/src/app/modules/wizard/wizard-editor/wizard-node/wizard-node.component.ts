@@ -85,7 +85,7 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
                     .attr('class', 'entity-icon2')
                     .style('font-size', '16')
                     .attr('fill', '#ec445c')
-                    .text(function (d) { return '\uE613' });
+                    .text(function (d) { return '\uE613'; });
             }
         });
 

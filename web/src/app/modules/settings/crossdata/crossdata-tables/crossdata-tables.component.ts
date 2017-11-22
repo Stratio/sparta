@@ -14,11 +14,11 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import * as crossdataActions from 'actions/crossdata';
-import { Observable, SubscribableOrPromise } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 import { StTableHeader, StDropDownMenuItem } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 import { OnDestroy, ChangeDetectorRef } from '@angular/core';
@@ -33,6 +33,7 @@ import { OnDestroy, ChangeDetectorRef } from '@angular/core';
 export class CrossdataTables implements OnInit, OnDestroy {
     public tableList$: Observable<any>;
     public selectedDatabaseSubscription: Subscription;
+    public loadingTables$: Observable<boolean>;
     public databaseSubscription: Subscription;
     public selectedTablesSubscription: Subscription;
     public databases: StDropDownMenuItem[] = [];
@@ -67,6 +68,12 @@ export class CrossdataTables implements OnInit, OnDestroy {
                 };
             });
         });
+
+        /*this.store.select(fromRoot.isLoadingDatabases).subscribe((active: boolean) => {
+            console.log(active);
+        });*/
+
+        this.loadingTables$ = this.store.select(fromRoot.isLoadingTables);
 
         this.selectedTablesSubscription = this.store.select(fromRoot.getSelectedTables).subscribe((tables: Array<string>) => {
             this.selectedTables = tables;

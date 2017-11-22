@@ -56,6 +56,7 @@ export const SEARCH_MENU_OPTION = '[Wizard] Search floating menu option';
 export const UNDO_CHANGES = '[Wizard] Undo changes';
 export const REDO_CHANGES = '[Wizard] Redo changes';
 export const HIDE_EDIT = '[Wizard] Hide edit';
+export const DUPLICATE_NODE = '[Wizard] Duplicate node';
 export const VALIDATE_WORKFLOW = '[Wizard] Validate workflow';
 export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
 export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
@@ -237,6 +238,11 @@ export class RedoChangesAction implements Action {
     readonly type = REDO_CHANGES;
 }
 
+export class DuplicateNodeAction implements Action {
+    readonly type = DUPLICATE_NODE;
+    constructor(public payload: any) { }
+}
+
 export class ValidateWorkflowAction implements Action {
     readonly type = VALIDATE_WORKFLOW;
 }
@@ -286,6 +292,7 @@ export type Actions =
     RedoChangesAction |
     CreateEntityAction |
     CreateEntityCompleteAction |
+    DuplicateNodeAction |
     ValidateWorkflowAction |
     ValidateWorkflowCompleteAction |
     ValidateWorkflowErrorAction;

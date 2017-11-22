@@ -71,7 +71,6 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
             this.stFormGroup.controls = {};    // reset controls
             this.formDataValues = [];
             const properties = change.formData.currentValue;
-
             for (const prop of properties) {
                 const formControl = new FormControl();
                 this.stFormGroup.addControl(prop.propertyId ? prop.propertyId : prop.name, formControl);

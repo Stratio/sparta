@@ -15,10 +15,9 @@
 ///
 
 import { OnDestroy } from '@angular/core/core';
-import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectorRef, ViewChildren, forwardRef } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectorRef, ViewChildren, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
-import { Subject } from 'rxjs/Rx';
 import { StInputError } from '@stratio/egeo';
 import { ErrorMessagesService } from 'services';
 
@@ -60,9 +59,17 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
         setTimeout(() => {
             if (this.field.visible && this.field.visible.length) {
                 for (const field of this.field.visible[0]) {
-                    this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
                         this.disableField();
-                    });
+                    }));
+                }
+            }
+
+            if (this.field.visibleOR && this.field.visibleOR.length) {
+                for (const field of this.field.visibleOR[0]) {
+                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                        this.disableFieldOR();
+                    }));
                 }
             }
             setTimeout(() => {
@@ -71,10 +78,25 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
         });
     }
 
+    // TODO: refactor in only one method
     disableField(): void {
-        let enable = false;
+        let enable = true;
         this.field.visible[0].forEach((rule: any) => {
-            if(rule.value == this.stFormGroup.controls[rule.propertyId].value){
+            if (rule.value != this.stFormGroup.controls[rule.propertyId].value) {
+                enable = false;
+            }
+        });
+        if (enable) {
+            this.stFormGroup.controls[this.field.propertyId].enable();
+        } else {
+            this.stFormGroup.controls[this.field.propertyId].disable();
+        }
+    }
+
+    disableFieldOR(): void {
+        let enable = false;
+        this.field.visibleOR[0].forEach((rule: any) => {
+            if (rule.value == this.stFormGroup.controls[rule.propertyId].value && this.stFormGroup.controls[rule.propertyId].enabled) {
                 enable = true;
             }
         });
@@ -84,6 +106,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
             this.stFormGroup.controls[this.field.propertyId].disable();
         }
     }
+
 
     getEmptyValue(): any {
 
@@ -140,6 +163,9 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
 
     ngOnDestroy(): void {
         this.stFormControlSubcription.unsubscribe();
+        this.disableSubscription.map((subcription: Subscription) => {
+            subcription.unsubscribe();
+        });
     }
 
 

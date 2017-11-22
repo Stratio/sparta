@@ -31,10 +31,6 @@ export class WizardDetailsComponent implements OnInit {
 
     public templates: any = {};
 
-    ngOnChanges() {
-
-    }
-
     constructor(private _cd: ChangeDetectorRef) {
         this.templates = {
             Input: inputsObject,

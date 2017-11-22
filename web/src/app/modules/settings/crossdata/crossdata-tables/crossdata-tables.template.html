@@ -16,7 +16,9 @@
          qaTag="temporary-tables-switch" (change)="onChangeValue($event)">
       </st-switch>
    </div>
-   <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" (changeOrder)="changeOrder($event)">
+   
+   <loading-spinner *ngIf="loadingTables$ | async" class="loading"></loading-spinner>
+   <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" (changeOrder)="changeOrder($event)" *ngIf="!(loadingTables$ | async)">
       <ng-container *ngFor="let table of tableList$ | async">
          <tr st-table-row [selected]="selectedTables.indexOf(table.name)>-1" (click)="checkRow(!((selectedTables.indexOf(table.name)) > -1), table)" class="select-row">
             <td st-table-cell st-table-row-content>

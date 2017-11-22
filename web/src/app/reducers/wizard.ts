@@ -15,8 +15,6 @@
 ///
 
 import * as wizardActions from 'actions/wizard';
-import * as inputActions from 'actions/input';
-import * as outputActions from 'actions/output';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { inputNames } from 'data-templates/inputs';
 import { transformationNames } from 'data-templates/transformations';
@@ -208,6 +206,13 @@ export function reducer(state: State = initialState, action: any): State {
                 nodes: [...state.nodes, action.payload],
                 undoStates: getUndoState(state),
                 redoStates: []
+            });
+        }
+        case wizardActions.DUPLICATE_NODE: {
+            console.log(action.payload);
+            return Object.assign({}, state, {
+                selectedCreationEntity: action.payload,
+                entityCreationMode: true
             });
         }
         case wizardActions.SAVE_WORKFLOW_POSITIONS: {

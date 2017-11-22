@@ -423,6 +423,7 @@
       "DELETE_BACKUP_DESCRIPTION": "The backup has been deleted",
       "CREATED_WORKFLOW": "Workflow has been created succesfully",
       "RUN_WORKFLOW": "The workflow {{name}} is running!",
+      "STOP_WORKFLOW": "The workflow is stopping!",
       "DELETE_WORKFLOW": "Workflow '{{name}}' has been deleted.",
       "LIST_INPUT_ERROR": "Cannot get input template list",
       "LIST_WORKFLOW_ERROR": "Cannot get workflow list",
