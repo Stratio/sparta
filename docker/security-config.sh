@@ -38,13 +38,15 @@ if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true"
   echo "export VAULT_TOKEN=$VAULT_TOKEN" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export VAULT_TOKEN=$VAULT_TOKEN" >> ${SYSTEM_VARIABLES}
-
-# TODO check if generate errors in Spark
-# echo "" >> ${VARIABLES}
-# echo "export VAULT_TEMP_TOKEN=$VAULT_TOKEN" >> ${VARIABLES}
-# echo "" >> ${SYSTEM_VARIABLES}
-# echo "export VAULT_TEMP_TOKEN=$VAULT_TOKEN" >> ${SYSTEM_VARIABLES}
-
+  echo "" >> ${VARIABLES}
+  echo "export VAULT_PROTOCOL=https" >> ${VARIABLES}
+  echo "" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export VAULT_PROTOCOL=https" >> ${SYSTEM_VARIABLES}
+  echo "" >> ${VARIABLES}
+  echo "export VAULT_HOST=$VAULT_HOSTS" >> ${VARIABLES}
+  echo "" >> ${SYSTEM_VARIABLES}
+  echo "export VAULT_HOST=$VAULT_HOSTS" >> ${SYSTEM_VARIABLES}
 fi
 
 #Ensure security folder is created
@@ -62,7 +64,6 @@ fi
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"
 
-
 export SPARTA_TLS_JKS_NAME="/etc/sds/sparta/security/$TENANT_NAME.jks"
 export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
 export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
@@ -73,6 +74,7 @@ export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwor
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="/v1/userland/certificates/$TENANT_NAME"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="/v1/userland/passwords/$TENANT_NAME/keystore"
 export SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH=$SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH
+export VAULT_PROTOCOL="https"
 
 
 ####################################################
