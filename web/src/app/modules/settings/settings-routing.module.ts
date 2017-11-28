@@ -23,7 +23,7 @@ import { SpartaPlugins } from '@app/settings/resources/plugins/plugins.component
 import { SpartaCrossdata } from '@app/settings/crossdata/crossdata.component';
 
 
-const settingsRoutes:Routes = [
+const settingsRoutes: Routes = [
    {
       path: '',
       component: SettingsComponent,
@@ -38,7 +38,7 @@ const settingsRoutes:Routes = [
          },
         {
             path: 'resources',
-            redirectTo: 'resources/drivers'
+            redirectTo: 'resources/plugins'
          },
          {
             path: 'resources/drivers',

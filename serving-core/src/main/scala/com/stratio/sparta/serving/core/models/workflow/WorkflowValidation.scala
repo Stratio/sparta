@@ -36,11 +36,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
 
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.nodes.size >= 2) this
-    else copy(valid = false, messages = messages :+ "The workflow must contains almost two nodes")
+    else copy(valid = false, messages = messages :+ "The workflow must contains at least two nodes")
 
   def validateNonEmptyEdges(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.edges.nonEmpty) this
-    else copy(valid = false, messages = messages :+ "The workflow must contains almost one relation")
+    else copy(valid = false, messages = messages :+ "The workflow must contains at least one relation")
 
   def validateEdgesNodesExists(implicit workflow: Workflow): WorkflowValidation = {
     val nodesNames = workflow.pipelineGraph.nodes.map(_.name)

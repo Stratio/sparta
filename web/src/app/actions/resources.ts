@@ -15,7 +15,6 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
 
 export const LIST_DRIVERS = '[Resources] List drivers';
 export const LIST_DRIVERS_COMPLETE = '[Resources] List drivers complete';
@@ -23,6 +22,10 @@ export const LIST_DRIVERS_ERROR = '[Resources] List drivers error';
 export const LIST_PLUGINS = '[Resources] List plugins';
 export const LIST_PLUGINS_COMPLETE = '[Resources] List plugins complete';
 export const LIST_PLUGINS_ERROR = '[Resources] List plugins error';
+export const SELECT_PLUGIN = '[Resources] Select plugin';
+export const UNSELECT_PLUGIN = '[Resources] Unselect plugin';
+export const SELECT_DRIVER = '[Resources] Select driver';
+export const UNSELECT_DRIVER = '[Resources] Unselect driver';
 export const UPLOAD_PLUGIN = '[Resources] Upload plugin';
 export const UPLOAD_PLUGIN_COMPLETE = '[Resources] Upload plugin complete';
 export const UPLOAD_PLUGIN_ERROR = '[Resources] Upload plugin error';
@@ -41,6 +44,9 @@ export const DOWNLOAD_DRIVER_ERROR = '[Resources] Download driver error';
 export const DOWNLOAD_PLUGIN = '[Resources] Download plugin';
 export const DOWNLOAD_PLUGIN_COMPLETE = '[Resources] Download plugin complete';
 export const DOWNLOAD_PLUGIN_ERROR = '[Resources] Download plugin error';
+export const CHANGE_ORDER_DRIVERS = '[Resources] Change order drivers';
+export const CHANGE_ORDER_PLUGINS = '[Resources] Change order plugins';
+
 
 export class ListDriversAction implements Action {
   readonly type = LIST_DRIVERS;
@@ -79,6 +85,30 @@ export class ListPluginsErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class SelectPluginAction implements Action {
+  readonly type = SELECT_PLUGIN;
+
+  constructor(public payload: any) { }
+}
+
+export class UnselectPluginAction implements Action {
+  readonly type = UNSELECT_PLUGIN;
+
+  constructor(public payload: any) { }
+}
+
+export class SelectDriverAction implements Action {
+  readonly type = SELECT_DRIVER;
+
+  constructor(public payload: any) { }
+}
+
+export class UnselectDriverAction implements Action {
+  readonly type = UNSELECT_DRIVER;
+
+  constructor(public payload: any) { }
+}
+
 export class UploadPluginAction implements Action {
   readonly type = UPLOAD_PLUGIN;
 
@@ -102,8 +132,6 @@ export class UploadPluginErrorAction implements Action {
 
 export class DeletePluginAction implements Action {
   readonly type = DELETE_PLUGIN;
-
-  constructor(public payload: any) { }
 }
 
 
@@ -204,12 +232,28 @@ export class DownloadPluginErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class ChangeOrderDrivers implements Action {
+  readonly type = CHANGE_ORDER_DRIVERS;
+
+  constructor(public payload: any) { }
+}
+
+export class ChangeOrderPlugins implements Action {
+  readonly type = CHANGE_ORDER_PLUGINS;
+
+  constructor(public payload: any) { }
+}
+
 export type Actions = ListDriversAction |
   ListDriversCompleteAction |
   ListDriversErrorAction |
   ListPluginsAction |
   ListPluginsCompleteAction |
   ListPluginsErrorAction |
+  SelectDriverAction |
+  UnselectDriverAction |
+  SelectPluginAction |
+  UnselectPluginAction |
   UploadPluginAction |
   UploadPluginCompleteAction |
   UploadPluginErrorAction |
@@ -227,5 +271,7 @@ export type Actions = ListDriversAction |
   DownloadPluginErrorAction |
   DownloadDriverAction |
   DownloadDriverCompleteAction |
-  DownloadDriverErrorAction;
+  DownloadDriverErrorAction |
+  ChangeOrderDrivers |
+  ChangeOrderPlugins;
 

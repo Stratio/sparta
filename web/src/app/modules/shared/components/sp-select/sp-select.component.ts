@@ -15,7 +15,6 @@
 ///
 
 import {
-    AfterViewInit,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
@@ -26,15 +25,10 @@ import {
     OnDestroy,
     OnInit,
     Output,
-    SimpleChange,
-    SimpleChanges,
     ViewChildren,
     ElementRef
 } from '@angular/core';
-import {
-    ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validators,
-    ValidatorFn
-} from '@angular/forms';
+import { ControlValueAccessor, FormControl, NG_VALIDATORS, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
 @Component({
@@ -51,6 +45,7 @@ import { Subscription } from 'rxjs/Subscription';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnInit, OnDestroy {
+
     @Input() placeholder = '';
     @Input() name = '';
     @Input() label = '';
@@ -64,9 +59,9 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     @Input() maxLength: number;
     @Input() min: number;
     @Input() max: number;
-    @Input() isFocused: boolean = false;
-    @Input() readonly: boolean = false;
-    @Input() public errorRequiredMessage: string = '';
+    @Input() isFocused = false;
+    @Input() readonly = false;
+    @Input() public errorRequiredMessage = '';
 
     @Input()
     get value(): any {
@@ -83,8 +78,8 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
 
     @ViewChildren('input') vc: any;
 
-    public disabled: boolean = false; // To check disable
-    public focus: boolean = false;
+    public disabled = false; // To check disable
+    public focus = false;
     public internalControl: FormControl;
     public errorMessage: string = undefined;
     public selectedOption: any;
@@ -106,11 +101,11 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
 
 
     validate(control: FormControl): any {
-      if (this.sub) {
-         this.sub.unsubscribe();
-      }
-      this.sub = control.statusChanges.subscribe(() => this.checkErrors(control));
-      this.checkErrors(control);
+        if (this.sub) {
+            this.sub.unsubscribe();
+        }
+        this.sub = control.statusChanges.subscribe(() => this.checkErrors(control));
+        this.checkErrors(control);
     }
 
     ngOnChanges(change: any): void {
@@ -121,7 +116,7 @@ export class SpSelectComponent implements ControlValueAccessor, OnChanges, OnIni
     }
 
     showOptions() {
-        if(this.internalControl.disabled) {
+        if (this.internalControl.disabled) {
             this.active = false;
         } else {
             this.active = !this.active;

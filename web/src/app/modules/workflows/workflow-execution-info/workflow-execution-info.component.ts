@@ -76,7 +76,6 @@ export class WorkflowExecutionInfoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        console.log(this.executionInfo);
     }
 
     closeWorkflowExecutinInfo() {

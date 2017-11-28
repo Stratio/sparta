@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input, HostListener } from '@angular/core';
+import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input, NgZone } from '@angular/core';
 import * as d3 from 'd3';
 
 @Directive({ selector: '[svg-draggable]' })
@@ -53,9 +53,9 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     onClick() {
         d3.event.stopPropagation();
         this.clicks++;
-        if (this.clicks == 1) {
+        if (this.clicks === 1) {
             setTimeout(() => {
-                if (this.clicks == 1) { //single click
+                if (this.clicks === 1) { //single click
                     this.onClickEvent.emit();
                 } else {                //double click
                     this.onDoubleClickEvent.emit();
@@ -66,7 +66,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
 
-    constructor(private elementRef: ElementRef) {
+    constructor(private elementRef: ElementRef, private zone: NgZone) {
         this.element = d3.select(this.elementRef.nativeElement);
     }
 }

@@ -45,5 +45,6 @@ export const icons: any = {
     Trigger: '\ue950',
     Checkpoint: '\ue61b',
     Datetime: '\ue64d',
-    Custom: '\ue60a'
+    Custom: '\ue60a',
+    ElasticSearch: '\ue624'
 };

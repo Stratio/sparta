@@ -18,7 +18,6 @@ import { Component, ViewEncapsulation, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as fromRoot from 'reducers';
 import { Subscription } from 'rxjs/Rx';
-import { CustomAlert } from 'app/models/alert.model';
 import { Store } from '@ngrx/store';
 import { StAlertsService } from '@stratio/egeo';
 

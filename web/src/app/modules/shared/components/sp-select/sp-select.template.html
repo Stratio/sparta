@@ -1,12 +1,13 @@
 <div class="sp-select" [ngClass]="{'active' : active}" [attr.id]="qaTag">
-   <label sp-label class="st-input__label" [ngClass]="{'active' : active, error: showError(), disabled: disabled}" name="name" [attr.id]="qaTag"
-      [attr.title]="tooltip">
+   <label sp-label class="st-input__label" [ngClass]="{'active' : active, error: showError(), disabled: disabled}" name="name"
+      [attr.id]="qaTag" [attr.title]="tooltip">
     {{label}}
     </label>
 
    <div class="sp-select-data" [ngClass]="{error: showError(), disabled: disabled}">
       <div class="st-input" (click)="showOptions()">
-         <input readonly="readonly" [(ngModel)]="internalControl.value.label" type="text" class="select-value" name="fragmentType" placeholder="">
+         <input readonly="readonly" [(ngModel)]="internalControl.value.label" type="text" class="select-value" name="fragmentType"
+            placeholder="">
          <i class="icon-arrow2_down arrow"></i>
       </div>
       <ul class="options" *ngIf="active && options.length">
@@ -14,5 +15,9 @@
             <span>{{option.label}}</span>
          </li>
       </ul>
+   </div>
+
+   <div class="st-input-error-layout" *ngIf="showError()">
+      <span class="st-input-error-message">{{errorMessage}}</span>
    </div>
 </div>

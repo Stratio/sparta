@@ -110,6 +110,9 @@ export const getSelectedBackups: any =  createSelector(getBackupsState, fromBack
 // resources
 export const getPluginsList: any = createSelector(getResourcesState, fromResources.getPluginsList);
 export const getDriversList: any = createSelector(getResourcesState, fromResources.getDriversList);
+export const getSelectedPlugins: any = createSelector(getResourcesState, fromResources.getSelectedPlugins);
+export const getSelectedDrivers: any = createSelector(getResourcesState, fromResources.getSelectedDrivers);
+
 
 // crossdata
 export const getTablesList: any = createSelector(getCrossdataState, fromCrossdata.getTableList);

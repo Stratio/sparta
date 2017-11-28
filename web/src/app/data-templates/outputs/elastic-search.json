@@ -24,6 +24,7 @@
                "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
                "default": "localhost",
                "required": true,
+               "width": 6,
                "qa": "fragment-details-elasticSearch-node"
             },
             {
@@ -32,6 +33,7 @@
                "propertyType": "text",
                "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
                "default": "9200",
+               "width": 3,
                "required": true,
                "qa": "fragment-details-elasticSearch-httpPort"
             }

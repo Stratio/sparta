@@ -14,8 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectorRef, ViewChildren } from '@angular/core';
-import { ControlValueAccessor, FormGroup, FormControl } from '@angular/forms';
+import { Component, OnInit, Output, EventEmitter, Input, ViewChildren } from '@angular/core';
 
 @Component({
     selector: 'form-file',
@@ -25,14 +24,19 @@ import { ControlValueAccessor, FormGroup, FormControl } from '@angular/forms';
 export class FormFileComponent implements OnInit {
 
     @Input() text: any;
-    @Input() type: string = 'button-primary'
+    @Input() type = 'button-primary';
     @Output() onFileUpload = new EventEmitter<string>();
 
-    ngOnInit(): void {}
+    @ViewChildren('fileUpload') vc: any;
+
+    ngOnInit(): void { }
 
     onChange(event: any) {
         this.onFileUpload.emit(event.srcElement.files);
+        this.vc.first.nativeElement.value = '';
     }
+
+    constructor() { }
 
 }
 

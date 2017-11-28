@@ -15,13 +15,11 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ChangeDetectionStrategy,
-    ChangeDetectorRef, HostListener, Input, ViewChild
+    Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ViewChild
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Rx';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs/Subscription';
 import * as wizardActions from 'actions/wizard';
 import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
 import { inputsObject } from 'data-templates/inputs';

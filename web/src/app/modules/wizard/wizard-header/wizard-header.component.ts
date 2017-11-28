@@ -22,8 +22,6 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
 
 import * as fromRoot from 'reducers';
-import * as inputActions from 'actions/input';
-import * as outputActions from 'actions/output';
 import * as wizardActions from 'actions/wizard';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';

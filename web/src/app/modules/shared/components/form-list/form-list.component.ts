@@ -88,11 +88,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
 
     ngOnInit() {
         for (const field of this.formListData.fields) {
-            if (field.propertyType === 'boolean' || !field.required) {
-                this.item[field.propertyId] = [''];
-            } else {
-                this.item[field.propertyId] = ['', Validators.required];
-            }
+            this.item[field.propertyId] = this.addItemValidation(field);
 
             if (field.visible && field.visible.length) {
                 this.visibleConditions.push({
@@ -117,6 +113,15 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
         this.internalControlSubscription = this.internalControl.valueChanges.subscribe((form: FormGroup) => {
             this.onChange(this.items.value);
         });
+    }
+
+    addItemValidation(field: any) {
+        const item: any = {};
+        if (field.propertyType === 'boolean' || !field.required) {
+            return [''];
+        } else {
+            return ['', Validators.required];
+        }
     }
 
     //create empty item
@@ -164,7 +169,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
 
     checkDisabledField(propertyConditions: any, group: any, propertyId: string, conditionType: string) {
         let enable = (conditionType !== 'OR');
-        console.log(enable)
         propertyConditions.forEach((rule: any) => {
             if (conditionType === 'OR' && rule.value == group.controls[rule.propertyId].value) {
                 enable = true;
@@ -209,7 +213,8 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
             for (const value of data) {
                 const item: any = {};
                 for (const field of this.formListData.fields) {
-                    item[field.propertyId] = [value[field.propertyId]];
+                    item[field.propertyId] = this.addItemValidation(field);
+                    item[field.propertyId][0] = value[field.propertyId];
                 }
                 const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);

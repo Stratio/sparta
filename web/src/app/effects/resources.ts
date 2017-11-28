@@ -14,14 +14,14 @@
 /// limitations under the License.
 ///
 
-import { Action } from '@ngrx/store';
+import { Action, Store } from '@ngrx/store';
 import { Actions, Effect } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import * as resourcesActions from 'actions/resources';
 import { ResourcesService } from 'app/services';
+import * as fromRoot from 'reducers';
 import * as errorsActions from 'actions/errors';
-
 
 @Injectable()
 export class ResourcesEffect {
@@ -70,17 +70,23 @@ export class ResourcesEffect {
                     return Observable.of(new resourcesActions.UploadPluginErrorAction(''));
                 });
         });
-        
+
     @Effect()
     deletePlugin$: Observable<Action> = this.actions$
-        .ofType(resourcesActions.DELETE_PLUGIN).switchMap((data: any) => {
-            return this.resourcesService.deletePlugin(data.payload)
-                .mergeMap(() => {
-                    return [new resourcesActions.DeletePluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
-                }).catch(function (error) {
-                    return Observable.of(new resourcesActions.DeletePluginErrorAction(''));
-                });
+        .ofType(resourcesActions.DELETE_PLUGIN)
+        .withLatestFrom(this.store.select(state => state.resources))
+        .switchMap(([payload, resources]: [any, any]) => {
+            const joinObservables: Observable<any>[] = [];
+            resources.selectedPlugins.forEach((fileName: string) => {
+                joinObservables.push(this.resourcesService.deletePlugin(fileName));
+            });
+            return Observable.forkJoin(joinObservables).mergeMap(results => {
+                return [new resourcesActions.DeletePluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
+            }).catch(function (error: any) {
+                return Observable.from([new resourcesActions.DeletePluginErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+            });
         });
+
 
     @Effect()
     deleteDriver$: Observable<Action> = this.actions$
@@ -95,6 +101,7 @@ export class ResourcesEffect {
 
     constructor(
         private actions$: Actions,
-        private resourcesService: ResourcesService
+        private resourcesService: ResourcesService,
+        private store: Store<fromRoot.State>
     ) { }
 }

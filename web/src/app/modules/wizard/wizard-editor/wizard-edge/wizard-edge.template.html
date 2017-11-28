@@ -1,8 +1,8 @@
 <svg:g class="segmentContainer">
     <defs>
-        <svg:path [attr.id]="'path' + index" [attr.d]="getPosition(x1,y1,x2,y2)"></svg:path>
+        <svg:path [attr.id]="'path' + index" class="svgPathVar"></svg:path>
     </defs>
     <use [attr.xlink:href]="'#path' + index" class="segment" marker-start="url(#UpArrowPrecise)" 
-    marker-end="url(#DownArrowPrecise)" [ngClass]="{'selected' : selectedSegment && selectedSegment.origin === initialEntityName && selectedSegment.destination === finalEntityName}"/>    
+    marker-end="url(#DownArrowPrecise)" [ngClass]="{'selected' : isSelected}"/>    
    <use [attr.xlink:href]="'#path' + index" class="segment-hover" stroke-width="15" (click)="selectSegment($event)"/>
 </svg:g>

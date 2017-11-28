@@ -188,7 +188,6 @@
                  "propertyType": "boolean",
                  "default": true,
                  "required": true,
-                 "width": 3,
                  "qa": "fragment-details-field-nullable"
               }
            ]

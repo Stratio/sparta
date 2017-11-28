@@ -14,14 +14,15 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 
 @Component({
     selector: 'selected-entity',
     styleUrls: ['selected-entity.styles.scss'],
-    templateUrl: 'selected-entity.template.html'
+    templateUrl: 'selected-entity.template.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class SelectedEntityComponent implements OnInit, OnDestroy {
@@ -29,22 +30,12 @@ export class SelectedEntityComponent implements OnInit, OnDestroy {
     public topPosition = '0';
     public leftPosition = '0';
 
-
-    clickEvent(event: any) {
-      /*  setTimeout(() => {
-            this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
-        },10000);*/
-
-    }
-
     constructor(private zone: NgZone, private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>) { }
 
     ngOnInit(): void {
         this.zone.runOutsideAngular(() => {
             this.mouseMove = this.mouseMove.bind(this);
-            this.clickEvent = this.clickEvent.bind(this);
             window.document.addEventListener('mousemove', this.mouseMove);
-            window.document.addEventListener('click', this.clickEvent);
         });
     }
 
@@ -58,7 +49,6 @@ export class SelectedEntityComponent implements OnInit, OnDestroy {
         this._cd.detach();
         this.zone.runOutsideAngular(() => {
             window.document.removeEventListener('mousemove', this.mouseMove, false);
-            window.document.removeEventListener('click', this.clickEvent, false);
         });
     }
 }

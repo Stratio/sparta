@@ -14,11 +14,11 @@
 /// limitations under the License.
 ///
 
-import { Subject } from 'rxjs/Rx';
+import { Subject } from 'rxjs/Subject';
 import { OnDestroy } from '@angular/core/core';
 import { Component, OnInit, Output, EventEmitter, Input, forwardRef, ChangeDetectorRef } from '@angular/core';
-import { ControlValueAccessor, FormGroup, FormControl, FormArray, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
-import { Subscription } from 'rxjs/Rx';
+import { ControlValueAccessor, FormGroup, FormControl, NG_VALUE_ACCESSOR, Validator, NG_VALIDATORS } from '@angular/forms';
+import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     selector: 'form-generator',

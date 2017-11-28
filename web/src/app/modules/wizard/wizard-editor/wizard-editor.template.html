@@ -18,11 +18,8 @@
                [initialEntityName]="relation.origin.name" 
                [finalEntityName]="relation.destination.name"
                [selectedSegment]="selectedSegment" 
-               [x1]="relation.origin.uiConfiguration.position.x"
-               [y1]="relation.origin.uiConfiguration.position.y"
-               [x2]="relation.destination.uiConfiguration.position.x"
-               [y2]="relation.destination.uiConfiguration.position.y"
                [index]="i"
+               [position]="{e1: relation.origin.uiConfiguration.position, e2: relation.destination.uiConfiguration.position}"
                (onRemoveSegment)="removeSegment($event)"/>
 
             <g wizard-node svg-draggable *ngFor="let entity of entities;" 

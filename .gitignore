@@ -55,6 +55,7 @@ logs
 /default
 checkpoint
 spark-warehouse
+plugins
 node
 node_modules
 bower_components
@@ -74,6 +75,7 @@ nexus
 
 
 \.spark-warehouse
+\.plugins
 \.directory
 
 web/npm.tar.gz

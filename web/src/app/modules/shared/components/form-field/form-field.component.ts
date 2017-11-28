@@ -72,6 +72,14 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
                     }));
                 }
             }
+
+            if (this.field.visibleOR && this.field.visibleOR.length) {
+                for (const field of this.field.visibleOR[0]) {
+                    this.disableSubscription.push(this.stFormGroup.controls[field.propertyId].valueChanges.subscribe((value) => {
+                        this.disableFieldOR();
+                    }));
+                }
+            }
             setTimeout(() => {
                 this.stFormControl.updateValueAndValidity();
             });

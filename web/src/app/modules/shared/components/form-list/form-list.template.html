@@ -16,7 +16,7 @@
                            contextualHelp="{{field.tooltip | translate}}"></sp-input>
 
                         <sp-select [forceValidations]="forceValidations" *ngIf="field.propertyType == 'select'" [options]="field.values" qaTag="form-list-combo"
-                           label="{{field.propertyName | translate}}" tooltip="Select option from list" placeholder="{{field.propertyName | translate}}"
+                           label="{{field.propertyName | translate}}" tooltip="Select option from list" [errors]="errorsService.errors.inputErrors" placeholder="{{field.propertyName | translate}}"
                            [required]="field.required" [formControl]="item.controls[field.propertyId]"></sp-select>
 
                         <st-checkbox *ngIf="field.propertyType == 'boolean'" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>

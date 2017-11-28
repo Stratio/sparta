@@ -51,8 +51,10 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     };
     public showConnector = false;
 
+    // selectors
     public SVGParent: any;
     public SVGContainer: any;
+    private documentRef: any;
     public connectorElement: any;
 
     public selectedEntity: any = '';
@@ -74,7 +76,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     private selectedSegmentSubscription: Subscription;
 
     private creationMode: any;
-    private documentRef: any;
     private newOrigin = '';
 
     private zoom: ZoomBehavior<any, any>;
@@ -138,11 +139,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                     }),
                 };
             });
+            this._cd.detectChanges();
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
 
         this.selectedSegmentSubscription = this.store.select(fromRoot.getSelectedRelation).subscribe((relation) => {
             this.selectedSegment = relation;
+            this._cd.detectChanges();
         });
 
 

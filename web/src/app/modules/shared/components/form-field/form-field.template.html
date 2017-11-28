@@ -14,6 +14,7 @@
       [maxlength]="field.maxlength"></sp-input>
 
     <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
+      
       <!-- highlight textarea -->
       <sp-textarea-highlight *ngIf="field.contentType" 
           [formControl]="stFormControl"

@@ -14,14 +14,7 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Store } from '@ngrx/store';
-import { BackupType } from 'app/models/backup.model';
-import * as fromRoot from 'reducers';
-import * as crossdataActions from 'actions/crossdata';
-import { Observable } from 'rxjs/Observable';
-import { StHorizontalTab } from '@stratio/egeo';
-import { TranslateService } from '@ngx-translate/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { BreadcrumbMenuService } from 'services';
 
 @Component({

@@ -114,7 +114,6 @@ export class WorkflowEffect {
         .ofType(workflowActions.STOP_WORKFLOW)
         .switchMap((data: any) => {
             return this.workflowService.stopWorkflow(data.payload).map((response: any) => {
-                console.log(data.payload);
                 return new workflowActions.StopWorkflowCompleteAction(data.payload);
             }).catch(function (error) {
                 return Observable.from([new workflowActions.StopWorkflowErrorAction(), new errorsActions.HttpErrorAction(error)]);

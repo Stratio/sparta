@@ -62,10 +62,10 @@ export class MenuService {
                     label: 'Backups',
                     link: DASHBOARD_ROUTES.BACKUPS
                 },
-                /*{
+                {
                     label: 'Resources',
                     link: DASHBOARD_ROUTES.RESOURCES
-                },*/
+                },
                 {
                     label: 'Crossdata',
                     link: DASHBOARD_ROUTES.CROSSDATA

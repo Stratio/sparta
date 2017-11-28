@@ -23,6 +23,8 @@ import { Subscription } from 'rxjs/Subscription';
 import * as CodeMirror from 'codemirror/lib/codemirror';
 import * as jsmirror from 'codemirror/mode/javascript/javascript';
 import * as sqlmirror from 'codemirror/mode/sql/sql';
+import * as showHint from 'codemirror/addon/hint/show-hint';
+import * as sqlHint from 'codemirror/addon/hint/sql-hint';
 
 import { SpTextareaError } from '@app/shared/components/sp-textarea/sp-textarea.error.model';
 
@@ -84,8 +86,8 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   @ViewChildren('textarea') vc: any;
   @ViewChild('textarea') host: any;
 
-  public isDisabled: boolean = false; // To check disable
-  public focus: boolean = false;
+  public isDisabled = false; // To check disable
+  public focus = false;
   public errorMessage: string = undefined;
   public instance: any;
   public internalControl: FormControl;
@@ -114,8 +116,10 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   ngOnInit(): void {
+    const h = showHint;
     const a = jsmirror;
     const b = sqlmirror;
+    const b1 = sqlHint;
     this.internalControl = new FormControl(this.internalTextareaModel);
     this.config = this.getConfig(this.contentType);
   }
@@ -145,6 +149,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
 
   codemirrorInit(config: any) {
+    let active =  false;
     this.instance = CodeMirror.fromTextArea(this.host.nativeElement, config);
     //this.instance.setValue(this._value);
 
@@ -153,6 +158,28 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
       this.internalControl.setValue(value);
       this.onChange(value);
     });
+
+    this.instance.on('blur', () => {
+      this.focus = false;
+      this._cd.detectChanges();
+    });
+
+    this.instance.on('focus', () => {
+      this.focus = true;
+      this._cd.detectChanges();
+    });
+
+    /* const that = this;
+
+    this.instance.on('keyup', function (cm: any, event: any) {
+      if (!cm.state.completionActive && 
+        event.keyCode !== 13) {        
+
+        if (that.instance.getValue().length > 1) {
+          CodeMirror.showHint(cm);
+        }
+      }
+    });*/
 
     this.renderer.setElementStyle(this.elementRef.nativeElement.querySelector('.CodeMirror-scroll'), 'min-height', 22 * this.rows + 'px');
   }
@@ -178,7 +205,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
   // When value is received from outside
   writeValue(value: any): void {
-    if(!value) {
+    if (!value) {
       value = '';
     }
     if (typeof value === 'object') {

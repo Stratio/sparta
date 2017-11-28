@@ -166,6 +166,7 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.DELETE_NODE_RELATION: {
+
             return Object.assign({}, state, {
                 edges: state.edges.filter((edge: any) => {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
@@ -209,7 +210,6 @@ export function reducer(state: State = initialState, action: any): State {
             });
         }
         case wizardActions.DUPLICATE_NODE: {
-            console.log(action.payload);
             return Object.assign({}, state, {
                 selectedCreationEntity: action.payload,
                 entityCreationMode: true

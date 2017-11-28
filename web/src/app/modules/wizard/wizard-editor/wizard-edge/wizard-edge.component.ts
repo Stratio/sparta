@@ -16,12 +16,14 @@
 
 import {
     Component, OnInit, OnDestroy, ElementRef, Input,
-    ChangeDetectionStrategy, EventEmitter, Output
+    ChangeDetectionStrategy, EventEmitter, Output, ChangeDetectorRef, SimpleChanges
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
 import { ENTITY_BOX } from '../../wizard.constants';
+import * as d3 from 'd3';
 import * as wizardActions from 'actions/wizard';
+import { AfterContentInit, OnChanges } from '@angular/core';
 
 @Component({
     selector: '[wizard-edge]',
@@ -29,29 +31,56 @@ import * as wizardActions from 'actions/wizard';
     templateUrl: 'wizard-edge.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WizardEdgeComponent implements OnInit, OnDestroy {
+export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges, OnDestroy {
+
 
     @Input() initialEntityName: string;
     @Input() finalEntityName: string;
     @Output() onRemoveSegment = new EventEmitter<any>();
     @Input() selectedSegment: any;
     @Input() index = 0;
-
-    // coords
-    @Input() x1: any;
-    @Input() y1: any;
-    @Input() x2: any;
-    @Input() y2: any;
+    @Input() position: any;
 
     public segment = '';
+    public isSelected = false;
 
     private h = ENTITY_BOX.height;
     private w = ENTITY_BOX.width;
 
+    private svgPathVar: any;
 
-    constructor(elementRef: ElementRef, private store: Store<fromRoot.State>) { }
+
+    constructor(private elementRef: ElementRef, private store: Store<fromRoot.State>,
+    private _cd: ChangeDetectorRef) { }
+
+    ngAfterContentInit(): void {
+        this.svgPathVar = d3.select(this.elementRef.nativeElement.querySelector('.svgPathVar'));
+        this.getPosition(this.position.e1.x, this.position.e1.y, this.position.e2.x, this.position.e2.y );
+        this._cd.detectChanges();
+        this._cd.detach();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (!changes.position) {
+            if (changes.selectedSegment) {
+                if (this.selectedSegment && this.selectedSegment.origin === this.initialEntityName
+                    && this.selectedSegment.destination === this.finalEntityName) {
+                    this.isSelected = true;
+                } else {
+                    this.isSelected = false;
+                }
+            }
+            this._cd.detectChanges();
+        } else {
+            this.getPosition(this.position.e1.x, this.position.e1.y, this.position.e2.x, this.position.e2.y );
+        }
+    }
 
     getPosition(x1: number, y1: number, x2: number, y2: number) {
+        if (!this.svgPathVar) {
+            return;
+        }
+
         const diff = Math.abs(x1 - x2);
         if (diff > this.w + 16) {
             y1 += this.h / 2;
@@ -65,7 +94,7 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
                 x2 -= 0;
             }
 
-            return 'M' + x2 + ',' + y2 + ' C' + x1 + ',' + y2 + ' ' + x2 + ',' + y1 + ' ' + x1 + ',' + y1;
+            this.svgPathVar.attr('d', 'M' + x2 + ',' + y2 + ' C' + x1 + ',' + y2 + ' ' + x2 + ',' + y1 + ' ' + x1 + ',' + y1);
 
         } else {
 
@@ -79,7 +108,7 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
                 y2 -= 0;
             }
 
-            return 'M' + x2 + ',' + y2 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x1 + ',' + y1;
+            this.svgPathVar.attr('d', 'M' + x2 + ',' + y2 + ' C' + x2 + ',' + y1 + ' ' + x1 + ',' + y2 + ' ' + x1 + ',' + y1);
         }
     }
 
@@ -95,13 +124,6 @@ export class WizardEdgeComponent implements OnInit, OnDestroy {
                 destination: this.finalEntityName
             }));
         }
-    }
-
-    deleteSegment() {
-        this.onRemoveSegment.emit({
-            origin: this.initialEntityName,
-            destination: this.finalEntityName
-        });
     }
 
 

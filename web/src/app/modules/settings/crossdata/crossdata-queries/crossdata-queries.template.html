@@ -13,7 +13,8 @@
       <loading-spinner *ngIf="isLoadingQuery$ | async" class="loading"></loading-spinner>
       <span class="error st-input-error-message">{{queryError}}</span>
    </div>
-   <div *ngIf="isLoadingQuery$ | async">
+
+   <div *ngIf="!(isLoadingQuery$ | async)">
       <st-pagination [total]="results.length" *ngIf="results && results.length && results.length>10" [perPage]="perPage" [currentPage]="currentPage"
          (change)="changePage($event)">
       </st-pagination>

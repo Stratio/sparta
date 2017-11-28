@@ -3,6 +3,8 @@ $egeo-sanitize: true;
 @import '~@stratio/egeo/theme/grid.css';
 @import '~@stratio/egeo/theme/theme.css';
 @import '~codemirror/lib/codemirror.css';
+@import '~codemirror/addon/hint/show-hint.css';
+
 html {
    font-size: 16px;
 }
@@ -41,6 +43,10 @@ sp-textarea {
 
 
 /* codemirror overrides */
+
+.disabled .CodeMirror pre, .disabled .CodeMirror *{
+    color: #dedede!important;
+}
 
 .CodeMirror {
    display: block;
@@ -122,5 +128,24 @@ sp-textarea {
 .sth-alert-box-message-body {
    p {
       word-break: break-word;
+   }
+}
+
+.st-modal-content {
+    animation: ModalAnimation 0.3s!important;
+}
+
+@keyframes ModalAnimation {
+   0% {
+      opacity: 0;
+      transform: scale(0.8)
+   }
+   70% {
+      opacity: 1;
+      transform: scale(1.0)
+   }
+   100% {
+      opacity: 1;
+      transform: none;
    }
 }

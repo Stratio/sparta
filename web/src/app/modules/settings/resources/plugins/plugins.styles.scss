@@ -1,9 +1,23 @@
-.actions{
-    float:right;
+.actions {
+   float: right;
 }
 
 .menu-actions {
-    vertical-align: top;
-    display:inline-block;
-    padding-bottom:8px;
+   vertical-align: top;
+   display: inline-block;
+   padding-bottom: 8px;
+}
+
+.plugins-table {
+   display: block;
+   margin-top: 30px;
+}
+
+.check-column{
+    width:10px;
+    padding-right: 0;
+}
+
+.plugin-row {
+    cursor:pointer;
 }

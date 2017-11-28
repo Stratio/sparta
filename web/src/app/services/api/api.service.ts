@@ -14,14 +14,12 @@
 /// limitations under the License.
 ///
 
-import { ConfigService } from '@app/core';
 import { Injectable } from '@angular/core';
-import { Http, Response, RequestOptions, URLSearchParams } from '@angular/http';
+import { URLSearchParams } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { Store } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 import * as fromRoot from 'reducers';
-import * as errorsActions from 'actions/errors';
 
 
 export interface ApiRequestOptions {

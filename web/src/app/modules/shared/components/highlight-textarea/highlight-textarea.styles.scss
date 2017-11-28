@@ -42,6 +42,12 @@
    }
 }
 
+.active {
+   .textarea-scroll {
+      border-color: #128bde;
+   }
+}
+
 .disabled {
    .textarea-scroll {
       border-color: #dedede;
