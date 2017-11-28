@@ -128,7 +128,7 @@ hose {
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
-            | -DSPARTA_JSON=spartamustache_1.7.8.json
+            | -DSPARTA_JSON=spartamustache.json
             | -DWORKFLOW=testinput-to-print
             | -DAUTH_ENABLED=false
             | -DCALICOENABLED=false
@@ -138,6 +138,7 @@ hose {
             | -DFORCE_BROWSER=chrome_48%%JUID
             | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             | -Dquietasdefault=false
+            | -DNGINX_ACTIVE=false
             """
     INSTALL = { config ->
         doAT(conf: config, groups: ['dcos_instalation','dcos_executions','dcos_streaming'])

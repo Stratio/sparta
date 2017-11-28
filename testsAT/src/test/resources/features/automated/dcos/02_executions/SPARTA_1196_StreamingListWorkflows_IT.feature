@@ -33,6 +33,7 @@ Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
 
     When I browse to '/executors'
     Then '1' element exists with 'id:active-executors'
+    And I wait '5' seconds
     And I take a snapshot
     
     #MVN Example

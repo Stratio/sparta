@@ -5,7 +5,7 @@ Feature: [SPARTA-1162] Add sparta policy in gosec
     #Generate token to conect to gosec
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
-
+  @runOnEnv(ID_POLICY_ZK)
   Scenario: [SPARTA-1162][01]Add zookeper-sparta policy to write in zookeper
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
