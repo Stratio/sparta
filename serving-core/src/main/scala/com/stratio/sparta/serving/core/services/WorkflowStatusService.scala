@@ -22,10 +22,11 @@ import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 
 import scala.collection.JavaConversions
 import scala.util.{Failure, Success, Try}
@@ -83,7 +84,8 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
           statusInfo = if (workflowStatusWithFields.statusInfo.isEmpty) actualStatus.statusInfo
           else workflowStatusWithFields.statusInfo,
           lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
-          else workflowStatusWithFields.lastExecutionMode
+          else workflowStatusWithFields.lastExecutionMode,
+          sparkURI = updateSparkURI(workflowStatusWithFields, actualStatus)
         )
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
 
@@ -158,4 +160,14 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
       case None => workflowStatus.copy(creationDate = Some(new DateTime()))
       case Some(_) => workflowStatus
     }
+
+  @inline
+  private[sparta] def updateSparkURI(workflowStatus: WorkflowStatus,
+                                     zkWorkflowStatus: WorkflowStatus): Option[String] = {
+    if (workflowStatus.sparkURI.notBlank.isDefined) workflowStatus.sparkURI
+    else if (workflowStatus.status == WorkflowStatusEnum.NotStarted  ||
+      workflowStatus.status == WorkflowStatusEnum.Stopped ||
+      workflowStatus.status == WorkflowStatusEnum.Failed) None
+    else zkWorkflowStatus.sparkURI
+  }
 }

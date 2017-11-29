@@ -34,6 +34,7 @@ object AkkaConstant {
   val ConfigActorName = "configurationActor"
   val MetadataActorName = "metadataActor"
   val CrossdataActorName = "crossdataActor"
+  val NginxActorName = "nginxActor"
 
   val DefaultTimeout = 19
   val DefaultInstances = 3

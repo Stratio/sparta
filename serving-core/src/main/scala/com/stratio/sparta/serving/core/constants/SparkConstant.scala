@@ -76,6 +76,7 @@ object SparkConstant {
   val SubmitMesosSecretConf = "spark.mesos.secret"
   val SubmitMesosRoleConf = "spark.mesos.role"
   val SubmitMasterConf = "spark.master"
+  val SubmitUiProxyPrefix = "spark.ui.proxyBase"
 
 
   // Properties only available in spark-submit

@@ -31,6 +31,7 @@ import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
+import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
@@ -136,7 +137,8 @@ class MarathonService(context: ActorContext,
         statusService.update(WorkflowStatus(
           id = workflowModel.get.id.get,
           status = Uploaded,
-          statusInfo = Option(information)
+          statusInfo = Option(information),
+          sparkURI = NginxUtils.buildSparkUI(workflowModel.get.name, Option(workflowModel.get.settings.global.executionMode))
         ))
       case _ =>
         val information = "Unrecognized message received from Marathon API"

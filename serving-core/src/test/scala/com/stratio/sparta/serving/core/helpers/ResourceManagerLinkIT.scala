@@ -29,12 +29,12 @@ class ResourceManagerLinkIT extends FlatSpec with ShouldMatchers with Matchers {
 
   it should "return local Spark UI link" in {
     val localhostName = java.net.InetAddress.getLocalHost().getHostName()
-    ResourceManagerLinkHelper.getLink("local", "local[*]", None, false) should be(Some
+    ResourceManagerLinkHelper.getLink("local", Option("local[*]"), None, false) should be(Some
     (s"http://${localhostName}:${sparkUIPort}"))
   }
 
   it should "return Mesos UI link" in {
-    ResourceManagerLinkHelper.getLink("mesos", "mesos://127.0.0.1:7077", None, false) should be(
+    ResourceManagerLinkHelper.getLink("mesos", Option("mesos://127.0.0.1:7077"), None, false) should be(
       Some(s"http://$localhost:$mesosPort"))
   }
 }

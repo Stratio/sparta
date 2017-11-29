@@ -17,6 +17,9 @@
 
 package com.stratio.sparta.serving.core.constants
 
+import scala.util.Properties
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+
 object MarathonConstant {
 
   /* Environment variables to Marathon Application */
@@ -90,4 +93,13 @@ object MarathonConstant {
   val LoggerStderrSizeEnv= "CONTAINER_LOGGER_MAX_STDERR_SIZE"
   val LoggerStdoutRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDOUT_OPTIONS"
   val LoggerStderrRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDERR_OPTIONS"
+
+  lazy val getMarathonLBPath: Option[String] =
+  for {
+    marathonLB_host <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_VHOST").notBlank
+    marathonLB_path <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_PATH").notBlank
+  } yield {
+    val ssl = Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean
+    s"http${if (ssl) "s" else ""}:" + s"//$marathonLB_host+$marathonLB_path"
+  }
 }

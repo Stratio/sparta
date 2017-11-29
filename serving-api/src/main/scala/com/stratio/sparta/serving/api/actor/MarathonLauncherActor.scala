@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.helpers.{ResourceManagerLinkHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends Actor
   with SchedulerUtils {
@@ -97,11 +97,11 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       case Success(marathonApp) =>
         val information = "Workflow App configuration initialized correctly"
         log.info(information)
+        val lastExecutionMode = Option(workflow.settings.global.executionMode)
         statusService.update(WorkflowStatus(
-          id = workflow.id.get,
+          workflow.id.get,
           status = NotStarted,
-          lastExecutionMode = Option(workflow.settings.global.executionMode)
-        ))
+          lastExecutionMode = lastExecutionMode))
         marathonApp.launch()
         clusterListenerService.addMarathonListener(workflow.id.get, context)
         checkersPolicyStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(

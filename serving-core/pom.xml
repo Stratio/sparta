@@ -181,5 +181,10 @@
             <groupId>org.scala-graph</groupId>
             <artifactId>graph-core_${scala.binary.version}</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${json-path.version}</version>
+        </dependency>
     </dependencies>
 </project>

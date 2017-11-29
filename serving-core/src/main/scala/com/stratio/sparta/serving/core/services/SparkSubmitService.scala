@@ -97,12 +97,12 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
     (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
-      addKerberosConfs(addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf(
-        addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs))))))))
+      addKerberosConfs(addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf
+      (addNginxPrefixConf(addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs)))))))))
   }
 
   def userPluginsJars: Seq[String] = {
-    val uploadedPlugins = if(workflow.settings.global.addAllUploadedPlugins)
+    val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
       Try {
         hdfsFilesService.browsePlugins.flatMap { fileStatus =>
           if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar"))
@@ -197,14 +197,20 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     } else sparkConfs
 
   private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
-    Properties.envOrNone(CalicoNetworkEnv).notBlank match {
-      case Some(calicoNetwork) =>
-        sparkConfs ++ Map(
-          SubmitDriverCalicoNetworkConf -> calicoNetwork,
-          SubmitExecutorCalicoNetworkConf -> calicoNetwork
-        )
-      case _ => sparkConfs
+    Properties.envOrNone(CalicoNetworkEnv).notBlank.fold(sparkConfs) { calicoNetwork =>
+      sparkConfs ++ Map(
+        SubmitDriverCalicoNetworkConf -> calicoNetwork,
+        SubmitExecutorCalicoNetworkConf -> calicoNetwork
+      )
     }
+
+  private[core] def addNginxPrefixConf(sparkConfs: Map[String, String]): Map[String, String] = {
+    for {
+      _ <- scala.util.Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
+      appName <- Properties.envOrNone(DcosServiceName).notBlank
+    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName/${workflow.name}")
+  } getOrElse sparkConfs
+
 
   private[core] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] =
     Map(

@@ -5,6 +5,13 @@ function _log_sparta_server() {
     echo "[SPARTA-SERVER] $message"
 }
 
+function prepareNginx(){
+   #Make cert.crt usable for Nginx by limiting each of its base64 line lengths to 65
+   if [ "$SECURITY_TLS_ENABLE" == "true" ]; then
+    fold -w65 /tmp/cert.crt > /tmp/nginx_cert.crt
+   fi
+}
+
 _log_sparta_server "Loading Sparta server functions ... "
  source /sparta-server-utils.sh
  _log_sparta_server "Loaded Sparta server functions"
@@ -63,6 +70,11 @@ _log_sparta_server "Loading Sparta server functions ... "
 
  # GOSEC OPTIONS
  goSecOptions
+
+ if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] ; then
+   _log_sparta_server "Setting Nginx environment..."
+   prepareNginx
+ fi
 
  if [[ ! -v RUN_MODE ]]; then
    RUN_MODE="production"

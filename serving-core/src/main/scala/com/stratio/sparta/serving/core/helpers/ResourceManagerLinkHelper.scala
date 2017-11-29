@@ -27,11 +27,11 @@ import scala.util._
 object ResourceManagerLinkHelper extends SLF4JLogging {
 
   def getLink(executionMode: String,
-              sparkMaster: String,
+              sparkMaster: Option[String] = None,
               monitoringLink: Option[String] = None,
               withCheck: Boolean = true): Option[String] = {
     val (host: String, port: Int) = (monitoringLink.notBlank, executionMode) match {
-      case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink(sparkMaster)
+      case (None, AppConstant.ConfigMesos) | (None, AppConstant.ConfigMarathon) => mesosLink(sparkMaster.get)
       case (None, AppConstant.ConfigLocal) => localLink
       case (Some(uri), _) => userLink(uri)
       case _ => throw new IllegalArgumentException(s"Wrong value in property executionMode: $executionMode")

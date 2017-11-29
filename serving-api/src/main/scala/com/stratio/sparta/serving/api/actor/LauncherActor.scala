@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Props, _}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.{Execute, SpartaSecurityManager}
+import com.stratio.sparta.serving.api.actor.NginxActor.UpdateAndMakeSureIsRunning
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._

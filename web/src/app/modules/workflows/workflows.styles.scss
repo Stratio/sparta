@@ -50,6 +50,17 @@
    padding-right: 0;
 }
 
+.spark-link {
+   max-width: 10px;
+   padding-left: 0;
+   padding-right: 30px;
+   i {
+      color: #128bde;
+      font-size: 20px;
+      line-height: 9px;
+   }
+}
+
 .status-field {
    font-family: "Nunito Sans SemiBold";
    &.Started {

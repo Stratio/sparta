@@ -37,6 +37,7 @@ import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 
 import scala.util.{Properties, Try}
 
@@ -44,6 +45,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   extends HttpServiceActor with SLF4JLogging with SpartaSerializer with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
+
+  val isLocalExecution: Boolean = Properties.envOrNone(DcosServiceName).fold(true){_ => false}
 
   val statusListenerActor = context.actorOf(Props(new ListenerActor()))
 
@@ -68,6 +71,9 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
+  val nginxActor =
+    if(isLocalExecution) None
+    else Option(context.actorOf(Props(new NginxActor()), NginxActorName))
 
   val localPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
 
@@ -84,13 +90,19 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     ConfigActorName -> configActor,
     CrossdataActorName -> crossdataActor,
     MetadataActorName -> metadataActor
-  )
+  ) ++ {
+    if(isLocalExecution) Map.empty else Map(NginxActorName -> nginxActor.get)
+  }
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
 
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
+
+  override def preStart(): Unit = {
+    statusActor ! AddClusterListeners
+  }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
 
@@ -181,15 +193,6 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def crossdataRoute(user: Option[LoggedUser]): Route = crossdataService.routes(user)
 
   def swaggerRoute: Route = swaggerService.routes
-
-  def getMarathonLBPath: Option[String] = {
-    val marathonLB_host = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_VHOST", "")
-    val marathonLB_path = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_0_PATH", "")
-
-    if (marathonLB_host.nonEmpty && marathonLB_path.nonEmpty)
-      Some("https://" + marathonLB_host + marathonLB_path)
-    else None
-  }
 
   private val templateService = new TemplateHttpService {
     implicit val actors = actorsMap
