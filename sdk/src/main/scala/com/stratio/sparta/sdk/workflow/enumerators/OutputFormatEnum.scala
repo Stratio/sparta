@@ -19,6 +19,6 @@ package com.stratio.sparta.sdk.workflow.enumerators
 object OutputFormatEnum extends Enumeration {
 
   type Status = Value
-  val ROW, JSON = Value
+  val ROW, JSON, AVRO = Value
 
 }

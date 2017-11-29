@@ -14,6 +14,7 @@
 /// limitations under the License.
 ///
 
+import * as avroTemplate from './transformations/avro.json';
 import * as castingTemplate from './transformations/casting.json';
 import * as checkpointTemplate from './transformations/checkpoint.json';
 import * as csvTemplate from './transformations/csv.json';
@@ -35,6 +36,7 @@ import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
 
 export const transformations: any = [
+   avroTemplate,
    castingTemplate,
    checkpointTemplate,
    csvTemplate,

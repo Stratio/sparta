@@ -1,0 +1,70 @@
+  {
+     "name": "Avro",
+     "icon": "Avro",
+     "className": "AvroTransformStep",
+     "classPrettyName": "Avro",
+     "arity": ["UnaryToNary"],
+     "description": "Parsing input field in text format to row",
+     "properties": [{
+           "propertyId": "inputField",
+           "propertyName": "_INPUT_FIELD_",
+           "propertyType": "text",
+           "required": true,
+           "tooltip": "Filed that contains the avro string",
+           "qa": "fragment-details-casting-fieldsString"
+        },
+        {
+           "propertyId": "fieldsPreservationPolicy",
+           "propertyName": "_FIELDS_PRESERVATION_",
+           "required": true,
+           "propertyType": "select",
+           "default": "REPLACE",
+           "values": [{
+                 "label": "Replacing input field",
+                 "value": "REPLACE"
+              },
+              {
+                 "label": "Appending extracted",
+                 "value": "APPEND"
+              },
+              {
+                 "label": "Keeping just extracted",
+                 "value": "JUST_EXTRACTED"
+              }
+           ],
+           "qa": "workflow-transformation-avro-fieldsPreservationPolicy"
+        },
+        {
+           "propertyId": "schema.provided",
+           "propertyName": "_DESERIALIZER_SCHEMA_",
+           "propertyType": "textarea",
+           "contentType": "JSON",
+           "width": 8,
+           "tooltip": "Avro Schema in json format",
+           "default": "",
+           "required": false,
+           "qa": "workflow-transformation-avro-schema-provided"
+        },
+        {
+           "propertyId": "whenError",
+           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+           "propertyType": "select",
+           "default": "Error",
+           "required": true,
+           "values": [{
+                 "label": "Error",
+                 "value": "Error"
+              },
+              {
+                 "label": "Discard",
+                 "value": "Discard"
+              },
+              {
+                 "label": "Null",
+                 "value": "Null"
+              }
+           ],
+           "qa": "workflow-transformation-avro-whenError"
+        }
+     ]
+  }

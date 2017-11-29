@@ -38,10 +38,6 @@ import scala.util.Try
 class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
-  override lazy val customKey = "kafkaProperties"
-  override lazy val customPropertyKey = "kafkaPropertyKey"
-  override lazy val customPropertyValue = "kafkaPropertyValue"
-
   val sparkConf: Map[String, String] = xDSession.conf.getAll
   val securityOpts: Map[String, AnyRef] = securityOptions(sparkConf)
 

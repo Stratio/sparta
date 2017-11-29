@@ -82,6 +82,10 @@
              {
                 "label": "Json",
                 "value": "JSON"
+             },
+             {
+                "label": "Avro",
+                "value": "AVRO"
              }
           ],
           "default": "STRING",
@@ -154,7 +158,7 @@
        },
       {
           "propertyId": "value.deserializer.json.schema.provided",
-          "propertyName": "_DESERIALIZER_SCHEMA_",
+          "propertyName": "_DESERIALIZER_JSON_SCHEMA_",
           "propertyType": "textarea",
           "contentType": "JSON",
           "tooltip": "Schema in json/Spark format or from example",
@@ -173,6 +177,24 @@
           ],
           "required": false,
           "qa": "fragment-details-kafka-deserializer-json"
+       },
+       {
+          "propertyId": "value.deserializer.avro.schema",
+          "propertyName": "_DESERIALIZER_AVRO_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "tooltip": "Avro schema",
+          "default": "",
+          "visible": [
+             [
+                {
+                   "propertyId": "value.deserializer.inputFormat",
+                   "value": "AVRO"
+                }
+             ]
+          ],
+          "required": false,
+          "qa": "fragment-details-kafka-deserializer-avro-schema"
        },
       {
         "propertyId": "partition.assignment.strategy",
@@ -216,14 +238,14 @@
         "propertyName": "_KAFKA_AUTO_OFFSET_",
         "propertyType": "select",
         "values": [
-          {
+           {
+              "label": "Latest",
+              "value": "latest"
+           },
+           {
             "label": "Earliest",
             "value": "earliest"
-          },
-          {
-            "label": "Latest",
-            "value": "latest"
-          }
+           }
         ],
         "default": "latest",
         "required": true,
@@ -242,7 +264,7 @@
         "propertyId": "storeOffsetInKafka",
         "propertyName": "_KAFKA_STORE_OFFSET_ITSELF_",
         "propertyType": "boolean",
-        "tooltip": "It's mandatory to disable the auto commit",
+        "tooltip": "It's mandatory to disable the auto commit when is activated",
         "default": true,
         "visible": [
           [
@@ -257,13 +279,13 @@
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
-        "propertyType": "switch",
+        "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
         "default": false,
         "qa": "fragment-details-kafka-tls"
       },
       {
-        "propertyId": "kafkaProperties",
+        "propertyId": "inputOptions",
         "propertyName": "_KAFKA_PROPERTIES_",
         "propertyType": "list",
         "required": false,
@@ -271,7 +293,7 @@
         "qa": "fragment-details-kafka-properties",
         "fields": [
           {
-            "propertyId": "kafkaPropertyKey",
+            "propertyId": "inputOptionsKey",
             "propertyName": "_KAFKA_PROPERTY_KEY_",
             "propertyType": "text",
              "width": 4,
@@ -279,7 +301,7 @@
             "qa": "fragment-details-kafka-kafkaPropertyKey"
           },
           {
-            "propertyId": "kafkaPropertyValue",
+            "propertyId": "inputOptionsValue",
             "propertyName": "_KAFKA_PROPERTY_VALUE_",
             "propertyType": "text",
              "width": 4,

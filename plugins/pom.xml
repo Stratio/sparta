@@ -268,6 +268,18 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>bijection-core_2.11</artifactId>
+            <version>0.9.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>bijection-avro_${scala.binary.version}</artifactId>
+            <version>0.9.6</version>
+        </dependency>
+
 
         <!--Test dependencies-->
         <dependency>

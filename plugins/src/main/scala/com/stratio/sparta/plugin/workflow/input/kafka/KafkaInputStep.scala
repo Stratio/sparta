@@ -50,14 +50,9 @@ class KafkaInputStep(
                     )
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
-  override lazy val customKey = "kafkaProperties"
-  override lazy val customPropertyKey = "kafkaPropertyKey"
-  override lazy val customPropertyValue = "kafkaPropertyValue"
-
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
-  //scalastyle:off
   def initStream(): DStream[Row] = {
     val brokerList = getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val serializers = Map(
@@ -87,8 +82,6 @@ class KafkaInputStep(
 
     outputDStream.asInstanceOf[DStream[Row]]
   }
-
-  //scalastyle:on
 
   /** GROUP ID extractions **/
 
@@ -142,8 +135,10 @@ class KafkaInputStep(
       "value.deserializer.json.schema.fromRow" -> properties.getBoolean("value.deserializer.json.schema.fromRow", true).toString,
       "value.deserializer.json.schema.inputMode" -> properties.getString("value.deserializer.json.schema.inputMode", "SPARKFORMAT"),
       "value.deserializer.json.schema.provided" -> properties.getString("value.deserializer.json.schema.provided", ""),
+      "value.deserializer.avro.schema" -> properties.getString("value.deserializer.avro.schema", ""),
       "value.deserializer.outputField" -> outputField
-    ) ++ properties.mapValues(_.toString).filterKeys(key => key.contains("key.deserializer.json"))
+    ) ++ properties.mapValues(_.toString)
+      .filterKeys(key => key.contains("key.deserializer.json") || key.contains("key.deserializer.avro"))
 
   //scalastyle:on
 

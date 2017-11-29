@@ -44,23 +44,26 @@
         "propertyId": "value.serializer.outputFormat",
         "propertyName": "_KAFKA_OUTPUT_FORMAT_",
         "propertyType": "select",
-        "regexp": "JSON|ROW",
         "values": [
            {
-              "label": "ROW",
+              "label": "Row",
               "value": "ROW"
            },
            {
-            "label": "JSON",
+            "label": "Json",
             "value": "JSON"
-          }
+           },
+           {
+              "label": "Avro",
+              "value": "AVRO"
+           }
         ],
         "default": "ROW",
         "required": true,
-        "qa": "fragment-details-kafka-format"
+        "qa": "fragment-details-kafka-outputFormat"
       },
       {
-        "propertyId": "value.serializer.delimiter",
+        "propertyId": "value.serializer.row.delimiter",
         "propertyName": "_KAFKA_ROW_SEPARATOR_",
         "propertyType": "text",
         "default": ",",
@@ -75,6 +78,86 @@
          ],
         "qa": "fragment-details-kafka-row-separator"
       },
+       {
+          "propertyId": "key.serializer.avro.schema.recordNamespace",
+          "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_NAMESPACE_",
+          "propertyType": "text",
+          "default": "",
+          "required": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.serializer.outputFormat",
+                   "value": "AVRO"
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-avro-recordNamespace"
+       },
+       {
+          "propertyId": "key.serializer.avro.schema.topLevelRecord",
+          "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_TOP_LEVEL_RECORD_",
+          "propertyType": "text",
+          "default": "",
+          "required": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.serializer.outputFormat",
+                   "value": "AVRO"
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-avro-topLevelRecord"
+       },
+       {
+          "propertyId": "value.serializer.avro.schema.fromRow",
+          "propertyName": "_KAFKA_AVRO_SCHEMA_FROM_ROW_",
+          "propertyType": "boolean",
+          "default": false,
+          "required": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "value.serializer.outputFormat",
+                   "value": "AVRO"
+                }
+             ]
+          ],
+          "qa": "fragment-details-kafka-avro-fromRow"
+       },
+       {
+          "propertyId": "value.serializer.avro.schema.provided",
+          "propertyName": "_DESERIALIZER_AVRO_SCHEMA_",
+          "propertyType": "textarea",
+          "contentType": "JSON",
+          "width": 8,
+          "tooltip": "Avro schema",
+          "default": "",
+          "visible": [
+             [
+                {
+                   "propertyId": "value.serializer.outputFormat",
+                   "value": "AVRO"
+                },
+                {
+                   "propertyId": "value.serializer.avro.schema.fromRow",
+                   "value": false
+                }
+             ]
+          ],
+          "required": false,
+          "qa": "workflow-transformation-json-schema-provided"
+       },
+       {
+          "propertyId": "keySeparator",
+          "propertyName": "_KEY_SEPARATOR_",
+          "propertyType": "text",
+          "default": ",",
+          "required": false,
+          "tooltip": "Specifies the separator when the key is used as partitioning",
+          "qa": "fragment-details-kafka-keySeparator"
+       },
       {
         "propertyId": "acks",
         "propertyName": "_ACKS_",
@@ -117,7 +200,6 @@
         "propertyId": "ssl.client.auth",
         "propertyName": "_SECURITY_AUTH_",
         "propertyType": "select",
-        "regexp": "none|required|requested",
         "values": [
           {
             "label": "none",
@@ -139,20 +221,20 @@
       {
           "propertyId": "tlsEnabled",
           "propertyName": "_TLS_ENABLE_",
-          "propertyType": "switch",
+          "propertyType": "boolean",
           "tooltip": "Enable TLS connection to connect to Kafka brokers getting certs from vault in Spark job",
           "default": false,
           "qa": "fragment-details-kafka-tls"
        },
       {
-        "propertyId": "kafkaProperties",
+        "propertyId": "saveOptions",
         "propertyName": "_KAFKA_PROPERTIES_",
         "propertyType": "list",
         "required": false,
         "qa": "fragment-details-kafka-properties",
         "fields": [
           {
-            "propertyId": "kafkaPropertyKey",
+            "propertyId": "saveOptionsKey",
             "propertyName": "_KAFKA_PROPERTY_KEY_",
             "propertyType": "text",
              "width": 4,
@@ -160,7 +242,7 @@
             "qa": "fragment-details-kafka-kafkaPropertyKey"
           },
           {
-            "propertyId": "kafkaPropertyValue",
+            "propertyId": "saveOptionsValue",
             "propertyName": "_KAFKA_PROPERTY_VALUE_",
             "propertyType": "text",
              "width": 4,

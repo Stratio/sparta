@@ -13,7 +13,7 @@
       "propertyId": "description",
       "propertyName": "SETTINGS._DESCRIPTION_",
       "propertyType": "text",
-      "required": true,
+      "required": false,
       "newRow": true,
       "qa": "workflow-description",
       "col": 7

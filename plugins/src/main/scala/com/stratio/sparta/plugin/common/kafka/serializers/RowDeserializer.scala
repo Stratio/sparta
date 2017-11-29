@@ -19,12 +19,16 @@ package com.stratio.sparta.plugin.common.kafka.serializers
 import java.util
 
 import akka.event.slf4j.SLF4JLogging
+import com.databricks.spark.avro.RowAvroHelper
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode
-import com.stratio.sparta.plugin.helper.JsonHelper
+import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.sdk.workflow.enumerators.InputFormatEnum
+import com.twitter.bijection.Injection
+import com.twitter.bijection.avro.GenericAvroCodecs
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.{Deserializer, StringDeserializer}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.catalyst.expressions.{GenericRow, GenericRowWithSchema}
 import org.apache.spark.sql.json.RowJsonHelper._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
@@ -39,57 +43,65 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
   private var jsonSchema: Option[StructType] = None
   private var stringSchema: Option[StructType] = None
   private var jsonConf: Map[String, String] = Map.empty[String, String]
+  private var avroConf: Map[String, String] = Map.empty[String, String]
+  private var avroSparkSchema: Option[StructType] = None
+  private var avroConverter: Option[AnyRef => AnyRef] = None
+  private var avroRecordInjection: Option[Injection[GenericRecord, Array[Byte]]] = None
 
   //scalastyle:off
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = {
+
+    val configPrefix = if(isKey) "key" else "value"
+
     inputFormat = InputFormatEnum.withName {
-      {
-        if (isKey)
-          configs.getOrElse("key.deserializer.inputFormat", "STRING")
-        else configs.getOrElse("value.deserializer.inputFormat", "STRING")
-      }.toString
+      configs.getOrElse(s"$configPrefix.deserializer.inputFormat", "STRING").toString
     }
 
     inputFormat match {
       case InputFormatEnum.JSON =>
-        val useRowSchema = {
-          if (isKey)
-            configs.getOrElse("key.deserializer.json.schema.fromRow", "true")
-          else configs.getOrElse("value.deserializer.json.schema.fromRow", "true")
-        }.toString.toBoolean
+        val useRowSchema =
+          configs.getOrElse(s"$configPrefix.deserializer.json.schema.fromRow", "true").toString.toBoolean
+
         val schemaInputMode = SchemaInputMode.withName {
-          {
-            if (isKey)
-              configs.getOrElse("key.deserializer.json.schema.inputMode", "SPARKFORMAT")
-            else configs.getOrElse("value.deserializer.json.schema.inputMode", "SPARKFORMAT")
-          }.toString.toUpperCase
+          configs.getOrElse(s"$configPrefix.deserializer.json.schema.inputMode", "SPARKFORMAT").toString.toUpperCase
         }
+
         val schemaProvided = {
-          val inputSchema = {
-            if (isKey)
-              configs.getOrElse("key.deserializer.schema.provided", "")
-            else configs.getOrElse("value.deserializer.schema.provided", "")
-          }.toString
+          val inputSchema = configs.getOrElse(s"$configPrefix.deserializer.schema.provided", "").toString
 
           if (inputSchema.isEmpty) None
           else Option(inputSchema)
         }
 
         jsonConf = {
-          if (isKey)
-            configs.filterKeys(key => key.contains("key.deserializer.json"))
-              .map { case (key, value) => (key.replace("key.deserializer.json.", ""), value.toString) }
-          else configs.filterKeys(key => key.contains("value.deserializer.json"))
-            .map { case (key, value) => (key.replace("value.deserializer.json.", ""), value.toString) }
+          configs.filterKeys(key => key.contains(s"$configPrefix.deserializer.json"))
+            .map { case (key, value) => (key.replace(s"$configPrefix.deserializer.json.", ""), value.toString) }
         }.toMap
 
-        jsonSchema = JsonHelper.getJsonSchema(useRowSchema, schemaInputMode, schemaProvided, jsonConf)
+        jsonSchema = SchemaHelper.getJsonSparkSchema(useRowSchema, schemaInputMode, schemaProvided, jsonConf)
+      case InputFormatEnum.AVRO =>
+        val avroInputSchema = configs.getOrElse(s"$configPrefix.deserializer.avro.schema", "").toString
+
+        val avroSchema = {
+          if (avroInputSchema.nonEmpty) Option(SchemaHelper.getAvroSchemaFromString(avroInputSchema))
+          else None
+        }
+
+        avroSparkSchema = avroSchema.map(schema => SchemaHelper.getSparkSchemaFromAvroSchema(schema))
+
+        avroConverter = (avroSchema, avroSparkSchema) match {
+          case (Some(schema), Some(sparkSchema)) => Option(RowAvroHelper.getAvroConverter(schema, sparkSchema))
+          case _ => None
+        }
+
+        avroRecordInjection = avroSchema.map(schema => GenericAvroCodecs.toBinary[GenericRecord](schema))
+
+        avroConf = {
+          configs.filterKeys(key => key.contains(s"$configPrefix.deserializer.avro"))
+            .map { case (key, value) => (key.replace(s"$configPrefix.deserializer.avro.", ""), value.toString) }
+        }.toMap
       case InputFormatEnum.STRING =>
-        val outputFieldName = {
-          if (isKey)
-            configs.getOrElse("key.deserializer.outputField", "raw")
-          else configs.getOrElse("value.deserializer.outputField", "raw")
-        }.asInstanceOf[String]
+        val outputFieldName = configs.getOrElse(s"$configPrefix.deserializer.outputField", "raw").toString
 
         stringSchema = Option(StructType(Seq(StructField(outputFieldName, StringType))))
     }
@@ -97,11 +109,12 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
     stringDeserializer.configure(configs, isKey)
   }
 
-  override def deserialize(topic: String, data: Array[Byte]): Row = {
-    val stringData = stringDeserializer.deserialize(topic, data)
+  //scalastyle:on
 
+  override def deserialize(topic: String, data: Array[Byte]): Row = {
     inputFormat match {
       case InputFormatEnum.JSON =>
+        val stringData = stringDeserializer.deserialize(topic, data)
         Try {
           jsonSchema match {
             case Some(schemaProvided) =>
@@ -110,7 +123,16 @@ class RowDeserializer extends Deserializer[Row] with SLF4JLogging {
               toRow(stringData, jsonConf, extractSchemaFromJson(stringData, jsonConf))
           }
         }.getOrElse(toRow(stringData, jsonConf, extractSchemaFromJson(stringData, jsonConf)))
-      case _ => new GenericRowWithSchema(Array(stringData), stringSchema.get)
+      case InputFormatEnum.AVRO =>
+        (avroSparkSchema, avroConverter, avroRecordInjection) match {
+          case (Some(sparkSchema), Some(converter), Some(recordInjection)) =>
+            val record = recordInjection.invert(data).get
+            new GenericRowWithSchema(converter(record).asInstanceOf[GenericRow].toSeq.toArray, sparkSchema)
+          case _ =>
+            throw new Exception("Impossible to parse Avro data without schema and converter")
+        }
+      case _ =>
+        new GenericRowWithSchema(Array(stringDeserializer.deserialize(topic, data)), stringSchema.get)
     }
   }
 

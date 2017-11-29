@@ -107,6 +107,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
         "value.deserializer.json.schema.fromRow" -> "true",
         "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
         "value.deserializer.json.schema.provided" -> "",
+        "value.deserializer.avro.schema" -> "",
         "outputField" -> "rawTest",
         "key.deserializer.json.foo" -> "var",
         "test" -> "notinclude")
@@ -116,6 +117,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
         "value.deserializer.json.schema.fromRow" -> "true",
         "value.deserializer.json.schema.inputMode" -> "SPARKFORMAT",
         "value.deserializer.json.schema.provided" -> "",
+        "value.deserializer.avro.schema" -> "",
         "value.deserializer.outputField" -> "rawTest",
         "key.deserializer.json.foo" -> "var"
       ))
