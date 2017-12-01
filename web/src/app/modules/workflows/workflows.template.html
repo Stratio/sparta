@@ -9,11 +9,12 @@
             <i class="icon-stop" *ngIf="showStopButton(selectedWorkflows[0].context.status)"></i>
             <i class="icon-play" *ngIf="!showStopButton(selectedWorkflows[0].context.status)"></i>
         </button>
-         <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
-            <i class="icon-edit"></i>
-        </button>
          <button class="button button-toolbar" (click)="downloadWorkflows()">
             <i class="icon-download"></i>
+        </button>
+         <div class="separator"></div>
+         <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+            <i class="icon-edit"></i>
         </button>
          <button class="button button-toolbar" (click)="deleteWorkflows()">
             <i class="icon-trash"></i>
@@ -53,8 +54,8 @@
                   <td st-table-cell st-table-row-content>
                      <label>{{workflow.context.lastExecutionMode}}</label>
                   </td>
-                  <td st-table-cell st-table-row-content class="spark-link" (click)="showSparkUI(workflow.context.sparkURI)" *ngIf="workflow.context.sparkURI && workflow.context.sparkURI.length && workflow.context.status === 'Started'">
-                      <i class="icon-globe" ></i>
+                  <td st-table-cell st-table-row-content class="spark-link">
+                      <i class="icon-globe" (click)="showSparkUI(workflow.context.sparkURI)" *ngIf="workflow.context.sparkURI && workflow.context.sparkURI.length && workflow.context.status === 'Started'"></i>
                   </td>
                </tr>
             </st-table>

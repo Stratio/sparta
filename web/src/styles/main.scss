@@ -41,7 +41,6 @@ sp-textarea {
    cursor: move;
 }
 
-
 /* codemirror overrides */
 
 .disabled .CodeMirror pre, .disabled .CodeMirror *{
@@ -80,7 +79,12 @@ sp-textarea {
 
 /***** override egeo theme styles ******/
 
-// TODO delete this styles when Egeo launch new release
+// TODO delete this styles whith Egeo 6.0 release
+
+.sth-header-menu-option .sth-header-menu-option-name .sth-header-menu-option-icon {
+    display: none;
+}
+
 .st-modal-title {
    margin-bottom: 16px!important;
    p {

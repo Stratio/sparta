@@ -156,7 +156,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
         this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
         function deltaFn() {
-            return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 7) / 3100;
+            return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258) ;
         }
         this.zoom = d3.zoom()
             .scaleExtent([1 / 8, 3])
@@ -203,10 +203,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 .scale(this.svgPosition.k === 0 ? 1 : this.svgPosition.k));
         });
 
-    }
-
-    getPosition(entity: any) {
-        return 'translate(' + entity.x + ',' + entity.y + ')';
     }
 
     setContainerPosition(): void {

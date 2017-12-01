@@ -51,8 +51,6 @@ export class FormGeneratorComponent implements Validator, ControlValueAccessor, 
     public stFormGroupSubcription: Subscription;
     public formDataValues: any = [];
     notifyChangeSubject: Subject<any> = new Subject();
-    private registeredOnChange: (_: any) => void;
-
 
     ngOnInit(): void { }
 

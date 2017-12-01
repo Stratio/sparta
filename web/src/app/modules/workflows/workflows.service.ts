@@ -98,7 +98,8 @@ export class WorkflowsService {
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
             { id: 'context.status', label: 'Status' },
-            { id: 'context.lastExecutionMode', label: 'Execution mode' }
+            { id: 'context.lastExecutionMode', label: 'Execution mode' },
+            { id: 'spark', label: '', sortable: false }
         ];
     }
 

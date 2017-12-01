@@ -1,7 +1,7 @@
 <div class="form-field">
    <!-- input text -->
    <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
-      label="{{field.propertyName | translate}}" 
+      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
       fieldType="{{field.propertyType}}" 
       [formControl]="stFormControl"
       contextualHelp="{{field.tooltip}}" 
@@ -19,7 +19,7 @@
       <sp-textarea-highlight *ngIf="field.contentType" 
           [formControl]="stFormControl"
           [contentType]="field.contentType"
-          label="{{field.propertyName | translate}}" 
+          label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
           contextualHelp="{{field.tooltip}}" 
           pattern="{{field.regexp}}" 
           [required]="field.required"
@@ -32,7 +32,7 @@
       <!-- regular textarea -->
       <sp-textarea *ngIf="!field.contentType"
           [formControl]="stFormControl"
-          label="{{field.propertyName | translate}}" 
+          label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
           contextualHelp="{{field.tooltip}}" 
           pattern="{{field.regexp}}" 
           [required]="field.required"
@@ -46,7 +46,7 @@
 
    <sp-select *ngIf="field.propertyType == 'select' && isVisible" 
       [options]="field.values" 
-      label="{{field.propertyName | translate}}"
+      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       [forceValidations]="forceValidations" 
       tooltip="{{field.tooltip}}"
       placeholder="Select option"
@@ -79,7 +79,7 @@
       [formControl]="stFormControl"
       [errors]="errorsService.errors.inputErrors"
       [forceValidations]="forceValidations" 
-      label="{{field.propertyName | translate}}"></form-list>
+      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"></form-list>
 
       
     <form-string-list *ngIf="field.propertyType == 'stringlist'" 
@@ -89,6 +89,6 @@
       [errors]="errorsService.errors.inputErrors"
       [formControl]="stFormControl"
       [forceValidations]="forceValidations"  
-      label="{{field.propertyName | translate}}"></form-string-list>
+      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"></form-string-list>
 
 </div>

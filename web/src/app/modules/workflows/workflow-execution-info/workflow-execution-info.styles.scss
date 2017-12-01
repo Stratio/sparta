@@ -31,13 +31,18 @@
 
 .execution-header {
    width: 100%;
+   position:fixed;
+   top:0;
+   left:0;
+   width:100%;
+   z-index:1;
    background: #fff;
    padding: 20px 0;
    border-bottom: 1px solid #dedede;
 }
 
 .info-data {
-   margin-top: 25px;
+   margin-top: 85px;
    margin-bottom: 40px;
 }
 

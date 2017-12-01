@@ -39,7 +39,8 @@ export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges,
     @Output() onRemoveSegment = new EventEmitter<any>();
     @Input() selectedSegment: any;
     @Input() index = 0;
-    @Input() position: any;
+    @Input() position1: any;
+    @Input() position2: any;
 
     public segment = '';
     public isSelected = false;
@@ -55,13 +56,13 @@ export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges,
 
     ngAfterContentInit(): void {
         this.svgPathVar = d3.select(this.elementRef.nativeElement.querySelector('.svgPathVar'));
-        this.getPosition(this.position.e1.x, this.position.e1.y, this.position.e2.x, this.position.e2.y );
+        this.getPosition(this.position1.x, this.position1.y, this.position2.x, this.position2.y );
         this._cd.detectChanges();
         this._cd.detach();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (!changes.position) {
+        if (!changes.position1 && !changes.position2) {
             if (changes.selectedSegment) {
                 if (this.selectedSegment && this.selectedSegment.origin === this.initialEntityName
                     && this.selectedSegment.destination === this.finalEntityName) {
@@ -72,7 +73,7 @@ export class WizardEdgeComponent implements OnInit, AfterContentInit, OnChanges,
             }
             this._cd.detectChanges();
         } else {
-            this.getPosition(this.position.e1.x, this.position.e1.y, this.position.e2.x, this.position.e2.y );
+            this.getPosition(this.position1.x, this.position1.y, this.position2.x, this.position2.y );
         }
     }
 

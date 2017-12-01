@@ -34,7 +34,7 @@
                </st-horizontal-tabs>
                <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
                   <div class="col-sm-6">
-                     <sp-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
+                     <sp-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *" fieldType="text" [required]="true"
                         qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
                         class="input-field"></sp-input>
                   </div>

@@ -86,6 +86,9 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     getFormTemplate() {
         if (this.config.editionType.stepType !== 'settings') {
+            if (this.config.editionType.data.createdNew) {
+                this.submitted = false;
+            }
             this.entityFormModel = Object.assign({}, this.config.editionType.data);
             this.currentName = this.entityFormModel['name'];
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
@@ -121,7 +124,6 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     public saveForm() {
-        this.submitted = true;
         if (this.config.editionType.stepType !== 'settings') {
 
             this.entityFormModel.hasErrors = this.entityForm.invalid;
