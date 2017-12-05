@@ -133,7 +133,6 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   /** Private Methods **/
 
-  //scalastyle:off
   private[core] def getSparkClusterConfig: Map[String, String] = {
     Map(
       SubmitCoarseConf -> workflow.settings.sparkSettings.sparkConf.coarse.map(_.toString),
@@ -155,14 +154,13 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.sparkMemoryFraction,
       SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerImage,
       SubmitExecutorDockerVolumeConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerVolumes,
-      SubmitExecutorDockerForcePullConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorForcePullImage.map(_.toString),
+      SubmitExecutorDockerForcePullConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
+        executorForcePullImage.map(_.toString),
       SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosNativeJavaLibrary,
       SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
       SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
-
-  //scalastyle:on
 
   private[core] def getUserSparkConfig: Map[String, String] =
     workflow.settings.sparkSettings.sparkConf.userSparkConf.flatMap { sparkProperty =>
@@ -213,11 +211,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
 
   private[core] def addMesosSecurityConf(sparkConfs: Map[String, String]): Map[String, String] =
-    Map(
-      SubmitMesosPrincipalConf -> Properties.envOrNone(MesosPrincipalEnv).notBlank,
-      SubmitMesosSecretConf -> Properties.envOrNone(MesosSecretEnv).notBlank,
-      SubmitMesosRoleConf -> Properties.envOrNone(MesosRoleEnv).notBlank
-    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ sparkConfs
+    getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
     sparkConfs ++ getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
@@ -238,75 +232,119 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         sparkConfs
     }
 
-  //scalastyle:off
-  private[core] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
-    val tlsEnable = workflow.settings.sparkSettings.sparkDataStoreTls
-    val tlsOptions = {
-      if (tlsEnable) {
-        val useDynamicAuthentication = Try {
-          scala.util.Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
-        }.getOrElse(false)
-        val vaultHost = scala.util.Properties.envOrNone("VAULT_HOSTS").notBlank
-        val vaultPort = scala.util.Properties.envOrNone("VAULT_PORT").notBlank
-        val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN").notBlank
-        val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
-          .notBlank
-          .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
-        val vaultCertPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH").notBlank
-        val vaultCertPassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH").notBlank
-        val vaultKeyPassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
-        val vaultTrustStorePath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
-        val vaultTrustStorePassPath = scala.util.Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
-
-        (vaultHost, vaultPort, appName, vaultCertPath, vaultCertPassPath, vaultKeyPassPath, vaultTrustStorePath,
-          vaultTrustStorePassPath) match {
-          case (Some(host), Some(port), Some(name),Some(certPath), Some(certPassPath), Some(keyPassPath),
-          Some(trustStorePath), Some(trustStorePassPath)) =>
-            Seq(
-              ("spark.mesos.executor.docker.volumes",
-                "/etc/pki/ca-trust/extracted/java/cacerts/:/etc/ssl/certs/java/cacerts:ro"),
-              ("spark.mesos.driverEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
-              ("spark.mesos.driverEnv.VAULT_HOST", host),
-              ("spark.mesos.driverEnv.VAULT_PORT", port),
-              ("spark.mesos.driverEnv.VAULT_PROTOCOL", "https"),
-              ("spark.mesos.driverEnv.APP_NAME", name),
-              ("spark.mesos.driverEnv.CA_NAME", "ca"),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH", trustStorePath),
-              ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH", trustStorePassPath),
-              ("spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE", "true"),
-              ("spark.executorEnv.VAULT_HOST", host),
-              ("spark.executorEnv.VAULT_PORT", port),
-              ("spark.executorEnv.VAULT_PROTOCOL", "https"),
-              ("spark.executorEnv.APP_NAME", name),
-              ("spark.executorEnv.CA_NAME", "ca"),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH", trustStorePath),
-              ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH", trustStorePassPath),
-              ("spark.secret.vault.host", host),
-              ("spark.secret.vault.hosts", host),
-              ("spark.secret.vault.port", port),
-              ("spark.secret.vault.protocol", "https")
-            ) ++ {
-              if (vaultToken.isDefined && !useDynamicAuthentication) {
-                val tempToken = getTemporalToken(s"https://$host:$port", vaultToken.get)
-                Seq(
-                  ("spark.mesos.driverEnv.VAULT_TEMP_TOKEN", tempToken)
-                )
-              } else Seq.empty[(String, String)]
-            }
-          case _ =>
-            log.warn("TLS is enabled but the properties are wrong")
-            Seq.empty[(String, String)]
+  private[core] def getSecurityConfigurations: Map[String, String] = {
+    val useDynamicAuthentication = Try {
+      scala.util.Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
+    }.getOrElse(false)
+    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOSTS").notBlank
+    val vaultPort = scala.util.Properties.envOrNone("VAULT_PORT").notBlank
+    val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN").notBlank
+    val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+      .notBlank
+      .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
+    val securityProperties = (vaultHost, vaultPort, appName) match {
+      case (Some(host), Some(port), Some(name)) =>
+        Map(
+          "spark.mesos.executor.docker.volumes" ->
+            "/etc/pki/ca-trust/extracted/java/cacerts/:/etc/ssl/certs/java/cacerts:ro",
+          "spark.mesos.driverEnv.VAULT_HOST" -> host,
+          "spark.mesos.driverEnv.VAULT_PORT" -> port,
+          "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https",
+          "spark.mesos.driverEnv.APP_NAME" -> name,
+          "spark.mesos.driverEnv.CA_NAME" -> "ca",
+          "spark.executorEnv.VAULT_HOST" -> host,
+          "spark.executorEnv.VAULT_PORT" -> port,
+          "spark.executorEnv.VAULT_PROTOCOL" -> "https",
+          "spark.executorEnv.APP_NAME" -> name,
+          "spark.executorEnv.CA_NAME" -> "ca",
+          "spark.secret.vault.host" -> host,
+          "spark.secret.vault.hosts" -> host,
+          "spark.secret.vault.port" -> port,
+          "spark.secret.vault.protocol" -> "https"
+        ) ++ {
+          if (vaultToken.isDefined && !useDynamicAuthentication)
+            Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken(s"https://$host:$port", vaultToken.get))
+          else Map.empty[String, String]
         }
-      } else Seq.empty[(String, String)]
-    }.toMap
+      case _ =>
+        Map.empty[String, String]
+    }
+
+    securityProperties
+  }
+
+
+  private[core] def getMesosConstraintConf: Map[String, String] = {
+    val envConstraints = Seq(
+      Properties.envOrNone(HostnameConstraint).notBlank,
+      Properties.envOrNone(AttributeConstraint).notBlank
+    ).flatten
+
+    (workflow.settings.global.mesosConstraint.notBlank, envConstraints) match {
+      case (Some(workflowConstraint), _) => Map(SubmitMesosConstraintConf -> workflowConstraint)
+      case (None, constraints) if constraints.nonEmpty => Map(SubmitMesosConstraintConf -> constraints.mkString(":"))
+      case _ => Map.empty[String, String]
+    }
+  }
+
+  private[core] def getMesosSecurityConfs: Map[String, String] = {
+    val securityOptions = getSecurityConfigurations
+
+    if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
+      Properties.envOrNone(MesosRoleEnv).notBlank match {
+        case Some(role) =>
+          Map("spark.mesos.role" -> role) ++ securityOptions
+        case _ =>
+          log.warn("Mesos security is enabled but the properties are wrong")
+          Map.empty[String, String]
+      }
+    } else {
+      log.warn("Mesos security is enabled but the properties are wrong")
+      Map.empty[String, String]
+    }
+  }
+
+  private[core] def addTlsConfs(sparkConfs: Map[String, String]): Map[String, String] = {
+    val securityOptions = getSecurityConfigurations
+    val tlsOptions = {
+      if (workflow.settings.sparkSettings.sparkDataStoreTls && securityOptions.nonEmpty) {
+
+        import scala.util.Properties.envOrNone
+
+        {
+          for {
+            certPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH").notBlank
+            certPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH").notBlank
+            keyPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
+            trustStorePath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
+            trustStorePassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
+          } yield {
+            Map(
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE" -> "true",
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH" -> trustStorePath,
+              "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH" -> trustStorePassPath,
+              "spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE" -> "true",
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE" -> "true",
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH" -> trustStorePath,
+              "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH" -> trustStorePassPath
+            ) ++ securityOptions
+          }
+        } getOrElse {
+          log.warn("TLS is enabled but the properties are wrong")
+          Map.empty[String, String]
+        }
+
+      } else {
+        log.warn("TLS is enabled but the properties are wrong")
+        Map.empty[String, String]
+      }
+    }
 
     sparkConfs ++ tlsOptions
   }

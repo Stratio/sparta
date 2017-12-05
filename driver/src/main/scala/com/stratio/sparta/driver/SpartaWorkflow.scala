@@ -35,8 +35,10 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.config.SpartaConfig
 
 import scala.concurrent.duration._
+import scala.util.Try
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
@@ -47,7 +49,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
   // Clear last error if it was saved in Zookeeper
   clearError()
 
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
+  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout")).getOrElse(AkkaConstant.DefaultApiTimeout)
+
+  implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
   private val classpathUtils = WorkflowHelper.classpathUtils
   private var steps = Seq.empty[GraphStep]

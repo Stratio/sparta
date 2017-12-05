@@ -39,8 +39,8 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val settingsModel = Settings(
     GlobalSettings(),
     StreamingSettings("6s", None, None, None, CheckpointSettings("test/test")),
-    SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, None, SubmitArguments(),
-      SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+    SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
+      None, SubmitArguments(), SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
   )
   val workflowValidatorService = new WorkflowValidatorService
   val emptyWorkflow = Workflow(

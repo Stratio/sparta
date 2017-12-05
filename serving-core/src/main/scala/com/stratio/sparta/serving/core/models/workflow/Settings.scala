@@ -26,7 +26,9 @@ case class GlobalSettings(
                            executionMode: String = "marathon",
                            userPluginsJars: Seq[UserJar] = Seq.empty[UserJar],
                            initSqlSentences: Seq[SqlSentence] = Seq.empty[SqlSentence],
-                           addAllUploadedPlugins: Boolean = true
+                           addAllUploadedPlugins: Boolean = true,
+                           mesosConstraint: Option[String] = None,
+                           mesosConstraintOperator: Option[String] = None
                          )
 
 case class CheckpointSettings(
@@ -48,6 +50,7 @@ case class SparkSettings(
                           master: String = "mesos://leader.mesos:5050",
                           sparkKerberos: Boolean = false,
                           sparkDataStoreTls: Boolean = false,
+                          sparkMesosSecurity: Boolean = false,
                           killUrl: Option[String] = None,
                           submitArguments: SubmitArguments,
                           sparkConf: SparkConf

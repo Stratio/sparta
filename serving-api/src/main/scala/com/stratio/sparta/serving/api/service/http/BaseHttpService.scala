@@ -19,10 +19,11 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
-import com.stratio.sparta.serving.core.models.ErrorModel.{CrossdataServiceListDatabases, CrossdataServiceListTables, ErrorCodesMessages, UnknownError}
+import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import spray.http.{StatusCode, StatusCodes}
@@ -32,14 +33,17 @@ import spray.routing._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Failure, Try}
 
 /**
   * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
   */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging with SpartaSerializer {
 
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
+  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout"))
+    .getOrElse(AkkaConstant.DefaultApiTimeout)
+
+  implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 

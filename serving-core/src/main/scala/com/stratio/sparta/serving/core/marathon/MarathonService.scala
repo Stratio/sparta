@@ -26,10 +26,13 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow.{
+  PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus
+}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.tikitakka.common.message._
@@ -62,7 +65,7 @@ class MarathonService(context: ActorContext,
   /* Implicit variables */
 
   implicit val actorSystem: ActorSystem = context.system
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultTimeout.seconds)
+  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultApiTimeout.seconds)
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
 
   /* Constant variables */
@@ -224,6 +227,30 @@ class MarathonService(context: ActorContext,
       case None => DefaultSOMemSize
     }
 
+  private def getConstraint(workflowModel: Workflow): Seq[String] = {
+    val envConstraints = Seq(
+      Properties.envOrNone(HostnameConstraint).notBlank,
+      Properties.envOrNone(OperatorConstraint).notBlank,
+      Properties.envOrNone(AttributeConstraint).notBlank
+    ).flatten
+
+    (workflowModel.settings.global.mesosConstraint.notBlank, envConstraints) match {
+      case (Some(workflowConstraint), _) =>
+        val constraints = workflowConstraint.split(":")
+        Seq(
+          Option(constraints.head),
+          workflowModel.settings.global.mesosConstraintOperator.orElse(Option("CLUSTER")),
+          {
+            if (constraints.size == 2 || constraints.size == 3) Option(constraints.last) else None
+          }
+        ).flatten
+      case (None, constraints) if constraints.size == 3 =>
+        constraints
+      case _ =>
+        Seq.empty[String]
+    }
+  }
+
   private def addRequirements(app: CreateApp, workflowModel: Workflow, submitRequest: WorkflowExecution): CreateApp = {
     val newCpus = submitRequest.sparkSubmitExecution.sparkConfigurations.get("spark.driver.cores")
       .map(_.toDouble).getOrElse(app.cpus)
@@ -249,7 +276,6 @@ class MarathonService(context: ActorContext,
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
-
     val newPortMappings = if (calicoEnabled) Option(Seq(PortMapping(portSpark, portSpark, Option(0),
       protocol = Option("tcp")))) else None
     val networkType = if (calicoEnabled) Option("USER") else app.container.docker.network
@@ -287,13 +313,10 @@ class MarathonService(context: ActorContext,
       maxConsecutiveFailures = maxConsecutiveFailures,
       ignoreHttp1xx = Option(false)
     )))
-
-    val newConstraints = Properties.envOrNone(Constraints).map(constraint =>
-      Seq(Seq("label", "CLUSTER", constraint)))
-
+    val inputConstraints = getConstraint(workflowModel)
+    val newConstraint = if (inputConstraints.isEmpty) None else Option(Seq(inputConstraints))
     val newIpAddress = if (calicoEnabled) Option(IpAddress(networkName = Properties.envOrNone(CalicoNetworkEnv)))
     else None
-
     val newPortDefinitions = if (calicoEnabled) None else app.portDefinitions
 
     app.copy(
@@ -306,7 +329,7 @@ class MarathonService(context: ActorContext,
       secrets = newSecrets,
       portDefinitions = newPortDefinitions,
       ipAddress = newIpAddress,
-      constraints = newConstraints
+      constraints = newConstraint
     )
   }
 
@@ -367,6 +390,7 @@ class MarathonService(context: ActorContext,
       DcosServiceName -> Properties.envOrNone(DcosServiceName),
       CalicoNetworkEnv -> Properties.envOrNone(CalicoNetworkEnv),
       CalicoEnableEnv -> Properties.envOrNone(CalicoEnableEnv),
+      MarathonAppConstraints -> submitRequest.sparkSubmitExecution.sparkConfigurations.get(SubmitMesosConstraintConf),
       SpartaZookeeperPathEnv -> Option(BaseZkPath),
       CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
       CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),

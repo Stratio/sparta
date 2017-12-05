@@ -72,9 +72,8 @@ object SparkConstant {
   val SubmitMesosNativeLibConf = "spark.executorEnv.MESOS_NATIVE_JAVA_LIBRARY"
   val SubmitExecutorHomeConf = "spark.mesos.executor.home"
   val SubmitHdfsUriConf = "spark.mesos.driverEnv.HDFS_CONF_URI"
-  val SubmitMesosPrincipalConf = "spark.mesos.principal"
-  val SubmitMesosSecretConf = "spark.mesos.secret"
   val SubmitMesosRoleConf = "spark.mesos.role"
+  val SubmitMesosConstraintConf = "spark.mesos.constraints"
   val SubmitMasterConf = "spark.master"
   val SubmitUiProxyPrefix = "spark.ui.proxyBase"
 

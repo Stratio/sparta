@@ -36,7 +36,8 @@ object AkkaConstant {
   val CrossdataActorName = "crossdataActor"
   val NginxActorName = "nginxActor"
 
-  val DefaultTimeout = 19
+  val DefaultApiTimeout = 19
+  val DefaultCrossdataQueriesTimeout = 19
   val DefaultInstances = 3
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")
