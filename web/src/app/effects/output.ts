@@ -21,7 +21,6 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as outputActions from 'actions/output';
-import * as errorsActions from 'actions/errors';
 
 @Injectable()
 export class OutputEffect {
@@ -34,7 +33,7 @@ export class OutputEffect {
                 .map((outputList: any) => {
                     return new outputActions.ListOutputCompleteAction(outputList);
                 }).catch(function (error: any) {
-                    return Observable.from([new outputActions.ListOutputFailAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new outputActions.ListOutputFailAction(''));
                 });
         });
 
@@ -50,7 +49,7 @@ export class OutputEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new outputActions.DeleteOutputCompleteAction(outputs), new outputActions.ListOutputAction()];
             }).catch(function (error) {
-                return Observable.from([new outputActions.DeleteOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new outputActions.DeleteOutputErrorAction(''));
             });
         });
 
@@ -63,7 +62,7 @@ export class OutputEffect {
             return this.templatesService.createTemplate(output).mergeMap((data: any) => {
                 return [new outputActions.DuplicateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.from([new outputActions.DuplicateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new outputActions.DuplicateOutputErrorAction(''));
             });
         });
 
@@ -75,7 +74,7 @@ export class OutputEffect {
             return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.from([new outputActions.CreateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new outputActions.CreateOutputErrorAction(''));
             });
         });
 
@@ -86,7 +85,7 @@ export class OutputEffect {
             return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.from([new outputActions.UpdateOutputErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new outputActions.UpdateOutputErrorAction(''));
             });
         });
 

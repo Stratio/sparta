@@ -18,10 +18,10 @@ import { Action, Store } from '@ngrx/store';
 import { Actions, Effect } from '@ngrx/effects';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+
 import * as backupsActions from 'actions/backups';
 import { BackupService } from 'app/services';
 import * as fromRoot from 'reducers';
-import * as errorsActions from 'actions/errors';
 
 
 @Injectable()
@@ -35,7 +35,7 @@ export class BackupsEffect {
                 .map((inputList: any) => {
                     return new backupsActions.ListBackupCompleteAction(inputList);
                 }).catch(function (error) {
-                    return Observable.from([new backupsActions.ListBackupErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new backupsActions.ListBackupErrorAction(''));
                 });
         });
 
@@ -46,7 +46,7 @@ export class BackupsEffect {
             return this.backupService.generateBackup().mergeMap((data: any) => {
                 return [new backupsActions.GenerateBackupCompleteAction(), new backupsActions.ListBackupAction()];
             }).catch(function (error) {
-                return Observable.from([new backupsActions.GenerateBackupErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new backupsActions.GenerateBackupErrorAction(''));
             });
         });
 
@@ -62,7 +62,7 @@ export class BackupsEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new backupsActions.DeleteBackupCompleteAction(), new backupsActions.ListBackupAction()];
             }).catch(function (error: any) {
-                return Observable.from([new backupsActions.DeleteBackupErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new backupsActions.DeleteBackupErrorAction(''));
             });
         });
 
@@ -93,7 +93,7 @@ export class BackupsEffect {
                 .map((response) => {
                     return new backupsActions.ExecuteBackupCompleteAction('');
                 }).catch(function (error) {
-                    return Observable.from([new backupsActions.ExecuteBackupErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new backupsActions.ExecuteBackupErrorAction(''));
                 });
         });
 
@@ -103,7 +103,7 @@ export class BackupsEffect {
             return this.backupService.deleteAllBackups().mergeMap((res: any) => {
                 return [new backupsActions.DeleteAllBackupsCompleteAction(), new backupsActions.ListBackupAction()];
             }).catch(function (error) {
-                return Observable.from([new backupsActions.DeleteAllBackupsErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new backupsActions.DeleteAllBackupsErrorAction(''));
             });
         });
 
@@ -114,7 +114,7 @@ export class BackupsEffect {
                 .map(() => {
                     return new backupsActions.DeleteMetadataCompleteAction();
                 }).catch(function (error) {
-                    return Observable.from([new backupsActions.DeleteMetadataErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new backupsActions.DeleteMetadataErrorAction(''));
                 });
         });
 
@@ -125,7 +125,7 @@ export class BackupsEffect {
                 .mergeMap(() => {
                     return [new backupsActions.UploadBackupCompleteAction(''), new backupsActions.ListBackupAction()];
                 }).catch(function (error) {
-                    return Observable.from([new backupsActions.UploadBackupErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new backupsActions.UploadBackupErrorAction(''));
                 });
         });
 

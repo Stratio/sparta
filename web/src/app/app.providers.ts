@@ -17,6 +17,7 @@
 import { ConfigService, INITIALIZER } from '@app/core';
 import {
     WorkflowService,
+    ApiInterceptor,
     TemplatesService,
     BackupService,
     ResourcesService,
@@ -29,10 +30,17 @@ import {
     ValidateSchemaService
 } from 'services';
 import { AppState } from './app.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+
 export const APP_PROVIDERS: Array<any> = [
     AppState,
     ConfigService,
     INITIALIZER,
+     {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ApiInterceptor,
+      multi: true
+    },
     WorkflowService,
     TemplatesService,
     BackupService,

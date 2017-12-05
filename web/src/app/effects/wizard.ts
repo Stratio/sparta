@@ -23,9 +23,6 @@ import * as fromRoot from 'reducers';
 
 import * as wizardActions from 'actions/wizard';
 import { InitializeWorkflowService, TemplatesService } from 'services/initialize-workflow.service';
-import { outputsObject } from 'data-templates/outputs';
-import { transformationsObject } from 'data-templates/transformations';
-import * as errorsActions from 'actions/errors';
 
 
 @Injectable()
@@ -74,7 +71,7 @@ export class WizardEffect {
 
 
     @Effect()
-    saveWorkflow$: Observable<Action> = this.actions$
+    saveWorkflow$: Observable<any> = this.actions$
         .ofType(wizardActions.SAVE_WORKFLOW)
         .map(toPayload)
         // Retrieve part of the current state
@@ -111,14 +108,14 @@ export class WizardEffect {
                 return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.from([new wizardActions.SaveWorkflowErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
                 });
             } else {
                 delete workflow.id;
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.from([new errorsActions.HttpErrorAction(error)]);
+                    return Observable.empty();
                 });
             }
 
@@ -156,7 +153,7 @@ export class WizardEffect {
                 .map((workflow: any) => {
                     return new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow));
                 }).catch(function (error: any) {
-                    return Observable.from([new wizardActions.ModifyWorkflowErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
                 });
         });
 

@@ -15,6 +15,7 @@
 ///
 
 export * from './api/workflow.service';
+export * from './api/interceptor.service';
 export * from './api/templates.service';
 export * from './api/api.service';
 export * from './api/backup.service';
@@ -25,4 +26,3 @@ export * from './error-messages.service';
 export * from './initialize-schema.service';
 export * from './initialize-workflow.service';
 export * from './validate-schema.service';
-

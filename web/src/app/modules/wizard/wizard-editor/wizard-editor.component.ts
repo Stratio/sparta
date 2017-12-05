@@ -156,7 +156,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
         this.connectorElement = d3.select(this.elementRef.nativeElement).select('.connector-line');
         function deltaFn() {
-            return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258) ;
+            return -d3.event.deltaY * (d3.event.deltaMode ? 0.0387 : 0.002258);
         }
         this.zoom = d3.zoom()
             .scaleExtent([1 / 8, 3])
@@ -299,6 +299,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         function mouseup() {
             event.event.target.classList.remove('over-output2');
             this.showConnector = false;
+            this.newOrigin = '';
             this.drawingConnectionStatus = {
                 status: false
             };
@@ -315,11 +316,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     }
 
     finishConnector(destinationEntity: any) {
-        this.store.dispatch(new wizardActions.CreateNodeRelationAction({
-            origin: this.newOrigin,
-            destination: destinationEntity.name,
-            destinationData: destinationEntity
-        }));
+        if (this.newOrigin && this.newOrigin.length) {
+            this.store.dispatch(new wizardActions.CreateNodeRelationAction({
+                origin: this.newOrigin,
+                destination: destinationEntity.name,
+                destinationData: destinationEntity
+            }));
+        }
     }
 
     changeZoom(zoomIn: boolean) {
