@@ -73,12 +73,12 @@ class KafkaBaseTest extends WordSpec with Matchers {
   "securityOptions from map[string, string]" should {
     "return a correct security properties" in {
       val sparkConf = Map(
-        "spark.ssl.kafka.enabled" -> "true",
-        "spark.ssl.kafka.keyStore" -> "foo",
-        "spark.ssl.kafka.keyStorePassword" -> "foo",
-        "spark.ssl.kafka.trustStore" -> "foo",
-        "spark.ssl.kafka.trustStorePassword" -> "foo",
-        "spark.ssl.kafka.keyPassword" -> "foo"
+        "spark.ssl.datastore.enabled" -> "true",
+        "spark.ssl.datastore.keyStore" -> "foo",
+        "spark.ssl.datastore.keyStorePassword" -> "foo",
+        "spark.ssl.datastore.trustStore" -> "foo",
+        "spark.ssl.datastore.trustStorePassword" -> "foo",
+        "spark.ssl.datastore.keyPassword" -> "foo"
       )
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
@@ -96,10 +96,10 @@ class KafkaBaseTest extends WordSpec with Matchers {
 
     "return a empty security properties" in {
       val sparkConf = Map(
-        "spark.ssl.kafka.enabled" -> "true",
-        "spark.ssl.kafka.keyStore" -> "foo",
-        "spark.ssl.kafka.keyStorePassword" -> "foo",
-        "spark.ssl.kafka.trustStore" -> "foo"
+        "spark.ssl.datastore.enabled" -> "false",
+        "spark.ssl.datastore.keyStore" -> "foo",
+        "spark.ssl.datastore.keyStorePassword" -> "foo",
+        "spark.ssl.datastore.trustStore" -> "foo"
       )
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
@@ -113,12 +113,12 @@ class KafkaBaseTest extends WordSpec with Matchers {
     "return a correct security properties" in {
       val sparkConf = new SparkConf()
       sparkConf.setAll(Seq(
-        ("spark.ssl.kafka.enabled","true"),
-        ("spark.ssl.kafka.keyStore","foo"),
-        ("spark.ssl.kafka.keyStorePassword","foo"),
-        ("spark.ssl.kafka.trustStore","foo"),
-        ("spark.ssl.kafka.trustStorePassword","foo"),
-        ("spark.ssl.kafka.keyPassword","foo")
+        ("spark.ssl.datastore.enabled","true"),
+        ("spark.ssl.datastore.keyStore","foo"),
+        ("spark.ssl.datastore.keyStorePassword","foo"),
+        ("spark.ssl.datastore.trustStore","foo"),
+        ("spark.ssl.datastore.trustStorePassword","foo"),
+        ("spark.ssl.datastore.keyPassword","foo")
       ))
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
@@ -137,10 +137,9 @@ class KafkaBaseTest extends WordSpec with Matchers {
     "return a empty security properties" in {
       val sparkConf = new SparkConf()
       sparkConf.setAll(Seq(
-        ("spark.ssl.kafka.enabled","true"),
-        ("spark.ssl.kafka.keyStore","foo"),
-        ("spark.ssl.kafka.keyStorePassword","foo"),
-        ("spark.ssl.kafka.trustStore","foo")
+        ("spark.ssl.datastore.keyStore","foo"),
+        ("spark.ssl.datastore.keyStorePassword","foo"),
+        ("spark.ssl.datastore.trustStore","foo")
       ))
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
