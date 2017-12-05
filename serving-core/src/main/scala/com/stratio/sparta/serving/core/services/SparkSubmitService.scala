@@ -426,3 +426,33 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     } else submitArgs
   }
 }
+
+object SparkSubmitService {
+
+  def getJarsSparkConfigurations(jarFiles: Seq[String]): Map[String, String] =
+    if (jarFiles.exists(_.trim.nonEmpty)) {
+      val jarFilesFiltered = jarFiles.filter(file => !file.startsWith("hdfs") && !file.startsWith("http"))
+      val classpathConfs = if (jarFilesFiltered.nonEmpty) {
+        val files = jarFilesFiltered.mkString(":")
+        Map(
+          SubmitDriverClassPathConf -> files,
+          SubmitExecutorClassPathConf -> files
+        )
+      } else Map.empty[String, String]
+
+      classpathConfs ++ Map(SubmitJarsConf -> jarFiles.mkString(","))
+    } else Map.empty[String, String]
+
+  def mixingSparkJarsConfigurations(
+                                   jarConfs: Map[String, String],
+                                   sparkConfs: Map[String, String]
+                                 ): Map[String, String] =
+    sparkConfs.map { case (confKey, value) =>
+      if (jarConfs.contains(confKey)) {
+        val separator = if (confKey.contains("ClassPath")) ":" else ","
+        confKey -> s"$value$separator${jarConfs(confKey)}"
+      } else confKey -> value
+    }
+
+}
+

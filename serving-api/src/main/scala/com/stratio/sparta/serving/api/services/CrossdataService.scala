@@ -22,18 +22,20 @@ import javax.xml.bind.DatatypeConverter
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.api.services.CrossdataService._
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.services.HdfsService
+import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
 import org.apache.spark.SparkConf
 import org.apache.spark.security.ConfigSecurity
 import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.crossdata.XDSession
 
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
 
-class CrossdataService() extends SpartaSerializer with SLF4JLogging {
+class CrossdataService() {
+
+  import com.stratio.sparta.serving.api.services.CrossdataService._
 
   def listTables(dbName: Option[String], temporary: Boolean): Try[Array[Table]] =
     Try {
@@ -56,8 +58,13 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
   def listAllTables: Try[Array[Table]] =
     Try {
       crossdataSession.catalog.listDatabases().collect().flatMap(db =>
-        crossdataSession.catalog.listTables(db.name).collect()
-      )
+        Try(crossdataSession.catalog.listTables(db.name).collect()) match {
+          case Success(table) => Option(table)
+          case Failure(e) =>
+            log.debug(s"Error obtaining tables from database ${db.name}", e)
+            None
+        }
+      ).flatten
     }
 
   def listDatabases: Try[Array[Database]] =
@@ -81,10 +88,19 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
       if (validateQuery(query))
         crossdataSession.sql(query)
           .collect()
-          .map(row => row.schema.fields.zipWithIndex.map { case (field, index) => field.name -> row.get(index) }.toMap)
+          .map { row =>
+            row.schema.fields.zipWithIndex.map { case (field, index) =>
+              val oldValue = row.get(index)
+              val newValue = oldValue match {
+                case  v: java.math.BigDecimal => BigDecimal(v)
+                case _ => oldValue
+              }
+              field.name -> newValue
+            }.toMap
+          }
       else throw new IllegalArgumentException("Invalid query, the supported queries are: CREATE TABLE ... , " +
         "CREATE TEMPORARY TABLE ..., DROP TABLE ..., TRUNCATE TABLE...,IMPORT TABLES ..., SELECT ..., " +
-        "IMPORT TABLES ...," + "CREATE EXTERNAL TABLE ..., SHOW ..., DESCRIBE ... and IMPORT ...")
+        "IMPORT TABLES ..., CREATE EXTERNAL TABLE ..., SHOW ..., ANALYZE ..., DESCRIBE ... and IMPORT ...")
     }
 
   private def validateQuery(query: String): Boolean = {
@@ -96,15 +112,25 @@ class CrossdataService() extends SpartaSerializer with SLF4JLogging {
   }
 }
 
-object CrossdataService {
+object CrossdataService extends SLF4JLogging {
 
-  val crossdataSession: XDSession = {
+  private def jdbcDriverVariables: Seq[(String, String)] =
+    SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths).toSeq
+
+  lazy val crossdataSession = {
+
     val reference = getClass.getResource("/reference.conf").getPath
+    val additionalConfigurations = kerberosYarnDefaultVariables ++ jdbcDriverVariables
     val sparkConf = new SparkConf()
-      .setAll(kerberosYarnDefaultVariables)
+      .setAll(additionalConfigurations)
       .setAppName(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta") + "-crossdata")
 
-    if (Try(Properties.envOrElse("CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE", "false").toBoolean).getOrElse(false)) {
+    log.debug(s"Added variables to Spark Conf in XDSession: $additionalConfigurations")
+
+    JarsHelper.addJdbcDriversToClassPath()
+
+    if (Properties.envOrNone("VAULT_TOKEN").isDefined && Properties.envOrNone("VAULT_HOSTS").isDefined &&
+      Properties.envOrNone("VAULT_PROTOCOL").isDefined && Properties.envOrNone("VAULT_PORT").isDefined) {
       val vaultToken = sys.env.get("VAULT_TOKEN")
       val vaultUrl = for {
         protocol <- sys.env.get("VAULT_PROTOCOL")
@@ -112,19 +138,15 @@ object CrossdataService {
         port <- sys.env.get("VAULT_PORT")
       } yield s"$protocol://$host:$port"
 
-      ConfigSecurity.prepareEnvironment(vaultToken, vaultUrl)
-    }
+      val environment = ConfigSecurity.prepareEnvironment(vaultToken, vaultUrl)
+
+      log.debug(s"XDSession secured environment prepared with variables: $environment")
+    } else log.debug(s"XDSession secured environment not configured")
 
     val xDSession = XDSession.builder()
       .config(new File(reference))
       .config(sparkConf)
       .create(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta"))
-
-    val jdbcDrivers = new File("/jdbc-drivers")
-    if (jdbcDrivers.exists && jdbcDrivers.isDirectory)
-      jdbcDrivers.listFiles()
-        .filter(file => file.isFile && file.getName.endsWith("jar"))
-        .foreach(file => xDSession.sparkContext.addJar(file.getAbsolutePath))
 
     xDSession
   }

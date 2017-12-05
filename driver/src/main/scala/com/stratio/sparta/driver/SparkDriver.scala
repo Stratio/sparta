@@ -26,6 +26,7 @@ import com.stratio.sparta.serving.core.actor.{ListenerActor, StatusPublisherActo
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
@@ -65,6 +66,8 @@ object SparkDriver extends SLF4JLogging {
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
+        JarsHelper.addJarsToClassPath(pluginsFiles)
+        JarsHelper.addJdbcDriversToClassPath()
         val localPlugins = PluginFilesHelper.downloadPlugins(pluginsFiles)
         PluginFilesHelper.addPluginsToClasspath(localPlugins)
         val workflowService = new WorkflowService(curatorInstance)

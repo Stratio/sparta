@@ -46,7 +46,10 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
       createLocalCheckpointPath(workflow)
     }
 
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
@@ -57,12 +60,12 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     (spartaWorkflow, ssc)
   }
 
   def clusterStreamingContext(workflow: Workflow, files: Seq[String]): (SpartaWorkflow, StreamingContext) = {
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     val spartaWorkflow = SpartaWorkflow(workflow, curatorFramework)
     val ssc = {
@@ -85,7 +88,6 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
 
     (spartaWorkflow, ssc)
   }

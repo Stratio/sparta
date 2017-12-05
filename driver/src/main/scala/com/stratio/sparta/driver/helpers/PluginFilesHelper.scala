@@ -44,7 +44,7 @@ object PluginFilesHelper extends SLF4JLogging {
       log.info(s"Getting file from local: $filePath")
       val file = new File(filePath.replace("file://", ""))
       log.info(s"Adding plugin file to classpath: ${file.getAbsolutePath}")
-      JarsHelper.addToClasspath(file)
+      JarsHelper.addJarToClasspath(file)
     }
   }
 
