@@ -100,7 +100,7 @@
           "offsetOperator": ">=",
           "zookeeperPath": "/crossdata/offsetsdemo",
           "forcedBeginning": true,
-          "tlsEnable": false,
+          "tlsEnabled": false,
           "storageLevel": "MEMORY_ONLY_SER"
         }
       },

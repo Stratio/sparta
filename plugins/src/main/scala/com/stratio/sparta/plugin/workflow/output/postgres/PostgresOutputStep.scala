@@ -31,6 +31,7 @@ import org.apache.spark.sql.jdbc.SpartaJdbcUtils
 import org.apache.spark.sql.jdbc.SpartaJdbcUtils._
 import org.postgresql.copy.CopyManager
 import org.postgresql.core.BaseConnection
+import SecurityHelper._
 
 import scala.util.{Failure, Success, Try}
 
@@ -45,7 +46,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
   lazy val quotesSubstitution = properties.getString("newQuotesSubstitution", """\b""")
   lazy val encoding = properties.getString("encoding", "UTF8")
   lazy val postgresSaveMode = PostgresSaveMode.withName(properties.getString("postgresSaveMode", "CopyIn").toUpperCase)
-  lazy val tlsEnable = Try(properties.getBoolean("tlsEnable")).getOrElse(false)
+  val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+  val sparkConf = xDSession.conf.getAll
+  val securityUri = getDataStoreUri(sparkConf)
+  val urlWithSSL = if (tlsEnable) url + securityUri else url
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.Overwrite, SaveModeEnum.Upsert)
@@ -54,9 +58,6 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val urlWithSSL = if (tlsEnable) {
-      s"$url&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8"
-    } else url
     val connectionProperties = new JDBCOptions(urlWithSSL,
       tableName,
       propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
@@ -121,6 +122,6 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 object PostgresOutputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.dataSourceSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

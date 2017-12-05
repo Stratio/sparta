@@ -7,7 +7,7 @@
     "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
     "properties": [
       {
-        "propertyId": "tlsEnable",
+        "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "switch",
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",

@@ -30,7 +30,6 @@ import org.apache.kafka.clients.consumer._
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.serialization._
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
@@ -59,7 +58,7 @@ class KafkaInputStep(
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[RowDeserializer]
     )
-    val kafkaSecurityOptions = securityOptions(ssc.sparkContext.getConf)
+    val kafkaSecurityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.sparkContext.getConf)
     val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
       getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
       getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
@@ -180,6 +179,6 @@ class KafkaInputStep(
 object KafkaInputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.kafkaSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

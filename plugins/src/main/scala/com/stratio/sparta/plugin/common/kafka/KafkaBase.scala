@@ -52,47 +52,4 @@ trait KafkaBase extends SLF4JLogging {
     Map(key -> connection)
   }
 
-  /** SECURITY OPTIONS **/
-
-  def securityOptions(sparkConf: Map[String, String]): Map[String, AnyRef] = {
-    val prefixKafka = "spark.ssl.kafka."
-    if (sparkConf.get(prefixKafka + "enabled").isDefined && sparkConf(prefixKafka + "enabled") == "true") {
-      val configKafka = sparkConf.flatMap { case (key, value) =>
-        if (key.startsWith(prefixKafka))
-          Option(key.replace(prefixKafka, "") -> value)
-        else None
-      }
-
-      Try(securityMapOptions(configKafka)) match {
-        case Success(options) =>
-          options
-        case Failure(e) =>
-          log.warn("Error getting spark security, some of this configurations is missing or invalid", e)
-          EmptyOpts
-      }
-    } else EmptyOpts
-  }
-
-  def securityOptions(sparkConf: SparkConf): Map[String, AnyRef] = {
-    val prefixKafka = "spark.ssl.kafka."
-    if (sparkConf.getOption(prefixKafka + "enabled").isDefined && sparkConf.get(prefixKafka + "enabled") == "true")
-      try {
-        securityMapOptions(sparkConf.getAllWithPrefix(prefixKafka).toMap)
-      } catch {
-        case e: Exception =>
-          log.warn("Error getting spark security, some of this configurations is missing or invalid", e)
-          EmptyOpts
-      }
-    else EmptyOpts
-  }
-
-  private def securityMapOptions(configKafka: Map[String, String]): Map[String, AnyRef] =
-    Map(
-      "security.protocol" -> "SSL",
-      "ssl.key.password" -> configKafka("keyPassword"),
-      "ssl.keystore.location" -> configKafka("keyStore"),
-      "ssl.keystore.password" -> configKafka("keyStorePassword"),
-      "ssl.truststore.location" -> configKafka("trustStore"),
-      "ssl.truststore.password" -> configKafka("trustStorePassword")
-    )
 }

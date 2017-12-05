@@ -17,6 +17,7 @@ package com.stratio.sparta.plugin.common.kafka
 
 import java.io.Serializable
 
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStep
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
@@ -81,7 +82,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
       )
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
-      val result = input.securityOptions(sparkConf)
+      val result = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
       val expected = Map(
         "security.protocol" -> "SSL",
         "ssl.key.password" -> "foo",
@@ -102,7 +103,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
       )
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
-      val result = input.securityOptions(sparkConf)
+      val result = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
       val expected = Map.empty[String, Serializable]
       result should be(expected)
     }
@@ -121,7 +122,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
       ))
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
-      val result = input.securityOptions(sparkConf)
+      val result = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
       val expected = Map(
         "security.protocol" -> "SSL",
         "ssl.key.password" -> "foo",
@@ -143,7 +144,7 @@ class KafkaBaseTest extends WordSpec with Matchers {
       ))
       val properties = Map.empty[String, Serializable]
       val input = new KafkaBaseToTest(properties)
-      val result = input.securityOptions(sparkConf)
+      val result = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
       val expected = Map.empty[String, Serializable]
       result should be(expected)
     }

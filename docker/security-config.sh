@@ -68,6 +68,12 @@ export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
 export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 export GOSEC_PLUGIN_JKS_NAME=${SPARTA_TLS_JKS_NAME}
 
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/ca"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwords/default/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="/v1/userland/certificates/$TENANT_NAME"
+export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="/v1/userland/passwords/$TENANT_NAME/keystore"
+export SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH=$SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH
+
 
 ####################################################
 ## Get TLS Server Info and set SPARTA_KEYSTORE_PASS

@@ -39,7 +39,7 @@ class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
   val sparkConf: Map[String, String] = xDSession.conf.getAll
-  val securityOpts: Map[String, AnyRef] = securityOptions(sparkConf)
+  val securityOpts: Map[String, AnyRef] = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
 
   lazy val keySeparator: String = properties.getString("keySeparator", ",")
   lazy val DefaultProducerPort = "9092"
@@ -151,6 +151,6 @@ object KafkaOutput extends SLF4JLogging {
 object KafkaOutputStep{
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.kafkaSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

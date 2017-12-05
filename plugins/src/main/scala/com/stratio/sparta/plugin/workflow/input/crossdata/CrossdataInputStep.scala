@@ -128,6 +128,6 @@ object CrossdataInputStep {
   var lastFinishTask: Option[Cancellable] = None
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.dataSourceSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

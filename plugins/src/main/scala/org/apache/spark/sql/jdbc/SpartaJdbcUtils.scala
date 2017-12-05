@@ -99,6 +99,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
   def getConnection(properties: JDBCOptions, outputName: String): Connection = {
     synchronized {
       if (!connections.containsKey(outputName) || connections.get(outputName).isClosed) {
+        log.debug(s"Connecting to database with url: ${properties.url}")
         Try(createConnectionFactory(properties)()) match {
           case Success(conn) =>
             if (connections.containsKey(outputName)) {
