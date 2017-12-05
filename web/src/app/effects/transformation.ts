@@ -22,7 +22,6 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as transformationActions from 'actions/transformation';
-import * as errorsActions from 'actions/errors';
 
 
 @Injectable()
@@ -35,7 +34,7 @@ export class TransformationEffect {
                 .map((transformationList: any) => {
                     return new transformationActions.ListTransformationCompleteAction(transformationList);
                 }).catch(function (error: any) {
-                    return Observable.from([new transformationActions.ListTransformationFailAction(''), new errorsActions.HttpErrorAction(error)]);
+                    return Observable.of(new transformationActions.ListTransformationFailAction(''));
                 });
         });
 
@@ -51,7 +50,7 @@ export class TransformationEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new transformationActions.DeleteTransformationCompleteAction(transformations), new transformationActions.ListTransformationAction()];
             }).catch(function (error) {
-                return Observable.from([new transformationActions.DeleteTransformationErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new transformationActions.DeleteTransformationErrorAction(''));
             });
         });
 
@@ -64,7 +63,7 @@ export class TransformationEffect {
             return this.templatesService.createTemplate(transformation).mergeMap((data: any) => {
                 return [new transformationActions.DuplicateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
             }).catch(function (error: any) {
-                return Observable.from([new transformationActions.DuplicateTransformationErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new transformationActions.DuplicateTransformationErrorAction(''));
             });
         });
 
@@ -75,7 +74,7 @@ export class TransformationEffect {
             return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new transformationActions.CreateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
             }).catch(function (error: any) {
-                return Observable.from([new transformationActions.CreateTransformationErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new transformationActions.CreateTransformationErrorAction(''));
             });
         });
 
@@ -86,7 +85,7 @@ export class TransformationEffect {
             return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new transformationActions.UpdateTransformationCompleteAction(), new transformationActions.ListTransformationAction];
             }).catch(function (error: any) {
-                return Observable.from([new transformationActions.UpdateTransformationErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new transformationActions.UpdateTransformationErrorAction(''));
             });
         });
 

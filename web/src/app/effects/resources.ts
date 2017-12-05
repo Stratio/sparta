@@ -14,14 +14,14 @@
 /// limitations under the License.
 ///
 
+import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Actions, Effect } from '@ngrx/effects';
-import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+
 import * as resourcesActions from 'actions/resources';
 import { ResourcesService } from 'app/services';
 import * as fromRoot from 'reducers';
-import * as errorsActions from 'actions/errors';
 
 @Injectable()
 export class ResourcesEffect {
@@ -83,7 +83,7 @@ export class ResourcesEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new resourcesActions.DeletePluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
             }).catch(function (error: any) {
-                return Observable.from([new resourcesActions.DeletePluginErrorAction(''), new errorsActions.HttpErrorAction(error)]);
+                return Observable.of(new resourcesActions.DeletePluginErrorAction(''));
             });
         });
 

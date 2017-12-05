@@ -24,7 +24,6 @@ import {
 } from '@stratio/egeo';
 import * as fromRoot from 'reducers';
 import * as workflowActions from 'actions/workflow';
-import { WorkflowCreationModal } from './workflow-creation-modal/workflow-creation-modal.component';
 import { WorkflowJsonModal } from './workflow-json-modal/workflow-json-modal.component';
 import { Subscription } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -67,8 +66,7 @@ export class WorkflowsService {
             modalTitle: this.deleteWorkflowModalTitle,
             buttons: buttons,
             message: this.deleteWorkflowModalMessage,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.WARNING
+            mainText: StModalMainTextSize.BIG
         }).subscribe((response) => {
             if (response === 1) {
                 this._modalService.close();

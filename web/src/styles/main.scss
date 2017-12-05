@@ -4,139 +4,183 @@ $egeo-sanitize: true;
 @import '~@stratio/egeo/theme/theme.css';
 @import '~codemirror/lib/codemirror.css';
 @import '~codemirror/addon/hint/show-hint.css';
-
 html {
-   font-size: 16px;
+    font-size: 16px;
 }
 
 body {
-   margin: 0;
-   overflow-x: hidden;
-   background: #fafafa;
-   font-family: 'Nunito Sans';
+    margin: 0;
+    overflow-x: hidden;
+    background: #fafafa;
+    font-family: 'Nunito Sans';
 }
 
 .selected-button {
-   background: #f3f6f8;
+    background: #f3f6f8;
 }
 
 sp-textarea {
-   width: 100%;
+    width: 100%;
 }
 
 .custom-checkbox {
-   margin-right: 6px!important;
+    margin-right: 6px!important;
 }
 
 .entity-icon {
-   font-family: ico_stratio;
-   font-size: 25px;
-   user-select: none;
-   cursor: move;
+    font-family: ico_stratio;
+    font-size: 25px;
+    user-select: none;
+    cursor: move;
 }
 
 .entity-icon2 {
-   font-family: ico_stratio;
-   user-select: none;
-   cursor: move;
+    font-family: ico_stratio;
+    user-select: none;
+    cursor: move;
 }
-
 /* codemirror overrides */
 
-.disabled .CodeMirror pre, .disabled .CodeMirror *{
+.disabled .CodeMirror pre,
+.disabled .CodeMirror * {
     color: #dedede!important;
 }
 
 .CodeMirror {
-   display: block;
-   width: 100%;
-   box-sizing: border-box;
-   height: inherit;
-   cursor: text;
-   padding: 10px 12px 10px 15px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: inherit;
+    cursor: text;
+    padding: 10px 12px 10px 15px;
 }
 
 .CodeMirror-focused {
-   .CodeMirror-cursor {
-      height: 19px!important;
-   }
+    .CodeMirror-cursor {
+    height: 19px!important;
+    }
 }
 
 .CodeMirror-scroll {
-   /* min-height: 22px!important; */
+    /* min-height: 22px!important; */
 }
 
 .workflow-json-content .CodeMirror-scroll {
-   min-height: 240px!important;
+    min-height: 240px!important;
 }
 
 .disabled {
-   .CodeMirror-cursor {
-      display: none;
-   }
+    .CodeMirror-cursor {
+    display: none;
+    }
 }
-
-
 /***** override egeo theme styles ******/
 
 // TODO delete this styles whith Egeo 6.0 release
-
 .sth-header-menu-option .sth-header-menu-option-name .sth-header-menu-option-icon {
     display: none;
 }
 
 .st-modal-title {
-   margin-bottom: 16px!important;
-   p {
-      text-transform: none !important;
-      font-family: 'Nunito Sans ExtraBold'!important;
-      font-size: 18px!important;
-      color: #111111;
-   }
+    margin-bottom: 16px!important;
+    p {
+        text-transform: none !important;
+        font-family: 'Nunito Sans ExtraBold'!important;
+        font-size: 18px!important;
+        color: #111111;
+    }
 }
 
 .sth-modal-content {
-   background-color: #fff!important;
+    background-color: #fff!important;
 }
 
 .sth-modal-header {
-   background-color: #f5f5f5!important;
+    background-color: #f5f5f5!important;
 }
 
 .st-search-input {
-   border: 1px solid #b5b5b5!important;
-   padding: 20px 24px 18px 12px;
-   color: inherit!important;
-   padding-top: 8px;
-   padding-bottom: 6px;
-   height:auto!important;
-   border-radius: 4px;
+    border: 1px solid #b5b5b5!important;
+    padding: 20px 24px 18px 12px;
+    color: inherit!important;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    height: auto!important;
+    border-radius: 4px;
 }
 
 .sth-header {
-   z-index: 999!important;
+    z-index: 999!important;
 }
 
 .st-tooltip {
-   min-height: 20px;
-   line-height: 18px;
-   &:before {
-      min-width: 160px;
-   }
+    min-height: 20px;
+    line-height: 18px;
+    &:before {
+    min-width: 160px;
+    }
 }
 
 st-table .hover-menu {
-    display:none;
+    display: none;
 }
 
 .sth-pagination.themeA {
-   background: transparent!important;
+    background: transparent!important;
 }
 
 .sth-alert-box-message-body {
-   p {
-      word-break: break-word;
-   }
+    p {
+    word-break: break-word;
+    }
+}
+
+.sth-alert-box {
+    background-color: #fff!important;
+    box-shadow: 0 1px 4px 2px rgba(124, 124, 124, 0.15);
+    border-radius: 4px;
+
+    .sth-alert-box-message-header-title {
+        color: #111111!important;
+        font-size: 15px!important;
+    }
+
+    .sth-alert-box-message-body {
+        color: #3c3c3c!important;
+        font-size: 16px;
+    }
+
+    &.sth-alert-box-success {
+        border-left: 4px solid #2cce93;
+        .sth-alert-box-message-header-title {
+            &:before {
+                content: '\e116';
+                font-family: ico_stratio;
+                background: #2cce93;
+                color: white;
+                padding: 4px;
+                border-radius: 50%;
+                font-size: 12px;
+                margin-right: 5px;
+            }
+        }
+    }
+
+    &.sth-alert-box-error {
+        border-left: 4px solid #ec445c;
+        .sth-alert-box-message-header-title {
+            &:before {
+                content: '!';
+                font-family: ico_stratio;
+                background: #ec445c;
+                color: white;
+                padding: 3px 7px 3px 8px;
+                border-radius: 50%;
+                font-size: 14px;
+                margin-right: 5px;
+            }
+        }
+    }
 }
 
 .st-modal-content {
@@ -144,16 +188,16 @@ st-table .hover-menu {
 }
 
 @keyframes ModalAnimation {
-   0% {
-      opacity: 0;
-      transform: scale(0.8)
-   }
-   70% {
-      opacity: 1;
-      transform: scale(1.0)
-   }
-   100% {
-      opacity: 1;
-      transform: none;
-   }
+    0% {
+    opacity: 0;
+    transform: scale(0.8)
+    }
+    70% {
+    opacity: 1;
+    transform: scale(1.0)
+    }
+    100% {
+    opacity: 1;
+    transform: none;
+    }
 }
