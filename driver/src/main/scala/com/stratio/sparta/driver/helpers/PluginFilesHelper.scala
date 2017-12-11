@@ -25,9 +25,11 @@ import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
 
-object PluginFilesHelper extends SLF4JLogging {
+object PluginFilesHelper extends PluginFilesHelper
 
-  lazy private val hdfsService = HdfsService()
+trait PluginFilesHelper extends SLF4JLogging {
+
+  protected lazy val hdfsService = HdfsService()
 
   def downloadPlugins(pluginsFiles: Seq[String], addToClasspath: Boolean = true): Seq[String] = {
     log.info(pluginsFiles.mkString(","))
