@@ -68,7 +68,7 @@
         "qa": "fragment-postgres-isolation-level"
       },
       {
-        "propertyId": "tlsEnable",
+        "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "switch",
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",

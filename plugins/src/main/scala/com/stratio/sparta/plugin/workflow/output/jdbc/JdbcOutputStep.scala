@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.output.jdbc
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.helper.SecurityHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum.SpartaSaveMode
@@ -37,7 +38,10 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
   require(properties.getString("url", None).isDefined, "url must be provided")
 
   lazy val url = properties.getString("url")
-  lazy val tlsEnable = Try(properties.getBoolean("tlsEnable")).getOrElse(false)
+  val tlsEnable = Try(properties.getBoolean("tlsEnabled")).getOrElse(false)
+  val sparkConf = xDSession.conf.getAll
+  val securityUri = getDataStoreUri(sparkConf)
+  val urlWithSSL = if (tlsEnable) url + securityUri else url
 
   override def supportedSaveModes: Seq[SpartaSaveMode] =
     Seq(SaveModeEnum.Append, SaveModeEnum.ErrorIfExists, SaveModeEnum.Ignore, SaveModeEnum.Overwrite,
@@ -48,9 +52,6 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
     validateSaveMode(saveMode)
     val tableName = getTableNameFromOptions(options)
     val sparkSaveMode = getSparkSaveMode(saveMode)
-    val urlWithSSL = if (tlsEnable) {
-      s"$url&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8"
-    } else url
     val connectionProperties = new JDBCOptions(urlWithSSL,
       tableName,
       propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
@@ -96,6 +97,6 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 object JdbcOutputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.dataSourceSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

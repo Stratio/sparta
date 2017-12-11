@@ -209,7 +209,7 @@
           "qa": "fragment-details-crossdata-stopWhenEmpty"
        },
       {
-        "propertyId": "tlsEnable",
+        "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
         "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",

@@ -47,8 +47,8 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
   private def doInitSpartaContext(workflow: Workflow): Unit = {
     val jars = userPluginsFiles(workflow)
 
-    jars.foreach(file => JarsHelper.addToClasspath(file))
-
+    jars.foreach(file => JarsHelper.addJarToClasspath(file))
+    JarsHelper.addJdbcDriversToClassPath()
     Try {
       val startingInfo = s"Starting local job for the workflow"
       log.info(startingInfo)

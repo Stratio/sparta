@@ -1,20 +1,8 @@
 #!/bin/bash
 
 function initDatastoreTls() {
-    if [ -v CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE ] && [ $CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE == "true" ]; then
+    if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ] && [ -v CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE ] && [ $CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE == "true" ]; then
         source datastoretls-config.sh
-        echo "" >> ${VARIABLES}
-        echo "export VAULT_PROTOCOL=https" >> ${VARIABLES}
-        echo "" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
-        echo "export VAULT_PROTOCOL=https" >> ${SYSTEM_VARIABLES}
-
-        if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_HOSTS ] && [ ${#VAULT_HOSTS} != 0 ]; then
-          echo "" >> ${VARIABLES}
-          echo "export VAULT_HOST=$VAULT_HOSTS" >> ${VARIABLES}
-          echo "" >> ${SYSTEM_VARIABLES}
-          echo "export VAULT_HOST=$VAULT_HOSTS" >> ${SYSTEM_VARIABLES}
-        fi
     fi
 }
 

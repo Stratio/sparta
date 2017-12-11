@@ -204,7 +204,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def addNginxPrefixConf(sparkConfs: Map[String, String]): Map[String, String] = {
     for {
-      _ <- scala.util.Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
+      _ <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
       appName <- Properties.envOrNone(DcosServiceName).notBlank
     } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName/${workflow.name}")
   } getOrElse sparkConfs
@@ -234,14 +234,14 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def getSecurityConfigurations: Map[String, String] = {
     val useDynamicAuthentication = Try {
-      scala.util.Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
+      Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
     }.getOrElse(false)
-    val vaultHost = scala.util.Properties.envOrNone("VAULT_HOSTS").notBlank
-    val vaultPort = scala.util.Properties.envOrNone("VAULT_PORT").notBlank
-    val vaultToken = scala.util.Properties.envOrNone("VAULT_TOKEN").notBlank
-    val appName = scala.util.Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+    val vaultHost = Properties.envOrNone("VAULT_HOSTS").notBlank
+    val vaultPort = Properties.envOrNone("VAULT_PORT").notBlank
+    val vaultToken = Properties.envOrNone("VAULT_TOKEN").notBlank
+    val appName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
       .notBlank
-      .orElse(scala.util.Properties.envOrNone("TENANT_NAME").notBlank)
+      .orElse(Properties.envOrNone("TENANT_NAME").notBlank)
     val securityProperties = (vaultHost, vaultPort, appName) match {
       case (Some(host), Some(port), Some(name)) =>
         Map(
@@ -426,3 +426,33 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     } else submitArgs
   }
 }
+
+object SparkSubmitService {
+
+  def getJarsSparkConfigurations(jarFiles: Seq[String]): Map[String, String] =
+    if (jarFiles.exists(_.trim.nonEmpty)) {
+      val jarFilesFiltered = jarFiles.filter(file => !file.startsWith("hdfs") && !file.startsWith("http"))
+      val classpathConfs = if (jarFilesFiltered.nonEmpty) {
+        val files = jarFilesFiltered.mkString(":")
+        Map(
+          SubmitDriverClassPathConf -> files,
+          SubmitExecutorClassPathConf -> files
+        )
+      } else Map.empty[String, String]
+
+      classpathConfs ++ Map(SubmitJarsConf -> jarFiles.mkString(","))
+    } else Map.empty[String, String]
+
+  def mixingSparkJarsConfigurations(
+                                   jarConfs: Map[String, String],
+                                   sparkConfs: Map[String, String]
+                                 ): Map[String, String] =
+    sparkConfs.map { case (confKey, value) =>
+      if (jarConfs.contains(confKey)) {
+        val separator = if (confKey.contains("ClassPath")) ":" else ","
+        confKey -> s"$value$separator${jarConfs(confKey)}"
+      } else confKey -> value
+    }
+
+}
+

@@ -56,6 +56,6 @@ class CrossdataOutputStep(name: String, xDSession: XDSession, properties: Map[St
 object CrossdataOutputStep {
 
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
-    SecurityHelper.dataSourceSecurityConf(configuration)
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 }

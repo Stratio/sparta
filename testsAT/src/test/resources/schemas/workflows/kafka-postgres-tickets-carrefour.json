@@ -503,7 +503,7 @@
         "driver": "",
         "caName": "ca",
         "bufferSize": "65536",
-        "tlsEnable": true,
+        "tlsEnabled": true,
         "saveOptions": [
           {
             "saveOptionsValue": "",
