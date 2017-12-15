@@ -236,6 +236,8 @@
    "_NULLABLE_": "Nullable",
    "_INTERVAL_": "Interval",
    "_PARTITIONS_": "Partitions",
+   "_RESET_ON_START_": "Reset offsets on start",
+   "_IGNORE_STARTED_STATUS_": "Ignore started status when reset offsets",
    "_FILTER_EXPRESSION_": "Filter expression",
    "_SELECT_EXPRESSION_": "Select expression",
    "_SUPPORT_NULL_VALUES_": "Support null values",

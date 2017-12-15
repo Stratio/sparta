@@ -27,8 +27,11 @@ object ConfigParameters {
   val OffsetsLocation = "offsetLocation"
   val ZookeeperConnection = "zookeeperConnection"
   val ZookeeperPath = "zookeeperPath"
+  val ResetOffsetOnStart = "resetOffsetOnStart"
+  val IgnoreStartedStatus = "ignoreStartedStatus"
   val SparkConsumerPropertiesKeys =
-    List(StorageLevelKey, RememberDuration, OffsetsLocation, ZookeeperConnection, ZookeeperPath)
+    List(StorageLevelKey, RememberDuration, OffsetsLocation, ZookeeperConnection, ZookeeperPath,
+      ResetOffsetOnStart, IgnoreStartedStatus)
 
   /**
    * Configuration Defaults
@@ -38,4 +41,6 @@ object ConfigParameters {
   val DefaultOffsetLocation = "MEMORY"
   val DefaultOffsetLocationEnum = OffsetLocation.MEMORY
   val DefaultZookeeperPath = "/stratio/sparta/crossdata/offsets"
+  val DefaultResetOffsetOnStart = "false"
+  val DefaultIgnoreStartedStatus = "false"
 }

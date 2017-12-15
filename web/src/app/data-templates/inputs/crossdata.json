@@ -78,7 +78,7 @@
         "propertyId": "offsetField",
         "propertyName": "_OFFSET_FILED_",
         "propertyType": "text",
-        "required": true,
+        "required": false,
         "tooltip": "Offset field in the source table",
         "qa": "fragment-details-crossdata-offsetField"
       },
@@ -86,7 +86,7 @@
         "propertyId": "offsetOperator",
         "propertyName": "_OFFSET_OPERATOR_",
         "propertyType": "select",
-        "required": true,
+        "required": false,
         "values": [
           {
             "label": ">",
@@ -147,48 +147,62 @@
             }
           ]
         ],
+         "default": "localhost:2181",
         "tooltip": "Initial sentence executed by Crossdata Context",
         "qa": "fragment-details-crossdata-initialSentence"
       },
-      {
-        "propertyId": "fromBeginning",
-        "propertyName": "_FROM_BEGINNING_",
-        "propertyType": "boolean",
-        "float": "true",
-         "width": 3,
-         "default": false,
-        "visible": [
-          [
-            {
-              "propertyId": "offsetLocation",
-              "value": "ZOOKEEPER"
-            }
-          ]
-        ],
-        "tooltip": "Start the offsets from beginning on launch",
-        "qa": "fragment-details-crossdata-fromBeginning"
-      },
-      {
-        "propertyId": "forcedBeginning",
-        "propertyName": "_FORCED_BEGINNING_",
-        "propertyType": "boolean",
-         "width": 3,
-        "default": false,
-        "visible": [
-          [
-            {
-              "propertyId": "offsetLocation",
-              "value": "ZOOKEEPER"
-            },
-            {
-              "propertyId": "fromBeginning",
-              "value": true
-            }
-          ]
-        ],
-        "tooltip": "Force on start to assign the offsets from beginning",
-        "qa": "fragment-details-crossdata-forcedBeginning"
-      },
+       {
+          "propertyId": "zookeeperPath",
+          "propertyName": "_ZOOKEEPER_PATH_",
+          "propertyType": "text",
+          "visible": [
+             [
+                {
+                   "propertyId": "offsetLocation",
+                   "value": "ZOOKEEPER"
+                }
+             ]
+          ],
+          "default": "/crossdata/offsets",
+          "tooltip": "Path in Zookeeper where is allocated the offsets",
+          "qa": "fragment-details-crossdata-zookeeperPath"
+       },
+       {
+          "propertyId": "resetOffsetOnStart",
+          "propertyName": "_RESET_ON_START_",
+          "propertyType": "boolean",
+          "default": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "offsetLocation",
+                   "value": "ZOOKEEPER"
+                }
+             ]
+          ],
+          "tooltip": "Reset the offsets on start process",
+          "qa": "fragment-details-crossdata-resetOffsetOnStart"
+       },
+       {
+          "propertyId": "ignoreStartedStatus",
+          "propertyName": "_IGNORE_STARTED_STATUS_",
+          "propertyType": "boolean",
+          "default": false,
+          "visible": [
+             [
+                {
+                   "propertyId": "offsetLocation",
+                   "value": "ZOOKEEPER"
+                },
+                {
+                   "propertyId": "resetOffsetOnStart",
+                   "value": true
+                }
+             ]
+          ],
+          "tooltip": "Reset the offsets ignoring the status, if not checked, the offsets will be restarted only when the status is not started",
+          "qa": "fragment-details-crossdata-ignoreStartedStatus"
+       },
       {
         "propertyId": "stopContexts",
         "propertyName": "_STOP_CONTEXTS_WHEN_EMPTY_",

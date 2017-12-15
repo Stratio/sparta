@@ -76,9 +76,24 @@ object ZookeeperHelper extends SLF4JLogging {
         case Some(fk) =>
           Option(read[StatusOffset](new Predef.String(fk.getData.forPath(path))))
         case None =>
-          throw new Exception("Impossible to start Zookeeper connection")
+          throw new Exception("Exception while getting stored offsets: no available connection to Zookeeper")
       }
     } else None
+  }
+
+  def resetOffsets(zookeeperParams: Map[String, String]): Unit = {
+    val path = getZookeeperPath(zookeeperParams)
+    if (existsPath(zookeeperParams, path)) {
+      if (curatorFramework.isEmpty) {
+        getInstance(zookeeperParams)
+      }
+      curatorFramework match {
+        case Some(fk) =>
+          fk.delete().deletingChildrenIfNeeded().forPath(path)
+        case None =>
+          throw new Exception("Exception while resetting stored offsets: no available connection to Zookeeper")
+      }
+    }
   }
 
   def setOffsets(zookeeperParams: Map[String, String], statusOffset: StatusOffset): Unit = {
@@ -92,7 +107,7 @@ object ZookeeperHelper extends SLF4JLogging {
           fk.create().creatingParentsIfNeeded().forPath(path, write(statusOffset).getBytes)
         else fk.setData().forPath(path, write(statusOffset).getBytes)
       case None =>
-        throw new Exception("Impossible to start Zookeeper connection")
+        throw new Exception("Exception while setting stored offsets: no available connection to Zookeeper")
     }
   }
 

@@ -50,19 +50,16 @@ class CrossdataInputStep(
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val query = properties.getString("query")
-  lazy val offsetField = properties.getString("offsetField")
+  lazy val offsetField = properties.getString("offsetField", None).notBlank
   lazy val offsetOperator = properties.getString("offsetOperator", None).notBlank
     .map(operator => OffsetOperator.withName(operator))
   lazy val offsetValue = properties.getString("offsetValue", None).notBlank
   lazy val finishApplicationWhenEmpty = properties.getBoolean("finishAppWhenEmpty", default = false)
-  lazy val fromBeginning = properties.getBoolean("fromBeginning", default = false)
-  lazy val forcedBeginning = Try(properties.getBoolean("forcedBeginning")).toOption
   lazy val limitRecords = properties.getLong("limitRecords", None)
   lazy val stopContexts = properties.getBoolean("stopContexts", default = false)
   lazy val zookeeperPath = Properties.envOrElse("SPARTA_ZOOKEEPER_PATH", "/stratio/sparta") + {
     val path = properties.getString("zookeeperPath", "/crossdata/offsets")
-    if (path.startsWith("/"))
-      path
+    if (path.startsWith("/")) path
     else s"/$path"
   }
   lazy val initialSentence = properties.getString("initialSentence", None).notBlank.flatMap { sentence =>
@@ -78,8 +75,10 @@ class CrossdataInputStep(
   def initStream(): DStream[Row] = {
     val inputSentences = InputSentences(
       query,
-      OffsetConditions(
-        OffsetField(offsetField, offsetOperator, offsetValue), fromBeginning, forcedBeginning, limitRecords),
+      offsetField.map { field =>
+        OffsetConditions(
+          OffsetField(field, offsetOperator, offsetValue), limitRecords)
+      },
       initialSentence.fold(Seq.empty[String]) { sentence => Seq(sentence) }
     )
     val datasourceProperties = {

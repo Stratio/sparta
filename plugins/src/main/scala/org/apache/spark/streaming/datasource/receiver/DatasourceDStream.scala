@@ -65,6 +65,8 @@ class DatasourceDStream[C <: SparkSession](
   private val userRememberDuration = getRememberDuration(datasourceParams)
   private val offsetsLocation = getOffsetLocation(datasourceParams)
   private val zookeeperParams = getZookeeperParams(datasourceParams)
+  private val ignoreStartedStatus = getIgnoreStartedStatus(datasourceParams)
+  private val resetOffsetOnStart = getResetOffsetOnStart(datasourceParams)
 
   userRememberDuration match {
     case Some(duration) =>
@@ -129,7 +131,13 @@ class DatasourceDStream[C <: SparkSession](
     }
     val datasourceRDD = new DatasourceRDD(sparkSession, inputSentencesLimited, datasourceParams)
 
-    setIncrementalOffsets(datasourceRDD.progressInputSentences, offsetsLocation, zookeeperParams)
+    setIncrementalOffsets(
+      datasourceRDD.progressInputSentences,
+      offsetsLocation,
+      zookeeperParams,
+      resetOffsetOnStart,
+      ignoreStartedStatus
+    )
 
     //publish data in Spark UI
     ssc.scheduler.inputInfoTracker.reportInfo(validTime, StreamInputInfo(id, datasourceRDD.count(), metadata))
@@ -140,6 +148,9 @@ class DatasourceDStream[C <: SparkSession](
   override def start(): Unit = {
     inMemoryOffsets = None
     firstBach = true
+    if (resetOffsetOnStart && ignoreStartedStatus ||
+      (resetOffsetOnStart && ZookeeperHelper.getOffsets(zookeeperParams).forall(!_.started)))
+      ZookeeperHelper.resetOffsets(zookeeperParams)
   }
 
   override def stop(): Unit = {
@@ -182,31 +193,36 @@ private[streaming] object DatasourceDStream {
                               offsetsLocation: OffsetLocation,
                               zookeeperParams: Map[String, String]
                             ): Option[OffsetConditions] = {
-    offsetsLocation match {
+    val newOffsets = offsetsLocation match {
       case OffsetLocation.ZOOKEEPER =>
         val zkStatusOffset = ZookeeperHelper.getOffsets(zookeeperParams)
-        if (firstBach &&
-          (!inputSentences.offsetConditions.exists(conditions => conditions.fromBeginning) ||
-            (zkStatusOffset.exists(_.started) && inputSentences.offsetConditions.exists(conditions =>
-              !conditions.forcedBeginning.getOrElse(false))))) {
+        if (firstBach) {
           firstBach = false
           zkStatusOffset.map(_.offsetConditions)
-        } else inMemoryOffsets.orElse(inputSentences.offsetConditions)
+        } else {
+          firstBach = false
+          inMemoryOffsets
+        }
       case _ =>
-        inMemoryOffsets.orElse(inputSentences.offsetConditions)
+        inMemoryOffsets
     }
+
+    newOffsets.orElse(inputSentences.offsetConditions)
   }
 
   def setIncrementalOffsets(
                              inputSentences: InputSentences,
                              offsetsLocation: OffsetLocation,
-                             zookeeperParams: Map[String, String]
+                             zookeeperParams: Map[String, String],
+                             resetOffsetOnStart: Boolean,
+                             ignoreStartedStatus: Boolean
                            ): Unit = {
     inMemoryOffsets = inputSentences.offsetConditions
 
     if (offsetsLocation == OffsetLocation.ZOOKEEPER)
-      inputSentences.offsetConditions.foreach(conditions =>
-        ZookeeperHelper.setOffsets(zookeeperParams, StatusOffset(started = true, conditions)))
+      inputSentences.offsetConditions.foreach { conditions =>
+        ZookeeperHelper.setOffsets(zookeeperParams, StatusOffset(started = true, conditions))
+      }
   }
 }
 

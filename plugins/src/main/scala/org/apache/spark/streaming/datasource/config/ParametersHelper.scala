@@ -48,4 +48,10 @@ object ParametersHelper {
 
   def getZookeeperPath(params: Map[String, String]): String =
     params.getOrElse(ZookeeperPath, DefaultZookeeperPath)
+
+  def getResetOffsetOnStart(params: Map[String, String]): Boolean =
+    Try(params.getOrElse(ResetOffsetOnStart, DefaultResetOffsetOnStart).toBoolean).getOrElse(false)
+
+  def getIgnoreStartedStatus(params: Map[String, String]): Boolean =
+    Try(params.getOrElse(IgnoreStartedStatus, DefaultIgnoreStartedStatus).toBoolean).getOrElse(false)
 }
