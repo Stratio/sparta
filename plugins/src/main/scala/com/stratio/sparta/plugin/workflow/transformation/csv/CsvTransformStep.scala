@@ -123,8 +123,9 @@ class CsvTransformStep(name: String,
 
                 outputSchema.map { outputField =>
                   valuesParsed.get(outputField.name) match {
-                    case Some(valueParsed) => if (valueParsed != null)
-                      castingToOutputSchema(outputField, valueParsed)
+                    case Some(valueParsed) =>
+                      if (valueParsed == "null") null
+                      else castingToOutputSchema(outputField, valueParsed)
                     case None =>
                       Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
                         new Exception(s"Impossible to parse outputField: $outputField in the schema")))
