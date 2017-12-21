@@ -35,7 +35,7 @@ class ReceiverNotStopContextIT extends TemporalDataSuite {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val inputSentences = InputSentences(
       s"select * from $tableName",
-      OffsetConditions(OffsetField("idInt")),
+      OffsetConditions(Seq(OffsetField("idInt"))),
       initialStatements = Seq.empty[String]
     )
     val distributedStream = DatasourceUtils.createStream(ssc, inputSentences, datasourceParams)

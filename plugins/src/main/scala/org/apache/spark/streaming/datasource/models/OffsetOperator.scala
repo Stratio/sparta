@@ -23,19 +23,33 @@ object OffsetOperator extends Enumeration {
   val > = Value(">")
   val <= = Value("<=")
   val >= = Value(">=")
+  val incrementalOperator = Value("incremental")
+  val decrementalOperator = Value("decremental")
+
 
   def toInverseOrderOperator(orderRelation: OrderRelation): OrderOperator.OrderRelation = orderRelation match {
     case `<` | `<=` => OrderOperator.ASC
     case `>` | `>=` => OrderOperator.DESC
+    case `incrementalOperator` => OrderOperator.DESC
+    case `decrementalOperator` => OrderOperator.ASC
   }
 
   def toOrderOperator(orderRelation: OrderRelation): OrderOperator.OrderRelation = orderRelation match {
     case `<` | `<=` => OrderOperator.DESC
     case `>` | `>=` => OrderOperator.ASC
+    case `incrementalOperator` => OrderOperator.ASC
+    case `decrementalOperator` => OrderOperator.DESC
   }
 
   def toProgressOperator(orderRelation: OrderRelation): OffsetOperator.OrderRelation = orderRelation match {
     case `<` | `<=` => <
     case `>` | `>=` => >
+    case `incrementalOperator` => >
+    case `decrementalOperator` => <
+  }
+
+  def toMultiProgressOperator(orderRelation: OrderRelation): OffsetOperator.OrderRelation = orderRelation match {
+    case `<` | `<=` | `decrementalOperator` => decrementalOperator
+    case `>` | `>=` | `incrementalOperator` => incrementalOperator
   }
 }

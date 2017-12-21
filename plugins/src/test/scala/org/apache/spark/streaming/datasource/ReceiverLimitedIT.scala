@@ -36,7 +36,7 @@ class ReceiverLimitedIT extends TemporalDataSuite {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val inputSentences = InputSentences(
       s"select * from $tableName",
-      OffsetConditions(OffsetField("idInt"), limitRecords = 500),
+      OffsetConditions(Seq(OffsetField("idInt")), limitRecords = 500),
       initialStatements = Seq.empty[String]
     )
     val distributedStream = DatasourceUtils.createStream(ssc, inputSentences, datasourceParams)

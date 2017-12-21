@@ -28,27 +28,6 @@ case class OffsetField(
 
   def toStringPretty: String =
     s"name: $name value: $value , operator: ${operator.toString}"
-
-  def extractConditionSentence(sqlQuery: String): String = {
-    value.fold("") { case valueExtracted =>
-      if(valueExtracted.toString.nonEmpty)
-        s" WHERE $name ${operator.toString} ${valueToSqlSentence(valueExtracted)} "
-      else ""
-    }
-  }
-
-  def extractOrderSentence(sqlQuery: String, inverse: Boolean = true): String =
-    s" ORDER BY $name ${
-      if (inverse) OffsetOperator.toInverseOrderOperator(operator).toString
-      else OffsetOperator.toOrderOperator(operator)
-    }"
-
-  private def valueToSqlSentence(value: Any): String =
-    value match {
-      case valueString : String => s"'$valueString'"
-      case valueDate : java.sql.Timestamp => s"'${valueDate.toString}'"
-      case _ => value.toString
-    }
 }
 
 object OffsetField {

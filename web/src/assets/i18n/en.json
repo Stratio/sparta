@@ -350,6 +350,7 @@
    "_OFFSET_OPERATOR_": "Offset operator",
    "_OFFSET_VALUE_": "Offset value",
    "_OFFSET_LOCATION_": "Offset location",
+   "_OFFSET_FIELDS_": "Fields defining offset condition",
    "_ZOOKEEPER_CONNECTION_": "Zookeeper connection",
    "_REMEMBER_DURATION_": "Remember duration",
    "_FROM_BEGINNING_": "From beginning",

@@ -55,7 +55,6 @@ logs
 /default
 checkpoint
 spark-warehouse
-plugins
 node
 node_modules
 bower_components

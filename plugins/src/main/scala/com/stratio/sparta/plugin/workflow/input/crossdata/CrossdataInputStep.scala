@@ -21,12 +21,12 @@ import java.io.{Serializable => JSerializable}
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.plugin.workflow.input.crossdata.models.OffsetFieldItem
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.enumerators.OutputFormatEnum
-import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
 import com.typesafe.config.ConfigFactory
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.datasource.DatasourceUtils
@@ -34,10 +34,11 @@ import org.apache.spark.streaming.datasource.config.ConfigParameters
 import org.apache.spark.streaming.datasource.models._
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.scheduler.{StreamingListener, StreamingListenerBatchCompleted}
+import org.json4s.jackson.Serialization.read
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.concurrent.duration._
 import scala.language.implicitConversions
-import scala.util.parsing.json.JSONObject
 import scala.util.{Properties, Try}
 
 class CrossdataInputStep(
@@ -50,10 +51,6 @@ class CrossdataInputStep(
   extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val query = properties.getString("query")
-  lazy val offsetField = properties.getString("offsetField", None).notBlank
-  lazy val offsetOperator = properties.getString("offsetOperator", None).notBlank
-    .map(operator => OffsetOperator.withName(operator))
-  lazy val offsetValue = properties.getString("offsetValue", None).notBlank
   lazy val finishApplicationWhenEmpty = properties.getBoolean("finishAppWhenEmpty", default = false)
   lazy val limitRecords = properties.getLong("limitRecords", None)
   lazy val stopContexts = properties.getBoolean("stopContexts", default = false)
@@ -72,13 +69,21 @@ class CrossdataInputStep(
     }
   }
 
+  lazy val offsetItems: Seq[OffsetField] = {
+    implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
+    read[Seq[OffsetFieldItem]](
+      s"""${properties.get("offsetFields").fold("[]") { values => values.toString }}""""
+    ).map(item => new OffsetField(item.offsetField,
+      OffsetOperator.withName(item.offsetOperator),
+      item.offsetValue.notBlank))
+  }
+
   def initStream(): DStream[Row] = {
     val inputSentences = InputSentences(
       query,
-      offsetField.map { field =>
-        OffsetConditions(
-          OffsetField(field, offsetOperator, offsetValue), limitRecords)
-      },
+      OffsetConditions(
+        offsetItems,
+        limitRecords),
       initialSentence.fold(Seq.empty[String]) { sentence => Seq(sentence) }
     )
     val datasourceProperties = {

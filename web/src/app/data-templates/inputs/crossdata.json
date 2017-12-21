@@ -71,51 +71,64 @@
         "propertyId": "limitRecords",
         "propertyName": "_LIMIT_RECORDS_",
         "propertyType": "text",
-        "tooltip": "Limit the records obtained on each batch",
-        "qa": "fragment-details-crossdata-limitRecords"
+         "tooltip": "Limit the records obtained on each batch",
+         "qa": "fragment-details-crossdata-limitRecords"
       },
-      {
-        "propertyId": "offsetField",
-        "propertyName": "_OFFSET_FILED_",
-        "propertyType": "text",
-        "required": false,
-        "tooltip": "Offset field in the source table",
-        "qa": "fragment-details-crossdata-offsetField"
-      },
-      {
-        "propertyId": "offsetOperator",
-        "propertyName": "_OFFSET_OPERATOR_",
-        "propertyType": "select",
-        "required": false,
-        "values": [
-          {
-            "label": ">",
-            "value": ">"
-          },
-          {
-            "label": ">=",
-            "value": ">="
-          },
-          {
-            "label": "<",
-            "value": "<"
-          },
-          {
-            "label": "<=",
-            "value": "<="
-          }
-        ],
-        "default": ">=",
-        "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
-        "qa": "fragment-details-crossdata-offsetOperator"
-      },
-      {
-        "propertyId": "offsetValue",
-        "propertyName": "_OFFSET_VALUE_",
-        "propertyType": "text",
-        "tooltip": "Initial offset value",
-        "qa": "fragment-details-crossdata-offsetValue"
-      },
+       {
+          "propertyId": "offsetFields",
+          "propertyName": "_OFFSET_FIELDS_",
+          "propertyType": "list",
+          "required": true,
+          "tooltip": " Specify a list of fields to format into Datetime",
+          "qa": "fragment-details-datetime-fields",
+          "fields": [
+             {
+                "propertyId": "offsetField",
+                "propertyName": "_OFFSET_FILED_",
+                "propertyType": "text",
+                "required": true,
+                "width": 3,
+                "tooltip": "Offset field in the source table",
+                "qa": "fragment-details-crossdata-offsetField"
+             },
+             {
+                "propertyId": "offsetOperator",
+                "propertyName": "_OFFSET_OPERATOR_",
+                "propertyType": "select",
+                "required": true,
+                "width": 3,
+                "values": [
+                   {
+                      "label": ">",
+                      "value": ">"
+                   },
+                   {
+                      "label": ">=",
+                      "value": ">="
+                   },
+                   {
+                      "label": "<",
+                      "value": "<"
+                   },
+                   {
+                      "label": "<=",
+                      "value": "<="
+                   }
+                ],
+                "default": ">=",
+                "tooltip": "Offset operator to generate incremental or decremental queries in the source table",
+                "qa": "fragment-details-crossdata-offsetOperator"
+             },
+             {
+                "propertyId": "offsetValue",
+                "propertyName": "_OFFSET_VALUE_",
+                "propertyType": "text",
+                "width": 3,
+                "tooltip": "Initial offset value",
+                "qa": "fragment-details-crossdata-offsetValue"
+             }
+          ]
+       },
       {
         "propertyId": "offsetLocation",
         "propertyName": "_OFFSET_LOCATION_",

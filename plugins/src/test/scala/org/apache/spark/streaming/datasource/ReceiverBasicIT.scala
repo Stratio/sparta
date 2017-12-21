@@ -37,7 +37,7 @@ class ReceiverBasicIT extends TemporalDataSuite {
 
     val inputSentences = InputSentences(
       s"select * from $tableName",
-      OffsetConditions(OffsetField("idInt")),
+      OffsetConditions(Seq(OffsetField("idInt"))),
       initialStatements = Seq.empty[String]
     )
     val distributedStream = DatasourceUtils.createStream(ssc, inputSentences, datasourceParams)

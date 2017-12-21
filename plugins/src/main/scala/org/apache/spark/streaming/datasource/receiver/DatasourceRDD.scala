@@ -18,8 +18,11 @@ package org.apache.spark.streaming.datasource.receiver
 
 import org.apache.spark.partial.{BoundedDouble, CountEvaluator, PartialResult}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.parser.{AbstractSqlParser, AstBuilder, ParserInterface}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.commons.lang.StringUtils
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetOperator}
+import org.apache.spark.streaming.datasource.models.{InputSentences, OffsetConditions, OffsetField, OffsetOperator}
 import org.apache.spark.{Partition, TaskContext}
 
 private[datasource]
@@ -27,51 +30,63 @@ class DatasourceRDD(
                      @transient sparkSession: SparkSession,
                      inputSentences: InputSentences,
                      datasourceParams: Map[String, String]
-                   ) extends RDD[Row](sparkSession.sparkContext, Nil) {
+                   ) extends RDD[Row](sparkSession.sparkContext, Nil) with DatasourceRDDHelper {
 
   private var totalCalculated: Option[Long] = None
 
-  private val InitTableName = "initTable"
   private val LimitedTableName = "limitedTable"
-  private val TempInitQuery = s"select * from $InitTableName"
+  private val complexQuery = checkIfComplexQuery(inputSentences.query)
+  lazy private val initialWhereCondition = if (complexQuery) None
+  else retrieveWhereCondition(inputSentences.query)
 
   val dataFrame: DataFrame =
     inputSentences.offsetConditions.fold(sparkSession.sql(inputSentences.query)) { offset =>
-      val parsedQuery = parseInitialQuery
-      val conditionsSentence = offset.fromOffset.extractConditionSentence(parsedQuery)
-      val orderSentence = offset.fromOffset.extractOrderSentence(parsedQuery, inverse = offset.limitRecords.isEmpty)
+      val parsedQuery = parseInitialQuery(complexQuery,inputSentences.query)
+      if (parsedQuery.equals(TempInitQuery)) initializeTempTable
+      val conditionsSentence = offset.extractConditionSentence(initialWhereCondition)
+      val orderSentence = offset.extractOrderSentence(parsedQuery, inverse = offset.limitRecords.isEmpty)
       val limitSentence = inputSentences.extractLimitSentence
-
+      if(possibleConflictsWRTColumns(initialWhereCondition, offset))
+        log.warn("One or more columns specified as Offset appear in the user-provided WHERE condition")
       sparkSession.sql(parsedQuery + conditionsSentence + orderSentence + limitSentence)
     }
 
-  private def parseInitialQuery: String = {
-    if (inputSentences.query.toUpperCase.contains("WHERE") ||
-      inputSentences.query.toUpperCase.contains("ORDER") ||
-      inputSentences.query.toUpperCase.contains("LIMIT")
-    ) {
-      sparkSession.sql(inputSentences.query).createOrReplaceTempView(InitTableName)
-      TempInitQuery
-    } else inputSentences.query
-  }
+  private def initializeTempTable =
+    sparkSession.sql(inputSentences.query).createOrReplaceTempView(InitTableName)
+
 
   def progressInputSentences: InputSentences = {
     if (!dataFrame.rdd.isEmpty()) {
       inputSentences.offsetConditions.fold(inputSentences) { offset =>
-
-        val offsetValue = if (offset.limitRecords.isEmpty)
-          dataFrame.rdd.first().get(dataFrame.schema.fieldIndex(offset.fromOffset.name))
+        val offsetValues = if (offset.limitRecords.isEmpty){
+          val firstRecord = dataFrame.rdd.first()
+            offset.fromOffset.map( currentField =>
+              (currentField.name,firstRecord.get(dataFrame.schema.fieldIndex(currentField.name)))
+            ).toMap
+           }
         else {
           dataFrame.createOrReplaceTempView(LimitedTableName)
-          val limitedQuery = s"select * from $LimitedTableName order by ${offset.fromOffset.name} " +
-            s"${OffsetOperator.toInverseOrderOperator(offset.fromOffset.operator)} limit 1"
-
-          sparkSession.sql(limitedQuery).rdd.first().get(dataFrame.schema.fieldIndex(offset.fromOffset.name))
+          val limitedQuery = s"select * from $LimitedTableName " +
+            offset.extractOrderSentence(inputSentences.query, true) +
+            " limit 1"
+          val currentRecord = sparkSession.sql(limitedQuery).rdd.first()
+            offset.fromOffset.map( currentField =>
+              (currentField.name,currentRecord.get(dataFrame.schema.fieldIndex(currentField.name)))).toMap
         }
 
-        inputSentences.copy(offsetConditions = Option(offset.copy(fromOffset = offset.fromOffset.copy(
-          value = Option(offsetValue),
-          operator = OffsetOperator.toProgressOperator(offset.fromOffset.operator)))))
+        val updatedConditions =
+          offset.fromOffset.map(
+            currentField =>
+              OffsetField(currentField.name,
+                if(offset.fromOffset.size == 1)
+                  OffsetOperator.toProgressOperator(currentField.operator)
+                else
+                  OffsetOperator.toMultiProgressOperator(currentField.operator),
+                offsetValues(currentField.name)
+          ))
+
+        inputSentences.copy(offsetConditions =
+          Option(offset.copy(fromOffset = updatedConditions)))
       }
     } else inputSentences
   }

@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
+import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
@@ -31,21 +32,39 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
   "CrossdataInput " should "read all the records in one streaming batch" in {
     SparkSession.clearActiveSession()
     val schema = new StructType(Array(
-      StructField("id", IntegerType, nullable = true)
+      StructField("id", IntegerType, nullable = true),
+      StructField("id2", IntegerType, nullable = true)
     ))
     val tableName = "tableName"
     val totalRegisters = 1000
-    val registers = for (a <- 1 to totalRegisters) yield Row(a)
+    val registers = for (a <- 1 to totalRegisters) yield Row(a,a)
     val rdd = sc.parallelize(registers)
 
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
 
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+
+    val offsetFields =
+      """[
+        |{
+        |"offsetField":"id",
+        |"offsetOperator":">",
+        |"offsetValue": "500"
+        |},
+        |{
+        |"offsetField":"id2",
+        |"offsetOperator":">",
+        |"offsetValue": "750"
+        |}
+        |]
+      """.stripMargin
+
     val datasourceParams = Map(
       "query" -> s"select * from $tableName",
-      "offsetField" -> "id",
-      "rememberDuration" -> "20000"
+      "rememberDuration" -> "20000",
+      "offsetFields" -> offsetFields.asInstanceOf[JSerializable]
     )
+
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val crossdataInput = new CrossdataInputStep(
       "crossdata", outputOptions, ssc, sparkSession, datasourceParams)
@@ -64,7 +83,7 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
     ssc.awaitTerminationOrTimeout(3000L)
     ssc.stop()
 
-    assert(totalEvents.value === totalRegisters.toLong)
+    assert(totalEvents.value === (totalRegisters.toLong/4))
   }
 }
 
