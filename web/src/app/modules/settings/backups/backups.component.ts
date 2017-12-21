@@ -177,6 +177,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
     }
 
     checkValue($event: any): void {
+        console.log($event);
         if ($event.checked) {
             this.store.dispatch(new backupsActions.SelectBackupAction($event.value.fileName));
         } else {

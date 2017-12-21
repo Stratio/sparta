@@ -15,6 +15,9 @@
 ///
 
 import { Directive, Output, EventEmitter, AfterContentInit, ElementRef, OnInit, Input, NgZone } from '@angular/core';
+import { Store } from '@ngrx/store';
+import * as wizardActions from 'actions/wizard';
+import * as fromRoot from 'reducers';
 import * as d3 from 'd3';
 
 @Directive({ selector: '[svg-draggable]' })
@@ -36,7 +39,11 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     ngAfterContentInit() {
         this.element
             .on('click', this.onClick.bind(this))
-            .call(d3.drag().on('drag', this.dragmove.bind(this)));
+            .call(d3.drag()
+                .on('drag', this.dragmove.bind(this))
+                .on('start', () => {
+                this.store.dispatch(new wizardActions.SetWizardStateDirtyAction()); // set wizard state dirty (enable save button)
+            }));
     }
 
     dragmove(e: any, f: any) {
@@ -45,9 +52,13 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
             x: this.position.x + event.dx,
             y: this.position.y + event.dy
         };
+        this.positionChange.emit(this.position);
+        requestAnimationFrame(this.setPosition.bind(this));
+    }
+
+    setPosition() {
         const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
         this.element.attr('transform', value);
-        this.positionChange.emit(this.position);
     }
 
     onClick() {
@@ -66,7 +77,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
     }
 
 
-    constructor(private elementRef: ElementRef, private zone: NgZone) {
+    constructor(private elementRef: ElementRef, private zone: NgZone, private store: Store<fromRoot.State>) {
         this.element = d3.select(this.elementRef.nativeElement);
     }
 }

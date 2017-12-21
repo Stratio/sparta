@@ -22,7 +22,7 @@
                </div>
                <div class="header-links">
                   <a class="link" (click)="showConfirmModal()">{{'WIZARD.RETURN_WORKFLOW' | translate}}</a>
-                  <button class="button button-primary" (click)="saveWorkflow()">
+                  <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine">
                     {{'WIZARD.SAVE' | translate}}
                 </button>
                </div>

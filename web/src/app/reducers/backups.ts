@@ -20,11 +20,13 @@ import * as backupsActions from 'actions/backups';
 export interface State {
     backupList: Array<BackupType>;
     selectedBackups: Array<string>;
+    selectAll: boolean;
 };
 
 const initialState: State = {
     backupList: [],
-    selectedBackups: []
+    selectedBackups: [],
+    selectAll: false
 };
 
 export function reducer(state: State = initialState, action: any): State {
@@ -36,19 +38,33 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case backupsActions.SELECT_BACKUP: {
             return Object.assign({}, state, {
-                selectedBackups: [...state.selectedBackups, action.payload]
+                selectedBackups: [...state.selectedBackups, action.payload],
+                selectAll: state.selectedBackups.length >= state.backupList.length - 1
             });
         }
         case backupsActions.UNSELECT_BACKUP: {
             return Object.assign({}, state, {
                 selectedBackups: state.selectedBackups.filter(((backup: any) => {
                     return backup !== action.payload;
-                }))
+                })),
+                selectAll: false
             });
         }
         case backupsActions.DELETE_BACKUP_COMPLETE: {
             return Object.assign({}, state, {
-                selectedBackups: []
+                selectedBackups: [],
+                selectAll: false
+            });
+        }
+        case backupsActions.SELECT_ALL_BACKUPS: {
+            return state.selectedBackups.length === state.backupList.length ? Object.assign({}, state, {
+                selectedBackups: [],
+                selectAll: false
+            }) : Object.assign({}, state, {
+                selectedBackups: state.backupList.map((backup: any )=> {
+                    return backup.name;
+                }),
+                selectAll: true
             });
         }
         default:
@@ -58,3 +74,4 @@ export function reducer(state: State = initialState, action: any): State {
 
 export const getBackupList: any = (state: State) => state.backupList;
 export const getSelectedBackups: any = (state: State) => state.selectedBackups;
+export const getSelectedAll: any = (state: State) => state.selectAll;

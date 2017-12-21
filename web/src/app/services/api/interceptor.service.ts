@@ -41,8 +41,6 @@ export class ApiInterceptor implements HttpInterceptor {
             }
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
-
-                console.log(err);
                 if (err.status === 401) {
                     this.store.dispatch(new errorsActions.ForbiddenErrorAction(''));
                 }

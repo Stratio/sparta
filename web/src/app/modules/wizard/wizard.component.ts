@@ -46,9 +46,9 @@ export class WizardComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this._store.dispatch(new wizardActions.ResetWizardAction());
-        this.creationMode$ = this._store.select(fromRoot.isCreationMode);
-        this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);
+        this._store.dispatch(new wizardActions.ResetWizardAction());                    // Reset wizard to default settings
+        this.creationMode$ = this._store.select(fromRoot.isCreationMode);               // show create node pointer icon
+        this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);    // show node/settings editor view
         this._paramSubscription = this._route.params.subscribe(params => {
             if (params && params.id) {
                 this._store.dispatch(new wizardActions.ModifyWorkflowAction(params.id));

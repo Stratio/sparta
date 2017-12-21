@@ -49,6 +49,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     public breadcrumbOptions: any = [];
     public currentName = '';
     public arity: any;
+    public settingsForm = false;
 
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
@@ -93,6 +94,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             this.currentName = this.entityFormModel['name'];
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
         } else {
+            this.settingsForm = true;
             this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((settings: any) => {
                 this.basicFormModel = settings.basic;
                 this.settingsFormModel = settings.advancedSettings;

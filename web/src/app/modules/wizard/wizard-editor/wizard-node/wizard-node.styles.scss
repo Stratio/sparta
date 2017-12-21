@@ -2,8 +2,8 @@
 .entity {
    cursor: move;
    &.active {
-      -webkit-filter: drop-shadow(193, 193, 193, 0.5);
-      filter: url(#drop-shadow);
+      /* -webkit-filter: drop-shadow(193, 193, 193, 0.5);
+      filter: url(#drop-shadow); */
    }
 }
 

@@ -5,20 +5,20 @@
             <div class="col-sm-12">
                <div class="menu">
                   <div class="breadcrumb">
-                     <div class="egeo-title-large title" *ngIf="entityFormModel.stepType">
+                     <div class="egeo-title-large title" *ngIf="!settingsForm">
                         {{entityFormModel.stepType}} - {{currentName}}
                      </div>
-                     <div class="egeo-title-large title" *ngIf="!entityFormModel.stepType">
+                     <div class="egeo-title-large title" *ngIf="settingsForm">
                         {{'WIZARD.SETTINGS' | translate}}
                      </div>
                   </div>
                   <div class="action-buttons">
                      <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()">
-                    <span>{{'WIZARD.CANCEL' | translate}}</span>
-                 </button>
-                     <button class="button button-primary" (click)="saveForm()">
-                    <span>{{'WIZARD.SAVE' | translate}}</span>
-                </button>
+                        <span>{{'WIZARD.CANCEL' | translate}}</span>
+                     </button>
+                     <button class="button button-primary" (click)="saveForm()" [disabled]="settingsForm && entityForm.invalid">
+                        <span>{{'WIZARD.SAVE' | translate}}</span>
+                     </button>
                   </div>
                </div>
             </div>
@@ -28,7 +28,7 @@
    <div class="content">
       <div class="container">
          <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
-            <div *ngIf="!advancedSettings.length" class="col-sm-12">
+            <div *ngIf="!settingsForm" class="col-sm-12">
                <st-horizontal-tabs class="entity-categories" *ngIf="config.editionType.stepType !== 'Output'" [options]="options" [qaTag]="qaTag"
                   (changedOption)="changeFormOption($event)">
                </st-horizontal-tabs>
@@ -54,7 +54,7 @@
 
 
             <!------- settings ----------- -->
-            <div *ngIf="advancedSettings.length" class="col-sm-12">
+            <div *ngIf="settingsForm" class="col-sm-12">
                <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
                   class="advanced-settings" *ngIf="advancedSettings.length">
                   <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>

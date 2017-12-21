@@ -61,11 +61,14 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public editName = false;
     public undoEnabled = false;
     public redoEnabled = false;
+    public isPristine = true;
     public validations: any = {};
 
     private _nameSubscription: Subscription;
     private _validationSubscription: Subscription;
     private _areUndoRedoEnabledSubscription: Subscription;
+    private _isPristineSubscription: Subscription;
+
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
         private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
@@ -73,7 +76,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._modalService.container = this.target;
         this.store.dispatch(new wizardActions.GetMenuTemplatesAction());
-        this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
+        this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails).distinctUntilChanged();
         this._nameSubscription = this.store.select(fromRoot.getWorkflowName).subscribe((name: string) => {
             this.workflowName = name;
         });
@@ -85,6 +88,11 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
         this._validationSubscription = this.store.select(fromRoot.getValidationErrors).subscribe((validations: any) => {
             this.validations = validations;
+            this._cd.detectChanges();
+        });
+
+        this._isPristineSubscription = this.store.select(fromRoot.isPristine).distinctUntilChanged().subscribe((isPristine: boolean) => {
+            this.isPristine = isPristine;
             this._cd.detectChanges();
         });
 
@@ -127,6 +135,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
 
     public showConfirmModal(): void {
+        if (this.isPristine) {
+            this.route.navigate(['']);
+            return;
+        }
         const sub: any = this._modalService.show({
             qaTag: 'exit-workflow',
             modalTitle: 'Exit workflow',
@@ -172,5 +184,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         this._nameSubscription && this._nameSubscription.unsubscribe();
         this._areUndoRedoEnabledSubscription && this._areUndoRedoEnabledSubscription.unsubscribe();
         this._validationSubscription && this._validationSubscription.unsubscribe();
+        this._isPristineSubscription && this._isPristineSubscription.unsubscribe();
     }
 }

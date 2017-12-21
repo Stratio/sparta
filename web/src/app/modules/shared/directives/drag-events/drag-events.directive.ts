@@ -62,7 +62,6 @@ export class DragEventsDirective {
 
     @HostListener('drag', ['$event'])
     onDrag(event: any) {
-        console.log(event);
         this.position = {
             x: event.layerX - this.currentX,
             y: event.layerY - this.currentY

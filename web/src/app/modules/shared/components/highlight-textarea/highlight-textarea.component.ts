@@ -94,6 +94,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   public internalTextareaModel = '';
 
   private sub: Subscription;
+  private pristine = true;
   private valueChangeSub: Subscription;
 
   constructor(private _cd: ChangeDetectorRef, private elementRef: ElementRef, private renderer: Renderer) { }
@@ -154,6 +155,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
     //this.instance.setValue(this._value);
 
     this.instance.on('change', () => {
+      this.pristine = false;
       const value = this.instance.getValue();
       this.internalControl.setValue(value);
       this.onChange(value);
@@ -237,7 +239,7 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
   }
 
   showError(): boolean {
-    return this.errorMessage !== undefined && (this.forceValidations) && !this.focus && !this.isDisabled;
+      return this.errorMessage !== undefined && (!this.pristine || this.forceValidations) && !this.focus && !this.isDisabled;
   }
 
   /** Style functions */

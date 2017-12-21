@@ -65,6 +65,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     public isShowedEntityDetails$: Observable<boolean>;
     public workflowRelations: Array<any> = [];
     public selectedSegment: any = null;
+    public isPristine = true;
 
     /**** Subscriptions ****/
     private creationModeSubscription: Subscription;
@@ -128,6 +129,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.entities = data;
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
+
         this.workflowRelationsSubscription = this.store.select(fromRoot.getWorkflowRelations).subscribe((data: Array<any>) => {
             this.workflowRelations = data.map((relation: any) => {
                 return {
@@ -147,8 +149,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.selectedSegment = relation;
             this._cd.detectChanges();
         });
-
-
 
         // d3
         this.documentRef = d3.select(document);
@@ -175,26 +175,31 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                             offsetY: event.y
                         };
                         this.clickDetected.call(this, position);
-                    })/*
-                    .on('drag', (e: any, f: any) => {
-                        const event = d3.event;
-                        this.svgPosition = {
-                            x: this.svgPosition.x + event.dx,
-                            y: this.svgPosition.y + event.dy,
-                            k: this.svgPosition.k
-                        };
-                        this.setContainerPosition();
-                    })*/);
+                    }));
 
         });
+
+        let pristine = true;
+        let repaints = 0;
         this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
             const e: any = d3.event;
+            if (pristine) {
+                if (repaints < 2) {
+                    repaints ++;
+                } else {
+                    if (this.entities.length) {
+                        pristine = false;
+                        this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+                    }
+                }
+            }
+
             this.svgPosition = {
                 x: e.transform.x,
                 y: e.transform.y,
                 k: e.transform.k
             };
-            this.setContainerPosition();
+            requestAnimationFrame(this.setContainerPosition.bind(this));
         })).on('dblclick.zoom', null);
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
@@ -202,7 +207,12 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this.svgPosition.x, this.svgPosition.y)
                 .scale(this.svgPosition.k === 0 ? 1 : this.svgPosition.k));
         });
+    }
 
+    setDirty() {
+        if (this.isPristine) {
+            this.isPristine = false;
+        }
     }
 
     setContainerPosition(): void {

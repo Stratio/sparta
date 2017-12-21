@@ -15,9 +15,8 @@
 ///
 
 import { createSelector } from 'reselect';
-import { ActionReducer, combineReducers } from '@ngrx/store';
+import { ActionReducer, combineReducers, createFeatureSelector } from '@ngrx/store';
 import { ActionReducerMap } from '@ngrx/store';
-
 
 import * as fromWorkflow from './workflow.reducer';
 import * as fromInput from './input';
@@ -60,15 +59,15 @@ export function reducer(state: any, action: any): any {
     return productionReducer(state, action);
 }
 
-export const getWorkflowsState: any = (state: State) => state.workflows;
-export const getInputListState: any = (state: State) => state.inputList;
-export const getOutputListState: any = (state: State) => state.outputList;
-export const getBackupsState: any = (state: State) => state.backups;
-export const getResourcesState: any = (state: State) => state.resources;
-export const getCrossdataState: any = (state: State) => state.crossdata;
-export const getAlertsState: any = (state: State) => state.alerts;
-export const getWizardState: any = (state: State) => state.wizard;
-export const getTransformationState: any = (state: State) => state.transformationList;
+export const getWorkflowsState: any = createFeatureSelector<fromWorkflow.State>('workflows');
+export const getInputListState: any = createFeatureSelector<fromInput.State>('inputList');
+export const getOutputListState: any = createFeatureSelector<fromOutput.State>('outputList');
+export const getBackupsState: any = createFeatureSelector<fromBackups.State>('backups');
+export const getResourcesState: any = createFeatureSelector<fromResources.State>('resources');
+export const getCrossdataState: any = createFeatureSelector<fromCrossdata.State>('crossdata');
+export const getAlertsState: any = createFeatureSelector<fromAlerts.State>('alerts');
+export const getWizardState: any = createFeatureSelector<fromWizard.State>('wizard');
+export const getTransformationState: any = createFeatureSelector<fromTransformation.State>('transformationList');
 
 
 // workflows
@@ -106,13 +105,13 @@ export const isTransformationSaved: any = createSelector(getTransformationState,
 // backups
 export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);
 export const getSelectedBackups: any =  createSelector(getBackupsState, fromBackups.getSelectedBackups);
+export const getSelectedAll: any =  createSelector(getBackupsState, fromBackups.getSelectedAll);
 
 // resources
 export const getPluginsList: any = createSelector(getResourcesState, fromResources.getPluginsList);
 export const getDriversList: any = createSelector(getResourcesState, fromResources.getDriversList);
 export const getSelectedPlugins: any = createSelector(getResourcesState, fromResources.getSelectedPlugins);
 export const getSelectedDrivers: any = createSelector(getResourcesState, fromResources.getSelectedDrivers);
-
 
 // crossdata
 export const getTablesList: any = createSelector(getCrossdataState, fromCrossdata.getTableList);
@@ -146,3 +145,4 @@ export const isSavedWorkflow: any = createSelector(getWizardState, fromWizard.is
 export const getSelectedRelation: any = createSelector(getWizardState, fromWizard.getSelectedRelation);
 export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard.areUndoRedoEnabled);
 export const getValidationErrors: any = createSelector(getWizardState, fromWizard.getValidationErrors);
+export const isPristine: any = createSelector(getWizardState, fromWizard.isPristine);

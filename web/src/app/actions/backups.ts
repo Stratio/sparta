@@ -15,7 +15,6 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
 
 export const LIST_BACKUP = '[Backups] List backups';
 export const LIST_BACKUP_COMPLETE = '[Backups] List backups complete';
@@ -24,6 +23,7 @@ export const GENERATE_BACKUP = '[Backups] Generate backup';
 export const GENERATE_BACKUP_COMPLETE = '[Backups] Generate backup complete';
 export const GENERATE_BACKUP_ERROR = '[Backups] Generate backup error';
 export const DELETE_BACKUP = '[Backups] delete backup';
+export const SELECT_ALL_BACKUPS = '[Backups] select all backups';
 export const SELECT_BACKUP = '[Backups] select backup';
 export const UNSELECT_BACKUP = '[Backups] unselect backup';
 export const DELETE_BACKUP_COMPLETE = '[Backups] delete backup complete';
@@ -53,6 +53,10 @@ export class ListBackupAction implements Action {
 export class ListBackupCompleteAction implements Action {
     readonly type = LIST_BACKUP_COMPLETE;
     constructor(public payload: any) { }
+}
+
+export class SelectAllBackups implements Action {
+    readonly type = SELECT_ALL_BACKUPS;
 }
 
 export class SelectBackupAction implements Action {
@@ -177,6 +181,7 @@ export type Actions =
     ListBackupAction |
     ListBackupCompleteAction |
     ListBackupErrorAction |
+    SelectAllBackups |
     SelectBackupAction |
     UnselectBackupAction |
     GenerateBackupAction |

@@ -28,6 +28,7 @@ export interface State {
     edges: Array<any>;
     redoStates: any;
     undoStates: any;
+    pristineWorkflow: boolean;
     savedWorkflow: boolean;
     validationErrors: any;
     selectedCreationEntity: any;
@@ -58,6 +59,7 @@ const initialState: State = {
     edges: [],
     redoStates: [],
     undoStates: [],
+    pristineWorkflow: true,
     nodes: [],
     validationErrors: {},
     savedWorkflow: false,
@@ -119,6 +121,7 @@ export function reducer(state: State = initialState, action: any): State {
                 edges: [],
                 redoStates: [],
                 undoStates: [],
+                pristineWorkflow: true,
                 savedWorkflow: false,
                 selectedCreationEntity: null,
                 entityCreationMode: false,
@@ -162,6 +165,7 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 edges: [...state.edges, action.payload],
                 undoStates: getUndoState(state),
+                pristineWorkflow: false,
                 redoStates: []
             });
         }
@@ -172,6 +176,7 @@ export function reducer(state: State = initialState, action: any): State {
                     return edge.origin !== action.payload.origin || edge.destination !== action.payload.destination;
                 }),
                 undoStates: getUndoState(state),
+                pristineWorkflow: false,
                 selectedRelation: null,
                 redoStates: []
             });
@@ -182,6 +187,7 @@ export function reducer(state: State = initialState, action: any): State {
                 nodes: state.nodes.filter((node: any) => {
                     return state.selectedEntity !== node.name;
                 }),
+                pristineWorkflow: false,
                 edges: state.edges.filter((edge: any) => {
                     return state.selectedEntity !== edge.origin && state.selectedEntity !== edge.destination;
                 }),
@@ -206,6 +212,7 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 nodes: [...state.nodes, action.payload],
                 undoStates: getUndoState(state),
+                pristineWorkflow: false,
                 redoStates: []
             });
         }
@@ -227,6 +234,7 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.SAVE_ENTITY_COMPLETE: {
             return Object.assign({}, state, {
+                pristineWorkflow: false,
                 nodes: state.nodes.map((node: any) => {
                     return node.name === action.payload.oldName ? action.payload.data : node;
                 }),
@@ -252,6 +260,7 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.SAVE_SETTINGS: {
             return Object.assign({}, state, {
+                pristineWorkflow: false,
                 settings: action.payload
             });
         }
@@ -271,6 +280,7 @@ export function reducer(state: State = initialState, action: any): State {
         case wizardActions.CHANGE_WORKFLOW_NAME: {
             return {
                 ...state,
+                pristineWorkflow: false,
                 settings: {
                     ...state.settings,
                     basic: {
@@ -382,6 +392,11 @@ export function reducer(state: State = initialState, action: any): State {
                 validationErrors: action.payload
             });
         }
+        case wizardActions.SET_WIZARD_DIRTY: {
+            return Object.assign({}, state, {
+                pristineWorkflow: false
+            });
+        }
         default:
             return state;
     }
@@ -434,6 +449,7 @@ export const getSelectedEntities: any = (state: State) => state.selectedEntity;
 export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => {
     return node.name === state.selectedEntity;
 });
+export const isPristine: any = (state: State) => state.pristineWorkflow;
 export const isShowedEntityDetails: any = (state: State) => state.showEntityDetails;
 export const getWorkflowRelations: any = (state: State) => state.edges;
 export const getWorkflowNodes: any = (state: State) => state.nodes;

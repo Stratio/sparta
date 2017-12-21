@@ -23,7 +23,7 @@ import { StTableHeader, StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 import { WorkflowsService } from './workflows.service';
 import * as workflowActions from 'actions/workflow';
-import * as fromRoot from 'reducers';
+import { State, getWorkflowList, getSelectedWorkflows, getWorkflowModalState, getExecutionInfo } from 'reducers';
 import { BreadcrumbMenuService } from 'services';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -55,7 +55,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     private workflowSubscription: Subscription;
     private timer: any;
 
-    constructor(private store: Store<fromRoot.State>, private _modalService: StModalService,
+    constructor(private store: Store<State>, private _modalService: StModalService,
         public workflowsService: WorkflowsService,
         private _cd: ChangeDetectorRef, public breadcrumbMenuService: BreadcrumbMenuService,
         private route: Router, private currentActivatedRoute: ActivatedRoute) {
@@ -66,21 +66,23 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         this.workflowsService.setModalContainer(this.target);
         this.store.dispatch(new workflowActions.ListWorkflowAction());
         this.updateWorkflowsStatus();
-        this.workflowListSubscription = this.store.select(fromRoot.getWorkflowList).subscribe((workflowList: any) => {
+        this.workflowListSubscription = this.store.select(getWorkflowList)
+        .distinctUntilChanged()
+        .subscribe((workflowList: any) => {
             this.workflowList = workflowList;
             this._cd.detectChanges();
         });
 
-        this.workflowSubscription = this.store.select(fromRoot.getSelectedWorkflows).subscribe((data: any) => {
+        this.workflowSubscription = this.store.select(getSelectedWorkflows).subscribe((data: any) => {
             this.selectedWorkflows = data.selected;
             this.selectedWorkflowsIds = data.selectedIds;
         });
 
-        this.modalSubscription = this.store.select(fromRoot.getWorkflowModalState).subscribe(() => {
+        this.modalSubscription = this.store.select(getWorkflowModalState).subscribe(() => {
             this._modalService.close();
         });
 
-        this.executionInfoSubscription = this.store.select(fromRoot.getExecutionInfo).subscribe((executionInfo: any) => {
+        this.executionInfoSubscription = this.store.select(getExecutionInfo).subscribe((executionInfo: any) => {
             this.executionInfo = executionInfo;
             this._cd.detectChanges();
         });

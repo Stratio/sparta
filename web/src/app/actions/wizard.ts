@@ -60,6 +60,7 @@ export const DUPLICATE_NODE = '[Wizard] Duplicate node';
 export const VALIDATE_WORKFLOW = '[Wizard] Validate workflow';
 export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
 export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
+export const SET_WIZARD_DIRTY = '[Wizard] Set wizard state dirty';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -256,6 +257,11 @@ export class ValidateWorkflowErrorAction implements Action {
     readonly type = VALIDATE_WORKFLOW_ERROR;
 }
 
+export class SetWizardStateDirtyAction implements Action {
+    readonly type = SET_WIZARD_DIRTY;
+}
+
+
 export type Actions =
     ResetWizardAction |
     GetMenuTemplatesAction |
@@ -295,4 +301,5 @@ export type Actions =
     DuplicateNodeAction |
     ValidateWorkflowAction |
     ValidateWorkflowCompleteAction |
-    ValidateWorkflowErrorAction;
+    ValidateWorkflowErrorAction |
+    SetWizardStateDirtyAction;
