@@ -276,9 +276,8 @@
                "propertyName": "_GRANULARITY_TIME_",
                "propertyType": "select",
                "width": 3,
-               "required": true,
+               "required": false,
                "float": false,
-               "default":"millisecond",
                "qa": "fragment-details-datetime-field-granularityTime",
                "values": [{
                   "label": "Millisecond(s)",

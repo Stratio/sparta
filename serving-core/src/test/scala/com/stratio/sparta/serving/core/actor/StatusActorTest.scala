@@ -59,7 +59,6 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
   val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
 
-  val statusPublisherActor = system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
   val statusListenerActor = system.actorOf(Props(new ListenerActor))
 
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, statusListenerActor)))
