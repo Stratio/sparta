@@ -51,8 +51,8 @@
           "blockInterval": "200ms"
         },
         "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
-          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6-RC1",
+          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
           "executorForcePullImage": false
         },
         "sparkMesosConf": {

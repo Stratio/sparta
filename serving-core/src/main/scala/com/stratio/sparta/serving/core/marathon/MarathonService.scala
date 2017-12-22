@@ -85,7 +85,8 @@ class MarathonService(context: ActorContext,
     WorkflowHelper.getMarathonId(workflow)
   }
   val DefaultMemory = 1024
-  val Krb5ConfFile = "/etc/krb5.conf:/etc/krb5.conf:ro"
+  val Krb5ConfFile = "/etc/krb5.conf"
+  val ResolvConfigFile = "/etc/resolv.conf"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
   val DefaultGracePeriodSeconds = 240
@@ -276,6 +277,11 @@ class MarathonService(context: ActorContext,
         Seq.empty[Volume]
       else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
     }
+    val commonVolumes: Seq[Volume] = Seq(
+      Volume(ResolvConfigFile, ResolvConfigFile, "RO"),
+      Volume(Krb5ConfFile, Krb5ConfFile, "RO")
+    )
+
     val newPortMappings = if (calicoEnabled) Option(Seq(PortMapping(portSpark, portSpark, Option(0),
       protocol = Option("tcp")))) else None
     val networkType = if (calicoEnabled) Option("USER") else app.container.docker.network
@@ -283,8 +289,7 @@ class MarathonService(context: ActorContext,
       case Some(_) =>
         ContainerInfo(app.container.docker.copy(
           image = spartaDockerImage,
-          volumes = Option(javaCertificatesVolume),
-          parameters = Option(getKrb5ConfVolume),
+          volumes = Option(javaCertificatesVolume ++ commonVolumes),
           forcePullImage = Option(forcePullImage),
           network = networkType,
           portMappings = newPortMappings,
@@ -294,9 +299,8 @@ class MarathonService(context: ActorContext,
         ContainerInfo(app.container.docker.copy(
           volumes = Option(Seq(
             Volume(HostMesosNativeLibPath, mesosphereLibPath, "RO"),
-            Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume),
+            Volume(HostMesosNativePackagesPath, mesospherePackagesPath, "RO")) ++ javaCertificatesVolume ++ commonVolumes),
           image = spartaDockerImage,
-          parameters = Option(getKrb5ConfVolume),
           forcePullImage = Option(forcePullImage),
           network = networkType,
           portMappings = newPortMappings,
