@@ -21,20 +21,23 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
-import com.stratio.sparta.serving.core.actor.ListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
+import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{ExecutionService, ListenerService, WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.{Failure, Success, Try}
 
-class MarathonAppActor(val curatorFramework: CuratorFramework, listenerActor: ActorRef) extends Actor with SLF4JLogging{
+class MarathonAppActor(
+                        val curatorFramework: CuratorFramework,
+                        listenerActor: ActorRef,
+                        envStateActor: ActorRef
+                      ) extends Actor with SLF4JLogging{
 
-  private val workflowService = new WorkflowService(curatorFramework)
+  private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val listenerService = new ListenerService(curatorFramework, listenerActor)
   private val executionService = new ExecutionService(curatorFramework)
 
 

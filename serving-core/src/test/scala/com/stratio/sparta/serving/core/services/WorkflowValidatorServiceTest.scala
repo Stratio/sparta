@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.core.services
 
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.WorkflowValidatorService
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar

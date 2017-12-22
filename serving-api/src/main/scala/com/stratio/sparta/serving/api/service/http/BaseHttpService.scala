@@ -24,8 +24,8 @@ import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
-import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.{ErrorModel, SpartaSerializer}
 import spray.http.{StatusCode, StatusCodes}
 import spray.httpx.Json4sJacksonSupport
 import spray.httpx.marshalling.ToResponseMarshaller
@@ -33,12 +33,12 @@ import spray.routing._
 
 import scala.concurrent.ExecutionContextExecutor
 import scala.concurrent.duration._
-import scala.util.{Success, Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
   * It gives common operations such as error handling, i18n, etc. All HttpServices should extend of it.
   */
-trait BaseHttpService extends HttpService with Json4sJacksonSupport with SLF4JLogging with SpartaSerializer {
+trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaSerializer with SLF4JLogging {
 
   private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout"))
     .getOrElse(AkkaConstant.DefaultApiTimeout)

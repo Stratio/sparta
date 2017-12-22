@@ -21,6 +21,7 @@ import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
 import com.stratio.sparta.serving.core.models.workflow._
 import com.typesafe.config.ConfigFactory
@@ -33,8 +34,7 @@ import spray.testkit.ScalatestRouteTest
 trait HttpServiceBaseTest extends WordSpec
   with Matchers
   with BeforeAndAfterEach
-  with ScalatestRouteTest
-  with SpartaSerializer {
+  with ScalatestRouteTest {
 
   val testProbe: TestProbe = TestProbe()
 
@@ -72,6 +72,15 @@ trait HttpServiceBaseTest extends WordSpec
 
   protected def getFragmentModel(): TemplateElement =
     getFragmentModel(None)
+
+  protected def getEnvironmentModel(): Environment =
+    Environment(Seq(EnvironmentVariable("foo", "var")))
+
+  protected def getEnvironmentVariableModel(): EnvironmentVariable =
+    EnvironmentVariable("foo", "var")
+
+  protected def getEnvironmentData(): EnvironmentData =
+    EnvironmentData(Seq(), Seq())
 
   protected def getWorkflowStatusModel(): WorkflowStatus =
     WorkflowStatus("id", WorkflowStatusEnum.Launched)

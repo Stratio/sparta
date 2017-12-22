@@ -287,11 +287,23 @@ class NotBlankOption(s: Option[String]) {
   def notBlank: Option[String] = s.map(_.trim).filterNot(_.isEmpty)
 }
 
+class NotBlankOptionJString(s: Option[JsoneyString]) {
+  def notBlankWithDefault(default: String): String = notBlank.getOrElse(default)
+
+  def notBlank: Option[String] = s.map(_.toString.trim).filterNot(_.isEmpty)
+}
+
 object ValidatingPropertyMap {
+
+  implicit def jsoneyStringToString(str: JsoneyString): String = str.toString
+
+  implicit def stringToJsoneyString(str: String): JsoneyString = JsoneyString(str)
 
   implicit def map2ValidatingPropertyMap[K, V](m: Map[K, V]): ValidatingPropertyMap[K, V] =
     new ValidatingPropertyMap[K, V](m)
 
   implicit def option2NotBlankOption(s: Option[String]): NotBlankOption = new NotBlankOption(s)
+
+  implicit def option2NotBlankOptionJString(s: Option[JsoneyString]): NotBlankOptionJString = new NotBlankOptionJString(s)
 
 }

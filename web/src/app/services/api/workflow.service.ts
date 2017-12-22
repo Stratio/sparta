@@ -81,7 +81,7 @@ export class WorkflowService extends ApiService {
     runWorkflow(id: string): Observable<any> {
 
         const options: any = {};
-        return this.request('workflows/run/' + id, 'get', options);
+        return this.request('workflows/run/' + id, 'post', options);
     }
 
     stopWorkflow(status: any): Observable<any> {

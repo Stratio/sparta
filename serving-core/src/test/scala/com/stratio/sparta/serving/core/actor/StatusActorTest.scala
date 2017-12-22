@@ -59,7 +59,7 @@ class StatusActorTest extends TestKit(ActorSystem("FragmentActorSpec", SpartaCon
 
   val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
 
-  val statusListenerActor = system.actorOf(Props(new ListenerActor))
+  val statusListenerActor = system.actorOf(Props(new WorkflowListenerActor))
 
   val actor = system.actorOf(Props(new StatusActor(curatorFramework, statusListenerActor)))
   implicit val timeout: Timeout = Timeout(15.seconds)

@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.stratio.sparta.serving.core.actor.ListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
+import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{Notification, WorkflowChange}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
-class ListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
+class WorkflowListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaConfig.daemonicAkkaConfig))
   with WordSpecLike
   with Matchers
   with ImplicitSender
@@ -37,7 +37,7 @@ class ListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec", SpartaC
 
   "A ListenerActor" should {
 
-    val statusListenerActor = system.actorOf(Props(new ListenerActor))
+    val statusListenerActor = system.actorOf(Props(new WorkflowListenerActor))
 
     val testWorkflowStatus01 = WorkflowStatus("workflow-01", WorkflowStatusEnum.Finished)
     val testWorkflowStatus02 = WorkflowStatus("workflow-02", WorkflowStatusEnum.Launched)

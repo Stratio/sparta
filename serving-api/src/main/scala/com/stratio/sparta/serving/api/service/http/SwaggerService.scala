@@ -34,6 +34,7 @@ trait SwaggerService extends SwaggerHttpService {
     typeOf[AppInfoHttpService],
     typeOf[ConfigHttpService],
     typeOf[CrossdataHttpService],
+    typeOf[EnvironmentHttpService],
     typeOf[MetadataHttpService]
   )
 

@@ -33,14 +33,15 @@ import scala.util.Try
 
 class LauncherActor(streamingService: StreamingContextService,
                     curatorFramework: CuratorFramework,
-                    statusListenerActor: ActorRef
+                    statusListenerActor: ActorRef,
+                    envStateActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   //TODO change dyplon to new names: policy -> workflow
   private val ResourcePol = "policy"
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val workflowService = new WorkflowService(curatorFramework)
+  private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
 
   private val marathonLauncherActor = context.actorOf(Props(
     new MarathonLauncherActor(curatorFramework, statusListenerActor)), MarathonLauncherActorName)

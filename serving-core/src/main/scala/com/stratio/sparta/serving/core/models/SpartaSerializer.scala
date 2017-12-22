@@ -16,30 +16,76 @@
 package com.stratio.sparta.serving.core.models
 
 
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
+import akka.actor.{ActorRef, ActorSystem}
+import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
+import akka.util.Timeout
+import com.github.mustachejava.DefaultMustacheFactory
+import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
 import com.stratio.sparta.sdk.workflow.enumerators.{InputFormatEnum, OutputFormatEnum, SaveModeEnum, WhenError}
-import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowStatusEnum, WorkflowExecutionEngine}
+import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.GetEnvironment
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
-import org.json4s.ext.EnumNameSerializer
-import org.json4s.ext.DateTimeSerializer
+import com.twitter.mustache.ScalaObjectHandler
+import org.json4s.ext.{DateTimeSerializer, EnumNameSerializer}
 import org.json4s.{DefaultFormats, Formats}
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
 /**
- * Extends this class if you need serialize / unserialize Sparta's enums in any class / object.
- */
+  * Extends this interface if you need serialize / unserialize Sparta's enums in any class / object.
+  */
 trait SpartaSerializer {
 
-  implicit val json4sJacksonFormats: Formats =
+  val serializerSystem: Option[ActorSystem] = None
+  val environmentStateActor: Option[ActorRef] = None
+
+  implicit def json4sJacksonFormats: Formats = {
+    val environmentContext = (serializerSystem, environmentStateActor) match {
+      case (Some(system), Some(envStateActor)) =>
+        SpartaSerializer.getEnvironmentContext(system, envStateActor)
+      case _ => None
+    }
+
     DefaultFormats + DateTimeSerializer +
-      new JsoneyStringSerializer() +
+      new JsoneyStringSerializer(environmentContext) +
       new EnumNameSerializer(WorkflowStatusEnum) +
       new EnumNameSerializer(NodeArityEnum) +
       new EnumNameSerializer(ArityValueEnum) +
       new EnumNameSerializer(SaveModeEnum) +
       new EnumNameSerializer(InputFormatEnum) +
       new EnumNameSerializer(OutputFormatEnum) +
-      new EnumNameSerializer(PhaseEnum) +
+      new EnumNameSerializer(WhenError) +
       new EnumNameSerializer(WorkflowExecutionEngine) +
-      new EnumNameSerializer(WhenError)
+      new EnumNameSerializer(PhaseEnum)
+  }
+
+}
+
+object SpartaSerializer extends SLF4JLogging {
+
+  private val moustacheFactory = new DefaultMustacheFactory
+  moustacheFactory.setObjectHandler(new ScalaObjectHandler)
+  private var environmentContext: Option[EnvironmentContext] = None
+
+  def getEnvironmentContext(actorSystem: ActorSystem, envStateActor: ActorRef): Option[EnvironmentContext] = {
+    implicit val system: ActorSystem = actorSystem
+    implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultSerializationTimeout.seconds)
+
+    Try {
+      val future = envStateActor ? GetEnvironment
+      Await.result(future, timeout.duration).asInstanceOf[Map[String, String]]
+    } match {
+      case Success(newEnvironment) =>
+        environmentContext = Option(EnvironmentContext(moustacheFactory, newEnvironment))
+        environmentContext
+      case Failure(e) =>
+        log.warn("No environment result", e)
+        environmentContext
+    }
+  }
 
 }

@@ -110,6 +110,7 @@
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.1</scala.graph.version>
         <json-path.version>2.2.0</json-path.version>
+        <java.moustache.version>0.9.5</java.moustache.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -444,6 +445,16 @@
                 <groupId>org.json4s</groupId>
                 <artifactId>json4s-native_${scala.binary.version}</artifactId>
                 <version>${json4s.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.spullara.mustache.java</groupId>
+                <artifactId>scala-extensions-2.11</artifactId>
+                <version>${java.moustache.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.spullara.mustache.java</groupId>
+                <artifactId>compiler</artifactId>
+                <version>${java.moustache.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>

@@ -33,7 +33,7 @@ import scala.util.Try
 
 
 @Api(value = HttpConstant.ConfigPath, description = "Operations over Sparta Configuration")
-trait ConfigHttpService extends BaseHttpService with SpartaSerializer {
+trait ConfigHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,

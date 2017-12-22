@@ -115,9 +115,14 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceDeleteById = "711"
   val WorkflowServiceDeleteCheckpoint = "712"
   val WorkflowServiceRun = "713"
-  val WorkflowServiceDownload = "714"
-  val WorkflowServiceValidate = "715"
-  val WorkflowServiceResetAllStatuses = "716"
+  val WorkflowServiceStop = "714"
+  val WorkflowServiceReset = "715"
+  val WorkflowServiceDownload = "716"
+  val WorkflowServiceValidate = "717"
+  val WorkflowServiceResetAllStatuses = "718"
+  val WorkflowServiceFindByIdWithEnv = "719"
+  val WorkflowServiceFindByNameWithEnv = "720"
+  val WorkflowServiceFindAllWithEnv = "721"
 
   /* Metadata Service 725-749 */
   val MetadataServiceUnexpected = "725"
@@ -128,6 +133,19 @@ object ErrorModel extends SpartaSerializer {
   val MetadataServiceDeleteAllBackups = "730"
   val MetadataServiceDeleteBackup = "731"
   val MetadataServiceCleanAll = "732"
+
+  /* Environment Service 750-760 */
+  val EnvironmentServiceUnexpected = "750"
+  val EnvironmentServiceFindEnvironment = "751"
+  val EnvironmentServiceCreateEnvironment = "752"
+  val EnvironmentServiceDeleteEnvironment = "753"
+  val EnvironmentServiceUpdateEnvironment = "754"
+  val EnvironmentServiceFindEnvironmentVariable = "755"
+  val EnvironmentServiceCreateEnvironmentVariable = "756"
+  val EnvironmentServiceUpdateEnvironmentVariable = "757"
+  val EnvironmentServiceDeleteEnvironmentVariable = "758"
+  val EnvironmentServiceExportData = "759"
+  val EnvironmentServiceImportData = "760"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -154,9 +172,14 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceDeleteById -> "Error deleting workflows by ID",
     WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",
     WorkflowServiceRun -> "Error running workflow",
+    WorkflowServiceStop -> "Error stopping workflow",
+    WorkflowServiceReset -> "Error resetting workflow",
     WorkflowServiceDownload -> "Error downloading workflow",
     WorkflowServiceValidate -> "Error validating workflow",
     WorkflowServiceResetAllStatuses -> "Error resetting all workflow statuses",
+    WorkflowServiceFindByIdWithEnv -> "Error finding workflows by ID with environment",
+    WorkflowServiceFindByNameWithEnv -> "Error finding workflows by name with environment",
+    WorkflowServiceFindAllWithEnv -> "Error finding all workflows with environment",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",
@@ -199,7 +222,17 @@ object ErrorModel extends SpartaSerializer {
     MetadataServiceFindAllBackups -> "Error obtaining all backups",
     MetadataServiceDeleteAllBackups -> "Error deleting all backups",
     MetadataServiceDeleteBackup -> "Error deleting backup",
-    MetadataServiceCleanAll -> "Error cleaning all metadata"
+    MetadataServiceCleanAll -> "Error cleaning all metadata",
+    EnvironmentServiceUnexpected -> "Unexpected behaviour in environment service",
+    EnvironmentServiceFindEnvironment -> "Error obtaining environment",
+    EnvironmentServiceCreateEnvironment -> "Error creating environment",
+    EnvironmentServiceDeleteEnvironment -> "Error deleting environment",
+    EnvironmentServiceFindEnvironmentVariable -> "Error obtaining environment variable",
+    EnvironmentServiceCreateEnvironmentVariable -> "Error creating environment variable",
+    EnvironmentServiceUpdateEnvironmentVariable -> "Error updating environment variable",
+    EnvironmentServiceDeleteEnvironmentVariable -> "Error deleting environment variable",
+    EnvironmentServiceExportData -> "Error exporting environment data",
+    EnvironmentServiceImportData -> "Error importing environment data"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

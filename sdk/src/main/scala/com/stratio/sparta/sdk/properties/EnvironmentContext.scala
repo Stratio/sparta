@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.workflow
+package com.stratio.sparta.sdk.properties
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.github.mustachejava.DefaultMustacheFactory
 
-case class WriterGraph(
-                        saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                        tableName: Option[JsoneyString] = None,
-                        partitionBy: Option[JsoneyString] = None,
-                        primaryKey: Option[JsoneyString] = None
-                      )
+case class EnvironmentContext(
+                               @transient moustacheFactory: DefaultMustacheFactory,
+                               environmentVariables: Map[String, String]
+                             )

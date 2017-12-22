@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.services
 
 import java.util.UUID
 
+import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -33,15 +34,21 @@ import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import scala.collection.JavaConversions
 import scala.util._
 
-class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
+class WorkflowService(
+                       curatorFramework: CuratorFramework,
+                       override val serializerSystem: Option[ActorSystem] = None,
+                       override val environmentStateActor: Option[ActorRef] = None
+                     ) extends SpartaSerializer with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val validatorService = new WorkflowValidatorService
 
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
-  def findById(id: String): Workflow =
-    existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
+  def findById(id: String): Workflow = {
+    val a = existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
+     a
+  }
 
   def findByName(name: String): Workflow =
     existsByName(name, None).getOrElse(throw new ServerException(s"No workflow with name $name"))
@@ -175,10 +182,16 @@ class WorkflowService(curatorFramework: CuratorFramework) extends SpartaSerializ
         val children = curatorFramework.getChildren.forPath(workflowPath)
 
         JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
-          statusService.update(WorkflowStatus(id = workflow, status = WorkflowStatusEnum.NotStarted))
+          statusService.update(WorkflowStatus(workflow, WorkflowStatusEnum.NotStarted))
         )
       }
     }
+
+  def stop(id: String): Try[Any] =
+    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Stopping))
+
+  def reset(id: String): Try[Any] =
+    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.NotStarted))
 
   /** PRIVATE METHODS **/
 

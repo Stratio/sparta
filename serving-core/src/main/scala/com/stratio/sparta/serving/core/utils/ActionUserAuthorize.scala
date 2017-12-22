@@ -43,7 +43,7 @@ trait ActionUserAuthorize extends Actor with SLF4JLogging {
           }
         }
 
-      case (Some(secManager), None) => sender ! Right(errorNoUserFound(actions.values.toSeq))
+      case (Some(_), None) => sender ! Right(errorNoUserFound(actions.values.toSeq))
       case (None, _) => sender ! Left(actionFunction)
     }
 

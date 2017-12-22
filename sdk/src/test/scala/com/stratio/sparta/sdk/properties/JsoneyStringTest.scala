@@ -15,6 +15,8 @@
  */
 package com.stratio.sparta.sdk.properties
 
+import com.github.mustachejava.DefaultMustacheFactory
+import com.twitter.mustache.ScalaObjectHandler
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, _}
@@ -28,45 +30,68 @@ with Matchers {
 
   "A JsoneyString" should {
     "have toString equivalent to its internal string" in {
-      assertResult("foo")(new JsoneyString("foo").toString)
+      assertResult("foo")(JsoneyString("foo").toString)
     }
 
     "be deserialized if its JSON" in {
-      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse( """{ "foo": "bar" }""").extract[JsoneyString]
-      assertResult(new JsoneyString( """{"foo":"bar"}"""))(result)
+      assertResult(JsoneyString( """{"foo":"bar"}"""))(result)
     }
 
     "be deserialized if it's a String" in {
-      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse("\"foo\"").extract[JsoneyString]
-      assertResult(new JsoneyString("foo"))(result)
+      assertResult(JsoneyString("foo"))(result)
     }
 
     "be deserialized if it's an Int" in {
-      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse("1").extract[JsoneyString]
-      assertResult(new JsoneyString("1"))(result)
+      assertResult(JsoneyString("1"))(result)
     }
 
     "be serialized as JSON" in {
-      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
 
-      var result = write(new JsoneyString("foo"))
+      var result = write(JsoneyString("foo"))
       assertResult("\"foo\"")(result)
 
-      result = write(new JsoneyString("{\"foo\":\"bar\"}"))
+      result = write(JsoneyString("{\"foo\":\"bar\"}"))
       assertResult("\"{\\\"foo\\\":\\\"bar\\\"}\"")(result)
     }
 
     "be deserialized if it's an JBool" in {
-      implicit val json4sJacksonFormats = DefaultFormats + new JsoneyStringSerializer()
+      implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
       val result = parse("true").extract[JsoneyString]
-      assertResult(new JsoneyString("true"))(result)
+      assertResult(JsoneyString("true"))(result)
     }
 
     "have toSeq equivalent to its internal string" in {
-      assertResult(Seq("o"))(new JsoneyString("foo").toSeq)
+      val result = JsoneyString("o").toSeq
+      val expected = Seq("o")
+
+      expected should be (result)
+    }
+
+    "string with environment should substitute keys" in {
+      val moustacheFactory = new DefaultMustacheFactory
+      moustacheFactory.setObjectHandler(new ScalaObjectHandler)
+      val environmentContext = Option(EnvironmentContext(moustacheFactory, Map("APP" -> "SPARTA")))
+      val result = JsoneyString("Hi I'm {{APP}}", environmentContext).toString
+      val expected = "Hi I'm SPARTA"
+
+      expected should be (result)
+    }
+
+    "string with environment shouldn't substitute keys if not present in environment" in {
+      val moustacheFactory = new DefaultMustacheFactory
+      moustacheFactory.setObjectHandler(new ScalaObjectHandler)
+      val environmentContext = Option(EnvironmentContext(moustacheFactory, Map("APP" -> "SPARTA")))
+      val result = JsoneyString("Hi I'm {{COMPANY}}", environmentContext).toString
+      val expected = "Hi I'm "
+
+      expected should be (result)
     }
   }
 }

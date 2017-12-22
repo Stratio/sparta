@@ -70,6 +70,9 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
         newTemplate
       }
 
+  def createList(templates: Seq[TemplateElement]): Seq[TemplateElement] =
+    templates.map(create)
+
   def update(template: TemplateElement): TemplateElement = {
     val newTemplate = addUpdateDate(addId(template))
 
@@ -77,6 +80,9 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
       s"${templatePathType(newTemplate.templateType)}/${template.id.get}", write(newTemplate).getBytes)
     newTemplate
   }
+
+  def updateList(templates: Seq[TemplateElement]): Seq[TemplateElement] =
+    templates.map(update)
 
   def deleteByType(templateType: String): Unit = {
     val children = curatorFramework.getChildren.forPath(templatePathType(templateType))

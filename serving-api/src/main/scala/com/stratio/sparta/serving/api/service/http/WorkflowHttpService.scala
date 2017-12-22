@@ -23,8 +23,6 @@ import javax.ws.rs.Path
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel._
@@ -38,10 +36,10 @@ import spray.http.StatusCodes
 import spray.routing._
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 @Api(value = HttpConstant.WorkflowsPath, description = "Operations over workflows")
-trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
+trait WorkflowHttpService extends BaseHttpService {
 
   val genericError = ErrorModel(
     StatusCodes.InternalServerError.intValue,
@@ -50,10 +48,10 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
   )
 
   override def routes(user: Option[LoggedUser] = None): Route =
-    find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~
-      update(user) ~ updateList(user) ~ remove(user) ~ run(user) ~ download(user) ~ findByName(user) ~
+    find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~ run(user) ~ stop(user) ~ reset(user) ~
+      update(user) ~ updateList(user) ~ remove(user) ~ download(user) ~ findByName(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
-      resetAllStatuses(user)
+      resetAllStatuses(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findByNameWithEnv(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -83,6 +81,34 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
     }
   }
 
+  @Path("/findByIdWithEnv/{id}")
+  @ApiOperation(value = "Finds a workflow from its id with environment.",
+    notes = "Finds a workflow from its id with environment substitution.",
+    httpMethod = "GET",
+    response = classOf[Workflow])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findWithEnv(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findByIdWithEnv" / JavaUUID) { id =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindWithEnv(id.toString, user))
+              .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
+          } yield getResponse(context, WorkflowServiceFindByIdWithEnv, response, genericError)
+      }
+    }
+  }
+
   @Path("/findByName/{name}")
   @ApiOperation(value = "Finds a workflow from its name.",
     notes = "Finds a workflow from its name.",
@@ -107,6 +133,34 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             response <- (supervisor ? FindByName(name, user))
               .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowServiceFindByName, response, genericError)
+      }
+    }
+  }
+
+  @Path("/findByNameWithEnv/{name}")
+  @ApiOperation(value = "Finds a workflow from its name with environment.",
+    notes = "Finds a workflow from its name with environment substitution.",
+    httpMethod = "GET",
+    response = classOf[Workflow])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "name",
+      value = "name of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByNameWithEnv(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findByNameWithEnv" / Segment) { (name) =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindByNameWithEnv(name, user))
+              .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
+          } yield getResponse(context, WorkflowServiceFindByNameWithEnv, response, genericError)
       }
     }
   }
@@ -160,6 +214,29 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
               response <- (supervisor ? FindAll(user))
                 .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
             } yield getResponse(context, WorkflowServiceFindAll, response, genericError)
+        }
+      }
+    }
+  }
+
+  @Path("/findAllWithEnv")
+  @ApiOperation(value = "Finds all workflows with environment.",
+    notes = "Finds all workflows  with environment substitution.",
+    httpMethod = "GET",
+    response = classOf[Array[Workflow]])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAllWithEnv(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findAllWithEnv") {
+      pathEndOrSingleSlash {
+        get {
+          context =>
+            for {
+              response <- (supervisor ? FindAllWithEnv(user))
+                .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
+            } yield getResponse(context, WorkflowServiceFindAllWithEnv, response, genericError)
         }
       }
     }
@@ -436,7 +513,7 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
             for {
               response <- (supervisor ? ResetAllStatuses(user))
                 .mapTo[Either[Response, UnauthorizedResponse]]
-            } yield deletePostPutResponse(WorkflowServiceResetAllStatuses, response, genericError)
+            } yield deletePostPutResponse(WorkflowServiceResetAllStatuses, response, genericError, StatusCodes.OK)
           }
         }
       }
@@ -446,7 +523,7 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
   @Path("/run/{id}")
   @ApiOperation(value = "Runs a workflow from by id.",
     notes = "Runs a workflow by its id.",
-    httpMethod = "GET")
+    httpMethod = "POST")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "id",
       value = "id of the workflow",
@@ -460,13 +537,69 @@ trait WorkflowHttpService extends BaseHttpService with SpartaSerializer {
   ))
   def run(user: Option[LoggedUser]): Route = {
     path(HttpConstant.WorkflowsPath / "run" / JavaUUID) { id =>
-      get {
-        context =>
-          val launcherActor = actors(AkkaConstant.LauncherActorName)
+      post {
+        complete {
           for {
-            response <- (launcherActor ? Launch(id.toString, user))
-              .mapTo[Either[Try[Workflow], UnauthorizedResponse]]
-          } yield getResponse(context, WorkflowServiceRun, response, genericError)
+            response <- (supervisor ? Run(id.toString, user))
+              .mapTo[Either[ResponseAny, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowServiceRun, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/stop/{id}")
+  @ApiOperation(value = "Stop a workflow from by id.",
+    notes = "Stop a workflow by its id.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def stop(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "stop" / JavaUUID) { id =>
+      post {
+        complete {
+          for {
+            response <- (supervisor ? Stop(id.toString, user))
+              .mapTo[Either[ResponseAny, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowServiceStop, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/reset/{id}")
+  @ApiOperation(value = "Reset status workflow by id.",
+    notes = "Reset status workflow by id.",
+    httpMethod = "POST")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the workflow",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def reset(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "reset" / JavaUUID) { id =>
+      post {
+        complete {
+          for {
+            response <- (supervisor ? Reset(id.toString, user))
+              .mapTo[Either[ResponseAny, UnauthorizedResponse]]
+          } yield deletePostPutResponse(WorkflowServiceReset, response, genericError, StatusCodes.OK)
+        }
       }
     }
   }

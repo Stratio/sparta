@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.workflow
+package com.stratio.sparta.serving.core.models.env
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, Workflow}
 
-case class WriterGraph(
-                        saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                        tableName: Option[JsoneyString] = None,
-                        partitionBy: Option[JsoneyString] = None,
-                        primaryKey: Option[JsoneyString] = None
-                      )
+case class EnvironmentData(workflows: Seq[Workflow], templates: Seq[TemplateElement])

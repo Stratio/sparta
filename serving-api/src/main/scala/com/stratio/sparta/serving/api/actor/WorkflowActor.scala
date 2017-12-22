@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.security._
+import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
@@ -29,9 +30,12 @@ import org.apache.zookeeper.KeeperException.NoNodeException
 
 import scala.util.Try
 
-class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => ActorRef)(
-  implicit val secManagerOpt: Option[SpartaSecurityManager]
-) extends Actor with CheckpointUtils with ActionUserAuthorize {
+class WorkflowActor(
+                     val curatorFramework: CuratorFramework,
+                     launcherActor: ActorRef,
+                     envStateActor: ActorRef
+                   )(implicit val secManagerOpt: Option[SpartaSecurityManager])
+  extends Actor with CheckpointUtils with ActionUserAuthorize {
 
   import WorkflowActor._
 
@@ -41,18 +45,25 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   val ResourceContext = "context"
 
   private val workflowService = new WorkflowService(curatorFramework)
+  private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
   private val workflowValidatorService = new WorkflowValidatorService
 
   //scalastyle:off
   override def receive: Receive = {
+    case Stop(id, user) => stop(id, user)
+    case Reset(id, user) => reset(id, user)
+    case Run(id, user) => run(id, user)
     case CreateWorkflow(workflow, user) => create(workflow, user)
     case CreateWorkflows(workflows, user) => createList(workflows, user)
     case Update(workflow, user) => update(workflow, user)
     case UpdateList(workflows, user) => updateList(workflows, user)
     case Find(id, user) => find(id, user)
+    case FindWithEnv(id, user) => findWithEnv(id, user)
     case FindByIdList(workflowIds, user) => findByIdList(workflowIds, user)
     case FindByName(name, user) => findByName(name.toLowerCase, user)
+    case FindByNameWithEnv(name, user) => findByNameWithEnv(name.toLowerCase, user)
     case FindAll(user) => findAll(user)
+    case FindAllWithEnv(user) => findAllWithEnv(user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
@@ -66,6 +77,29 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
 
   //scalastyle:on
 
+  def run(id: String, user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceContext -> Edit)
+    securityActionAuthorizer[Response](user, actions) {
+      Try {
+        launcherActor.forward(Launch(id.toString, user))
+      }
+    }
+  }
+
+  def stop(id: String, user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceContext -> Edit)
+    securityActionAuthorizer[ResponseAny](user, actions) {
+      workflowService.stop(id)
+    }
+  }
+
+  def reset(id: String, user: Option[LoggedUser]): Unit = {
+    val actions = Map(ResourceContext -> Edit)
+    securityActionAuthorizer[ResponseAny](user, actions) {
+      workflowService.reset(id)
+    }
+  }
+
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourcePol -> Describe)) {
       Try(workflowValidatorService.validate(workflow))
@@ -75,6 +109,15 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
     securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
       Try {
         workflowService.findAll
+      } recover {
+        case _: NoNodeException => Seq.empty[Workflow]
+      }
+    }
+
+  def findAllWithEnv(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+      Try {
+        wServiceWithEnv.findAll
       } recover {
         case _: NoNodeException => Seq.empty[Workflow]
       }
@@ -102,6 +145,14 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
       }
     }
 
+  def findWithEnv(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+      Try(wServiceWithEnv.findById(id)).recover {
+        case _: NoNodeException =>
+          throw new ServerException(s"No workflow with id $id.")
+      }
+    }
+
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
       Try(workflowService.findByIdList(workflowIds))
@@ -110,6 +161,11 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
   def findByName(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
       Try(workflowService.findByName(name))
+    }
+
+  def findByNameWithEnv(name: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+      Try(wServiceWithEnv.findByName(name))
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
@@ -168,6 +224,12 @@ class WorkflowActor(val curatorFramework: CuratorFramework, statusActor: => Acto
 
 object WorkflowActor extends SLF4JLogging {
 
+  case class Run(id: String, user: Option[LoggedUser])
+
+  case class Stop(id: String, user: Option[LoggedUser])
+
+  case class Reset(id: String, user: Option[LoggedUser])
+
   case class ValidateWorkflow(workflow: Workflow, user: Option[LoggedUser])
 
   case class CreateWorkflow(workflow: Workflow, user: Option[LoggedUser])
@@ -186,11 +248,17 @@ object WorkflowActor extends SLF4JLogging {
 
   case class FindAll(user: Option[LoggedUser])
 
+  case class FindAllWithEnv(user: Option[LoggedUser])
+
   case class Find(id: String, user: Option[LoggedUser])
+
+  case class FindWithEnv(id: String, user: Option[LoggedUser])
 
   case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 
   case class FindByName(name: String, user: Option[LoggedUser])
+
+  case class FindByNameWithEnv(name: String, user: Option[LoggedUser])
 
   case class FindByTemplateType(templateType: String, user: Option[LoggedUser])
 
@@ -201,6 +269,8 @@ object WorkflowActor extends SLF4JLogging {
   case class ResetAllStatuses(user: Option[LoggedUser])
 
   type Response = Try[Unit]
+
+  type ResponseAny = Try[Any]
 
   type ResponseWorkflows = Try[Seq[Workflow]]
 

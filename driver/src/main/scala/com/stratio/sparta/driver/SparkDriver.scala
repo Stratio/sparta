@@ -22,7 +22,7 @@ import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.helpers.PluginFilesHelper
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{ListenerActor, StatusPublisherActor}
+import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -64,6 +64,7 @@ object SparkDriver extends SLF4JLogging {
 
       initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
+      val system = ActorSystem("WorkflowJob")
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
@@ -71,7 +72,8 @@ object SparkDriver extends SLF4JLogging {
         JarsHelper.addJdbcDriversToClassPath()
         val localPlugins = PluginFilesHelper.downloadPlugins(pluginsFiles)
         PluginFilesHelper.addPluginsToClasspath(localPlugins)
-        val workflowService = new WorkflowService(curatorInstance)
+        val environmentStateActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
+        val workflowService = new WorkflowService(curatorInstance, Option(system), Option(environmentStateActor))
         val workflow = workflowService.findById(workflowId)
         val executionService = new ExecutionService(curatorInstance)
         val workflowStatus = statusService.findById(workflowId)
@@ -83,11 +85,9 @@ object SparkDriver extends SLF4JLogging {
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
-      
-        val system = ActorSystem("WorkflowJob")
 
-        val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
-        val statusListenerActor = system.actorOf(Props(new ListenerActor))
+        val statusPublisherActor = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
+        val statusListenerActor = system.actorOf(Props(new WorkflowListenerActor))
         
         val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
 

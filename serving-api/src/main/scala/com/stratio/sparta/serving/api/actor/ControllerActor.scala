@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor._
+import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, _}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -42,31 +42,34 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import scala.util.{Properties, Try}
 
 class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager])
-  extends HttpServiceActor with SLF4JLogging with SpartaSerializer with CorsSupport with CacheSupport with OauthClient {
+  extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
 
   val isLocalExecution: Boolean = Properties.envOrNone(DcosServiceName).fold(true){_ => false}
 
-  val statusListenerActor = context.actorOf(Props(new ListenerActor()))
-
+  val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
+  val envStateActor = context.actorOf(Props(new EnvironmentStateActor(curatorFramework)))
+  val stListenerActor = context.actorOf(Props(new WorkflowListenerActor()))
+  val scService = StreamingContextService(curatorFramework, stListenerActor)
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new StatusActor(curatorFramework, statusListenerActor))), StatusActorName)
+    .props(Props(new StatusActor(curatorFramework, stListenerActor))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
+  val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new LauncherActor(scService, curatorFramework, stListenerActor, envStateActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(curatorFramework, statusActor))), WorkflowActorName)
+    .props(Props(new WorkflowActor(curatorFramework, launcherActor, envStateActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ExecutionActor(curatorFramework))), ExecutionActorName)
-  val scService = StreamingContextService(curatorFramework, statusListenerActor)
-  val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(scService, curatorFramework, statusListenerActor))), LauncherActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new PluginActor())), PluginActorName)
   val driverActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new DriverActor())), DriverActorName)
   val configActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ConfigActor())), ConfigActorName)
+  val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new EnvironmentActor(curatorFramework))), EnvironmentActorName)
   val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -74,8 +77,6 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   val nginxActor =
     if(isLocalExecution) None
     else Option(context.actorOf(Props(new NginxActor()), NginxActorName))
-
-  val localPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
 
   statusActor ! AddClusterListeners
 
@@ -89,7 +90,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     ExecutionActorName -> executionActor,
     ConfigActorName -> configActor,
     CrossdataActorName -> crossdataActor,
-    MetadataActorName -> metadataActor
+    MetadataActorName -> metadataActor,
+    EnvironmentActorName -> environmentActor
   ) ++ {
     if(isLocalExecution) Map.empty else Map(NginxActorName -> nginxActor.get)
   }
@@ -145,7 +147,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
       serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
-      serviceRoutes.crossdataRoute(user)
+      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user)
   }
 
   lazy val webRoutes: Route =
@@ -185,6 +187,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def driversRoute(user: Option[LoggedUser]): Route = driversService.routes(user)
 
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
+
+  def environmentRoute(user: Option[LoggedUser]): Route = environmentService.routes(user)
 
   def metadataRoute(user: Option[LoggedUser]): Route = metadataService.routes(user)
 
@@ -240,6 +244,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val configService = new ConfigHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.ConfigActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val environmentService = new EnvironmentHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.EnvironmentActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

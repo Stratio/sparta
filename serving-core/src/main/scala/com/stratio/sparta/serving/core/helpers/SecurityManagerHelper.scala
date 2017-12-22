@@ -74,6 +74,8 @@ object SecurityManagerHelper {
 
   case class UnauthorizedResponse(exception: ServerException)
 
+  //scalastyle:off
+
   implicit def resourceParser(resource: String): Resource = {
     resource match {
       case "input" => Resource(InputResource, resource)
@@ -85,6 +87,7 @@ object SecurityManagerHelper {
       case "checkpoint" => Resource(CheckpointResource, resource)
       case "backup" => Resource(BackupResource, resource)
       case "catalog" => Resource(CatalogResource, resource)
+      //case "environment" => Resource(EnvironmentResource, resource) TODO Add Environment resource when it's available
     }
   }
 }

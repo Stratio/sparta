@@ -22,15 +22,15 @@ import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import scala.concurrent.Future
 import scala.concurrent.blocking
 
-object ListenerActor {
+object WorkflowListenerActor {
   type WorkflowChangeAction = WorkflowStatus => Unit
 
   case class OnWorkflowChangeDo(workflowId: String)(val action: WorkflowChangeAction)
   case class ForgetWorkflowActions(id: String)
 }
 
-class ListenerActor extends Actor {
-  import ListenerActor._
+class WorkflowListenerActor extends Actor {
+  import WorkflowListenerActor._
 
   type ActorState = Map[String, List[WorkflowChangeAction]]
 
