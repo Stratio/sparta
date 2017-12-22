@@ -126,6 +126,7 @@
       "EXECUTE_QUERY_OK_NO_LIST": "Query completed succesfully."
    },
    "SETTINGS": {
+      "_SPARK_MESOS_SECURITY_ENABLE_": "Enable Mesos security",
       "_NAME_": "Name",
       "_DESCRIPTION_": "Description",
       "_EXECUTION_MODE_": "Execution Mode",

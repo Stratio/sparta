@@ -19,17 +19,15 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{StructType, _}
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, Row, SaveMode}
-import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.{Failure, Success, Try}
-
-abstract class OutputStep(
+abstract class OutputStep[Underlying[Row]](
                            val name: String,
                            @transient private[sparta] val xDSession: XDSession,
                            properties: Map[String, JSerializable]
@@ -44,46 +42,22 @@ abstract class OutputStep(
   val PartitionByKey = "partitionBy"
 
   /**
-   * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
-   * function afterwards.
-   *
-   * @param inputData Input stream data to save
-   * @param outputOptions Options to save
-   */
-  def writeTransform(inputData: DStream[Row], outputOptions: OutputOptions): Unit = {
-    inputData.foreachRDD(rdd =>
-      if (!rdd.isEmpty()) {
-        val schema = rdd.first().schema
-        val dataFrame = xDSession.createDataFrame(rdd, schema)
-        val saveOptions = Map(TableNameKey -> outputOptions.tableName) ++
-          outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
-            Map(PartitionByKey -> partition)
-          } ++
-          outputOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
-            Map(PrimaryKey -> key)
-          }
-
-        Try {
-          save(dataFrame, outputOptions.saveMode, saveOptions)
-        } match {
-          case Success(_) =>
-            log.debug(s"Data saved in ${outputOptions.tableName}")
-          case Failure(e) =>
-            log.error(s"Error saving data. Table: ${outputOptions.tableName}\n\t" +
-              s"Schema: ${dataFrame.schema}\n\tHead element: ${dataFrame.head}\n\t" +
-              s"Error message: ${e.getMessage}", e)
-        }
-      }
-    )
-  }
+    * Generic write function that receives the stream data and passes it to the dataFrame, calling the save
+    * function afterwards.
+    *
+    * @param inputData     Input stream data to save
+    * @param outputOptions Options to save
+    */
+  def writeTransform(inputData: DistributedMonad[Underlying], outputOptions: OutputOptions): Unit =
+    inputData.write(outputOptions, xDSession)(save)
 
   /**
-   * Save function that implements the plugins.
-   *
-   * @param dataFrame The dataFrame to save
-   * @param saveMode The sparta save mode selected
-   * @param options Options to save the data (partitionBy, primaryKey ... )
-   */
+    * Save function that implements the plugins.
+    *
+    * @param dataFrame The dataFrame to save
+    * @param saveMode  The sparta save mode selected
+    * @param options   Options to save the data (partitionBy, primaryKey ... )
+    */
   def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit
 
   /** PRIVATE METHODS **/

@@ -30,7 +30,7 @@ trait ErrorCheckingDStream extends SLF4JLogging {
 
   val whenErrorDo: WhenError
 
-  val ssc: StreamingContext
+  val ssc: Option[StreamingContext]
 
   def returnDStreamFromTry[T: ClassTag](errorMessage: String, warningMessage: Option[String] = None)
                                        (actionFunction: => Try[DStream[T]]): DStream[T] =
@@ -39,7 +39,7 @@ trait ErrorCheckingDStream extends SLF4JLogging {
       case Failure(e) => whenErrorDo match {
         case WhenError.Discard =>
           warningMessage.foreach(log.warn(_, e))
-          ssc.queueStream[T](new mutable.Queue[RDD[T]])
+          ssc.get.queueStream[T](new mutable.Queue[RDD[T]])
         case _ => throw new Exception(errorMessage, e)
       }
     }

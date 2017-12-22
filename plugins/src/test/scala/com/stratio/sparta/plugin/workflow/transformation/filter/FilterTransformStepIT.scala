@@ -17,6 +17,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.filter
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
@@ -30,7 +31,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class FilterTransformStepIT extends TemporalSparkContext with Matchers {
+class FilterTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A FilterTransformStep" should "filter events from input DStream" in {
 
@@ -48,13 +49,13 @@ class FilterTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new FilterTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("filterExp" -> "color = 'blue'")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

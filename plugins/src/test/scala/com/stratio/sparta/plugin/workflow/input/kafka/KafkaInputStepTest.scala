@@ -48,7 +48,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
           |""".stripMargin
 
       val properties = Map("topics" -> JsoneyString(topics))
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       input.extractTopics should be(Set("test"))
     }
 
@@ -59,13 +59,13 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
           |]
           |""".stripMargin
       val properties = Map("topics" -> JsoneyString(topics))
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       input.extractTopics should be(Set("test", "test2", "test3"))
     }
 
     "return a group id" in {
       val properties = Map("group.id" -> "test", "foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getGroupId
       result should be(Map("group.id" -> "test"))
     }
@@ -81,7 +81,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
           |]
           |""".stripMargin
       val properties = Map("offsets" -> JsoneyString(offsets))
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getOffsets
       result should be(Map(new TopicPartition("test", 1) -> 23))
     }
@@ -97,7 +97,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
           |]
           |""".stripMargin
       val properties = Map("offsets" -> JsoneyString(offsets))
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getOffsets
       result should be(Map.empty[TopicPartition, Long])
     }
@@ -111,7 +111,7 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
         "outputField" -> "rawTest",
         "key.deserializer.json.foo" -> "var",
         "test" -> "notinclude")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getRowSerializerProperties
       result should be(Map("value.deserializer.inputFormat" -> "JSON",
         "value.deserializer.json.schema.fromRow" -> "true",
@@ -125,84 +125,84 @@ class KafkaInputStepTest extends WordSpec with Matchers with MockitoSugar {
 
     "return AutoOffset" in {
       val properties = Map("auto.offset.reset" -> "smalest")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoOffset
       result should be(Map("auto.offset.reset" -> "smalest"))
     }
 
     "return AutoOffset default" in {
       val properties = Map("foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoOffset
       result should be(Map("auto.offset.reset" -> "latest"))
     }
 
     "return AutoCommit" in {
       val properties = Map("enable.auto.commit" -> "true")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoCommit
       result should be(Map("enable.auto.commit" -> true))
     }
 
     "return AutoCommit default" in {
       val properties = Map("foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoCommit
       result should be(Map("enable.auto.commit" -> false))
     }
 
     "return AutoCommitInKafka" in {
       val properties = Map("storeOffsetInKafka" -> "false")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoCommitInKafka
       result should be(false)
     }
 
     "return AutoCommitInKafka default" in {
       val properties = Map("foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getAutoCommitInKafka
       result should be(true)
     }
 
     "return LocationStrategy brokers" in {
       val properties = Map("locationStrategy" -> "preferbrokers")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getLocationStrategy
       result should be(LocationStrategies.PreferBrokers)
     }
 
     "return LocationStrategy consistent" in {
       val properties = Map("locationStrategy" -> "preferconsistent")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getLocationStrategy
       result should be(LocationStrategies.PreferConsistent)
     }
 
     "return LocationStrategy default" in {
       val properties = Map("foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getLocationStrategy
       result should be(LocationStrategies.PreferConsistent)
     }
 
     "return PartitionStrategy range" in {
       val properties = Map("partition.assignment.strategy" -> "range")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getPartitionStrategy
       result should be(Map("partition.assignment.strategy" -> classOf[RangeAssignor].getCanonicalName))
     }
 
     "return PartitionStrategy roundrobin" in {
       val properties = Map("partition.assignment.strategy" -> "roundrobin")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getPartitionStrategy
       result should be(Map("partition.assignment.strategy" -> classOf[RoundRobinAssignor].getCanonicalName))
     }
 
     "return PartitionStrategy default" in {
       val properties = Map("foo" -> "var")
-      val input = new KafkaInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new KafkaInputStep("name", outputOptions, Option(ssc), xdSession, properties)
       val result = input.getPartitionStrategy
       result should be(Map("partition.assignment.strategy" -> classOf[RangeAssignor].getCanonicalName))
     }

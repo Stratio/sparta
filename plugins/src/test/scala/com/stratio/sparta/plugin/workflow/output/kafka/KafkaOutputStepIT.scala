@@ -91,13 +91,13 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "auto.offset.reset" -> "earliest"
       )
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val input = new KafkaInputStep("kafka", outputOptions, ssc.get, sparkSession.get, propsConsumer)
-      val distributedStream = input.initStream
+      val input = new KafkaInputStep("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 
       log.info("Evaluate the DStream")
 
-      distributedStream.foreachRDD(rdd => {
+      distributedStream.ds.foreachRDD(rdd => {
         if (!rdd.isEmpty()) {
           val count = rdd.count()
           log.info(s"EVENTS COUNT : $count")
@@ -165,13 +165,13 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "auto.offset.reset" -> "earliest"
       )
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val input = new KafkaInputStep("kafka", outputOptions, ssc.get, sparkSession.get, propsConsumer)
-      val distributedStream = input.initStream
+      val input = new KafkaInputStep("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 
       log.info("Evaluate the DStream")
 
-      distributedStream.foreachRDD(rdd => {
+      distributedStream.ds.foreachRDD(rdd => {
         if (!rdd.isEmpty()) {
           val count = rdd.count()
           log.info(s"EVENTS COUNT : $count")

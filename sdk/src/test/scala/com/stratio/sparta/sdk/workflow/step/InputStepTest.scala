@@ -33,7 +33,7 @@ import org.scalatest.{Matchers, WordSpec}
 class InputStepTest extends WordSpec with Matchers with MockitoSugar {
 
   val sparkSession = mock[XDSession]
-  val ssc = mock[StreamingContext]
+  val ssc = mock[Option[StreamingContext]]
 
   "InputStep" should {
     val name = "input"

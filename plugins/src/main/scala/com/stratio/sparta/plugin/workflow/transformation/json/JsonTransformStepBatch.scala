@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.sdk.workflow.step
+package com.stratio.sparta.plugin.workflow.transformation.json
 
 import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-class MockTransformStep(name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = inputData.head._2
-}
+class JsonTransformStepBatch(
+                              name: String,
+                              outputOptions: OutputOptions,
+                              ssc: Option[StreamingContext],
+                              xDSession: XDSession,
+                              properties: Map[String, JSerializable]
+                            ) extends JsonTransformStep[Dataset](name, outputOptions, ssc, xDSession, properties)

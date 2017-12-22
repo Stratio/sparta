@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.input.filesystem
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.sql.Row
@@ -31,19 +32,21 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
+import DistributedMonad.Implicits._
+
 class FileSystemInputStep(
                            name: String,
                            outputOptions: OutputOptions,
-                           ssc: StreamingContext,
+                           ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable]
-                         ) extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+                         ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   protected def defaultFilter(path: Path): Boolean =
     !path.getName.startsWith(".") && !path.getName.endsWith("_COPYING_") &&
       !path.getName.startsWith("_")
 
-  def initStream(): DStream[Row] = {
+  def init(): DistributedMonad[DStream] = {
 
     val directory = properties.getString("directory", "")
     val filters = properties.getString("filterString", None).notBlank
@@ -55,7 +58,7 @@ class FileSystemInputStep(
     val applyFilters = (path: Path) =>
       defaultFilter(path) && filters.forall(_.split(",").forall(!path.getName.contains(_)))
 
-    ssc.fileStream[LongWritable, Text, TextInputFormat](directory, applyFilters, flagNewFiles) map {
+    ssc.get.fileStream[LongWritable, Text, TextInputFormat](directory, applyFilters, flagNewFiles) map[Row] {
       case (_, text) => new GenericRowWithSchema(Array(text.toString), outputSchema)
     }
 

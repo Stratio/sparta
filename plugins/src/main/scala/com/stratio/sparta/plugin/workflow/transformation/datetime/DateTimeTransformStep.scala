@@ -39,16 +39,18 @@ import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.jackson.Serialization.read
 import com.stratio.sparta.plugin.workflow.transformation.datetime.DateTimeTransformStep._
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 class DateTimeTransformStep(name: String,
                             outputOptions: OutputOptions,
-                            ssc: StreamingContext,
+                            ssc: Option[StreamingContext],
                             xDSession: XDSession,
                             properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
 
   lazy val fieldsModel: Seq[DateTimeItemModel] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -64,12 +66,10 @@ class DateTimeTransformStep(name: String,
 
   //scalastyle:off
 
-  def transformationFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
-    inputStream.flatMap(data => parse(data))
-
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
-    applyHeadTransform(inputData)(transformationFunction)
-  }
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      inputStream.flatMap(data => parse(data))
+    }
 
   def applyOutputFormatToDate(date: Any)(implicit dateTimeItem: DateTimeItem): Any = {
     (date, dateTimeItem.outputFormatFrom) match {

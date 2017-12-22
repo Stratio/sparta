@@ -19,34 +19,30 @@ package com.stratio.sparta.plugin.workflow.transformation.distinct
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.{Failure, Success, Try}
-
 class DistinctTransformStep(name: String,
                             outputOptions: OutputOptions,
-                            ssc: StreamingContext,
+                            ssc: Option[StreamingContext],
                             xDSession: XDSession,
                             properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val partitions = properties.getInt("partitions", None)
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
-    inputStream.transform { rdd =>
+  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
+    inputStream.ds.transform { rdd =>
       if (rdd.isEmpty()) rdd
       else partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
     }
   }
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformFunction)
 }
 

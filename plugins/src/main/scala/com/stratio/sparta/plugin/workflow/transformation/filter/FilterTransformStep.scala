@@ -19,42 +19,38 @@ package com.stratio.sparta.plugin.workflow.transformation.filter
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
-
 class FilterTransformStep(name: String,
                           outputOptions: OutputOptions,
-                          ssc: StreamingContext,
+                          ssc: Option[StreamingContext],
                           xDSession: XDSession,
                           properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val filterExpression: Option[String] = properties.getString("filterExp", None)
 
   assert(filterExpression.isDefined,
     "It's mandatory one filter expression, such as colA, colB as newName, abs(colC)")
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
-    filterExpression.fold(inputStream) { expression =>
-      inputStream.transform { rdd =>
-        if (rdd.isEmpty()) rdd
-        else {
-          val schema = rdd.first().schema
-          val df = xDSession.createDataFrame(rdd, schema)
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      filterExpression.fold(inputStream) { expression =>
+        inputStream.ds.transform { rdd =>
+          if (rdd.isEmpty()) rdd
+          else {
+            val schema = rdd.first().schema
+            val df = xDSession.createDataFrame(rdd, schema)
 
-          df.filter(expression).rdd
+            df.filter(expression).rdd
+          }
         }
       }
     }
-  }
-
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
-    applyHeadTransform(inputData)(transformFunction)
 }
 

@@ -245,6 +245,15 @@
           "qa": "workflow-spark-datastore-tls"
         },
         {
+           "propertyId": "sparkMesosSecurity",
+           "propertyName": "SETTINGS._SPARK_MESOS_SECURITY_ENABLE_",
+           "propertyType": "boolean",
+           "width": "auto",
+           "default": false,
+           "tooltip": "Enables MESOS security and send options through the spark submit",
+           "qa": "workflow-spark-enable-mesos"
+        },
+        {
            "name": "submitArguments",
            "listCompressed": true,
             "properties": [

@@ -19,9 +19,10 @@ package com.stratio.sparta.plugin.workflow.input.test
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Dataset, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -30,22 +31,23 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.test.TestDStream
 
 import scala.util.{Random, Try}
+import DistributedMonad.Implicits._
 
-class TestInputStep(
+abstract class TestInputStep[Underlying[Row]](
                      name: String,
                      outputOptions: OutputOptions,
-                     ssc: StreamingContext,
+                     ssc: Option[StreamingContext],
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
                    )
-  extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val eventType: EventType.Value = EventType.withName(properties.getString("eventType", "STRING").toUpperCase)
   lazy val event: String = properties.getString("event", "dummyEvent")
   lazy val maxNumber: Int = properties.getInt("maxNumber", 1)
   lazy val numEvents: Long = properties.getLong("numEvents", 1L)
   lazy val outputField: String = properties.getString("outputField", DefaultRawDataField)
-  private val stopAfterNumbEvents: Option[Long] =
+  protected val stopAfterNumbEvents: Option[Long] =
     Try(Option(properties.getString("maxNumbEvents")).notBlank.map(_.toLong)).getOrElse(None)
   lazy val numberSchema = StructType(Seq(StructField(outputField, IntegerType)))
   lazy val stringSchema = StructType(Seq(StructField(outputField, StringType)))
@@ -59,18 +61,60 @@ class TestInputStep(
       math.min(numEvents, stopAfterNumbEvents.get)
     else numEvents
 
-  def initStream(): DStream[Row] = {
+}
+
+class TestInputStepStream(
+                           name: String,
+                           outputOptions: OutputOptions,
+                           ssc: Option[StreamingContext],
+                           xDSession: XDSession,
+                           properties: Map[String, JSerializable]
+                         ) extends TestInputStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+
+  /**
+    * Create and initialize stream using the Spark Streaming Context.
+    *
+    * @return The DStream created with spark rows
+    */
+  override def init(): DistributedMonad[DStream] = {
+
     val registers = for (_ <- 1L to eventsToGenerate) yield {
       if (eventType == EventType.STRING)
         new GenericRowWithSchema(Array(event), stringSchema).asInstanceOf[Row]
       else new GenericRowWithSchema(Array(Random.nextInt(maxNumber)), numberSchema).asInstanceOf[Row]
     }
-    val defaultRDD = ssc.sparkContext.parallelize(registers)
 
-    val testStream =
-      if(stopAfterNumbEvents.isDefined)
-        new TestDStream(ssc, defaultRDD, Option(numEvents), stopAfterNumbEvents)
-      else new TestDStream(ssc, defaultRDD, Option(numEvents))
-    testStream
+    val defaultRDD = ssc.get.sparkContext.parallelize(registers)
+
+    if(stopAfterNumbEvents.isDefined)
+      new TestDStream(ssc.get, defaultRDD, Option(numEvents), stopAfterNumbEvents)
+    else new TestDStream(ssc.get, defaultRDD, Option(numEvents))
   }
+
+}
+
+class TestInputStepBatch(
+                           name: String,
+                           outputOptions: OutputOptions,
+                           ssc: Option[StreamingContext],
+                           xDSession: XDSession,
+                           properties: Map[String, JSerializable]
+                         ) extends TestInputStep[Dataset](name, outputOptions, ssc, xDSession, properties) {
+  /**
+    * Create and initialize stream using the Spark Streaming Context.
+    *
+    * @return The DStream created with spark rows
+    */
+  override def init(): DistributedMonad[Dataset] = {
+
+    val registers = for (_ <- 1L to numEvents) yield {
+      if (eventType == EventType.STRING)
+        new GenericRowWithSchema(Array(event), stringSchema).asInstanceOf[Row]
+      else new GenericRowWithSchema(Array(Random.nextInt(maxNumber)), numberSchema).asInstanceOf[Row]
+    }
+    val defaultRDD = xDSession.sparkContext.parallelize(registers)
+
+    xDSession.createDataFrame(defaultRDD, outputSchema)
+  }
+
 }

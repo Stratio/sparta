@@ -16,19 +16,8 @@
 
 package com.stratio.sparta.sdk.workflow.step
 
-import java.io.{Serializable => JSerializable}
-
-import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.utils.ClasspathUtils
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-class MockTransformStep(name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = inputData.head._2
-}
+case class WorkflowContext(classUtils: ClasspathUtils, @transient xDSession: XDSession, @transient ssc: Option[StreamingContext] = None)

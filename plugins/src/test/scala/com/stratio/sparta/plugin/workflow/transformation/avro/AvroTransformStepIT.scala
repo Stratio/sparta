@@ -37,6 +37,8 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class AvroTransformStepIT extends TemporalSparkContext with Matchers {
 
+  import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+
   "A AvroTransformStepIT" should "transform csv events the input DStream" in {
 
     val record = s"""{"type":"record","name":"myrecord","fields":[
@@ -73,7 +75,7 @@ class AvroTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new AvroTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Some(ssc),
       sparkSession,
       Map(
         "inputField" -> inputField,
@@ -83,7 +85,7 @@ class AvroTransformStepIT extends TemporalSparkContext with Matchers {
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

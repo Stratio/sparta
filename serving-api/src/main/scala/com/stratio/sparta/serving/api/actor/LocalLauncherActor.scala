@@ -25,7 +25,7 @@ import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
@@ -58,18 +58,10 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.ConfigLocal)
       ))
-      val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(workflow, jars)
-      spartaWorkflow.setup()
-      ssc.start()
-      val startedInformation = s"Workflow started correctly"
-      log.info(startedInformation)
-      statusService.update(WorkflowStatus(
-        id = workflow.id.get,
-        status = WorkflowStatusEnum.Started,
-        statusInfo = Some(startedInformation)
-      ))
-      ssc.awaitTermination()
-      spartaWorkflow.cleanUp()
+      if(workflow.executionEngine == WorkflowExecutionEngine.Streaming)
+        executeLocalStreamingContext(workflow, jars)
+      if(workflow.executionEngine == WorkflowExecutionEngine.Batch)
+        executeLocalBatchContext(workflow, jars)
     } match {
       case Success(_) =>
         SparkContextFactory.destroySparkContext()
@@ -93,6 +85,34 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         SparkContextFactory.destroySparkContext()
         self ! PoisonPill
     }
+  }
+
+  private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]) : Unit = {
+    val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(workflow, jars)
+    spartaWorkflow.setup()
+    ssc.start()
+    val startedInformation = s"Workflow started correctly"
+    log.info(startedInformation)
+    statusService.update(WorkflowStatus(
+      id = workflow.id.get,
+      status = WorkflowStatusEnum.Started,
+      statusInfo = Some(startedInformation)
+    ))
+    ssc.awaitTermination()
+    spartaWorkflow.cleanUp()
+  }
+
+  private def executeLocalBatchContext(workflow: Workflow, jars: Seq[File]) : Unit = {
+    val startedInformation = s"Starting workflow"
+    log.info(startedInformation)
+    statusService.update(WorkflowStatus(
+      id = workflow.id.get,
+      status = WorkflowStatusEnum.Starting,
+      statusInfo = Some(startedInformation)
+    ))
+
+    val spartaWorkflow = streamingContextService.localContext(workflow, jars)
+    spartaWorkflow.cleanUp()
   }
 
   private def userPluginsFiles(workflow: Workflow): Seq[File] = {

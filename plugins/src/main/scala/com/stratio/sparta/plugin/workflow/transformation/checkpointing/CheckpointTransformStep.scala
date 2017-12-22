@@ -18,34 +18,30 @@ package com.stratio.sparta.plugin.workflow.transformation.checkpointing
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
-import org.apache.spark.sql.Row
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
 
-import scala.util.Try
-
 class CheckpointTransformStep(name: String,
                               outputOptions: OutputOptions,
-                              ssc: StreamingContext,
+                              ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
 
   lazy val interval: Option[Duration] = properties.getString("interval", None).map(time =>
     Milliseconds(AggregationTimeUtils.parseValueToMilliSeconds(time)))
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
+  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
     interval match {
-      case Some(time) => inputStream.checkpoint(time)
+      case Some(time) => inputStream.ds.checkpoint(time)
       case None => inputStream
     }
   }
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
-    applyHeadTransform(inputData)(transformFunction)
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = applyHeadTransform(inputData)(transformFunction)
 }

@@ -18,19 +18,20 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.properties.Parameterizable
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
+import com.stratio.sparta.sdk.utils.ClasspathUtils
 
-abstract class TransformStep(
+abstract class TransformStep[Underlying[Row]](
                               val name: String,
                               val outputOptions: OutputOptions,
-                              @transient private[sparta] val ssc: StreamingContext,
+                              @transient private[sparta] val ssc: Option[StreamingContext],
                               @transient private[sparta] val xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends Parameterizable(properties) with GraphStep {
+                            ) extends Parameterizable(properties) with GraphStep with DistributedMonadImplicits {
 
   override lazy val customKey = "transformationOptions"
   override lazy val customPropertyKey = "transformationOptionsKey"
@@ -42,33 +43,34 @@ abstract class TransformStep(
    * Transformation function that all the transformation plugins must implements.
    *
    * @param inputData Input steps data that the function receive. The key is the name of the step and the value is
-   *                  the stream
-   * @return The output stream generated after apply the function
+   *                  the collection ([[DistributedMonad]])
+   * @return The output [[DistributedMonad]] generated after apply the function
    */
-  def transform(inputData: Map[String, DStream[Row]]): DStream[Row]
-
+  def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying]
 
   /* METHODS IMPLEMENTED */
 
   /**
    * Execute the transform function passed as parameter over the first data of the map.
    *
-   * @param inputData       Input data that must contains only one DStream
-   * @param generateDStream Function to apply
-   * @return The transformed stream
+   * @param inputData       Input data that must contains only one distributed collection.
+   * @param generateDistributedMonad Function to apply
+   * @return The transformed distributed collection [[DistributedMonad]]
    */
-  def applyHeadTransform(inputData: Map[String, DStream[Row]])
-                        (generateDStream: (String, DStream[Row]) => DStream[Row]): DStream[Row] = {
+  def applyHeadTransform[Underlying[Row]](inputData: Map[String, DistributedMonad[Underlying]])
+                        (
+                          generateDistributedMonad: (String, DistributedMonad[Underlying]) =>
+                            DistributedMonad[Underlying]
+                        ): DistributedMonad[Underlying] = {
     assert(inputData.size == 1, s"The step $name must have one input, now have: ${inputData.keys}")
 
     val (firstStep, firstStream) = inputData.head
 
-    generateDStream(firstStep, firstStream)
+    generateDistributedMonad(firstStep, firstStream)
   }
 
 }
 
 object TransformStep {
-
   val StepType = "transformation"
 }

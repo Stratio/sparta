@@ -20,6 +20,8 @@ import java.net.URLClassLoader
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
+import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.streaming.dstream.DStream
 import org.reflections.Reflections
 
 import scala.collection.JavaConversions._
@@ -29,7 +31,10 @@ class ClasspathUtils extends SLF4JLogging {
 
   lazy val defaultStepsInClasspath: Map[String, String] = {
     classesInClasspath(
-      classes = Seq(classOf[InputStep], classOf[OutputStep], classOf[TransformStep]),
+      classes = Seq(
+        classOf[InputStep[DStream]], classOf[OutputStep[DStream]], classOf[TransformStep[DStream]],
+        classOf[InputStep[Dataset]], classOf[OutputStep[Dataset]], classOf[TransformStep[Dataset]]
+      ),
       packagePath = "com.stratio.sparta",
       printClasspath = true
     )

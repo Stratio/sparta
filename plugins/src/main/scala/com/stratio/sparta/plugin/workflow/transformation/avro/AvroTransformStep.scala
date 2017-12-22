@@ -23,6 +23,7 @@ import com.databricks.spark.avro.RowAvroHelper
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.helper.SchemaHelper
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
 import com.twitter.bijection.avro.GenericAvroCodecs
@@ -38,10 +39,10 @@ import org.apache.spark.streaming.dstream.DStream
 class AvroTransformStep(
                          name: String,
                          outputOptions: OutputOptions,
-                         ssc: StreamingContext,
+                         ssc: Option[StreamingContext],
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
-                       ) extends TransformStep(name, outputOptions, ssc, xDSession, properties)
+                       ) extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
   with ErrorCheckingStepRow with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")
@@ -69,31 +70,29 @@ class AvroTransformStep(
         extracted
     }
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
-    applyHeadTransform(inputData)(transformFunction)
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      inputStream flatMap { row =>
+        returnSeqDataFromRow {
+          val inputSchema = row.schema
+          val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
+          assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 
-    inputStream flatMap { row =>
-      returnSeqDataFromRow {
-        val inputSchema = row.schema
-        val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
+          val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
+          val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
+          val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
+          val value = row(inputFieldIdx).asInstanceOf[String].getBytes()
+          val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](avroSchema)
+          val record = recordInjection.invert(value).get
+          val safeDataRow = converter(record).asInstanceOf[GenericRow]
+          val newRow = new GenericRowWithSchema(safeDataRow.toSeq.toArray, expectedSchema)
 
-        assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
-
-        val avroSchema = AvroTransformStep.getAvroSchema(schemaProvided)
-        val expectedSchema = AvroTransformStep.getExpectedSchema(avroSchema)
-        val converter = RowAvroHelper.getAvroConverter(avroSchema, expectedSchema)
-        val value = row(inputFieldIdx).asInstanceOf[String].getBytes()
-        val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](avroSchema)
-        val record = recordInjection.invert(value).get
-        val safeDataRow = converter(record).asInstanceOf[GenericRow]
-        val newRow = new GenericRowWithSchema(safeDataRow.toSeq.toArray, expectedSchema)
-
-        updateRow(row, newRow, inputFieldIdx)
+          updateRow(row, newRow, inputFieldIdx)
+        }
       }
     }
-  }
+
 }
 
 object AvroTransformStep {

@@ -1,7 +1,7 @@
   {
      "name": "Json",
      "icon": "Json",
-     "className": "JsonTransformStep",
+     "className": "JsonTransformStepStream",
      "classPrettyName": "Json",
      "arity": ["UnaryToNary"],
      "description": "Parsing input field in text format to row",

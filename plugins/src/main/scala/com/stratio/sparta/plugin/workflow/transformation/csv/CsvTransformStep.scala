@@ -20,9 +20,10 @@ import java.util.regex.Pattern
 
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
+import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
+import com.stratio.sparta.sdk.DistributedMonad
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -35,10 +36,12 @@ import scala.util.Try
 
 class CsvTransformStep(name: String,
                        outputOptions: OutputOptions,
-                       ssc: StreamingContext,
+                       ssc: Option[StreamingContext],
                        xDSession: XDSession,
                        properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+    with ErrorCheckingStepRow
+    with SchemaCasting {
 
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "HEADER").toUpperCase)
 
@@ -85,12 +88,11 @@ class CsvTransformStep(name: String,
 
   assert(inputField.nonEmpty)
 
-  def transformationFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
-    inputStream.flatMap(data => parse(data))
+  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = inputStream.flatMap(data => parse(data))
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformationFunction)
-  }
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] =

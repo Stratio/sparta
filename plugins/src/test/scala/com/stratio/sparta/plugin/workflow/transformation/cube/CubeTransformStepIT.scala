@@ -61,7 +61,7 @@ class CubeTransformStepIT extends TemporalSparkContext with Matchers {
     val step = new CubeTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("dimensions" -> dimensionsProp, "operators" -> operatorsProp)
     )

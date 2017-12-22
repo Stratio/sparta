@@ -18,11 +18,11 @@ package com.stratio.sparta.plugin.workflow.transformation.union
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
@@ -30,20 +30,20 @@ import scala.collection.mutable
 
 class UnionTransformStep(name: String,
                          outputOptions: OutputOptions,
-                         ssc: StreamingContext,
+                         ssc: Option[StreamingContext],
                          xDSession: XDSession,
                          properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
     val streams = inputData.map { case (_, dStream) =>
-      dStream
+      dStream.ds
     }.toSeq
 
     streams.size match {
       case 1 => streams.head
-      case x if x > 1 => ssc.union(streams)
-      case _ => ssc.queueStream(new mutable.Queue[RDD[Row]])
+      case x if x > 1 => ssc.get.union(streams)
+      case _ => ssc.get.queueStream(new mutable.Queue[RDD[Row]])
     }
   }
 }

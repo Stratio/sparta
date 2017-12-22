@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.intersection
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.rdd.RDD
@@ -31,14 +32,14 @@ import scala.util.Try
 
 class IntersectionTransformStep(name: String,
                                 outputOptions: OutputOptions,
-                                ssc: StreamingContext,
+                                ssc: Option[StreamingContext],
                                 xDSession: XDSession,
                                 properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val partitions = properties.getInt("partitions", None)
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
     assert(inputData.size == 2,
       s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
 
@@ -51,7 +52,7 @@ class IntersectionTransformStep(name: String,
         }
     }
 
-    firstStream.transformWith(secondStream, transformFunc)
+    firstStream.ds.transformWith(secondStream.ds, transformFunc)
   }
 }
 

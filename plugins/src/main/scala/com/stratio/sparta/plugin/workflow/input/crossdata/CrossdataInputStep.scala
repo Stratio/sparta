@@ -21,12 +21,12 @@ import java.io.{Serializable => JSerializable}
 import akka.actor.{ActorSystem, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.helper.SecurityHelper
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.plugin.workflow.input.crossdata.models.OffsetFieldItem
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
 import com.typesafe.config.ConfigFactory
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.datasource.DatasourceUtils
@@ -41,14 +41,16 @@ import scala.concurrent.duration._
 import scala.language.implicitConversions
 import scala.util.{Properties, Try}
 
+import DistributedMonad.Implicits._
+
 class CrossdataInputStep(
                           name: String,
                           outputOptions: OutputOptions,
-                          ssc: StreamingContext,
+                          ssc: Option[StreamingContext],
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
                         )
-  extends InputStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val query = properties.getString("query")
   lazy val finishApplicationWhenEmpty = properties.getBoolean("finishAppWhenEmpty", default = false)
@@ -78,7 +80,7 @@ class CrossdataInputStep(
       item.offsetValue.notBlank))
   }
 
-  def initStream(): DStream[Row] = {
+  def init(): DistributedMonad[DStream] = {
     val inputSentences = InputSentences(
       query,
       OffsetConditions(
@@ -91,14 +93,14 @@ class CrossdataInputStep(
         properties.mapValues(value => value.toString) ++ Map(ConfigParameters.ZookeeperPath -> zookeeperPath)
     }.filter(_._2.nonEmpty)
 
-    ssc.addStreamingListener(new StreamingListenerStop)
+    ssc.get.addStreamingListener(new StreamingListenerStop)
     import scala.concurrent.ExecutionContext.Implicits.global
     val schedulerSystem = ActorSystem("SchedulerSystem",
       ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
     CrossdataInputStep.lastFinishTask = Option(schedulerSystem.scheduler.schedule(1000 milli, 1000 milli)({
       if (CrossdataInputStep.stopSparkContexts) {
         log.info("Stopping Spark contexts")
-        ssc.stop(stopSparkContext = true, stopGracefully = true)
+        ssc.get.stop(stopSparkContext = true, stopGracefully = true)
         CrossdataInputStep.stopSparkContexts = false
         CrossdataInputStep.lastFinishTask.foreach(_.cancel())
         CrossdataInputStep.lastFinishTask = None
@@ -109,7 +111,7 @@ class CrossdataInputStep(
       }
     }))
 
-    DatasourceUtils.createStream(ssc, inputSentences, datasourceProperties, sparkSession)
+    DatasourceUtils.createStream(ssc.get, inputSentences, datasourceProperties, sparkSession)
   }
 
   class StreamingListenerStop extends StreamingListener {

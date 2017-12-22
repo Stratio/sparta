@@ -16,16 +16,15 @@
 
 package com.stratio.sparta.serving.core.utils
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import java.io.{File, PrintWriter}
 import java.nio.file.{Files, StandardCopyOption}
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.stratio.tikitakka.common.util.HttpRequestUtils
-import org.apache.commons.io.FileUtils
 
 import scala.sys.process._
-import scala.util.{Failure, Properties, Success, Try}
+import scala.util.{Properties, Try}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
@@ -34,8 +33,7 @@ import com.stratio.sparta.serving.core.utils.NginxUtils._
 import net.minidev.json.JSONArray
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
+import scala.concurrent.Future
 
 object NginxUtils {
 

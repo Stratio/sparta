@@ -19,7 +19,6 @@ package com.stratio.sparta.plugin.workflow.transformation.datetime
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
-import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
@@ -27,8 +26,9 @@ import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 import scala.collection.mutable
 
@@ -92,13 +92,13 @@ class DateTimeTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new DateTimeTransformStep(
       "transformTimestamp",
       outputOptions,
-      ssc,
+      Some(ssc),
       sparkSession,
       Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable])
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

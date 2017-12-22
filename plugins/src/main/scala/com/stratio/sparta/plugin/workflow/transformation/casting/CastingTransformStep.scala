@@ -18,10 +18,10 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.workflow.transformation.casting.OutputFieldsFrom.OutputFieldsFrom
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
-import org.apache.spark.sql.Row
+import com.stratio.sparta.sdk.workflow.step._
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
@@ -32,10 +32,12 @@ import scala.util.{Failure, Success, Try}
 
 class CastingTransformStep(name: String,
                            outputOptions: OutputOptions,
-                           ssc: StreamingContext,
+                           ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+    with ErrorCheckingStepRow
+    with SchemaCasting {
 
   lazy val outputFieldsFrom = OutputFieldsFrom.withName(properties.getString("outputFieldsFrom", "FIELDS").toUpperCase)
   lazy val fieldsString = properties.getString("fieldsString", None).notBlank
@@ -63,10 +65,11 @@ class CastingTransformStep(name: String,
     }
   }
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
+  def transformFunction(inputSchema: String,
+                        inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
     castingFields(inputStream)
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformFunction)
 
   /**
@@ -75,8 +78,8 @@ class CastingTransformStep(name: String,
     * @param streamData The stream data to casting
     * @return The casted stream data
     */
-  def castingFields(streamData: DStream[Row]): DStream[Row] =
-    streamData.flatMap { row =>
+  def castingFields(streamData: DistributedMonad[DStream]): DistributedMonad[DStream] =
+    streamData.ds.flatMap { row =>
       returnSeqDataFromRow {
         val inputSchema = row.schema
         (compareToOutputSchema(row.schema), outputFieldsSchema) match {

@@ -19,10 +19,11 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -30,9 +31,10 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
+import scala.reflect.ClassTag
 
 @RunWith(classOf[JUnitRunner])
-class CsvTransformStepIT extends TemporalSparkContext with Matchers {
+class CsvTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A CSVTransformStepIT" should "transform csv events the input DStream" in {
 
@@ -67,7 +69,7 @@ class CsvTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new CsvTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
@@ -76,7 +78,7 @@ class CsvTransformStepIT extends TemporalSparkContext with Matchers {
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

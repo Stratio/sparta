@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.rdd.RDD
@@ -31,15 +32,15 @@ import scala.util.{Failure, Success, Try}
 
 class TriggerTransformStep(name: String,
                            outputOptions: OutputOptions,
-                           ssc: StreamingContext,
+                           ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val sql = Try(properties.getString("sql"))
     .getOrElse(throw new IllegalArgumentException("Is mandatory one sql query"))
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
     assert(inputData.size == 2 || inputData.size == 1,
       s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
 
@@ -49,7 +50,7 @@ class TriggerTransformStep(name: String,
       assert(isCorrectTableName(firstStep),
         s"The step($firstStep) have wrong name and is not possible to register as temporal table. ${inputData.keys}")
 
-      firstStream.transform { rdd =>
+      firstStream.ds.transform { rdd =>
         if (rdd.isEmpty()) rdd
         else {
           val schema = rdd.first().schema
@@ -79,7 +80,7 @@ class TriggerTransformStep(name: String,
           } else rdd1
       }
 
-      firstStream.transformWith(secondStream, transformFunc)
+      firstStream.ds.transformWith(secondStream.ds, transformFunc)
     }
   }
 

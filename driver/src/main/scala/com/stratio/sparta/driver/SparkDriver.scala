@@ -27,6 +27,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
@@ -89,33 +90,45 @@ object SparkDriver extends SLF4JLogging {
         val statusListenerActor = system.actorOf(Props(new ListenerActor))
         
         val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
-        val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
-        
-        for {
-          status <- workflowStatus
-          execution <- workflowExecution
-          execMode <- status.lastExecutionMode
-        } if (execMode.contains(ConfigMesos))
-          executionService.update {
-            execution.copy(
-              sparkExecution = Option(SparkExecution(
-                applicationId = extractSparkApplicationId(ssc.sparkContext.applicationId))),
-              sparkDispatcherExecution = Option(SparkDispatcherExecution(
-                killUrl = workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
-              ))
-            )
-          }
 
-        spartaWorkflow.setup()
-        ssc.start
-        val startedInfo = s"Workflow in Spark driver was properly launched"
-        log.info(startedInfo)
-        statusService.update(WorkflowStatus(
-          id = workflowId,
-          status = Started,
-          statusInfo = Some(startedInfo)
-        ))
-        ssc.awaitTermination()
+        def notifyWorkflowStarted = {
+          val startedInfo = s"Workflow in Spark driver was properly launched"
+          log.info(startedInfo)
+          statusService.update(WorkflowStatus(
+            id = workflowId,
+            status = Started,
+            statusInfo = Some(startedInfo)
+          ))
+        }
+
+        val spartaWorkflow = if(workflow.executionEngine == WorkflowExecutionEngine.Batch) {
+          notifyWorkflowStarted
+          streamingContextService.clusterContext(workflow, localPlugins)
+        } else {
+          val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
+
+          for {
+            status <- workflowStatus
+            execution <- workflowExecution
+            execMode <- status.lastExecutionMode
+          } if (execMode.contains(ConfigMesos))
+            executionService.update {
+              execution.copy(
+                sparkExecution = Option(SparkExecution(
+                  applicationId = extractSparkApplicationId(ssc.sparkContext.applicationId))),
+                sparkDispatcherExecution = Option(SparkDispatcherExecution(
+                  killUrl = workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
+                ))
+              )
+            }
+
+          spartaWorkflow.setup()
+          ssc.start
+          notifyWorkflowStarted
+          ssc.awaitTermination()
+          spartaWorkflow
+        }
+
         spartaWorkflow.cleanUp()
       } match {
         case Success(_) =>

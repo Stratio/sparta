@@ -18,12 +18,11 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.Serializable
 
-import com.stratio.sparta.sdk.TemporalSparkContext
+import com.stratio.sparta.sdk.{DistributedMonad, TemporalSparkContext}
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
-import org.apache.spark.streaming.Time
 import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
@@ -34,8 +33,13 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class TransformStepIT extends TemporalSparkContext with Matchers {
 
+  import DistributedMonad.Implicits._
+
   val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-  def passSameStream(stepName: String, generateDStream: DStream[Row]): DStream[Row] = generateDStream
+  def passSameStream(
+                      stepName: String,
+                      generateDStream: DistributedMonad[DStream]
+                    ): DistributedMonad[DStream] = generateDStream
 
   "TransformStep" should "applyHeadTransform return exception with no input data" in {
     val name = "transform"
@@ -50,12 +54,14 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       properties
     )
 
-    an[AssertionError] should be thrownBy transformStep.applyHeadTransform(Map.empty[String, DStream[Row]])(passSameStream)
+    an[AssertionError] should be thrownBy transformStep.applyHeadTransform(
+      Map.empty[String, DistributedMonad[DStream]]
+    )(passSameStream)
 
   }
 
@@ -72,7 +78,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       properties
     )
@@ -82,10 +88,10 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val inputDStream = ssc.queueStream(rddQueue)
     val inputData = Map("input" -> inputDStream)
 
-    val result = transformStep.applyHeadTransform(inputData)(passSameStream)
+    val result = transformStep.applyHeadTransform[DStream](inputData)(passSameStream)
     val expected = sc.emptyRDD[Row].collect()
 
-    result.foreachRDD(rdd =>
+    result.ds.foreachRDD(rdd =>
       rdd.collect() should be(expected)
     )
   }
@@ -103,7 +109,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       properties
     )
@@ -114,10 +120,10 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val inputDStream = ssc.queueStream(rddQueue)
     val inputData = Map("input" -> inputDStream)
 
-    val result = transformStep.applyHeadTransform(inputData)(passSameStream)
+    val result = transformStep.applyHeadTransform[DStream](inputData)(passSameStream)
     val expected = sc.parallelize(Seq(Row.fromSeq(Seq("inputfield", "12.1")))).collect()
 
-    result.foreachRDD(rdd =>
+    result.ds.foreachRDD(rdd =>
       rdd.collect() should be(expected)
     )
   }

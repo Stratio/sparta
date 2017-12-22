@@ -18,21 +18,23 @@ package com.stratio.sparta.plugin.workflow.input.websocket
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
+import DistributedMonad.Implicits._
+
 class WebSocketInputStep(
                           name: String,
                           outputOptions: OutputOptions,
-                          ssc: StreamingContext,
+                          ssc: Option[StreamingContext],
                           xDSession: XDSession,
                           properties: Map[String, JSerializable]
-                        ) extends InputStep(name, outputOptions, ssc, xDSession, properties) {
+                        ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) {
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputType = properties.getString("outputType", DefaultRawDataType)
@@ -42,7 +44,7 @@ class WebSocketInputStep(
   }
   lazy val outputSchema = StructType(Seq(StructField(outputField, outputSparkType)))
 
-  def initStream(): DStream[Row] = {
-    ssc.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel, outputSchema))
+  def init(): DistributedMonad[DStream] = {
+    ssc.get.receiverStream(new WebSocketReceiver(properties.getString("url"), storageLevel, outputSchema))
   }
 }

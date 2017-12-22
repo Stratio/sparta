@@ -61,11 +61,11 @@ class FileSystemInputStepIT extends TemporalSparkContext with Matchers {
       "newFilesOnly" -> "false"
     )
 
-    val input = new FileSystemInputStep("name", outputOptions, ssc, sparkSession, properties)
-    val dstream = input.initStream
+    val input = new FileSystemInputStep("name", outputOptions, Option(ssc), sparkSession, properties)
+    val dstream = input.init
     val totalEvents = ssc.sparkContext.longAccumulator
 
-    dstream foreachRDD { rdd =>
+    dstream.ds foreachRDD { rdd =>
       val count = rdd.count()
       totalEvents.add(count)
     }
@@ -92,11 +92,11 @@ class FileSystemInputStepIT extends TemporalSparkContext with Matchers {
       "filterString" -> "filtered,existing"
     )
 
-    val input = new FileSystemInputStep("name", outputOptions, ssc, sparkSession, properties)
-    val dstream = input.initStream
+    val input = new FileSystemInputStep("name", outputOptions, Option(ssc), sparkSession, properties)
+    val dstream = input.init
     val totalEvents = ssc.sparkContext.longAccumulator
 
-    dstream foreachRDD { rdd =>
+    dstream.ds foreachRDD { rdd =>
       val count = rdd.count()
       totalEvents.add(count)
     }

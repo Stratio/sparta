@@ -21,11 +21,12 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.workflow.transformation.cube.model._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.{CastingUtils, ClasspathUtils}
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingDStream, ErrorCheckingOption, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -39,10 +40,10 @@ import scala.util.{Failure, Success, Try}
 
 class CubeTransformStep(name: String,
                         outputOptions: OutputOptions,
-                        override val ssc: StreamingContext,
+                        override val ssc: Option[StreamingContext],
                         xDSession: XDSession,
                         properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties)
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
     with SLF4JLogging with ErrorCheckingOption with ErrorCheckingDStream {
 
   lazy val partitions: Option[Int] = properties.getInt("partitions", None)
@@ -95,10 +96,10 @@ class CubeTransformStep(name: String,
     }.toMap
   }
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
+  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
     val warnMessage = s"Discarding stream in Cube: $name"
     val cubeInputStream = returnDStreamFromTry(s"Error creating initial stream in Cube: $name", Option(warnMessage)) {
-      Try(cube.createDStream(inputStream))
+      Try(cube.createDStream(inputStream.ds))
     }
     val cubeExecuted = returnDStreamFromTry(s"Error executing Cube: $name", Option(warnMessage)) {
       Try(cube.execute(cubeInputStream))
@@ -109,7 +110,8 @@ class CubeTransformStep(name: String,
     }
   }
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData)(transformFunction)
 
 

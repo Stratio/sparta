@@ -29,6 +29,8 @@ import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
 
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+
 @RunWith(classOf[JUnitRunner])
 class OrderByTransformStepIT extends TemporalSparkContext with Matchers {
 
@@ -55,13 +57,13 @@ class OrderByTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new OrderByTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("orderExp" -> "color")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

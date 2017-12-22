@@ -20,8 +20,9 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy.{APPEND, REPLACE}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -34,10 +35,12 @@ import scala.util.Try
 
 class ExplodeTransformStep(name: String,
                            outputOptions: OutputOptions,
-                           ssc: StreamingContext,
+                           ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+    with ErrorCheckingStepRow
+    with SchemaCasting {
 
   lazy val inputField: String = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
@@ -72,12 +75,10 @@ class ExplodeTransformStep(name: String,
     }
   }
 
-  def transformationFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] =
-    inputStream.flatMap(data => parse(data))
-
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] = {
-    applyHeadTransform(inputData)(transformationFunction)
-  }
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      inputStream.flatMap(data => parse(data))
+    }
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] =

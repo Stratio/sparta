@@ -56,7 +56,7 @@ class CrossdataInputStepTest extends WordSpec with Matchers with MockitoSugar {
         """.stripMargin
 
       val properties = Map("offsetFields" -> JsoneyString(offsetFields))
-      val input = new CrossdataInputStep("name", outputOptions, ssc, xdSession, properties)
+      val input = new CrossdataInputStep("name", outputOptions, Option(ssc), xdSession, properties)
 
       val conditions = OffsetConditions(
         input.offsetItems,

@@ -1,6 +1,6 @@
   {
      "name": "Test",
-     "className": "TestInputStep",
+     "className": "TestInputStepStream",
      "classPrettyName": "Test",
      "arity": ["NullaryToNary"],
      "description": "Simulates a data stream generating events based on a fixed string or random numbers",

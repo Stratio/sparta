@@ -22,6 +22,8 @@ import akka.util.Timeout
 import com.stratio.sparta.driver.error._
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory._
+import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.utils.{AggregationTimeUtils, ClasspathUtils}
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
@@ -30,9 +32,7 @@ import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, PhaseEnum, Workflow}
 import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -43,8 +43,8 @@ import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.{Parameters, Predecessors}
 
-case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework)
-  extends CheckpointUtils with ZooKeeperError {
+case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, curatorFramework: CuratorFramework)
+  extends CheckpointUtils with ZooKeeperError with DistributedMonadImplicits {
 
   // Clear last error if it was saved in Zookeeper
   clearError()
@@ -89,22 +89,25 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     *
     * @return The streaming context created, is used by the desing pattern in the Spark Streaming Context creation
     */
-  def streamingStages(): StreamingContext = {
+  def stages(): Unit = {
     clearError()
 
-    //Prepare Workflow Context variables with the Spark Contexts used in steps
-    val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
-      .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-    val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
-    val ssc = sparkStreamingInstance(Duration(window),
-      workflowCheckpointPath.notBlank,
-      workflow.settings.streamingSettings.remember.notBlank
-    )
     val xDSession = xdSessionInstance
 
-    implicit val workflowContext = WorkflowContext(classpathUtils, ssc.get, xDSession)
+    implicit val workflowContext = implicitly[ContextBuilder[Underlying]].buildContext(classpathUtils, xDSession) {
+      /* Prepare Workflow Context variables with the Spark Contexts used in steps
 
-    // Create steps without relations, used in setUp and cleanUp functions
+        NOTE that his block will only run when the context builder for the concrete Underlying entity requires it,
+        thus, DStreams won't cause the execution of this block. */
+      val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
+        .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
+      val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
+      sparkStreamingInstance(Duration(window),
+        workflowCheckpointPath.notBlank,
+        workflow.settings.streamingSettings.remember.notBlank
+      ) get
+    }
+
     steps = workflow.pipelineGraph.nodes.map { node =>
       node.stepType.toLowerCase match {
         case value if value == InputStep.StepType =>
@@ -119,8 +122,6 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     }
 
     executeWorkflow
-
-    ssc.get
   }
 
   /**
@@ -138,8 +139,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     val graph: Graph[NodeGraph, DiEdge] = createGraph(workflow)
     val nodeOrdering = getGraphOrdering(graph)
     val parameters = Parameters(direction = Predecessors)
-    val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData]
-    val inputs = scala.collection.mutable.HashMap.empty[String, InputStepData]
+    val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData[Underlying]]
+    val inputs = scala.collection.mutable.HashMap.empty[String, InputStepData[Underlying]]
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
@@ -155,8 +156,9 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
           val okMessage = s"Input step ${predecessor.name} written successfully."
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
-            inputs.find(_._1 == predecessor.name).foreach { case (_, input) =>
-              newOutput.writeTransform(input.data, input.step.outputOptions)
+            inputs.find(_._1 == predecessor.name).foreach {
+              case (_, InputStepData(step, data)) =>
+                newOutput.writeTransform(data, step.outputOptions)
             }
           }
         }
@@ -183,12 +185,12 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @param graphContext    The context contains the graph and the steps created
     */
   private[driver] def createStep(node: NodeGraph)
-                                (implicit workflowContext: WorkflowContext, graphContext: GraphContext): Unit =
+                                (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying]): Unit =
     node.stepType.toLowerCase match {
       case value if value == InputStep.StepType =>
         if (!graphContext.inputs.contains(node.name)) {
           val input = createInputStep(node)
-          val data = input.initStream()
+          val data = input.init()
           val inputStepData = InputStepData(input, data)
 
           graphContext.inputs += (input.name -> inputStepData)
@@ -214,8 +216,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @param context The context that contains the graph and the steps created
     * @return The predecessors steps
     */
-  private[driver] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext)
-  : scala.collection.mutable.HashMap[String, InputStepData] =
+  private[driver] def findInputPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
+  : scala.collection.mutable.HashMap[String, InputStepData[Underlying]] =
     context.inputs.filter(input =>
       context.graph.get(node).diPredecessors
         .filter(_.stepType.toLowerCase == InputStep.StepType)
@@ -229,8 +231,8 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @param context The context that contains the graph and the steps created
     * @return The predecessors steps
     */
-  private[driver] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext)
-  : scala.collection.mutable.HashMap[String, TransformStepData] =
+  private[driver] def findTransformPredecessors(node: NodeGraph)(implicit context: GraphContext[Underlying])
+  : scala.collection.mutable.HashMap[String, TransformStepData[Underlying]] =
     context.transformations.filter(transform =>
       context.graph.get(node).diPredecessors
         .filter(_.stepType.toLowerCase == TransformStep.StepType)
@@ -246,7 +248,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @return The new transform step
     */
   private[driver] def createTransformStep(node: NodeGraph)
-                                         (implicit workflowContext: WorkflowContext): TransformStep = {
+                                         (implicit workflowContext: WorkflowContext): TransformStep[Underlying] = {
     val phaseEnum = PhaseEnum.Transform
     val errorMessage = s"An error was encountered while creating transform step ${node.name}."
     val okMessage = s"Transform step ${node.name} created successfully."
@@ -259,15 +261,15 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
         node.writer.partitionBy.notBlank,
         node.writer.primaryKey.notBlank
       )
-      workflowContext.classUtils.tryToInstantiate[TransformStep](classType, (c) =>
+      workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[OutputOptions],
-          classOf[StreamingContext],
+          classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
         ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
-          .asInstanceOf[TransformStep]
+          .asInstanceOf[TransformStep[Underlying]]
       )
     }
   }
@@ -280,7 +282,7 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @return The new input step
     */
   private[driver] def createInputStep(node: NodeGraph)
-                                     (implicit workflowContext: WorkflowContext): InputStep = {
+                                     (implicit workflowContext: WorkflowContext): InputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Input
     val errorMessage = s"An error was encountered while creating input step ${node.name}."
     val okMessage = s"Input step ${node.name} created successfully."
@@ -293,15 +295,15 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
         node.writer.partitionBy.notBlank,
         node.writer.primaryKey.notBlank
       )
-      workflowContext.classUtils.tryToInstantiate[InputStep](classType, (c) =>
+      workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[OutputOptions],
-          classOf[StreamingContext],
+          classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
         ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
-          .asInstanceOf[InputStep]
+          .asInstanceOf[InputStep[Underlying]]
       )
     }
   }
@@ -314,31 +316,29 @@ case class SpartaWorkflow(workflow: Workflow, curatorFramework: CuratorFramework
     * @return The new Output step
     */
   private[driver] def createOutputStep(node: NodeGraph)
-                                      (implicit workflowContext: WorkflowContext): OutputStep = {
+                                      (implicit workflowContext: WorkflowContext): OutputStep[Underlying] = {
     val phaseEnum = PhaseEnum.Output
     val errorMessage = s"An error was encountered while creating output step ${node.name}."
     val okMessage = s"Output step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
-      workflowContext.classUtils.tryToInstantiate[OutputStep](classType, (c) =>
+      workflowContext.classUtils.tryToInstantiate[OutputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, workflowContext.xDSession, node.configuration).asInstanceOf[OutputStep]
+        ).newInstance(node.name, workflowContext.xDSession, node.configuration).asInstanceOf[OutputStep[Underlying]]
       )
     }
   }
 
 }
 
-case class TransformStepData(step: TransformStep, data: DStream[Row])
+case class TransformStepData[Underlying[Row]](step: TransformStep[Underlying], data: DistributedMonad[Underlying])
 
-case class InputStepData(step: InputStep, data: DStream[Row])
+case class InputStepData[Underlying[Row]](step: InputStep[Underlying], data: DistributedMonad[Underlying])
 
-case class WorkflowContext(classUtils: ClasspathUtils, ssc: StreamingContext, xDSession: XDSession)
-
-case class GraphContext(graph: Graph[NodeGraph, DiEdge],
-                        inputs: scala.collection.mutable.HashMap[String, InputStepData],
-                        transformations: scala.collection.mutable.HashMap[String, TransformStepData])
+case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, DiEdge],
+                        inputs: scala.collection.mutable.HashMap[String, InputStepData[Underlying]],
+                        transformations: scala.collection.mutable.HashMap[String, TransformStepData[Underlying]])

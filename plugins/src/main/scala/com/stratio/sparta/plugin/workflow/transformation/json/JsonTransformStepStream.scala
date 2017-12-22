@@ -14,33 +14,20 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.repartition
+package com.stratio.sparta.plugin.workflow.transformation.json
 
 import java.io.{Serializable => JSerializable}
 
-import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
-import org.apache.spark.sql.Row
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
-
-class RepartitionTransformStep(name: String,
+class JsonTransformStepStream(
+                               name: String,
                                outputOptions: OutputOptions,
                                ssc: Option[StreamingContext],
                                xDSession: XDSession,
-                               properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
-
-  lazy val partitions: Int = Try(properties.getInt("partitions")).getOrElse(
-    throw new Exception("Property partitions is mandatory"))
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-      inputStream.ds.repartition(partitions)
-    }
-}
+                               properties: Map[String, JSerializable]
+                             ) extends JsonTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)

@@ -68,13 +68,15 @@ object SparkContextFactory extends SLF4JLogging {
   def sparkStreamingInstance(batchDuration: Duration, checkpointDir: Option[String], remember: Option[String]):
   Option[StreamingContext] = {
     synchronized {
-      ssc match {
+      ssc match { //TODO: This could be improved, the reference to ssc could change after the synchronized area ends
         case Some(_) => ssc
         case None => ssc = Some(getNewStreamingContext(batchDuration, checkpointDir, remember))
       }
     }
     ssc
   }
+
+  def currentSparkStreamingInstance: Option[StreamingContext] = ssc
 
   def sparkStandAloneContextInstance(specificConfig: Map[String, String], jars: Seq[File]): SparkContext =
     synchronized {

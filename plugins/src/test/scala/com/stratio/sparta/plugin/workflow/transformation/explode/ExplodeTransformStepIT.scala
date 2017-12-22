@@ -17,6 +17,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
@@ -30,7 +31,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class ExplodeTransformStepIT extends TemporalSparkContext with Matchers {
+class ExplodeTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A ExplodeTransformStepIT" should "transform explode events from the input DStream" in {
     val inputField = "explode"
@@ -63,7 +64,7 @@ class ExplodeTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new ExplodeTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("schema.fromRow" -> true,
         "inputField" -> inputField,
@@ -71,7 +72,7 @@ class ExplodeTransformStepIT extends TemporalSparkContext with Matchers {
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

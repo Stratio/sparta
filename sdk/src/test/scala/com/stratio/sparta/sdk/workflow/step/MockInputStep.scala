@@ -18,6 +18,7 @@ package com.stratio.sparta.sdk.workflow.step
 
 import java.io.{Serializable => JSerializable}
 
+import com.stratio.sparta.sdk.DistributedMonad
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -25,15 +26,16 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
 import scala.collection.mutable
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 class MockInputStep(
                      name: String,
                      outputOptions: OutputOptions,
-                     ssc: StreamingContext,
+                     ssc: Option[StreamingContext],
                      xDSession: XDSession,
                      properties: Map[String, JSerializable]
-                   ) extends InputStep(name, outputOptions, ssc, xDSession, properties) {
+                   ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) {
 
-  def initStream(): DStream[Row] = ssc.queueStream(new mutable.Queue[RDD[Row]])
+  def init(): DistributedMonad[DStream] = ssc.get.queueStream(new mutable.Queue[RDD[Row]])
 
 }

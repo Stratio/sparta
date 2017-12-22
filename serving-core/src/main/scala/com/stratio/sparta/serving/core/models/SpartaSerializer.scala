@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.core.models
 
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.workflow.enumerators.{InputFormatEnum, OutputFormatEnum, SaveModeEnum, WhenError}
-import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowStatusEnum, WorkflowExecutionEngine}
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
 import org.json4s.ext.EnumNameSerializer
 import org.json4s.ext.DateTimeSerializer
@@ -38,7 +38,8 @@ trait SpartaSerializer {
       new EnumNameSerializer(SaveModeEnum) +
       new EnumNameSerializer(InputFormatEnum) +
       new EnumNameSerializer(OutputFormatEnum) +
-      new EnumNameSerializer(WhenError) +
-      new EnumNameSerializer(PhaseEnum)
+      new EnumNameSerializer(PhaseEnum) +
+      new EnumNameSerializer(WorkflowExecutionEngine) +
+      new EnumNameSerializer(WhenError)
 
 }

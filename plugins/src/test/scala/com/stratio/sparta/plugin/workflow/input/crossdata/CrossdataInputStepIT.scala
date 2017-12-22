@@ -67,10 +67,10 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
 
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val crossdataInput = new CrossdataInputStep(
-      "crossdata", outputOptions, ssc, sparkSession, datasourceParams)
-    val inputStream = crossdataInput.initStream
+      "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
+    val inputStream = crossdataInput.init
 
-    inputStream.foreachRDD(rdd => {
+    inputStream.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

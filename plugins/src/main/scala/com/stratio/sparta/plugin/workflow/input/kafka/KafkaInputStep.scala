@@ -23,6 +23,7 @@ import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.plugin.common.kafka.serializers.RowDeserializer
 import com.stratio.sparta.plugin.common.kafka.KafkaBase
 import com.stratio.sparta.plugin.common.kafka.models.TopicsModel
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
@@ -40,29 +41,31 @@ import org.json4s.{DefaultFormats, Formats}
 
 import scala.util.Try
 
+import DistributedMonad.Implicits._
+
 class KafkaInputStep(
                       name: String,
                       outputOptions: OutputOptions,
-                      ssc: StreamingContext,
+                      ssc: Option[StreamingContext],
                       xDSession: XDSession,
                       properties: Map[String, JSerializable]
                     )
-  extends InputStep(name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
+  extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with KafkaBase with SLF4JLogging {
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
 
-  def initStream(): DStream[Row] = {
+  def init(): DistributedMonad[DStream] = {
     val brokerList = getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
     val serializers = Map(
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[RowDeserializer]
     )
-    val kafkaSecurityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.sparkContext.getConf)
+    val kafkaSecurityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
     val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
       getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
       getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)
-    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc, getLocationStrategy, consumerStrategy)
+    val inputDStream = KafkaUtils.createDirectStream[String, Row](ssc.get, getLocationStrategy, consumerStrategy)
     val outputDStream = inputDStream.map(data => data.value())
 
 

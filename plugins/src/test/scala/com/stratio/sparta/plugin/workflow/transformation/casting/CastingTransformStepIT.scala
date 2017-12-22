@@ -19,10 +19,11 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -32,16 +33,16 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class CastingTransformStepIT extends TemporalSparkContext with Matchers {
+class CastingTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A CastingTransformStep" should "casting the input DStream" in {
 
-    val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val rowSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val schemaCasting = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val data1 = Seq(
-      new GenericRowWithSchema(Array("blue", 12.1), schema),
-      new GenericRowWithSchema(Array("red", 12.2), schema)
+      new GenericRowWithSchema(Array("blue", 12.1), rowSchema),
+      new GenericRowWithSchema(Array("red", 12.2), rowSchema)
     )
     val dataCasting = Seq(
       new GenericRowWithSchema(Array("blue", "12.1"), schemaCasting),
@@ -65,13 +66,13 @@ class CastingTransformStepIT extends TemporalSparkContext with Matchers {
     val result = new CastingTransformStep(
       "dummy",
       outputOptions,
-      ssc,
+      Option(ssc),
       sparkSession,
       Map("fields" -> fields.asInstanceOf[JSerializable])
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    result.foreachRDD(rdd => {
+    result.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents

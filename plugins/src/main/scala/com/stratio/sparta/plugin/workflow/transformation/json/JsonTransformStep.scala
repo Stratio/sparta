@@ -22,6 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
@@ -30,15 +31,15 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper.{extractSchemaFromJson, toRow}
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-class JsonTransformStep(
+abstract class JsonTransformStep[Underlying[Row]](
                          name: String,
                          outputOptions: OutputOptions,
-                         ssc: StreamingContext,
+                         ssc: Option[StreamingContext],
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
-                       ) extends TransformStep(name, outputOptions, ssc, xDSession, properties)
+                       )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying]
+) extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
   with ErrorCheckingStepRow with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")
@@ -75,26 +76,21 @@ class JsonTransformStep(
         extracted
     }
 
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
-    applyHeadTransform(inputData)(transformFunction)
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
+    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+      inputStream flatMap { row =>
+        returnSeqDataFromRow {
+          val inputSchema = row.schema
+          val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
+          assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
-    inputStream flatMap { row =>
-      returnSeqDataFromRow {
-        val inputSchema = row.schema
-        val inputFieldIdx = inputSchema.indexWhere(_.name == inputFieldName)
-        assert(inputFieldIdx > -1, s"$inputFieldName should be a field in the input row")
+          val value = row(inputFieldIdx).asInstanceOf[String]
 
-        val value = row(inputFieldIdx).asInstanceOf[String]
+          val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
+          val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
 
-        val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
-        val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
-
-        updateRow(row, embeddedRow, inputFieldIdx)
-
+          updateRow(row, embeddedRow, inputFieldIdx)
+        }
       }
     }
-  }
-
-
 }

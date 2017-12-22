@@ -16,6 +16,8 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import org.joda.time.DateTime
 
 case class Workflow(
@@ -24,6 +26,7 @@ case class Workflow(
                      description: String = "Default description",
                      settings: Settings,
                      pipelineGraph: PipelineGraph,
+                     executionEngine : ExecutionEngine = WorkflowExecutionEngine.Streaming,
                      uiSettings: Option[UiSettings] = None,
                      creationDate: Option[DateTime] = None,
                      lastUpdateDate: Option[DateTime] = None

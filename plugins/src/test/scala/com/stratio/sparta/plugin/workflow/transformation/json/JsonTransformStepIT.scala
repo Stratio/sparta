@@ -19,8 +19,11 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
-import org.apache.spark.sql.Row
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types._
@@ -30,10 +33,12 @@ import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
+import scala.reflect.runtime.universe._
+
 import collection.mutable.Queue
 
 @RunWith(classOf[JUnitRunner])
-class JsonTransformStepIT extends TemporalSparkContext with Matchers {
+class JsonTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   implicit def fields2schema(fields: Seq[(String, DataType)]): StructType =
     StructType(fields map { case (name, t) => StructField(name, t)} toArray)
@@ -63,33 +68,70 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers {
   val sampleSchema: StructType = fields
   val sampleRow: Row = new GenericRowWithSchema(Array(1,json1, json2), sampleSchema)
   def sampleStream: DStream[Row] = ssc.queueStream(Queue(sc.parallelize(sampleRow::Nil)))
+  def sampleDataFrame: DataFrame = sparkSession.createDataFrame(sc.parallelize(sampleRow::Nil), sampleSchema)
 
   def newStepWithOptions(properties: Map[String, JSerializable])(
     implicit ssc: StreamingContext, xDSession: XDSession
-  ): JsonTransformStep = {
+  ): JsonTransformStepStream = {
     val name = "JsonTransformStep"
-    new JsonTransformStep(name, OutputOptions(tableName = name), ssc, xDSession, properties)
+    new JsonTransformStepStream(name, OutputOptions(tableName = name), Option(ssc), xDSession, properties)
   }
 
-  def doTransform(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
-    new JsonTransformStep(
+  def doTransformStream(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
+    new JsonTransformStepStream(
       "dummy",
       OutputOptions(tableName = "jsonTransform"),
-      ssc,
+      Option(ssc),
       sparkSession,
-      properties).transform(Map("step1" -> ds))
+      properties).transform(Map("step1" -> ds)).ds
 
-  def assertExpectedSchema(inputStream: DStream[Row], properties: Map[String, JSerializable])(
+  def doTransformBatch(df: DataFrame, properties: Map[String, JSerializable]): DataFrame =
+    new JsonTransformStepBatch(
+      "dummy",
+      OutputOptions(tableName = "jsonTransform"),
+      None,
+      sparkSession,
+      properties).transform(Map("step1" -> df)).ds
+
+  def assertExpectedSchema[Underlying[Row]](input: DistributedMonad[Underlying], properties: Map[String, JSerializable])(
     expected: => StructType
-  ): Unit = doTransform(sampleStream, properties) foreachRDD {
-    _.collect() foreach { r => assert(r.schema == expected) }
+  )(implicit ttagEv: TypeTag[Underlying[Row]]): Unit = {
+    val check: RDD[Row] => Unit = _.collect() foreach { r => assert(r.schema == expected) }
+    if (typeOf[Underlying[Row]] == typeOf[DStream[Row]])
+      doTransformStream(input.asInstanceOf[DStreamAsDistributedMonad].ds, properties) foreachRDD check
+    else
+      check(doTransformBatch(input.asInstanceOf[DataframeDistributedMonad].ds, properties).rdd)
   }
+
+  import DistributedMonad.Implicits._
 
   val maxWaitMillis = 500L
 
   val produceRow = "produce Rows from string fields containing JSON documents, "
 
   "A JsonTransformStep" should s"$produceRow inferring the schema from the contents" in {
+
+    // Batch
+
+    assertExpectedSchema(sampleDataFrame,  Map("inputField" -> "json1")) {
+      Seq(
+        "x" -> IntegerType,
+        "a" -> LongType,
+        "b" -> StringType,
+        "json2" -> StringType
+      )
+    }
+
+    assertExpectedSchema(sampleDataFrame,  Map("inputField" -> "json2")) {
+      Seq(
+        "x" -> IntegerType,
+        "json1" -> StringType,
+        "a" -> StringType,
+        "b" -> LongType
+      )
+    }
+
+    // Streaming
 
     assertExpectedSchema(sampleStream,  Map("inputField" -> "json1")) {
       Seq(
@@ -121,6 +163,17 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers {
       "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
     )
 
+    // Batch
+
+    assertExpectedSchema(sampleDataFrame, properties) {
+      Seq(
+        "a" -> StringType,
+        "b" -> LongType
+      )
+    }
+
+    // Streaming
+
     assertExpectedSchema(sampleStream, properties) {
       Seq(
         "a" -> StringType,
@@ -139,6 +192,20 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers {
       "inputField" -> "json2",
       "fieldsPreservationPolicy" -> "APPEND"
     )
+
+    // Batch
+
+    assertExpectedSchema(sampleDataFrame, properties) {
+      Seq(
+        "x" -> IntegerType,
+        "json1" -> StringType,
+        "json2" -> StringType,
+        "a" -> StringType,
+        "b" -> LongType
+      )
+    }
+
+    // Streaming
 
     assertExpectedSchema(sampleStream, properties) {
       Seq(
@@ -163,6 +230,8 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers {
       "schema.provided" -> """StructType((StructField(a,StringType,true)))"""
     )
 
+    // Streaming
+
     assertExpectedSchema(sampleStream, properties) {
       Seq(
         "a" -> StringType
@@ -183,6 +252,16 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers {
       "schema.inputMode" -> "EXAMPLE",
       "schema.provided" -> """{"a": "hello dolly"}"""
     )
+
+    // Batch
+
+    assertExpectedSchema(sampleDataFrame, properties) {
+      Seq(
+        "a" -> StringType
+      )
+    }
+
+    // Streaming
 
     assertExpectedSchema(sampleStream, properties) {
       Seq(

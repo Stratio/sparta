@@ -25,9 +25,9 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class TestInputStepIT extends TemporalSparkContext with Matchers {
+class TestInputStepStreamIT extends TemporalSparkContext with Matchers {
 
-  "TestInputStep " should "generate event specified on each streaming batch" in {
+  "TestInputStepStream " should "generate event specified on each streaming batch" in {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val eventsPerBatch = 100
     val event = "testEvent"
@@ -37,11 +37,11 @@ class TestInputStepIT extends TemporalSparkContext with Matchers {
       "event" -> event,
       "numEvents" -> eventsPerBatch.asInstanceOf[java.io.Serializable]
     )
-    val testInput = new TestInputStep("test", outputOptions, ssc, sparkSession, properties)
-    val inputStream = testInput.initStream
+    val testInput = new TestInputStepStream("test", outputOptions, Option(ssc), sparkSession, properties)
+    val inputStream = testInput.init
     val generatedRow = new GenericRowWithSchema(Array(event), testInput.outputSchema)
 
-    inputStream.foreachRDD(rdd => {
+    inputStream.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
@@ -54,7 +54,7 @@ class TestInputStepIT extends TemporalSparkContext with Matchers {
     ssc.awaitTerminationOrTimeout(3000L)
   }
 
-  "TestInputStep " should "generate number records on each streaming batch" in {
+  "TestInputStepStream " should "generate number records on each streaming batch" in {
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
     val eventsPerBatch = 100
     val maxNumber = "500"
@@ -64,10 +64,10 @@ class TestInputStepIT extends TemporalSparkContext with Matchers {
       "maxNumber" -> maxNumber,
       "numEvents" -> eventsPerBatch.asInstanceOf[java.io.Serializable]
     )
-    val testInput = new TestInputStep("test", outputOptions, ssc, sparkSession, properties)
-    val inputStream = testInput.initStream
+    val testInput = new TestInputStepStream("test", outputOptions, Option(ssc), sparkSession, properties)
+    val inputStream = testInput.init
 
-    inputStream.foreachRDD(rdd => {
+    inputStream.ds.foreachRDD(rdd => {
       val streamingEvents = rdd.count()
       log.info(s" EVENTS COUNT : \t $streamingEvents")
       totalEvents += streamingEvents
