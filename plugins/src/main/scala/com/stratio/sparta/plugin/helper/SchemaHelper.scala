@@ -19,12 +19,15 @@ package com.stratio.sparta.plugin.helper
 
 import akka.event.slf4j.SLF4JLogging
 import com.databricks.spark.avro.SchemaConverters
-import com.stratio.sparta.plugin.enumerations.SchemaInputMode
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
 import org.apache.avro.Schema
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.json.RowJsonHelper.extractSchemaFromJson
-import org.apache.spark.sql.types.{DataType, StructType}
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 import scala.util.{Failure, Try}
 
@@ -91,5 +94,43 @@ object SchemaHelper extends SLF4JLogging {
       LegacyTypeStringParser.parse(schemaStr)
     } flatMap { schema =>
       Try(schema.asInstanceOf[StructType])
+    }
+
+  def getNewOutputSchema(inputSchema: StructType, preservationPolicy: FieldsPreservationPolicy.Value,
+                         providedSchema: Seq[StructField], inputField: String): StructType = {
+    preservationPolicy match {
+      case APPEND =>
+        StructType(inputSchema.fields ++ providedSchema)
+      case REPLACE =>
+        val inputFieldIdx = inputSchema.indexWhere(_.name == inputField)
+        assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
+        val (leftInputFields, rightInputFields) = inputSchema.fields.splitAt(inputFieldIdx)
+        val outputFields = leftInputFields ++ providedSchema ++ rightInputFields.tail
+
+        StructType(outputFields)
+      case _ =>
+        StructType(providedSchema)
+    }
+  }
+
+  def updateRow(source: Row, extracted: Row, inputFieldIdx: Int ,
+                preservationPolicy: FieldsPreservationPolicy.Value): Row =
+    preservationPolicy match {
+      case APPEND =>
+        val values = (source.toSeq ++ extracted.toSeq).toArray
+        val schema = StructType(source.schema ++ extracted.schema)
+        new GenericRowWithSchema(values, schema)
+
+      case REPLACE =>
+        val (leftInputFields, rightInputFields) = source.schema.fields.splitAt(inputFieldIdx)
+        val (leftValues, rightValues) = source.toSeq.toArray.splitAt(inputFieldIdx)
+
+        val outputFields = leftInputFields ++ extracted.schema.fields ++ rightInputFields.tail
+        val outputValues = leftValues ++ extracted.toSeq.toArray[Any] ++ rightValues.tail
+
+        new GenericRowWithSchema(outputValues, StructType(outputFields))
+
+      case _ =>
+        extracted
     }
 }

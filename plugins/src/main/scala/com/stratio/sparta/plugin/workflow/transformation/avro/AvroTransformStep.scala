@@ -21,15 +21,14 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.databricks.spark.avro.RowAvroHelper
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
-import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.helper.SchemaHelper
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.{GenericRow, GenericRowWithSchema}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
@@ -52,24 +51,6 @@ class AvroTransformStep(
 
   lazy val schemaProvided: String = properties.getString("schema.provided")
 
-  def updateRow(source: Row, extracted: Row, inputFieldIdx: Int): Row =
-    preservationPolicy match {
-      case APPEND =>
-        val values = (source.toSeq ++ extracted.toSeq).toArray
-        val schema = StructType(source.schema ++ extracted.schema)
-
-        new GenericRowWithSchema(values, schema)
-      case REPLACE =>
-        val (leftInputFields, rightInputFields) = source.schema.fields.splitAt(inputFieldIdx)
-        val (leftValues, rightValues) = source.toSeq.toArray.splitAt(inputFieldIdx)
-        val outputFields = leftInputFields ++ extracted.schema.fields ++ rightInputFields.tail
-        val outputValues = leftValues ++ extracted.toSeq.toArray[Any] ++ rightValues.tail
-
-        new GenericRowWithSchema(outputValues, StructType(outputFields))
-      case _ =>
-        extracted
-    }
-
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
       inputStream flatMap { row =>
@@ -88,7 +69,7 @@ class AvroTransformStep(
           val safeDataRow = converter(record).asInstanceOf[GenericRow]
           val newRow = new GenericRowWithSchema(safeDataRow.toSeq.toArray, expectedSchema)
 
-          updateRow(row, newRow, inputFieldIdx)
+          updateRow(row, newRow, inputFieldIdx, preservationPolicy)
         }
       }
     }

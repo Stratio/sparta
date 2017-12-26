@@ -19,14 +19,13 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper.{extractSchemaFromJson, toRow}
 import org.apache.spark.sql.types.StructType
@@ -56,25 +55,6 @@ abstract class JsonTransformStep[Underlying[Row]](
 
   lazy val jsonSchema: Option[StructType] = SchemaHelper.getJsonSparkSchema(useRowSchema, schemaInputMode, schemaProvided)
 
-  def updateRow(source: Row, extracted: Row, inputFieldIdx: Int): Row =
-    preservationPolicy match {
-      case APPEND =>
-        val values = (source.toSeq ++ extracted.toSeq).toArray
-        val schema = StructType(source.schema ++ extracted.schema)
-        new GenericRowWithSchema(values, schema)
-
-      case REPLACE =>
-        val (leftInputFields, rightInputFields) = source.schema.fields.splitAt(inputFieldIdx)
-        val (leftValues, rightValues) = source.toSeq.toArray.splitAt(inputFieldIdx)
-
-        val outputFields = leftInputFields ++ extracted.schema.fields ++ rightInputFields.tail
-        val outputValues = leftValues ++ extracted.toSeq.toArray[Any] ++ rightValues.tail
-
-        new GenericRowWithSchema(outputValues, StructType(outputFields))
-
-      case _ =>
-        extracted
-    }
 
   override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
@@ -89,7 +69,7 @@ abstract class JsonTransformStep[Underlying[Row]](
           val embeddedRowSchema = jsonSchema getOrElse extractSchemaFromJson(value, Map.empty)
           val embeddedRow = toRow(value, Map.empty, embeddedRowSchema)
 
-          updateRow(row, embeddedRow, inputFieldIdx)
+          updateRow(row, embeddedRow, inputFieldIdx, preservationPolicy)
         }
       }
     }

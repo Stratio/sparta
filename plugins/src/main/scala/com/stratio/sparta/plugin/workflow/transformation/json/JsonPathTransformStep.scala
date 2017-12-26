@@ -21,6 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy
 import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy.{APPEND, REPLACE}
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.properties.models.PropertiesQueriesModel
 import com.stratio.sparta.sdk.workflow.step._
@@ -51,6 +52,17 @@ class JsonPathTransformStep(name: String,
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
 
+  lazy val outputFieldsSchema = queriesModel.queries.map { queryField =>
+    val outputType = queryField.`type`.notBlank.getOrElse("string")
+    StructField(
+      name = queryField.field,
+      dataType = SparkTypes.get(outputType) match {
+        case Some(sparkType) => sparkType
+        case None => schemaFromString(outputType)
+      },
+      nullable = queryField.nullable.getOrElse(true)
+    )
+  }
   assert(inputField.nonEmpty)
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
@@ -61,7 +73,7 @@ class JsonPathTransformStep(name: String,
   //scalastyle:off
   def parse(row: Row): Seq[Row] = returnSeqDataFromRow {
     val inputSchema = row.schema
-    val outputSchema = getNewOutputSchema(inputSchema)
+    val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, outputFieldsSchema, inputField)
     val inputFieldIndex = inputSchema.fieldIndex(inputField)
     val inputValue = Option(row.get(inputFieldIndex))
     val newValues = inputValue match {
@@ -88,36 +100,6 @@ class JsonPathTransformStep(name: String,
       case None => throw new Exception(s"The input value is null")
     }
     new GenericRowWithSchema(newValues.toArray, outputSchema)
-  }
-
-  //scalastyle:on
-
-  def getNewOutputSchema(inputSchema: StructType): StructType = {
-    val outputFieldsSchema = queriesModel.queries.map { queryField =>
-      val outputType = queryField.`type`.notBlank.getOrElse("string")
-      StructField(
-        name = queryField.field,
-        dataType = SparkTypes.get(outputType) match {
-          case Some(sparkType) => sparkType
-          case None => schemaFromString(outputType)
-        },
-        nullable = queryField.nullable.getOrElse(true)
-      )
-    }
-
-    preservationPolicy match {
-      case APPEND =>
-        StructType(inputSchema.fields ++ outputFieldsSchema)
-      case REPLACE =>
-        val inputFieldIdx = inputSchema.indexWhere(_.name == inputField)
-        assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
-        val (leftInputFields, rightInputFields) = inputSchema.fields.splitAt(inputFieldIdx)
-        val outputFields = leftInputFields ++ outputFieldsSchema ++ rightInputFields.tail
-
-        StructType(outputFields)
-      case _ =>
-        StructType(outputFieldsSchema)
-    }
   }
 }
 

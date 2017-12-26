@@ -17,9 +17,9 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy.{APPEND, REPLACE}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
@@ -104,7 +104,9 @@ class ExplodeTransformStep(name: String,
             case _ => throw new Exception(
               s"The input value has incorrect type, Seq(Map()),  Map() or Rows with schema. Value:${value.toString}")
           }
-          val outputSchema = getNewOutputSchema(inputSchema, rowFieldSchema)
+
+          val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy,
+            providedSchema.getOrElse(rowFieldSchema), inputField)
 
           rowFieldValues.map { valuesMap =>
             val newValues = outputSchema.map { outputField =>
@@ -123,21 +125,4 @@ class ExplodeTransformStep(name: String,
           throw new Exception(s"The input value is null")
       }
     }
-
-  def getNewOutputSchema(inputSchema: StructType, rowFieldSchema: Seq[StructField]): StructType = {
-    val extractedSchema = providedSchema.getOrElse(rowFieldSchema)
-    preservationPolicy match {
-      case APPEND =>
-        StructType(inputSchema.fields ++ extractedSchema)
-      case REPLACE =>
-        val inputFieldIdx = inputSchema.indexWhere(_.name == inputField)
-        assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
-        val (leftInputFields, rightInputFields) = inputSchema.fields.splitAt(inputFieldIdx)
-        val outputFields = leftInputFields ++ extractedSchema ++ rightInputFields.tail
-
-        StructType(outputFields)
-      case _ =>
-        StructType(extractedSchema)
-    }
-  }
 }

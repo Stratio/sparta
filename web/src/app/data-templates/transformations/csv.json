@@ -11,7 +11,7 @@
            "propertyName": "_INPUT_FIELD_",
            "propertyType": "text",
            "required": true,
-           "tooltip": "Filed that contains the csv string",
+           "tooltip": "Field that contains the csv string",
            "qa": "fragment-details-csv-fieldsString"
         },
         {

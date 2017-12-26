@@ -18,11 +18,11 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 import java.io.{Serializable => JSerializable}
 import java.util.regex.Pattern
 
-import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
+import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -88,7 +88,8 @@ class CsvTransformStep(name: String,
 
   assert(inputField.nonEmpty)
 
-  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = inputStream.flatMap(data => parse(data))
+  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
+    inputStream.flatMap(data => parse(data))
 
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
@@ -98,7 +99,7 @@ class CsvTransformStep(name: String,
   def parse(row: Row): Seq[Row] =
     returnSeqDataFromRow {
       val inputSchema = row.schema
-      val outputSchema = getNewOutputSchema(inputSchema)
+      val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy, providedSchema, inputField)
       val inputValue = Option(row.get(inputSchema.fieldIndex(inputField)))
       val newValues =
         inputValue match {
@@ -144,20 +145,4 @@ class CsvTransformStep(name: String,
         }
       new GenericRowWithSchema(newValues.toArray, outputSchema)
     }
-
-  def getNewOutputSchema(inputSchema: StructType): StructType = {
-    preservationPolicy match {
-      case APPEND =>
-        StructType(inputSchema.fields ++ providedSchema)
-      case REPLACE =>
-        val inputFieldIdx = inputSchema.indexWhere(_.name == inputField)
-        assert(inputFieldIdx > -1, s"$inputField should be a field in the input row")
-        val (leftInputFields, rightInputFields) = inputSchema.fields.splitAt(inputFieldIdx)
-        val outputFields = leftInputFields ++ providedSchema ++ rightInputFields.tail
-
-        StructType(outputFields)
-      case _ =>
-        StructType(providedSchema)
-    }
-  }
 }
