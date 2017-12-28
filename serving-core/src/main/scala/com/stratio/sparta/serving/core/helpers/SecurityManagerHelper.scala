@@ -78,16 +78,16 @@ object SecurityManagerHelper {
 
   implicit def resourceParser(resource: String): Resource = {
     resource match {
-      case "input" => Resource(InputResource, resource)
-      case "output" => Resource(OutputResource, resource)
-      case "policy" => Resource(PolicyResource, resource)
-      case "plugin" => Resource(PluginResource, resource)
-      case "context" => Resource(ContextResource, resource)
-      case "driver" => Resource(DriverResource, resource)
-      case "checkpoint" => Resource(CheckpointResource, resource)
       case "backup" => Resource(BackupResource, resource)
       case "catalog" => Resource(CatalogResource, resource)
-      //case "environment" => Resource(EnvironmentResource, resource) TODO Add Environment resource when it's available
+      case "checkpoint" => Resource(CheckpointResource, resource)
+      case "configuration" => Resource(ConfigurationResource, resource)
+      case "driver" => Resource(DriverResource, resource)
+      case "environment" => Resource(EnvironmentResource, resource)
+      case "execution" => Resource(ExecutionResource, resource)
+      case "plugin" => Resource(PluginResource, resource)
+      case "template" => Resource(TemplateResource, resource)
+      case "workflow" => Resource(WorkflowResource, resource)
     }
   }
 }

@@ -17,14 +17,37 @@
           ],
           "acls": [
             {
-              "resourceType": "output",
+              "resourceType": "environment",
               "name": "*",
               "recursive": false,
               "actions": [
                 "View",
                 "Create",
                 "Delete",
-                "Edit",
+                "Audit",
+                "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "template",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Audit",
+                "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "configuration",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
                 "Audit"
               ],
               "allActions": []
@@ -79,7 +102,7 @@
               "allActions": []
             },
             {
-              "resourceType": "policy",
+              "resourceType": "workflow",
               "name": "*",
               "recursive": false,
               "actions": [
@@ -100,19 +123,6 @@
                 "Delete",
                 "Audit",
                 "Upload"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "input",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "Create",
-                "View",
-                "Delete",
-                "Audit",
-                "Edit"
               ],
               "allActions": []
             },

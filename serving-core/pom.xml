@@ -49,7 +49,7 @@
         <dependency>
             <groupId>com.stratio.gosec.dyplon.plugins</groupId>
             <artifactId>dyplon-sparta</artifactId>
-            <version>0.10.3</version>
+            <version>${sparta.dyplon.version}</version>
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>

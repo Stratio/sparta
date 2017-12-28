@@ -36,7 +36,7 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
 
   val apiPath = HttpConstant.ConfigPath
-  //TODO add in sparta dyplon plugin
+
   val ResourceType = "configuration"
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)

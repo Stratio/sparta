@@ -19,7 +19,6 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{Props, _}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.{Execute, SpartaSecurityManager}
-import com.stratio.sparta.serving.api.actor.NginxActor.UpdateAndMakeSureIsRunning
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
@@ -38,8 +37,7 @@ class LauncherActor(streamingService: StreamingContextService,
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  //TODO change dyplon to new names: policy -> workflow
-  private val ResourcePol = "policy"
+  private val ResourcePol = "workflow"
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
 

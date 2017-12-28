@@ -27,13 +27,9 @@ class DummySecurityTestClass extends SpartaSecurityManager {
     (userId, resource, action) match {
 
       case ("1234", _, _) => true
-      case ("4321", Resource(InputResource, "input"), Edit) => false
-      case ("4321", Resource(InputResource, "input"), View) => false
-      case ("4321", Resource(OutputResource, "output"), Create) => false
-      case ("4321", Resource(OutputResource, "output"), Delete) => false
-      case ("1111", Resource(PolicyResource, "policy"), Create) => false
-      case ("1111", Resource(PolicyResource, "policy"), _) => false
-      case ("1111", Resource(PolicyResource, "plugin"), _) => false
+      case ("1111", Resource(WorkflowResource, "workflow"), Create) => false
+      case ("1111", Resource(WorkflowResource, "workflow"), _) => false
+      case ("1111", Resource(PluginResource, "plugin"), _) => false
       case (_, _, _) => true
     }
 

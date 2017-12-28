@@ -34,7 +34,7 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
 
   implicit val as = Option(context.system)
   private val environmentService = new EnvironmentService(curatorFramework)
-  private val ResourceType = "policy" //TODO change to environment
+  private val ResourceType = "workflow"
 
   //scalastyle:off
   override def receive: Receive = {

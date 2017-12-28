@@ -30,7 +30,7 @@ class ExecutionActor(val curatorFramework: CuratorFramework)(implicit val secMan
 
 
   private val executionService = new ExecutionService(curatorFramework)
-  private val ResourceType = "context"
+  private val ResourceType = "execution"
 
   override def receive: Receive = {
     case CreateExecution(request, user) => createExecution(request, user)

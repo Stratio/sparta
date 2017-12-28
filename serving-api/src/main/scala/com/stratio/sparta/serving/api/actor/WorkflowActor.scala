@@ -39,10 +39,9 @@ class WorkflowActor(
 
   import WorkflowActor._
 
-  //TODO change dyplon to new names: policy -> workflow
-  val ResourcePol = "policy"
+  val ResourceWorkflow = "workflow"
   val ResourceCP = "checkpoint"
-  val ResourceContext = "context"
+  val ResourceExecution = "execution"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
@@ -78,7 +77,7 @@ class WorkflowActor(
   //scalastyle:on
 
   def run(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceContext -> Edit)
+    val actions = Map(ResourceExecution -> Edit)
     securityActionAuthorizer[Response](user, actions) {
       Try {
         launcherActor.forward(Launch(id.toString, user))
@@ -87,26 +86,26 @@ class WorkflowActor(
   }
 
   def stop(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceContext -> Edit)
+    val actions = Map(ResourceExecution -> Edit)
     securityActionAuthorizer[ResponseAny](user, actions) {
       workflowService.stop(id)
     }
   }
 
   def reset(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceContext -> Edit)
+    val actions = Map(ResourceExecution -> Edit)
     securityActionAuthorizer[ResponseAny](user, actions) {
       workflowService.reset(id)
     }
   }
 
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourcePol -> Describe)) {
+    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> Describe)) {
       Try(workflowValidatorService.validate(workflow))
     }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
       Try {
         workflowService.findAll
       } recover {
@@ -115,7 +114,7 @@ class WorkflowActor(
     }
 
   def findAllWithEnv(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
       Try {
         wServiceWithEnv.findAll
       } recover {
@@ -124,21 +123,21 @@ class WorkflowActor(
     }
 
   def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findByTemplateType(fragmentType)).recover {
         case _: NoNodeException => Seq.empty[Workflow]
       }
     }
 
   def findByTemplateName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findByTemplateName(fragmentType, name)).recover {
         case _: NoNodeException => Seq.empty[Workflow]
       }
     }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findById(id)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with id $id.")
@@ -146,7 +145,7 @@ class WorkflowActor(
     }
 
   def findWithEnv(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try(wServiceWithEnv.findById(id)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with id $id.")
@@ -154,32 +153,32 @@ class WorkflowActor(
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findByIdList(workflowIds))
     }
 
   def findByName(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findByName(name))
     }
 
   def findByNameWithEnv(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try(wServiceWithEnv.findByName(name))
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourcePol -> Create, ResourceContext -> Create)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
       Try(workflowService.create(workflow))
     }
 
   def createList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourcePol -> Create, ResourceContext -> Create)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
       Try(workflowService.createList(workflows))
     }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourcePol -> Edit)) {
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Edit)) {
       Try(workflowService.update(workflow)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with name ${workflow.name}.")
@@ -187,37 +186,37 @@ class WorkflowActor(
     }
 
   def updateList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourcePol -> Edit)) {
+    securityActionAuthorizer(user, Map(ResourceWorkflow -> Edit)) {
       Try(workflowService.updateList(workflows))
     }
 
   def delete(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourcePol -> Delete, ResourceCP -> Delete)) {
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceCP -> Delete)) {
       workflowService.delete(id)
     }
 
   def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user,
-      Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete)) {
+      Map(ResourceWorkflow -> Delete, ResourceExecution -> Delete, ResourceCP -> Delete)) {
       workflowService.deleteList(workflowIds)
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourcePol -> Delete, ResourceContext -> Delete, ResourceCP -> Delete)
+    val actions = Map(ResourceWorkflow -> Delete, ResourceExecution -> Delete, ResourceCP -> Delete)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.deleteAll()
     }
   }
 
   def resetAllStatuses(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceContext -> Edit)
+    val actions = Map(ResourceExecution -> Edit)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.resetAllStatuses()
     }
   }
 
   def deleteCheckpoint(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourcePol -> View)) {
+    securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourceWorkflow -> View)) {
       Try(deleteCheckpointPath(workflowService.findByName(name)))
     }
 }
