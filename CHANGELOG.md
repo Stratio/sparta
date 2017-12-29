@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0 (upcoming)
+
+* Pending changelog
+
 ## 1.9.0 (upcoming)
 * **Alpha release for version 2.0**
 * **Complete refactor of the inner mechanics of the application** and consequential migration of the components
