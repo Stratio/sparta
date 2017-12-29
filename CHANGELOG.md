@@ -1,8 +1,14 @@
 # Changelog
 
 ## 1.9.0 (upcoming)
+* **Alpha release for version 2.0**
+* **Complete refactor of the inner mechanics of the application** and consequential migration of the components
+* Workflow Validation
+* [WIP]: Batch support, Environment variables
+* Update Spark Image (2.1.0.6)
+* Update sparta-dyplon (0.13.0)
+* Bugfixes: Datetime issues, "null" as string value handling, Zookeeper offsets, case sensitive issues 
 
-* Pending changelog
 
 ## 1.8.0 (upcoming)
 
