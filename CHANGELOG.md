@@ -4,7 +4,7 @@
 
 * Pending changelog
 
-## 1.9.0 (upcoming)
+## 1.9.0 (December 29, 2017)
 * **Alpha release for version 2.0**
 * **Complete refactor of the inner mechanics of the application** and consequential migration of the components
 * Workflow Validation
