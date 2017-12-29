@@ -9,11 +9,6 @@
 * Update sparta-dyplon (0.13.0)
 * Bugfixes: Datetime issues, "null" as string value handling, Zookeeper offsets, case sensitive issues 
 
-
-## 1.8.0 (upcoming)
-
-* Front refactor.
-
 ## 1.7.5 (September 20, 2017)
 
 * Sending events with a key to a partitioned topic via Kafka Producer (Output)
