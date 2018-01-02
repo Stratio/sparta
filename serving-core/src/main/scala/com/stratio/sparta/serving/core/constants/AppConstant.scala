@@ -59,6 +59,7 @@ object AppConstant extends ZookeeperUtils {
   val PreStopMarathonInterval = "preStopMarathonInterval"
   val DefaultPreStopMarathonInterval = "5s"
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
+  val DefaultGroup = "default"
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"
@@ -107,6 +108,7 @@ object AppConstant extends ZookeeperUtils {
   lazy val TemplatesZkPath = s"$BaseZkPath/templates"
   lazy val ErrorsZkPath = s"$BaseZkPath/error"
   lazy val EnvironmentZkPath = s"$BaseZkPath/environment"
+  lazy val GroupZkPath = s"$BaseZkPath/group"
 
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)

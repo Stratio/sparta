@@ -18,24 +18,31 @@ package com.stratio.sparta.serving.core.services
 
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowValidation}
+import org.apache.curator.framework.CuratorFramework
 
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 
-class WorkflowValidatorService {
+class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None) {
+
+  implicit val curator: Option[CuratorFramework] = curatorFramework
 
   def validate(workflow: Workflow): WorkflowValidation = {
 
     implicit val workflowToValidate: Workflow = workflow
     implicit val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
 
-    new WorkflowValidation()
+    val validationResult = new WorkflowValidation()
+      .validateGroupName
+      .validateName
       .validateNonEmptyNodes
       .validateNonEmptyEdges
       .validateEdgesNodesExists
       .validateGraphIsAcyclic
       .validateArityOfNodes
       .validateExistenceCorrectPath
+
+    validationResult.copy(messages = validationResult.messages.distinct)
   }
 
 }

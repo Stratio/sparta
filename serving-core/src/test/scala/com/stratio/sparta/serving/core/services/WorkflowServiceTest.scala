@@ -70,6 +70,8 @@ class WorkflowServiceTest extends WordSpecLike
       |  "name": "wfTest",
       |  "description": "",
       |  "settings": {},
+      |  "version": 0,
+      |  "group": "default",
       |  "pipelineGraph": {
       |    "nodes": [{
       |        "name": "kafka",
@@ -140,9 +142,18 @@ class WorkflowServiceTest extends WordSpecLike
       |{
       |"id": "wf2",
       |"name": "wfTest2",
+      | "version": 0,
+      | "group": "default",
       |"description": "",
       |"settings": {},
       |"pipelineGraph": {}
+    """.stripMargin
+
+  val groupRaw =
+    """
+      |{
+      |"name": "default"
+      |}
     """.stripMargin
 
   before{
@@ -152,8 +163,8 @@ class WorkflowServiceTest extends WordSpecLike
   "workflowService" must {
 
     "existByName: returns an option wrapping a workflow with the matching name" in {
-      existByNameMock
-      val result = workflowService.existsByName("wfTest")
+      existMock
+      val result = workflowService.exists("wfTest", 0L, "default")
 
       result.get.name shouldBe "wfTest"
     }
@@ -195,26 +206,10 @@ class WorkflowServiceTest extends WordSpecLike
       result shouldBe a[Seq[_]]
     }
 
-    "findByTemplateType: should return a list with all the workflow of a given type" in {
-      mockListOfWorkflows
-      mockFindByID
-
-      val result = workflowService.findByTemplateType("KafkaInputStep")
-
-      result.head.pipelineGraph.nodes.head.stepType shouldBe "Input"
-    }
-
-    "findByTemplateName: should return a list with all the workflow of a given type" in {
-      mockListOfWorkflows
-      mockFindByID
-
-      val result = workflowService.findByTemplateName("KafkaInputStep", "kafka")
-
-      result.head.pipelineGraph.nodes.head.name shouldBe "kafka"
-    }
-
     "create: given a certain workflow model a new workflow should be created" in {
-      existByNameMock
+      existMock
+
+      mockDefaultGroup
 
       when(curatorFramework.create)
         .thenReturn(createBuilder)
@@ -249,7 +244,7 @@ class WorkflowServiceTest extends WordSpecLike
     }
 
     "createList: given a certain workflow list a new workflows should be created" in {
-      existByNameMock
+      existMock
 
       when(curatorFramework.create)
         .thenReturn(createBuilder)
@@ -269,7 +264,7 @@ class WorkflowServiceTest extends WordSpecLike
 
     "update: given a certain workflow if a matching id is found the information regarding that " +
       "workflow is updated" in {
-      existByNameMock
+      existMock
 
       when(curatorFramework.setData())
         .thenReturn(setDataBuilder)
@@ -283,7 +278,7 @@ class WorkflowServiceTest extends WordSpecLike
 
     "updateList: given a certain workflow list if a matching id is found the information regarding that " +
       "workflows is updated" in {
-      existByNameMock
+      existMock
 
       when(curatorFramework.setData())
         .thenReturn(setDataBuilder)
@@ -305,6 +300,39 @@ class WorkflowServiceTest extends WordSpecLike
 
 
       val result = workflowService.delete(workflowID)
+    }
+
+    "create new version: given a certain workflow model a new workflow should be created" in {
+      existMock
+      mockListOfWorkflows
+      mockFindByID
+
+      when(curatorFramework.create)
+        .thenReturn(createBuilder)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded)
+        .thenReturn(protectedACL)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded
+        .forPath(s"${AppConstant.WorkflowsZkPath}/newWorkflow"))
+        .thenReturn(newWorkflowRaw)
+
+      val result = workflowService.create(newWorkflow)
+
+      result.id.get shouldBe "wf2"
+
+    }
+
+    def mockDefaultGroup: OngoingStubbing[Array[Byte]] = {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.GroupZkPath}/default"))
+        .thenReturn(new Stat)
+
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.GroupZkPath}/default"))
+        .thenReturn(groupRaw.getBytes)
     }
 
     def mockFindByID: OngoingStubbing[Array[Byte]] = {
@@ -329,7 +357,7 @@ class WorkflowServiceTest extends WordSpecLike
         })
     }
 
-    def existByNameMock: OngoingStubbing[Array[Byte]]= {
+    def existMock: OngoingStubbing[Array[Byte]]= {
       when(curatorFramework
         .checkExists())
         .thenReturn(existsBuilder)

@@ -50,7 +50,7 @@ with HttpServiceBaseTest {
     AkkaConstant.StatusActorName -> statusActorTestProbe.ref
   )
 
-  "WorkflowHttpService.find" should {
+  "WorkflowHttpService.findById" should {
     "return workflow" in {
       startAutopilot(Left(Success(getWorkflowModel())))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
@@ -62,6 +62,23 @@ with HttpServiceBaseTest {
       startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[Find]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.find" should {
+    "return a workflow" in {
+      startAutopilot(Left(Success(getWorkflowModel())))
+      Post(s"/${HttpConstant.WorkflowsPath}/find", getWorkflowQueryModel()) ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[Query]
+        responseAs[Workflow] should equal(getWorkflowModel())
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Post(s"/${HttpConstant.WorkflowsPath}/find", getWorkflowQueryModel()) ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[Query]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -79,40 +96,6 @@ with HttpServiceBaseTest {
       startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/findByIdWithEnv/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindWithEnv]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
-  "WorkflowHttpService.findByName" should {
-    "return a workflow" in {
-      startAutopilot(Left(Success(getWorkflowModel())))
-      Get(s"/${HttpConstant.WorkflowsPath}/findByName/name") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[FindByName]
-        responseAs[Workflow] should equal(getWorkflowModel())
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.WorkflowsPath}/findByName/name") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[FindByName]
-        status should be(StatusCodes.InternalServerError)
-      }
-    }
-  }
-
-  "WorkflowHttpService.findByNameWithEnv" should {
-    "return a workflow" in {
-      startAutopilot(Left(Success(getWorkflowModel())))
-      Get(s"/${HttpConstant.WorkflowsPath}/findByNameWithEnv/name") ~> routes(dummyUser) ~> check {
-        testProbe.expectMsgType[FindByNameWithEnv]
-        responseAs[Workflow] should equal(getWorkflowModel())
-      }
-    }
-    "return a 500 if there was any error" in {
-      startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.WorkflowsPath}/findByNameWithEnv/name") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[FindByNameWithEnv]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -353,6 +336,23 @@ with HttpServiceBaseTest {
       startAutopilot(Left(Failure(new MockException())))
       Post(s"/${HttpConstant.WorkflowsPath}/reset/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Reset]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.version" should {
+    "create a new workflow version" in {
+      startAutopilot(Left(Success(getWorkflowModel())))
+      Post(s"/${HttpConstant.WorkflowsPath}/version", getWorkflowVersionModel()) ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[CreateWorkflowVersion]
+        responseAs[Workflow] should equal(getWorkflowModel())
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Post(s"/${HttpConstant.WorkflowsPath}/version", getWorkflowVersionModel()) ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[CreateWorkflowVersion]
         status should be(StatusCodes.InternalServerError)
       }
     }

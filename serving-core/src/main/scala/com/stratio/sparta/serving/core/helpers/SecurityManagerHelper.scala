@@ -88,6 +88,7 @@ object SecurityManagerHelper {
       case "plugin" => Resource(PluginResource, resource)
       case "template" => Resource(TemplateResource, resource)
       case "workflow" => Resource(WorkflowResource, resource)
+      //TODO case "group" => Resource(GroupResource, resource)
     }
   }
 }

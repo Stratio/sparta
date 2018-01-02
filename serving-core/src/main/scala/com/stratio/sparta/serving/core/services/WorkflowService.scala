@@ -21,11 +21,12 @@ import java.util.UUID
 import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
@@ -41,23 +42,20 @@ class WorkflowService(
                      ) extends SpartaSerializer with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
-  private val validatorService = new WorkflowValidatorService
+  private val validatorService = new WorkflowValidatorService(Option(curatorFramework))
 
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
   def findById(id: String): Workflow = {
-    val a = existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
-     a
+    existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
   }
 
-  def findByName(name: String): Workflow =
-    existsByName(name, None).getOrElse(throw new ServerException(s"No workflow with name $name"))
+  def find(query: WorkflowQuery): Workflow =
+    exists(query.name, query.version.getOrElse(0L), query.group.getOrElse(DefaultGroup))
+      .getOrElse(throw new ServerException(s"No workflow with name ${query.name}"))
 
-  def findByTemplateType(templateType: String): List[Workflow] =
-    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.className == templateType))
-
-  def findByTemplateName(templateType: String, name: String): List[Workflow] =
-    findAll.filter(apm => apm.pipelineGraph.nodes.exists(f => f.name == name && f.className == templateType))
+  def findList(query: WorkflowsQuery): Seq[Workflow] =
+    existsList(query.group.getOrElse(DefaultGroup), query.tags)
 
   def findByIdList(workflowIds: Seq[String]): List[Workflow] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
@@ -79,18 +77,45 @@ class WorkflowService(
 
     validateWorkflow(workflow)
 
-    existsByName(workflow.name, workflow.id).foreach(searchWorkflow => throw new ServerException(
-      s"Workflow with name ${workflow.name} exists. The actual workflow is: ${searchWorkflow.id}"))
-
     val workflowWithFields = addCreationDate(addId(workflow))
+
+    existsById(workflowWithFields.id.get).foreach(searchWorkflow => throw new ServerException(
+      s"Workflow with name ${workflowWithFields.name} and version ${workflowWithFields.version} exists." +
+        s"The actual workflow is: ${searchWorkflow.id}"))
+
     curatorFramework.create.creatingParentsIfNeeded.forPath(
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
     statusService.update(WorkflowStatus(
       id = workflowWithFields.id.get,
       status = WorkflowStatusEnum.NotStarted
     ))
+
     workflowWithFields
   }
+
+  def createVersion(workflowVersion: WorkflowVersion): Workflow = {
+    existsById(workflowVersion.id) match {
+      case Some(workflow) =>
+        val workflowWithVersionFields = workflow.copy(
+          tag = workflowVersion.tag,
+          group = workflowVersion.group.getOrElse(workflow.group)
+        )
+        val workflowWithFields = addCreationDate(incVersion(addId(workflowWithVersionFields, force = true)))
+
+        validateWorkflow(workflowWithFields)
+
+        curatorFramework.create.creatingParentsIfNeeded.forPath(
+          s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
+        statusService.update(WorkflowStatus(
+          id = workflowWithFields.id.get,
+          status = WorkflowStatusEnum.NotStarted
+        ))
+
+        workflowWithFields
+      case None => throw new ServerException(s"Workflow with id ${workflowVersion.id} not exists.")
+    }
+  }
+
 
   def createList(workflows: Seq[Workflow]): Seq[Workflow] =
     workflows.map(create)
@@ -99,7 +124,7 @@ class WorkflowService(
 
     validateWorkflow(workflow)
 
-    val searchWorkflow = existsByName(workflow.name, workflow.id)
+    val searchWorkflow = existsById(workflow.id.get)
 
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
@@ -107,10 +132,7 @@ class WorkflowService(
       val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
       curatorFramework.setData().forPath(
         s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
-      statusService.update(WorkflowStatus(
-        id = workflowId.id.get,
-        status = WorkflowStatusEnum.NotDefined
-      ))
+      statusService.update(WorkflowStatus(id = workflowId.id.get, status = WorkflowStatusEnum.NotDefined))
       workflowId
     }
   }
@@ -123,7 +145,7 @@ class WorkflowService(
       val workflowPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.info(s"Deleting workflow with id: $id")
+        log.debug(s"Deleting workflow with id: $id")
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
       } else throw new ServerException(s"No workflow with id $id")
@@ -134,12 +156,12 @@ class WorkflowService(
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.info(s"Deleting existing workflows from id list: $workflowIds")
+        log.debug(s"Deleting existing workflows from id list: $workflowIds")
         val workflows = findByIdList(workflowIds)
 
         try {
           workflows.foreach(workflow => delete(workflow.id.get))
-          log.info(s"Workflows from ids ${workflowIds.mkString(",")} deleted")
+          log.debug(s"Workflows from ids ${workflowIds.mkString(",")} deleted")
         } catch {
           case e: Exception =>
             log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
@@ -154,7 +176,7 @@ class WorkflowService(
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.info(s"Deleting all existing workflows")
+        log.debug(s"Deleting all existing workflows")
         val children = curatorFramework.getChildren.forPath(workflowPath)
         val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
           read[Workflow](new String(curatorFramework.getData.forPath(
@@ -163,7 +185,7 @@ class WorkflowService(
 
         try {
           workflows.foreach(workflow => delete(workflow.id.get))
-          log.info(s"All workflows deleted")
+          log.debug(s"All workflows deleted")
         } catch {
           case e: Exception =>
             log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
@@ -178,7 +200,7 @@ class WorkflowService(
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.info(s"Resetting the execution status for every workflow")
+        log.debug(s"Resetting the execution status for every workflow")
         val children = curatorFramework.getChildren.forPath(workflowPath)
 
         JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
@@ -201,13 +223,11 @@ class WorkflowService(
       throw new ServerException(s"Workflow not valid. Cause: ${validationResult.messages.mkString("-")}")
   }
 
-  private[sparta] def existsByName(name: String, id: Option[String] = None): Option[Workflow] =
+  private[sparta] def exists(name: String, version: Long, group: String): Option[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.find { workflow =>
-          if (id.isDefined && workflow.id.isDefined)
-            workflow.id.get == id.get
-          else workflow.name == name
+          workflow.name == name && workflow.version == version && workflow.group == group
         }
       } else None
     } match {
@@ -215,6 +235,21 @@ class WorkflowService(
       case Failure(exception) =>
         log.error(exception.getLocalizedMessage, exception)
         None
+    }
+
+  private[sparta] def existsList(group: String, tags: Seq[String]): Seq[Workflow] =
+    Try {
+      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+        findAll.filter { workflow =>
+          workflow.group == group &&
+            (workflow.tag.isEmpty || (workflow.tag.isDefined && tags.contains(workflow.tag.get)))
+        }
+      } else Seq.empty[Workflow]
+    } match {
+      case Success(result) => result
+      case Failure(exception) =>
+        log.error(exception.getLocalizedMessage, exception)
+        Seq.empty[Workflow]
     }
 
   private[sparta] def existsById(id: String): Option[Workflow] =
@@ -230,10 +265,17 @@ class WorkflowService(
         None
     }
 
-  private[sparta] def addId(workflow: Workflow): Workflow =
-    workflow.id.notBlank match {
-      case None => workflow.copy(id = Some(UUID.randomUUID.toString))
-      case Some(_) => workflow
+  private[sparta] def addId(workflow: Workflow, force: Boolean = false): Workflow =
+    if (workflow.id.notBlank.isEmpty || (workflow.id.notBlank.isDefined && force))
+      workflow.copy(id = Some(UUID.randomUUID.toString))
+    else workflow
+
+  private[sparta] def incVersion(workflow: Workflow, userVersion: Option[Long] = None): Workflow =
+    userVersion match {
+      case None =>
+        val maxVersion = Try(workflowVersions(workflow.name, workflow.group).map(_.version).max + 1).getOrElse(0L)
+        workflow.copy(version = maxVersion)
+      case Some(usrVersion) => workflow.copy(version = usrVersion)
     }
 
   private[sparta] def addCreationDate(workflow: Workflow): Workflow =
@@ -244,4 +286,19 @@ class WorkflowService(
 
   private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
     workflow.copy(lastUpdateDate = Some(new DateTime()))
+
+  private[sparta] def workflowVersions(name: String, group: String): Seq[Workflow] =
+    Try {
+      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+        findAll.filter { workflow =>
+          workflow.name == name && workflow.group == group
+        }
+      } else Seq.empty
+    } match {
+      case Success(result) => result
+      case Failure(exception) =>
+        log.error(exception.getLocalizedMessage, exception)
+        Seq.empty
+    }
+
 }

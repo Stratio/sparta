@@ -44,12 +44,6 @@ export class WorkflowService extends ApiService {
         return this.request('workflowStatuses', 'get', options);
     }
 
-    getWorkflowByName(name: string): Observable<any> {
-
-        const options: any = {};
-        return this.request('workflows/findByName/' + name, 'get', options);
-    }
-
     getWorkflowById(id: string): Observable<any> {
         const options: any = {};
         return this.request('workflows/findById/' + id, 'get', options);

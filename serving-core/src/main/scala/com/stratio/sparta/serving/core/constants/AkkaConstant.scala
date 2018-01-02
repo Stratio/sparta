@@ -36,6 +36,7 @@ object AkkaConstant {
   val CrossdataActorName = "crossdataActor"
   val NginxActorName = "nginxActor"
   val EnvironmentActorName = "environmentActor"
+  val GroupActorName = "groupActor"
 
   val DefaultApiTimeout = 19
   val DefaultSerializationTimeout = 1

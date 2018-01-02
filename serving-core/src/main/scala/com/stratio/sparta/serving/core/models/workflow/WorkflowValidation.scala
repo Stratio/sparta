@@ -18,6 +18,8 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
+import com.stratio.sparta.serving.core.services.GroupService
+import org.apache.curator.framework.CuratorFramework
 
 import scalax.collection.{Graph, GraphTraversal}
 import scalax.collection.GraphPredef
@@ -33,6 +35,24 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
 
   val InputMessage = "input"
   val OutputMessage = "output"
+
+  def validateGroupName(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
+    if (curator.isEmpty) this
+    else {
+      val groupService = new GroupService(curator.get)
+      val groupInZk = groupService.find(workflow.group)
+      if(groupInZk.toOption.isDefined) this
+      else {
+        val msg = messages :+ "The workflow group not exists"
+        copy(valid = false, messages = msg)
+      }
+    }
+  }
+
+  def validateName(implicit workflow: Workflow): WorkflowValidation = {
+    if (workflow.name.nonEmpty) this
+    else copy(valid = false, messages = messages :+ "The workflow name is empty")
+  }
 
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.nodes.size >= 2) this
@@ -96,7 +116,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
 
 
   def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
-    val arityNodesValidation = workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>
+    workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>
       val nodeInGraph = graph.get(node)
       val inDegree = nodeInGraph.inDegree
       val outDegree = nodeInGraph.outDegree
@@ -110,8 +130,6 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
 
       combineWithAnd(lastValidation, validation)
     }
-
-    combineWithAnd(this, arityNodesValidation)
   }
 
   private[workflow] def combineWithAnd(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =

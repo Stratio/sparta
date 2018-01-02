@@ -67,6 +67,13 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
       result.valid shouldBe false
     }
 
+    "validate a wrong workflow with empty name" in {
+      val workflow = emptyWorkflow.copy(name = "", pipelineGraph = validPipeGraph)
+      val result = workflowValidatorService.validate(workflow)
+
+      result.valid shouldBe false
+    }
+
   }
 }
 

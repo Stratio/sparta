@@ -76,11 +76,14 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getEnvironmentModel(): Environment =
     Environment(Seq(EnvironmentVariable("foo", "var")))
 
+  protected def getGroupModel(): Group =
+    Group("default")
+
   protected def getEnvironmentVariableModel(): EnvironmentVariable =
     EnvironmentVariable("foo", "var")
 
   protected def getEnvironmentData(): EnvironmentData =
-    EnvironmentData(Seq(), Seq())
+    EnvironmentData(Seq(), Seq(), Seq())
 
   protected def getWorkflowStatusModel(): WorkflowStatus =
     WorkflowStatus("id", WorkflowStatusEnum.Launched)
@@ -109,6 +112,14 @@ trait HttpServiceBaseTest extends WordSpec
     )
 
     workflow
+  }
+
+  protected def getWorkflowQueryModel(): WorkflowQuery = {
+    WorkflowQuery("testworkflow")
+  }
+
+  protected def getWorkflowVersionModel(): WorkflowVersion = {
+    WorkflowVersion("id", None, None, None)
   }
 
   protected def getWorkflowExecutionModel: WorkflowExecution =

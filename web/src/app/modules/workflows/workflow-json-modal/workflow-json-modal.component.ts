@@ -73,14 +73,6 @@ export class WorkflowJsonModal implements OnInit {
     }
 
     ngOnInit() {
-        this.store.select(fromRoot.getWorkflowNameValidation).subscribe((res: any) => {
-            if (res.validatedName) {
-                this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(res.validatedWorkflow));
-                this.workflowValidationError = false;
-            } else {
-                this.workflowValidationError = true;
-            }
-        });
 
         this.store.select(fromRoot.getReloadState).subscribe((res: boolean) => {
             if (res) {
@@ -90,7 +82,7 @@ export class WorkflowJsonModal implements OnInit {
     }
 
     private validateWorkflow(json: any): void {
-        this.store.dispatch(new workflowActions.ValidateWorkflowNameAction(json));
+        this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(json));
     }
 }
 

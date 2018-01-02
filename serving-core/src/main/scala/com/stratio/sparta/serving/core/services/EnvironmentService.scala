@@ -31,6 +31,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val templateService = new TemplateService(curatorFramework)
+  private val groupService = new GroupService(curatorFramework)
 
   def find(): Try[Environment] =
     Try {
@@ -88,8 +89,8 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
           update(newEnvironment).map(_ => environmentVariable)
             .getOrElse(throw new ServerException(s"Impossible to create variable"))
         case Failure(e) =>
-          create(Environment(Seq(environmentVariable))).map(_ => environmentVariable)
-            .getOrElse(throw new ServerException(s"Impossible to create environment with the new variable, ${e.getLocalizedMessage}"))
+          create(Environment(Seq(environmentVariable))).map(_ => environmentVariable).getOrElse(
+            throw new ServerException(s"Impossible to create environment with the variable, ${e.getLocalizedMessage}"))
       }
     }
 
@@ -140,24 +141,31 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
 
   def exportData(): Try[EnvironmentData] =
     Try {
-      EnvironmentData(workflowService.findAll, templateService.findAll)
+      EnvironmentData(workflowService.findAll, templateService.findAll, groupService.findAll)
     }
 
   def importData(data: EnvironmentData): Try[EnvironmentData] =
     Try {
       val initialTemplates = templateService.findAll
       val initialWorkflows = workflowService.findAll
+      val initialGroups = groupService.findAll
 
       try {
+        groupService.deleteAll()
+        workflowService.deleteAll()
+        templateService.deleteAll()
+        groupService.createList(data.groups)
         templateService.createList(data.templates)
         workflowService.createList(data.workflows)
         data
       } catch {
         case e: Exception =>
-          log.error("Error importing data. All workflows and templates will be rolled back", e)
+          log.error("Error importing data. All groups, workflows and templates will be rolled back", e)
           Try {
+            groupService.deleteAll()
             workflowService.deleteAll()
             templateService.deleteAll()
+            initialGroups.foreach(groupService.create)
             initialTemplates.foreach(templateService.create)
             initialWorkflows.foreach(workflowService.create)
           }

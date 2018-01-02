@@ -119,18 +119,6 @@ export class WorkflowEffect {
             });
         });
 
-    @Effect()
-    validateWorkflowName$: Observable<Action> = this.actions$
-        .ofType(workflowActions.VALIDATE_WORKFLOW_NAME)
-        .switchMap((response: any) => {
-            return this.workflowService.getWorkflowByName(response.payload.name).map((response: any) => {
-                return new workflowActions.ValidateWorkflowNameError();
-            }).catch(function (error) {
-                return Observable.of(new workflowActions.SaveJsonWorkflowAction(response.payload));
-
-            });
-        });
-
 
     @Effect()
     saveJsonWorkflow$: Observable<Action> = this.actions$

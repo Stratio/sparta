@@ -103,7 +103,7 @@ object ErrorModel extends SpartaSerializer {
   /* Workflow Service 700-724 */
   val WorkflowServiceUnexpected = "700"
   val WorkflowServiceFindById = "701"
-  val WorkflowServiceFindByName = "702"
+  val WorkflowServiceFind = "702"
   val WorkflowServiceFindByIds = "703"
   val WorkflowServiceFindAll = "704"
   val WorkflowServiceCreate = "705"
@@ -123,6 +123,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceFindByIdWithEnv = "719"
   val WorkflowServiceFindByNameWithEnv = "720"
   val WorkflowServiceFindAllWithEnv = "721"
+  val WorkflowServiceNewVersion = "722"
 
   /* Metadata Service 725-749 */
   val MetadataServiceUnexpected = "725"
@@ -147,6 +148,15 @@ object ErrorModel extends SpartaSerializer {
   val EnvironmentServiceExportData = "759"
   val EnvironmentServiceImportData = "760"
 
+  /* Group Service 750-760 */
+  val GroupServiceUnexpected = "770"
+  val GroupServiceFindGroup = "771"
+  val GroupServiceFindAllGroups = "772"
+  val GroupServiceCreateGroup = "773"
+  val GroupServiceDeleteGroup = "774"
+  val GroupServiceDeleteAllGroups = "775"
+  val GroupServiceUpdateGroup = "776"
+
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
     UnknownErrorCode -> UnknownError,
@@ -160,7 +170,7 @@ object ErrorModel extends SpartaSerializer {
     AppStatus -> "Zookeeper is not connected",
     WorkflowServiceUnexpected -> "Unexpected behaviour in Workflow service",
     WorkflowServiceFindById -> "Error finding workflow by ID",
-    WorkflowServiceFindByName -> "Error finding workflow by Name",
+    WorkflowServiceFind -> "Error executing workflow query",
     WorkflowServiceFindByIds -> "Error finding workflows by ID's",
     WorkflowServiceFindAll -> "Error obtaining all workflows",
     WorkflowServiceCreate -> "Error creating workflow",
@@ -177,6 +187,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceDownload -> "Error downloading workflow",
     WorkflowServiceValidate -> "Error validating workflow",
     WorkflowServiceResetAllStatuses -> "Error resetting all workflow statuses",
+    WorkflowServiceNewVersion -> "Error creating new workflow version",
     WorkflowServiceFindByIdWithEnv -> "Error finding workflows by ID with environment",
     WorkflowServiceFindByNameWithEnv -> "Error finding workflows by name with environment",
     WorkflowServiceFindAllWithEnv -> "Error finding all workflows with environment",
@@ -232,7 +243,13 @@ object ErrorModel extends SpartaSerializer {
     EnvironmentServiceUpdateEnvironmentVariable -> "Error updating environment variable",
     EnvironmentServiceDeleteEnvironmentVariable -> "Error deleting environment variable",
     EnvironmentServiceExportData -> "Error exporting environment data",
-    EnvironmentServiceImportData -> "Error importing environment data"
+    EnvironmentServiceImportData -> "Error importing environment data",
+    GroupServiceUnexpected -> "Unexpected behaviour in group service",
+    GroupServiceFindGroup -> "Error obtaining group",
+    GroupServiceCreateGroup -> "Error creating group",
+    GroupServiceDeleteGroup -> "Error deleting group",
+    GroupServiceFindAllGroups -> "Error obtaining all groups",
+    GroupServiceDeleteAllGroups -> "Error deleting all groups"
   )
 
   def toString(errorModel: ErrorModel): String = write(errorModel)

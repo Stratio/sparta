@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.env
+package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.workflow.{Group, TemplateElement, Workflow}
+import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
 
-case class EnvironmentData(workflows: Seq[Workflow], templates: Seq[TemplateElement], groups: Seq[Group])
+case class WorkflowsQuery(group: Option[String] = Option(DefaultGroup), tags: Seq[String] = Seq.empty[String])

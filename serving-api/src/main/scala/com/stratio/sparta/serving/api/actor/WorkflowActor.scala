@@ -22,7 +22,7 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowValidation}
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowQuery, WorkflowValidation, WorkflowVersion}
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
@@ -45,7 +45,7 @@ class WorkflowActor(
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
-  private val workflowValidatorService = new WorkflowValidatorService
+  private val workflowValidatorService = new WorkflowValidatorService(Option(curatorFramework))
 
   //scalastyle:off
   override def receive: Receive = {
@@ -59,18 +59,16 @@ class WorkflowActor(
     case Find(id, user) => find(id, user)
     case FindWithEnv(id, user) => findWithEnv(id, user)
     case FindByIdList(workflowIds, user) => findByIdList(workflowIds, user)
-    case FindByName(name, user) => findByName(name.toLowerCase, user)
-    case FindByNameWithEnv(name, user) => findByNameWithEnv(name.toLowerCase, user)
+    case Query(query, user) => doQuery(query, user)
     case FindAll(user) => findAll(user)
     case FindAllWithEnv(user) => findAllWithEnv(user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
-    case FindByTemplateType(fragmentType, user) => findByTemplateType(fragmentType, user)
-    case FindByTemplateName(fragmentType, name, user) => findByTemplateName(fragmentType, name, user)
-    case DeleteCheckpoint(name, user) => deleteCheckpoint(name, user)
+    case DeleteCheckpoint(id, user) => deleteCheckpoint(id, user)
     case ResetAllStatuses(user) => resetAllStatuses(user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
+    case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -122,20 +120,6 @@ class WorkflowActor(
       }
     }
 
-  def findByTemplateType(fragmentType: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
-      Try(workflowService.findByTemplateType(fragmentType)).recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      }
-    }
-
-  def findByTemplateName(fragmentType: String, name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
-      Try(workflowService.findByTemplateName(fragmentType, name)).recover {
-        case _: NoNodeException => Seq.empty[Workflow]
-      }
-    }
-
   def find(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
       Try(workflowService.findById(id)).recover {
@@ -157,14 +141,9 @@ class WorkflowActor(
       Try(workflowService.findByIdList(workflowIds))
     }
 
-  def findByName(name: String, user: Option[LoggedUser]): Unit =
+  def doQuery(query: WorkflowQuery, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
-      Try(workflowService.findByName(name))
-    }
-
-  def findByNameWithEnv(name: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
-      Try(wServiceWithEnv.findByName(name))
+      Try(workflowService.find(query))
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
@@ -215,9 +194,14 @@ class WorkflowActor(
     }
   }
 
-  def deleteCheckpoint(name: String, user: Option[LoggedUser]): Unit =
+  def deleteCheckpoint(id: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user, Map(ResourceCP -> Delete, ResourceWorkflow -> View)) {
-      Try(deleteCheckpointPath(workflowService.findByName(name)))
+      Try(deleteCheckpointPath(workflowService.findById(id)))
+    }
+
+  def createVersion(workflowVersion: WorkflowVersion, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
+      Try(workflowService.createVersion(workflowVersion))
     }
 }
 
@@ -255,15 +239,11 @@ object WorkflowActor extends SLF4JLogging {
 
   case class FindByIdList(workflowIds: Seq[String], user: Option[LoggedUser])
 
-  case class FindByName(name: String, user: Option[LoggedUser])
+  case class Query(query: WorkflowQuery, user: Option[LoggedUser])
 
-  case class FindByNameWithEnv(name: String, user: Option[LoggedUser])
+  case class CreateWorkflowVersion(query: WorkflowVersion, user: Option[LoggedUser])
 
-  case class FindByTemplateType(templateType: String, user: Option[LoggedUser])
-
-  case class FindByTemplateName(templateType: String, name: String, user: Option[LoggedUser])
-
-  case class DeleteCheckpoint(name: String, user: Option[LoggedUser])
+  case class DeleteCheckpoint(id: String, user: Option[LoggedUser])
 
   case class ResetAllStatuses(user: Option[LoggedUser])
 

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.env
+package com.stratio.sparta.serving.core.models.workflow
 
-import com.stratio.sparta.serving.core.models.workflow.{Group, TemplateElement, Workflow}
-
-case class EnvironmentData(workflows: Seq[Workflow], templates: Seq[TemplateElement], groups: Seq[Group])
+case class WorkflowVersion(id: String, version: Option[Long], tag: Option[String], group: Option[String])

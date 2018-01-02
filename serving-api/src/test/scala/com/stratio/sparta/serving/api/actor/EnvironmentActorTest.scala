@@ -16,13 +16,11 @@
 
 package com.stratio.sparta.serving.api.actor
 
-import java.util
-
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import com.stratio.sparta.security.SpartaSecurityManager
-import com.stratio.sparta.serving.api.actor.EnvironmentActor.{Response, ResponseEnvironment, ResponseEnvironmentVariable}
+import com.stratio.sparta.serving.api.actor.EnvironmentActor._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
@@ -32,7 +30,6 @@ import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentVariable}
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
-import org.apache.zookeeper.KeeperException.NoNodeException
 import org.apache.zookeeper.data.Stat
 import org.json4s.jackson.Serialization.read
 import org.junit.runner.RunWith
@@ -95,7 +92,15 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
     val deleteBuilder = mock[DeleteBuilder]
     val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
     val setDataBuilder = mock[SetDataBuilder]
-    val environmentActor = system.actorOf(Props(new EnvironmentActor(curatorFramework)))
+
+    val groupRaw =
+      """
+        |{
+        |"name": "default"
+        |}
+      """.stripMargin
+
+    lazy val environmentActor = system.actorOf(Props(new EnvironmentActor(curatorFramework)))
     implicit val timeout: Timeout = Timeout(15.seconds)
     CuratorFactoryHolder.setInstance(curatorFramework)
   }
@@ -108,6 +113,7 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
   "EnvironmentActor" must {
 
     "FindEnvironment: returns an exception because the node of type does not exist yet" in new TestData {
+
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()

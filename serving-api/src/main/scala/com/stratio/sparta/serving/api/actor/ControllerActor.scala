@@ -70,6 +70,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     .props(Props(new ConfigActor())), ConfigActorName)
   val environmentActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new EnvironmentActor(curatorFramework))), EnvironmentActorName)
+  val groupActor = context.actorOf(RoundRobinPool(DefaultInstances)
+    .props(Props(new GroupActor(curatorFramework))), GroupActorName)
   val metadataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -79,6 +81,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     else Option(context.actorOf(Props(new NginxActor()), NginxActorName))
 
   statusActor ! AddClusterListeners
+  groupActor ! GroupActor.Initialize
 
   val actorsMap = Map(
     StatusActorName -> statusActor,
@@ -91,7 +94,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     ConfigActorName -> configActor,
     CrossdataActorName -> crossdataActor,
     MetadataActorName -> metadataActor,
-    EnvironmentActorName -> environmentActor
+    EnvironmentActorName -> environmentActor,
+    GroupActorName -> groupActor
   ) ++ {
     if(isLocalExecution) Map.empty else Map(NginxActorName -> nginxActor.get)
   }
@@ -147,7 +151,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
       serviceRoutes.executionRoute(user) ~ serviceRoutes.workflowRoute(user) ~ serviceRoutes.appStatusRoute ~
       serviceRoutes.pluginsRoute(user) ~ serviceRoutes.driversRoute(user) ~ serviceRoutes.swaggerRoute ~
       serviceRoutes.metadataRoute(user) ~ serviceRoutes.serviceInfoRoute(user) ~ serviceRoutes.configRoute(user) ~
-      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user)
+      serviceRoutes.crossdataRoute(user) ~ serviceRoutes.environmentRoute(user) ~ serviceRoutes.groupRoute(user)
   }
 
   lazy val webRoutes: Route =
@@ -189,6 +193,8 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   def configRoute(user: Option[LoggedUser]): Route = configService.routes(user)
 
   def environmentRoute(user: Option[LoggedUser]): Route = environmentService.routes(user)
+
+  def groupRoute(user: Option[LoggedUser]): Route = groupService.routes(user)
 
   def metadataRoute(user: Option[LoggedUser]): Route = metadataService.routes(user)
 
@@ -250,6 +256,12 @@ class ServiceRoutes(actorsMap: Map[String, ActorRef], context: ActorContext, cur
   private val environmentService = new EnvironmentHttpService {
     override implicit val actors: Map[String, ActorRef] = actorsMap
     override val supervisor: ActorRef = actorsMap(AkkaConstant.EnvironmentActorName)
+    override val actorRefFactory: ActorRefFactory = context
+  }
+
+  private val groupService = new GroupHttpService {
+    override implicit val actors: Map[String, ActorRef] = actorsMap
+    override val supervisor: ActorRef = actorsMap(AkkaConstant.GroupActorName)
     override val actorRefFactory: ActorRefFactory = context
   }
 

@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.serving.core.constants.AppConstant.DefaultGroup
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import org.joda.time.DateTime
@@ -29,5 +30,8 @@ case class Workflow(
                      executionEngine : ExecutionEngine = WorkflowExecutionEngine.Streaming,
                      uiSettings: Option[UiSettings] = None,
                      creationDate: Option[DateTime] = None,
-                     lastUpdateDate: Option[DateTime] = None
+                     lastUpdateDate: Option[DateTime] = None,
+                     version: Long = 0L,
+                     group: String = DefaultGroup,
+                     tag: Option[String] = None
                    )
