@@ -19,7 +19,7 @@
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
            "required": true,
-           "default": ",",
+           "default": "{{DEFAULT_DELIMITER}}",
            "tooltip": "Delimiter character in select expression ",
            "qa": "fragment-details-select-delimiter"
         }

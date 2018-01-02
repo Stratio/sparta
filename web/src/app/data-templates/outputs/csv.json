@@ -10,8 +10,6 @@
         "propertyId": "path",
         "propertyName": "_PATH_",
         "propertyType": "text",
-        "regexp": "^[a-zA-Z0-9:_\\.\\-\\+/\\\\]{2,}\\.csv$",
-        "default": "path_to_csv.csv",
         "required": true,
         "qa": "fragment-details-csv-path"
       },
@@ -40,9 +38,8 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Any character is accepted except: \\ \" #",
-        "regexp": "[^\"#\\\\]",
         "maxlength": "1",
-        "default": ",",
+        "default": "{{DEFAULT_DELIMITER}}",
         "trim": false,
         "required": true,
         "qa": "fragment-details-csv-delimiter"

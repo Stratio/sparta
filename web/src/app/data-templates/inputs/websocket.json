@@ -10,8 +10,7 @@
         "propertyId": "url",
         "propertyName": "_URL_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "ws://stream.meetup.com/2/rsvps",
+        "default": "{{WEBSOCKET_URL}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-websocket-url"
@@ -20,7 +19,7 @@
           "propertyId": "outputField",
           "propertyName": "_OUTPUT_FIELD_",
           "propertyType": "text",
-          "default": "raw",
+          "default": "{{DEFAULT_OUTPUT_FIELD}}",
           "required": true,
           "tooltip": "Name assigned to the output field generated",
           "qa": "fragment-details-websocket-outputField"

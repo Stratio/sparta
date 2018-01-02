@@ -10,8 +10,7 @@
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "jdbc:postgresql://dbserver:port/database?user=postgres",
+        "default": "{{JDBC_URL}}",
         "required": true,
         "tooltip": "Url to connect to one relational Database with jdbc",
         "qa": "fragment-details-jdbc-url"
@@ -20,7 +19,6 @@
         "propertyId": "batchsize",
         "propertyName": "_JDBC_BATCH_SIZE_",
         "propertyType": "text",
-        "regexp": "",
         "default": "1000",
         "required": false,
         "tooltip": "Number of insert or upsert statements that are sent to Database on each partition",
@@ -30,8 +28,6 @@
         "propertyId": "driver",
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": false,
         "tooltip": "Driver class, this property has priority to URL",
         "qa": "fragment-details-jdbc-driver"

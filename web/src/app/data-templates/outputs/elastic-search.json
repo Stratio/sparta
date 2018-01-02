@@ -21,8 +21,7 @@
                "propertyId": "node",
                "propertyName": "_HOST_",
                "propertyType": "text",
-               "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-               "default": "localhost",
+               "default": "{{ES_HOST}}",
                "required": true,
                "width": 6,
                "qa": "fragment-details-elasticSearch-node"
@@ -31,8 +30,7 @@
                "propertyId": "httpPort",
                "propertyName": "_HTTP_PORT_",
                "propertyType": "text",
-               "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-               "default": "9200",
+               "default": "{{ES_PORT}}",
                "width": 3,
                "required": true,
                "qa": "fragment-details-elasticSearch-httpPort"
@@ -43,8 +41,7 @@
          "propertyId": "clusterName",
          "propertyName": "_CLUSTER_NAME_",
          "propertyType": "text",
-         "regexp": "",
-         "default": "elasticsearch",
+         "default": "{{ES_CLUSTER}}",
          "required": true,
          "qa": "fragment-details-elasticSearch-clusterName"
       },
@@ -52,8 +49,7 @@
          "propertyId": "indexMapping",
          "propertyName": "_INDEX_MAPPING_",
          "propertyType": "text",
-         "regexp": "",
-         "default": "sparta",
+         "default": "{{ES_INDEX_MAPPING}}",
          "tooltip": "Value will be used as mapping name for indexing.",
          "required": false,
          "qa": "fragment-details-elasticSearch-indexMapping"
@@ -78,10 +74,9 @@
          "propertyId": "timeStampMapperFormat",
          "propertyName": "_TIME_STAMP_MAPPING_",
          "propertyType": "text",
-         "regexp": "",
          "tooltip": "Specify the format the timestamp will have",
          "required": false,
-         "qa": "fragment-details-elasticSearch-clusterName"
+         "qa": "fragment-details-elasticSearch-ts-mapper-format"
       },
       {
          "propertyId": "saveOptions",

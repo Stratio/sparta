@@ -10,7 +10,7 @@
         "propertyId": "url",
         "propertyName": "_JDBC_URL_",
         "propertyType": "text",
-        "default": "jdbc:postgresql://dbserver:port/database?user=postgres",
+        "default": "{{POSTGRES_URL}}",
         "required": true,
         "tooltip": "Url to connect to one Postgres Database",
         "qa": "fragment-details-postgres-url"
@@ -19,8 +19,6 @@
         "propertyId": "driver",
         "propertyName": "_JDBC_DRIVER_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": false,
         "tooltip": "Driver class, this property has priority to URL",
         "qa": "fragment-details-jdbc-driver"
@@ -138,7 +136,6 @@
         "propertyId": "encoding",
         "propertyName": "_POSTGRES_ENCODING_",
         "propertyType": "text",
-        "regexp": "",
         "default": "UTF8",
         "visible": [
           [
@@ -156,7 +153,6 @@
         "propertyId": "batchsize",
         "propertyName": "_JDBC_BATCH_SIZE_",
         "propertyType": "text",
-        "regexp": "",
         "visible": [
           [
             {
@@ -174,9 +170,7 @@
         "propertyId": "saveOptions",
         "propertyName": "_POSTGRES_SAVE_PROPERTIES_",
         "propertyType": "list",
-        "default": "",
         "required": false,
-        "tooltip": "",
         "qa": "fragment-details-postgres-save-properties",
         "fields": [
           {

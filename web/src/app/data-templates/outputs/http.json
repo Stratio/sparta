@@ -11,8 +11,6 @@
         "propertyId": "url",
         "propertyName": "_URL_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-http-url"
@@ -21,8 +19,7 @@
         "propertyId": "connTimeout",
         "propertyName": "_CONN_TIMEOUT_",
         "propertyType": "text",
-        "regexp": "",
-        "default": 1000,
+        "default": "1000",
         "required": false,
         "tooltip": "Value for the connection timeout. Default to 1000ms.",
         "qa": "fragment-details-http-output-conn-timeout"
@@ -31,8 +28,7 @@
         "propertyId": "readTimeout",
         "propertyName": "_READ_TIMEOUT_",
         "propertyType": "text",
-        "regexp": "",
-        "default": 5000,
+        "default": "5000",
         "required": false,
         "tooltip": "Value for the read timeout. Default to 5000ms.",
         "qa": "fragment-details-http-output-read-timeout"
@@ -62,9 +58,8 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Only eligible if Output Format is set to Row. Any character is accepted except: \\ \" #",
-        "regexp": "[^\"#\\\\]",
         "maxLength": "1",
-        "default": ",",
+        "default": "{{DEFAULT_DELIMITER}}",
         "trim": false,
         "required": false,
         "qa": "fragment-details-http-delimiter"
@@ -93,8 +88,6 @@
         "propertyId": "parameterName",
         "propertyName": "_PARAMETER_NAME_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": false,
         "tooltip": "Valid only if Post Type is set to parameter. Value entered will be used a key name.",
         "qa": "fragment-details-http-parameter-name"

@@ -10,7 +10,6 @@
         "propertyId": "hosts",
         "propertyName": "_HOSTS_",
         "propertyType": "list",
-        "default": "",
         "required": true,
         "tooltip": "This section let us specify the parameters needed to establish a MongoDB connection, with different replica set or with sharding.",
         "qa": "fragment-details-mongoDb-hosts",
@@ -19,8 +18,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-            "default": "localhost",
+            "default": "{{MONGODB_HOST}}",
             "required": true,
              "width": 6,
             "qa": "fragment-details-mongoDb-hostName"
@@ -29,9 +27,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-            "default": "27017",
-            "width": 4,
+            "default": "{{MONGODB_PORT}}",
             "required": true,
              "width": 2,
             "qa": "fragment-details-mongoDb-port"
@@ -43,7 +39,7 @@
         "propertyName": "_DATEBASE_NAME_",
         "propertyType": "text",
         "regexp": "",
-        "default": "sparta",
+        "default": "{{MONGODB_DB}}",
         "required": true,
         "tooltip": "Default value set to sparta.",
         "qa": "fragment-details-mongoDb-dbName"

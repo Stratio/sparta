@@ -41,7 +41,6 @@
            "contentType": "JSON",
            "width": 8,
            "tooltip": "Avro Schema in json format",
-           "default": "",
            "required": false,
            "qa": "workflow-transformation-avro-schema-provided"
         },

@@ -10,8 +10,7 @@
         "propertyId": "hostname",
         "propertyName": "_HOST_",
         "propertyType": "text",
-        "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-        "default": "localhost",
+        "default": "{{REDIS_HOST}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-redis-hostname"
@@ -20,8 +19,7 @@
         "propertyId": "port",
         "propertyName": "_PORT_",
         "propertyType": "text",
-        "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-        "default": "6379",
+        "default": "{{REDIS_PORT}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-redis-port"

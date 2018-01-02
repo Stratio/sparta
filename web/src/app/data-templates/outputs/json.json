@@ -10,8 +10,6 @@
         "propertyId": "path",
         "propertyName": "_PATH_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-filesystem-path"

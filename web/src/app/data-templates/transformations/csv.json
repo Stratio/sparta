@@ -213,7 +213,7 @@
            "propertyName": "_DELIMITER_",
            "propertyType": "text",
            "required": true,
-           "default": ",",
+           "default": "{{DEFAULT_DELIMITER}}",
            "tooltip": "Delimiter character in csv string",
            "qa": "fragment-details-csv-delimiter"
         },

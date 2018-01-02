@@ -81,6 +81,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     else Option(context.actorOf(Props(new NginxActor()), NginxActorName))
 
   statusActor ! AddClusterListeners
+  environmentActor ! EnvironmentActor.Initialize
   groupActor ! GroupActor.Initialize
 
   val actorsMap = Map(

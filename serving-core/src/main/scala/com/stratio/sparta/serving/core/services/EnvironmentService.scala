@@ -33,6 +33,15 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   private val templateService = new TemplateService(curatorFramework)
   private val groupService = new GroupService(curatorFramework)
 
+  def initialize(): Try[Unit] = {
+    Try {
+      if (find().toOption.isEmpty) {
+        create(Environment(AppConstant.DefaultEnvironment))
+        log.debug("The environment initialization have been completed")
+      } else log.debug("The environment is already created")
+    }
+    }
+  
   def find(): Try[Environment] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath))
@@ -172,5 +181,4 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
           throw new RuntimeException("Error importing environment data", e)
       }
     }
-
 }

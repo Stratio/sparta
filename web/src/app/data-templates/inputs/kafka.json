@@ -19,8 +19,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "regexp": "((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))|(((?![0-9]+$)(?!.*-$)(?!-)[a-zA-Z0-9-]{2,63}))",
-            "default": "localhost",
+            "default": "{{KAFKA_BROKER_HOST}}",
             "required": true,
             "width": 6,
             "tooltip": "Server address.",
@@ -31,8 +30,7 @@
             "propertyId": "port",
             "propertyName": "_PORT_",
             "propertyType": "text",
-            "regexp": "(0|([1-9]\\d{0,3}|[1-5]\\d{4}|[6][0-5][0-5]([0-2]\\d|[3][0-5])))",
-            "default": "9092",
+            "default": "{{KAFKA_BROKER_PORT}}",
             "required": true,
             "width": 2,
             "tooltip": "Server port.",
@@ -65,7 +63,7 @@
           "propertyId": "group.id",
           "propertyName": "_GROUP_ID_",
           "propertyType": "text",
-          "default": "sparta",
+          "default": "{{KAFKA_GROUP_ID}}",
           "required": false,
           "tooltip": "Identifies the consumer group this consumer belongs to.",
           "qa": "fragment-details-stratio-kafkadirect-group-id"
@@ -96,7 +94,7 @@
           "propertyId": "outputField",
           "propertyName": "_OUTPUT_FIELD_",
           "propertyType": "text",
-          "default": "raw",
+          "default": "{{DEFAULT_OUTPUT_FIELD}}",
           "required": true,
           "visible": [
              [

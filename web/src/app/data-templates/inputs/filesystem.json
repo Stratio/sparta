@@ -10,8 +10,6 @@
         "propertyId": "directory",
         "propertyName": "_DIRECTORY_",
         "propertyType": "text",
-        "regexp": "",
-        "default": "",
         "required": true,
         "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
         "qa": "fragment-details-filesystem-url"
@@ -20,7 +18,7 @@
          "propertyId": "outputField",
          "propertyName": "_OUTPUT_FIELD_",
          "propertyType": "text",
-         "default": "raw",
+         "default": "{{DEFAULT_OUTPUT_FIELD}}",
          "required": true,
          "tooltip": "Name assigned to the output field generated",
          "qa": "fragment-details-websocket-outputField"
@@ -29,7 +27,6 @@
          "propertyId": "newFilesOnly",
          "propertyName": "_NEW_FILES_ONLY_",
          "propertyType": "boolean",
-         "regexp": "",
          "default": false,
          "required": true,
          "tooltip": "Whether or not avoid reading previously existing files",
@@ -39,7 +36,6 @@
          "propertyId": "filterString",
          "propertyName": "_FILTER_OUT_FILES_",
          "propertyType": "text",
-         "default": "",
          "required": false,
          "tooltip": "Comma-separated list of file names to be excluded",
          "qa": "fragment-details-filesystem-filter"

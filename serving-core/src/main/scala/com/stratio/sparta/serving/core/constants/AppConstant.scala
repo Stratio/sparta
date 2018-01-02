@@ -17,6 +17,7 @@ package com.stratio.sparta.serving.core.constants
 
 import akka.actor.ActorSystem
 import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 
 import scala.util.Properties
@@ -113,4 +114,31 @@ object AppConstant extends ZookeeperUtils {
   //Scheduler system to schedule threads executions
   val SchedulerSystem = ActorSystem("SchedulerSystem", SpartaConfig.daemonicAkkaConfig)
   val CustomTypeKey = "customClassType"
+
+  //Environment
+  val DefaultEnvironment = Seq(
+    EnvironmentVariable("DEFAULT_OUTPUT_FIELD", "raw"),
+    EnvironmentVariable("DEFAULT_DELIMITER", ","),
+    EnvironmentVariable("CROSSDATA_ZOOKEEPER_CONNECTION", "localhost:2181"),
+    EnvironmentVariable("CROSSDATA_ZOOKEEPER_PATH", "/crossdata/offsets"),
+    EnvironmentVariable("KAFKA_BROKER_HOST", "localhost"),
+    EnvironmentVariable("KAFKA_BROKER_PORT", "9092"),
+    EnvironmentVariable("KAFKA_GROUP_ID", "sparta"),
+    EnvironmentVariable("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
+    EnvironmentVariable("CASSANDRA_HOST", "localhost"),
+    EnvironmentVariable("CASSANDRA_PORT", "9042"),
+    EnvironmentVariable("CASSANDRA_KEYSPACE", "sparta"),
+    EnvironmentVariable("CASSANDRA_CLUSTER", "sparta"),
+    EnvironmentVariable("ES_HOST", "localhost"),
+    EnvironmentVariable("ES_PORT", "9200"),
+    EnvironmentVariable("ES_CLUSTER", "elasticsearch"),
+    EnvironmentVariable("ES_INDEX_MAPPING", "sparta"),
+    EnvironmentVariable("JDBC_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    EnvironmentVariable("POSTGRES_URL", "jdbc:postgresql://dbserver:port/database?user=postgres"),
+    EnvironmentVariable("MONGODB_HOST", "localhost"),
+    EnvironmentVariable("MONGODB_PORT", "27017"),
+    EnvironmentVariable("MONGODB_DB", "sparta"),
+    EnvironmentVariable("REDIS_HOST", "localhost"),
+    EnvironmentVariable("REDIS_PORT", "6379")
+  )
 }

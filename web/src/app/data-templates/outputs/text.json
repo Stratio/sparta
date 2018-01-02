@@ -21,9 +21,8 @@
         "propertyName": "_DELIMITER_",
         "propertyType": "text",
         "tooltip": "Only eligible if output format is set to Row. Any character is accepted except: \\ \" #",
-        "regexp": "[^\"#\\\\]",
         "maxLength": "1",
-        "default": ",",
+        "default": "{{DEFAULT_DELIMITER}}",
         "trim": false,
         "required": false,
         "qa": "fragment-details-filesystem-delimiter"
