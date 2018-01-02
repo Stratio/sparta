@@ -101,6 +101,6 @@ object MarathonConstant {
     marathonLB_path <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_0_PATH").notBlank
   } yield {
     val ssl = Properties.envOrElse("SECURITY_TLS_ENABLE", "false").toBoolean
-    s"http${if (ssl) "s" else ""}:" + s"//$marathonLB_host+$marathonLB_path"
+    s"http${if (ssl) "s" else ""}:" + s"//${marathonLB_host + marathonLB_path}"
   }
 }
