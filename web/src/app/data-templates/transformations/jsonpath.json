@@ -1,7 +1,7 @@
   {
      "name": "JsonPath",
      "icon": "JsonPath",
-     "className": "JsonPathTransformStep",
+     "className": "JsonPathTransformStepStream",
      "classPrettyName": "JsonPath",
      "arity": ["UnaryToNary"],
      "description": "Parsing input field with json format to selected output fields",

@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathTransformStepTest extends WordSpecLike with Matchers {
+class JsonPathTransformStepStreamTest extends WordSpecLike with Matchers {
 
   val inputField = "json"
   val schema = StructType(Seq(StructField(inputField, StringType)))
@@ -71,7 +71,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonPathTransformStep(
+      val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -102,7 +102,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonPathTransformStep(
+      val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -134,7 +134,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[AssertionError] should be thrownBy new JsonPathTransformStep(
+      an[AssertionError] should be thrownBy new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -161,7 +161,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      an[Exception] should be thrownBy new JsonPathTransformStep(
+      an[Exception] should be thrownBy new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -197,7 +197,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonPathTransformStep(
+      val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -238,7 +238,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val result = new JsonPathTransformStep(
+      val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,
@@ -279,7 +279,7 @@ class JsonPathTransformStepTest extends WordSpecLike with Matchers {
           |}]
           | """.stripMargin
 
-      val transform = new JsonPathTransformStep(
+      val transform = new JsonPathTransformStepStream(
         "json",
         outputOptions,
         null,

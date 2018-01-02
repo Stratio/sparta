@@ -34,12 +34,14 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 
-class JsonPathTransformStep(name: String,
-                            outputOptions: OutputOptions,
-                            ssc: Option[StreamingContext],
-                            xDSession: XDSession,
-                            properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+abstract class JsonPathTransformStep[Underlying[Row]](
+                                                       name: String,
+                                                       outputOptions: OutputOptions,
+                                                       ssc: Option[StreamingContext],
+                                                       xDSession: XDSession,
+                                                       properties: Map[String, JSerializable]
+                                                     )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
     with ErrorCheckingStepRow
     with SchemaCasting {
 
@@ -65,7 +67,7 @@ class JsonPathTransformStep(name: String,
   }
   assert(inputField.nonEmpty)
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
       inputStream.flatMap(data => parse(data))
     }

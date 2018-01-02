@@ -145,8 +145,17 @@ object DistributedMonad {
       */
     implicit class DataframeDistributedMonad(val ds: Dataset[Row]) extends DistributedMonad[Dataset] {
 
-      override def map(func: Row => Row): Dataset[Row] = ds.map(func)(RowEncoder(ds.schema))
-      override def flatMap(func: Row => TraversableOnce[Row]): Dataset[Row] = ds.flatMap(func)(RowEncoder(ds.schema))
+      override def map(func: Row => Row): Dataset[Row] ={
+        val newSchema = if(ds.rdd.isEmpty()) ds.schema else func(ds.first()).schema
+        ds.map(func)(RowEncoder(newSchema))
+      }
+      override def flatMap(func: Row => TraversableOnce[Row]): Dataset[Row] ={
+        val newSchema = if(ds.rdd.isEmpty()) ds.schema else {
+          val firstValue = func(ds.first()).toSeq
+          if(firstValue.nonEmpty) firstValue.head.schema else ds.schema
+        }
+        ds.flatMap(func)(RowEncoder(newSchema))
+      }
       def writeTemplate(outputOptions: OutputOptions,
                         save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                        ): Unit = {

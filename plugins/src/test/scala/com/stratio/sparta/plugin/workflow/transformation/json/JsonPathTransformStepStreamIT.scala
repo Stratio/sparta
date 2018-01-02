@@ -33,7 +33,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class JsonPathTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A JsonTransformStepIT" should "transform json events the input DStream" in {
     val JSON =
@@ -76,7 +76,7 @@ class JsonPathTransformStepIT extends TemporalSparkContext with Matchers with Di
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 
-    val result = new JsonPathTransformStep(
+    val result = new JsonPathTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),
