@@ -37,7 +37,7 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
     GlobalSettings(),
-    StreamingSettings("6s", None, None, None, CheckpointSettings("test/test")),
+    StreamingSettings("6s", None, None, None, None, None, CheckpointSettings("test/test")),
     SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
       None, SubmitArguments(), SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
   )

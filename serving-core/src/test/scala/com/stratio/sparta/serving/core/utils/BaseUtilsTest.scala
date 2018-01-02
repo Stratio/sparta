@@ -40,7 +40,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
 
     val settingsModel = Settings(
       GlobalSettings(executionMode),
-      StreamingSettings("6s", None, None, None, CheckpointSettings()),
+      StreamingSettings("6s", None, None, None, None, None, CheckpointSettings()),
       SparkSettings("local[*]", false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )

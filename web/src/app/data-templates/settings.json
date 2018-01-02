@@ -141,6 +141,32 @@
            "width": 4,
           "qa": "spark-streaming-backpressure-initial-rate"
         },
+         {
+            "propertyId": "stopGracefully",
+            "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
+            "propertyType": "switch",
+            "required": true,
+            "width": "auto",
+            "default": true,
+            "tooltip": "Stop gracefully the streaming contexts when shutting down the spark applications",
+            "qa": "workflow-spark-stopGracefully"
+         },
+         {
+            "propertyId": "stopGracefulTimeout",
+            "propertyName": "SETTINGS._SPARK_STOP_GRACEFUL_TIMEOUT_",
+            "propertyType": "text",
+            "width": 4,
+            "visible": [
+               [
+                  {
+                     "propertyId": "stopGracefully",
+                     "value": true
+                  }
+               ]
+            ],
+            "tooltip": "Turn this down to prevent long blocking at shutdown",
+            "qa": "workflow-spark-stopGracefulTimeout"
+         },
         {
           "name" : "checkpointSettings",
           "properties": [
@@ -231,7 +257,6 @@
           "propertyType": "boolean",
           "width": "auto",
           "default": false,
-          "float": true,
           "tooltip": "Enables Kerberos integration and send the principal and keytab arguments if  available through the spark submit",
           "qa": "workflow-spark-kerberos"
         },
@@ -471,8 +496,15 @@
                       "default": "0.6",
                       "tooltip": "Fraction of (heap space - 300MB) used for execution and storage",
                       "qa": "workflow-spark-memory-fraction"
+                   },
+                   {
+                      "propertyId": "sparkParalelism",
+                      "propertyName": "SETTINGS._SPARK_DEFAULT_PARALLELISM_",
+                      "propertyType": "text",
+                      "width": 4,
+                      "tooltip": "Default number of partitions in RDDs returned by transformations like join, reduceByKey, and parallelize when not set by user",
+                      "qa": "workflow-spark-default-parallelism"
                    }
-
                 ]
              },
             {
@@ -603,6 +635,26 @@
                 "qa": "workflow-spark-coarse"
              },
              {
+                "propertyId": "sparkKryoSerialization",
+                "propertyName": "SETTINGS._SPARK_KRYO_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": false,
+                "tooltip": "Enable Kryo Serialization",
+                "qa": "workflow-spark-Kryo"
+             },
+             {
+                "propertyId": "sparkSqlCaseSensitive",
+                "propertyName": "SETTINGS._SPARK_SQL_CASE_SENSITIVE_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": true,
+                "tooltip": "Case sensitive in SQL queries",
+                "qa": "workflow-spark-case-sensitive"
+             },
+             {
                 "propertyId": "parquetBinaryAsString",
                 "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
                 "propertyType": "boolean",
@@ -611,33 +663,7 @@
                 "default": true,
                 "tooltip": "Tells Spark SQL to treat binary-encoded data as strings",
                 "qa": "workflow-spark-parquetBinaryAsString"
-             },
-            {
-                "propertyId": "stopGracefully",
-                "propertyName": "SETTINGS._SPARK_STOP_GRACEFULLY_",
-                "propertyType": "switch",
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "Stop gracefully the streaming contexts when shutting down the spark applications",
-                "qa": "workflow-spark-stopGracefully"
-             },
-            {
-              "propertyId": "stopGracefulTimeout",
-              "propertyName": "SETTINGS._SPARK_STOP_GRACEFUL_TIMEOUT_",
-              "propertyType": "text",
-              "width": 4,
-               "visible": [
-                  [
-                     {
-                        "propertyId": "stopGracefully",
-                        "value": true
-                     }
-                  ]
-               ],
-              "tooltip": "Turn this down to prevent long blocking at shutdown",
-              "qa": "workflow-spark-stopGracefulTimeout"
-            }
+             }
           ]
         }
       ]

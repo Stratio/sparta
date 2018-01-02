@@ -136,8 +136,8 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   private[core] def getSparkClusterConfig: Map[String, String] = {
     Map(
       SubmitCoarseConf -> workflow.settings.sparkSettings.sparkConf.coarse.map(_.toString),
-      SubmitGracefullyStopConf -> workflow.settings.sparkSettings.sparkConf.stopGracefully.map(_.toString),
-      SubmitGracefullyStopTimeoutConf -> workflow.settings.sparkSettings.sparkConf.stopGracefulTimeout,
+      SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
+      SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
       SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax,
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory,
@@ -148,6 +148,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
       SubmitLocalDirConf -> workflow.settings.sparkSettings.sparkConf.sparkLocalDir,
       SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
+      SubmitSqlCaseSensitiveConf -> workflow.settings.sparkSettings.sparkConf.sparkSqlCaseSensitive.map(_.toString),
       SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
       SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate,
       SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions,
@@ -158,6 +159,9 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         executorForcePullImage.map(_.toString),
       SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosNativeJavaLibrary,
       SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
+      SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.sparkParallelism,
+      SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
+        .flatMap(enable => if(enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
       SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }

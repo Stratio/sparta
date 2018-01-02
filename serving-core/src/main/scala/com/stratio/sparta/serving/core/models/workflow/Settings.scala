@@ -43,6 +43,8 @@ case class StreamingSettings(
                               remember: Option[String] = None,
                               backpressure: Option[Boolean] = None,
                               backpressureInitialRate: Option[String] = None,
+                              stopGracefully: Option[Boolean] = None,
+                              stopGracefulTimeout: Option[String] = None,
                               checkpointSettings: CheckpointSettings
                             )
 
@@ -59,7 +61,7 @@ case class SparkSettings(
 case class SubmitArguments(
                             userArguments: Seq[UserSubmitArgument] = Seq.empty[UserSubmitArgument],
                             deployMode: Option[String] = Option("client"),
-                            supervise: Option[Boolean] = Option(false),
+                            supervise: Option[Boolean] = None,
                             jars: Option[String] = None,
                             propertiesFile: Option[String] = None,
                             packages: Option[String] = None,
@@ -76,11 +78,11 @@ case class SparkConf(
                       sparkDockerConf: SparkDockerConf,
                       sparkMesosConf: SparkMesosConf,
                       userSparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
-                      coarse: Option[Boolean] = Option(true),
-                      stopGracefully: Option[Boolean] = Option(true),
-                      stopGracefulTimeout: Option[String] = None,
+                      coarse: Option[Boolean] = None,
                       sparkUser: Option[String] = None,
                       sparkLocalDir: Option[String] = None,
+                      sparkKryoSerialization: Option[Boolean] = None,
+                      sparkSqlCaseSensitive: Option[Boolean] = None,
                       parquetBinaryAsString: Option[Boolean] = None,
                       executorExtraJavaOptions: Option[String] = Option("-XX:+UseConcMarkSweepGC")
                     )
@@ -94,7 +96,8 @@ case class SparkResourcesConf(
                                mesosExtraCores: Option[String] = None,
                                localityWait: Option[String] = Option("100"),
                                taskMaxFailures: Option[String] = Option("8"),
-                               sparkMemoryFraction: Option[String] = Option("0.6")
+                               sparkMemoryFraction: Option[String] = Option("0.6"),
+                               sparkParallelism: Option[String] = None
                              )
 
 case class SparkDockerConf(
@@ -103,7 +106,7 @@ case class SparkDockerConf(
                             executorDockerVolumes: Option[String] =
                             Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
                               "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro"),
-                            executorForcePullImage: Option[Boolean] = Option(false)
+                            executorForcePullImage: Option[Boolean] = None
                           )
 
 case class SparkMesosConf(

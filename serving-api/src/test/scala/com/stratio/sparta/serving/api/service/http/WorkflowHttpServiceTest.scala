@@ -52,10 +52,12 @@ with HttpServiceBaseTest {
 
   "WorkflowHttpService.findById" should {
     "return workflow" in {
-      startAutopilot(Left(Success(getWorkflowModel())))
+      val initWorkflow = getWorkflowModel()
+      startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
-        responseAs[Workflow] should equal(getWorkflowModel())
+        val a = responseAs[Workflow]
+        a should equal(initWorkflow)
       }
     }
     "return a 500 if there was any error" in {
