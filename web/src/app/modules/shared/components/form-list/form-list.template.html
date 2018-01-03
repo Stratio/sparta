@@ -8,7 +8,7 @@
          <div *ngFor="let item of items.controls; let i = index; let last = last;">
             <div [formGroup]="item" class="row">
                <div class="list-field" [ngClass]="{'last' : last}">
-                  <ng-container *ngFor="let field of formListData.fields; let j = index;">
+                  <ng-container *ngFor="let field of formListData; let j = index;">
                      <div *ngIf="item.controls[field.propertyId].enabled" [className]="getItemClass(field)">
                         <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
                            label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"

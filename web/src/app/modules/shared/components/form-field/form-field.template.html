@@ -72,7 +72,7 @@
 
 
    <form-list *ngIf="field.propertyType == 'list'" 
-      [formListData]="field"
+      [formListData]="field.fields"
       qaTag="{{qa}}"
       [required]="field.required" 
       tooltip="{{field.tooltip}}"

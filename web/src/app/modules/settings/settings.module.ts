@@ -19,14 +19,14 @@ import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
 import { SharedModule } from '@app/shared';
 import { EgeoModule, StModalModule } from '@stratio/egeo';
-import { SpartaBackups } from '@app/settings/backups/backups.component';
-import { SpartaPlugins } from '@app/settings/resources/plugins/plugins.component';
-import { SpartaDrivers } from '@app/settings/resources/drivers/drivers.component';
-import { SpartaCrossdata } from '@app/settings/crossdata/crossdata.component';
+import { SpartaBackups } from './backups/backups.component';
+import { SpartaPlugins } from './resources/plugins/plugins.component';
+import { SpartaDrivers } from './resources/drivers/drivers.component';
 import { ExecuteBackup } from './backups/execute-backup/execute-backup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CrossdataTables } from '@app/settings/crossdata/crossdata-tables/crossdata-tables.component';
-import { CrossdataQueries } from '@app/settings/crossdata/crossdata-queries/crossdata-queries.component';
+
+import { EnvironmentComponent } from './environment/environment.component';
+import { ImportEnvironmentModalComponent } from './environment/import-environment-modal/import-environment-modal.component';
 
 @NgModule({
     declarations: [
@@ -35,15 +35,14 @@ import { CrossdataQueries } from '@app/settings/crossdata/crossdata-queries/cros
         ExecuteBackup,
         SpartaDrivers,
         SpartaPlugins,
-        SpartaCrossdata,
-        CrossdataQueries,
-        CrossdataTables
+        EnvironmentComponent,
+        ImportEnvironmentModalComponent
     ],
     imports: [
         EgeoModule.forRoot(),
         FormsModule,
          ReactiveFormsModule,
-        StModalModule.withComponents([ExecuteBackup]),
+        StModalModule.withComponents([ExecuteBackup, ImportEnvironmentModalComponent]),
         SettingsRoutingModule,
         SharedModule
     ]

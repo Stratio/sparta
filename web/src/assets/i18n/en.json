@@ -40,6 +40,8 @@
       "CANCEL": "Cancel",
       "CREATE": "Create",
       "SAVE": "Save",
+      "ADD_ENVIRONMENT": "Add environment variable",
+      "ENVIRONMENT": "Environment",
       "NAME_PLACEHOLDER": "Workflow name",
       "DESCRIPTION_PLACEHOLDER": "Workflow description",
       "WORKFLOW_NAME": "Name",
@@ -111,6 +113,7 @@
       "DELETE_PLUGIN_TITLE": "Delete plugin",
       "DELETE_PLUGIN_MESSAGE": "Are you sure?",
       "FILTER_TABLES": "Filter tables",
+      "FILTER_ENVIRONMENT": "Search variable",
       "SHOW_TEMPORARY": "Show temporary tables",
       "EXECUTE_QUERY": "Execute query",
       "SQL_QUERY": "SQL query",
@@ -429,6 +432,8 @@
    "_SCHEMA_": "Schema",
    "_EXAMPLE_": "Example",
    "_FIELDS_PRESERVATION_": "Build output row by",
+   "_KEY_": "Name",
+   "_VALUE_": "Value",
    "FORM_TABS": {
       "STREAMINGSETTINGS": "Streaming settings",
       "SPARKSETTINGS": "Spark settings",
@@ -457,7 +462,10 @@
       "VALIDATION_ERRORS_TITLE": "Validation error",
       "WORKFLOW_SERVER_ERROR_TITLE": "Server error",
       "WORKFLOW_SERVER_ERROR_DESCRIPTION": "Workflow cannot be saved",
-      "SERVER_ERROR": "Server error"
+      "SERVER_ERROR": "Server error",
+      "SAVE_ENVIRONMENT": "The environment variables have been saved",
+      "EXPORT_ENVIRONMENT": "The environment data have been exported",
+      "IMPORT_ENVIRONMENT": "The environment data have been imported"
    },
    "WIZARD": {
       "INPUTS": "Inputs",

@@ -24,6 +24,8 @@ import { Component, ChangeDetectionStrategy, Input } from '@angular/core';
 })
 export class ToolBarComponent {
 
+    @Input() largeTools = false;
+
     constructor() { }
 
 }

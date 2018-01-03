@@ -14,25 +14,26 @@
 /// limitations under the License.
 ///
 
-import { BackupType } from 'app/models/backup.model';
-
 import * as backupsActions from 'actions/backups';
 import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
 import * as workflowActions from 'actions/workflow';
 import * as wizardActions from 'actions/wizard';
 import * as errorsActions from 'actions/errors';
+import * as environmentActions from 'actions/environment';
 
 import { CustomAlert } from 'app/models/alert.model';
 import { STALERT_SEVERITY } from '@stratio/egeo';
 
 export interface State {
+    confirmSave: boolean;
     currentAlert: Array<CustomAlert>;
     notification: any;
     showPersistentError: boolean;
 }
 
 const initialState: State = {
+    confirmSave: false,
     currentAlert: [],
     notification: null,
     showPersistentError: false
@@ -40,6 +41,16 @@ const initialState: State = {
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
+        case errorsActions.SAVED_DATA_NOTIFICATION: {
+            return Object.assign({}, state, {
+                confirmSave: true
+            });
+        }
+        case errorsActions.HIDE_SAVED_DATA_NOTIFICATION: {
+            return Object.assign({}, state, {
+                confirmSave: false
+            });
+        }
         case errorsActions.CHANGE_ROUTE: {
             return Object.assign({}, state, {
                 showPersistentError: false
@@ -203,6 +214,33 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case environmentActions.SAVE_ENVIRONMENT: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'SAVE_ENVIRONMENT'
+                }]
+            });
+        }
+        case environmentActions.EXPORT_ENVIRONMENT: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'EXPORT_ENVIRONMENT'
+                }]
+            });
+        }
+        case environmentActions.IMPORT_ENVIRONMENT: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'IMPORT_ENVIRONMENT'
+                }]
+            });
+        }
         default:
             return state;
     }
@@ -210,3 +248,4 @@ export function reducer(state: State = initialState, action: any): State {
 
 export const getCurrentAlert: any = (state: State) => state.currentAlert;
 export const showPersistentError: any = (state: State) => state.showPersistentError;
+export const pendingSavedData: any = (state: State) => state.confirmSave;

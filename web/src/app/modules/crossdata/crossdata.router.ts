@@ -14,11 +14,24 @@
 /// limitations under the License.
 ///
 
-import { Injectable } from '@angular/core';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { CrossdataComponent } from '@app/crossdata/crossdata.component';
 
-@Injectable()
-export class UtilsService {
+const crossdataRoutes: Routes = [
+    {
+        path: '',
+        component: CrossdataComponent
+    }
+];
 
+@NgModule({
+    exports: [
+        RouterModule
+    ],
+    imports: [
+        RouterModule.forChild(crossdataRoutes)
+    ]
+})
 
-
-}
+export class CrossdataRouter { }

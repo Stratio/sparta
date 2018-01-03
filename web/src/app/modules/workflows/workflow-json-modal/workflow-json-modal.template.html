@@ -15,7 +15,7 @@
          </div>
          <div class="workflow-json">
             <!--<p *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>-->
-            <sp-textarea placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" name="components-template" [qaTag]="'components-textarea-template'"
+            <sp-textarea placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
                required class="workflow-json-content" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
             <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
 

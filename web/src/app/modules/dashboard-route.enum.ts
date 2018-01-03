@@ -22,6 +22,7 @@ export const DASHBOARD_ROUTES = {
     OUTPUTS: '/templates/outputs',
     TRANSFORMATIONS: '/templates/transformations',
     RESOURCES: '/settings/resources',
-    CROSSDATA: '/settings/crossdata',
-    BACKUPS: '/settings/backups'
+    CROSSDATA: '/crossdata',
+    BACKUPS: '/settings/backups',
+    ENVIRONMENT: '/settings/environment'
 };

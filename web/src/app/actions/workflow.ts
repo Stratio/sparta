@@ -52,7 +52,7 @@ export const GET_WORKFLOW_EXECUTION_INFO_COMPLETE = '[Worflow] Get Workflow exec
 export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow execution info error';
 export const CLOSE_WORKFLOW_EXECUTION_INFO = '[Worflow] Close workflow execution info';
 export const CHANGE_ORDER = '[Workflow] Change order';
-
+export const RESET_JSON_MODAL = '[Workflow] Reset JSON Modal';
 export class ListWorkflowAction implements Action {
   readonly type = LIST_WORKFLOW;
 }
@@ -236,6 +236,11 @@ export class ChangeOrderAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class ResetJSONModal implements Action {
+  readonly type = RESET_JSON_MODAL;
+  constructor() {}
+}
+
 export type Actions =
   ListWorkflowAction |
   ListWorkflowFailAction |
@@ -265,4 +270,5 @@ export type Actions =
   GetExecutionInfoCompleteAction |
   GetExecutionInfoErrorAction |
   CloseWorkflowExecutionInfoAction |
-  ChangeOrderAction;
+  ChangeOrderAction |
+  ResetJSONModal;

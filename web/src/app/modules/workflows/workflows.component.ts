@@ -80,6 +80,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
         this.modalSubscription = this.store.select(getWorkflowModalState).subscribe(() => {
             this._modalService.close();
+            this.store.dispatch(new workflowActions.ResetJSONModal());
         });
 
         this.executionInfoSubscription = this.store.select(getExecutionInfo).subscribe((executionInfo: any) => {

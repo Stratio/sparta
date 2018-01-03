@@ -1,0 +1,39 @@
+.title {
+    margin-top:30px;
+}
+
+.form-environment {
+        display: block;
+}
+
+.search-input {
+    display: inline-block;
+    float: left;
+    margin-right: 9px;
+}
+
+.list-field{
+    width:100%;
+    display:flex;
+}
+
+.icon-remove {
+    font-size: 20px;
+    margin-top: 32px;
+    display: inline-block;
+    cursor:pointer;
+}
+
+.list-item {
+    margin-top:10px;
+}
+
+.add-element{
+    margin:20px 0;
+    color: #128bde;
+    cursor:pointer;
+
+    &:hover {
+        color: #0979c4;
+    }
+}

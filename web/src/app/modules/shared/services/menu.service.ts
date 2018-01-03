@@ -67,10 +67,16 @@ export class MenuService {
                     link: DASHBOARD_ROUTES.RESOURCES
                 },
                 {
-                    label: 'Crossdata',
-                    link: DASHBOARD_ROUTES.CROSSDATA
+                    label: 'Environment',
+                    link: DASHBOARD_ROUTES.ENVIRONMENT
                 }
             ]
+        },
+        {
+            icon: 'icon-cog',
+            label: 'Crossdata',
+            link: DASHBOARD_ROUTES.CROSSDATA,
+            subMenus: []
         }
     ];
 

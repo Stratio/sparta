@@ -16,6 +16,7 @@
 
 export * from './api/workflow.service';
 export * from './api/interceptor.service';
+export * from './api/environment.service';
 export * from './api/templates.service';
 export * from './api/api.service';
 export * from './api/backup.service';

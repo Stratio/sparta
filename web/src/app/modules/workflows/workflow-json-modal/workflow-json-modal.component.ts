@@ -68,7 +68,7 @@ export class WorkflowJsonModal implements OnInit {
                 parsedJson.description = description;
             }
 
-            this.validateWorkflow(parsedJson);
+            this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(parsedJson));
         }
     }
 
@@ -81,8 +81,5 @@ export class WorkflowJsonModal implements OnInit {
         });
     }
 
-    private validateWorkflow(json: any): void {
-        this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(json));
-    }
 }
 

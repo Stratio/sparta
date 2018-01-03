@@ -17,10 +17,11 @@
 import { SettingsComponent } from './settings.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { SpartaBackups } from '@app/settings/backups/backups.component';
-import { SpartaDrivers } from '@app/settings/resources/drivers/drivers.component';
-import { SpartaPlugins } from '@app/settings/resources/plugins/plugins.component';
-import { SpartaCrossdata } from '@app/settings/crossdata/crossdata.component';
+import { SpartaBackups } from './backups/backups.component';
+import { SpartaDrivers } from './resources/drivers/drivers.component';
+import { SpartaPlugins } from './resources/plugins/plugins.component';
+import { SpartaCrossdata } from './crossdata/crossdata.component';
+import { EnvironmentComponent } from './environment/environment.component';
 
 
 const settingsRoutes: Routes = [
@@ -49,8 +50,8 @@ const settingsRoutes: Routes = [
             component: SpartaPlugins
          },
          {
-             path: 'crossdata',
-             component: SpartaCrossdata
+            path: 'environment',
+            component: EnvironmentComponent
          }
       ]
    }

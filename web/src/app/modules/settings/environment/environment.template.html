@@ -1,0 +1,64 @@
+<div #environmentModal qaTag="environment-modal"></div>
+<tool-bar [largeTools]="true">
+    <div breadcrumb>
+        <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="backups-breadcrumb"></st-breadcrumbs>
+    </div>
+    <div selection-tools>
+               
+    </div>
+    <div general-tools>
+        <st-search class="search-input" [placeholder]="'DASHBOARD.FILTER_ENVIRONMENT' | translate" 
+        [debounce]="200" 
+        [minLength]="0"
+        [value]="filter"
+        (search)="onSearchResult($event)" 
+        qaTag="filter-environment">
+        </st-search>
+         <button class="button button-primary" (click)="saveEnvironment()" [disabled]="internalControl.pristine">{{'DASHBOARD.SAVE' | translate}}</button>
+         <floating-menu [menuOptions]="menuOptions" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
+            <div menu-action>
+               <button class="button button-toolbar">
+                    <i class="icon-actions"></i>
+                </button>
+            </div>
+         </floating-menu>
+    </div>
+</tool-bar>
+<section>
+    <div class="container">
+        <div class="egeo-title-giant title">{{'DASHBOARD.ENVIRONMENT' | translate}}</div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <form class="items-list" [formGroup]="internalControl">
+                    <div formArrayName="variables">
+                        <div class="list-item" *ngFor="let item of items.controls; let i = index; let last = last;" [hidden]="isHidden(item.value)">
+                            <div [formGroup]="item" class="row">
+                            <div class="list-field">
+                                <ng-container *ngFor="let field of fields; let j = index;">
+                                    <div [className]="'col-sm-' + field.width">
+                                        <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
+                                        label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
+                                        [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
+                                        contextualHelp="{{field.tooltip | translate}}"></sp-input>
+                                    </div>
+        
+                                </ng-container>
+                                <div><i class="icon-cross icon-remove" (click)="deleteItem(i)"></i></div>
+                            </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="add-element" (click)="addItem()">
+                    <i class="icon-circle-plus"></i>
+                    <span class="element-label">{{'DASHBOARD.ADD_ENVIRONMENT' | translate}}</span>
+                </div>
+                <button class="button button-primary" [disabled]="internalControl.pristine" (click)="saveEnvironment()">{{'DASHBOARD.SAVE' | translate}}</button>
+            </div>
+
+            
+        </div>
+    </div>
+</section>

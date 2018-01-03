@@ -146,14 +146,14 @@ export function reducer(state: State = initialState, action: any): State {
         }
       });
     }
-    case workflowActions.SAVE_JSON_WORKFLOW: {
+    case workflowActions.RESET_JSON_MODAL: {
       return Object.assign({}, state, {
-        modalOpen: true
+        modalOpen: false
       });
     }
     case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
-        modalOpen: false,
+        modalOpen: true,
         reload: true
       });
     }

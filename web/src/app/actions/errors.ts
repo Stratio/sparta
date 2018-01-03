@@ -15,12 +15,13 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
 
 export const SERVER_ERROR = '[Errors] Server error';
 export const FORBIDDEN_ERROR = '[Errors] Forbidden error';
 export const CHANGE_ROUTE = '[Errors] Change route';
 export const HTTP_ERROR = '[Errors] Http error';
+export const SAVED_DATA_NOTIFICATION = '[Error] Saved data notification';
+export const HIDE_SAVED_DATA_NOTIFICATION = '[Error] Hide saved data notification';
 
 export class ServerErrorAction implements Action {
   readonly type = SERVER_ERROR;
@@ -41,8 +42,18 @@ export class HttpErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class SavedDataNotificationAction implements Action {
+  readonly type = SAVED_DATA_NOTIFICATION;
+}
+
+export class HideSavedDataNotificationAction implements Action {
+  readonly type = HIDE_SAVED_DATA_NOTIFICATION;
+}
+
 export type Actions = ServerErrorAction |
   ForbiddenErrorAction |
   ChangeRouteAction |
-  HttpErrorAction;
+  HttpErrorAction |
+  SavedDataNotificationAction |
+  HideSavedDataNotificationAction;
 

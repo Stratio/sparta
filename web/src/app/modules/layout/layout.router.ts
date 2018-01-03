@@ -38,7 +38,11 @@ const layoutRoutes: Routes = [
             {
                 path: 'settings',
                 loadChildren: '@app/settings/settings.module#SettingsModule'
-            }
+            },
+            {
+             path: 'crossdata',
+             loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
+             }
         ]
     }
 ];

@@ -32,6 +32,7 @@ import { OutputEffect } from './effects/output';
 import { TransformationEffect } from './effects/transformation';
 import { ResourcesEffect } from './effects/resources';
 import { CrossdataEffect } from './effects/crossdata';
+import { EnvironmentEffect } from './effects/environment';
 import { WizardEffect } from './effects/wizard';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
@@ -58,6 +59,7 @@ export const APP_IMPORTS: Array<any> = [
                 ResourcesEffect,
                 CrossdataEffect,
                 WizardEffect,
+                EnvironmentEffect,
                 TransformationEffect
         ])
 ];

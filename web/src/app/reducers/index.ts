@@ -27,6 +27,7 @@ import * as fromResources from './resources';
 import * as fromCrossdata from './crossdata';
 import * as fromAlerts from './alerts';
 import * as fromWizard from './wizard';
+import * as fromEnvironment from './environment';
 
 export interface State {
     workflows: fromWorkflow.State;
@@ -38,6 +39,7 @@ export interface State {
     crossdata: fromCrossdata.State;
     alerts: fromAlerts.State;
     wizard: fromWizard.State;
+    environment: fromEnvironment.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
@@ -50,6 +52,7 @@ export const reducers: ActionReducerMap<State> = {
     crossdata: fromCrossdata.reducer,
     alerts: fromAlerts.reducer,
     wizard: fromWizard.reducer,
+    environment: fromEnvironment.reducer
 };
 
 // const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
@@ -68,6 +71,7 @@ export const getCrossdataState: any = createFeatureSelector<fromCrossdata.State>
 export const getAlertsState: any = createFeatureSelector<fromAlerts.State>('alerts');
 export const getWizardState: any = createFeatureSelector<fromWizard.State>('wizard');
 export const getTransformationState: any = createFeatureSelector<fromTransformation.State>('transformationList');
+export const getEnvironmentState: any = createFeatureSelector<fromEnvironment.State>('environment');
 
 
 // workflows
@@ -127,6 +131,7 @@ export const isLoadingQuery: any = createSelector(getCrossdataState, fromCrossda
 // alerts
 export const getCurrentAlert: any = createSelector(getAlertsState, fromAlerts.getCurrentAlert);
 export const showPersistentError: any = createSelector(getAlertsState, fromAlerts.showPersistentError);
+export const pendingSavedData: any = createSelector(getAlertsState, fromAlerts.pendingSavedData);
 
 // wizard
 export const isCreationMode: any = createSelector(getWizardState, fromWizard.isCreationMode);
@@ -146,3 +151,7 @@ export const getSelectedRelation: any = createSelector(getWizardState, fromWizar
 export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard.areUndoRedoEnabled);
 export const getValidationErrors: any = createSelector(getWizardState, fromWizard.getValidationErrors);
 export const isPristine: any = createSelector(getWizardState, fromWizard.isPristine);
+
+// environment
+export const getEnvironmentList: any = createSelector(getEnvironmentState, fromEnvironment.getEnvironmentList);
+

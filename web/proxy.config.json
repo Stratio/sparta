@@ -46,5 +46,9 @@
    "/crossdata/*": {
       "target": "http://localhost:9090",
       "secure": "debug"
+   },
+   "/environment/*": {
+      "target": "http://localhost:9090",
+      "secure": "debug"
    }
 }

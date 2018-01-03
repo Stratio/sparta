@@ -1,0 +1,12 @@
+<div class="file-selection">Upload an environment backup file</div>
+<div class="advice">Importing an environment could cause a potential loss of data.</div>
+<file-reader text="Select file" showFileName="true" (changedFile)="changedFile($event)" class="file-read"></file-reader>
+
+<div class="action-buttons">
+    <button class="button button-secondary-gray cancel-button" (click)="close()">
+       <span>Cancel</span>
+    </button>
+    <button [disabled]="!loaded" class="button button-critical confirm" (click)="importEnvironment()">
+       <span>Confirm</span>
+   </button>
+</div>

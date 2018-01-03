@@ -76,7 +76,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
 
     ngOnChanges(changes: SimpleChanges): void {
         if (this.forceValidations && this.internalControl) {
-            this.writeValue(this.internalControl.value);
+           this.writeValue(this.internalControl.value);
         }
         this._cd.markForCheck();
     }
@@ -87,7 +87,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
     constructor(private formBuilder: FormBuilder, private _cd: ChangeDetectorRef, public errorsService: ErrorMessagesService) { };
 
     ngOnInit() {
-        for (const field of this.formListData.fields) {
+        for (const field of this.formListData) {
             this.item[field.propertyId] = this.addItemValidation(field);
 
             if (field.visible && field.visible.length) {
@@ -117,10 +117,11 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
 
     addItemValidation(field: any) {
         const item: any = {};
+        const value = field.default ? field.default : '';
         if (field.propertyType === 'boolean' || !field.required) {
-            return [''];
+            return [value];
         } else {
-            return ['', Validators.required];
+            return [value, Validators.required];
         }
     }
 
@@ -197,7 +198,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
         if (type === 'boolean') {
             return 'list-item check-column';
         }
-        const length = this.formListData.fields.length;
+        const length = this.formListData.length;
         if (length === 1) {
             return 'list-item col-xs-6';
         } else if (length < 4) {
@@ -212,7 +213,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
             this.items.controls = [];
             for (const value of data) {
                 const item: any = {};
-                for (const field of this.formListData.fields) {
+                for (const field of this.formListData) {
                     item[field.propertyId] = this.addItemValidation(field);
                     item[field.propertyId][0] = value[field.propertyId];
                 }

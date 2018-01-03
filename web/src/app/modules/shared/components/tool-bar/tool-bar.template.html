@@ -2,7 +2,7 @@
     <div class="container">
         <div class="tools-content">
             <div class="row">
-                <div class="col-sm-8 left-tools">
+                <div [ngClass]="largeTools ? 'col-sm-4': 'col-sm-8'" class="left-tools">
                     <div class="breadcrumb-tool">
                             <ng-content select="[breadcrumb]"></ng-content>
                     </div>
@@ -10,7 +10,7 @@
                             <ng-content select="[selection-tools]"></ng-content>
                     </div>
                 </div>
-                <div class="col-sm-4 right-tools">
+                <div class="right-tools" [ngClass]="largeTools ? 'col-sm-8': 'col-sm-4'">
                     <div class="general-tools">
                         <ng-content select="[general-tools]"></ng-content>
                     </div>

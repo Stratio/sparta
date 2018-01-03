@@ -1,5 +1,3 @@
-import { OnDestroy } from '@angular/core/core';
-import { Subscription } from 'rxjs/Rx';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -16,9 +14,11 @@ import { Subscription } from 'rxjs/Rx';
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BackupType } from 'app/models/backup.model';
+import { OnDestroy } from '@angular/core/core';
+import { Subscription } from 'rxjs/Rx';
 
 import * as fromRoot from 'reducers';
 import * as backupsActions from 'actions/backups';

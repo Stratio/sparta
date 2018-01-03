@@ -18,12 +18,12 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@
 import { BreadcrumbMenuService } from 'services';
 
 @Component({
-    selector: 'sparta-crossdata',
+    selector: 'crossdata',
     templateUrl: './crossdata.template.html',
     styleUrls: ['./crossdata.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SpartaCrossdata implements OnInit {
+export class CrossdataComponent implements OnInit {
 
     public options: Array<any> = [
         {
