@@ -15,8 +15,6 @@
  */
 package com.stratio.sparta.sdk.properties
 
-import com.github.mustachejava.DefaultMustacheFactory
-import com.twitter.mustache.ScalaObjectHandler
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 import org.json4s.{DefaultFormats, _}
@@ -75,9 +73,7 @@ with Matchers {
     }
 
     "string with environment should substitute keys" in {
-      val moustacheFactory = new DefaultMustacheFactory
-      moustacheFactory.setObjectHandler(new ScalaObjectHandler)
-      val environmentContext = Option(EnvironmentContext(moustacheFactory, Map("APP" -> "SPARTA")))
+      val environmentContext = Option(EnvironmentContext(Map("APP" -> "SPARTA")))
       val result = JsoneyString("Hi I'm {{APP}}", environmentContext).toString
       val expected = "Hi I'm SPARTA"
 
@@ -85,9 +81,7 @@ with Matchers {
     }
 
     "string with environment shouldn't substitute keys if not present in environment" in {
-      val moustacheFactory = new DefaultMustacheFactory
-      moustacheFactory.setObjectHandler(new ScalaObjectHandler)
-      val environmentContext = Option(EnvironmentContext(moustacheFactory, Map("APP" -> "SPARTA")))
+      val environmentContext = Option(EnvironmentContext(Map("APP" -> "SPARTA")))
       val result = JsoneyString("Hi I'm {{COMPANY}}", environmentContext).toString
       val expected = "Hi I'm "
 

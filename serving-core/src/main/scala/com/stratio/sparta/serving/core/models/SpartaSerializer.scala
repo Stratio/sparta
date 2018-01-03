@@ -20,14 +20,12 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
-import com.github.mustachejava.DefaultMustacheFactory
 import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
 import com.stratio.sparta.sdk.workflow.enumerators.{InputFormatEnum, OutputFormatEnum, SaveModeEnum, WhenError}
 import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.GetEnvironment
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
-import com.twitter.mustache.ScalaObjectHandler
 import org.json4s.ext.{DateTimeSerializer, EnumNameSerializer}
 import org.json4s.{DefaultFormats, Formats}
 
@@ -67,8 +65,6 @@ trait SpartaSerializer {
 
 object SpartaSerializer extends SLF4JLogging {
 
-  private val moustacheFactory = new DefaultMustacheFactory
-  moustacheFactory.setObjectHandler(new ScalaObjectHandler)
   private var environmentContext: Option[EnvironmentContext] = None
 
   def getEnvironmentContext(actorSystem: ActorSystem, envStateActor: ActorRef): Option[EnvironmentContext] = {
@@ -80,10 +76,10 @@ object SpartaSerializer extends SLF4JLogging {
       Await.result(future, timeout.duration).asInstanceOf[Map[String, String]]
     } match {
       case Success(newEnvironment) =>
-        environmentContext = Option(EnvironmentContext(moustacheFactory, newEnvironment))
+        environmentContext = Option(EnvironmentContext(newEnvironment))
         environmentContext
       case Failure(e) =>
-        log.warn("No environment result", e)
+        log.warn("No environment result, returning the last value", e)
         environmentContext
     }
   }

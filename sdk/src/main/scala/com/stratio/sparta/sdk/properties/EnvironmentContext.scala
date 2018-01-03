@@ -16,9 +16,4 @@
 
 package com.stratio.sparta.sdk.properties
 
-import com.github.mustachejava.DefaultMustacheFactory
-
-case class EnvironmentContext(
-                               @transient moustacheFactory: DefaultMustacheFactory,
-                               environmentVariables: Map[String, String]
-                             )
+case class EnvironmentContext(environmentVariables: Map[String, String])

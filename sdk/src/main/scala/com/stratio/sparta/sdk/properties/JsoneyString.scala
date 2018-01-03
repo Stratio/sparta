@@ -17,6 +17,9 @@ package com.stratio.sparta.sdk.properties
 
 import java.io.StringReader
 
+import com.github.mustachejava.DefaultMustacheFactory
+import com.twitter.mustache.ScalaObjectHandler
+
 case class JsoneyString(private val string: String, private val environmentContext: Option[EnvironmentContext] = None) {
 
   override def toString: String = parseStringWithEnvContext(string)
@@ -29,7 +32,9 @@ case class JsoneyString(private val string: String, private val environmentConte
     environmentContext match {
       case Some(context) =>
         val writer = new java.io.StringWriter()
-        val mustache = context.moustacheFactory.compile(new StringReader(string), "MoustacheEnv")
+        val moustacheFactory = new DefaultMustacheFactory
+        moustacheFactory.setObjectHandler(new ScalaObjectHandler)
+        val mustache = moustacheFactory.compile(new StringReader(string), "MoustacheEnv")
         mustache.execute(writer, context.environmentVariables)
         val parsedStr = writer.toString
         writer.flush()
