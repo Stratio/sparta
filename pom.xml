@@ -102,7 +102,7 @@
         <stratio.spark.version>2.1.0.4</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <netty.version>3.8.0.Final</netty.version>
-        <sparta.dyplon.version>0.13.0</sparta.dyplon.version>
+        <sparta.dyplon.version>0.13.1-RC1</sparta.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>2.6.0</crossdata.version>

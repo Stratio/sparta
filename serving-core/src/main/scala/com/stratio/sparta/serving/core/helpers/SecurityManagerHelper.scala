@@ -85,10 +85,11 @@ object SecurityManagerHelper {
       case "driver" => Resource(DriverResource, resource)
       case "environment" => Resource(EnvironmentResource, resource)
       case "execution" => Resource(ExecutionResource, resource)
+      case "group" => Resource(GroupResource, resource)
       case "plugin" => Resource(PluginResource, resource)
+      case "status" => Resource(StatusResource, resource)
       case "template" => Resource(TemplateResource, resource)
       case "workflow" => Resource(WorkflowResource, resource)
-      //TODO case "group" => Resource(GroupResource, resource)
     }
   }
 }

@@ -74,13 +74,13 @@ class CrossdataActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) 
 
 
   def describeTable(tableInfoRequest: TableInfoRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> Describe)) {
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
       crossdataService.listColumns(tableInfoRequest.tableName, tableInfoRequest.dbName)
     }
   }
 
   def executeQuery(queryRequest: QueryRequest, user: Option[LoggedUser]): Unit = maybeWithHdfsUgiService {
-    securityActionAuthorizer(user, Map(ResourceType -> Execute)) {
+    securityActionAuthorizer(user, Map(ResourceType -> View)) {
       crossdataService.executeQuery(queryRequest.query)
     }
   }

@@ -41,7 +41,7 @@ class WorkflowActor(
 
   val ResourceWorkflow = "workflow"
   val ResourceCP = "checkpoint"
-  val ResourceExecution = "execution"
+  val ResourceStatus = "status"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
@@ -75,7 +75,7 @@ class WorkflowActor(
   //scalastyle:on
 
   def run(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceExecution -> Edit)
+    val actions = Map(ResourceStatus -> Edit)
     securityActionAuthorizer[Response](user, actions) {
       Try {
         launcherActor.forward(Launch(id.toString, user))
@@ -84,21 +84,21 @@ class WorkflowActor(
   }
 
   def stop(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceExecution -> Edit)
+    val actions = Map(ResourceStatus -> Edit)
     securityActionAuthorizer[ResponseAny](user, actions) {
       workflowService.stop(id)
     }
   }
 
   def reset(id: String, user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceExecution -> Edit)
+    val actions = Map(ResourceStatus -> Edit)
     securityActionAuthorizer[ResponseAny](user, actions) {
       workflowService.reset(id)
     }
   }
 
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> Describe)) {
+    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> View)) {
       Try(workflowValidatorService.validate(workflow))
     }
 
@@ -147,12 +147,12 @@ class WorkflowActor(
     }
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
       Try(workflowService.create(workflow))
     }
 
   def createList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
       Try(workflowService.createList(workflows))
     }
 
@@ -176,19 +176,19 @@ class WorkflowActor(
 
   def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user,
-      Map(ResourceWorkflow -> Delete, ResourceExecution -> Delete, ResourceCP -> Delete)) {
+      Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceCP -> Delete)) {
       workflowService.deleteList(workflowIds)
     }
 
   def deleteAll(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceWorkflow -> Delete, ResourceExecution -> Delete, ResourceCP -> Delete)
+    val actions = Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceCP -> Delete)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.deleteAll()
     }
   }
 
   def resetAllStatuses(user: Option[LoggedUser]): Unit = {
-    val actions = Map(ResourceExecution -> Edit)
+    val actions = Map(ResourceStatus -> Edit)
     securityActionAuthorizer[Response](user, actions) {
       workflowService.resetAllStatuses()
     }
@@ -200,7 +200,7 @@ class WorkflowActor(
     }
 
   def createVersion(workflowVersion: WorkflowVersion, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceExecution -> Create)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
       Try(workflowService.createVersion(workflowVersion))
     }
 }

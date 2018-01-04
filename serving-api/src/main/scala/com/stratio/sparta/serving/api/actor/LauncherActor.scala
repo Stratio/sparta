@@ -18,7 +18,7 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{Props, _}
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.security.{Execute, SpartaSecurityManager}
+import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
@@ -37,7 +37,7 @@ class LauncherActor(streamingService: StreamingContextService,
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
-  private val ResourcePol = "workflow"
+  private val ResourceStatus = "status"
   private val statusService = new WorkflowStatusService(curatorFramework)
   private val workflowService = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
 
@@ -52,7 +52,7 @@ class LauncherActor(streamingService: StreamingContextService,
   }
 
   def launch(id: String, user: Option[LoggedUser]): Unit = {
-    securityActionAuthorizer(user, Map(ResourcePol -> Execute)) {
+    securityActionAuthorizer(user, Map(ResourceStatus -> Edit)) {
       Try {
         val workflow = workflowService.findById(id)
         val workflowLauncherActor = workflow.settings.global.executionMode match {
