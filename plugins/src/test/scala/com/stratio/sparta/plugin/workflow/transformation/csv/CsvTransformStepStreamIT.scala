@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.avro
+package com.stratio.sparta.plugin.workflow.transformation.csv
 
-import java.nio.charset.StandardCharsets
+import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
-import com.twitter.bijection.avro.GenericAvroCodecs
-import org.apache.avro.Schema
-import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Encoder, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -33,36 +31,31 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
+import scala.reflect.ClassTag
 
 @RunWith(classOf[JUnitRunner])
-class AvroTransformStepIT extends TemporalSparkContext with Matchers {
+class CsvTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+  "A CSVTransformStepStreamIT" should "transform csv events the input DStream" in {
 
-  "A AvroTransformStepIT" should "transform csv events the input DStream" in {
-
-    val record = s"""{"type":"record","name":"myrecord","fields":[
-      | { "name":"color", "type":["string","null"] },
-      | { "name":"price", "type":["double","null"] }
-      | ]}""".stripMargin
-    val parser = new Schema.Parser()
-    val schema = parser.parse(record)
-    val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](schema)
-    val avroRecordBlue = new GenericData.Record(schema)
-    avroRecordBlue.put("color", "blue")
-    avroRecordBlue.put("price", 12.1)
-    val bytesBlue = recordInjection.apply(avroRecordBlue)
-    val avroRecordRed = new GenericData.Record(schema)
-    avroRecordRed.put("color", "red")
-    avroRecordRed.put("price", 12.2)
-    val bytesRed = recordInjection.apply(avroRecordRed)
-    val inputField = "avro"
+    val fields =
+      """[
+        |{
+        |   "name":"color",
+        |   "type":"string"
+        |},
+        |{
+        |   "name":"price",
+        |   "type":"double"
+        |}]
+        |""".stripMargin
+    val inputField = "csv"
     val inputSchema = StructType(Seq(StructField(inputField, StringType)))
     val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()
     val dataIn = Seq(
-      new GenericRowWithSchema(Array(new String(bytesBlue, StandardCharsets.UTF_8)), inputSchema),
-      new GenericRowWithSchema(Array(new String(bytesRed, StandardCharsets.UTF_8)), inputSchema)
+      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
+      new GenericRowWithSchema(Array("red,12.2"), inputSchema)
     )
     val dataOut = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
@@ -72,16 +65,16 @@ class AvroTransformStepIT extends TemporalSparkContext with Matchers {
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val result = new AvroTransformStep(
+
+    val result = new CsvTransformStepStream(
       "dummy",
       outputOptions,
-      Some(ssc),
+      Option(ssc),
       sparkSession,
-      Map(
+      Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
-        "schema.provided" -> record,
-        "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
-      )
+        "schema.inputMode" -> "FIELDS",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 

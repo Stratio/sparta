@@ -34,12 +34,14 @@ import org.apache.spark.streaming.dstream.DStream
 import scala.util.Try
 
 
-class CsvTransformStep(name: String,
-                       outputOptions: OutputOptions,
-                       ssc: Option[StreamingContext],
-                       xDSession: XDSession,
-                       properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+abstract class CsvTransformStep[Underlying[Row]](
+                                                  name: String,
+                                                  outputOptions: OutputOptions,
+                                                  ssc: Option[StreamingContext],
+                                                  xDSession: XDSession,
+                                                  properties: Map[String, JSerializable]
+                                                )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
     with ErrorCheckingStepRow
     with SchemaCasting {
 
@@ -88,11 +90,11 @@ class CsvTransformStep(name: String,
 
   assert(inputField.nonEmpty)
 
-  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
+  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
     inputStream.flatMap(data => parse(data))
 
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData)(transformationFunction)
 
   //scalastyle:off

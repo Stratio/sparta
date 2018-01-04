@@ -30,12 +30,14 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-class CastingTransformStep(name: String,
-                           outputOptions: OutputOptions,
-                           ssc: Option[StreamingContext],
-                           xDSession: XDSession,
-                           properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+abstract class CastingTransformStep[Underlying[Row]](
+                                                      name: String,
+                                                      outputOptions: OutputOptions,
+                                                      ssc: Option[StreamingContext],
+                                                      xDSession: XDSession,
+                                                      properties: Map[String, JSerializable]
+                                                    )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
     with ErrorCheckingStepRow
     with SchemaCasting {
 
@@ -66,10 +68,10 @@ class CastingTransformStep(name: String,
   }
 
   def transformFunction(inputSchema: String,
-                        inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] =
+                        inputStream: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
     castingFields(inputStream)
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData)(transformFunction)
 
   /**
@@ -78,8 +80,8 @@ class CastingTransformStep(name: String,
     * @param streamData The stream data to casting
     * @return The casted stream data
     */
-  def castingFields(streamData: DistributedMonad[DStream]): DistributedMonad[DStream] =
-    streamData.ds.flatMap { row =>
+  def castingFields(streamData: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
+    streamData.flatMap { row =>
       returnSeqDataFromRow {
         val inputSchema = row.schema
         (compareToOutputSchema(row.schema), outputFieldsSchema) match {

@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.json
+package com.stratio.sparta.plugin.workflow.transformation.avro
 
-import java.io.{Serializable => JSerializable}
+import java.nio.charset.StandardCharsets
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.twitter.bijection.avro.GenericAvroCodecs
+import org.apache.avro.Schema
+import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -33,57 +36,51 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class AvroTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A JsonTransformStepStreamIT" should "transform json events the input DStream" in {
-    val JSON =
-      """{ "store": {
-        |    "book": [
-        |      { "category": "reference",
-        |        "author": "Nigel Rees",
-        |        "title": "Sayings of the Century",
-        |        "price": 8.95
-        |      }
-        |    ],
-        |    "bicycle": {
-        |      "color": "red",
-        |      "price": 19.95
-        |    }
-        |  }
-        |}""".stripMargin
-    val queries =
-      """[
-        |{
-        |   "field":"color",
-        |   "query":"$.store.bicycle.color",
-        |   "type":"string"
-        |},
-        |{
-        |   "field":"price",
-        |   "query":"$.store.bicycle.price",
-        |   "type":"double"
-        |}]
-        | """.stripMargin
+  "A AvroTransformStepStreamIT" should "transform csv events the input DStream" in {
 
-    val inputField = "json"
+    val record = s"""{"type":"record","name":"myrecord","fields":[
+      | { "name":"color", "type":["string","null"] },
+      | { "name":"price", "type":["double","null"] }
+      | ]}""".stripMargin
+    val parser = new Schema.Parser()
+    val schema = parser.parse(record)
+    val recordInjection = GenericAvroCodecs.toBinary[GenericRecord](schema)
+    val avroRecordBlue = new GenericData.Record(schema)
+    avroRecordBlue.put("color", "blue")
+    avroRecordBlue.put("price", 12.1)
+    val bytesBlue = recordInjection.apply(avroRecordBlue)
+    val avroRecordRed = new GenericData.Record(schema)
+    avroRecordRed.put("color", "red")
+    avroRecordRed.put("price", 12.2)
+    val bytesRed = recordInjection.apply(avroRecordRed)
+    val inputField = "avro"
     val inputSchema = StructType(Seq(StructField(inputField, StringType)))
     val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()
-    val dataIn = Seq(new GenericRowWithSchema(Array(JSON), inputSchema))
-    val dataOut = Seq(new GenericRowWithSchema(Array("red", 19.95), outputSchema))
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array(new String(bytesBlue, StandardCharsets.UTF_8)), inputSchema),
+      new GenericRowWithSchema(Array(new String(bytesRed, StandardCharsets.UTF_8)), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
+      new GenericRowWithSchema(Array("red", 12.2), outputSchema)
+    )
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-
-    val result = new JsonPathTransformStepStream(
+    val result = new AvroTransformStepStream(
       "dummy",
       outputOptions,
-      Option(ssc),
+      Some(ssc),
       sparkSession,
-      Map("queries" -> queries.asInstanceOf[JSerializable],
+      Map(
         "inputField" -> inputField,
-        "fieldsPreservationPolicy" -> "REPLACE")
+        "schema.provided" -> record,
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED"
+      )
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -103,6 +100,6 @@ class JsonPathTransformStepStreamIT extends TemporalSparkContext with Matchers w
     ssc.awaitTerminationOrTimeout(3000L)
     ssc.stop()
 
-    assert(totalEvents.value === 1)
+    assert(totalEvents.value === 2)
   }
 }

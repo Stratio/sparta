@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.csv
+package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
@@ -31,13 +31,27 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
-import scala.reflect.ClassTag
 
 @RunWith(classOf[JUnitRunner])
-class CsvTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class CastingTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A CSVTransformStepIT" should "transform csv events the input DStream" in {
+  "A CastingTransformStepStream" should "casting the input DStream" in {
 
+    val rowSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
+    val schemaCasting = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val data1 = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), rowSchema),
+      new GenericRowWithSchema(Array("red", 12.2), rowSchema)
+    )
+    val dataCasting = Seq(
+      new GenericRowWithSchema(Array("blue", "12.1"), schemaCasting),
+      new GenericRowWithSchema(Array("red", "12.2"), schemaCasting)
+    )
+    dataQueue1 += sc.parallelize(data1)
+    val stream1 = ssc.queueStream(dataQueue1)
+    val inputData = Map("step1" -> stream1)
+    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val fields =
       """[
         |{
@@ -46,35 +60,15 @@ class CsvTransformStepIT extends TemporalSparkContext with Matchers with Distrib
         |},
         |{
         |   "name":"price",
-        |   "type":"double"
+        |   "type":"string"
         |}]
-        |""".stripMargin
-    val inputField = "csv"
-    val inputSchema = StructType(Seq(StructField(inputField, StringType)))
-    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
-    val dataQueue = new mutable.Queue[RDD[Row]]()
-    val dataIn = Seq(
-      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
-      new GenericRowWithSchema(Array("red,12.2"), inputSchema)
-    )
-    val dataOut = Seq(
-      new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
-      new GenericRowWithSchema(Array("red", 12.2), outputSchema)
-    )
-    dataQueue += sc.parallelize(dataIn)
-    val stream = ssc.queueStream(dataQueue)
-    val inputData = Map("step1" -> stream)
-    val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-
-    val result = new CsvTransformStep(
+        | """.stripMargin
+    val result = new CastingTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),
       sparkSession,
-      Map("schema.fields" -> fields.asInstanceOf[JSerializable],
-        "inputField" -> inputField,
-        "schema.inputMode" -> "FIELDS",
-        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
+      Map("fields" -> fields.asInstanceOf[JSerializable])
     ).transform(inputData)
     val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
@@ -85,10 +79,7 @@ class CsvTransformStepIT extends TemporalSparkContext with Matchers with Distrib
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
       if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+        streamingRegisters.foreach(row => assert(dataCasting.contains(row)))
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(3000L)

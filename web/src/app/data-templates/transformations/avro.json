@@ -1,7 +1,7 @@
   {
      "name": "Avro",
      "icon": "Avro",
-     "className": "AvroTransformStep",
+     "className": "AvroTransformStepStream",
      "classPrettyName": "Avro",
      "arity": ["UnaryToNary"],
      "description": "Parsing input field in text format to row",

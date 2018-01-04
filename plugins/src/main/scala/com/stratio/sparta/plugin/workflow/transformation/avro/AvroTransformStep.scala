@@ -29,19 +29,20 @@ import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.{GenericRow, GenericRowWithSchema}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-class AvroTransformStep(
+abstract class AvroTransformStep[Underlying[Row]](
                          name: String,
                          outputOptions: OutputOptions,
                          ssc: Option[StreamingContext],
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
-                       ) extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                       )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
   with ErrorCheckingStepRow with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")
@@ -51,7 +52,7 @@ class AvroTransformStep(
 
   lazy val schemaProvided: String = properties.getString("schema.provided")
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
     applyHeadTransform(inputData) { (inputSchema, inputStream) =>
       inputStream flatMap { row =>
         returnSeqDataFromRow {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.json
+package com.stratio.sparta.plugin.workflow.transformation.csv
 
 import java.io.{Serializable => JSerializable}
 
@@ -33,65 +33,66 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A JsonTransformStepBatchIT" should "transform json events the input Dataset" in {
-    val JSON =
-      """{ "store": {
-        |    "book": [
-        |      { "category": "reference",
-        |        "author": "Nigel Rees",
-        |        "title": "Sayings of the Century",
-        |        "price": 8.95
-        |      }
-        |    ],
-        |    "bicycle": {
-        |      "color": "red",
-        |      "price": 19.95
-        |    }
-        |  }
-        |}""".stripMargin
-    val queries =
+  "A CSVTransformStepStreamIT" should "transform csv events the input DStream" in {
+
+    val fields =
       """[
         |{
-        |   "field":"color",
-        |   "query":"$.store.bicycle.color",
+        |   "name":"color",
         |   "type":"string"
         |},
         |{
-        |   "field":"price",
-        |   "query":"$.store.bicycle.price",
+        |   "name":"price",
         |   "type":"double"
         |}]
-        | """.stripMargin
-
-    val inputField = "json"
+        |""".stripMargin
+    val inputField = "csv"
     val inputSchema = StructType(Seq(StructField(inputField, StringType)))
     val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
-    val dataIn = Seq(new GenericRowWithSchema(Array(JSON), inputSchema))
-    val dataInRow = dataIn.map(_.asInstanceOf[Row])
-    val dataOut = Seq(new GenericRowWithSchema(Array("red", 19.95), outputSchema))
-    val dataSet = sparkSession.createDataFrame(sc.parallelize(dataInRow), inputSchema)
-    val inputData = Map("step1" -> dataSet)
+    val dataQueue = new mutable.Queue[RDD[Row]]()
+    val dataIn = Seq(
+      new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
+      new GenericRowWithSchema(Array("red,12.2"), inputSchema)
+    )
+    val dataOut = Seq(
+      new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
+      new GenericRowWithSchema(Array("red", 12.2), outputSchema)
+    )
+    dataQueue += sc.parallelize(dataIn)
+    val stream = ssc.queueStream(dataQueue)
+    val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 
-    val result = new JsonPathTransformStepBatch(
+    val result = new CsvTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),
       sparkSession,
-      Map("queries" -> queries.asInstanceOf[JSerializable],
+      Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,
-        "fieldsPreservationPolicy" -> "REPLACE")
+        "schema.inputMode" -> "FIELDS",
+        "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
     ).transform(inputData)
+    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
 
-    val arrayValues = result.ds.collect()
-
-    arrayValues.foreach { row =>
+    result.ds.foreachRDD(rdd => {
+      val streamingEvents = rdd.count()
+      log.info(s" EVENTS COUNT : \t $streamingEvents")
+      totalEvents += streamingEvents
+      log.info(s" TOTAL EVENTS : \t $totalEvents")
+      val streamingRegisters = rdd.collect()
+      if (!rdd.isEmpty())
+        streamingRegisters.foreach { row =>
           assert(dataOut.contains(row))
           assert(outputSchema == row.schema)
         }
+    })
+    ssc.start()
+    ssc.awaitTerminationOrTimeout(3000L)
+    ssc.stop()
 
-    assert(arrayValues.length === 1)
+    assert(totalEvents.value === 2)
   }
 }
