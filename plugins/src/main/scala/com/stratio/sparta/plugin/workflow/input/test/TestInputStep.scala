@@ -32,6 +32,7 @@ import org.apache.spark.streaming.test.TestDStream
 
 import scala.util.{Random, Try}
 import DistributedMonad.Implicits._
+import org.apache.spark.rdd.RDD
 
 abstract class TestInputStep[Underlying[Row]](
                      name: String,
@@ -99,13 +100,13 @@ class TestInputStepBatch(
                            ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable]
-                         ) extends TestInputStep[Dataset](name, outputOptions, ssc, xDSession, properties) {
+                         ) extends TestInputStep[RDD](name, outputOptions, ssc, xDSession, properties) {
   /**
     * Create and initialize stream using the Spark Streaming Context.
     *
     * @return The DStream created with spark rows
     */
-  override def init(): DistributedMonad[Dataset] = {
+  override def init(): DistributedMonad[RDD] = {
 
     val registers = for (_ <- 1L to numEvents) yield {
       if (eventType == EventType.STRING)
@@ -114,7 +115,7 @@ class TestInputStepBatch(
     }
     val defaultRDD = xDSession.sparkContext.parallelize(registers)
 
-    xDSession.createDataFrame(defaultRDD, outputSchema)
+    defaultRDD
   }
 
 }

@@ -19,10 +19,10 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
-import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import org.apache.spark.rdd.RDD
 
 class CastingTransformStepBatch(
                               name: String,
@@ -30,4 +30,4 @@ class CastingTransformStepBatch(
                               ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends CastingTransformStep[Dataset](name, outputOptions, ssc, xDSession, properties)
+                            ) extends CastingTransformStep[RDD](name, outputOptions, ssc, xDSession, properties)

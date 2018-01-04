@@ -46,7 +46,7 @@ class TestInputStepBatchIT extends TemporalSparkContext with Matchers {
     }
 
     assert(totalEvents.value == 100)
-    assert(input.ds.head() == generatedRow)
+    assert(input.ds.first() == generatedRow)
   }
 
   "TestInputStepBatch" should "generate number records on the batch" in {

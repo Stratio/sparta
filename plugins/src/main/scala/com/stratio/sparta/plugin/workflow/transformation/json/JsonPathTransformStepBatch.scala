@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
-import org.apache.spark.sql.Dataset
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 
@@ -30,4 +30,4 @@ class JsonPathTransformStepBatch(
                               ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends JsonPathTransformStep[Dataset](name, outputOptions, ssc, xDSession, properties)
+                            ) extends JsonPathTransformStep[RDD](name, outputOptions, ssc, xDSession, properties)

@@ -71,7 +71,7 @@ class JsonPathTransformStepBatchIT extends TemporalSparkContext with Matchers wi
     val dataIn = Seq(new GenericRowWithSchema(Array(JSON), inputSchema))
     val dataInRow = dataIn.map(_.asInstanceOf[Row])
     val dataOut = Seq(new GenericRowWithSchema(Array("red", 19.95), outputSchema))
-    val dataSet = sparkSession.createDataFrame(sc.parallelize(dataInRow), inputSchema)
+    val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 

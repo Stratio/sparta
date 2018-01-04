@@ -35,7 +35,7 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A CSVTransformStepStreamIT" should "transform csv events the input DStream" in {
+  "A CSVTransformStepBatchIT" should "transform csv events the input RDD" in {
 
     val fields =
       """[
@@ -51,21 +51,20 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     val inputField = "csv"
     val inputSchema = StructType(Seq(StructField(inputField, StringType)))
     val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
-    val dataQueue = new mutable.Queue[RDD[Row]]()
     val dataIn = Seq(
       new GenericRowWithSchema(Array("blue,12.1"), inputSchema),
       new GenericRowWithSchema(Array("red,12.2"), inputSchema)
     )
+    val dataInRow = dataIn.map(_.asInstanceOf[Row])
     val dataOut = Seq(
       new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
       new GenericRowWithSchema(Array("red", 12.2), outputSchema)
     )
-    dataQueue += sc.parallelize(dataIn)
-    val stream = ssc.queueStream(dataQueue)
-    val inputData = Map("step1" -> stream)
+    val dataSet = sc.parallelize(dataInRow)
+    val inputData = Map("step1" -> dataSet)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 
-    val result = new CsvTransformStepStream(
+    val result = new CsvTransformStepBatch(
       "dummy",
       outputOptions,
       Option(ssc),
@@ -75,24 +74,13 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
         "schema.inputMode" -> "FIELDS",
         "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
     ).transform(inputData)
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val arrayValues = result.ds.collect()
 
-    result.ds.foreachRDD(rdd => {
-      val streamingEvents = rdd.count()
-      log.info(s" EVENTS COUNT : \t $streamingEvents")
-      totalEvents += streamingEvents
-      log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
-    })
-    ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
-    ssc.stop()
+    arrayValues.foreach { row =>
+      assert(dataOut.contains(row))
+      assert(outputSchema == row.schema)
+    }
 
-    assert(totalEvents.value === 2)
+    assert(arrayValues.length === 2)
   }
 }

@@ -35,7 +35,7 @@ import scala.collection.mutable
 @RunWith(classOf[JUnitRunner])
 class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A CastingTransformStepBatch" should "casting the input Dataset" in {
+  "A CastingTransformStepBatch" should "casting the input RDD" in {
 
     val rowSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
@@ -49,7 +49,7 @@ class CastingTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       new GenericRowWithSchema(Array("blue", "12.1"), outputSchema),
       new GenericRowWithSchema(Array("red", "12.2"), outputSchema)
     )
-    val dataSet = sparkSession.createDataFrame(sc.parallelize(dataInRow), rowSchema)
+    val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val fields =

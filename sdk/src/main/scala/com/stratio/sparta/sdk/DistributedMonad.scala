@@ -27,15 +27,16 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
 /**
-  * This is a typeclass interface whose goal is to abstract over DStreams, Datasets and whichever
+  * This is a typeclass interface whose goal is to abstract over DStreams, RDD, Datasets and whichever
   * distributed collection of rows may come in the future.
   *
   * Concrete implementations of the type class are provided by [[DistributedMonad.DistributedMonadImplicits]] for
-  * [[DStream]] and [[Dataset]]. These are implicit classes which, wherever they are visible, allow using both
-  * [[DStream]]s and [[Dataset]] indistinctively thus providing a delayed (after type definition) level of
+  * [[DStream]], [[RDD]] and [[Dataset]]. These are implicit classes which, wherever they are visible, allow using
+  * [[DStream]]s, [[RDD]]s and [[Dataset]]s indistinctively thus providing a delayed (after type definition) level of
   * polymorphism.
   *
   * @tparam Underlying Collection of [[Row]]s wrapped to be used through the [[DistributedMonad]] interface.
@@ -137,13 +138,13 @@ object DistributedMonad {
 
     /**
       * Type class instance for [[Dataset[Row]]]
-      * This is an implicit class. Therefore, whenever a [[DStream]] is passed to a function
-      * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[DStream]] using
+      * This is an implicit class. Therefore, whenever a [[Dataset]] is passed to a function
+      * expecting a [[DistributedMonad]] being this class visible, the compiler will wrapp that [[Dataset]] using
       * the constructor of this class.
       *
-      * @param ds [[DStream[Row]] to be wrapped.
+      * @param ds [[Dataset[Row]] to be wrapped.
       */
-    implicit class DataframeDistributedMonad(val ds: Dataset[Row]) extends DistributedMonad[Dataset] {
+    implicit class DatasetDistributedMonad(val ds: Dataset[Row]) extends DistributedMonad[Dataset] {
 
       override def map(func: Row => Row): Dataset[Row] ={
         val newSchema = if(ds.rdd.isEmpty()) ds.schema else func(ds.first()).schema
@@ -181,6 +182,48 @@ object DistributedMonad {
         }
       }
 
+    }
+
+    /**
+      * Type class instance for [[org.apache.spark.rdd.RDD[Row]]]
+      * This is an implicit class. Therefore, whenever a [[org.apache.spark.rdd.RDD]] is passed to a function
+      * expecting a [[DistributedMonad]] being this class visible,
+      * the compiler will wrapp that [[org.apache.spark.rdd.RDD]] using the constructor of this class.
+      *
+      * @param ds [[org.apache.spark.rdd.RDD[Row]] to be wrapped.
+      */
+    implicit class RDDDistributedMonad(val ds: RDD[Row]) extends DistributedMonad[RDD] {
+
+      override def map(func: Row => Row): RDD[Row] = ds.map(func)
+
+      override def flatMap(func: Row => TraversableOnce[Row]): RDD[Row] = ds.flatMap(func)
+
+      def writeTemplate(outputOptions: OutputOptions,
+                        save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
+                       ): Unit = {
+        if (!ds.isEmpty()) {
+          val schema = ds.first().schema
+          val dataFrame = xdSession.createDataFrame(ds, schema)
+          val saveOptions = Map(TableNameKey -> outputOptions.tableName) ++
+            outputOptions.partitionBy.notBlank.fold(Map.empty[String, String]) { partition =>
+              Map(PartitionByKey -> partition)
+            } ++
+            outputOptions.primaryKey.notBlank.fold(Map.empty[String, String]) { key =>
+              Map(PrimaryKey -> key)
+            }
+
+          Try {
+            save(dataFrame, outputOptions.saveMode, saveOptions)
+          } match {
+            case Success(_) =>
+              log.debug(s"Data saved in ${outputOptions.tableName}")
+            case Failure(e) =>
+              log.error(s"Error saving data. Table: ${outputOptions.tableName}\n\t" +
+                s"Schema: ${dataFrame.schema}\n\tHead element: ${dataFrame.head}\n\t" +
+                s"Error message: ${e.getMessage}", e)
+          }
+        }
+      }
     }
 
     implicit def asDistributedMonadMap[K, Underlying[Row]](m: Map[K, Underlying[Row]])(

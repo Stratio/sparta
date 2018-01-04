@@ -35,7 +35,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class AvroTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits{
 
-  "A AvroTransformStepBatchIT" should "transform csv events the input Dataset" in {
+  "A AvroTransformStepBatchIT" should "transform csv events the input RDD" in {
 
     val record = s"""{"type":"record","name":"myrecord","fields":[
       | { "name":"color", "type":["string","null"] },
@@ -64,7 +64,7 @@ class AvroTransformStepBatchIT extends TemporalSparkContext with Matchers with D
       new GenericRowWithSchema(Array("blue", 12.1), outputSchema),
       new GenericRowWithSchema(Array("red", 12.2), outputSchema)
     )
-    val dataSet = sparkSession.createDataFrame(sc.parallelize(dataInRow), inputSchema)
+    val dataSet = sc.parallelize(dataInRow)
     val inputData = Map("step1" -> dataSet)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val result = new AvroTransformStepBatch(

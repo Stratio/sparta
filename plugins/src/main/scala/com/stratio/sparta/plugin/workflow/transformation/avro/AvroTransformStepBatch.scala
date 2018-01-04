@@ -19,10 +19,10 @@ package com.stratio.sparta.plugin.workflow.transformation.avro
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
-import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import org.apache.spark.rdd.RDD
 
 class AvroTransformStepBatch(
                               name: String,
@@ -30,4 +30,4 @@ class AvroTransformStepBatch(
                               ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends AvroTransformStep[Dataset](name, outputOptions, ssc, xDSession, properties)
+                            ) extends AvroTransformStep[RDD](name, outputOptions, ssc, xDSession, properties)

@@ -68,7 +68,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   val sampleSchema: StructType = fields
   val sampleRow: Row = new GenericRowWithSchema(Array(1,json1, json2), sampleSchema)
   def sampleStream: DStream[Row] = ssc.queueStream(Queue(sc.parallelize(sampleRow::Nil)))
-  def sampleDataFrame: DataFrame = sparkSession.createDataFrame(sc.parallelize(sampleRow::Nil), sampleSchema)
+  def sampleDataFrame: RDD[Row] = sc.parallelize(sampleRow::Nil)
 
   def newStepWithOptions(properties: Map[String, JSerializable])(
     implicit ssc: StreamingContext, xDSession: XDSession
@@ -85,7 +85,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
       sparkSession,
       properties).transform(Map("step1" -> ds)).ds
 
-  def doTransformBatch(df: DataFrame, properties: Map[String, JSerializable]): DataFrame =
+  def doTransformBatch(df: RDD[Row], properties: Map[String, JSerializable]): RDD[Row] =
     new JsonTransformStepBatch(
       "dummy",
       OutputOptions(tableName = "jsonTransform"),
@@ -100,7 +100,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     if (typeOf[Underlying[Row]] == typeOf[DStream[Row]])
       doTransformStream(input.asInstanceOf[DStreamAsDistributedMonad].ds, properties) foreachRDD check
     else
-      check(doTransformBatch(input.asInstanceOf[DataframeDistributedMonad].ds, properties).rdd)
+      check(doTransformBatch(input.asInstanceOf[RDDDistributedMonad].ds, properties))
   }
 
   import DistributedMonad.Implicits._
