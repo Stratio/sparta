@@ -1,5 +1,0 @@
-#!/bin/bash
-
-#1--- Enable datastore ssl
-export CROSSDATA_SERVER_SPARK_EXECUTOR_APP_NAME=$TENANT_NAME
-export SPARK_SECURITY_DATASTORE_ENABLE="true"

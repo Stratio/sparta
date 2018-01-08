@@ -59,10 +59,10 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite)
-        SpartaJdbcUtils.dropTable(urlWithSSL, connectionProperties, tableName, name)
+        SpartaJdbcUtils.dropTable(connectionProperties, name)
 
       synchronized {
-        SpartaJdbcUtils.tableExists(urlWithSSL, connectionProperties, tableName, dataFrame.schema, name)
+        SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
       }
     } match {
       case Success(tableExists) =>
@@ -72,7 +72,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
               case Some(pk) => pk.split(",").toSeq
               case None => Seq.empty[String]
             }
-            SpartaJdbcUtils.upsertTable(dataFrame, urlWithSSL, tableName, connectionProperties, updateFields, name)
+            SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
           }
 
           if (saveMode == SaveModeEnum.Ignore) return
@@ -80,7 +80,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
           if (saveMode == SaveModeEnum.ErrorIfExists) sys.error(s"Table $tableName already exists")
 
           if (saveMode == SaveModeEnum.Append || saveMode == SaveModeEnum.Overwrite)
-            SpartaJdbcUtils.saveTable(dataFrame, urlWithSSL, tableName, connectionProperties, name)
+            SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
         } else log.warn(s"Table not created: $tableName")
       case Failure(e) =>
         closeConnection(name)

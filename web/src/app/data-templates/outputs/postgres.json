@@ -62,6 +62,14 @@
         "default": false,
         "qa": "fragment-details-postgres-tls"
       },
+       {
+          "propertyId": "schemaFromDatabase",
+          "propertyName": "_SCHEMA_FROM_DATABASE_",
+          "propertyType": "boolean",
+          "tooltip": "Extract schema from output database",
+          "default": false,
+          "qa": "fragment-details-postgres-schema-database"
+       },
       {
         "propertyId": "postgresSaveMode",
         "propertyName": "_POSTGRES_SAVE_MODE_",

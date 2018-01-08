@@ -102,10 +102,13 @@ case class SparkResourcesConf(
 
 case class SparkDockerConf(
                             executorDockerImage: Option[String] =
-                            Option("qa.stratio.com/stratio/stratio-spark:2.1.0.4"),
+                            Option("qa.stratio.com/stratio/stratio-spark:2.2.0.3"),
                             executorDockerVolumes: Option[String] =
                             Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
-                              "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro"),
+                              "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
+                              "/etc/pki/ca-trust/extracted/java/cacerts/:" +
+                              "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
+                              "/etc/resolv.conf:/etc/resolv.conf:ro"),
                             executorForcePullImage: Option[Boolean] = None
                           )
 

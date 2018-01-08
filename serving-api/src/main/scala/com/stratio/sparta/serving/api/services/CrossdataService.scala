@@ -129,16 +129,8 @@ object CrossdataService extends SLF4JLogging {
 
     JarsHelper.addJdbcDriversToClassPath()
 
-    if (Properties.envOrNone("VAULT_TOKEN").isDefined && Properties.envOrNone("VAULT_HOSTS").isDefined &&
-      Properties.envOrNone("VAULT_PROTOCOL").isDefined && Properties.envOrNone("VAULT_PORT").isDefined) {
-      val vaultToken = sys.env.get("VAULT_TOKEN")
-      val vaultUrl = for {
-        protocol <- sys.env.get("VAULT_PROTOCOL")
-        host <- sys.env.get("VAULT_HOSTS")
-        port <- sys.env.get("VAULT_PORT")
-      } yield s"$protocol://$host:$port"
-
-      val environment = ConfigSecurity.prepareEnvironment(vaultToken, vaultUrl)
+    if (Properties.envOrNone("SPARK_SECURITY_DATASTORE_ENABLE").isDefined) {
+      val environment = ConfigSecurity.prepareEnvironment
 
       log.debug(s"XDSession secured environment prepared with variables: $environment")
     } else log.debug(s"XDSession secured environment not configured")
@@ -152,6 +144,7 @@ object CrossdataService extends SLF4JLogging {
   }
 
   //scalastyle:off
+  //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private def kerberosYarnDefaultVariables: Seq[(String, String)] = {
     val hdfsConfig = SpartaConfig.getHdfsConfig
     (HdfsService.getPrincipalName(hdfsConfig).notBlank, HdfsService.getKeyTabPath(hdfsConfig).notBlank) match {

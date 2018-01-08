@@ -110,6 +110,8 @@ object SecurityHelper {
       "ssl.truststore.location" -> configDataStore("trustStore"),
       "ssl.truststore.password" -> configDataStore("trustStorePassword")
     )
+
+  //scalastyle:off
   private def getSecurityConfigurations: Map[String, String] = {
     val useDynamicAuthentication = Try {
       Properties.envOrElse("USE_DYNAMIC_AUTHENTICATION", "false").toBoolean
@@ -117,31 +119,24 @@ object SecurityHelper {
     val vaultHost = Properties.envOrNone("VAULT_HOSTS").notBlank
     val vaultPort = Properties.envOrNone("VAULT_PORT").notBlank
     val vaultToken = Properties.envOrNone("VAULT_TOKEN").notBlank
-    val appName = Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
-      .notBlank
-      .orElse(Properties.envOrNone("TENANT_NAME").notBlank)
-    val securityProperties = (vaultHost, vaultPort, appName) match {
-      case (Some(host), Some(port), Some(name)) =>
+    val securityProperties = (vaultHost, vaultPort) match {
+      case (Some(host), Some(port)) =>
         Map(
-          "spark.mesos.executor.docker.volumes" ->
-            "/etc/pki/ca-trust/extracted/java/cacerts/:/etc/ssl/certs/java/cacerts:ro",
+          "spark.mesos.driverEnv.VAULT_HOSTS" -> host,
           "spark.mesos.driverEnv.VAULT_HOST" -> host,
           "spark.mesos.driverEnv.VAULT_PORT" -> port,
           "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https",
-          "spark.mesos.driverEnv.APP_NAME" -> name,
-          "spark.mesos.driverEnv.CA_NAME" -> "ca",
+          "spark.executorEnv.VAULT_HOSTS" -> host,
           "spark.executorEnv.VAULT_HOST" -> host,
           "spark.executorEnv.VAULT_PORT" -> port,
           "spark.executorEnv.VAULT_PROTOCOL" -> "https",
-          "spark.executorEnv.APP_NAME" -> name,
-          "spark.executorEnv.CA_NAME" -> "ca",
           "spark.secret.vault.host" -> host,
           "spark.secret.vault.hosts" -> host,
           "spark.secret.vault.port" -> port,
           "spark.secret.vault.protocol" -> "https"
         ) ++ {
           if (vaultToken.isDefined && !useDynamicAuthentication)
-            Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken(s"https://$host:$port", vaultToken.get))
+            Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken)
           else Map.empty[String, String]
         }
       case _ =>

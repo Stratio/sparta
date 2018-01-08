@@ -43,6 +43,7 @@ class RowSerializer extends Serializer[Row] {
   private var avroSchema: Option[Schema] = None
   private var recordInjection: Option[Injection[GenericRecord, Array[Byte]]] = None
   private var avroConverter: Option[(Any) => Any] = None
+  private var jsonConf: Map[String, String] = Map.empty[String, String]
 
   override def configure(configs: util.Map[String, _], isKey: Boolean): Unit = {
 
@@ -72,6 +73,11 @@ class RowSerializer extends Serializer[Row] {
     outputFormat = OutputFormatEnum.withName(format)
     stringSerializer.configure(configs, isKey)
     byteArraySerializer.configure(configs, isKey)
+
+    jsonConf = {
+      configs.filterKeys(key => key.contains(s"$configPrefix.serializer.json"))
+        .map { case (key, value) => (key.replace(s"$configPrefix.serializer.json.", ""), value.toString) }
+    }.toMap
   }
 
   override def serialize(topic: String, data: Row): Array[Byte] = {
@@ -91,7 +97,7 @@ class RowSerializer extends Serializer[Row] {
       case OutputFormatEnum.ROW =>
         stringSerializer.serialize(topic, data.mkString(delimiter))
       case _ =>
-        stringSerializer.serialize(topic, RowJsonHelper.toJSON(data))
+        stringSerializer.serialize(topic, RowJsonHelper.toJSON(data, jsonConf))
     }
   }
 

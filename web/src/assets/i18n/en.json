@@ -374,6 +374,7 @@
    "_INITIAL_SENTENCE_": "Initial sentence",
    "_STOP_GRACEFULLY_": "Stop Gracefully",
    "_CA_NAME_": "CA Name",
+   "_SCHEMA_FROM_DATABASE_": "Extract schema from database",
    "_OPTION_PROPERTIES_": "Option properties",
    "_OPTION_KEY_": "Option key",
    "_OPTION_VALUE_": "Option value",

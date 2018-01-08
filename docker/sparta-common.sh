@@ -16,6 +16,7 @@ function initSpark() {
     SPARK_CONF_DEFAULTS_FILE="${SPARK_HOME}/conf/spark-defaults.conf"
   fi
   if [[ ! -v SPARK_CONF_LOG_FILE ]]; then
+    cp "${SPARK_HOME}/conf/log4j.properties.template" "${SPARK_HOME}/conf/log4j.properties"
     SPARK_CONF_LOG_FILE="${SPARK_HOME}/conf/log4j.properties"
   fi
   echo "" >> ${VARIABLES}

@@ -1,8 +1,15 @@
 #!/bin/bash
 
 function initDatastoreTls() {
-    if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ] && [ -v CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE ] && [ $CROSSDATA_SERVER_SPARK_DATASTORE_SSL_ENABLE == "true" ]; then
-        source datastoretls-config.sh
+    if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ] ; then
+        echo "" >> ${VARIABLES}
+        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${VARIABLES}
+        echo "" >> ${SYSTEM_VARIABLES}
+        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${SYSTEM_VARIABLES}
+        echo "" >> ${VARIABLES}
+        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${VARIABLES}
+        echo "" >> ${SYSTEM_VARIABLES}
+        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${SYSTEM_VARIABLES}
     fi
 }
 
@@ -229,7 +236,7 @@ function marathonOptions() {
  sed -i "s|.*sparta.marathon.mesosphere.packages.*|sparta.marathon.mesosphere.packages = \""${SPARTA_MARATHON_MESOSPHERE_PACKAGES}"\"|" ${SPARTA_CONF_FILE}
 
  if [[ ! -v SPARTA_DOCKER_IMAGE ]]; then
-   SPARTA_DOCKER_IMAGE="qa.stratio.com/stratio/sparta:1.4.0-SNAPSHOT"
+   SPARTA_DOCKER_IMAGE="qa.stratio.com/stratio/sparta:2.0.0-SNAPSHOT"
  fi
  sed -i "s|.*sparta.marathon.docker.image.*|sparta.marathon.docker.image = \""${SPARTA_DOCKER_IMAGE}"\"|" ${SPARTA_CONF_FILE}
 

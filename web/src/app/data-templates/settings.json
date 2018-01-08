@@ -516,7 +516,7 @@
                       "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "qa.stratio.com/stratio/stratio-spark:2.1.0.4",
+                      "default": "qa.stratio.com/stratio/stratio-spark:2.2.0.3",
                       "tooltip": "Run over Mesos Clusters with Docker containers",
                       "qa": "workflow-spark-executorDockerImage"
                    },
@@ -525,7 +525,7 @@
                       "propertyName": "SETTINGS._SPARK_DOCKER_VOLUMES_",
                       "propertyType": "text",
                       "width": 4,
-                      "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+                      "default": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
                       "tooltip": "Mount volumes from host machine in the executor docker container",
                       "qa": "workflow-spark-executorDockerVolumes"
                    },

@@ -13,24 +13,9 @@ if [ "$USE_DYNAMIC_AUTHENTICATION" = "true" ]; then
     _log_sparta_sec "Dynamic authentication enabled. Obtaining token from Vault"
     login
     if [ $? != 0 ]; then
-        _log_sparta_sec "ERROR" "login using dynamic authentication failed!"
+        _log_sparta_sec "login using dynamic authentication failed!"
         exit 1
     fi
-
-#   TODO prevent error in Spark
-#    if [ -v VAULT_ROLE_ID ]; then
-#      echo "" >> ${VARIABLES}
-#      echo "unset VAULT_ROLE_ID" >> ${VARIABLES}
-#      echo "" >> ${SYSTEM_VARIABLES}
-#      echo "unset VAULT_ROLE_ID" >> ${SYSTEM_VARIABLES}
-#    fi
-#
-#    if [ -v VAULT_SECRET_ID ]; then
-#      echo "unset VAULT_SECRET_ID" >> ${VARIABLES}
-#      echo "" >> ${VAULT_SECRET_ID}
-#      echo "unset VAULT_ROLE_ID" >> ${SYSTEM_VARIABLES}
-#    fi
-
 fi
 
 if [ -v VAULT_ENABLE ] && [ ${#VAULT_ENABLE} != 0 ] && [ $VAULT_ENABLE == "true" ] && [ -v VAULT_TOKEN ] && [ ${#VAULT_TOKEN} != 0 ]; then
@@ -60,6 +45,13 @@ export TENANT_NAME=${MARATHON_APP_LABEL_DCOS_SERVICE_NAME}
 else
 export TENANT_NAME='sparta'   # MARATHON_APP_ID without slash
 fi
+
+if [ -v DATASTORE_TRUSTSTORE_CA_NAME ] && [ ${#DATASTORE_TRUSTSTORE_CA_NAME} != 0 ]; then
+export TRUSTSTORE_CA_NAME=${DATASTORE_TRUSTSTORE_CA_NAME}
+else
+export TRUSTSTORE_CA_NAME='ca'
+fi
+
 #Setup tenant_normalized for access kms_utils
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"
@@ -69,7 +61,7 @@ export SPARTA_TRUST_JKS_NAME="/etc/sds/sparta/security/truststore.jks"
 export SPARTA_KEYTAB_NAME="/etc/sds/sparta/security/$TENANT_NAME.keytab"
 export GOSEC_PLUGIN_JKS_NAME=${SPARTA_TLS_JKS_NAME}
 
-export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/ca"
+export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH="/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME"
 export SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH="/v1/ca-trust/passwords/default/keystore"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH="/v1/userland/certificates/$TENANT_NAME"
 export SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH="/v1/userland/passwords/$TENANT_NAME/keystore"

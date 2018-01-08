@@ -65,10 +65,10 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
 
     Try {
       if (sparkSaveMode == SaveMode.Overwrite)
-        SpartaJdbcUtils.dropTable(urlWithSSL, connectionProperties, tableName, name)
+        SpartaJdbcUtils.dropTable(connectionProperties, name)
 
       synchronized {
-        SpartaJdbcUtils.tableExists(urlWithSSL, connectionProperties, tableName, dataFrame.schema, name)
+        SpartaJdbcUtils.tableExists(connectionProperties, dataFrame, name)
       }
     } match {
       case Success(tableExists) =>
@@ -78,7 +78,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
               case Some(pk) => pk.split(",").toSeq
               case None => Seq.empty[String]
             }
-            SpartaJdbcUtils.upsertTable(dataFrame, urlWithSSL, tableName, connectionProperties, updateFields, name)
+            SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
           } else {
             if (postgresSaveMode == PostgresSaveMode.COPYIN) {
               dataFrame.foreachPartition { rows =>
@@ -91,7 +91,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
                 )
               }
             } else {
-              SpartaJdbcUtils.saveTable(dataFrame, urlWithSSL, tableName, connectionProperties, name)
+              SpartaJdbcUtils.saveTable(dataFrame, connectionProperties, name)
             }
           }
         } else log.warn(s"Table not created in Postgres: $tableName")

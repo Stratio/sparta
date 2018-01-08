@@ -16,7 +16,8 @@
 
 package org.apache.spark.sql.jdbc
 
-import java.sql.{Connection, PreparedStatement}
+import java.sql.{Connection, PreparedStatement, SQLException}
+import java.util.Locale
 
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.execution.datasources.jdbc.JdbcUtils._
@@ -43,42 +44,43 @@ object SpartaJdbcUtils extends SLF4JLogging {
    *
    */
 
-  def tableExists(url: String, connectionProperties: JDBCOptions, tableName: String, schema: StructType, outputName: String): Boolean = {
+  def tableExists(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): Boolean = {
     synchronized {
-      if (!tablesCreated.containsKey(tableName)) {
+      if (!tablesCreated.containsKey(connectionProperties.table)) {
         val conn = getConnection(connectionProperties, outputName)
-        val exists = JdbcUtils.tableExists(conn, url, tableName)
+        val exists = JdbcUtils.tableExists(conn, connectionProperties)
 
         if (exists) {
-          tablesCreated.put(tableName, schema)
+          tablesCreated.put(connectionProperties.table, dataFrame.schema)
           true
-        } else createTable(url, connectionProperties, tableName, schema, outputName)
+        } else createTable(connectionProperties, dataFrame, outputName)
       } else true
     }
   }
 
-  def dropTable(url: String, connectionProperties: JDBCOptions, tableName: String, outputName: String): Unit = {
+  def dropTable(connectionProperties: JDBCOptions, outputName: String): Unit = {
     synchronized {
       val conn = getConnection(connectionProperties, outputName)
       conn.setAutoCommit(true)
       val statement = conn.createStatement
-      Try(statement.executeUpdate(s"DROP TABLE $tableName")) match {
+      Try(statement.executeUpdate(s"DROP TABLE ${connectionProperties.table}")) match {
         case Success(_) =>
-          log.debug(s"Dropped correctly table $tableName ")
+          log.debug(s"Dropped correctly table ${connectionProperties.table} ")
           statement.close()
-          tablesCreated.remove(tableName)
+          tablesCreated.remove(connectionProperties.table)
         case Failure(e) =>
           statement.close()
-          log.error(s"Error dropping table $tableName ${e.getLocalizedMessage} and output $outputName", e)
+          log.error(s"Error dropping table ${connectionProperties.table} ${e.getLocalizedMessage} and output $outputName", e)
       }
     }
   }
 
-  def createTable(url: String, connectionProperties: JDBCOptions, tableName: String, schema: StructType, outputName: String): Boolean = {
+  def createTable(connectionProperties: JDBCOptions, dataFrame: DataFrame, outputName: String): Boolean = {
     synchronized {
+      val tableName = connectionProperties.table
       val conn = getConnection(connectionProperties, outputName)
       conn.setAutoCommit(true)
-      val schemaStr = schemaString(schema, url)
+      val schemaStr = JdbcUtils.schemaString(dataFrame, connectionProperties.url, connectionProperties.createTableColumnTypes)
       val sql = s"CREATE TABLE $tableName ($schemaStr)"
       val statement = conn.createStatement
 
@@ -86,7 +88,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
         case Success(_) =>
           log.debug(s"Created correctly table $tableName and output $outputName")
           statement.close()
-          tablesCreated.put(tableName, schema)
+          tablesCreated.put(tableName, dataFrame.schema)
           true
         case Failure(e) =>
           statement.close()
@@ -128,26 +130,30 @@ object SpartaJdbcUtils extends SLF4JLogging {
     }
   }
 
-  def saveTable(df: DataFrame, url: String, table: String, properties: JDBCOptions, outputName: String) {
+  def saveTable(df: DataFrame, properties: JDBCOptions, outputName: String) {
     val schema = df.schema
-    val dialect = JdbcDialects.get(url)
-    val nullTypes: Array[Int] = schema.fields.map { field =>
-      getJdbcType(field.dataType, dialect).jdbcNullType
-    }
+    val dialect = JdbcDialects.get(properties.url)
     val batchSize = properties.batchSize
     val isolationLevel = properties.isolationLevel
-
-    df.foreachPartition { iterator =>
+    val isCaseSensitive = df.sqlContext.conf.caseSensitiveAnalysis
+    val repartitionedDF = properties.numPartitions match {
+      case Some(n) if n <= 0 => throw new IllegalArgumentException(
+        s"Invalid value `$n` for parameter `${JDBCOptions.JDBC_NUM_PARTITIONS}` in table writing " +
+          "via JDBC. The minimum value is 1.")
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
+    }
+    repartitionedDF.foreachPartition { iterator =>
       if (iterator.hasNext) {
         Try {
-          savePartition(properties, table, iterator, schema, nullTypes, dialect, batchSize, isolationLevel, outputName)
+          savePartition(properties, iterator, schema, dialect, batchSize, isolationLevel, outputName, isCaseSensitive)
         } match {
           case Success(_) =>
-            log.debug(s"Save partition correctly on table $table and output $outputName")
+            log.debug(s"Save partition correctly on table ${properties.table} and output $outputName")
           case Failure(e) =>
-            log.warn(s"Save partition with errors, attempting it creating the table $table in output $outputName and retry to save", e)
-            if (tableExists(url, properties, table, schema, outputName))
-              savePartition(properties, table, iterator, schema, nullTypes, dialect, batchSize, isolationLevel, outputName)
+            log.warn(s"Save partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to save", e)
+            if (tableExists(properties, repartitionedDF, outputName))
+              savePartition(properties, iterator, schema, dialect, batchSize, isolationLevel, outputName, isCaseSensitive)
         }
       } else log.debug(s"Save partition with empty rows")
     }
@@ -155,14 +161,12 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
   def upsertTable(
                    df: DataFrame,
-                   url: String,
-                   table: String,
                    properties: JDBCOptions,
                    searchFields: Seq[String],
                    outputName: String
                  ): Unit = {
     val schema = df.schema
-    val dialect = JdbcDialects.get(url)
+    val dialect = JdbcDialects.get(properties.url)
     val nullTypes = schema.fields.map { field =>
       getJdbcType(field.dataType, dialect).jdbcNullType
     }
@@ -176,43 +180,33 @@ object SpartaJdbcUtils extends SLF4JLogging {
         Option(index -> getJdbcType(field.dataType, dialect).jdbcNullType)
       else None
     }.toMap.zipWithIndex.map { case ((index, nullType), updateIndex) => index -> (updateIndex, nullType) }
-    val insert = insertWithExistsSql(table, schema, searchFields)
-    val update = updateSql(table, schema, searchFields)
-    val batchSize = properties.batchSize
-    val isolationLevel = properties.isolationLevel
+    val insert = insertWithExistsSql(properties.table, schema, searchFields)
+    val update = updateSql(properties.table, schema, searchFields)
+    val repartitionedDF = properties.numPartitions match {
+      case Some(n) if n <= 0 => throw new IllegalArgumentException(
+        s"Invalid value `$n` for parameter `${JDBCOptions.JDBC_NUM_PARTITIONS}` in table writing " +
+          "via JDBC. The minimum value is 1.")
+      case Some(n) if n < df.rdd.getNumPartitions => df.coalesce(n)
+      case _ => df
+    }
 
-    df.foreachPartition { iterator =>
+    repartitionedDF.foreachPartition { iterator =>
       if (iterator.hasNext) {
         Try {
-          upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes,
-            batchSize, isolationLevel, outputName)
+          upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes, outputName)
         } match {
           case Success(_) =>
-            log.debug(s"Upsert partition correctly on table $table in output $outputName")
+            log.debug(s"Upsert partition correctly on table ${properties.table} in output $outputName")
           case Failure(e) =>
-            log.warn(s"Upsert partition with errors, attempting it creating the table $table in output $outputName and retry to upsert", e)
-            if (tableExists(url, properties, table, schema, outputName))
-              upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes,
-                batchSize, isolationLevel, outputName)
+            log.warn(s"Upsert partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to upsert", e)
+            if (tableExists(properties, repartitionedDF, outputName))
+              upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes, outputName)
         }
       } else log.debug(s"Upsert partition with empty rows")
     }
   }
 
   /** PRIVATE METHODS **/
-
-  private def schemaString(schema: StructType, url: String): String = {
-    val sb = new StringBuilder()
-    val dialect = JdbcDialects.get(url)
-    schema.fields foreach { field => {
-      val name = field.name
-      val typ: String = getJdbcType(field.dataType, dialect).databaseTypeDefinition
-      val nullable = if (field.nullable) "" else "NOT NULL"
-      sb.append(s", $name $typ $nullable")
-    }
-    }
-    if (sb.length < 2) "" else sb.substring(2)
-  }
 
   private def getJdbcType(dt: DataType, dialect: JdbcDialect): JdbcType = {
     dialect.getJDBCType(dt).orElse(getCommonJDBCType(dt)).getOrElse(
@@ -295,7 +289,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
     case ArrayType(et, _) =>
       // remove type length parameters from end of type name
       val typeName = getJdbcType(et, dialect).databaseTypeDefinition
-        .toLowerCase.split("\\(")(0)
+        .toLowerCase(Locale.ROOT).split("\\(")(0)
       (stmt: PreparedStatement, row: Row, pos: Int) =>
         val array = conn.createArrayOf(
           typeName,
@@ -310,17 +304,24 @@ object SpartaJdbcUtils extends SLF4JLogging {
 
   private def savePartition(
                              properties: JDBCOptions,
-                             table: String,
                              iterator: Iterator[Row],
                              rddSchema: StructType,
-                             nullTypes: Array[Int],
                              dialect: JdbcDialect,
                              batchSize: Int,
                              isolationLevel: Int,
-                             outputName: String
-                           ): Unit = {
+                             outputName: String,
+                             isCaseSensitive: Boolean
+                           ): Iterator[Byte] = {
     val conn = getConnection(properties, outputName)
+    val schemaFromDatabase = Try(properties.asProperties.getProperty("schemaFromDatabase")).toOption
+    val tableSchema = schemaFromDatabase.flatMap { value =>
+        if(Try(value.toBoolean).getOrElse(false))
+          JdbcUtils.getSchemaOption(conn, properties)
+        else None
+    }
+    val insertStmt = getInsertStatement(properties.table, rddSchema, tableSchema, isCaseSensitive, dialect)
     var committed = false
+
     var finalIsolationLevel = Connection.TRANSACTION_NONE
     if (isolationLevel != Connection.TRANSACTION_NONE) {
       try {
@@ -347,9 +348,13 @@ object SpartaJdbcUtils extends SLF4JLogging {
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
 
     try {
-      if (supportsTransactions) conn.setAutoCommit(false)
-      val stmt = insertStatement(conn, table, rddSchema, dialect)
-      val setters: Array[JDBCValueSetter] = rddSchema.fields.map(_.dataType).map(makeSetter(conn, dialect, _))
+      if (supportsTransactions){
+        conn.setAutoCommit(false)
+        conn.setTransactionIsolation(finalIsolationLevel)
+      }
+      val stmt = conn.prepareStatement(insertStmt)
+      val setters = rddSchema.fields.map(f => makeSetter(conn, dialect, f.dataType))
+      val nullTypes = rddSchema.fields.map(f => getJdbcType(f.dataType, dialect).jdbcNullType)
       try {
         var rowCount = 0
         while (iterator.hasNext) {
@@ -379,6 +384,27 @@ object SpartaJdbcUtils extends SLF4JLogging {
       }
       if (supportsTransactions) conn.commit()
       committed = true
+      Iterator.empty
+    } catch {
+      case e: SQLException =>
+        val cause = e.getNextException
+        if (cause != null && e.getCause != cause) {
+          // If there is no cause already, set 'next exception' as cause. If cause is null,
+          // it *may* be because no cause was set yet
+          if (e.getCause == null) {
+            try {
+              e.initCause(cause)
+            } catch {
+              // Or it may be null because the cause *was* explicitly initialized, to *null*,
+              // in which case this fails. There is no other way to detect it.
+              // addSuppressed in this case as well.
+              case _: IllegalStateException => e.addSuppressed(cause)
+            }
+          } else {
+            e.addSuppressed(cause)
+          }
+        }
+        throw e
     } finally {
       if (!committed) {
         if (supportsTransactions) conn.rollback()
@@ -396,11 +422,11 @@ object SpartaJdbcUtils extends SLF4JLogging {
                                dialect: JdbcDialect,
                                searchTypes: Map[Int, (Int, Int)],
                                updateTypes: Map[Int, (Int, Int)],
-                               batchSize: Int,
-                               isolationLevel: Int,
                                outputName: String
                              ): Unit = {
     val conn = getConnection(properties, outputName)
+    val isolationLevel = properties.isolationLevel
+    val batchSize = properties.batchSize
     var finalIsolationLevel = Connection.TRANSACTION_NONE
     if (isolationLevel != Connection.TRANSACTION_NONE) {
       try {

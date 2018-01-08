@@ -18,8 +18,8 @@ getCert "userland" "$TENANT_NAME" "$TENANT_NAME" "PEM" $SPARK_SSL_CERT_PATH || e
 
 #GET CA-BUNDLE for given CA and store in ca.crt
 VAULT_URI="$VAULT_PROTOCOL://$VAULT_HOSTS:$VAULT_PORT"
-JSON_KEY="${CROSSDATA_SERVER_SPARK_EXECUTOR_CA_NAME}_crt"
-CA_BUNDLE=$(curl -k -XGET -H "X-Vault-Token:$VAULT_TOKEN" "$VAULT_URI/v1/ca-trust/certificates/$CROSSDATA_SERVER_SPARK_EXECUTOR_CA_NAME" -s |  jq -cMSr --arg fqdn "" ".data[\"$JSON_KEY\"]")
+JSON_KEY="${TRUSTSTORE_CA_NAME}_crt"
+CA_BUNDLE=$(curl -k -XGET -H "X-Vault-Token:$VAULT_TOKEN" "$VAULT_URI/v1/ca-trust/certificates/$TRUSTSTORE_CA_NAME" -s |  jq -cMSr --arg fqdn "" ".data[\"$JSON_KEY\"]")
 
 echo "$CA_BUNDLE" > ${SPARK_SSL_CERT_PATH}/ca.crt
 sed -i 's/-----BEGIN CERTIFICATE-----/-----BEGIN CERTIFICATE-----\n/g' ${SPARK_SSL_CERT_PATH}/ca.crt

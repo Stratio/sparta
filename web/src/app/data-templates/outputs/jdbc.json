@@ -66,11 +66,19 @@
       {
         "propertyId": "tlsEnabled",
         "propertyName": "_TLS_ENABLE_",
-        "propertyType": "switch",
+        "propertyType": "boolean",
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
       },
+       {
+          "propertyId": "schemaFromDatabase",
+          "propertyName": "_SCHEMA_FROM_DATABASE_",
+          "propertyType": "boolean",
+          "tooltip": "Extract schema from output database",
+          "default": false,
+          "qa": "fragment-details-jdbc-schema-database"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_JDBC_SAVE_PROPERTIES_",

@@ -37,7 +37,7 @@ class RowJsonHelperTest extends WordSpec with Matchers {
         val valuesSimple: Array[Any] = Array(a, b, false)
         val test1 = new GenericRowWithSchema(valuesSimple, structSimple)
         val jsonString = """{"a":1,"b":2222222,"c":false}"""
-        RowJsonHelper.toJSON(test1) should equal(jsonString)
+        RowJsonHelper.toJSON(test1, Map.empty[String, String]) should equal(jsonString)
       }
 
       "it is passed a row (complex types)" in {
@@ -58,7 +58,7 @@ class RowJsonHelperTest extends WordSpec with Matchers {
         val externalRow = new GenericRowWithSchema(valuesComplex, structComplex)
         val jsonStringComplex =
           """{"response":"yes","members":[{"ID":"185778762","name":"Rodrigo Diaz de Vivar"}]}"""
-        RowJsonHelper.toJSON(externalRow) should equal(jsonStringComplex)
+        RowJsonHelper.toJSON(externalRow, Map.empty[String, String]) should equal(jsonStringComplex)
       }
     }
   }

@@ -88,7 +88,9 @@ class MarathonService(context: ActorContext,
   val Krb5ConfFile = "/etc/krb5.conf"
   val ResolvConfigFile = "/etc/resolv.conf"
   val ContainerCertificatePath = "/etc/ssl/certs/java/cacerts"
+  val ContainerJavaCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
   val HostCertificatePath = "/etc/pki/ca-trust/extracted/java/cacerts"
+  val HostJavaCertificatePath = "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts"
   val DefaultGracePeriodSeconds = 240
   val DefaultIntervalSeconds = 60
   val DefaultTimeoutSeconds = 30
@@ -206,13 +208,6 @@ class MarathonService(context: ActorContext,
     Json.parse(fileContent).as[CreateApp]
   }
 
-  private def getKrb5ConfVolume: Seq[Parameter] = Properties.envOrNone(VaultEnableEnv) match {
-    case Some(vaultEnable) if Try(vaultEnable.toBoolean).getOrElse(false) =>
-      Seq(Parameter("volume", Krb5ConfFile))
-    case None =>
-      Seq.empty[Parameter]
-  }
-
   private def transformMemoryToInt(memory: String): Int = Try(memory match {
     case mem if mem.contains("G") => mem.replace("G", "").toInt * 1024
     case mem if mem.contains("g") => mem.replace("g", "").toInt * 1024
@@ -275,7 +270,10 @@ class MarathonService(context: ActorContext,
         Properties.envOrNone(VaultHostsEnv).isDefined &&
         Properties.envOrNone(VaultTokenEnv).isDefined)
         Seq.empty[Volume]
-      else Seq(Volume(ContainerCertificatePath, HostCertificatePath, "RO"))
+      else Seq(
+        Volume(ContainerCertificatePath, HostCertificatePath, "RO"),
+        Volume(ContainerJavaCertificatePath, HostJavaCertificatePath, "RO")
+      )
     }
     val commonVolumes: Seq[Volume] = Seq(
       Volume(ResolvConfigFile, ResolvConfigFile, "RO"),
@@ -398,6 +396,10 @@ class MarathonService(context: ActorContext,
       SpartaZookeeperPathEnv -> Option(BaseZkPath),
       CrossdataCoreCatalogClass -> Properties.envOrNone(CrossdataCoreCatalogClass),
       CrossdataCoreCatalogPrefix -> Properties.envOrNone(CrossdataCoreCatalogPrefix),
+      CrossdataStoragePath -> Properties.envOrNone(CrossdataStoragePath),
+      CrossdataCoreStoragePersistence -> Properties.envOrNone(CrossdataCoreStoragePersistence),
+      CrossdataSecurityManagerEnabled -> Properties.envOrNone(CrossdataSecurityManagerEnabled),
+      CrossdataSecurityManagerClass -> Properties.envOrNone(CrossdataSecurityManagerClass),
       CrossdataCoreCatalogZookeeperConnectionString -> Properties.envOrNone(CrossdataCoreCatalogZookeeperConnectionString),
       CrossdataCoreCatalogZookeeperConnectionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperConnectionTimeout),
       CrossdataCoreCatalogZookeeperSessionTimeout -> Properties.envOrNone(CrossdataCoreCatalogZookeeperSessionTimeout),
