@@ -2,7 +2,7 @@
    <span class="confirmation">ARE YOU SURE?</span>
 
    <st-switch label="Remove all data before running backup" labelPosition="right" [stModel]="removeData" qaTag="remove-data-switch"
-      (change)="onChangeValue($event)" class="remove-data">
+      (change)="onChangeValue($event)" class="remove-data st-form-field">
    </st-switch>
    <p class="execute-info">Executing the backup could cause a potential loss of data.</p>
    <div class="action-buttons">

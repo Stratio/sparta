@@ -44,12 +44,14 @@ export class AppComponent implements OnInit, OnDestroy {
             if (alerts && alerts.length) {
                 alerts.map((alertNot: any) => {
                     if (alertNot.notranslate) {
-                        this._alertService.notifyAlert(alertNot.title, alertNot.description, alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
+                        this._alertService.notifyAlert(alertNot.title, alertNot.description, alertNot.type,
+                        undefined, alertNot.duration ? alertNot.duration : 1000);
                     } else {
                         const title = 'ALERTS.' + alertNot.title;
                         const description = 'ALERTS.' + alertNot.description;
                         this._translate.get([title, description], alertNot.params).subscribe((value: { [key: string]: string }) => {
-                            this._alertService.notifyAlert(value[title], value[description], alertNot.type, undefined, alertNot.duration ? alertNot.duration : 1000);
+                            this._alertService.notifyAlert(value[title], value[description], alertNot.type,
+                            undefined, alertNot.duration ? alertNot.duration : 1000);
                         });
                     }
                 });

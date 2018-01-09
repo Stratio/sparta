@@ -84,8 +84,4 @@ export class MenuService {
         return this._menuOptions;
     }
 
-
-    private findSection(label: string): StHeaderMenuOption {
-        return this._menuOptions.find(item => item.label === label);
-    }
 }

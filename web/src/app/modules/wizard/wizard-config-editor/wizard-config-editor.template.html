@@ -36,14 +36,14 @@
                   <div class="col-sm-6">
                      <sp-input name="name" [(ngModel)]="entityFormModel['name']" label="{{'TEMPLATE_NAME' | translate}} *" fieldType="text" [required]="true"
                         qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                        class="input-field"></sp-input>
+                        class="input-field st-form-field"></sp-input>
                   </div>
                </div>
                <div class="row" [hidden]="!(config.editionType.stepType === 'Output' || activeOption === 'Global')">
                   <div class="col-sm-6">
                      <sp-textarea name="description" [(ngModel)]="entityFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
                         fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="120"
-                        [errors]="errorsService.errors.inputErrors" class="input-field"></sp-textarea>
+                        [errors]="errorsService.errors.inputErrors" class="input-field st-form-field"></sp-textarea>
                   </div>
                </div>
                <form-generator *ngIf="config.editionType.stepType !== 'Output'" [hidden]="activeOption !== 'Writer'" [forceValidations]="submitted"

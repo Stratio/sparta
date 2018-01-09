@@ -51,11 +51,8 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
     public stModel: any = false;
     public errors: StInputError = {};
 
-    private registeredOnChange: (_: any) => void;
-
     ngOnInit(): void {
         this.stFormControl = new FormControl();
-
         setTimeout(() => {
             if (this.field.visible && this.field.visible.length) {
                 for (const field of this.field.visible[0]) {

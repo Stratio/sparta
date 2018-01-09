@@ -93,12 +93,14 @@ export class TransformationsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalTitle = 'DASHBOARD.DELETE_TRANSFORMATION_TITLE';
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_TRANSFORMATION_MESSAGE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_TRANSFORMATION';
+        const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_TRANSFORMATION_MESSAGE_TITLE';
 
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle]).subscribe(
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, deleteTemplateModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
+                this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
             }
         );
     }

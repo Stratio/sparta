@@ -26,6 +26,7 @@ export abstract class CreateTemplateComponent implements OnInit {
 
     @Output() onCloseInputModal = new EventEmitter<string>();
     @ViewChild('inputForm') public inputForm: NgForm;
+
     public fragmentIndex = 0;
     public listData: any;
     public submitted = false;
@@ -35,6 +36,7 @@ export abstract class CreateTemplateComponent implements OnInit {
     public fragmentTypes: StDropDownMenuItem[] = [];
     public breadcrumbOptions: string[] = [];
     public inputFormModel: any = {
+        name: '',
         element: {
         }
     };
@@ -55,7 +57,7 @@ export abstract class CreateTemplateComponent implements OnInit {
 
 
     changeFragmentIndex(index: number): void {
-        this.inputFormModel.element.configuration = {};
+        //this.inputFormModel.element.configuration = {};
         this.fragmentIndex = index;
     }
 
@@ -66,6 +68,7 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex], this.stepType);
             this.inputFormModel.description = '';
         }, 0);
+        this.inputForm.form.markAsPristine();
     }
 
     cancelCreate() {
@@ -94,6 +97,7 @@ export abstract class CreateTemplateComponent implements OnInit {
                 this.fragmentIndex = i;
                 this.inputFormModel.classPrettyName = type;
                 this.inputFormModel.className = this.listData[i].className;
+                this.inputForm.form.markAsPristine();
                 return;
             }
         }

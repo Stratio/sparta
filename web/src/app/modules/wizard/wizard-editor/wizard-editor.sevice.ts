@@ -15,6 +15,7 @@
 ///
 
 import { Injectable } from '@angular/core';
+import { InitializeSchemaService, ValidateSchemaService } from 'app/services';
 
 @Injectable()
 export class WizardEditorService {
@@ -29,7 +30,7 @@ export class WizardEditorService {
             if (ent.name === name) {
                 valid = false;
             }
-        })
+        });
 
         if (!valid) {
             index++;
@@ -39,8 +40,30 @@ export class WizardEditorService {
         }
     }
 
-
-    setD3Events() {
-
+    initializeEntity(entityData: any, entities: any): any {
+        let entity: any = {};
+        if (entityData.type === 'template') {
+            entity = Object.assign({}, entityData.data);
+            // outputs havent got writer
+            if (entityData.stepType !== 'Output') {
+                entity.writer = this.initializeSchemaService.getDefaultWriterModel();
+            }
+            entity.name = this.getNewEntityName(entityData.classPrettyName, entities);
+        } else {
+            entity = this.initializeSchemaService.setDefaultEntityModel(entityData.value, entityData.stepType, true);
+            entity.name = this.getNewEntityName(entityData.value.classPrettyName, entities);
+        }
+        entity.stepType = entityData.stepType;
+        // validation of the model
+        const errors = this.validateSchemaService.validateEntity(entity, entityData.stepType, entityData.value);
+        if (errors && errors.length) {
+            entity.hasErrors = true;
+            entity.errors = errors;
+            entity.createdNew = true; // gray box
+        }
+        entity.created = true; // shows created fadeIn animation
+        return entity;
     }
+
+    constructor(private initializeSchemaService: InitializeSchemaService, private validateSchemaService: ValidateSchemaService){}
 }

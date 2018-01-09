@@ -27,7 +27,7 @@ import { ZoomBehavior, DragBehavior } from 'd3';
 import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { ValidateSchemaService } from 'app/services/validate-schema.service';
-import { StModalButton, StModalMainTextSize, StModalType, StModalResponse, StModalService, StModalWidth } from '@stratio/egeo';
+import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 
 
 @Component({
@@ -44,11 +44,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     public entities: any = [];
     public entitiesData: any = [];
 
-    public svgPosition = {
-        x: 0,
-        y: 0,
-        k: 1
-    };
+    public svgPosition: any;
     public showConnector = false;
 
     // selectors
@@ -95,7 +91,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-
     @HostListener('click', ['$event'])
     clickout(event: any) {
         if (this.editorArea.nativeElement.contains(event.target)) {
@@ -113,14 +108,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) { }
 
     ngOnInit(): void {
-        // ngrx
-        this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => {
-            this.creationMode = data;
-        });
-
-        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData).subscribe((data) => {
-            this.entitiesData = data;
-        });
+        this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => { this.creationMode = data; });
+        this.getSeletedEntitiesDataSubscription = this.store.select(fromRoot.getSelectedEntityData).subscribe((data) => { this.entitiesData = data; });
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails);
         this.getSeletedEntitiesSubscription = this.store.select(fromRoot.getSelectedEntities).subscribe((data) => {
             this.selectedEntity = data;
@@ -129,7 +118,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.entities = data;
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
-
         this.workflowRelationsSubscription = this.store.select(fromRoot.getWorkflowRelations).subscribe((data: Array<any>) => {
             this.workflowRelations = data.map((relation: any) => {
                 return {
@@ -150,7 +138,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this._cd.detectChanges();
         });
 
-        // d3
         this.documentRef = d3.select(document);
         this.SVGParent = d3.select(this.elementRef.nativeElement).select('#composition');
         this.SVGContainer = d3.select(this.elementRef.nativeElement).select('#svg-container');
@@ -165,7 +152,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.drag = d3.drag();
 
         this._ngZone.runOutsideAngular(() => {
-
             this.SVGParent
                 .call(this.drag
                     .on('start', () => {
@@ -174,50 +160,37 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                             offsetX: event.x,
                             offsetY: event.y
                         };
-                        this.clickDetected.call(this, position);
-                    }));
-
+                        this.clickDetected.call(this, position);}));
         });
 
         let pristine = true;
         let repaints = 0;
-        this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
-            const e: any = d3.event;
-            if (pristine) {
-                if (repaints < 2) {
-                    repaints ++;
-                } else {
-                    if (this.entities.length) {
-                        pristine = false;
-                        this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+        this._ngZone.runOutsideAngular(() => {
+            const SVGContainer = this.SVGContainer;
+            this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
+                const e: any = d3.event;
+                if (pristine) {
+                    if (repaints < 2) {
+                        repaints ++;
+                    } else {
+                        if (this.entities.length) {
+                            pristine = false;
+                            this.store.dispatch(new wizardActions.SetWizardStateDirtyAction());
+                        }
                     }
                 }
-            }
-
-            this.svgPosition = {
-                x: e.transform.x,
-                y: e.transform.y,
-                k: e.transform.k
-            };
-            requestAnimationFrame(this.setContainerPosition.bind(this));
-        })).on('dblclick.zoom', null);
+                this.svgPosition = e.transform;
+                requestAnimationFrame(() => {
+                    SVGContainer.attr('transform', e.transform.toString());
+                });
+            })).on('dblclick.zoom', null);
+         });
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
             this.svgPosition = position;
             this.SVGParent.call(this.zoom.transform, d3.zoomIdentity.translate(this.svgPosition.x, this.svgPosition.y)
                 .scale(this.svgPosition.k === 0 ? 1 : this.svgPosition.k));
         });
-    }
-
-    setDirty() {
-        if (this.isPristine) {
-            this.isPristine = false;
-        }
-    }
-
-    setContainerPosition(): void {
-        const value = 'translate(' + this.svgPosition.x + ',' + this.svgPosition.y + ') scale(' + this.svgPosition.k + ')';
-        this.SVGContainer.attr('transform', value);
     }
 
     closeSideBar() {
@@ -229,7 +202,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             const data = JSON.parse(JSON.stringify((this.entities.find((node: any) => {
                 return node.name === this.selectedEntity;
             }))));
-            data.name = this.editorService.getNewEntityName(data.name, this.entities);
+            data.name = this.editorService.getNewEntityName(data.name, this.entities.data);
             const newEntity: any = {
                 type: 'copy',
                 data: data
@@ -238,44 +211,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
     }
 
-
     clickDetected($event: any) {
         if (this.creationMode.active) {
-            // node creation types: template | copy | new node
             let entity: any = {};
             const entityData = this.creationMode.data;
-
-            // if its a copy, only sets the position
-            if (entityData.type === 'copy') {
+            if (entityData.type === 'copy') { // if its a copy, only sets the position
                 entity = entityData.data;
             } else {
-
-                if (entityData.type === 'template') {
-                    entity = Object.assign({}, entityData.data);
-                    // outputs havent got writer
-                    if (this.creationMode.data.stepType !== 'Output') {
-                        entity.writer = this.initializeSchemaService.getDefaultWriterModel();
-                    }
-                    entity.name = this.editorService.getNewEntityName(entityData.data.classPrettyName, this.entities);
-                } else {
-                    entity = this.initializeSchemaService.setDefaultEntityModel(this.creationMode.data.value,
-                        this.creationMode.data.stepType, true);
-                    entity.name = this.editorService.getNewEntityName(entityData.value.classPrettyName, this.entities);
-                }
-                entity.stepType = this.creationMode.data.stepType;
-                // validation of the model
-                const errors = this.validateSchemaService.validateEntity(entity,
-                    this.creationMode.data.stepType, this.creationMode.data.value);
-
-                if (errors && errors.length) {
-                    entity.hasErrors = true;
-                    entity.errors = errors;
-                    entity.createdNew = true; // gray box
-                }
-                // 
-                entity.created = true; // shows created fadeIn animation
+                entity = this.editorService.initializeEntity(entityData, this.entities);
             }
-
             entity.uiConfiguration = {
                 position: {
                     x: ($event.offsetX - this.svgPosition.x) / this.svgPosition.k,
@@ -301,7 +245,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             name: event.name
         };
 
-
         const w = this.documentRef
             .on('mousemove', drawConnector.bind(this))
             .on('mouseup', mouseup.bind(this));
@@ -314,7 +257,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                 status: false
             };
             w.on('mousemove', null).on('mouseup', null);
-
         }
 
         function drawConnector() {
@@ -347,10 +289,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     centerWorkflow(): void {
         const container = this.elementRef.nativeElement.querySelector('#svg-container').getBoundingClientRect();
         const svgParent = this.elementRef.nativeElement.querySelector('#composition').getBoundingClientRect();
-
         const containerWidth = container.width;
         const containerHeight = container.height;
-
         const svgWidth = svgParent.width;
         const svgHeight = svgParent.height;
         const translateX = ((svgWidth - containerWidth) / 2 - container.left) / this.svgPosition.k;
@@ -402,27 +342,22 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         }
         if (this.selectedSegment) {
             this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-            /* this.deleteConfirmModal('Delete relation', 'This relation will be deleted from workflow.', () => {
-                 this.store.dispatch(new wizardActions.DeleteNodeRelationAction(this.selectedSegment));
-             });*/
         }
     }
 
     public deleteConfirmModal(modalTitle: string, modalMessage: string, handler: any): void {
         const buttons: StModalButton[] = [
-            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
-            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+            { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
         ];
 
         this._modalService.show({
-            qaTag: 'delete-template',
             modalTitle: modalTitle,
             buttons: buttons,
+            maxWidth: 500,
+            messageTitle: 'Are you sure?',
             message: modalMessage,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.NEUTRAL,
-            modalWidth: StModalWidth.COMPACT
-        }).subscribe((response) => {
+        }).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
@@ -433,10 +368,6 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     trackBySegmentFn(index: number, item: any) {
         return index; // or item.id
-    }
-
-    trackByBoxFn(index: number, item: any) {
-        return item.name;
     }
 
     ngOnDestroy(): void {

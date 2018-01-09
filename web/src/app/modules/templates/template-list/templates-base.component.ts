@@ -18,8 +18,7 @@ import { OnDestroy, OnInit, ViewContainerRef, ViewChild, ChangeDetectorRef } fro
 import { Store } from '@ngrx/store';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
-    StTableHeader, StModalButton, StModalResponse, StModalService,
-    StModalType, StModalMainTextSize
+    StTableHeader, StModalButton, StModalResponse, StModalService
 } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 
@@ -34,6 +33,7 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     public templateList: any = [];
     public deleteTemplateModalTitle: string;
     public deleteTemplateModalMessage: string;
+    public deleteTemplateModalMessageTitle: string;
     public duplicateTemplateModalTitle: string;
     public displayOptions$: Observable<Array<any>>;
     public selectedDisplayOption$: Observable<any>;
@@ -58,18 +58,17 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
 
     public deleteTemplateConfirmModal(): void {
         const buttons: StModalButton[] = [
-            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
-            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+            { label: 'Cancel', responseValue: StModalResponse.NO, classes: 'button-secondary-gray' },
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
         ];
 
         this._modalService.show({
-            qaTag: 'delete-template',
             modalTitle: this.deleteTemplateModalTitle,
             buttons: buttons,
+            maxWidth: 500,
             message: this.deleteTemplateModalMessage,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.WARNING
-        }).subscribe((response) => {
+            messageTitle: this.deleteTemplateModalMessageTitle
+        }).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {

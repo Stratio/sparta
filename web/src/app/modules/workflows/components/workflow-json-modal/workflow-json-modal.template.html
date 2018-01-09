@@ -3,9 +3,9 @@
       <div class="editor">
          <div class="workflow-fields">
             <sp-input #input label="{{'DASHBOARD.WORKFLOW_NAME' | translate}}" placeholder="{{'DASHBOARD.NAME_PLACEHOLDER' | translate}}"
-               name="name" qaTag="workflow-name" [(ngModel)]="model.name"></sp-input>
+               name="name" qaTag="workflow-name" [(ngModel)]="model.name" class="st-form-field"></sp-input>
             <br>
-            <sp-textarea class="description" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
+            <sp-textarea class="description st-form-field" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
                name="description" qaTag="workflow-description" [rows]="4" [(ngModel)]="model.description"></sp-textarea>
             <p class="json-info">
                <span class="icon"><i class="icon-pin"></i></span>
@@ -16,7 +16,8 @@
          <div class="workflow-json">
             <!--<p *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>-->
             <sp-textarea placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
-               required class="workflow-json-content" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
+               required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
+
             <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
 
             <div class="edition-buttons">

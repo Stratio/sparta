@@ -61,7 +61,7 @@ export function reducer(state: State = initialState, action: any): State {
                 selectedBackups: [],
                 selectAll: false
             }) : Object.assign({}, state, {
-                selectedBackups: state.backupList.map((backup: any )=> {
+                selectedBackups: state.backupList.map((backup: any ) => {
                     return backup.name;
                 }),
                 selectAll: true

@@ -19,7 +19,7 @@ import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { StModalService, StModalWidth, StModalMainTextSize, StModalType } from '@stratio/egeo';
+import { StModalService } from '@stratio/egeo';
 
 import * as fromRoot from 'reducers';
 import * as wizardActions from 'actions/wizard';
@@ -133,21 +133,16 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.ToggleDetailSidebarAction());
     }
 
-
     public showConfirmModal(): void {
         if (this.isPristine) {
             this.route.navigate(['']);
             return;
         }
-        const sub: any = this._modalService.show({
-            qaTag: 'exit-workflow',
+        this._modalService.show({
             modalTitle: 'Exit workflow',
             outputs: {
                 onCloseConfirmModal: this.onCloseConfirmationModal.bind(this)
-            },
-            modalWidth: StModalWidth.COMPACT,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.NEUTRAL
+            }
         }, WizardModalComponent);
     }
 

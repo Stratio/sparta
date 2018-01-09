@@ -15,8 +15,6 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
-
 
 export const LIST_WORKFLOW = '[Workflow] List workflows';
 export const LIST_WORKFLOW_COMPLETE = '[Workflow] List workflows complete';

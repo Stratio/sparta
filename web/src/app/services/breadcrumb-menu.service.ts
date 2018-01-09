@@ -24,7 +24,7 @@ export class BreadcrumbMenuService {
         let options = ['home'];
         const params = this.route.url.split('/');
         options = options.concat(params.slice(1, params.length));
-        if(lastOption && lastOption.length) {
+        if (lastOption && lastOption.length) {
             options[options.length - 1] = lastOption;
         }
         return options;

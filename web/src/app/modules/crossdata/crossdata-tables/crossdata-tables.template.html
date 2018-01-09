@@ -1,7 +1,7 @@
 <section>
    <div class="filters">
       <sp-select [options]="databases" qaTag="database-selection" label="{{'DASHBOARD.DATABASE' | translate}}" name="fragmentType"
-         (change)="getTablesFromDatabase($event)" class="database-selector" [(ngModel)]="selectedDatabase"></sp-select>
+         (change)="getTablesFromDatabase($event)" class="database-selector st-form-field" [(ngModel)]="selectedDatabase"></sp-select>
       <st-search class="search-input" [placeholder]="'DASHBOARD.FILTER_TABLES' | translate" 
         [debounce]="debounce" 
         [minLength]="minLength"
@@ -12,7 +12,7 @@
       <button class="button button-toolbar reload" (click)="reloadDatabases()">
           <i class="icon-repeat"></i>
       </button>
-      <st-switch class="show-temporary" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [stModel]="showTemporaryTables"
+      <st-switch class="show-temporary st-form-field" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [stModel]="showTemporaryTables"
          qaTag="temporary-tables-switch" (change)="onChangeValue($event)">
       </st-switch>
    </div>

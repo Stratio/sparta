@@ -1,4 +1,3 @@
-import { WorkflowExecutionInfoComponent } from './workflow-execution-info/workflow-execution-info.component';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -18,13 +17,10 @@ import { WorkflowExecutionInfoComponent } from './workflow-execution-info/workfl
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
-import {
-    StTableHeader, StModalService, StModalMainTextSize, StModalType, StModalResponse,
-    StModalWidth, StModalButton
-} from '@stratio/egeo';
+import { StTableHeader, StModalService, StModalResponse, StModalButton } from '@stratio/egeo';
 import * as fromRoot from 'reducers';
 import * as workflowActions from 'actions/workflow';
-import { WorkflowJsonModal } from './workflow-json-modal/workflow-json-modal.component';
+import { WorkflowJsonModal } from './components/workflow-json-modal/workflow-json-modal.component';
 import { Subscription } from 'rxjs/Rx';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -37,6 +33,7 @@ export class WorkflowsService {
     public deleteWorkflowModalTitle: string;
     public deleteWorkflowModalMessage: string;
     public modalSubscription: Subscription;
+    public messageDeleteTitle: string;
 
     public setModalContainer(target: any): void {
         this._modalService.container = target;
@@ -44,30 +41,26 @@ export class WorkflowsService {
 
     public showCreateJsonModal(): void {
         this._modalService.show({
-            qaTag: 'new-workflow-json-modal',
-            contextualTitle: this.workflowModalCt,
             modalTitle: this.workflowJsonModalTitle,
+            maxWidth: 980,
             outputs: {
                 onCloseJsonModal: this.onCloseJsonModal.bind(this)
             },
-            modalWidth: StModalWidth.LARGE,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.NEUTRAL
         }, WorkflowJsonModal);
     }
 
     public deleteWorkflowConfirmModal(workflows: Array<any>): void {
         const buttons: StModalButton[] = [
-            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
-            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+            { label: 'Cancel', classes: 'button-secondary-gray', responseValue: StModalResponse.NO },
+            { label: 'Delete', classes: 'button-critical', responseValue: StModalResponse.YES, closeOnClick: true }
         ];
         this.modalSubscription = this._modalService.show({
-            qaTag: 'delete-workflow',
+            messageTitle: this.deleteWorkflowModalMessage,
             modalTitle: this.deleteWorkflowModalTitle,
             buttons: buttons,
-            message: this.deleteWorkflowModalMessage,
-            mainText: StModalMainTextSize.BIG
-        }).subscribe((response) => {
+            maxWidth: 500,
+            message: this.messageDeleteTitle,
+        }).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
@@ -95,8 +88,8 @@ export class WorkflowsService {
         return [
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
+            { id: 'executionEngine', label: 'type'},
             { id: 'context.status', label: 'Status' },
-            { id: 'context.lastExecutionMode', label: 'Execution mode' },
             { id: 'spark', label: '', sortable: false }
         ];
     }
@@ -109,14 +102,16 @@ export class WorkflowsService {
         const workflowJsonModalTitle = 'DASHBOARD.JSON_TITLE';
         const deleteWorkflowModalTitle = 'DASHBOARD.DELETE_WORKFLOW_TITLE';
         const deleteWorkflowModalMessage = 'DASHBOARD.DELETE_WORKFLOW_MESSAGE';
+        const messageDeleteTitle = 'DASHBOARD.MESSAGE_DELETE_TITLE';
         this.translate.get([workflowModalCt, workflowModalTitle, workflowJsonModalTitle,
-            deleteWorkflowModalTitle, deleteWorkflowModalMessage]).subscribe(
+            deleteWorkflowModalTitle, deleteWorkflowModalMessage, messageDeleteTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.workflowModalCt = value[workflowModalCt].toUpperCase();
                 this.workflowModalTitle = value[workflowModalTitle];
                 this.workflowJsonModalTitle = value[workflowJsonModalTitle];
                 this.deleteWorkflowModalTitle = value[deleteWorkflowModalTitle];
                 this.deleteWorkflowModalMessage = value[deleteWorkflowModalMessage];
+                this.messageDeleteTitle = value[messageDeleteTitle];
             }
             );
     }

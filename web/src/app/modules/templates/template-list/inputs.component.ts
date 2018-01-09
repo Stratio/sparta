@@ -92,13 +92,15 @@ export class InputsComponent extends TemplatesBaseComponent {
         this.store.dispatch(new inputActions.ResetInputFormAction());
         const deleteTemplateModalTitle = 'DASHBOARD.DELETE_INPUT_TITLE';
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_INPUT_MESSAGE';
+        const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_INPUT_MESSAGE_TITLE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_INPUT';
 
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle]).subscribe(
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, deleteTemplateModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
+                this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
             }
         );
     }

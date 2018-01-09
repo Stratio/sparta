@@ -14,15 +14,14 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import resourcesMenu from '@app/settings/resources/resources-menu';
 import * as fromRoot from 'reducers';
 import * as resourcesActions from 'actions/resources';
 
 import { Observable } from 'rxjs/Observable';
-import { StTableHeader, StModalButton, StModalResponse, StModalService, StModalMainTextSize, 
-    StModalType, StHorizontalTab } from '@stratio/egeo';
+import { StTableHeader, StModalButton, StModalResponse, StModalService, StHorizontalTab } from '@stratio/egeo';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -57,24 +56,17 @@ export class SpartaDrivers implements OnInit {
         this.store.dispatch(new resourcesActions.UploadDriverAction(event[0]));
     }
 
-    public downloadDriver(uri: string) {
-        window.open(uri);
-    }
-
     public deleteDriverConfirmModal(fileName: string): void {
         const buttons: StModalButton[] = [
-            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
-            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+            { label: 'Delete', responseValue: StModalResponse.YES },
+            { label: 'Cancel', responseValue: StModalResponse.NO }
         ];
 
         this._modalService.show({
-            qaTag: 'delete-input',
             modalTitle: this.deleteDriverModalTitle,
             buttons: buttons,
             message: this.deleteDriverModalMessage,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.WARNING
-        }).subscribe((response) => {
+        }).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
             } else if (response === 0) {
@@ -89,8 +81,8 @@ export class SpartaDrivers implements OnInit {
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
         private route: Router, private currentActivatedRoute: ActivatedRoute) {
-        const deleteDriverModalTitle: string = 'DASHBOARD.DELETE_DRIVER_TITLE';
-        const deleteDriverModalMessage: string = 'DASHBOARD.DELETE_DRIVER_MESSAGE';
+        const deleteDriverModalTitle = 'DASHBOARD.DELETE_DRIVER_TITLE';
+        const deleteDriverModalMessage = 'DASHBOARD.DELETE_DRIVER_MESSAGE';
 
         this.options = resourcesMenu;
         this.translate.get([deleteDriverModalTitle, deleteDriverModalMessage]).subscribe(

@@ -48,11 +48,11 @@
                   <td st-table-cell st-table-row-content>
                      <label class="workflow-link" (click)="editSelectedWorkflow($event, workflow.id)">{{workflow.name}}</label>
                   </td>
-                  <td st-table-cell st-table-row-content>
-                     <label class="status-field" [ngClass]="workflow.context.status">{{(workflow.context && workflow.context.status) ? (('DASHBOARD.' + (workflow.context.status | uppercase)) | translate) : '-'}}</label>
+                    <td st-table-cell st-table-row-content>
+                     <label>{{workflow.executionEngine}}</label>
                   </td>
                   <td st-table-cell st-table-row-content>
-                     <label>{{workflow.context.lastExecutionMode ? workflow.context.lastExecutionMode: '-'}}</label>
+                     <label class="status-field" [ngClass]="workflow.context.status">{{(workflow.context && workflow.context.status) ? (('DASHBOARD.' + (workflow.context.status | uppercase)) | translate) : '-'}}</label>
                   </td>
                   <td st-table-cell st-table-row-content class="spark-link">
                       <i class="icon-globe" (click)="showSparkUI(workflow.context.sparkURI)" *ngIf="workflow.context.sparkURI && workflow.context.sparkURI.length && workflow.context.status === 'Started'"></i>

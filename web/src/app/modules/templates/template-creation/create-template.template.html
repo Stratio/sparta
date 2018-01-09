@@ -23,13 +23,13 @@
                <div class="col-xs-6">
                   <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
                      qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
-                     class="input-field"></sp-input>
+                     class="input-field st-form-field"></sp-input>
                   <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
                      [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
-                     class="input-field"></sp-textarea>
+                     class="input-field st-form-field"></sp-textarea>
                   <div *ngIf="!editMode">
                      <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.' + stepKey + '_TYPE' | translate}}"
-                        name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field"></sp-select>
+                        name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field st-form-field"></sp-select>
                   </div>
                </div>
                <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"

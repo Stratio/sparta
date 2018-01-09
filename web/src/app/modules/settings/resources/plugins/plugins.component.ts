@@ -25,8 +25,7 @@ import * as resourcesActions from 'actions/resources';
 
 import { Observable } from 'rxjs/Observable';
 import {
-    StTableHeader, StModalButton, StModalResponse, StModalService, StModalMainTextSize,
-    StModalType, StHorizontalTab
+    StTableHeader, StModalButton, StModalResponse, StModalService, StHorizontalTab
 } from '@stratio/egeo';
 import { TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,6 +44,7 @@ export class SpartaPlugins implements OnInit, OnDestroy {
     public pluginsList$: Observable<any>;
     public deletePluginModalTitle: string;
     public deletePluginModalMessage: string;
+    public deletePluginModalMessageTitle: string;
     public options: Array<StHorizontalTab> = [];
     public selectedPlugins: Array<string>;
     public breadcrumbOptions: Array<any>;
@@ -78,16 +78,16 @@ export class SpartaPlugins implements OnInit, OnDestroy {
 
     public deletePluginConfirmModal(): void {
         const buttons: StModalButton[] = [
-            { icon: 'icon-trash', iconLeft: true, label: 'Delete', primary: true, response: StModalResponse.YES },
-            { icon: 'icon-circle-cross', iconLeft: true, label: 'Cancel', response: StModalResponse.NO }
+            { label: 'Cancel', responseValue: StModalResponse.NO, closeOnClick: true, classes: 'button-secondary-gray' },
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
         ];
 
         this._modalService.show({
-            qaTag: 'delete-input',
             modalTitle: this.deletePluginModalTitle,
             buttons: buttons,
+            maxWidth: 500,
             message: this.deletePluginModalMessage,
-            mainText: StModalMainTextSize.BIG
+            messageTitle: this.deletePluginModalMessageTitle
         }).subscribe((response: any) => {
             if (response === 1) {
                 this._modalService.close();
@@ -130,11 +130,12 @@ export class SpartaPlugins implements OnInit, OnDestroy {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         const deletePluginModalTitle = 'DASHBOARD.DELETE_PLUGIN_TITLE';
         const deletePluginModalMessage = 'DASHBOARD.DELETE_PLUGIN_MESSAGE';
-        this.translate.get([deletePluginModalTitle, deletePluginModalMessage]).subscribe(
+        const deletePluginModalMessageTitle = 'DASHBOARD.DELETE_PLUGIN_MESSAGE_TITLE';
+        this.translate.get([deletePluginModalTitle, deletePluginModalMessage, deletePluginModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deletePluginModalTitle = value[deletePluginModalTitle];
                 this.deletePluginModalMessage = value[deletePluginModalMessage];
-
+                this.deletePluginModalMessageTitle = value[deletePluginModalMessageTitle];
             }
         );
     }

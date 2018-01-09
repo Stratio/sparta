@@ -15,7 +15,6 @@
 ///
 
 import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
     selector: 'execute-backup',
@@ -25,7 +24,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 export class ExecuteBackup implements OnInit {
     @Output() onCloseExecuteModal = new EventEmitter<any>();
 
-    public removeData: boolean = false;
+    public removeData = false;
 
     ngOnInit(): void {}
 

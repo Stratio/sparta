@@ -40,8 +40,8 @@ export function generateJsonFile(name: string, content: any) {
 export function orderBy(array: Array<any>, orderProperty: string, order: boolean): Array<any> {
   const orderAux = order ? 1 : -1;
   array.sort((a: any, b: any) => {
-    let avalue = getOrderProperyValue(a, orderProperty);
-    let bvalue = getOrderProperyValue(b, orderProperty);
+    let avalue = getOrderPropertyValue(a, orderProperty);
+    let bvalue = getOrderPropertyValue(b, orderProperty);
 
     avalue = avalue ? avalue.toString().toUpperCase() : '';
     bvalue = bvalue ? bvalue.toString().toUpperCase() : '';
@@ -57,7 +57,7 @@ export function orderBy(array: Array<any>, orderProperty: string, order: boolean
   return array;
 }
 
-function getOrderProperyValue(value: any, orderProperty: string): any {
+function getOrderPropertyValue(value: any, orderProperty: string): any {
   if (orderProperty) {
     const properties: Array<any> = orderProperty.split('.');
     if (properties.length > 1) {

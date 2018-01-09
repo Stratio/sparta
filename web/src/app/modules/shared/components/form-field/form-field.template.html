@@ -2,7 +2,8 @@
    <!-- input text -->
    <sp-input *ngIf="(field.propertyType == 'text' || field.propertyType == 'password' || field.propertyType == 'number') && isVisible"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
-      fieldType="{{field.propertyType}}" 
+      fieldType="{{field.propertyType}}"
+      class="st-form-field" 
       [formControl]="stFormControl"
       contextualHelp="{{field.tooltip}}" 
       pattern="{{field.regexp}}" 
@@ -16,7 +17,8 @@
     <div class="textareas" *ngIf="field.propertyType == 'textarea' && isVisible" >
       
       <!-- highlight textarea -->
-      <sp-textarea-highlight *ngIf="field.contentType" 
+      <sp-textarea-highlight *ngIf="field.contentType"
+          class="st-form-field" 
           [formControl]="stFormControl"
           [contentType]="field.contentType"
           label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
@@ -32,6 +34,7 @@
       <!-- regular textarea -->
       <sp-textarea *ngIf="!field.contentType"
           [formControl]="stFormControl"
+          class="st-form-field"
           label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}" 
           contextualHelp="{{field.tooltip}}" 
           pattern="{{field.regexp}}" 
@@ -45,7 +48,8 @@
     </div>
 
    <sp-select *ngIf="field.propertyType == 'select' && isVisible" 
-      [options]="field.values" 
+      [options]="field.values"
+      class="st-form-field"
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"
       [forceValidations]="forceValidations" 
       tooltip="{{field.tooltip}}"
@@ -57,7 +61,8 @@
 
    <st-switch *ngIf="field.propertyType == 'switch' && isVisible" 
       label="{{field.propertyName | translate}}" 
-      labelPosition="top" 
+      labelPosition="top"
+      class="st-form-field"
       [formControl]="stFormControl"
       contextualHelp="{{field.tooltip}}"
       [stModel]="stModel"
@@ -67,7 +72,8 @@
     <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible" 
       [formControl]="stFormControl"
       [checked]="stModel"
-      [name]="field.propertyId" 
+      [name]="field.propertyId"
+      class="st-form-field" 
       [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
 
 

@@ -1,5 +1,8 @@
 @import '~@stratio/egeo/theme/constants';
 
+:host {
+    min-width:500px;
+}
 .confirmation {
     font-family: $egeo-nunito-sans-light;
     font-size: 23px;

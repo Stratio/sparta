@@ -2,7 +2,7 @@
    <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
    <div class="not-selected" *ngIf="!entityData || !entityData.name">
       <img src="assets/images/wizard-details.svg" class="workflow-detail-image" />
-      <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
+      <div class="workflow-info">{{'DASHBOARD.NODE_INFO' | translate}}</div>
    </div>
    <div class="selected" *ngIf="entityData && entityData.name">
       <span class="type">{{entityData.stepType}} - {{entityData.classPrettyName}}</span>

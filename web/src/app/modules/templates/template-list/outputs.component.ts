@@ -92,12 +92,14 @@ export class OutputsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalTitle = 'DASHBOARD.DELETE_OUTPUT_TITLE';
         const deleteTemplateModalMessage = 'DASHBOARD.DELETE_OUTPUT_MESSAGE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_OUTPUT';
+        const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_OUTPUT_MESSAGE_TITLE';
 
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle]).subscribe(
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, deleteTemplateModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
+                this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
             }
         );
     }

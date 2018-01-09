@@ -31,7 +31,7 @@ import * as fromRoot from 'reducers';
 import * as environmentActions from 'actions/environment';
 
 import { ImportEnvironmentModalComponent } from './import-environment-modal/import-environment-modal.component';
-import { StModalService, StModalMainTextSize, StModalType, StModalWidth } from '@stratio/egeo';
+import { StModalService } from '@stratio/egeo';
 import { TranslateService } from '@ngx-translate/core';
 import { BreadcrumbMenuService } from 'services';
 import { ErrorMessagesService } from 'app/services/error-messages.service';
@@ -160,14 +160,10 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
 
     public importEnvironmentData(): void {
         this._modalService.show({
-            qaTag: 'new-workflow-json-modal',
             modalTitle: 'Import environment data',
             outputs: {
                 onCloseImportModal: this.onCloseImportModal.bind(this)
             },
-            modalWidth: StModalWidth.COMPACT,
-            mainText: StModalMainTextSize.BIG,
-            modalType: StModalType.NEUTRAL
         }, ImportEnvironmentModalComponent);
     }
 

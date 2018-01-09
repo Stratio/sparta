@@ -223,7 +223,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case environmentActions.EXPORT_ENVIRONMENT: {
+        case environmentActions.EXPORT_ENVIRONMENT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
@@ -232,7 +232,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case environmentActions.IMPORT_ENVIRONMENT: {
+        case environmentActions.IMPORT_ENVIRONMENT_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,

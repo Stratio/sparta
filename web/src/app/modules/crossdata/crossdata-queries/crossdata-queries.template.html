@@ -1,5 +1,5 @@
 <section>
-   <sp-textarea-highlight [contentType]="'SQL'" label="{{'DASHBOARD.SQL_QUERY' | translate}}" required="true" [(ngModel)]="sqlQuery"
+   <sp-textarea-highlight class="st-form-field" [contentType]="'SQL'" label="{{'DASHBOARD.SQL_QUERY' | translate}}" required="true" [(ngModel)]="sqlQuery"
       qaTag="sql-query-textarea"></sp-textarea-highlight>
    <div class="execution-container">
       <button class="button button-primary" (click)="executeQuery()">

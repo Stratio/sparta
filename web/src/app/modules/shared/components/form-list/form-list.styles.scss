@@ -33,7 +33,7 @@
 }
 
 .list-field {
-   width: calc(100% - 5px);
+   width: 100%;
    display: flex;
    font-size: 18px;
    flex-wrap: wrap;
@@ -44,7 +44,7 @@
    color: $neutral-07;
    position: relative;
    .icon {
-    margin-top: 40px;
+    margin-top: 28px;
     display: block;
     cursor: pointer;
    }
