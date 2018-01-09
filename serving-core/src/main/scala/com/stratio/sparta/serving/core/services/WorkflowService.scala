@@ -57,6 +57,9 @@ class WorkflowService(
   def findList(query: WorkflowsQuery): Seq[Workflow] =
     existsList(query.group.getOrElse(DefaultGroup), query.tags)
 
+  def findByGroup(group: String): Seq[Workflow] =
+    existsList(group)
+
   def findByIdList(workflowIds: Seq[String]): List[Workflow] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
 
@@ -237,7 +240,7 @@ class WorkflowService(
         None
     }
 
-  private[sparta] def existsList(group: String, tags: Seq[String]): Seq[Workflow] =
+  private[sparta] def existsList(group: String, tags: Seq[String] = Seq.empty[String]): Seq[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>

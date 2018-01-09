@@ -197,6 +197,15 @@ class WorkflowServiceTest extends WordSpecLike
       result shouldBe a[Seq[_]]
     }
 
+    "findByGroup: should return a list with the workflows" in {
+      mockListOfWorkflows
+      mockFindByID
+
+      val result = workflowService.findByGroup("default")
+
+      result shouldBe a[Seq[_]]
+    }
+
     "findIdList: should return a list with the workflows" in {
       mockListOfWorkflows
       mockFindByID

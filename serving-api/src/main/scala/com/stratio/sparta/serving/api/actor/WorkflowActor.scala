@@ -62,6 +62,7 @@ class WorkflowActor(
     case Query(query, user) => doQuery(query, user)
     case FindAll(user) => findAll(user)
     case FindAllWithEnv(user) => findAllWithEnv(user)
+    case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
@@ -125,6 +126,13 @@ class WorkflowActor(
       Try(workflowService.findById(id)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with id $id.")
+      }
+    }
+
+  def findAllByGroup(group: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
+      Try(workflowService.findByGroup(group)).recover {
+        case _: NoNodeException => Seq.empty[Workflow]
       }
     }
 
@@ -234,6 +242,8 @@ object WorkflowActor extends SLF4JLogging {
   case class FindAllWithEnv(user: Option[LoggedUser])
 
   case class Find(id: String, user: Option[LoggedUser])
+
+  case class FindAllByGroup(group: String, user: Option[LoggedUser])
 
   case class FindWithEnv(id: String, user: Option[LoggedUser])
 

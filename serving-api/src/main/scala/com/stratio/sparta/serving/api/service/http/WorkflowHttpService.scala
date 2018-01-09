@@ -51,7 +51,7 @@ trait WorkflowHttpService extends BaseHttpService {
     find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~ run(user) ~ stop(user) ~ reset(user) ~
       update(user) ~ updateList(user) ~ remove(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
-      resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user)
+      resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -77,6 +77,34 @@ trait WorkflowHttpService extends BaseHttpService {
             response <- (supervisor ? Find(id.toString, user))
               .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowServiceFindById, response, genericError)
+      }
+    }
+  }
+
+  @Path("/findAllByGroup/{group}")
+  @ApiOperation(value = "Find all workflows by group name",
+    notes = "Find all workflows by group name",
+    httpMethod = "GET",
+    response = classOf[Array[Workflow]])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "group",
+      value = "workflow group",
+      dataType = "String",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAllByGroup(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findAllByGroup" / Segment) { group =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindAllByGroup(group, user))
+              .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
+          } yield getResponse(context, WorkflowServiceFindAllByGroup, response, genericError)
       }
     }
   }

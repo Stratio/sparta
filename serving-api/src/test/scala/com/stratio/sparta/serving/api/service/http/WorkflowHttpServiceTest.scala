@@ -41,6 +41,7 @@ with HttpServiceBaseTest {
   override val supervisor: ActorRef = testProbe.ref
   val sparkStreamingTestProbe = TestProbe()
   val id = UUID.randomUUID.toString
+  val group = "default"
   val statusActorTestProbe = TestProbe()
   val rootUser = Some(LoggedUser("1234","root", "dummyMail","0",Seq.empty[String],Seq.empty[String]))
   val dummyUser = Some(LoggedUserConstant.AnonymousUser)
@@ -56,14 +57,30 @@ with HttpServiceBaseTest {
       startAutopilot(Left(Success(initWorkflow)))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[Find]
-        val a = responseAs[Workflow]
-        a should equal(initWorkflow)
+        responseAs[Workflow] should equal(initWorkflow)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
       Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[Find]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "WorkflowHttpService.findAllByGroup" should {
+    "return a workflow list" in {
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
+      Get(s"/${HttpConstant.WorkflowsPath}/findAllByGroup/$group") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindAllByGroup]
+        responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Get(s"/${HttpConstant.WorkflowsPath}/findAllByGroup/$group") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindAllByGroup]
         status should be(StatusCodes.InternalServerError)
       }
     }
