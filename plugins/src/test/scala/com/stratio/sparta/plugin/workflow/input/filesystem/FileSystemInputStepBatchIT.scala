@@ -24,16 +24,15 @@ import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.io.Source
 
 @RunWith(classOf[JUnitRunner])
-class FileSystemInputStepIT extends TemporalSparkContext with Matchers {
+class FileSystemInputStepBatchIT extends TemporalSparkContext with Matchers {
 
   val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName")
-
   val resourcePath = getClass().getResource("/origin.txt")
   val lines = Source.fromURL(resourcePath).getLines().toList
   val parentDir = new File(resourcePath.getPath).getParent
@@ -53,67 +52,18 @@ class FileSystemInputStepIT extends TemporalSparkContext with Matchers {
     existingFile = createTestFile("existing.txt")
   }
 
-
   "Events counted" should "match the lines in both the created file and an existing one" in {
 
     val properties = Map(
-      "directory" -> s"file://$parentDir",
-      "newFilesOnly" -> "false"
+      "path" -> s"file://$parentDir/existing.txt"
     )
+    val input = new FileSystemInputStepBatch("name", outputOptions, Option(ssc), sparkSession, properties)
+    val rdd = input.init
+    val count = rdd.ds.count()
 
-    val input = new FileSystemInputStep("name", outputOptions, Option(ssc), sparkSession, properties)
-    val dstream = input.init
-    val totalEvents = ssc.sparkContext.longAccumulator
+    count shouldBe lines.size
 
-    dstream.ds foreachRDD { rdd =>
-      val count = rdd.count()
-      totalEvents.add(count)
-    }
-
-    ssc.start()
-
-    val createdFile = Future(createTestFile("output.txt"))
-
-    val atMost = 3 seconds
-
-    ssc.awaitTerminationOrTimeout(atMost.toMillis)
-    Await.result(createdFile, atMost).delete()
-
-    totalEvents.value shouldBe lines.size*2
-
-
-  }
-
-  it should "just match the lines of not filtered files" in {
-
-    val properties = Map(
-      "directory" -> s"file://$parentDir",
-      "newFilesOnly" -> "false",
-      "filterString" -> "filtered,existing"
-    )
-
-    val input = new FileSystemInputStep("name", outputOptions, Option(ssc), sparkSession, properties)
-    val dstream = input.init
-    val totalEvents = ssc.sparkContext.longAccumulator
-
-    dstream.ds foreachRDD { rdd =>
-      val count = rdd.count()
-      totalEvents.add(count)
-    }
-
-    ssc.start()
-
-    val fileCreationFutures = Seq("output.txt", "output.filtered.txt") map {
-      name => Future(createTestFile(name))
-    }
-
-    val atMost = 3 seconds
-
-    ssc.awaitTerminationOrTimeout(atMost.toMillis)
-
-    fileCreationFutures foreach (Await.result(_, atMost).delete())
-
-    totalEvents.value shouldBe lines.size
+    rdd.ds.collect().toList.map(_.mkString("")) should be(lines)
   }
 
   override protected def afterAll(): Unit = {

@@ -1,7 +1,7 @@
   {
     "name": "FileSystem",
     "classPrettyName": "FileSystem",
-    "className": "FileSystemInputStep",
+    "className": "FileSystemInputStepStream",
     "icon": "FileSystem",
      "arity": ["NullaryToNary"],
     "description": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",

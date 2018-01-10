@@ -20,9 +20,11 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputOptions}
-import org.apache.spark.sql.{Dataset, Row}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
@@ -31,8 +33,6 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.test.TestDStream
 
 import scala.util.{Random, Try}
-import DistributedMonad.Implicits._
-import org.apache.spark.rdd.RDD
 
 abstract class TestInputStep[Underlying[Row]](
                      name: String,

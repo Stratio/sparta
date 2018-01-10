@@ -34,13 +34,14 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 import DistributedMonad.Implicits._
 
-class FileSystemInputStep(
-                           name: String,
-                           outputOptions: OutputOptions,
-                           ssc: Option[StreamingContext],
-                           xDSession: XDSession,
-                           properties: Map[String, JSerializable]
-                         ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+class FileSystemInputStepStream(
+                                 name: String,
+                                 outputOptions: OutputOptions,
+                                 ssc: Option[StreamingContext],
+                                 xDSession: XDSession,
+                                 properties: Map[String, JSerializable]
+                               ) extends InputStep[DStream](name, outputOptions, ssc, xDSession, properties)
+  with SLF4JLogging {
 
   protected def defaultFilter(path: Path): Boolean =
     !path.getName.startsWith(".") && !path.getName.endsWith("_COPYING_") &&
@@ -58,8 +59,8 @@ class FileSystemInputStep(
     val applyFilters = (path: Path) =>
       defaultFilter(path) && filters.forall(_.split(",").forall(!path.getName.contains(_)))
 
-    ssc.get.fileStream[LongWritable, Text, TextInputFormat](directory, applyFilters, flagNewFiles) map[Row] {
-      case (_, text) => new GenericRowWithSchema(Array(text.toString), outputSchema)
+    ssc.get.fileStream[LongWritable, Text, TextInputFormat](directory, applyFilters, flagNewFiles) map {
+      case (_, text) => new GenericRowWithSchema(Array(text.toString), outputSchema).asInstanceOf[Row]
     }
 
   }
