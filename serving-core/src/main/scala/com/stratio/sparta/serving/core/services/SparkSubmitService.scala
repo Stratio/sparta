@@ -111,7 +111,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
         }
       }.getOrElse(Seq.empty[String])
     else Seq.empty[String]
-    val userPlugins = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.trim)
+    val userPlugins = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.toString.trim)
 
     uploadedPlugins ++ userPlugins
   }
@@ -119,16 +119,17 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   def getSparkLocalConfig: Map[String, String] =
     Map(
       SubmitNameConf -> Option("SPARTA"),
-      SubmitMasterConf -> Option(workflow.settings.sparkSettings.master),
-      SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory,
-      SubmitDriverCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores,
-      SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory,
-      SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores,
+      SubmitMasterConf -> Option(workflow.settings.sparkSettings.master.toString),
+      SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory.notBlank,
+      SubmitDriverCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.notBlank,
+      SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
+      SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
-      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
-      SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
+      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait.notBlank,
+      SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
+        taskMaxFailures.notBlank,
       SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
-      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate
+      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate.notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
 
   /** Private Methods **/
@@ -137,32 +138,38 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     Map(
       SubmitCoarseConf -> workflow.settings.sparkSettings.sparkConf.coarse.map(_.toString),
       SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
-      SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout,
+      SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout.notBlank,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
-      SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax,
-      SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory,
-      SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores,
-      SubmitDriverCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores,
-      SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory,
-      SubmitExtraCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.mesosExtraCores,
-      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait,
-      SubmitLocalDirConf -> workflow.settings.sparkSettings.sparkConf.sparkLocalDir,
-      SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.taskMaxFailures,
+      SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank,
+      SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
+      SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
+      SubmitDriverCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.notBlank,
+      SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory.notBlank,
+      SubmitExtraCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.mesosExtraCores.notBlank,
+      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait.notBlank,
+      SubmitLocalDirConf -> workflow.settings.sparkSettings.sparkConf.sparkLocalDir.notBlank,
+      SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
+        taskMaxFailures.notBlank,
       SubmitSqlCaseSensitiveConf -> workflow.settings.sparkSettings.sparkConf.sparkSqlCaseSensitive.map(_.toString),
       SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
-      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate,
-      SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions,
-      SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.sparkMemoryFraction,
-      SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerImage,
-      SubmitExecutorDockerVolumeConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.executorDockerVolumes,
+      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate.notBlank,
+      SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions.notBlank,
+      SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
+        sparkMemoryFraction.notBlank,
+      SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
+        executorDockerImage.notBlank,
+      SubmitExecutorDockerVolumeConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
+        executorDockerVolumes.notBlank,
       SubmitExecutorDockerForcePullConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
         executorForcePullImage.map(_.toString),
-      SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosNativeJavaLibrary,
+      SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.
+        mesosNativeJavaLibrary.notBlank,
       SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
-      SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.sparkParallelism,
+      SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
+        sparkParallelism.notBlank,
       SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
         .flatMap(enable => if(enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
-      SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI
+      SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI.notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
 
@@ -170,22 +177,22 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     workflow.settings.sparkSettings.sparkConf.userSparkConf.flatMap { sparkProperty =>
       if (sparkProperty.sparkConfKey.isEmpty || sparkProperty.sparkConfValue.isEmpty)
         None
-      else Option((sparkProperty.sparkConfKey, sparkProperty.sparkConfValue))
+      else Option((sparkProperty.sparkConfKey.toString, sparkProperty.sparkConfValue.toString))
     }.toMap
 
   private[core] def getSparkSubmitArgs: Map[String, String] = {
     Map(
       SubmitDeployMode -> workflow.settings.sparkSettings.submitArguments.deployMode,
       SubmitSupervise -> workflow.settings.sparkSettings.submitArguments.supervise.map(_.toString),
-      SubmitJars -> workflow.settings.sparkSettings.submitArguments.jars,
-      SubmitPropertiesFile -> workflow.settings.sparkSettings.submitArguments.propertiesFile,
-      SubmitPackages -> workflow.settings.sparkSettings.submitArguments.packages,
-      SubmitExcludePackages -> workflow.settings.sparkSettings.submitArguments.excludePackages,
-      SubmitRepositories -> workflow.settings.sparkSettings.submitArguments.repositories,
-      SubmitProxyUser -> workflow.settings.sparkSettings.submitArguments.proxyUser,
-      SubmitDriverJavaOptions -> workflow.settings.sparkSettings.submitArguments.driverJavaOptions,
-      SubmitDriverLibraryPath -> workflow.settings.sparkSettings.submitArguments.driverLibraryPath,
-      SubmitDriverClassPath -> workflow.settings.sparkSettings.submitArguments.driverClassPath
+      SubmitJars -> workflow.settings.sparkSettings.submitArguments.jars.notBlank,
+      SubmitPropertiesFile -> workflow.settings.sparkSettings.submitArguments.propertiesFile.notBlank,
+      SubmitPackages -> workflow.settings.sparkSettings.submitArguments.packages.notBlank,
+      SubmitExcludePackages -> workflow.settings.sparkSettings.submitArguments.excludePackages.notBlank,
+      SubmitRepositories -> workflow.settings.sparkSettings.submitArguments.repositories.notBlank,
+      SubmitProxyUser -> workflow.settings.sparkSettings.submitArguments.proxyUser.notBlank,
+      SubmitDriverJavaOptions -> workflow.settings.sparkSettings.submitArguments.driverJavaOptions.notBlank,
+      SubmitDriverLibraryPath -> workflow.settings.sparkSettings.submitArguments.driverLibraryPath.notBlank,
+      SubmitDriverClassPath -> workflow.settings.sparkSettings.submitArguments.driverClassPath.notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ userSubmitArgsFromWorkflow
   }
 
@@ -195,7 +202,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
   private[core] def addSparkUserConf(sparkConfs: Map[String, String]): Map[String, String] =
     if (!sparkConfs.contains(SubmitSparkUserConf) &&
       workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.isDefined) {
-      sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.get)
+      sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.get)
     } else sparkConfs
 
   private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
@@ -368,11 +375,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
 
   private[core] def userSubmitArgsFromWorkflow: Map[String, String] =
     workflow.settings.sparkSettings.submitArguments.userArguments.flatMap { argument =>
-      if (argument.submitArgument.nonEmpty) {
-        if (!SubmitArguments.contains(argument.submitArgument))
+      if (argument.submitArgument.toString.nonEmpty) {
+        if (!SubmitArguments.contains(argument.submitArgument.toString))
           log.warn(s"Spark submit argument added unrecognized by Sparta.\t" +
             s"Argument: ${argument.submitArgument}\tValue: ${argument.submitValue}")
-        Some(argument.submitArgument.trim -> argument.submitValue.trim)
+        Some(argument.submitArgument.toString.trim -> argument.submitValue.toString.trim)
       } else None
     }.toMap
 

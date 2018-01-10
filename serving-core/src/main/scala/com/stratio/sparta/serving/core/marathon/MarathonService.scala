@@ -236,7 +236,7 @@ class MarathonService(context: ActorContext,
         val constraints = workflowConstraint.split(":")
         Seq(
           Option(constraints.head),
-          workflowModel.settings.global.mesosConstraintOperator.orElse(Option("CLUSTER")),
+          Option(workflowModel.settings.global.mesosConstraintOperator.notBlankWithDefault("CLUSTER")),
           {
             if (constraints.size == 2 || constraints.size == 3) Option(constraints.last) else None
           }

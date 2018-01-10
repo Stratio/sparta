@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.utils
 
 import akka.actor.ActorSystem
 import akka.testkit._
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
@@ -40,8 +41,8 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
 
     val settingsModel = Settings(
       GlobalSettings(executionMode),
-      StreamingSettings("6s", None, None, None, None, None, CheckpointSettings()),
-      SparkSettings("local[*]", false, false, false, None, SubmitArguments(),
+      StreamingSettings(JsoneyString("6s"), None, None, None, None, None, CheckpointSettings()),
+      SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
     val workflow = Workflow(

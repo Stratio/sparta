@@ -21,7 +21,6 @@ import java.util.Calendar
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
@@ -71,7 +70,7 @@ trait CheckpointUtils extends SLF4JLogging {
   }
 
   def checkpointPathFromWorkflow(workflow: Workflow, checkTime: Boolean = true): String = {
-    val path = cleanCheckpointPath(workflow.settings.streamingSettings.checkpointSettings.checkpointPath)
+    val path = cleanCheckpointPath(workflow.settings.streamingSettings.checkpointSettings.checkpointPath.toString)
 
     if (checkTime && workflow.settings.streamingSettings.checkpointSettings.addTimeToCheckpointPath)
       s"$path/${workflow.name}/${Calendar.getInstance().getTime.getTime}"

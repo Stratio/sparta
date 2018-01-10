@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.{Actor, ActorRef, Cancellable, PoisonPill}
+import akka.actor.{Actor, ActorRef, Cancellable}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -69,7 +69,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
-          master = workflow.settings.sparkSettings.master,
+          master = workflow.settings.sparkSettings.master.toString,
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,

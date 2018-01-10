@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
-import com.stratio.sparta.serving.core.helpers.{ResourceManagerLinkHelper, WorkflowHelper}
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -29,7 +29,7 @@ import com.stratio.sparta.serving.core.services._
 import com.stratio.sparta.serving.core.utils._
 import org.apache.curator.framework.CuratorFramework
 
-import scala.util.{Failure, Properties, Success, Try}
+import scala.util.{Failure, Success, Try}
 
 class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListenerActor: ActorRef) extends Actor
   with SchedulerUtils {
@@ -69,7 +69,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           driverClass = SpartaDriverClass,
           driverFile = driverFile,
           pluginFiles = pluginJars,
-          master = workflow.settings.sparkSettings.master,
+          master = workflow.settings.sparkSettings.master.toString,
           submitArguments = sparkSubmitArgs,
           sparkConfigurations = sparkConfs,
           driverArguments = driverArgs,

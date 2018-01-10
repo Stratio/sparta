@@ -26,12 +26,14 @@ import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPubli
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.helpers.{JarsHelper, ResourceManagerLinkHelper}
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -105,6 +107,7 @@ object SparkDriver extends SLF4JLogging {
           notifyWorkflowStarted
           streamingContextService.clusterContext(workflow, localPlugins)
         } else {
+
           val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
 
           for {
@@ -117,7 +120,7 @@ object SparkDriver extends SLF4JLogging {
                 sparkExecution = Option(SparkExecution(
                   applicationId = extractSparkApplicationId(ssc.sparkContext.applicationId))),
                 sparkDispatcherExecution = Option(SparkDispatcherExecution(
-                  killUrl = workflow.settings.sparkSettings.killUrl.getOrElse(DefaultkillUrl)
+                  killUrl = workflow.settings.sparkSettings.killUrl.notBlankWithDefault(DefaultkillUrl)
                 ))
               )
             }

@@ -128,8 +128,8 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     else Seq.empty[File]
 
     val userPlugins = workflow.settings.global.userPluginsJars
-      .filter(userJar => userJar.jarPath.nonEmpty && userJar.jarPath.endsWith(".jar"))
-      .map(_.jarPath)
+      .filter(userJar => userJar.jarPath.toString.nonEmpty && userJar.jarPath.toString.endsWith(".jar"))
+      .map(_.jarPath.toString)
       .distinct
       .map(filePath => new File(filePath))
 

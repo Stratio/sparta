@@ -52,7 +52,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
       createLocalCheckpointPath(workflow)
     }
 
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
     
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
 
@@ -75,7 +75,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   def localContext(workflow: Workflow, files: Seq[File]): SpartaWorkflow[Dataset] = {
     killLocalContextListener(workflow, workflow.name)
 
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
@@ -93,7 +93,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   }
 
   def clusterStreamingContext(workflow: Workflow, files: Seq[String]): (SpartaWorkflow[DStream], StreamingContext) = {
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
     val ssc = {
@@ -123,7 +123,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   }
 
   def clusterContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[Dataset] = {
-    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence))
+    setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)

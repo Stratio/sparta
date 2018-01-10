@@ -16,6 +16,7 @@
 
 package com.stratio.sparta.serving.core.services
 
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.models.workflow._
 import org.junit.runner.RunWith
@@ -37,9 +38,10 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
     GlobalSettings(),
-    StreamingSettings("6s", None, None, None, None, None, CheckpointSettings("test/test")),
-    SparkSettings("local[*]", sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
-      None, SubmitArguments(), SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+    StreamingSettings(JsoneyString("6s"), None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+    SparkSettings(JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false,
+      sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf(),
+        SparkDockerConf(), SparkMesosConf()))
   )
   val workflowValidatorService = new WorkflowValidatorService
   val emptyWorkflow = Workflow(

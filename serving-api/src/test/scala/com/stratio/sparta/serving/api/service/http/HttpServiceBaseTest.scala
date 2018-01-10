@@ -19,7 +19,7 @@ package com.stratio.sparta.serving.api.service.http
 import akka.actor.{ActorRef, ActorRefFactory}
 import akka.testkit.TestActor.AutoPilot
 import akka.testkit.{TestActor, TestProbe}
-import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.env.{Environment, EnvironmentData, EnvironmentVariable}
 import com.stratio.sparta.serving.core.models.files.SpartaFile
@@ -99,8 +99,9 @@ trait HttpServiceBaseTest extends WordSpec
   protected def getWorkflowModel(): Workflow = {
     val settingsModel = Settings(
       GlobalSettings(),
-      StreamingSettings("6s", None, None, None, None, None, CheckpointSettings("test/test")),
-      SparkSettings("local[*]", false, false, false, None, SubmitArguments(),
+      StreamingSettings(JsoneyString("6s"), None, None, None, None, None,
+        CheckpointSettings(JsoneyString("test/test"))),
+      SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
         SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
     )
     val workflow = Workflow(

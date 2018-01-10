@@ -71,7 +71,8 @@ class LauncherActor(streamingService: StreamingContextService,
               new LocalLauncherActor(streamingService, streamingService.curatorFramework)), actorName))
           case _ =>
             throw new Exception(
-              s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")
+              s"Invalid execution mode in workflow ${workflow.name}" +
+                s": ${workflow.settings.global.executionMode}")
         }
 
         workflowLauncherActor ! Start(workflow)

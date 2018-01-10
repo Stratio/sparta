@@ -139,6 +139,25 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("MONGODB_PORT", "27017"),
     EnvironmentVariable("MONGODB_DB", "sparta"),
     EnvironmentVariable("REDIS_HOST", "localhost"),
-    EnvironmentVariable("REDIS_PORT", "6379")
+    EnvironmentVariable("REDIS_PORT", "6379"),
+    EnvironmentVariable("SPARTA_CHECKPOINT_PATH","sparta/checkpoint"),
+    EnvironmentVariable("SPARK_STREAMING_WINDOW","2s"),
+    EnvironmentVariable("SPARK_MASTER","mesos://leader.mesos:5050"),
+    EnvironmentVariable("DRIVER_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
+    EnvironmentVariable("EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
+    EnvironmentVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),
+    EnvironmentVariable("SPARK_CORES_MAX","2"),
+    EnvironmentVariable("SPARK_EXECUTOR_MEMORY","2G"),
+    EnvironmentVariable("SPARK_EXECUTOR_CORES","1"),
+    EnvironmentVariable("SPARK_DRIVER_CORES","1"),
+    EnvironmentVariable("SPARK_DRIVER_MEMORY","2G"),
+    EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
+    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.3"),
+    EnvironmentVariable("EXECUTOR_DOCKER_VOLUMES", "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
+      "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
+      "/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
+      "/etc/resolv.conf:/etc/resolv.conf:ro"),
+    EnvironmentVariable("SPARK_TASK_MAX_FAILURES","8"),
+    EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6")
   )
 }

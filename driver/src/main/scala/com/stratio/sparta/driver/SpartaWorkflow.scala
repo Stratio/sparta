@@ -101,7 +101,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
         thus, DStreams won't cause the execution of this block. */
       val workflowCheckpointPath = Option(checkpointPathFromWorkflow(workflow))
         .filter(_ => workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
-      val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window)
+      val window = AggregationTimeUtils.parseValueToMilliSeconds(workflow.settings.streamingSettings.window.toString)
       sparkStreamingInstance(Duration(window),
         workflowCheckpointPath.notBlank,
         workflow.settings.streamingSettings.remember.notBlank
