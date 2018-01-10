@@ -55,9 +55,14 @@ object WorkflowHelper extends SLF4JLogging {
     }.toMap
   }
 
-  def getMarathonId(workflowModel: Workflow): String = {
-    val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
+  private[serving] def retrieveGroup(group: String): String = {
+    val reg = "(?!^/)(.*)(?<!/$)".r
+    Try(reg.findAllMatchIn(group).next.matched).getOrElse(group)
+  }
 
-    s"sparta/$inputServiceName/workflows/${workflowModel.name}"
+  def getMarathonId(wfModel: Workflow): String = {
+    val inputServiceName = Properties.envOrElse(DcosServiceName, "undefined")
+    s"sparta/$inputServiceName/workflows/${retrieveGroup(wfModel.group)}" +
+      s"/${wfModel.name}/${wfModel.name}-v${wfModel.version}"
   }
 }

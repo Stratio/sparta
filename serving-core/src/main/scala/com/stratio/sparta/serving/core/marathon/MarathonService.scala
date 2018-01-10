@@ -144,7 +144,8 @@ class MarathonService(context: ActorContext,
           id = workflowModel.get.id.get,
           status = Uploaded,
           statusInfo = Option(information),
-          sparkURI = NginxUtils.buildSparkUI(workflowModel.get.name, Option(workflowModel.get.settings.global.executionMode))
+          sparkURI = NginxUtils.buildSparkUI(s"${workflowModel.get.name}-v${workflowModel.get.version}",
+            Option(workflowModel.get.settings.global.executionMode))
         ))
       case _ =>
         val information = "Unrecognized message received from Marathon API"

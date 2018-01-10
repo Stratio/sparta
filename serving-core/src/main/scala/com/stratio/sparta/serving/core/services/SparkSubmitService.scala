@@ -210,7 +210,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     for {
       _ <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
       appName <- Properties.envOrNone(DcosServiceName).notBlank
-    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName/${workflow.name}")
+    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName/${workflow.name}-v${workflow.version}")
   } getOrElse sparkConfs
 
 

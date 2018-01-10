@@ -34,8 +34,8 @@ class GroupActor(val curatorFramework: CuratorFramework)
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
   private val groupService = new GroupService(curatorFramework)
-  private val ResourceGroupType = "workflow" //TODO change to group
-  private val ResourceWorkflowType = "workflow" //TODO change to workflow
+  private val ResourceGroupType = "group"
+  private val ResourceWorkflowType = "workflow"
 
   //scalastyle:off
   override def receive: Receive = {

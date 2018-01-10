@@ -45,8 +45,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
-
-  val isLocalExecution: Boolean = Properties.envOrNone(DcosServiceName).fold(true){_ => false}
+  val isNginxRequired : Boolean = Properties.envOrNone(NginxMarathonLBHostEnv).fold(false){_ => true}
 
   val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
   val envStateActor = context.actorOf(Props(new EnvironmentStateActor(curatorFramework)))
@@ -77,8 +76,9 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val nginxActor =
-    if(isLocalExecution) None
-    else Option(context.actorOf(Props(new NginxActor()), NginxActorName))
+    if(isNginxRequired)
+      Option(context.actorOf(Props(new NginxActor()), NginxActorName))
+    else None
 
   statusActor ! AddClusterListeners
   environmentActor ! EnvironmentActor.Initialize
@@ -98,7 +98,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     EnvironmentActorName -> environmentActor,
     GroupActorName -> groupActor
   ) ++ {
-    if(isLocalExecution) Map.empty else Map(NginxActorName -> nginxActor.get)
+    if(isNginxRequired) Map(NginxActorName -> nginxActor.get) else Map.empty
   }
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)

@@ -338,7 +338,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
     Try(new JsonPathExtractor(json, false).query(query).asInstanceOf[T]).toOption
 
   def extractAppsId(json: String): Option[Seq[String]] =
-    queryJson[JSONArray](json)("$.apps.[*].id").map(_.toArray.map(_.toString))
+    queryJson[JSONArray](json)("$.groups.[*].groups[*].apps[*].id").map(_.toArray.map(_.toString))
 
   def extractAppParameters(json: String): Option[AppParameters] = {
     val queryId = "$.app.id"

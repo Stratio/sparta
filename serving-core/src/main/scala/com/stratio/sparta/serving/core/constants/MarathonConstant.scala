@@ -98,6 +98,7 @@ object MarathonConstant {
   val LoggerStderrSizeEnv= "CONTAINER_LOGGER_MAX_STDERR_SIZE"
   val LoggerStdoutRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDOUT_OPTIONS"
   val LoggerStderrRotateEnv = "CONTAINER_LOGGER_LOGROTATE_STDERR_OPTIONS"
+  val NginxMarathonLBHostEnv = "MARATHON_APP_LABEL_HAPROXY_1_VHOST"
 
   lazy val getMarathonLBPath: Option[String] =
   for {
