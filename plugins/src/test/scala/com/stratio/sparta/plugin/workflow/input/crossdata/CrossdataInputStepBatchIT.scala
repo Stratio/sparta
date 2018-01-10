@@ -16,21 +16,22 @@
 
 package com.stratio.sparta.plugin.workflow.input.crossdata
 
-import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
-import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
+class CrossdataInputStepBatchIT extends TemporalSparkContext with Matchers {
 
-  "CrossdataInput " should "read all the records in one streaming batch" in {
+  "CrossdataInput " should "read all the records in one batch" in {
+
     SparkSession.clearActiveSession()
+
     val schema = new StructType(Array(
       StructField("id", IntegerType, nullable = true),
       StructField("id2", IntegerType, nullable = true)
@@ -42,48 +43,16 @@ class CrossdataInputStepIT extends TemporalSparkContext with Matchers {
 
     sparkSession.createDataFrame(rdd, schema).createOrReplaceTempView(tableName)
 
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
-
-    val offsetFields =
-      """[
-        |{
-        |"offsetField":"id",
-        |"offsetOperator":">",
-        |"offsetValue": "500"
-        |},
-        |{
-        |"offsetField":"id2",
-        |"offsetOperator":">",
-        |"offsetValue": "750"
-        |}
-        |]
-      """.stripMargin
-
-    val datasourceParams = Map(
-      "query" -> s"select * from $tableName",
-      "rememberDuration" -> "20000",
-      "offsetFields" -> offsetFields.asInstanceOf[JSerializable]
-    )
-
+    val datasourceParams = Map("query" -> s"select * from $tableName")
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val crossdataInput = new CrossdataInputStep(
+    val crossdataInput = new CrossdataInputStepBatch(
       "crossdata", outputOptions, Option(ssc), sparkSession, datasourceParams)
-    val inputStream = crossdataInput.init
+    val inputRdd = crossdataInput.init()
+    val batchEvents = inputRdd.ds.count()
+    val batchRegisters = inputRdd.ds.collect()
 
-    inputStream.ds.foreachRDD(rdd => {
-      val streamingEvents = rdd.count()
-      log.info(s" EVENTS COUNT : \t $streamingEvents")
-      totalEvents += streamingEvents
-      log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        assert(streamingRegisters === registers.reverse)
-    })
-    ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
-    ssc.stop()
-
-    assert(totalEvents.value === (totalRegisters.toLong/4))
+    assert(batchRegisters === registers)
+    assert(batchEvents === totalRegisters.toLong)
   }
 }
 

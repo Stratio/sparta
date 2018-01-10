@@ -43,7 +43,7 @@ import scala.util.{Properties, Try}
 
 import DistributedMonad.Implicits._
 
-class CrossdataInputStep(
+class CrossdataInputStepStream(
                           name: String,
                           outputOptions: OutputOptions,
                           ssc: Option[StreamingContext],
@@ -97,15 +97,15 @@ class CrossdataInputStep(
     import scala.concurrent.ExecutionContext.Implicits.global
     val schedulerSystem = ActorSystem("SchedulerSystem",
       ConfigFactory.load(ConfigFactory.parseString("akka.daemonic=on")))
-    CrossdataInputStep.lastFinishTask = Option(schedulerSystem.scheduler.schedule(1000 milli, 1000 milli)({
-      if (CrossdataInputStep.stopSparkContexts) {
+    CrossdataInputStepStream.lastFinishTask = Option(schedulerSystem.scheduler.schedule(1000 milli, 1000 milli)({
+      if (CrossdataInputStepStream.stopSparkContexts) {
         log.info("Stopping Spark contexts")
         ssc.get.stop(stopSparkContext = true, stopGracefully = true)
-        CrossdataInputStep.stopSparkContexts = false
-        CrossdataInputStep.lastFinishTask.foreach(_.cancel())
-        CrossdataInputStep.lastFinishTask = None
+        CrossdataInputStepStream.stopSparkContexts = false
+        CrossdataInputStepStream.lastFinishTask.foreach(_.cancel())
+        CrossdataInputStepStream.lastFinishTask = None
       }
-      if (CrossdataInputStep.finishApplication) {
+      if (CrossdataInputStepStream.finishApplication) {
         log.info("Finishing application")
         System.exit(0)
       }
@@ -119,15 +119,15 @@ class CrossdataInputStep(
     override def onBatchCompleted(batchCompleted: StreamingListenerBatchCompleted): Unit = {
       if (batchCompleted.batchInfo.numRecords == 0) {
         if (finishApplicationWhenEmpty)
-          CrossdataInputStep.finishApplication = true
+          CrossdataInputStepStream.finishApplication = true
         if (stopContexts)
-          CrossdataInputStep.stopSparkContexts = true
+          CrossdataInputStepStream.stopSparkContexts = true
       }
     }
   }
 }
 
-object CrossdataInputStep {
+object CrossdataInputStepStream {
 
   var finishApplication = false
   var stopSparkContexts = false

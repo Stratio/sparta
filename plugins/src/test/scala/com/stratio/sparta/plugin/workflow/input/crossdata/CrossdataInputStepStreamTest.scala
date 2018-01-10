@@ -28,7 +28,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
-class CrossdataInputStepTest extends WordSpec with Matchers with MockitoSugar {
+class CrossdataInputStepStreamTest extends WordSpec with Matchers with MockitoSugar {
 
   val ssc = mock[StreamingContext]
   val xdSession = mock[XDSession]
@@ -56,7 +56,7 @@ class CrossdataInputStepTest extends WordSpec with Matchers with MockitoSugar {
         """.stripMargin
 
       val properties = Map("offsetFields" -> JsoneyString(offsetFields))
-      val input = new CrossdataInputStep("name", outputOptions, Option(ssc), xdSession, properties)
+      val input = new CrossdataInputStepStream("name", outputOptions, Option(ssc), xdSession, properties)
 
       val conditions = OffsetConditions(
         input.offsetItems,
