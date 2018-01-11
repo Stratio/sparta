@@ -125,15 +125,7 @@ object SecurityHelper {
           "spark.mesos.driverEnv.VAULT_HOSTS" -> host,
           "spark.mesos.driverEnv.VAULT_HOST" -> host,
           "spark.mesos.driverEnv.VAULT_PORT" -> port,
-          "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https",
-          "spark.executorEnv.VAULT_HOSTS" -> host,
-          "spark.executorEnv.VAULT_HOST" -> host,
-          "spark.executorEnv.VAULT_PORT" -> port,
-          "spark.executorEnv.VAULT_PROTOCOL" -> "https",
-          "spark.secret.vault.host" -> host,
-          "spark.secret.vault.hosts" -> host,
-          "spark.secret.vault.port" -> port,
-          "spark.secret.vault.protocol" -> "https"
+          "spark.mesos.driverEnv.VAULT_PROTOCOL" -> "https"
         ) ++ {
           if (vaultToken.isDefined && !useDynamicAuthentication)
             Map("spark.mesos.driverEnv.VAULT_TEMP_TOKEN" -> getTemporalToken)
