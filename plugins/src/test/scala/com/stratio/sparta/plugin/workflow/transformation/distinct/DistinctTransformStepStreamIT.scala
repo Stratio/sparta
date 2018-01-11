@@ -31,9 +31,9 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class DistinctTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class DistinctTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A DistinctTransformStep" should "distinct events from input DStream" in {
+  "A DistinctTransformStepStream" should "distinct events from input DStream" in {
 
     val schema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
@@ -50,7 +50,7 @@ class DistinctTransformStepIT extends TemporalSparkContext with Matchers with Di
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val result = new DistinctTransformStep(
+    val result = new DistinctTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),

@@ -22,27 +22,20 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-class DistinctTransformStep(name: String,
-                            outputOptions: OutputOptions,
-                            ssc: Option[StreamingContext],
-                            xDSession: XDSession,
-                            properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+abstract class DistinctTransformStep[Underlying[Row]](
+                                                       name: String,
+                                                       outputOptions: OutputOptions,
+                                                       ssc: Option[StreamingContext],
+                                                       xDSession: XDSession,
+                                                       properties: Map[String, JSerializable]
+                                                     )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val partitions = properties.getInt("partitions", None)
 
-  def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
-    inputStream.ds.transform { rdd =>
-      if (rdd.isEmpty()) rdd
-      else partitions.fold(rdd.distinct()) { numPartitions => rdd.distinct(numPartitions) }
-    }
-  }
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData)(transformFunction)
 }
 

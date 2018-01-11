@@ -1,7 +1,7 @@
   {
      "name": "Distinct",
      "icon": "Distinct",
-     "className": "DistinctTransformStep",
+     "className": "DistinctTransformStepStream",
      "classPrettyName": "Distinct",
      "arity": ["UnaryToNary"],
      "description": "Selects distinct events in the input DStream",
