@@ -31,7 +31,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class TriggerTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class TriggerTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A TriggerTransformStep" should "make trigger over one DStream" in {
 
@@ -46,7 +46,7 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers with Dis
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val query = s"SELECT * FROM step1 ORDER BY step1.color"
-    val result = new TriggerTransformStep(
+    val result = new TriggerTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),
@@ -98,7 +98,7 @@ class TriggerTransformStepIT extends TemporalSparkContext with Matchers with Dis
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val query = s"SELECT step1.color, step2.company, step2.name, step1.price " +
       s"FROM step2 JOIN step1 ON step2.color = step1.color ORDER BY step1.color"
-    val result = new TriggerTransformStep(
+    val result = new TriggerTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),

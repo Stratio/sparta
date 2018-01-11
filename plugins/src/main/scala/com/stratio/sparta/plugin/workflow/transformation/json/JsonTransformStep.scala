@@ -37,8 +37,8 @@ abstract class JsonTransformStep[Underlying[Row]](
                          ssc: Option[StreamingContext],
                          xDSession: XDSession,
                          properties: Map[String, JSerializable]
-                       )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying]
-) extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
+                       )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
   with ErrorCheckingStepRow with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")

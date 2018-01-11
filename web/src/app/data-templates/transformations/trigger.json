@@ -1,7 +1,7 @@
   {
      "name": "Trigger",
      "icon": "Trigger",
-     "className": "TriggerTransformStep",
+     "className": "TriggerTransformStepStream",
      "classPrettyName": "Trigger",
      "arity": ["BinaryToNary", "UnaryToNary"],
      "description": "Execute one trigger with one SQL query",

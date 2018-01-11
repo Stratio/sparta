@@ -26,63 +26,20 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-class TriggerTransformStep(name: String,
-                           outputOptions: OutputOptions,
-                           ssc: Option[StreamingContext],
-                           xDSession: XDSession,
-                           properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+abstract class TriggerTransformStep[Underlying[Row]](
+                                             name: String,
+                                             outputOptions: OutputOptions,
+                                             ssc: Option[StreamingContext],
+                                             xDSession: XDSession,
+                                             properties: Map[String, JSerializable]
+                                           )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val sql = Try(properties.getString("sql"))
     .getOrElse(throw new IllegalArgumentException("Is mandatory one sql query"))
-
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    assert(inputData.size == 2 || inputData.size == 1,
-      s"The trigger $name must have one or two input steps, now have: ${inputData.keys}")
-
-    if (inputData.size == 1) {
-      val (firstStep, firstStream) = inputData.head
-
-      assert(isCorrectTableName(firstStep),
-        s"The step($firstStep) have wrong name and is not possible to register as temporal table. ${inputData.keys}")
-
-      firstStream.ds.transform { rdd =>
-        if (rdd.isEmpty()) rdd
-        else {
-          val schema = rdd.first().schema
-          log.debug(s"Registering temporal table in Spark with name: $firstStep")
-          xDSession.createDataFrame(rdd, schema).createOrReplaceTempView(firstStep)
-
-          executeSQL
-        }
-      }
-    } else {
-      val (firstStep, firstStream) = inputData.head
-      val (secondStep, secondStream) = inputData.drop(1).head
-
-      assert(isCorrectTableName(firstStep) && isCorrectTableName(secondStep),
-        s"The input steps have incorrect names and is not possible to register as temporal table in Spark." +
-          s" ${inputData.keys}")
-
-      val transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
-        case (rdd1, rdd2) =>
-          log.debug(s"Registering temporal tables in Spark with names: $firstStep, $secondStep")
-          if (!rdd1.isEmpty() && !rdd2.isEmpty()){
-            val firstSchema = rdd1.first().schema
-            xDSession.createDataFrame(rdd1, firstSchema).createOrReplaceTempView(firstStep)
-            val secondSchema = rdd2.first().schema
-            xDSession.createDataFrame(rdd2, secondSchema).createOrReplaceTempView(secondStep)
-            executeSQL
-          } else rdd1
-      }
-
-      firstStream.ds.transformWith(secondStream.ds, transformFunc)
-    }
-  }
 
   def executeSQL: RDD[Row] = {
     log.debug(s"Executing query in Spark: $sql")
