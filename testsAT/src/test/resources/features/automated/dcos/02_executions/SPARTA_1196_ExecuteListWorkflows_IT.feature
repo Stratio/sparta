@@ -1,25 +1,25 @@
 @rest
-Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
+Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
   @loop(WORKFLOW_LIST,WORKFLOW)
   Background: conect to navigator
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     And I wait '10' seconds
 
-  Scenario:[SPARTA_1196][01]Execute workflow '<WORKFLOW>'
+  Scenario:[SPARTA-1196][01]Execute workflow '<WORKFLOW>'
     #include workflow
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/policy' based on 'schemas/workflows/<WORKFLOW>.json' as 'json' with:
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/<WORKFLOW>.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
     And I save element '$.name' in environment variable 'nameWorkflow'
     And I wait '10' seconds
     #Execute workflow
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/policy/run/!{previousWorkflowID}'
+    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     #verify the generation of  workflow in dcos
 
-  Scenario:[SPARTA_1196][02]Test workflow in Dcos '<WORKFLOW>'
+  Scenario:[SPARTA-1196][02]Test workflow in Dcos '<WORKFLOW>'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w <WORKFLOW> | wc -l' contains '1'
     #Get ip in marathon

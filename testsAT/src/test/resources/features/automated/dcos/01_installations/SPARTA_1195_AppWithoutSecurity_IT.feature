@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA_1195]Running sparta without security
+Feature: [SPARTA-1195] Running sparta without security
 
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI

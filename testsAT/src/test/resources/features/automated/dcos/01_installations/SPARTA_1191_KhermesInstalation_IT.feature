@@ -1,7 +1,7 @@
 @rest
-Feature: Install Khermes
+Feature: [SPARTA-1191] Install Khermes
 
-  Scenario: Install Khermes Seed
+  Scenario: [SPARTA-1191][01] Install Khermes Seed
      #Connect to dcos to get token and vault
     Given I open a ssh connection to '${DCOS_IP}' with user 'root' and password 'stratio'
     #get token

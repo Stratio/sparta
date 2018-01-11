@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
+Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Background: conect to navigator
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -29,14 +29,14 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
   Scenario:[SPARTA-1279][03] Create sparta user in postgres
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
     When I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "create user \"${DCOS_SERVICE_NAME}\" with password ''"' in the ssh connection
-   # Then the command output contains 'CREATE ROLE'
+    Then the command output contains 'CREATE ROLE'
 
   #************************************************
   # INSTALL AND EXECUTE kafka to postgres WORKFLOW*
   #************************************************
   Scenario:[SPARTA-1279][07] Install kafka-postgres workflow
     #include workflow
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/policy' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -44,7 +44,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     And I wait '10' seconds
 
   Scenario:[SPARTA-1279][08] Execute kafka-postgres workflow
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/policy/run/!{previousWorkflowID}'
+    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
 
   #********************************
@@ -68,7 +68,8 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
   #**************************************************
   Scenario:[SPARTA-1279][04] Install kafka-postgres workflow
     #include workflow
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/policy' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
+
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
       | id | DELETE | N/A|
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -76,7 +77,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     And I wait '10' seconds
 
   Scenario:[SPARTA-1279][05] Execute kafka-postgres workflow
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/policy/run/!{previousWorkflowID}'
+    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
 
   #*********************************
@@ -112,3 +113,5 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres
     And I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop table cube1"' in the ssh connection
     Then I run 'docker exec -t !{postgresDocker} psql -p 5432 -U postgres -c "drop role \"${DCOS_SERVICE_NAME}\" "' in the ssh connection
 
+#MVN Example
+# mvn verify -DCLUSTER_ID=megadev  -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.executions.SPARTA_1279_KafkaPostgres_IT -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-megadev.demo.stratio.com

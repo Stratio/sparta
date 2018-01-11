@@ -1,12 +1,12 @@
 @rest @web
-Feature: [SPARTA_1196][DCOS]Generate and Execute Workflow and see Streaming
+Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
 
   Background: conect to navigator
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     And I wait '10' seconds
   @loop(WORKFLOW_LIST,WORKFLOW)
-  Scenario:[SPARTA_1196][01]Generate report of Spark Streaming '<WORKFLOW>'
+  Scenario:[SPARTA-1196][01]Generate report of Spark Streaming '<WORKFLOW>'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w '<WORKFLOW>' | wc -l' contains '1'
     #Get ip in marathon

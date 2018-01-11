@@ -140,7 +140,13 @@ hose {
             | -Dquietasdefault=false
             | -DNGINX_ACTIVE=false
             """
+            
     INSTALL = { config ->
-        doAT(conf: config, groups: ['dcos_instalation','dcos_executions','dcos_streaming'])
+        if (config.INSTALLPARAMETERS.contains('GROUPS_SPARTA')) {
+            config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
+          doAT(conf: config)
+        } else {
+            doAT(conf: config, groups: ['dcos_installations_executions','dcos_streaming'])
+        }
      }
 }

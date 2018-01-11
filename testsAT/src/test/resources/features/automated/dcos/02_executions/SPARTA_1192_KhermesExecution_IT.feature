@@ -1,9 +1,9 @@
 @rest @web
-Feature: End to End test - start tools
+Feature: [SPARTA_1192] Khermes installation for produccion of data
   ##################################################
   ## START KHERMES
   ##################################################
-  Scenario: Start Khermes producer
+  Scenario:[SPARTA_1192][01] Start Khermes producer
     # Obtain node-id
     Given I read file 'schemas/khermes_config/ls' as 'string' and save it in environment variable 'lsCommand'
     And '1' element exists with 'css:textarea[id="command"]'

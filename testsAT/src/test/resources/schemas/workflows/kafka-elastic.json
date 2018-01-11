@@ -1,251 +1,269 @@
 {
-  "id": "4950f949-cecb-4bd1-a242-a73a5389d77f",
-  "name": "kaka-elastic",
-  "description": "kaka-elastic.json",
+  "id": "d03d377a-caed-4c85-b760-735e6564b038",
+  "name": "kafka-elastic",
+  "description": "Automatic Workflow kafka-elastic",
   "settings": {
     "global": {
       "executionMode": "marathon",
-      "streamTemporalTable": "stream",
-      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
-      "userPluginsJars": [
-        {
-          "jarPath": ""
-        }
-      ],
-      "initSqlSentences": [
-        {
-          "sentence": ""
-        }
-      ]
-    },
-    "checkpointSettings": {
-      "checkpointPath": "sparta/checkpoint",
-      "enableCheckpointing": true,
-      "autoDeleteCheckpoint": true,
-      "addTimeToCheckpointPath": false
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true
     },
     "streamingSettings": {
-      "window": "30s"
+      "window": "2s",
+      "remember": "",
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
     },
     "sparkSettings": {
       "master": "mesos://leader.mesos:5050",
       "sparkKerberos": true,
       "sparkDataStoreTls": true,
-      "sparkHome": "/opt/spark/dist",
-      "sparkUser": "",
+      "sparkMesosSecurity": true,
       "submitArguments": {
-        "userArguments": [
-          {
-            "submitArgument": "",
-            "submitValue": ""
-          }
-        ],
+        "userArguments": [],
         "deployMode": "client",
-        "supervise": false
+        "supervise": false,
+        "jars": "",
+        "propertiesFile": "",
+        "packages": "",
+        "excludePackages": "",
+        "repositories": "",
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
+        "driverLibraryPath": "",
+        "driverClassPath": ""
       },
       "sparkConf": {
         "sparkResourcesConf": {
-          "coresMax": "2",
-          "executorMemory": "1G",
-          "executorCores": "2",
+          "coresMax": "1",
+          "executorMemory": "2G",
+          "executorCores": "1",
           "driverCores": "1",
           "driverMemory": "2G",
-          "localityWait": "0",
+          "mesosExtraCores": "",
+          "localityWait": "100",
           "taskMaxFailures": "8",
-          "blockInterval": "200ms"
+          "sparkMemoryFraction": "0.6"
         },
         "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
-          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
+          "executorDockerVolumes": " /opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
           "executorForcePullImage": false
         },
         "sparkMesosConf": {
           "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
-          "mesosExecutorHome": "/opt/spark/dist"
+          "mesosHDFSConfURI": ""
         },
-        "userSparkConf": [
-          {
-            "sparkConfKey": "spark.executor.extraJavaOptions",
-            "sparkConfValue": "-Dlog4j.logger.org.apache.spark=ERROR"
-          },
-          {
-            "sparkConfKey": "spark.launcher.childProcLoggerName",
-            "sparkConfValue": "com.stratio.sparta"
-          }
-        ],
+        "userSparkConf": [],
         "coarse": true,
         "stopGracefully": true,
-        "parquetBinaryAsString": true
+        "stopGracefulTimeout": "",
+        "sparkUser": "",
+        "sparkLocalDir": "/opt/spark/dist",
+        "parquetBinaryAsString": true,
+        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
       }
     }
   },
-  "rawData": {
-    "dataField": "ficheros",
-    "timeField": "ficheros",
-    "writer": {
-      "outputs": [],
-      "autoCalculatedFields": [],
-      "saveMode": "Append",
-      "tableName": "ficheros",
-      "partitionBy": "",
-      "boolFailFast": false
-    },
-    "configuration": {}
-  },
-  "transformations": {
-    "transformationsPipe": [
+  "pipelineGraph": {
+    "nodes": [
       {
-        "type": "Json",
-        "order": 0,
-        "inputField": "_attachment_body",
-        "outputFields": [
-          {
-            "name": "id",
-            "type": "string"
-          }
+        "name": "Kafka",
+        "stepType": "Input",
+        "className": "KafkaInputStep",
+        "classPrettyName": "Kafka",
+        "arity": [
+          "NullaryToNary"
         ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 289,
+            "y": 172
+          }
+        },
         "configuration": {
-          "queries": [
+          "locationStrategy": "preferconsistent",
+          "inputOptions": "[]",
+          "topics": [
             {
-              "field": "id",
-              "query": "$.id"
+              "topic": "idtopic"
             }
           ],
-          "supportNullValues": true,
+          "auto.offset.reset": "latest",
+          "partition.assignment.strategy": "range",
+          "value.deserializer.inputFormat": "JSON",
+          "tlsEnabled": false,
+          "group.id": "spartaElastic",
+          "bootstrap.servers": [
+            {
+              "host": "broker-0001.kafka-sec.mesos",
+              "port": "9092"
+            }
+          ],
+          "enable.auto.commit": false,
+          "value.deserializer.json.schema.fromRow": true,
+          "storeOffsetInKafka": true
+        }
+      },
+      {
+        "name": "tabletest",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStep",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 729,
+            "y": 322
+          }
+        },
+        "configuration": {
+          "sql": "select id from Kafka"
+        }
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 464,
+            "y": -25
+          }
+        },
+        "configuration": {
+          "printMetadata": true,
+          "printData": true,
+          "printSchema": true,
+          "logLevel": "warn"
+        }
+      },
+      {
+        "name": "Cube",
+        "stepType": "Transformation",
+        "className": "CubeTransformStep",
+        "classPrettyName": "Cube",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 723,
+            "y": 20
+          }
+        },
+        "configuration": {
+          "waterMark": "",
           "whenError": "Error",
-          "removeInputField": false
+          "availability": "1m",
+          "dimensions": [
+            {
+              "name": "id"
+            }
+          ],
+          "partitions": "",
+          "timeoutKey": "",
+          "operators": [
+            {
+              "name": "idcube",
+              "classType": "Count",
+              "inputField": "id"
+            }
+          ]
+        }
+      },
+      {
+        "name": "ElasticSearch",
+        "stepType": "Output",
+        "className": "ElasticSearchOutputStep",
+        "classPrettyName": "ElasticSearch",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 1001,
+            "y": 210
+          }
+        },
+        "configuration": {
+          "tlsEnabled": true,
+          "nodes": [
+            {
+              "node": "coordinator-0-node.elasticsearchstratio.mesos",
+              "httpPort": "31504"
+            }
+          ],
+          "indexMapping": "sparta",
+          "enableAutoCreateIndex": true,
+          "timeStampMapperFormat": "",
+          "clusterName": "elasticsearchstratio",
+          "saveOptions": "[]"
         }
       }
     ],
-    "writer": {
-      "outputs": [],
-      "autoCalculatedFields": [],
-      "saveMode": "Append",
-      "tableName": "datossave",
-      "boolFailFast": false
-    }
-  },
-  "streamTriggers": [
-    {
-      "name": "trigertest",
-      "sql": "select id from stream",
-      "writer": {
-        "outputs": [
-          {
-            "primary": "elastic-output"
-          }
-        ],
-        "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "boolFailFast": false
+    "edges": [
+      {
+        "origin": "Kafka",
+        "destination": "Print"
       },
-      "overLast": "30s",
-      "configuration": {},
-      "computeEvery": "30s"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "cube1",
-      "dimensions": [
-        {
-          "name": "id",
-          "field": "id",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "type": "Count",
-          "name": "count",
-          "configuration": {}
-        }
-      ],
-      "writer": {
-        "outputs": [
-          {
-            "primary": "elastic-output"
-          }
-        ],
-        "dateType": "timestamp",
-        "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "boolFailFast": false
+      {
+        "origin": "Kafka",
+        "destination": "tabletest"
       },
-      "triggers": [],
-      "configuration": {}
-    }
-  ],
-  "input": {
-    "name": "kafka",
-    "type": "Kafka",
-    "configuration": {
-      "key.deserializer": "string",
-      "locationStrategy": "preferconsistent",
-      "vaultKeyPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "topics": [
-        {
-          "topic": "trigertest"
-        }
-      ],
-      "auto.offset.reset": "latest",
-      "partition.assignment.strategy": "range",
-      "vaultTLSEnable": true,
-      "vaultTrustStorePath": "/v1/ca-trust/certificates/ca",
-      "vaultRole": "open",
-      "offsets": [
-        {
-          "topic": "",
-          "partition": "",
-          "offsetValue": ""
-        }
-      ],
-      "tlsEnabled": true,
-      "group.id": "",
-      "bootstrap.servers": [
-        {
-          "port": "9092",
-          "host": "broker-0001.kafka-sec.mesos"
-        }
-      ],
-      "enable.auto.commit": false,
-      "vaultCertPath": "/v1/userland/certificates/sparta-server",
-      "value.deserializer": "string",
-      "kafkaProperties": [
-        {
-          "kafkaPropertyKey": "",
-          "kafkaPropertyValue": ""
-        }
-      ],
-      "vaultCertPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "vaultTrustStorePassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "storeOffsetInKafka": true
-    }
-  },
-  "outputs": [
-    {
-      "name": "elastic-output",
-      "type": "ElasticSearch",
-      "configuration": {
-        "tlsEnabled": true,
-        "nodes": [
-          {
-            "node": "coordinator-0-node.elasticsearchstratio.mesos",
-            "httpPort": "31504"
-          }
-        ],
-        "indexMapping": "",
-        "enableAutoCreateIndex": true,
-        "clusterName": "elasticsearch",
-        "saveOptions": [
-          {
-            "saveOptionsKey": "",
-            "saveOptionsValue": ""
-          }
-        ]
+      {
+        "origin": "Kafka",
+        "destination": "Cube"
+      },
+      {
+        "origin": "Cube",
+        "destination": "ElasticSearch"
+      },
+      {
+        "origin": "tabletest",
+        "destination": "ElasticSearch"
       }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -22,
+      "y": 44,
+      "k": 1
     }
-  ],
-  "fragments": []
+  },
+  "lastUpdateDate": "2018-01-11T08:31:43Z"
 }

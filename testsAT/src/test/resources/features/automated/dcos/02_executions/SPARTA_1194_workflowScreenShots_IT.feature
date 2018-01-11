@@ -1,11 +1,11 @@
 @web @rest
-Feature: [SPARTA][DCOS]Streaming screenshots for Sparta Workflow
+Feature: [SPARTA-1194] Streaming screenshots for Sparta Workflow
 
   Background: Streaming screenshots for workflow
     #Start SSH with DCOS-CLI
 
 
-  Scenario: [SPARTA][Scenario-1][01]Running sparta without security
+  Scenario: [SPARTA-1194][Scenario-1][01]Running sparta without security
     Given My app is running in '${WORKFLOW_URL}:${WORKFLOW_PORT}'
     When I browse to '/streaming'
     Then '1' element exists with 'id:completed'

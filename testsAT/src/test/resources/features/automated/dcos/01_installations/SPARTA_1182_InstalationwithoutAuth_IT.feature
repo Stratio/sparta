@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA-1182]Instalation sparta with security + dynamic Authentication without Auth in DCOS
+Feature: [SPARTA-1182] Installation sparta with security + dynamic Authentication without Auth in DCOS
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
@@ -34,6 +34,6 @@ Feature: [SPARTA-1182]Instalation sparta with security + dynamic Authentication 
     And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/sparta-server/sparta-server  | grep sparta-server | awk '{print $2}'' contains 'True'
     And I run 'dcos marathon task list /sparta/sparta-server/sparta-server | awk '{print $5}' | grep sparta-server' in the ssh connection and save the value in environment variable 'spartaTaskId'
   @ignore  @manual
-  Scenario: Remove workflow Sparta
+  Scenario: [SPARTA-1182][02] Remove workflow Sparta
     When  I run 'dcos marathon app remove /sparta/sparta-server/sparta-server' in the ssh connection
     Then in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep sparta-server | grep R | wc -l' contains '0'

@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA_1196] Generate and Execute Workflow and see inserted elements
+Feature: [SPARTA-1196] E2E Execution of Workflow Kafka Postgres 400 Elements
   Background: conect to navigator
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -8,16 +8,16 @@ Feature: [SPARTA_1196] Generate and Execute Workflow and see inserted elements
   #************************************************
   # INSTALL AND EXECUTE TEST-INPUT KAFKA WORKFLOW *
   #************************************************
-  Scenario:[SPARTA_1196][01]Install workflow testinput-kafka
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/policy' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
+  Scenario:[SPARTA-1196][01]Install workflow testinput-kafka
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/testinput-kafka.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
     And I save element '$.name' in environment variable 'nameWorkflow'
     And I wait '10' seconds
 
-  Scenario:[SPARTA_1196][02] Execute workflow testinput-kafka
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/policy/run/!{previousWorkflowID}'
+  Scenario:[SPARTA-1196][02] Execute workflow testinput-kafka
+    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
 
   #********************************************
@@ -39,9 +39,9 @@ Feature: [SPARTA_1196] Generate and Execute Workflow and see inserted elements
   #************************************************
   # INSTALL AND EXECUTE TEST-INPUT KAFKA WORKFLOW *
   #************************************************
-  Scenario:[SPARTA_1196][04]Install And Execute workflow kafka-elastic
+  Scenario:[SPARTA-1196][04]Install And Execute workflow kafka-elastic
     #include workflow
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/policy' based on 'schemas/workflows/kafka-elastic.json' as 'json' with:
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-elastic.json' as 'json' with:
       | id | DELETE | N/A  |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
@@ -49,11 +49,11 @@ Feature: [SPARTA_1196] Generate and Execute Workflow and see inserted elements
     And I wait '10' seconds
 
   Scenario:[SPARTA_1196][05] Execute workflow kafka-elastic
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/policy/run/!{previousWorkflowID}'
+    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
     Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
     Given I wait '30' seconds
 
-  Scenario:[SPARTA_1196][06] Test workflow in Dcos kafka-elastic
+  Scenario:[SPARTA-1196][06] Test workflow in Dcos kafka-elastic
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
     Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-elastic | wc -l' contains '1'
     #Get ip in marathon
@@ -66,7 +66,7 @@ Feature: [SPARTA_1196] Generate and Execute Workflow and see inserted elements
     And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults | wc -l' contains '1'
     And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true' | wc -l' contains '1'
   @ignore @manual
-  Scenario:[SPARTA_1196][05] Delete table in Elastic
+  Scenario:[SPARTA-1196][05] Delete table in Elastic
     Given I send requests to '/coordinator.elasticsearchstratio.l4lb.thisdcos.directory:9200/myindex \ --cacert ca.pem --cert keystore.pem'
     And   I send a 'DELETE' request to '/triggertickets?pretty'
     Then the service response status must be '200'

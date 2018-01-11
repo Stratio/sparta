@@ -1,10 +1,18 @@
 @rest
-Feature: [SPARTA_1238] Installation Sparta with mustache
+Feature: [SPARTA-1161] Installation sparta with mustache
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    #And  I securely send requests to '${DCOS_IP}:443'
-  Scenario: [SPARTA_1238][01] Sparta Installation with Mustache in DCOS
+    Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
+    And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
+
+  Scenario: [SPARTA-1161][01]Add zookeper-sparta policy to write in zookeper
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/zookeeper_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
+      |   $.name                  |  UPDATE    | ${ID_POLICY_ZK}       | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}  | n/a |
+    Then the service response status must be '201'
+  Scenario: [SPARTA-1161][02] Sparta Instalation with Mustache in DCOS
     #Modify json to install specific configuration forSparta
     Given I create file 'spartamustache.json' based on 'schemas/dcosFiles/${SPARTA_JSON}' as 'json' with:
       |   $.Framework.name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
@@ -14,10 +22,9 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
       |   $.Marathon.uri                                      |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com/service/marathon                 |n/a |
       |   $.Marathon-LB.haproxy_host                          |  UPDATE     | sparta.${CLUSTER_ID}.labs.stratio.com                                   |n/a |
       |   $.Marathon-LB.haproxy_path                          |  UPDATE     | /${DCOS_SERVICE_NAME}                                                   |n/a |
-      |   $.Marathon-LB.nginx_proxy                           |  REPLACE    | ${NGINX_ACTIVE}                                                         |boolean |
       |   $.Marathon.sso_redirectUri                          |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com/acs/api/v1/auth/login            |n/a |
       |   $.Marathon.sparta_docker_image                      |  UPDATE     | ${DOCKER_URL}:${STRATIO_SPARTA_VERSION}                                 |n/a |
-      |   $.Calico.enabled                                    |  REPLACE    | ${CALICOENABLED}                                                        |boolean |
+      |   $.Calico.enabled                                    |  REPLACE    | true                                                        |boolean |
       |   $.Hdfs.default_fs                                   |  UPDATE     | ${HDFS_IP}                                                              |n/a |
       |   $.Hdfs.conf_uri                                     |  UPDATE     | hdfs://${HDFS_IP}:8020                                                  |n/a |
       |   $.Hdfs.user_name                                    |  UPDATE     | ${DCOS_SERVICE_NAME}                                                    |n/a |
@@ -26,8 +33,8 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
       |   $.Security.Marathon.sso_uri                         |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com:9005/sso                         |n/a |
       |   $.Security.Marathon.sso_redirectUri                 |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com/acs/api/v1/auth/login            |n/a |
       |   $.Security.use_dynamic_authentication               |  UPDATE     | true                                                                    |n/a |
-      |   $.Security.Components.oauth2_enabled                |  REPLACE    | ${AUTH_ENABLED}                                                         |boolean |
-      |   $.Security.Components.gosec_enabled                 |  REPLACE    | ${AUTH_ENABLED}                                                         |boolean |
+      |   $.Security.Components.oauth2_enabled                |  REPLACE    | true                                                         |boolean |
+      |   $.Security.Components.gosec_enabled                 |  REPLACE    | true                                                         |boolean |
       |   $.Security.Components.marathon_enabled              |  REPLACE    | true                                                                    |boolean |
       |   $.Security.Oauth.onLoginGoTo                        |  UPDATE     | /${DCOS_SERVICE_NAME}                                                    |n/a |
       |   $.Security.Oauth.authorize                          |  UPDATE     | https://${CLUSTER_ID}.labs.stratio.com:9005/sso/oauth2.0/authorize       |n/a |
@@ -44,16 +51,13 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
       |   $.Crossdata.Spark.Image                             |  UPDATE     | ${CROSSDATA_SERVER_CONFIG_SPARK_IMAGE}                                   |n/a |
       |   $.Crossdata.Catalog.zookeeper_connection_string     |  UPDATE     | ${ZK_URL}                                                                |n/a |
     #Copy DEPLOY JSON to DCOS-CLI
-    When I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'
-    #Erase previous images for sparta
-    Then I run 'rm -f /dcos/spartaBasicMarathon.json' in the ssh connection
+    And I outbound copy 'target/test-classes/spartamustache.json' through a ssh connection to '/dcos'
     #Start image from mustache
     When I run 'dcos package describe --app --options=/dcos/spartamustache.json sparta >> /dcos/spartaBasicMarathon.json' in the ssh connection
     Then I run 'sed -i -e 's|"image":.*|"image": "${DOCKER_URL}:${STRATIO_SPARTA_VERSION}",|g' /dcos/spartaBasicMarathon.json' in the ssh connection
     And I run 'dcos marathon app add /dcos/spartaBasicMarathon.json' in the ssh connection
 
-
-    And in less than '600' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME} | wc -l' contains '1'
+    And in less than '400' seconds, checking each '20' seconds, the command output 'dcos task | grep -w ${DCOS_SERVICE_NAME} | wc -l' contains '1'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}  | awk '{print $5}' | grep ${DCOS_SERVICE_NAME} ' in the ssh connection and save the value in environment variable 'spartaTaskId'
     #Check sparta is runing in DCOS
@@ -62,5 +66,24 @@ Feature: [SPARTA_1238] Installation Sparta with mustache
     And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep healthCheckResults | wc -l' contains '1'
     And in less than '600' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{spartaTaskId} | grep  '"alive": true' | wc -l' contains '1'
 
-    #mvn Example:
-    #mvn verify -DCLUSTER_ID=nightly -DNGINX_ACTIVE=false -DDCOS_SERVICE_NAME=sparta-server -Dit.test=com.stratio.sparta.testsAT.automated.dcos.installations.SPARTA_1238_InstalationwithMustache_IT -DlogLevel=DEBUG -DDCOS_CLI_HOST=dcos-nigthly.demo.stratio.com -DDOCKER_URL=qa.stratio.com/stratio/sparta -DCALICOENABLED=false -DHDFS_IP=10.200.0.74 -DROLE_SPARTA=open -DAUTH_ENABLED=true -DSTRATIO_SPARTA_VERSION=1.7.6 -DZK_URL=zk-0001-zkuserland.service.paas.labs.stratio.com:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181 -DDCOS_IP=10.200.0.21 -DSPARTA_NAME=sparta-server -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.1.0.1 -DSPARTA_JSON=spartamustache_1.7.6.json -DHDFS_REALM=DEMO.STRATIO.COM
+  #Add Sparta Policy
+  Scenario: [SPARTA-1161][03] Add sparta policy for authorization in sparta with full security
+    Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/sp_policy.json' as 'json' with:
+      |   $.id                    |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.name                  |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}     | n/a |
+    Then the service response status must be '201'
+
+  #Remove Policy
+  Scenario: [SPARTA-1161][04]Delete zk-sparta Policy
+    When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${ID_POLICY_ZK}'
+    Then the service response status must be '200'
+
+  Scenario: [SPARTA-1161][05] Remove Instalation with full security in DCOS
+    When  I run 'dcos marathon app remove /sparta/${DCOS_SERVICE_NAME}/${DCOS_SERVICE_NAME}' in the ssh connection
+    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos task | grep ${DCOS_SERVICE_NAME} | wc -l' contains '0'
+
+  @runOnEnv(DELETE_SPARTA_POLICY)
+  Scenario: [SPARTA-1161][05]Delete Sparta Policy
+    When I send a 'DELETE' request to '/service/gosecmanagement/api/policy/${DCOS_SERVICE_NAME}'
+    Then the service response status must be '200'

@@ -13,34 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos.installations;
+package com.stratio.sparta.testsAT.automated.workflows;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
-import com.stratio.qa.utils.ThreadProperty;
 import cucumber.api.CucumberOptions;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.testng.annotations.Factory;
+import com.stratio.qa.data.BrowsersDataProvider;
 
-
-@CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1161_FullSecurityInstalation_IT.feature"
-
-})
-public class SPARTA_1277_FullSecurityInstalation_IT extends BaseTest {
-
-    @BeforeClass(groups = {"sparta_eos"})
-    public void setUp() {
-        ThreadProperty.set("Driver", "inst");
-
+@CucumberOptions(features = { "src/test/resources/features/automated/workflows/SPARTA_1487_executeWorkflow_IT.feature" })
+public class SPARTA_1487_ISExecuteWorkflow_IT extends BaseTest {
+    public SPARTA_1487_ISExecuteWorkflow_IT() {
     }
 
-    public SPARTA_1277_FullSecurityInstalation_IT() {this.browser = browser;
-    }
-
-    @Test(enabled = true, groups = {"dcos_instalation"})
-    public void AppWithoutSecurityTest() throws Exception {
+    @Test(enabled = true, groups = {"api","basic"})
+    public void policiesTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
-
 }

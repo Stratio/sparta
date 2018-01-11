@@ -1,8 +1,13 @@
 {
-  "id": "sparta",
-  "name": "sparta",
+  "id": "sparta-server",
+  "name": "sparta-server",
   "users": [
-    "user"
+    {
+      "id": "sparta-server",
+      "name": "sparta-server",
+      "email": "sparta-server@demo.stratio.com",
+      "custom": false
+    }
   ],
   "groups": [],
   "services": [
@@ -12,10 +17,50 @@
         {
           "instances": [
             {
-              "name": "*"
+              "name": "sparta-server"
             }
           ],
           "acls": [
+            {
+              "resourceType": "execution",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Delete",
+                "Audit",
+                "Edit",
+                "View"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "backup",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Upload",
+                "Execute",
+                "Audit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "group",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
+                "Create",
+                "Delete",
+                "Audit",
+                "Edit"
+              ],
+              "allActions": []
+            },
             {
               "resourceType": "environment",
               "name": "*",
@@ -26,6 +71,39 @@
                 "Delete",
                 "Audit",
                 "Edit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "status",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Create",
+                "Delete",
+                "Audit",
+                "Edit",
+                "View"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "checkpoint",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "Delete",
+                "Audit"
+              ],
+              "allActions": []
+            },
+            {
+              "resourceType": "configuration",
+              "name": "*",
+              "recursive": false,
+              "actions": [
+                "View",
+                "Audit"
               ],
               "allActions": []
             },
@@ -43,65 +121,6 @@
               "allActions": []
             },
             {
-              "resourceType": "configuration",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "View",
-                "Audit"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "checkpoint",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "Delete",
-                "Audit"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "driver",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "View",
-                "Delete",
-                "Audit",
-                "Upload"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "context",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "View",
-                "Create",
-                "Delete",
-                "Audit",
-                "Edit"
-              ],
-              "allActions": []
-            },
-            {
-              "resourceType": "backup",
-              "name": "*",
-              "recursive": false,
-              "actions": [
-                "Create",
-                "Delete",
-                "Audit",
-                "Upload",
-                "Execute",
-                "View"
-              ],
-              "allActions": []
-            },
-            {
               "resourceType": "workflow",
               "name": "*",
               "recursive": false,
@@ -109,8 +128,9 @@
                 "View",
                 "Create",
                 "Delete",
-                "Edit",
-                "Audit"
+                "Audit",
+                "Execute",
+                "Edit"
               ],
               "allActions": []
             },
@@ -120,9 +140,9 @@
               "recursive": false,
               "actions": [
                 "View",
+                "Upload",
                 "Delete",
-                "Audit",
-                "Upload"
+                "Audit"
               ],
               "allActions": []
             },
@@ -132,8 +152,8 @@
               "recursive": false,
               "actions": [
                 "View",
-                "Audit",
                 "Execute",
+                "Audit",
                 "Describe"
               ],
               "allActions": []

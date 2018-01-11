@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1195_AppWithoutSecurity_IT.feature"
+        "src/test/resources/features/automated/dcos/03_uninstall/SPARTA_1277_UninstallSparta_IT.feature"
 
 })
 public class SPARTA_1277_UninstallSparta_IT extends BaseTest {

@@ -1,11 +1,11 @@
 @web @rest
-Feature: [SPARTA][DCOS]Running sparta with security and Login
+Feature: [SPARTA-1193] Running sparta with security and Login
 
   Background: Setup DCOS-CLI
     #Start SSH with DCOS-CLI
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
 
-  Scenario: [SPARTA][Scenario-1][01]Execute Login
+  Scenario: [SPARTA-1193][01]Execute Login
     #**************************
     #     SPARTA LOGIN        *
     #**************************

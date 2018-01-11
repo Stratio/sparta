@@ -20,7 +20,7 @@
   "Marathon": {
     "uri": "https://newcore.labs.stratio.com/service/marathon",
     "api_version": "v2",
-    "sparta_docker_image": "qa.stratio.com/stratio/sparta:1.7.8",
+    "sparta_docker_image": "qa.stratio.com/stratio/sparta:1.9.1-RC1",
     "mesosphere_lib": "/opt/mesosphere/lib",
     "mesosphere_packages": "/opt/mesosphere/packages",
     "docker_forcePullImage": false,
@@ -89,7 +89,7 @@
       "gosec_plugin_sso_principal": "gosec-sso",
       "sparta_plugin_zk_connect": "gosec1.node.paas.labs.stratio.com:2181,gosec2.node.paas.labs.stratio.com:2181,gosec3.node.paas.labs.stratio.com:2181",
       "zk_watchers_enabled": true,
-      "sparta_plugin_ldap_host": "ldap.integration.labs.stratio.com",
+      "sparta_plugin_ldap_host": "idp.integration.labs.stratio.com",
       "sparta_plugin_ldap_port": 636,
       "sparta_plugin_ldap_user_domain": "ou=People,dc=stratio,dc=com",
       "sparta_plugin_ldap_group_domain": "ou=Groups,dc=stratio,dc=com",
@@ -132,7 +132,7 @@
     },
     "Spark": {
       "master": "local[*]",
-      "image": "qa.stratio.com/stratio/stratio-spark:2.1.0.4",
+      "image": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
       "ui_enabled": true,
       "executor_memory": "1G",
       "driver_memory": "1G",

@@ -1,250 +1,264 @@
 {
-  "id": "b2b5ae33-e535-4718-ace9-1ebe20120666",
+  "id": "19779487-bf3b-45b4-8408-5c42beed18b7",
   "name": "kafka-postgres",
-  "description": "kafka-postgres",
+  "description": "Automatic Workflow kafka-postgres",
   "settings": {
     "global": {
       "executionMode": "marathon",
-      "streamTemporalTable": "stream",
-      "driverUri": "/opt/sds/sparta/driver/sparta-driver.jar",
-      "userPluginsJars": [
-        {
-          "jarPath": ""
-        }
-      ],
-      "initSqlSentences": [
-        {
-          "sentence": ""
-        }
-      ]
-    },
-    "checkpointSettings": {
-      "checkpointPath": "sparta/checkpoint",
-      "enableCheckpointing": true,
-      "autoDeleteCheckpoint": true,
-      "addTimeToCheckpointPath": false
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true
     },
     "streamingSettings": {
-      "window": "30s"
+      "window": "2s",
+      "remember": "",
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
     },
     "sparkSettings": {
       "master": "mesos://leader.mesos:5050",
       "sparkKerberos": true,
       "sparkDataStoreTls": true,
-      "sparkHome": "/opt/spark/dist",
-      "sparkUser": "",
+      "sparkMesosSecurity": true,
       "submitArguments": {
-        "userArguments": [
-          {
-            "submitArgument": "",
-            "submitValue": ""
-          }
-        ],
+        "userArguments": [],
         "deployMode": "client",
-        "supervise": false
+        "supervise": false,
+        "jars": "",
+        "propertiesFile": "",
+        "packages": "",
+        "excludePackages": "",
+        "repositories": "",
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
+        "driverLibraryPath": "",
+        "driverClassPath": ""
       },
       "sparkConf": {
         "sparkResourcesConf": {
-          "coresMax": "2",
-          "executorMemory": "1G",
-          "executorCores": "2",
+          "coresMax": "1",
+          "executorMemory": "2G",
+          "executorCores": "1",
           "driverCores": "1",
           "driverMemory": "2G",
-          "localityWait": "0",
+          "mesosExtraCores": "",
+          "localityWait": "100",
           "taskMaxFailures": "8",
-          "blockInterval": "200ms"
+          "sparkMemoryFraction": "0.6"
         },
         "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.1",
-          "executorDockerVolumes": "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro",
+          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
+          "executorDockerVolumes": " /opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
           "executorForcePullImage": false
         },
         "sparkMesosConf": {
           "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
-          "mesosExecutorHome": "/opt/spark/dist"
+          "mesosHDFSConfURI": ""
         },
-        "userSparkConf": [
-          {
-            "sparkConfKey": "spark.executor.extraJavaOptions",
-            "sparkConfValue": "-Dlog4j.logger.org.apache.spark=ERROR"
-          },
-          {
-            "sparkConfKey": "spark.launcher.childProcLoggerName",
-            "sparkConfValue": "com.stratio.sparta"
-          }
-        ],
+        "userSparkConf": [],
         "coarse": true,
         "stopGracefully": true,
-        "parquetBinaryAsString": true
+        "stopGracefulTimeout": "",
+        "sparkUser": "",
+        "sparkLocalDir": "/opt/spark/dist",
+        "parquetBinaryAsString": true,
+        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
       }
     }
   },
-  "rawData": {
-    "dataField": "ficheros",
-    "timeField": "ficheros",
-    "writer": {
-      "outputs": [],
-      "autoCalculatedFields": [],
-      "saveMode": "Append",
-      "tableName": "ficheros",
-      "partitionBy": "",
-      "boolFailFast": false
-    },
-    "configuration": {}
-  },
-  "transformations": {
-    "transformationsPipe": [
+  "pipelineGraph": {
+    "nodes": [
       {
-        "type": "Json",
-        "order": 0,
-        "inputField": "_attachment_body",
-        "outputFields": [
-          {
-            "name": "id",
-            "type": "string"
-          }
+        "name": "Kafka",
+        "stepType": "Input",
+        "className": "KafkaInputStep",
+        "classPrettyName": "Kafka",
+        "arity": [
+          "NullaryToNary"
         ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 289,
+            "y": 172
+          }
+        },
         "configuration": {
-          "removeInputField": false,
-          "supportNullValues": true,
-          "whenError": "Error",
-          "queries": [
+          "locationStrategy": "preferconsistent",
+          "inputOptions": "[]",
+          "topics": [
             {
-              "field": "id",
-              "query": "$.id"
+              "topic": "idtopic"
+            }
+          ],
+          "auto.offset.reset": "latest",
+          "partition.assignment.strategy": "range",
+          "value.deserializer.inputFormat": "JSON",
+          "tlsEnabled": false,
+          "group.id": "sparta_2",
+          "bootstrap.servers": [
+            {
+              "host": "broker-0001.kafka-sec.mesos",
+              "port": "9092"
+            }
+          ],
+          "enable.auto.commit": false,
+          "value.deserializer.json.schema.fromRow": true,
+          "storeOffsetInKafka": true
+        }
+      },
+      {
+        "name": "tabletest",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStep",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 729,
+            "y": 322
+          }
+        },
+        "configuration": {
+          "sql": "select id from Kafka"
+        }
+      },
+      {
+        "name": "Postgres",
+        "stepType": "Output",
+        "className": "PostgresOutputStep",
+        "classPrettyName": "Postgres",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 972,
+            "y": 204
+          }
+        },
+        "configuration": {
+          "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server",
+          "postgresSaveMode": "STATEMENT",
+          "batchsize": "1000",
+          "isolationLevel": "READ_UNCOMMITTED",
+          "tlsEnabled": true,
+          "driver": "",
+          "saveOptions": "[]"
+        }
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 464,
+            "y": -25
+          }
+        },
+        "configuration": {
+          "printMetadata": true,
+          "printData": true,
+          "printSchema": true,
+          "logLevel": "warn"
+        }
+      },
+      {
+        "name": "Cube",
+        "stepType": "Transformation",
+        "className": "CubeTransformStep",
+        "classPrettyName": "Cube",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 723,
+            "y": 20
+          }
+        },
+        "configuration": {
+          "waterMark": "",
+          "whenError": "Error",
+          "availability": "1m",
+          "dimensions": [
+            {
+              "name": "id"
+            }
+          ],
+          "partitions": "",
+          "timeoutKey": "",
+          "operators": [
+            {
+              "name": "idcube",
+              "classType": "Count",
+              "inputField": "id"
             }
           ]
         }
       }
     ],
-    "writer": {
-      "outputs": [],
-      "autoCalculatedFields": [],
-      "saveMode": "Append",
-      "tableName": "datossave",
-      "boolFailFast": false
-    }
-  },
-  "streamTriggers": [
-    {
-      "name": "tabletest",
-      "sql": "select id from stream",
-      "writer": {
-        "outputs": [
-          {
-            "primary": "postgres"
-          }
-        ],
-        "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "boolFailFast": false
+    "edges": [
+      {
+        "origin": "tabletest",
+        "destination": "Postgres"
       },
-      "overLast": "30s",
-      "configuration": {},
-      "computeEvery": "30s"
-    }
-  ],
-  "cubes": [
-    {
-      "name": "cube1",
-      "dimensions": [
-        {
-          "name": "id",
-          "field": "id",
-          "precision": "identity",
-          "type": "Default"
-        }
-      ],
-      "operators": [
-        {
-          "type": "Count",
-          "name": "count",
-          "configuration": {}
-        }
-      ],
-      "writer": {
-        "outputs": [
-          {
-            "primary": "postgres"
-          }
-        ],
-        "dateType": "timestamp",
-        "autoCalculatedFields": [],
-        "saveMode": "Append",
-        "boolFailFast": false
+      {
+        "origin": "Kafka",
+        "destination": "Print"
       },
-      "triggers": [],
-      "configuration": {}
-    }
-  ],
-  "input": {
-    "name": "kafka",
-    "type": "Kafka",
-    "configuration": {
-      "key.deserializer": "string",
-      "locationStrategy": "preferconsistent",
-      "vaultKeyPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "topics": [
-        {
-          "topic": "trigertest"
-        }
-      ],
-      "auto.offset.reset": "latest",
-      "partition.assignment.strategy": "range",
-      "vaultTLSEnable": true,
-      "vaultTrustStorePath": "/v1/ca-trust/certificates/ca",
-      "vaultRole": "open",
-      "offsets": [
-        {
-          "partition": "",
-          "offsetValue": "",
-          "topic": ""
-        }
-      ],
-      "tlsEnabled": true,
-      "group.id": "",
-      "bootstrap.servers": [
-        {
-          "port": "9092",
-          "host": "broker-0001.kafka-sec.mesos"
-        }
-      ],
-      "enable.auto.commit": false,
-      "vaultCertPath": "/v1/userland/certificates/sparta-server",
-      "value.deserializer": "string",
-      "kafkaProperties": [
-        {
-          "kafkaPropertyKey": "",
-          "kafkaPropertyValue": ""
-        }
-      ],
-      "vaultCertPassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "vaultTrustStorePassPath": "/v1/userland/passwords/sparta-server/keystore",
-      "storeOffsetInKafka": true
-    }
-  },
-  "outputs": [
-    {
-      "name": "postgres",
-      "type": "Postgres",
-      "configuration": {
-        "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/caroot.crt&sslkey=/tmp/key.pkcs8",
-        "postgresSaveMode": "STATEMENT",
-        "batchsize": "",
-        "isolationLevel": "READ_UNCOMMITTED",
-        "driver": "",
-        "caName": "ca",
-        "bufferSize": "65536",
-        "tlsEnabled": true,
-        "saveOptions": [
-          {
-            "saveOptionsValue": "",
-            "saveOptionsKey": ""
-          }
-        ],
-        "numPartitions": ""
+      {
+        "origin": "Kafka",
+        "destination": "tabletest"
+      },
+      {
+        "origin": "Kafka",
+        "destination": "Cube"
+      },
+      {
+        "origin": "Cube",
+        "destination": "Postgres"
       }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -22,
+      "y": 44,
+      "k": 1
     }
-  ],
-  "fragments": []
+  },
+  "lastUpdateDate": "2018-01-11T08:29:43Z"
 }
