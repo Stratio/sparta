@@ -1,7 +1,7 @@
   {
      "name": "OrderBy",
      "icon": "OrderBy",
-     "className": "OrderByTransformStep",
+     "className": "OrderByTransformStepStream",
      "classPrettyName": "OrderBy",
      "description": "Order fields from the events in the input DStream",
      "properties": [

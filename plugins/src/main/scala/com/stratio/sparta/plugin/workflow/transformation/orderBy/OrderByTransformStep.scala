@@ -20,39 +20,36 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.sql.functions._
-
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.functions.col
 
 
-class OrderByTransformStep(name: String,
+abstract class OrderByTransformStep[Underlying[Row]](name: String,
                            outputOptions: OutputOptions,
                            ssc: Option[StreamingContext],
                            xDSession: XDSession,
                            properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+                           (implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val orderExpression: String = properties.getString("orderExp")
   lazy val fieldsSeparator: String = properties.getString("delimiter", ",")
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
-        inputStream.ds.transform { rdd =>
-          if (rdd.isEmpty()) rdd
-          else {
-            val schema = rdd.first().schema
-            val df = xDSession.createDataFrame(rdd, schema)
-            val columns = orderExpression.split(fieldsSeparator).map(col)
+  def transformFunc: RDD[Row] => RDD[Row] = {
+    case rdd =>
+      if (rdd.isEmpty()) rdd
+      else {
+        val schema = rdd.first().schema
+        val df = xDSession.createDataFrame(rdd, schema)
+        val columns = orderExpression.split(fieldsSeparator).map(col)
 
-            df.sort(columns: _*).rdd
-          }
+        df.sort(columns: _*).rdd
       }
-    }
+  }
 
 }

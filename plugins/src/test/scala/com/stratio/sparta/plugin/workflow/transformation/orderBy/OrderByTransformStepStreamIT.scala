@@ -32,9 +32,9 @@ import scala.collection.mutable
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 @RunWith(classOf[JUnitRunner])
-class OrderByTransformStepIT extends TemporalSparkContext with Matchers {
+class OrderByTransformStepStreamIT extends TemporalSparkContext with Matchers {
 
-  "A OrderByTransformStep" should "order fields of events from input DStream" in {
+  "A OrderByTransformStepStream" should "order fields of events from input DStream" in {
 
     val schema = StructType(Seq(StructField("color", StringType)))
     val schemaResult = StructType(Seq(StructField("color", StringType)))
@@ -54,7 +54,7 @@ class OrderByTransformStepIT extends TemporalSparkContext with Matchers {
     val stream1 = ssc.queueStream(dataQueue1)
     val inputData = Map("step1" -> stream1)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val result = new OrderByTransformStep(
+    val result = new OrderByTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),
