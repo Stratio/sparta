@@ -28,7 +28,7 @@ import { WizardEditorService } from './wizard-editor.sevice';
 import { InitializeSchemaService } from 'services';
 import { ValidateSchemaService } from 'app/services/validate-schema.service';
 import { StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
-
+import {isMobile} from 'constants/global';
 
 @Component({
     selector: 'wizard-editor',
@@ -44,7 +44,8 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
     public entities: any = [];
     public entitiesData: any = [];
 
-    public svgPosition: any;
+    private svgPosition: any;
+    public isMobile = false;
     public showConnector = false;
 
     // selectors
@@ -105,7 +106,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
 
     constructor(private elementRef: ElementRef, private _modalService: StModalService, private editorService: WizardEditorService,
         private validateSchemaService: ValidateSchemaService, private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>,
-        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) { }
+        private initializeSchemaService: InitializeSchemaService, private _ngZone: NgZone) { 
+            this.isMobile = isMobile;
+        }
 
     ngOnInit(): void {
         this.creationModeSubscription = this.store.select(fromRoot.isCreationMode).subscribe((data) => { this.creationMode = data; });
@@ -150,23 +153,21 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             .wheelDelta(deltaFn);
 
         this.drag = d3.drag();
-
+        
         this._ngZone.runOutsideAngular(() => {
-            this.SVGParent
-                .call(this.drag
-                    .on('start', () => {
-                        const event = d3.event;
-                        const position = {
-                            offsetX: event.x,
-                            offsetY: event.y
-                        };
-                        this.clickDetected.call(this, position);}));
-        });
-
-        let pristine = true;
-        let repaints = 0;
-        this._ngZone.runOutsideAngular(() => {
+            let pristine = true;
+            let repaints = 0;
             const SVGContainer = this.SVGContainer;
+            this.SVGParent.call(this.drag
+                .on('start', () => {
+                    const event = d3.event;
+                    const position = {
+                        offsetX: event.x,
+                        offsetY: event.y
+                    };
+                    this.clickDetected.call(this, position)}));
+
+            let lastUpdateCall: any;
             this.SVGParent.call(this.zoom.on('zoom', (el: SVGSVGElement) => {
                 const e: any = d3.event;
                 if (pristine) {
@@ -179,11 +180,15 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                         }
                     }
                 }
-                this.svgPosition = e.transform;
-                requestAnimationFrame(() => {
-                    SVGContainer.attr('transform', e.transform.toString());
+            
+                if(lastUpdateCall) cancelAnimationFrame(lastUpdateCall);
+                lastUpdateCall = requestAnimationFrame(() => {
+                    this.svgPosition = e.transform;
+                    SVGContainer.attr('transform', e.transform.toString())
                 });
             })).on('dblclick.zoom', null);
+
+
          });
 
         this.workflowPositionSubscription = this.store.select(fromRoot.getWorkflowPosition).subscribe((position: any) => {
@@ -202,7 +207,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             const data = JSON.parse(JSON.stringify((this.entities.find((node: any) => {
                 return node.name === this.selectedEntity;
             }))));
-            data.name = this.editorService.getNewEntityName(data.name, this.entities.data);
+            data.name = this.editorService.getNewEntityName(data.name, this.entities);
             const newEntity: any = {
                 type: 'copy',
                 data: data
@@ -229,6 +234,27 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             this.store.dispatch(new wizardActions.CreateEntityAction(entity));
         }
         this.store.dispatch(new wizardActions.DeselectedCreationEntityAction());
+    }
+
+    createEdge(event: any) {
+        if(isMobile) {
+            this.newOrigin = event.name;
+            this.drawingConnectionStatus = {
+                status: true,
+                name: event.name
+            };
+            const w = this.documentRef
+            .on('click', () => {
+                w.on('click', null).on('click', null);
+                this.newOrigin = '';
+                event.event.target.classList.remove('over-output2');
+                this.drawingConnectionStatus = {
+                    status: false
+                };
+            })
+        } else {
+            this.drawConnector(event);
+        }
     }
 
     drawConnector(event: any) {

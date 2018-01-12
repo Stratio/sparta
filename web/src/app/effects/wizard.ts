@@ -179,6 +179,8 @@ export class WizardEffect {
             }).catch((error: any) => {
                 return Observable.of(new wizardActions.ValidateWorkflowErrorAction());
             });
+        }).catch((error: any) => {
+            return Observable.of(new wizardActions.ValidateWorkflowErrorAction());
         });
 
 

@@ -1,9 +1,10 @@
 :host {
-   min-height: 100%;
-   position:absolute;
-   background-color: #fafafa;
-   width: 100%;
-   display: block;
+    height: 100%;
+    position: fixed;
+    background-color: #fafafa;
+    width: 100%;
+    display: block;
+    overflow: auto;
 }
 
 .title {

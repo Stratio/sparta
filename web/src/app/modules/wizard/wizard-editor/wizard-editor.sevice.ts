@@ -48,7 +48,8 @@ export class WizardEditorService {
             if (entityData.stepType !== 'Output') {
                 entity.writer = this.initializeSchemaService.getDefaultWriterModel();
             }
-            entity.name = this.getNewEntityName(entityData.classPrettyName, entities);
+            console.log(entityData);
+            entity.name = this.getNewEntityName(entityData.data.classPrettyName, entities);
         } else {
             entity = this.initializeSchemaService.setDefaultEntityModel(entityData.value, entityData.stepType, true);
             entity.name = this.getNewEntityName(entityData.value.classPrettyName, entities);
@@ -59,7 +60,7 @@ export class WizardEditorService {
         if (errors && errors.length) {
             entity.hasErrors = true;
             entity.errors = errors;
-            entity.createdNew = true; // gray box
+            entity.createdNew = true; // grey box
         }
         entity.created = true; // shows created fadeIn animation
         return entity;

@@ -39,6 +39,9 @@
          ],
          "assets/*": [
              "./assets/*"
+         ],
+         "constants/*": [
+            "./app/modules/shared/constants/*"
          ]
       },
       "rootDir": ".",

@@ -14,7 +14,16 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, Input, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnInit,
+    Output
+} from '@angular/core';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { Subscription } from 'rxjs/Rx';
 import { FormControl } from '@angular/forms';
@@ -25,20 +34,32 @@ import { FormControl } from '@angular/forms';
     styleUrls: ['./menu-options.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MenuOptionsComponent implements OnInit {
+export class MenuOptionsComponent implements OnInit, AfterViewInit {
 
-    @Input() debounce: number = 200;
+    @Input() debounce = 200;
     @Input() menuOptions: Array<FloatingMenuModel>;
-    @Input() position: string = 'left';
+    @Input() position = 'left';
     @Input() search = false;
+    @Input() maxHeight = 1200;
     @Output() selectedOption = new EventEmitter<any>();
     @Output() searchChange = new EventEmitter<string>();
 
     public searchBox: FormControl = new FormControl();
-
+    public menuPosition = 0;
     public searchOption = '';
-    private subscriptionSearch: Subscription | undefined = undefined;
-    private subscriptionSearchClearButton: Subscription | undefined = undefined;
+    public maxHeightChild = 300;
+    private subscriptionSearch: Subscription;
+
+    public scrollTopEnabled = false;
+    public scrollBottomEnabled = false;
+    private scrollList: any;
+    private _scrollHandler: any;
+
+    ngAfterViewInit(): void {
+        setTimeout(() => {
+            this.scrollList = this.elementRef.nativeElement.querySelector('ul');
+        });
+    }
 
     selectOption(option: any) {
        this.selectedOption.emit(option);
@@ -48,13 +69,46 @@ export class MenuOptionsComponent implements OnInit {
         this.manageSubscription();
     }
 
-    showMenu(item: any) {
+    onScroll(event: any) {
+        this.scrollTopEnabled = event.srcElement.scrollTop > 0;
+        this.scrollBottomEnabled = (this.scrollList.offsetHeight + event.srcElement.scrollTop) + 1 < event.srcElement.scrollHeight;
+    }
+
+    showMenu(index: number, item: any, event: any) {
+        if (item.subMenus) {
+            this.menuPosition = event.srcElement.offsetTop;
+            this.maxHeightChild = window.innerHeight - event.srcElement.getBoundingClientRect().y - 30;
+        }
         item.active = true;
+    }
+
+    showArrows() {
+        this.scrollTopEnabled = this.scrollList.scrollTop > 0;
+        this.scrollBottomEnabled = (this.scrollList.offsetHeight + this.scrollList.scrollTop) < this.scrollList.scrollHeight;
     }
 
     hideMenu(item: any) {
         item.active =  false;
     }
+
+    scrollTop() {
+        this._scrollHandler = setInterval(() => {
+
+            this.scrollList.scrollTo(0, this.scrollList.scrollTop - 1);
+        }, 5);
+    }
+
+    scrollBottom() {
+        this._scrollHandler = setInterval(() => {
+
+            this.scrollList.scrollTo(0, this.scrollList.scrollTop + 1);
+        }, 4);
+    }
+
+    stopScroll() {
+        clearInterval(this._scrollHandler);
+    }
+
 
     private manageSubscription(): void {
         if (this.subscriptionSearch !== undefined) {
@@ -67,5 +121,6 @@ export class MenuOptionsComponent implements OnInit {
             .subscribe((event) => this.searchChange.emit(this.searchBox.value));
      }
 
-    constructor() { }
+    constructor(private elementRef: ElementRef) { }
+
 }

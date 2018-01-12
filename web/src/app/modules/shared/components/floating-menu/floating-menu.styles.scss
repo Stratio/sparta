@@ -16,7 +16,7 @@
 .menu-options {
    position: absolute;
    z-index: 10;
-   display: none;
+   display:none;
    top: 100%;
    margin-left: 3px;
    margin-top: 5px;
@@ -25,6 +25,6 @@
        right: 0;
    }
    &.active {
-      display: block;
+      display:block;
    }
 }

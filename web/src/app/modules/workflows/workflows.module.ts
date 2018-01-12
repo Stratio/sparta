@@ -21,7 +21,7 @@ import {
     WorkflowExecutionInfoComponent
 } from '.';
 import { SharedModule } from '@app/shared';
-import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule, StModalService } from '@stratio/egeo';
 
 @NgModule({
     declarations: [
@@ -42,7 +42,8 @@ import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, St
         SharedModule
     ],
     providers: [
-        WorkflowsService
+        WorkflowsService,
+        StModalService
     ]
 })
 

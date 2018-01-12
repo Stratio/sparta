@@ -23,6 +23,7 @@ import * as d3 from 'd3';
 import { ENTITY_BOX } from '../../wizard.constants';
 import { UtilsService } from '@app/shared/services/utils.service';
 import { icons } from '@app/shared/constants/icons';
+import {isMobile} from 'constants/global';
 
 
 @Component({
@@ -109,6 +110,9 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
     generateEntry() {
         const that = this;
         this.relationSelector.on('mousedown', function () {
+            if(that.drawingConnectionStatus.status) {
+                return;
+            }
             d3.select(this)
                 .classed('over-output2', true);
             that.onDrawConnector.emit({
@@ -131,6 +135,14 @@ export class WizardNodeComponent implements OnInit, OnDestroy, AfterContentInit 
                 }).on('mouseup', () => {
                     this.onFinishConnector.emit(this.data);
                 });
+
+                if(isMobile) {
+                    this.relationSelector.on('click', () => {
+                        if(this.drawingConnectionStatus.status && this.drawingConnectionStatus.name !== this.data.name) {
+                            this.onFinishConnector.emit(this.data);
+                        }
+                    });
+                }
 
         });
     }

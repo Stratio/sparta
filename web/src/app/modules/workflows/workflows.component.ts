@@ -183,10 +183,9 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         this.showExecutionInfo = false;
     }
 
-    showSparkUI(url:string) {
+    showSparkUI(url: string) {
         window.open(url, '_blank');
     }
-
 
     public ngOnDestroy(): void {
         this.workflowListSubscription && this.workflowListSubscription.unsubscribe();

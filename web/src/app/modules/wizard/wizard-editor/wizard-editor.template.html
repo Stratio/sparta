@@ -1,4 +1,4 @@
-<section>
+<section [ngClass]="{'mobile' : isMobile}">
    <wizard-header class="wizard-header" 
       (onZoomIn)="changeZoom(true)" 
       [isNodeSelected]="selectedEntity && selectedEntity.length" 
@@ -28,7 +28,7 @@
                [createdNew]="entity.createdNew"
                [selected]="selectedEntity === entity.name"
                [drawingConnectionStatus]="drawingConnectionStatus" 
-               (onDrawConnector)="drawConnector($event)" 
+               (onDrawConnector)="createEdge($event)" 
                (onFinishConnector)="finishConnector($event)"
                [(position)]="entity.uiConfiguration.position"
                (onDoubleClickEvent)="editEntity(entity)" 

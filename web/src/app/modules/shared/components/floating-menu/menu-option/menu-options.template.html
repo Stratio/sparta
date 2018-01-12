@@ -1,17 +1,27 @@
 <div class="menu" [ngClass]="{'right-position': position === 'right'}">
-   <ul>
-      <li class="search" *ngIf="search">
-         <input type="text" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
-         <span class="delete icon-cross" *ngIf="searchOption.length"></span>
-      </li>
-      <li class="item" *ngFor="let item of menuOptions;" (click)="!item.subMenus && selectOption(item)" [ngClass]="{'active' : item.active}">
-         <span>
-                <i [ngClass]="item.icon" *ngIf="item.icon" class="item-icon"></i>
-                {{item.name}}
-            </span>
-         <i class="icon-arrow2_right has-submenu" *ngIf="item.subMenus && item.subMenus.length"></i>
-         <menu-options [menuOptions]="item.subMenus" (selectedOption)="selectedOption.emit($event)" *ngIf="item.subMenus && item.subMenus.length"
-            class="submenu"></menu-options>
-      </li>
-   </ul>
+    <div class="scroll-button scroll-top" [style.opacity]="scrollTopEnabled ? 1 : 0" (mouseenter)="scrollTop()" (mouseleave)="stopScroll()">
+        <span class="icon-arrow2_up"></span>
+    </div>
+    <div class="hide-scrollbar">
+        <ul [style.maxHeight.px]="maxHeight" (scroll)="onScroll($event)" (mouseenter)="showArrows()">   
+            <li class="search" *ngIf="search">
+                <input type="text" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
+                <span class="delete icon-cross" *ngIf="searchOption.length"></span>
+            </li>
+            <li class="item" *ngFor="let item of menuOptions; let i = index;" (click)="!item.subMenus && selectOption(item)" 
+                (mouseenter)="showMenu(i, item, $event)" (mouseleave)="hideMenu(item)" [ngClass]="{'active' : item.active}">
+                <span>
+                    <i [ngClass]="item.icon" *ngIf="item.icon" class="item-icon"></i>
+                    {{item.name}}
+                </span>
+                <i class="icon-arrow2_right has-submenu" *ngIf="item.subMenus && item.subMenus.length"></i>
+                <menu-options [menuOptions]="item.subMenus" [maxHeight]="maxHeightChild" [style.top.px]="menuPosition"  (selectedOption)="selectedOption.emit($event)" *ngIf="item.subMenus && item.subMenus.length"
+                    class="submenu"></menu-options>
+            </li>
+        </ul>
+    </div>
+    <div class="scroll-button scroll-bottom" [style.opacity]="scrollBottomEnabled ? 1 : 0" (mouseenter)="scrollBottom()" (mouseleave)="stopScroll()">
+        <span class="icon-arrow2_down"></span>
+    </div>
 </div>
+

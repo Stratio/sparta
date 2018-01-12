@@ -138,3 +138,30 @@ sp-textarea {
     cursor:pointer;
 }
 
+.st-modal {
+    animation: ModalAnimation 0.3s!important;
+}
+
+@keyframes ModalAnimation {
+    0% {
+    opacity: 0;
+    transform: scale(0.8)
+    }
+    70% {
+    opacity: 1;
+    transform: scale(1.0)
+    }
+    100% {
+    opacity: 1;
+    transform: none;
+    }
+}
+
+.sth-header-container-fix-part{
+    max-width:200px!important;
+}
+
+.sth-header-user-menu-container{
+    max-width:200px!important;
+}
+
