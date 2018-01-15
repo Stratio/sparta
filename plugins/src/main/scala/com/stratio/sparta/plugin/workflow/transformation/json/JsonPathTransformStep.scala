@@ -30,7 +30,7 @@ import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.streaming.StreamingContext
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 abstract class JsonPathTransformStep[Underlying[Row]](
                                                        name: String,
@@ -40,8 +40,7 @@ abstract class JsonPathTransformStep[Underlying[Row]](
                                                        properties: Map[String, JSerializable]
                                                      )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
   extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow
-    with SchemaCasting {
+    with ErrorCheckingStepRow with SchemaCasting {
 
   lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
 
@@ -52,7 +51,7 @@ abstract class JsonPathTransformStep[Underlying[Row]](
   lazy val preservationPolicy: FieldsPreservationPolicy.Value = FieldsPreservationPolicy.withName(
     properties.getString("fieldsPreservationPolicy", "REPLACE").toUpperCase)
 
-  lazy val outputFieldsSchema = queriesModel.queries.map { queryField =>
+  lazy val outputFieldsSchema: Seq[StructField] = queriesModel.queries.map { queryField =>
     val outputType = queryField.`type`.notBlank.getOrElse("string")
     StructField(
       name = queryField.field,
@@ -66,7 +65,7 @@ abstract class JsonPathTransformStep[Underlying[Row]](
   assert(inputField.nonEmpty)
 
   override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+    applyHeadTransform(inputData) { (_, inputStream) =>
       inputStream.flatMap(data => parse(data))
     }
 
@@ -84,16 +83,25 @@ abstract class JsonPathTransformStep[Underlying[Row]](
               JsonPathTransformStep.jsonParse(new Predef.String(valueCast), queriesModel, supportNullValues)
             case valueCast: String =>
               JsonPathTransformStep.jsonParse(valueCast, queriesModel, supportNullValues)
+            case valueCast if valueCast == null =>
+              Map.empty[String, Any]
             case _ =>
               JsonPathTransformStep.jsonParse(value.toString, queriesModel, supportNullValues)
           }
           outputSchema.map { outputField =>
-            valuesParsed.get(outputField.name) match {
-              case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
-                castingToOutputSchema(outputField, valueParsed)
-              case _ =>
-                Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                  new Exception(s"Impossible to parse outputField: $outputField in the schema")))
+            Try {
+              valuesParsed.get(outputField.name) match {
+                case Some(valueParsed) if valueParsed != null | (valueParsed == null && supportNullValues) =>
+                  castingToOutputSchema(outputField, valueParsed)
+                case _ =>
+                  row.get(inputSchema.fieldIndex(outputField.name))
+              }
+            } match {
+              case Success(newValue) =>
+                newValue
+              case Failure(e) =>
+                returnWhenError(new Exception(s"Impossible to parse outputField: $outputField " +
+                  s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
             }
           }
         } else throw new Exception(s"The input value is empty")
@@ -101,6 +109,8 @@ abstract class JsonPathTransformStep[Underlying[Row]](
     }
     new GenericRowWithSchema(newValues.toArray, outputSchema)
   }
+
+  //scalastyle:on
 }
 
 object JsonPathTransformStep {
@@ -108,6 +118,9 @@ object JsonPathTransformStep {
   def jsonParse(jsonData: String, queriesModel: PropertiesQueriesModel, isLeafToNull: Boolean): Map[String, Any] = {
     val jsonPathExtractor = new JsonPathExtractor(jsonData, isLeafToNull)
 
-    queriesModel.queries.map(queryModel => (queryModel.field, jsonPathExtractor.query(queryModel.query))).toMap
+    //Delegate the error management to next step, when the outputFields is transformed
+    queriesModel.queries.flatMap { queryModel =>
+      Try((queryModel.field, jsonPathExtractor.query(queryModel.query))).toOption
+    }.toMap
   }
 }

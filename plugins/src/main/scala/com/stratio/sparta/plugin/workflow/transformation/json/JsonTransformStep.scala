@@ -53,11 +53,12 @@ abstract class JsonTransformStep[Underlying[Row]](
 
   lazy val schemaProvided: Option[String] = properties.getString("schema.provided", None)
 
-  lazy val jsonSchema: Option[StructType] = SchemaHelper.getJsonSparkSchema(useRowSchema, schemaInputMode, schemaProvided)
+  lazy val jsonSchema: Option[StructType] =
+    SchemaHelper.getJsonSparkSchema(useRowSchema, schemaInputMode, schemaProvided)
 
 
   override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+    applyHeadTransform(inputData) { (_, inputStream) =>
       inputStream flatMap { row =>
         returnSeqDataFromRow {
           val inputSchema = row.schema

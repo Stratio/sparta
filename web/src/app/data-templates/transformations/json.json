@@ -96,10 +96,6 @@
               {
                  "label": "Discard",
                  "value": "Discard"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
               }
            ],
            "qa": "workflow-transformation-json-whenError"

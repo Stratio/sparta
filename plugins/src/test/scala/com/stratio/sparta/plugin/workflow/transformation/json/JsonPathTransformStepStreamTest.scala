@@ -253,7 +253,7 @@ class JsonPathTransformStepStreamTest extends WordSpecLike with Matchers {
       assertResult(expected)(result)
     }
 
-    "parse when input is not found and return is error or discard" in {
+    "parse when input is not found and return is error" in {
       val JSON =
         """{ "store": {
           |    "bicycle": {
@@ -291,7 +291,51 @@ class JsonPathTransformStepStreamTest extends WordSpecLike with Matchers {
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       )
 
-      an[PathNotFoundException] should be thrownBy transform.parse(input)
+      an[Exception] should be thrownBy transform.parse(input)
+    }
+
+    "parse when input is not found and return null" in {
+      val JSON =
+        """{ "store": {
+          |    "bicycle": {
+          |      "color": "red"
+          |    }
+          |  }
+          |}""".stripMargin
+
+      val schema = StructType(Seq(StructField("json", StringType)))
+      val input = new GenericRowWithSchema(Array(JSON), schema)
+      val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+      val queries =
+        """[
+          |{
+          |   "field":"color",
+          |   "query":"$.store.bicycle.color",
+          |   "type":"string"
+          |},
+          |{
+          |   "field":"price",
+          |   "query":"$.store.bicycle.price",
+          |   "type":"double"
+          |}]
+          | """.stripMargin
+
+      val transform = new JsonPathTransformStepStream(
+        "json",
+        outputOptions,
+        null,
+        null,
+        Map("queries" -> queries.asInstanceOf[JSerializable],
+          "whenError" -> WhenError.Null,
+          "inputField" -> "json",
+          "supportNullValues" -> false,
+          "fieldsPreservationPolicy" -> "APPEND")
+      )
+      val result = transform.parse(input)
+      val expected = Seq(Row(JSON, "red", null))
+
+      assertResult(expected)(result)
+
     }
   }
 }
