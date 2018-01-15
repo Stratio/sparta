@@ -1,7 +1,7 @@
 {
    "name": "Datetime",
    "icon": "Datetime",
-   "className": "DateTimeTransformStep",
+   "className": "DateTimeTransformStepStream",
    "classPrettyName": "Datetime",
    "description": "Parses or creates a list of input field according to a given time format and returns all the obtained new fields or the selected ones",
    "properties": [

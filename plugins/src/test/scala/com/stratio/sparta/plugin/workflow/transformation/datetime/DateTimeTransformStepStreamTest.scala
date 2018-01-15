@@ -28,7 +28,7 @@ import java.io.{Serializable => JSerializable}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 
 @RunWith(classOf[JUnitRunner])
-class DateTimeTransformStepTest extends WordSpecLike
+class DateTimeTransformStepStreamTest extends WordSpecLike
   with Matchers {
 
   "A DateTimeTransform" should {
@@ -56,7 +56,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -88,7 +88,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -121,7 +121,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new DateTimeTransformStep(
+      an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
         null,
@@ -152,7 +152,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -182,7 +182,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -213,7 +213,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -247,7 +247,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |""".stripMargin
 
       val result =
-        new DateTimeTransformStep(
+        new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
           null,
@@ -278,7 +278,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new DateTimeTransformStep(
+      an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
         null,
@@ -306,7 +306,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new DateTimeTransformStep(
+      an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
         null,
@@ -334,7 +334,7 @@ class DateTimeTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new DateTimeTransformStep(
+      an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
         null,

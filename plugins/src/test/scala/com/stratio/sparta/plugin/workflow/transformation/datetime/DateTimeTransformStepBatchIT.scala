@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.datetime
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
@@ -28,12 +29,11 @@ import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class DateTimeTransformStepIT extends TemporalSparkContext with Matchers {
+class DateTimeTransformStepBatchIT extends TemporalSparkContext with Matchers {
 
   val inputField = Some("ts")
   val outputsFields = Seq("ts")
@@ -44,19 +44,17 @@ class DateTimeTransformStepIT extends TemporalSparkContext with Matchers {
   //scalastyle:off
   "A DateTimeTransform" should "parse unixMillis to string and add a Timestamp" in {
     val schema = StructType(Seq(StructField("eventID", StringType), StructField("creationDate", LongType)))
-    val schemaOutput= StructType(Seq(StructField("eventID", StringType), StructField("creationDate", StringType), StructField("timestamp", StringType)))
-    val dataQueue1 = new mutable.Queue[RDD[Row]]()
+    val schemaOutput = StructType(Seq(StructField("eventID", StringType), StructField("creationDate", StringType), StructField("timestamp", StringType)))
     val data1 = Seq(
-      new GenericRowWithSchema(Array("ADFGHJKGHG1325", 1416330799999L), schema),
-    new GenericRowWithSchema(Array("ADFGHJKGHG1325", 1416330799999L), schema)
+      new GenericRowWithSchema(Array("ADFGHJKGHG1325", 1416330799999L), schema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("ADFGHJKGHG1325", 1416330799999L), schema).asInstanceOf[Row]
     )
-    dataQueue1 += sc.parallelize(data1)
-    val stream1 = ssc.queueStream(dataQueue1)
-    val inputData = Map("step1" -> stream1)
+    val inputRdd = sc.parallelize(data1)
+    val inputData = Map("step1" -> inputRdd)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val dataDatetime = Seq(
       new GenericRowWithSchema(Array("ADFGHJKGHG1235", "1416330788000", ""), schemaOutput),
-      new GenericRowWithSchema(Array("ADFGHJKGHG1325", "1416330799999",""), schemaOutput)
+      new GenericRowWithSchema(Array("ADFGHJKGHG1325", "1416330799999", ""), schemaOutput)
     )
     val fieldsDatetime =
       """[
@@ -88,31 +86,21 @@ class DateTimeTransformStepIT extends TemporalSparkContext with Matchers {
         |}
         |]
         |""".stripMargin
-
-    val result = new DateTimeTransformStep(
+    val result = new DateTimeTransformStepBatch(
       "transformTimestamp",
       outputOptions,
       Some(ssc),
       sparkSession,
       Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable])
     ).transform(inputData)
-    val totalEvents = ssc.sparkContext.accumulator(0L, "Number of events received")
+    val streamingEvents = result.ds.count()
+    val streamingRegisters = result.ds.collect()
 
-    result.ds.foreachRDD(rdd => {
-      val streamingEvents = rdd.count()
-      log.info(s" EVENTS COUNT : \t $streamingEvents")
-      totalEvents += streamingEvents
-      log.info(s" TOTAL EVENTS : \t $totalEvents")
-      val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach{row =>
-          assert(row.size == 3)
-          assert(row.schema == dataDatetime.head.schema)
-        }
-    })
-    ssc.start()
-    ssc.awaitTerminationOrTimeout(3000L)
-    ssc.stop()
-    assert(totalEvents.value === 2)
+    streamingRegisters.foreach { row =>
+      assert(row.size == 3)
+      assert(row.schema == dataDatetime.head.schema)
     }
+    assert(streamingEvents === 2)
+
+  }
 }
