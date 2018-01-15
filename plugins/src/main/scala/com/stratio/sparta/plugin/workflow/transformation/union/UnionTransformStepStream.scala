@@ -19,7 +19,8 @@ package com.stratio.sparta.plugin.workflow.transformation.union
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -28,11 +29,23 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.collection.mutable
 
-abstract class UnionTransformStep[Underlying[Row]](
-                                                    name: String,
-                         outputOptions: OutputOptions,
-                         ssc: Option[StreamingContext],
-                         xDSession: XDSession,
-                         properties: Map[String, JSerializable]
-                                                  )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
+class UnionTransformStepStream(
+                                name: String,
+                                outputOptions: OutputOptions,
+                                ssc: Option[StreamingContext],
+                                xDSession: XDSession,
+                                properties: Map[String, JSerializable]
+                              ) extends UnionTransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
+    val streams = inputData.map { case (_, dStream) =>
+      dStream.ds
+    }.toSeq
+
+    streams.size match {
+      case 1 => streams.head
+      case x if x > 1 => ssc.get.union(streams)
+      case _ => ssc.get.queueStream(new mutable.Queue[RDD[Row]])
+    }
+  }
+}

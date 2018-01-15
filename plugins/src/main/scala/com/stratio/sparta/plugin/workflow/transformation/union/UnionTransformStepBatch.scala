@@ -19,20 +19,30 @@ package com.stratio.sparta.plugin.workflow.transformation.union
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-import scala.collection.mutable
+class UnionTransformStepBatch(
+                               name: String,
+                               outputOptions: OutputOptions,
+                               ssc: Option[StreamingContext],
+                               xDSession: XDSession,
+                               properties: Map[String, JSerializable]
+                             ) extends UnionTransformStep[RDD](name, outputOptions, ssc, xDSession, properties) {
 
-abstract class UnionTransformStep[Underlying[Row]](
-                                                    name: String,
-                         outputOptions: OutputOptions,
-                         ssc: Option[StreamingContext],
-                         xDSession: XDSession,
-                         properties: Map[String, JSerializable]
-                                                  )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
+  override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
+    val rdds = inputData.map { case (_, rdd) =>
+      rdd.ds
+    }.toSeq
+
+    rdds.size match {
+      case 1 => rdds.head
+      case x if x > 1 => xDSession.sparkContext.union(rdds)
+      case _ => xDSession.sparkContext.emptyRDD[Row]
+    }
+  }
+}

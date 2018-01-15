@@ -1,7 +1,7 @@
   {
      "name": "Union",
      "icon": "Union",
-     "className": "UnionTransformStep",
+     "className": "UnionTransformStepStream",
      "classPrettyName": "Union",
      "arity": ["NaryToNary"],
      "description": "Union two or more DStreams in one, it's mandatory that the Streams have the same fields",
