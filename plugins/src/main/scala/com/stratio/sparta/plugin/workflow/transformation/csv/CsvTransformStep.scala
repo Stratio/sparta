@@ -18,20 +18,19 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 import java.io.{Serializable => JSerializable}
 import java.util.regex.Pattern
 
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step._
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode._
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 abstract class CsvTransformStep[Underlying[Row]](
@@ -90,7 +89,10 @@ abstract class CsvTransformStep[Underlying[Row]](
 
   assert(inputField.nonEmpty)
 
-  def transformationFunction(inputSchema: String, inputStream: DistributedMonad[Underlying]): DistributedMonad[Underlying] =
+  def transformationFunction(
+                              inputSchema: String,
+                              inputStream: DistributedMonad[Underlying]
+                            ): DistributedMonad[Underlying] =
     inputStream.flatMap(data => parse(data))
 
 
@@ -127,21 +129,26 @@ abstract class CsvTransformStep[Underlying[Row]](
                 val valuesParsed = providedSchema.map(_.name).zip(valuesSplit).toMap
 
                 outputSchema.map { outputField =>
-                  valuesParsed.get(outputField.name) match {
-                    case Some(valueParsed) =>
-                      if (valueParsed == "null") null
-                      else castingToOutputSchema(outputField, valueParsed)
-                    case None =>
-                      Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                        new Exception(s"Impossible to parse outputField: $outputField in the schema")))
+                  Try {
+                    valuesParsed.get(outputField.name) match {
+                      case Some(valueParsed) =>
+                        if (valueParsed == "null") null
+                        else castingToOutputSchema(outputField, valueParsed)
+                      case None =>
+                        row.get(inputSchema.fieldIndex(outputField.name))
+                    }
+                  } match {
+                    case Success(newValue) =>
+                      newValue
+                    case Failure(e) =>
+                      returnWhenError(
+                        new Exception(s"Impossible to parse outputField: $outputField " +
+                          s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
                   }
                 }
-              }
-              else returnWhenError(new Exception(s"The number of values splitted does not match the number of " +
+              } else returnWhenError(new Exception(s"The number of values splitted does not match the number of " +
                 s"fields defined in the schema"))
-            }
-            else returnWhenError(new Exception(s"The input value is empty"))
-
+            } else returnWhenError(new Exception(s"The input value is empty"))
           case None =>
             returnWhenError(new Exception(s"The input value is null"))
         }
