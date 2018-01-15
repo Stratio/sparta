@@ -30,9 +30,9 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class IntersectionTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class IntersectionTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
-  "A IntersectionTransformStep" should "intersect DStreams" in {
+  "A IntersectionTransformStepStream" should "intersect DStreams" in {
 
     val dataQueue1 = new mutable.Queue[RDD[Row]]()
     val dataQueue2 = new mutable.Queue[RDD[Row]]()
@@ -44,7 +44,7 @@ class IntersectionTransformStepIT extends TemporalSparkContext with Matchers wit
     val stream2 = ssc.queueStream(dataQueue2)
     val inputData = Map("step1" -> stream1, "step2" -> stream2)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-    val result = new IntersectionTransformStep(
+    val result = new IntersectionTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),

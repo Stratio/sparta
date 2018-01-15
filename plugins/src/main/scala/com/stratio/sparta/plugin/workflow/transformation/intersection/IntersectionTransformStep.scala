@@ -30,29 +30,22 @@ import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.Try
 
-class IntersectionTransformStep(name: String,
+abstract class IntersectionTransformStep[Underlying[Row]](
+                                                           name: String,
                                 outputOptions: OutputOptions,
                                 ssc: Option[StreamingContext],
                                 xDSession: XDSession,
-                                properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+                                properties: Map[String, JSerializable]
+                                                         )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val partitions = properties.getInt("partitions", None)
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    assert(inputData.size == 2,
-      s"The intersection step $name must have two input steps, now have: ${inputData.keys}")
-
-    val (_, firstStream) = inputData.head
-    val (_, secondStream) = inputData.drop(1).head
-    val transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
-      case (rdd1, rdd2) =>
-        partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
-          rdd1.intersection(rdd2, numPartitions)
-        }
-    }
-
-    firstStream.ds.transformWith(secondStream.ds, transformFunc)
+  def transformFunc: (RDD[Row], RDD[Row]) => RDD[Row] = {
+    case (rdd1, rdd2) =>
+      partitions.fold(rdd1.intersection(rdd2)) { numPartitions =>
+        rdd1.intersection(rdd2, numPartitions)
+      }
   }
 }
 
