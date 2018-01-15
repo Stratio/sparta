@@ -1,7 +1,7 @@
   {
      "name": "Filter",
      "icon": "Filter",
-     "className": "FilterTransformStep",
+     "className": "FilterTransformStepStream",
      "classPrettyName": "Filter",
      "arity": ["UnaryToNary"],
      "description": "Filter the events in the input DStream",
