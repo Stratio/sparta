@@ -5,6 +5,9 @@
         <div class="sth-header-logo">
          <img src="assets/images/sparta_logo_header.svg" alt="Sparta"/>
       </div>
+      <div class="sth-header-user-menu">
+        <user-profile [userName]="userName" *ngIf="userName && userName.length"></user-profile>
+      </div>
    </st-header>
    <div class="content">
         <router-outlet></router-outlet>

@@ -95,7 +95,8 @@ export class InputsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_INPUT_MESSAGE_TITLE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_INPUT';
 
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, deleteTemplateModalMessageTitle]).subscribe(
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, 
+        deleteTemplateModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];

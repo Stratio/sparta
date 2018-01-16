@@ -1,0 +1,7 @@
+<form #groupForm="ngForm" novalidate autocomplete="off">
+    <sp-input label="Group name" [(ngModel)]="name" qaTag="group-name" class="st-form-field" required="true" name="name"></sp-input>
+</form>
+<div class="footer">
+    <button class="button button-secondary-gray" (click)="onCloseGroupModal.emit()">Cancel</button>
+    <button class="button button-primary" (click)="createGroup()">Save</button>
+</div>

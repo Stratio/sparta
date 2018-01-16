@@ -1,3 +1,4 @@
+import { SubscribeOnObservable } from 'rxjs/observable/SubscribeOnObservable';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -14,14 +15,12 @@
 /// limitations under the License.
 ///
 
-import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
-import { StHeaderMenuOption , StFooterLink, StAlertsService, STALERT_SEVERITY } from '@stratio/egeo';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { StHeaderMenuOption } from '@stratio/egeo';
 import { Store } from '@ngrx/store';
 import { MenuService } from './../shared/services/menu.service';
 import * as fromRoot from 'reducers';
 import { Subscription, Observable } from 'rxjs/Rx';
-import { CustomAlert } from 'app/models/alert.model';
-import { TranslateService } from '@ngx-translate/core';
 import { Router, NavigationStart } from '@angular/router';
 import * as errorsActions from 'actions/errors';
 
@@ -33,10 +32,12 @@ import * as errorsActions from 'actions/errors';
 
 export class LayoutComponent implements OnInit, OnDestroy {
 
+    public userName = '';
     public menu: Array<StHeaderMenuOption>;
     public showForbiddenError$: Observable<any>;
 
     private routeSubscription: Subscription;
+    private usernameSubscription: Subscription;
 
     constructor(private menuService: MenuService, private router: Router, private store: Store<fromRoot.State>) {
        this.routeSubscription = router.events.subscribe((event) => {
@@ -53,12 +54,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.menu = this.menuService.getMenu();
         this.showForbiddenError$ = this.store.select(fromRoot.showPersistentError);
+        this.usernameSubscription = this.store.select(fromRoot.getUsername).subscribe((userName: string) => {
+            this.userName = userName;
+        });
     }
 
     ngOnDestroy(): void { 
         this.routeSubscription && this.routeSubscription.unsubscribe();
+        this.usernameSubscription && this.usernameSubscription.unsubscribe();
     }
-
-
 
 }

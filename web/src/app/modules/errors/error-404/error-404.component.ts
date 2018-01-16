@@ -15,14 +15,12 @@
 ///
 
 import { Component } from '@angular/core';
-import { ConfigService } from "@app/core/config/config.service";
 
 @Component({
    templateUrl: 'error-404.template.html'
 })
 
 export class Error404Component {
-   constructor(public configService:ConfigService) { }
+   constructor() { }
 
-   public config:any = JSON.stringify(this.configService.config.API_URL);
 }

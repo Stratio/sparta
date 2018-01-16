@@ -2,7 +2,7 @@
    <div #inputsModal qaTag="input-modal"></div>
    <tool-bar>
       <div breadcrumb>
-         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="qaTag"></st-breadcrumbs>
+         <st-breadcrumbs [options]="breadcrumbOptions" (select)="breadcrumbMenuService.setRoute($event)" qaTag="templates-breadcrumb"></st-breadcrumbs>
       </div>
       <div selection-tools *ngIf="selectedTemplates.selected && selectedTemplates.selected.length">
          <button class="button button-toolbar" (click)="editTemplate(selectedTemplates.selected[0])" *ngIf="selectedTemplates.selected && selectedTemplates.selected.length == 1">
@@ -21,9 +21,6 @@
         </button>
          <button class="button button-toolbar" (click)="changeDisplayOption()" [ngClass]="{'selected-button': (selectedDisplayOption$ | async) === 'ROWS'}">
             <i class="icon-list"></i>
-        </button>
-         <button class="button button-toolbar">
-            <i class="icon-cog"></i>
         </button>
       </div>
    </tool-bar>
@@ -46,7 +43,7 @@
             </st-table>
          </div>
       </div>
-      <div class="box-list" *ngIf="(selectedDisplayOption$ | async) !== 'ROWS'">
+      <div class="box-list row" *ngIf="(selectedDisplayOption$ | async) !== 'ROWS'">
          <fragment-box *ngFor="let template of templateList | orderBy:orderBy:sortOrder; let i = index;" 
             (click)="checkRow(!(selectedTemplates.selectedIds.indexOf(template.id) > -1), template)"
             [fragmentData]="template" class="fragment" [isChecked]="selectedTemplates.selectedIds && selectedTemplates.selectedIds.indexOf(template.id) > -1"

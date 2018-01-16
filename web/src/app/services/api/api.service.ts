@@ -32,7 +32,6 @@ export interface ApiRequestOptions {
 @Injectable()
 export class ApiService {
 
-      private params: URLSearchParams = new URLSearchParams();
       private requestOptions: any = {};
 
       constructor(private http: HttpClient, private store: Store<fromRoot.State>) { }

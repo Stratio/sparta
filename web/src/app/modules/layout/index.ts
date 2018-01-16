@@ -16,3 +16,4 @@
 
 export * from './layout.component';
 export * from './layout.router';
+export * from './components/user-profile/user-profile.component';

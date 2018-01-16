@@ -14,7 +14,6 @@
 /// limitations under the License.
 ///
 
-import { ConfigService } from '@app/core';
 
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
@@ -28,7 +27,7 @@ import { HttpClient } from '@angular/common/http';
 @Injectable()
 export class EnvironmentService extends ApiService {
 
-    constructor(private _http: HttpClient, private configService: ConfigService, _store: Store<fromRoot.State>) {
+    constructor(private _http: HttpClient,  _store: Store<fromRoot.State>) {
         super(_http, _store);
     }
 

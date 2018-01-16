@@ -18,7 +18,6 @@ import { createSelector } from 'reselect';
 import { ActionReducer, combineReducers, createFeatureSelector } from '@ngrx/store';
 import { ActionReducerMap } from '@ngrx/store';
 
-import * as fromWorkflow from './workflow.reducer';
 import * as fromInput from './input';
 import * as fromOutput from './output';
 import * as fromTransformation from './transformation';
@@ -26,11 +25,12 @@ import * as fromBackups from './backups';
 import * as fromResources from './resources';
 import * as fromCrossdata from './crossdata';
 import * as fromAlerts from './alerts';
+import * as fromUser from './user';
 import * as fromWizard from './wizard';
 import * as fromEnvironment from './environment';
 
 export interface State {
-    workflows: fromWorkflow.State;
+    user: fromUser.State;
     inputList: fromInput.State;
     outputList: fromOutput.State;
     transformationList: fromTransformation.State;
@@ -43,7 +43,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-    workflows: fromWorkflow.reducer,
+    user: fromUser.reducer,
     inputList: fromInput.reducer,
     outputList: fromOutput.reducer,
     transformationList: fromTransformation.reducer,
@@ -62,7 +62,7 @@ export function reducer(state: any, action: any): any {
     return productionReducer(state, action);
 }
 
-export const getWorkflowsState: any = createFeatureSelector<fromWorkflow.State>('workflows');
+export const getUserState: any = (state: State) => state.user;
 export const getInputListState: any = createFeatureSelector<fromInput.State>('inputList');
 export const getOutputListState: any = createFeatureSelector<fromOutput.State>('outputList');
 export const getBackupsState: any = createFeatureSelector<fromBackups.State>('backups');
@@ -73,17 +73,6 @@ export const getWizardState: any = createFeatureSelector<fromWizard.State>('wiza
 export const getTransformationState: any = createFeatureSelector<fromTransformation.State>('transformationList');
 export const getEnvironmentState: any = createFeatureSelector<fromEnvironment.State>('environment');
 
-
-// workflows
-export const getWorkflowList: any = createSelector(getWorkflowsState, fromWorkflow.getWorkFlowList);
-export const getSelectedWorkflows: any = createSelector(getWorkflowsState, fromWorkflow.getSelectedWorkflows);
-export const getWorkflowSearchQuery: any = createSelector(getWorkflowsState, fromWorkflow.getSearchQuery);
-export const getDisplayOptions: any = createSelector(getWorkflowsState, fromWorkflow.getDisplayOptions);
-export const getSelectedDisplayOption: any = createSelector(getWorkflowsState, fromWorkflow.getSelectedDisplayOption);
-export const getWorkflowNameValidation: any = createSelector(getWorkflowsState, fromWorkflow.getWorkflowNameValidation);
-export const getReloadState: any = createSelector(getWorkflowsState, fromWorkflow.getReloadState);
-export const getWorkflowModalState: any = createSelector(getWorkflowsState, fromWorkflow.getWorkflowModalState);
-export const getExecutionInfo: any = createSelector(getWorkflowsState, fromWorkflow.getExecutionInfo);
 
 // inputs
 export const getInputList: any = createSelector(getInputListState, fromInput.getInputList);
@@ -155,3 +144,5 @@ export const isPristine: any = createSelector(getWizardState, fromWizard.isPrist
 // environment
 export const getEnvironmentList: any = createSelector(getEnvironmentState, fromEnvironment.getEnvironmentList);
 
+// user
+export const getUsername: any = createSelector(getUserState, fromUser.getUsername);

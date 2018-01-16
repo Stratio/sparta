@@ -153,7 +153,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             .wheelDelta(deltaFn);
 
         this.drag = d3.drag();
-        
+
         this._ngZone.runOutsideAngular(() => {
             let pristine = true;
             let repaints = 0;
@@ -180,8 +180,9 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                         }
                     }
                 }
-            
-                if(lastUpdateCall) cancelAnimationFrame(lastUpdateCall);
+                if (lastUpdateCall) {
+                    cancelAnimationFrame(lastUpdateCall);
+                }
                 lastUpdateCall = requestAnimationFrame(() => {
                     this.svgPosition = e.transform;
                     SVGContainer.attr('transform', e.transform.toString())

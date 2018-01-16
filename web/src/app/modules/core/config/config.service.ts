@@ -17,31 +17,22 @@
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
-
+import { Store } from '@ngrx/store';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+
+import * as fromRoot from 'reducers';
+import * as userActions from 'actions/user';
+import { GlobalConfigService } from 'app/services';
 
 @Injectable()
 export class ConfigService {
 
-   private _config:any;
+    constructor(private configService: GlobalConfigService, private _store: Store<fromRoot.State>) { }
 
-   constructor(private http:Http) { }
-
-   get config():any {
-      return this._config;
-   }
-
-   set config(data:any) {
-      this._config = data;
-   }
-
-   load(url:string):Promise<any> {
-      return this.http
-         .get(url)
-         .map((res:Response) => res.json())
-         .toPromise()
-         .then((data:any) => this.config = data)
-         .catch((err:any) => Promise.resolve());
-   }
+    load(): Promise<any> {
+        return this.configService.getConfig()
+            .toPromise()
+            .then((data: any) => this._store.dispatch(new userActions.GetUserProfileCompleteAction(data)))
+            .catch((err: any) => Promise.resolve());
+    }
 }

@@ -15,31 +15,45 @@
 ///
 
 import { NgModule } from '@angular/core';
+import { StoreModule } from '@ngrx/store';
 import { FormsModule } from '@angular/forms';
-import {
-    WorkflowsComponent, WorkflowsService, WorkflowCreationModal, WorkflowJsonModal,  WorkflowRoutingModule, WorkflowDetailComponent,
-    WorkflowExecutionInfoComponent
-} from '.';
-import { SharedModule } from '@app/shared';
+import { EffectsModule } from '@ngrx/effects';
 import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule, StModalService } from '@stratio/egeo';
 
+import { SharedModule } from '@app/shared';
+import {
+    WorkflowsComponent, WorkflowsService, WorkflowCreationModal, WorkflowJsonModal,  WorkflowRouterModule, WorkflowDetailComponent,
+    WorkflowExecutionInfoComponent, WorkflowGroupModal, WorkflowsHeaderContainer, WorkflowsHeaderComponent,
+    WorkflowsTableComponent, WorkflowsTableContainer
+} from '.';
+
+import { reducers } from './reducers';
+import { WorkflowEffect } from './effects/workflow';
+;
 @NgModule({
     declarations: [
         WorkflowsComponent,
         WorkflowCreationModal,
         WorkflowDetailComponent,
         WorkflowJsonModal,
-        WorkflowExecutionInfoComponent
+        WorkflowGroupModal,
+        WorkflowExecutionInfoComponent,
+        WorkflowsHeaderContainer,
+        WorkflowsHeaderComponent,
+        WorkflowsTableComponent,
+        WorkflowsTableContainer
     ],
     imports: [
         FormsModule,
+        StoreModule.forFeature('workflows', reducers),
+        EffectsModule.forFeature([WorkflowEffect]),
         StCheckboxModule,
         StHorizontalTabsModule,
         StTableModule,
         StBreadcrumbsModule,
-        StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal, WorkflowExecutionInfoComponent]),
-        WorkflowRoutingModule,
-        SharedModule
+        WorkflowRouterModule,
+        SharedModule,
+        StModalModule.withComponents([WorkflowCreationModal, WorkflowJsonModal, WorkflowExecutionInfoComponent, WorkflowGroupModal])
     ],
     providers: [
         WorkflowsService,

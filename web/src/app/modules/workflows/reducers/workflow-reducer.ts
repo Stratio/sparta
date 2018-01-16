@@ -15,10 +15,13 @@
 ///
 
 import { WorkflowListType } from 'app/models/workflow.model';
-import * as workflowActions from 'actions/workflow';
-import { orderBy } from '../utils';
+import * as workflowActions from '../actions/workflow-list';
+import { orderBy } from 'utils';
 
 export interface State {
+  currentLevel: string;
+  groups: Array<any>[];
+  createGroupModalOpen: boolean;
   workflowList: Array<WorkflowListType>;
   workflowFilteredList: Array<WorkflowListType>;
   searchQuery: String;
@@ -38,6 +41,9 @@ export interface State {
 }
 
 const initialState: State = {
+  currentLevel: 'default',
+  groups: [],
+  createGroupModalOpen: false,
   workflowList: [],
   workflowFilteredList: [],
   selectedWorkflows: [],
@@ -74,6 +80,26 @@ export function reducer(state: State = initialState, action: any): State {
       return Object.assign({}, state, {
         workflowList: action.payload,
         reload: true
+      });
+    }
+    case workflowActions.LIST_GROUPS_COMPLETE: {
+      return Object.assign({}, state, {
+        groups: action.payload
+      });
+    }
+    case workflowActions.CHANGE_GROUP_LEVEL: {
+      return Object.assign({}, state, {
+        currentLevel: action.payload
+      });
+    }
+    case workflowActions.INIT_CREATE_GROUP: {
+      return Object.assign({}, state, {
+        createGroupModalOpen: true
+      });
+    }
+    case workflowActions.CREATE_GROUP_COMPLETE: {
+      return Object.assign({}, state, {
+        createGroupModalOpen: false
       });
     }
     case workflowActions.REMOVE_WORKFLOW_SELECTION: {
@@ -178,9 +204,7 @@ export function reducer(state: State = initialState, action: any): State {
   }
 }
 
-export const getWorkFlowList: any = (state: State) => {
-  return orderBy(Object.assign([], state.workflowList), state.orderBy, state.sortOrder);
-};
+export const getWorkFlowList: any = (state: State) => orderBy(Object.assign([], state.workflowList), state.orderBy, state.sortOrder);
 export const getSelectedWorkflows: any = (state: State) => {
   return {
     selected: state.selectedWorkflows,
@@ -194,3 +218,19 @@ export const getWorkflowNameValidation: any = (state: State) => state.workflowNa
 export const getWorkflowModalState: any = (state: State) => state.modalOpen;
 export const getReloadState: any = (state: State) => state.reload;
 export const getExecutionInfo: any = (state: State) => state.executionInfo;
+export const getGroupsList: any = (state: State) => state.groups.filter((group: any) => {
+  if (group.name === state.currentLevel) {
+    return false;
+  }
+  if (state.currentLevel === 'default') {
+    return group.name.indexOf('#') === -1;
+  } else {
+      const split = group.name.split(state.currentLevel + '#');
+      return split.length === 2 && split[0] === '' && split[1].indexOf('#') === -1;
+  }
+}).map((group: any) => {
+  const split = group.name.split('#');
+  return Object.assign({}, group, {
+    label: split.length > 1 ? split[split.length - 1] : group.name
+  });
+});

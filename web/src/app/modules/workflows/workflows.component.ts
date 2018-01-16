@@ -19,16 +19,20 @@ import {
     ChangeDetectionStrategy
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { StTableHeader, StModalService } from '@stratio/egeo';
+import { StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
+
 import { WorkflowsService } from './workflows.service';
-import * as workflowActions from 'actions/workflow';
-import { State, getWorkflowList, getSelectedWorkflows, getWorkflowModalState, getExecutionInfo } from 'reducers';
-import { BreadcrumbMenuService } from 'services';
-import { ActivatedRoute, Router } from '@angular/router';
+import * as workflowActions from './actions/workflow-list';
+import { State,
+        getWorkflowList,
+        getSelectedWorkflows,
+        getExecutionInfo,
+        getWorkflowModalState } from './reducers';
 
 
 @Component({
+    selector: 'sparta-workflows',
     styleUrls: ['workflows.styles.scss'],
     templateUrl: 'workflows.template.html',
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -38,11 +42,9 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
     @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;
 
-    public title: string;
-    public fields: StTableHeader[] = this.workflowsService.getTableFields();
     public workflowList: any = [];
     public showDetails = false;
-    public workflowListSubscription: Subscription;
+
     public selectedWorkflows: any[] = [];
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
@@ -50,149 +52,77 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
     public executionInfo = '';
     public showExecutionInfo = false;
 
-    private modalSubscription: Subscription;
-    private executionInfoSubscription: Subscription;
-    private workflowSubscription: Subscription;
+    public groupList: Array<any>;
+    public currentLevel: string;
+
+    private _modalOpen$: Subscription;
+    private _executionInfo$: Subscription;
+    private _selectedWorkflows$: Subscription;
+    private _groupList$: Subscription;
+    private _workflowList$: Subscription;
+
     private timer: any;
 
-    constructor(private store: Store<State>, private _modalService: StModalService,
+    constructor(private _store: Store<State>, 
+        private _modalService: StModalService,
         public workflowsService: WorkflowsService,
-        private _cd: ChangeDetectorRef, public breadcrumbMenuService: BreadcrumbMenuService,
-        private route: Router, private currentActivatedRoute: ActivatedRoute) {
-        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
-    }
+        private _cd: ChangeDetectorRef) { }
 
     ngOnInit() {
-        this.workflowsService.setModalContainer(this.target);
-        this.store.dispatch(new workflowActions.ListWorkflowAction());
+        this._modalService.container = this.target;
+
+        this._store.dispatch(new workflowActions.ListGroupsAction());
+        this._store.dispatch(new workflowActions.ListWorkflowAction());
+
         this.updateWorkflowsStatus();
-        this.workflowListSubscription = this.store.select(getWorkflowList)
+        this._workflowList$ = this._store.select(getWorkflowList)
         .distinctUntilChanged()
         .subscribe((workflowList: any) => {
             this.workflowList = workflowList;
             this._cd.detectChanges();
         });
 
-        this.workflowSubscription = this.store.select(getSelectedWorkflows).subscribe((data: any) => {
+        this._selectedWorkflows$ = this._store.select(getSelectedWorkflows).subscribe((data: any) => {
             this.selectedWorkflows = data.selected;
             this.selectedWorkflowsIds = data.selectedIds;
-        });
-
-        this.modalSubscription = this.store.select(getWorkflowModalState).subscribe(() => {
-            this._modalService.close();
-            this.store.dispatch(new workflowActions.ResetJSONModal());
-        });
-
-        this.executionInfoSubscription = this.store.select(getExecutionInfo).subscribe((executionInfo: any) => {
-            this.executionInfo = executionInfo;
             this._cd.detectChanges();
         });
 
-        this.menuOptions = [{
-            name: 'New workflow from scratch',
-            value: 'scratch'
-        },
-        {
-            name: 'New workflow from json file',
-            value: 'file'
-        }];
+        this._modalOpen$ = this._store.select(getWorkflowModalState).subscribe(() => {
+            this._modalService.close();
+            this._store.dispatch(new workflowActions.ResetJSONModal());
+        });
+
+        this._executionInfo$ = this._store.select(getExecutionInfo).subscribe((executionInfo: any) => {
+            this.executionInfo = executionInfo;
+            this._cd.detectChanges();
+        });
     }
 
     updateWorkflowsStatus(): void {
-        this.timer = setInterval(() => this.store.dispatch(new workflowActions.UpdateWorkflowStatusAction()), 5000);
-    }
-
-    downloadWorkflows(): void {
-        this.store.dispatch(new workflowActions.DownloadWorkflowsAction(this.selectedWorkflows));
-    }
-
-    deleteWorkflows(): void {
-        this.workflowsService.deleteWorkflowConfirmModal(this.selectedWorkflows);
+        this.timer = setInterval(() => this._store.dispatch(new workflowActions.UpdateWorkflowStatusAction()), 5000);
     }
 
     showWorkflowInfo() {
         this.showDetails = !this.showDetails;
     }
 
-    editSelectedWorkflow($event: any, workflowId: string) {
-        $event.stopPropagation();
-        this.route.navigate(['wizard', workflowId]);
-    }
-
-    editWorkflow(): void {
-        this.route.navigate(['wizard', this.selectedWorkflows[0].id]);
-    }
-
-    changeOrder($event: any): void {
-        this.store.dispatch(new workflowActions.ChangeOrderAction({
-            orderBy: $event.orderBy,
-            sortOrder: $event.type
-        }));
-    }
-
-    selectedMenuOption(event: any) {
-        if (event.value === 'scratch') {
-            this.route.navigate(['wizard']);
-        } else {
-            this.workflowsService.showCreateJsonModal();
-        }
-    }
-
-    public runWorkflow(workflow: any): void {
-        const policyStatus = workflow.context.status;
-        if (policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
-            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished') {
-            const stopPolicy = {
-                'id': workflow.id,
-                'status': 'Stopping'
-            };
-            this.workflowsService.stopWorkflow(stopPolicy);
-
-        } else {
-            this.workflowsService.runWorkflow(workflow.id, workflow.name);
-        }
-    }
-
-    public showStopButton(policyStatus: string) {
-        return policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
-            policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished';
-    }
-
-    public showWorkflowExecutionInfo(workflowEvent: any) {
-        this.store.dispatch(new workflowActions.GetExecutionInfoAction({id:workflowEvent.id, name: workflowEvent.name}));
-    }
-
-    checkRow(isChecked: boolean, value: any) {
-        this.checkValue({
-            checked: isChecked,
-            value: value
-        });
-    }
-
-    checkValue($event: any) {
-        if ($event.checked) {
-            this.store.dispatch(new workflowActions.SelectWorkflowAction($event.value));
-        } else {
-            this.store.dispatch(new workflowActions.DeselectWorkflowAction($event.value));
-        }
+    showWorkflowExecutionInfo(workflowEvent: any) {
+        this._store.dispatch(new workflowActions.GetExecutionInfoAction({id: workflowEvent.id, name: workflowEvent.name}));
     }
 
     hideExecutionInfo() {
         this.showExecutionInfo = false;
     }
 
-    showSparkUI(url: string) {
-        window.open(url, '_blank');
-    }
-
     public ngOnDestroy(): void {
-        this.workflowListSubscription && this.workflowListSubscription.unsubscribe();
-        this.modalSubscription && this.modalSubscription.unsubscribe();
-        this.executionInfoSubscription && this.executionInfoSubscription.unsubscribe();
-        this.workflowSubscription && this.workflowSubscription.unsubscribe();
-        clearInterval(this.timer);
-        this.store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
+        this._workflowList$ && this._workflowList$.unsubscribe();
+        this._modalOpen$ && this._modalOpen$.unsubscribe();
+        this._executionInfo$ && this._executionInfo$.unsubscribe();
+        this._selectedWorkflows$ && this._selectedWorkflows$.unsubscribe();
+        this._groupList$ && this._groupList$.unsubscribe();
+
+        clearInterval(this.timer); // stop status requests
+        this._store.dispatch(new workflowActions.RemoveWorkflowSelectionAction());
     }
 }

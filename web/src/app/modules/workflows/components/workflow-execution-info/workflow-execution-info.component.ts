@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import * as workflowActions from 'actions/workflow';
+import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from 'reducers';
 import { StTableHeader, StHorizontalTab } from '@stratio/egeo';
 

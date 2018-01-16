@@ -16,6 +16,14 @@
 
 import { Action } from '@ngrx/store';
 
+export const LIST_GROUPS = '[Workflow] List groups';
+export const LIST_GROUPS_COMPLETE = '[Workflow] List groups complete';
+export const LIST_GROUPS_ERROR = '[Workflow] List groups error';
+export const INIT_CREATE_GROUP = '[Workflow] Init create group';
+export const CREATE_GROUP = '[Workflow] Create group';
+export const CREATE_GROUP_COMPLETE = '[Workflow] Create group complete';
+export const CREATE_GROUP_ERROR = '[Workflow] Create group error';
+export const CHANGE_GROUP_LEVEL = '[Workflow] Change group level';
 export const LIST_WORKFLOW = '[Workflow] List workflows';
 export const LIST_WORKFLOW_COMPLETE = '[Workflow] List workflows complete';
 export const LIST_WORKFLOW_FAIL = '[Workflow] List workflow fail';
@@ -51,6 +59,8 @@ export const GET_WORKFLOW_EXECUTION_INFO_ERROR = '[Worflow] Get Workflow executi
 export const CLOSE_WORKFLOW_EXECUTION_INFO = '[Worflow] Close workflow execution info';
 export const CHANGE_ORDER = '[Workflow] Change order';
 export const RESET_JSON_MODAL = '[Workflow] Reset JSON Modal';
+
+
 export class ListWorkflowAction implements Action {
   readonly type = LIST_WORKFLOW;
 }
@@ -61,8 +71,47 @@ export class ListWorkflowFailAction implements Action {
 
 export class ListWorkflowCompleteAction implements Action {
   readonly type = LIST_WORKFLOW_COMPLETE;
-
   constructor(public payload: any) { }
+}
+
+export class ChangeGroupLevelAction implements Action {
+  readonly type = CHANGE_GROUP_LEVEL;
+  constructor(public payload: any) { }
+}
+
+export class InitCreateGroupAction implements Action {
+    readonly type = INIT_CREATE_GROUP;
+    constructor() {}
+}
+
+export class CreateGroupAction implements Action {
+    readonly type = CREATE_GROUP;
+    constructor(public payload: any) { }
+}
+
+export class CreateGroupCompleteAction implements Action {
+    readonly type = CREATE_GROUP_COMPLETE;
+    constructor(public payload: any) { }
+}
+
+export class CreateGroupErrorAction implements Action {
+    readonly type = CREATE_GROUP_ERROR;
+    constructor(public payload: any) { }
+}
+
+export class ListGroupsAction implements Action {
+  readonly type = LIST_GROUPS;
+  constructor() { }
+}
+
+export class ListGroupsCompleteAction implements Action {
+  readonly type = LIST_GROUPS_COMPLETE;
+  constructor(public payload: any) { }
+}
+
+export class ListGroupsErrorAction implements Action {
+  readonly type = LIST_GROUPS_ERROR;
+  constructor() { }
 }
 
 export class SelectWorkflowAction implements Action {
@@ -243,6 +292,14 @@ export type Actions =
   ListWorkflowAction |
   ListWorkflowFailAction |
   ListWorkflowCompleteAction |
+  ListGroupsAction |
+  ListGroupsCompleteAction |
+  ListGroupsErrorAction |
+  ChangeGroupLevelAction |
+  InitCreateGroupAction |
+  CreateGroupAction |
+  CreateGroupCompleteAction |
+  CreateGroupErrorAction |
   SelectWorkflowAction |
   DeselectWorkflowAction |
   RemoveWorkflowSelectionAction |

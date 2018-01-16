@@ -18,7 +18,7 @@ import { NgModule } from '@angular/core';
 import { TemplatesComponent} from './templates.component';
 import { TemplatesRoutingModule } from './templates-routing.module';
 import { SharedModule } from '@app/shared';
-import { EgeoModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StTableModule, StCheckboxModule } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputsComponent } from './template-list/inputs.component';
 import { OutputsComponent } from './template-list/outputs.component';
@@ -26,7 +26,6 @@ import { TransformationsComponent } from './template-list/transformations.compon
 import { CreateInputComponent } from './template-creation/create-input.component';
 import { CreateOutputComponent } from './template-creation/create-output.component';
 import { CreateTransformationsComponent } from './template-creation/create-transformation.component';
-import { TemplatesBaseComponent } from './template-list/templates-base.component';
 
 @NgModule({
     declarations: [
@@ -39,12 +38,14 @@ import { TemplatesBaseComponent } from './template-list/templates-base.component
         CreateTransformationsComponent
     ],
     imports: [
-        EgeoModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
         SharedModule,
         TemplatesRoutingModule,
         SharedModule,
+        StBreadcrumbsModule,
+        StTableModule,
+        StCheckboxModule
     ]
 })
 export class TemplatesModule { }

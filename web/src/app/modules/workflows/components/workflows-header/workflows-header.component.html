@@ -1,0 +1,33 @@
+<tool-bar>
+   <div breadcrumb>
+      <st-breadcrumbs [options]="breadcrumbOptions" qaTag="workflows-breadcrumb"></st-breadcrumbs>
+   </div>
+   <div selection-tools *ngIf="selectedWorkflows.length">
+      <button class="button button-toolbar" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+        <i class="icon-stop" *ngIf="isRunning(selectedWorkflows[0].context.status)"></i>
+        <i class="icon-play" *ngIf="!isRunning(selectedWorkflows[0].context.status)"></i>
+      </button>
+      <button class="button button-toolbar" (click)="downloadWorkflows.emit()">
+            <i class="icon-download"></i>
+      </button>
+      <div class="separator"></div>
+      <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
+        <i class="icon-edit"></i>
+    </button>
+      <button class="button button-toolbar" (click)="deleteWorkflows()">
+        <i class="icon-trash"></i>
+    </button>
+   </div>
+   <div general-tools>
+      <floating-menu [menuOptions]="menuOptions" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
+         <div menu-action>
+            <button class="button button-toolbar">
+                <i class="icon-plus"></i>
+            </button>
+         </div>
+      </floating-menu>
+      <button class="button button-toolbar" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
+        <i class="icon-info1"></i>
+    </button>
+   </div>
+</tool-bar>

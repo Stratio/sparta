@@ -16,17 +16,19 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { EgeoModule } from '@stratio/egeo';
+import { StHeaderModule, StPopOverModule } from '@stratio/egeo';
 
-import { LayoutComponent, LayoutRouter } from '.';
+import { LayoutComponent, LayoutRouter, UserProfileComponent } from '.';
 import { SharedModule } from '@app/shared';
 
 @NgModule({
    declarations: [
-      LayoutComponent
+      LayoutComponent,
+      UserProfileComponent
    ],
    imports: [
-      EgeoModule,
+      StHeaderModule,
+      StPopOverModule,
       FormsModule,
       LayoutRouter,
       SharedModule

@@ -1,3 +1,4 @@
+import { last } from 'rxjs/operator/last';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -30,6 +31,7 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
 
     private clicks = 0;
     private element: any;
+    private lastUpdateCall: any;
 
     ngOnInit(): void {
         const value = 'translate(' + this.position.x + ',' + this.position.y + ')';
@@ -52,8 +54,12 @@ export class DraggableSvgDirective implements AfterContentInit, OnInit {
             x: this.position.x + event.dx,
             y: this.position.y + event.dy
         };
+        if (this.lastUpdateCall) {
+            cancelAnimationFrame(this.lastUpdateCall);
+            this.lastUpdateCall = null;
+        }
         this.positionChange.emit(this.position);
-        requestAnimationFrame(this.setPosition.bind(this));
+        this.lastUpdateCall = requestAnimationFrame(this.setPosition.bind(this));
     }
 
     setPosition() {

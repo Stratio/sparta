@@ -1,0 +1,11 @@
+<div #userProfile>
+   <st-pop-over qaTag="notifications-pop" [title]="'GLOBAL.USER_PROFILE.TITLE' | translate" [hidden]="!showUserProfileMenu"
+      [offset]="userMenuOffset">
+      <div pop-over-button>
+         <div [title]="userName" class="user-profile" (click)="toggleUserProfile()">{{userName.substring(0, 2).toUpperCase()}}</div>
+      </div>
+      <div pop-over-content class="user-profile-container">
+         <button class="button button-link-primary" (click)="logout()">{{'GLOBAL.USER_PROFILE.LOGOUT' | translate}}</button>
+      </div>
+   </st-pop-over>
+</div>

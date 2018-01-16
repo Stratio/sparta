@@ -17,7 +17,7 @@
 import * as backupsActions from 'actions/backups';
 import * as inputActions from 'actions/input';
 import * as outputActions from 'actions/output';
-import * as workflowActions from 'actions/workflow';
+import * as workflowActions from './../modules/workflows/actions/workflow-list';
 import * as wizardActions from 'actions/wizard';
 import * as errorsActions from 'actions/errors';
 import * as environmentActions from 'actions/environment';

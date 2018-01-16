@@ -14,24 +14,26 @@
 /// limitations under the License.
 ///
 
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { WorkflowsComponent } from './workflows.component';
+import * as userActions from 'actions/user';
 
-const workflowRoutes:Routes = [
-   {
-      path: '',
-      component: WorkflowsComponent
-   }
-];
+export interface State {
+    userName: string;
+}
 
-@NgModule({
-   exports: [
-      RouterModule
-   ],
-   imports: [
-      RouterModule.forChild(workflowRoutes)
-   ]
-})
+const initialState: State = {
+    userName: ''
+};
 
-export class WorkflowRoutingModule { }
+export function reducer(state: State = initialState, action: any): State {
+    switch (action.type) {
+        case userActions.GET_USER_PROFILE_COMPLETE: {
+            return Object.assign({}, state, {
+                userName: action.payload.userName
+            });
+        }
+        default:
+            return state;
+    }
+}
+
+export const getUsername: any = (state: State) => state.userName;

@@ -16,8 +16,13 @@
 
 export * from './workflows.component';
 export * from './workflows.service';
-export * from './resources-routing.module';
+export * from './workflows.router';
 export * from './components/workflow-creation-modal/workflow-creation-modal.component';
 export * from './components/workflow-json-modal/workflow-json-modal.component';
 export * from './components/workflow-detail/workflow-detail.component';
 export * from './components/workflow-execution-info/workflow-execution-info.component';
+export * from './components/workflow-group-modal/workflow-group-modal.component';
+export * from './components/workflows-header/workflows-header.component';
+export * from './components/workflows-header/workflows-header.container';
+export * from './components/workflows-table/workflows-table.component';
+export * from './components/workflows-table/workflows-table.container';

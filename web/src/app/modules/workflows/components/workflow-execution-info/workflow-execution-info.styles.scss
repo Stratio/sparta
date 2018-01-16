@@ -11,17 +11,18 @@
    overflow-y: auto;
 }
 
-.title {
-   font-size: $egeo-font-size-xxsmall;
-   font-weight: 600;
-   line-height: 1.43;
-   margin-top: 16px;
-   display: block;
-   color: #6c7b8b;
-}
-
-.values {
-   display: block;
+.spark-submit {
+    margin-top:20px;
+   .title {
+      font-size: $egeo-font-size-xxsmall;
+      font-weight: 600;
+      line-height: 1.43;
+      display: block;
+      color: #6c7b8b;
+   }
+   .values {
+      display: block;
+   }
 }
 
 .execution-info-container {
@@ -31,11 +32,11 @@
 
 .execution-header {
    width: 100%;
-   position:fixed;
-   top:0;
-   left:0;
-   width:100%;
-   z-index:1;
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   z-index: 1;
    background: #fff;
    padding: 20px 0;
    border-bottom: 1px solid #dedede;
@@ -74,6 +75,6 @@
 .info-tables {
    max-width: 500px;
    display: block;
-   margin-bottom:20px;
+   margin-bottom: 20px;
    margin-top: 50px;
 }

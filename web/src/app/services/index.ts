@@ -14,6 +14,7 @@
 /// limitations under the License.
 ///
 
+export * from './api/config.service';
 export * from './api/workflow.service';
 export * from './api/interceptor.service';
 export * from './api/environment.service';

@@ -15,19 +15,15 @@
 ///
 
 import { NgModule, ApplicationRef } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { INITIAL_STATE, Store } from '@ngrx/store';
-import { EgeoModule } from '@stratio/egeo';
 
 
 /* App Root */
 import { AppComponent } from './app.component';
-import { AppRouter } from './app.router';
-import { ConfigService, INITIALIZER, TRANSLATE_CONFIG } from '@app/core';
 import { AppState, InternalStateType } from './app.service';
 import { Error404Component } from '@app/errors/error-404/error-404.component';
 import { APP_IMPORTS } from 'app/app.imports';
 import { APP_PROVIDERS } from './app.providers';
+import { INITIALIZER } from '@app/core';
 
 type StoreType = {
    state: InternalStateType,
@@ -42,7 +38,8 @@ type StoreType = {
         ...APP_IMPORTS
     ],
     providers: [
-        ...APP_PROVIDERS
+        ...APP_PROVIDERS,
+        INITIALIZER
     ]
 })
 export class AppModule {

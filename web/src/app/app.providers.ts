@@ -18,6 +18,7 @@ import { ConfigService, INITIALIZER } from '@app/core';
 import {
     WorkflowService,
     ApiInterceptor,
+    GlobalConfigService,
     TemplatesService,
     BackupService,
     EnvironmentService,
@@ -42,6 +43,7 @@ export const APP_PROVIDERS: Array<any> = [
       useClass: ApiInterceptor,
       multi: true
     },
+    GlobalConfigService,
     WorkflowService,
     TemplatesService,
     BackupService,

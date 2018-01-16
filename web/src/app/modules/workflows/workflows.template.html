@@ -1,64 +1,10 @@
 <div [hidden]="executionInfo">
    <div #newWorkflowModal qaTag="workflow-modal"></div>
-   <tool-bar>
-      <div breadcrumb>
-         <st-breadcrumbs [options]="breadcrumbOptions" qaTag="qaTag"></st-breadcrumbs>
-      </div>
-      <div selection-tools *ngIf="selectedWorkflows.length">
-         <button class="button button-toolbar" (click)="runWorkflow(selectedWorkflows[0])" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
-            <i class="icon-stop" *ngIf="showStopButton(selectedWorkflows[0].context.status)"></i>
-            <i class="icon-play" *ngIf="!showStopButton(selectedWorkflows[0].context.status)"></i>
-        </button>
-         <button class="button button-toolbar" (click)="downloadWorkflows()">
-            <i class="icon-download"></i>
-        </button>
-         <div class="separator"></div>
-         <button class="button button-toolbar" (click)="editWorkflow()" *ngIf="selectedWorkflows.length && selectedWorkflows.length === 1">
-            <i class="icon-edit"></i>
-        </button>
-         <button class="button button-toolbar" (click)="deleteWorkflows()">
-            <i class="icon-trash"></i>
-        </button>
-      </div>
-      <div general-tools>
-         <floating-menu [menuOptions]="menuOptions" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
-            <div menu-action>
-               <button class="button button-toolbar">
-                    <i class="icon-plus"></i>
-                </button>
-            </div>
-         </floating-menu>
-         <button class="button button-toolbar" (click)="showWorkflowInfo()" [ngClass]="{'selected-button': showDetails}">
-            <i class="icon-info1"></i>
-        </button>
-         <!--<button class="button button-toolbar">
-            <i class="icon-cog"></i>
-        </button>-->
-      </div>
-   </tool-bar>
+   <workflows-header-container [showDetails]="showDetails" [selectedWorkflows]="selectedWorkflows" (showWorkflowInfo)="showWorkflowInfo()"></workflows-header-container>
    <div class="container">
       <div class="row">
          <div class="workflow-list">
-            <st-table [fields]="fields" [sortable]="true" qaTag="table-qa-tag" class="workflow-table" (changeOrder)="changeOrder($event)">
-               <tr st-table-row *ngFor="let workflow of workflowList; let i = index;" [selected]="selectedWorkflowsIds.indexOf(workflow.id) > -1"
-                   (click)="checkRow(!((selectedWorkflowsIds.indexOf(workflow.id)) > -1), workflow)">
-                  <td st-table-cell st-table-row-content class="check-column">
-                     <st-checkbox [value]="workflow" (change)="checkValue($event)" [checked]="selectedWorkflowsIds.indexOf(workflow.id) > -1"></st-checkbox>
-                  </td>
-                  <td st-table-cell st-table-row-content>
-                     <label class="workflow-link" (click)="editSelectedWorkflow($event, workflow.id)">{{workflow.name}}</label>
-                  </td>
-                    <td st-table-cell st-table-row-content>
-                     <label>{{workflow.executionEngine}}</label>
-                  </td>
-                  <td st-table-cell st-table-row-content>
-                     <label class="status-field" [ngClass]="workflow.context.status">{{(workflow.context && workflow.context.status) ? (('DASHBOARD.' + (workflow.context.status | uppercase)) | translate) : '-'}}</label>
-                  </td>
-                  <td st-table-cell st-table-row-content class="spark-link">
-                      <i class="icon-globe" (click)="showSparkUI(workflow.context.sparkURI)" *ngIf="workflow.context.sparkURI && workflow.context.sparkURI.length && workflow.context.status === 'Started'"></i>
-                  </td>
-               </tr>
-            </st-table>
+            <workflows-table-container [workflowList]="workflowList" [selectedWorkflowsIds]="selectedWorkflowsIds"></workflows-table-container>
          </div>
          <div class="workflow-detail-container">
             <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">

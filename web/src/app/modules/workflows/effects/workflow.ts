@@ -14,15 +14,14 @@
 /// limitations under the License.
 ///
 
-import { WorkflowService } from 'services/workflow.service';
 import { Injectable } from '@angular/core';
-import { Action, Store } from '@ngrx/store';
-
 import { Effect, Actions } from '@ngrx/effects';
+import { Action, Store } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 
-import * as workflowActions from 'actions/workflow';
-import * as fromRoot from 'reducers';
+import * as workflowActions from './../actions/workflow-list';
+import * as fromRoot from './../reducers';
+import { WorkflowService } from 'services/workflow.service';
 import { generateJsonFile } from 'utils';
 
 
@@ -45,6 +44,16 @@ export class WorkflowEffect {
                 return new workflowActions.ListWorkflowCompleteAction(workflows);
             }).catch((error: any) => {
                 return Observable.of(new workflowActions.ListWorkflowFailAction());
+            });
+        });
+
+    @Effect()
+    getWorkflowGroups$: Observable<Action> = this.actions$
+        .ofType(workflowActions.LIST_GROUPS).switchMap((response: any) => {
+            return this.workflowService.getGroups().map((groups) => {
+                return new workflowActions.ListGroupsCompleteAction(groups);
+            }).catch((error: any) => {
+                return Observable.of(new workflowActions.ListGroupsErrorAction());
             });
         });
 
@@ -142,10 +151,24 @@ export class WorkflowEffect {
                 return new workflowActions.GetExecutionInfoCompleteAction(response);
             }).catch(function (error) {
                 return Observable.of(new workflowActions.GetExecutionInfoErrorAction());
-
             });
         });
 
+    @Effect()
+    createGroup$: Observable<Action> = this.actions$
+        .ofType<workflowActions.CreateGroupAction>(workflowActions.CREATE_GROUP)
+        .mergeMap((data: any) => 
+            this.store.select(fromRoot.getCurrentGroupLevel)
+            .take(1)
+            .mergeMap((groupLevel) => {
+               const groupName = groupLevel === 'default' ? data.payload : groupLevel + '#' +  data.payload;
+            return this.workflowService.createGroup(groupName).mergeMap(() => {
+                return [new workflowActions.CreateGroupCompleteAction(''), new workflowActions.ListGroupsAction()];
+            }).catch(function (error) {
+                return Observable.of(new workflowActions.CreateGroupErrorAction(''));
+
+            });
+        }));
 
     constructor(
         private actions$: Actions,

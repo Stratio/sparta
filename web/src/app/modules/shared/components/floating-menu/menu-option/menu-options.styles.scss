@@ -13,7 +13,7 @@
    /*z-index: -1;*/
    position: absolute;
     &.right-position {
-      right: 0;
+          right: 100%;
       left: auto;
    }
 }
@@ -103,6 +103,12 @@ li.item {
       margin-top: 6px;
       margin-right: 10px;
    }
+    .has-submenu2 {
+      position: absolute;
+      left: 10px;
+      font-size: 12px;
+      top: 12px;
+   }
    .item-icon {
       font-size: 13px;
       margin-right: 5px;
@@ -122,6 +128,10 @@ li.item {
           visibility: visible;
       }
    }
+}
+
+.right-position {
+
 }
 
 

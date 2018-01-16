@@ -22,7 +22,11 @@
       "GREETINGS": "Hello World!",
       "RESOURCES": "Resources",
       "DISPLAY": "Display:",
-      "FILTER_PLACEHOLDER": "Filter by element..."
+      "FILTER_PLACEHOLDER": "Filter by element...",
+      "USER_PROFILE": {
+            "TITLE": "PROFILE",
+            "LOGOUT": "Log out"
+      }
    },
    "DASHBOARD": {
       "NEW_WORKFLOW": "New workflow",
@@ -37,6 +41,7 @@
       "UPLOAD_DRIVER": "Upload driver",
       "UPLOAD_PLUGIN": "Upload plugin",
       "JSON_TITLE": "Configuration from JSON",
+      "CREATE_GROUP_TITLE": "Create group",
       "CANCEL": "Cancel",
       "CREATE": "Create",
       "SAVE": "Save",

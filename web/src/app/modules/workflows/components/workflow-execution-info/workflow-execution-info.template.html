@@ -15,29 +15,34 @@
    </div>
    <div class="container">
       <div class="row info-data">
-         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-            <div class="title">
-               driverClass
-            </div>
-            <div class="values">
-               {{executionInfo.sparkSubmitExecution.driverClass}}
-
-            </div>
-         </div>
-         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-            <div class="title">
-               driverFile
-            </div>
-            <div class="values">
-               {{executionInfo.sparkSubmitExecution.driverFile}}
+         <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
+            <div class="row spark-submit">
+               <div class="title col-sm-3">
+                  driverClass
+               </div>
+               <div class="values col-sm-9">
+                  {{executionInfo.sparkSubmitExecution.driverClass}}
+               </div>
             </div>
          </div>
-         <div class="col-sm-6" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
-            <div class="title">
-               master
+         <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
+            <div class="row spark-submit">
+               <div class="title col-sm-3">
+                  driverFile
+               </div>
+               <div class="values col-sm-9">
+                  {{executionInfo.sparkSubmitExecution.driverFile}}
+               </div>
             </div>
-            <div class="values">
-               {{executionInfo.sparkSubmitExecution.master}}
+         </div>
+         <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
+            <div class="row spark-submit">
+               <div class="title col-sm-3">
+                  master
+               </div>
+               <div class="values col-sm-9">
+                  {{executionInfo.sparkSubmitExecution.master}}
+               </div>
             </div>
          </div>
          <div class="col-sm-12">
@@ -72,5 +77,4 @@
          </div>
       </div>
    </div>
-
 </section>

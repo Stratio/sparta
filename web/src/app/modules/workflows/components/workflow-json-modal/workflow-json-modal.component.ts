@@ -17,8 +17,8 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import * as workflowActions from 'actions/workflow';
-import * as fromRoot from 'reducers';
+import * as workflowActions from './../../actions/workflow-list';
+import * as fromRoot from './../../reducers';
 
 @Component({
     selector: 'workflow-json-modal',
@@ -44,7 +44,7 @@ export class WorkflowJsonModal implements OnInit {
 
     onChangedFile($event: string): void {
         try {
-            let parsedJson = JSON.parse($event);
+            const parsedJson = JSON.parse($event);
             this.model.name = parsedJson.name;
             this.model.description = parsedJson.description;
             this.model.json = JSON.stringify(JSON.parse($event), undefined, 3);
