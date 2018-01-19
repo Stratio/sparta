@@ -22,19 +22,19 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
-import org.apache.spark.sql.{Encoder, Row}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
-
-class SelectTransformStep(name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+abstract class SelectTransformStep[Underlying[Row]](
+                                                     name: String,
+                                                     outputOptions: OutputOptions,
+                                                     ssc: Option[StreamingContext],
+                                                     xDSession: XDSession,
+                                                     properties: Map[String, JSerializable]
+                                                   )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
   lazy val selectExpression: Option[String] = properties.getString("selectExp", None)
 
@@ -43,20 +43,14 @@ class SelectTransformStep(name: String,
   assert(selectExpression.isDefined,
     "It's mandatory one select expression, such as colA, colB as newName, abs(colC)")
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (_, inputDistributedMonad) =>
-      val inputStream = inputDistributedMonad.ds
-      selectExpression.fold(inputStream) { expression =>
-        inputStream.transform { rdd =>
-          if (rdd.isEmpty()) rdd
-          else {
-            val schema = rdd.first().schema
-            val df = xDSession.createDataFrame(rdd, schema)
+  def applySelect(rdd: RDD[Row], expression: String): RDD[Row] = {
+    if (rdd.isEmpty()) rdd
+    else {
+      val schema = rdd.first().schema
+      val df = xDSession.createDataFrame(rdd, schema)
 
-            df.selectExpr(expression.split(fieldsSeparator):_*).rdd
-          }
-        }
-      }
+      df.selectExpr(expression.split(fieldsSeparator): _*).rdd
     }
+  }
 }
 
