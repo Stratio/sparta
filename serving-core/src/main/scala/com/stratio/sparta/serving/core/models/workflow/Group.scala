@@ -16,4 +16,10 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-case class Group(name: String)
+object Group {
+  def isValid(group: Group): Boolean = {
+    val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
+    group.name.matches(regexGroups)
+  }
+}
+case class Group(id: Option[String], name: String)

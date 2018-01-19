@@ -17,17 +17,18 @@
 package com.stratio.sparta.serving.core.helpers
 
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
-import com.stratio.sparta.serving.core.models.workflow.{PipelineGraph, Settings, Workflow}
+import com.stratio.sparta.serving.core.models.workflow.{Group, PipelineGraph, Settings, Workflow}
 import org.junit.runner.RunWith
 import org.scalatest._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
+import com.stratio.sparta.serving.core.constants.AppConstant._
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowHelperTest extends WordSpec with ShouldMatchers with Matchers with MockitoSugar{
   "A WorkflowHelper" when{
     val wf = Workflow(Option("aaa"), "kafka-to-kafka", "Default description", mock[Settings],
-      mock[PipelineGraph], WorkflowExecutionEngine.Streaming, None,None,None, 2L ,"/home")
+      mock[PipelineGraph], WorkflowExecutionEngine.Streaming, None,None,None, 2L , DefaultGroup)
 
     "a multilevel group is passed" should{
       "parse it correctly" in {

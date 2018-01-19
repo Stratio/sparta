@@ -22,7 +22,7 @@ import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowQuery, WorkflowValidation, WorkflowVersion}
+import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
 import org.apache.curator.framework.CuratorFramework
@@ -129,9 +129,9 @@ class WorkflowActor(
       }
     }
 
-  def findAllByGroup(group: String, user: Option[LoggedUser]): Unit =
+  def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
-      Try(workflowService.findByGroup(group)).recover {
+      Try(workflowService.findByGroupID(groupID)).recover {
         case _: NoNodeException => Seq.empty[Workflow]
       }
     }
@@ -243,7 +243,7 @@ object WorkflowActor extends SLF4JLogging {
 
   case class Find(id: String, user: Option[LoggedUser])
 
-  case class FindAllByGroup(group: String, user: Option[LoggedUser])
+  case class FindAllByGroup(groupID: String, user: Option[LoggedUser])
 
   case class FindWithEnv(id: String, user: Option[LoggedUser])
 

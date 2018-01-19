@@ -19,8 +19,10 @@ package com.stratio.sparta.serving.api.actor
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
+import java.util
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.GroupActor._
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.DummySecurityTestClass
@@ -37,6 +39,7 @@ import org.mockito.Mockito._
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.mockito.stubbing.OngoingStubbing
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
@@ -55,19 +58,55 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
     val group =
       """
         | {
-        |  "name": "default"
+        |  "id" : "940800b2-6d81-44a8-84d9-26913a2faea4",
+        |  "name": "/home"
         |  }
       """.stripMargin
 
-    val groupTwo =
+    val groupWithoutID =
       """{
-        |  "name": "default2"
+        |  "name": "/home"
+        |}
+      """.stripMargin
+
+    val newGroupWithoutID =
+      """{
+        |  "name": "/home/test1"
+        |}
+      """.stripMargin
+
+    val newGroupInstance = Group(Some("a1234"), "/home/test1")
+
+    val newGroupInstanceJSON =
+      """
+        | {
+        |  "id" : "a1234",
+        |  "name": "/home/test1"
+        |  }
+      """.stripMargin
+
+    val updateGroupInstanceJSON =
+      """
+        | {
+        |  "id" : "a1234",
+        |  "name": "/home/test2"
+        |  }
+      """.stripMargin
+
+
+    val inexistentGroup =
+      """{
+        |"id" : "123456789",
+        |"name": "/home/ghost"
         |}
       """.stripMargin
 
     implicit val secManager = Option(new DummySecurityTestClass().asInstanceOf[SpartaSecurityManager])
     val groupElementModel = read[Group](group)
-    val groupTwoElementModel = read[Group](groupTwo)
+    val groupElementModelWithoutId = read[Group](groupWithoutID)
+    val newGroupElementModelWithoutId = read[Group](newGroupWithoutID)
+    val updateGroupModel = read[Group](updateGroupInstanceJSON)
+    val inexistentGroupElementModel = read[Group](inexistentGroup)
     val curatorFramework = mock[CuratorFramework]
     val getChildrenBuilder = mock[GetChildrenBuilder]
     val getDataBuilder = mock[GetDataBuilder]
@@ -80,13 +119,22 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
     lazy val groupActor = system.actorOf(Props(new GroupActor(curatorFramework)))
     implicit val timeout: Timeout = Timeout(15.seconds)
     CuratorFactoryHolder.setInstance(curatorFramework)
+
+    def mockListOfGroups: OngoingStubbing[util.List[String]] = {
+      when(curatorFramework.getChildren)
+        .thenReturn(getChildrenBuilder)
+      when(curatorFramework.getChildren
+        .forPath(s"${AppConstant.GroupZkPath}"))
+        .thenReturn(new util.ArrayList[String]() {
+          add("940800b2-6d81-44a8-84d9-26913a2faea4")})
+    }
   }
 
   override def afterAll: Unit = shutdown()
 
   val rootUser = Some(LoggedUser("1234", "root", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
   val limitedUser = Some(LoggedUser("4321", "limited", "dummyMail", "0", Seq.empty[String], Seq.empty[String]))
-  val defaultGroup = "default"
+  val defaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
 
   "GroupActor" must {
 
@@ -95,32 +143,55 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/group/default"))
+        .forPath(s"/stratio/sparta/sparta/group/${defaultGroup.id.get}"))
         .thenReturn(null)
 
-      groupActor ! GroupActor.FindGroup(defaultGroup, rootUser)
+      groupActor ! GroupActor.FindGroupByID(defaultGroup.id.get, rootUser)
       expectMsg(Left(Failure(new ServerException(s"No group found"))))
     }
 
-    "FindGroup: returns a error message when limitedUser attempts to get group" in new TestData {
-      groupActor ! GroupActor.FindGroup(defaultGroup, limitedUser)
-
+    "FindGroupByID: returns a error message when limitedUser attempts to get group" in new TestData {
+      groupActor ! GroupActor.FindGroupByID(defaultGroup.id.get, limitedUser)
       expectMsgAnyClassOf(classOf[Either[ResponseGroup, UnauthorizedResponse]])
     }
 
-    "FindGroup: returns the group" in new TestData {
+    "FindGroupByName: returns a error message when limitedUser attempts to get group" in new TestData {
+      mockListOfGroups
+      groupActor ! GroupActor.FindGroupByName(defaultGroup.name, limitedUser)
+      expectMsgAnyClassOf(classOf[Either[ResponseGroup, UnauthorizedResponse]])
+    }
+
+    "FindGroupByID: returns the group" in new TestData {
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/group/default"))
+        .forPath(s"/stratio/sparta/sparta/group/${defaultGroup.id.get}"))
         .thenReturn(new Stat())
       when(curatorFramework.getData)
         .thenReturn(getDataBuilder)
       when(curatorFramework.getData
-        .forPath("/stratio/sparta/sparta/group/default"))
+        .forPath(s"/stratio/sparta/sparta/group/${defaultGroup.id.get}"))
         .thenReturn(group.getBytes)
 
-      groupActor ! GroupActor.FindGroup(defaultGroup, rootUser)
+      groupActor ! GroupActor.FindGroupByID(defaultGroup.id.get, rootUser)
+      expectMsg(Left(Success(groupElementModel)))
+    }
+
+    "FindGroupByName: returns the group" in new TestData {
+      mockListOfGroups
+
+      when(curatorFramework.checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"/stratio/sparta/sparta/group/${defaultGroup.id.get}"))
+        .thenReturn(new Stat())
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"/stratio/sparta/sparta/group/${defaultGroup.id.get}"))
+        .thenReturn(group.getBytes)
+
+      groupActor ! GroupActor.FindGroupByName(defaultGroup.name, rootUser)
       expectMsg(Left(Success(groupElementModel)))
     }
 
@@ -128,7 +199,7 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
-        .forPath("/stratio/sparta/sparta/group/default"))
+        .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
         .thenReturn(null)
       when(curatorFramework.create)
         .thenReturn(createBuilder)
@@ -137,48 +208,72 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
         .thenReturn(protectedACL)
       when(curatorFramework.create
         .creatingParentsIfNeeded
-        .forPath("/stratio/sparta/sparta/group/default"))
-        .thenReturn(group)
+        .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
+        .thenReturn(newGroupInstanceJSON)
 
-      groupActor ! GroupActor.CreateGroup(groupElementModel, rootUser)
+      groupActor ! GroupActor.CreateGroup(newGroupElementModelWithoutId, rootUser)
 
-      expectMsg(Left(Success(groupElementModel)))
+      expectMsgPF() {
+        case Left(Success(x: Group)) => x.name.equals(newGroupInstance.name)
+      }
     }
 
-    "CreateGroup: tries to create a group but execute update because the group exists" in
+    "CreateGroup: tries to create a group but raise an exception because the group exists" in
       new TestData {
+        when(curatorFramework.getChildren)
+          .thenReturn(getChildrenBuilder)
+        when(curatorFramework.getChildren
+          .forPath(s"${AppConstant.GroupZkPath}"))
+          .thenReturn(new util.ArrayList[String]() {
+            add(newGroupInstance.id.get)
+          })
         when(curatorFramework.checkExists())
           .thenReturn(existsBuilder)
         when(curatorFramework.checkExists()
-          .forPath("/stratio/sparta/sparta/group/default"))
+          .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
           .thenReturn(new Stat())
-        when(curatorFramework.setData())
-          .thenReturn(setDataBuilder)
-        when(curatorFramework.setData()
-          .forPath("/stratio/sparta/sparta/group/default"))
-          .thenReturn(new Stat())
+        when(curatorFramework.getData)
+          .thenReturn(getDataBuilder)
+        when(curatorFramework.getData
+          .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
+          .thenReturn(newGroupInstanceJSON.getBytes)
 
-        groupActor ! GroupActor.CreateGroup(groupElementModel, rootUser)
-
-        expectMsg(Left(Success(groupElementModel)))
+        groupActor ! GroupActor.CreateGroup(newGroupElementModelWithoutId, rootUser)
+        expectMsg(Left(Failure(new ServerException(s"Unable to create group ${newGroupInstance.name}" +
+          s" because it already exists"))))
       }
 
     "UpdateGroup: update a group" in
       new TestData {
+        when(curatorFramework.getChildren)
+          .thenReturn(getChildrenBuilder)
+        when(curatorFramework.getChildren
+          .forPath(s"${AppConstant.GroupZkPath}"))
+          .thenReturn(new util.ArrayList[String]() {
+            add(newGroupInstance.id.get)
+          })
         when(curatorFramework.checkExists())
           .thenReturn(existsBuilder)
         when(curatorFramework.checkExists()
-          .forPath("/stratio/sparta/sparta/group/default"))
+          .forPath(s"/stratio/sparta/sparta/group/${updateGroupModel.id.get}"))
           .thenReturn(new Stat())
+        when(curatorFramework.getData)
+          .thenReturn(getDataBuilder)
+        when(curatorFramework.getData
+          .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
+          .thenReturn(newGroupInstanceJSON.getBytes)
         when(curatorFramework.setData())
           .thenReturn(setDataBuilder)
         when(curatorFramework.setData()
-          .forPath("/stratio/sparta/sparta/group/default", group.getBytes))
+          .forPath(s"/stratio/sparta/sparta/group/${updateGroupModel.id.get}", newGroupInstanceJSON.getBytes))
           .thenReturn(new Stat())
 
-        groupActor ! GroupActor.UpdateGroup(groupElementModel, rootUser)
 
-        expectMsg(Left(Success(groupElementModel)))
+        groupActor ! GroupActor.UpdateGroup(updateGroupModel, rootUser)
+
+        expectMsgPF() {
+          case Left(Success(x: Group)) => x.name.equals(updateGroupModel.name)
+        }
       }
 
     "UpdateGroup: tries to create a group but throw exception because the group not exists" in
@@ -189,12 +284,31 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
           .forPath("/stratio/sparta/sparta/group"))
           .thenReturn(null)
 
-        groupActor ! GroupActor.UpdateGroup(groupElementModel, rootUser)
+        groupActor ! GroupActor.UpdateGroup(inexistentGroupElementModel, rootUser)
 
-        expectMsg(Left(Failure(new ServerException("Unable to create group"))))
+        expectMsg(Left(Failure(
+          new ServerException(s"Unable to update group ${inexistentGroupElementModel.id.get}: group not found"))))
       }
 
-    "DeleteGroup: delete a group" in new TestData {
+    "DeleteGroupById: delete a group by its ID" in new TestData {
+      mockListOfGroups
+      when(curatorFramework.checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath("/stratio/sparta/sparta/group"))
+        .thenReturn(new Stat())
+      when(curatorFramework.delete)
+        .thenReturn(deleteBuilder)
+      when(curatorFramework.delete
+        .forPath("/stratio/sparta/sparta/group"))
+        .thenReturn(null)
+      groupActor ! GroupActor.DeleteGroupByID(defaultGroup.id.get, rootUser)
+
+      expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
+    }
+
+    "DeleteGroupByName: delete a group by its name" in new TestData {
+      mockListOfGroups
 
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
@@ -206,21 +320,20 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
       when(curatorFramework.delete
         .forPath("/stratio/sparta/sparta/group"))
         .thenReturn(null)
-
-      groupActor ! GroupActor.DeleteGroup(defaultGroup, rootUser)
+      groupActor ! GroupActor.DeleteGroupByName(defaultGroup.name, rootUser)
 
       expectMsgAnyClassOf(classOf[Either[Response, UnauthorizedResponse]])
     }
 
-    "DeleteGroup: delete a group and node not exists" in new TestData {
-
+    "DeleteGroup By ID: delete a group and node not exists" in new TestData {
+      mockListOfGroups
       when(curatorFramework.checkExists())
         .thenReturn(existsBuilder)
       when(curatorFramework.checkExists()
         .forPath("/stratio/sparta/sparta/group"))
         .thenReturn(null)
 
-      groupActor ! GroupActor.DeleteGroup(defaultGroup, rootUser)
+      groupActor ! GroupActor.DeleteGroupByID(defaultGroup.id.get, rootUser)
 
       expectMsg(Left(Failure(new ServerException("No group available to delete"))))
     }

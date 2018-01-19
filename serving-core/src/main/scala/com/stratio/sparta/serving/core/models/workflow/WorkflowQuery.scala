@@ -15,5 +15,8 @@
  */
 
 package com.stratio.sparta.serving.core.models.workflow
+import com.stratio.sparta.serving.core.constants.AppConstant._
 
-case class WorkflowQuery(name: String, version: Option[Long] = Option(0L), group: Option[String] = Option("default"))
+case class WorkflowQuery(name: String,
+                         version: Option[Long] = Option(0L),
+                         group: Option[String] = Option(DefaultGroup.id.get))

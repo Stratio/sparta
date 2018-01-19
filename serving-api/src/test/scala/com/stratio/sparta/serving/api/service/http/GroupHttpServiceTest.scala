@@ -69,18 +69,35 @@ class GroupHttpServiceTest extends WordSpec
     }
   }
 
-  "GroupHttpService.find" should {
+  "GroupHttpService.findByID" should {
     "find a group" in {
       startAutopilot(Left(Success(Seq(getGroupModel()))))
-      Get(s"/${HttpConstant.GroupsPath}/default") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[FindGroup]
+      Get(s"/${HttpConstant.GroupsPath}/findById/940800b2-6d81-44a8-84d9-26913a2faea4") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindGroupByID]
         responseAs[Group] should equal(getGroupModel())
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Get(s"/${HttpConstant.GroupsPath}/default") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[FindGroup]
+      Get(s"/${HttpConstant.GroupsPath}/findById/940800b2-6d81-44a8-84d9-26913a2faea4") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindGroupByID]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "GroupHttpService.findByName" should {
+    "find a group" in {
+      startAutopilot(Left(Success(Seq(getGroupModel()))))
+      Get(s"/${HttpConstant.GroupsPath}/findByName/home") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindGroupByName]
+        responseAs[Group] should equal(getGroupModel())
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Get(s"/${HttpConstant.GroupsPath}/findByName/home") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindGroupByName]
         status should be(StatusCodes.InternalServerError)
       }
     }
@@ -103,18 +120,37 @@ class GroupHttpServiceTest extends WordSpec
     }
   }
 
-  "GroupHttpService.delete" should {
+  "GroupHttpService.deleteById" should {
     "delete a group" in {
       startAutopilot(Left(Success(None)))
-      Delete(s"/${HttpConstant.GroupsPath}/default") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[DeleteGroup]
+      Delete(s"/${HttpConstant.GroupsPath}/deleteById/940800b2-6d81-44a8-84d9-26913a2faea4") ~> routes(rootUser) ~>
+        check {
+        testProbe.expectMsgType[DeleteGroupByID]
         status should equal(StatusCodes.OK)
       }
     }
     "return a 500 if there was any error" in {
       startAutopilot(Left(Failure(new MockException())))
-      Delete(s"/${HttpConstant.GroupsPath}/default") ~> routes(rootUser) ~> check {
-        testProbe.expectMsgType[DeleteGroup]
+      Delete(s"/${HttpConstant.GroupsPath}/deleteById/940800b2-6d81-44a8-84d9-26913a2faea4") ~> routes(rootUser) ~>
+        check {
+        testProbe.expectMsgType[DeleteGroupByID]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
+  "GroupHttpService.deleteByName" should {
+    "delete a group" in {
+      startAutopilot(Left(Success(None)))
+      Delete(s"/${HttpConstant.GroupsPath}/deleteByName/home") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[DeleteGroupByName]
+        status should equal(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.GroupsPath}/deleteByName/home") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[DeleteGroupByName]
         status should be(StatusCodes.InternalServerError)
       }
     }

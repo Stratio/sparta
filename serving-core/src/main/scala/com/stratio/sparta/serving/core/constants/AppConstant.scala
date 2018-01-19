@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.constants
 import akka.actor.ActorSystem
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.models.env.EnvironmentVariable
+import com.stratio.sparta.serving.core.models.workflow.Group
 import com.stratio.sparta.serving.core.utils.ZookeeperUtils
 
 import scala.util.Properties
@@ -60,7 +61,7 @@ object AppConstant extends ZookeeperUtils {
   val PreStopMarathonInterval = "preStopMarathonInterval"
   val DefaultPreStopMarathonInterval = "5s"
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
-  val DefaultGroup = "default"
+  val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"

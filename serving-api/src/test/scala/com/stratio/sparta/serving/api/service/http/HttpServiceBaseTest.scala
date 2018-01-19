@@ -77,7 +77,8 @@ trait HttpServiceBaseTest extends WordSpec
     Environment(Seq(EnvironmentVariable("foo", "var")))
 
   protected def getGroupModel(): Group =
-    Group("default")
+    Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
+
 
   protected def getEnvironmentVariableModel(): EnvironmentVariable =
     EnvironmentVariable("foo", "var")

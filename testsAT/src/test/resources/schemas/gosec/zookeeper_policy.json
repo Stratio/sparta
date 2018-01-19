@@ -33,7 +33,7 @@
             },
             {
             "resourceType": "zkNode",
-            "name": "/stratio/sparta-server",
+            "name": "/stratio/sparta",
             "recursive": true,
             "actions": [
             "Read",

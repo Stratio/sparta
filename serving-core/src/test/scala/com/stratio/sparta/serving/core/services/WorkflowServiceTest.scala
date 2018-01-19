@@ -31,6 +31,7 @@ import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
+import com.stratio.sparta.serving.core.constants.AppConstant._
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowServiceTest extends WordSpecLike
@@ -47,6 +48,7 @@ class WorkflowServiceTest extends WordSpecLike
   val deleteBuilder = mock[DeleteBuilder]
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
   val settings = mock[Settings]
+
   val nodes = Seq(
     NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
     NodeGraph("b", "Output", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
@@ -71,7 +73,9 @@ class WorkflowServiceTest extends WordSpecLike
       |  "description": "",
       |  "settings": {},
       |  "version": 0,
-      |  "group": "default",
+      |  "group": {
+      |   "name" : "/home",
+      |   "id" : "940800b2-6d81-44a8-84d9-26913a2faea4" },
       |  "pipelineGraph": {
       |    "nodes": [{
       |        "name": "kafka",
@@ -143,7 +147,9 @@ class WorkflowServiceTest extends WordSpecLike
       |"id": "wf2",
       |"name": "wfTest2",
       | "version": 0,
-      | "group": "default",
+      | "group": {
+      |   "name" : "/home",
+      |   "id" : "940800b2-6d81-44a8-84d9-26913a2faea4" },
       |"description": "",
       |"settings": {},
       |"pipelineGraph": {}
@@ -152,7 +158,8 @@ class WorkflowServiceTest extends WordSpecLike
   val groupRaw =
     """
       |{
-      |"name": "default"
+      |"name" : "/home",
+      |"id" : "940800b2-6d81-44a8-84d9-26913a2faea4"
       |}
     """.stripMargin
 
@@ -164,7 +171,7 @@ class WorkflowServiceTest extends WordSpecLike
 
     "existByName: returns an option wrapping a workflow with the matching name" in {
       existMock
-      val result = workflowService.exists("wfTest", 0L, "default")
+      val result = workflowService.exists("wfTest", 0L, DefaultGroup.id.get)
 
       result.get.name shouldBe "wfTest"
     }
@@ -201,7 +208,7 @@ class WorkflowServiceTest extends WordSpecLike
       mockListOfWorkflows
       mockFindByID
 
-      val result = workflowService.findByGroup("default")
+      val result = workflowService.findByGroupID(DefaultGroup.id.get)
 
       result shouldBe a[Seq[_]]
     }
@@ -334,13 +341,13 @@ class WorkflowServiceTest extends WordSpecLike
 
     def mockDefaultGroup: OngoingStubbing[Array[Byte]] = {
       when(curatorFramework.checkExists()
-        .forPath(s"${AppConstant.GroupZkPath}/default"))
+        .forPath(s"${AppConstant.GroupZkPath}/${DefaultGroup.id.get}"))
         .thenReturn(new Stat)
 
       when(curatorFramework.getData)
         .thenReturn(getDataBuilder)
       when(curatorFramework.getData
-        .forPath(s"${AppConstant.GroupZkPath}/default"))
+        .forPath(s"${AppConstant.GroupZkPath}/${DefaultGroup.id.get}"))
         .thenReturn(groupRaw.getBytes)
     }
 

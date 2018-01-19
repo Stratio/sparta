@@ -16,6 +16,8 @@
 
 package com.stratio.sparta.serving.api.service.http
 
+import javax.ws.rs.Path
+
 import akka.pattern.ask
 import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -39,8 +41,8 @@ trait GroupHttpService extends BaseHttpService {
     ErrorCodesMessages.getOrElse(GroupServiceUnexpected, UnknownError)
   )
 
-  override def routes(user: Option[LoggedUser] = None): Route = findAll(user) ~
-    update(user) ~ create(user) ~ deleteAll(user) ~ deleteByName(user) ~ find(user)
+  override def routes(user: Option[LoggedUser] = None): Route = create(user) ~ findAll(user) ~ findByID(user) ~
+    findByName(user) ~ deleteAll(user) ~ deleteById(user) ~ deleteByName(user) ~ update(user)
 
   @ApiOperation(value = "Finds all groups",
     notes = "Returns an groups list",
@@ -62,6 +64,35 @@ trait GroupHttpService extends BaseHttpService {
     }
   }
 
+  @Path("/findById/{id}")
+  @ApiOperation(value = "Finds an group by its name",
+    notes = "Find a group by its id",
+    httpMethod = "GET",
+    response = classOf[Group])
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "name of the group",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findByID(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.GroupsPath / "findById" / Segment) { (name) =>
+      get {
+        context =>
+          for {
+            response <- (supervisor ? FindGroupByID(name, user))
+              .mapTo[Either[Try[Group], UnauthorizedResponse]]
+          } yield getResponse(context, GroupServiceFindGroup, response, genericError)
+      }
+    }
+  }
+
+  @Path("/findByName/{name}")
   @ApiOperation(value = "Finds an group by its name",
     notes = "Find a group by its name",
     httpMethod = "GET",
@@ -77,12 +108,12 @@ trait GroupHttpService extends BaseHttpService {
     new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)
   ))
-  def find(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.GroupsPath / Segment) { (name) =>
+  def findByName(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.GroupsPath / "findByName" / Rest) { (name) =>
       get {
         context =>
           for {
-            response <- (supervisor ? FindGroup(name, user))
+            response <- (supervisor ? FindGroupByName(name, user))
               .mapTo[Either[Try[Group], UnauthorizedResponse]]
           } yield getResponse(context, GroupServiceFindGroup, response, genericError)
       }
@@ -108,8 +139,36 @@ trait GroupHttpService extends BaseHttpService {
     }
   }
 
-  @ApiOperation(value = "Deletes an group by its name",
-    notes = "Deletes an group by its name",
+  @Path("/deleteById/{id}")
+  @ApiOperation(value = "Deletes a group by its id",
+    notes = "Deletes a group by its id",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "id",
+      value = "id of the group",
+      dataType = "string",
+      required = true,
+      paramType = "path")
+  ))
+  @ApiResponses(
+    Array(new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)))
+  def deleteById(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.GroupsPath / "deleteById" / Segment) { (name) =>
+      delete {
+        complete {
+          for {
+            response <- (supervisor ? DeleteGroupByID(name, user))
+              .mapTo[Either[Try[Unit], UnauthorizedResponse]]
+          } yield deletePostPutResponse(GroupServiceDeleteGroup, response, genericError, StatusCodes.OK)
+        }
+      }
+    }
+  }
+
+  @Path("/deleteByName/{name}")
+  @ApiOperation(value = "Deletes a group by its name",
+    notes = "Deletes a group by its name",
     httpMethod = "DELETE")
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "name",
@@ -122,11 +181,11 @@ trait GroupHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def deleteByName(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.GroupsPath / Segment) { (name) =>
+    path(HttpConstant.GroupsPath / "deleteByName" / Segment) { (name) =>
       delete {
         complete {
           for {
-            response <- (supervisor ? DeleteGroup(name, user))
+            response <- (supervisor ? DeleteGroupByName(name, user))
               .mapTo[Either[Try[Unit], UnauthorizedResponse]]
           } yield deletePostPutResponse(GroupServiceDeleteGroup, response, genericError, StatusCodes.OK)
         }

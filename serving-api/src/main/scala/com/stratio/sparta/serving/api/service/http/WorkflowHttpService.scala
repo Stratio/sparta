@@ -81,13 +81,13 @@ trait WorkflowHttpService extends BaseHttpService {
     }
   }
 
-  @Path("/findAllByGroup/{group}")
-  @ApiOperation(value = "Find all workflows by group name",
+  @Path("/findAllByGroup/{groupID}")
+  @ApiOperation(value = "Find all workflows by group id",
     notes = "Find all workflows by group name",
     httpMethod = "GET",
     response = classOf[Array[Workflow]])
   @ApiImplicitParams(Array(
-    new ApiImplicitParam(name = "group",
+    new ApiImplicitParam(name = "groupID",
       value = "workflow group",
       dataType = "String",
       required = true,
@@ -98,11 +98,11 @@ trait WorkflowHttpService extends BaseHttpService {
       message = HttpConstant.NotFoundMessage)
   ))
   def findAllByGroup(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.WorkflowsPath / "findAllByGroup" / Segment) { group =>
+    path(HttpConstant.WorkflowsPath / "findAllByGroup" / Segment) { groupID =>
       get {
         context =>
           for {
-            response <- (supervisor ? FindAllByGroup(group, user))
+            response <- (supervisor ? FindAllByGroup(groupID, user))
               .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowServiceFindAllByGroup, response, genericError)
       }

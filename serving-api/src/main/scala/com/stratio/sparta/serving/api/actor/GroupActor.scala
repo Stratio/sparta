@@ -41,10 +41,12 @@ class GroupActor(val curatorFramework: CuratorFramework)
   override def receive: Receive = {
     case CreateGroup(request, user) => createGroup(request, user)
     case UpdateGroup(request, user) => updateGroup(request, user)
-    case FindGroup(name, user) => findGroup(name, user)
     case FindAllGroups(user) => findAllGroups(user)
-    case DeleteGroup(name, user) => deleteGroup(name, user)
+    case FindGroupByID(id, user) => findGroupByID(id, user)
+    case FindGroupByName(name, user) => findGroupByName(name, user)
     case DeleteAllGroups(user) => deleteAllGroups(user)
+    case DeleteGroupByID(id, user) => deleteGroupByID(id, user)
+    case DeleteGroupByName(name, user) => deleteGroupByName(name, user)
     case Initialize => groupService.initialize()
     case _ => log.info("Unrecognized message in Group Actor")
   }
@@ -62,9 +64,14 @@ class GroupActor(val curatorFramework: CuratorFramework)
       groupService.update(request)
     }
 
-  def findGroup(name: String, user: Option[LoggedUser]): Unit =
+  def findGroupByName(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceGroupType -> View)) {
-      groupService.find(name)
+      groupService.findByName(name)
+    }
+
+  def findGroupByID(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceGroupType -> View)) {
+      groupService.findByID(id)
     }
 
   def findAllGroups(user: Option[LoggedUser]): Unit =
@@ -77,9 +84,14 @@ class GroupActor(val curatorFramework: CuratorFramework)
       groupService.deleteAll()
     }
 
-  def deleteGroup(name: String, user: Option[LoggedUser]): Unit =
+  def deleteGroupByName(name: String, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceGroupType -> Delete, ResourceWorkflowType -> Delete)) {
-      groupService.delete(name)
+      groupService.deleteByName(name)
+    }
+
+  def deleteGroupByID(id: String, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer(user, Map(ResourceGroupType -> Delete, ResourceWorkflowType -> Delete)) {
+      groupService.deleteById(id)
     }
 }
 
@@ -89,13 +101,18 @@ object GroupActor {
 
   case class CreateGroup(request: Group, user: Option[LoggedUser])
 
-  case class DeleteGroup(name: String, user: Option[LoggedUser])
-
   case class DeleteAllGroups(user: Option[LoggedUser])
 
-  case class FindGroup(name: String, user: Option[LoggedUser])
+  case class DeleteGroupByID(id: String, user: Option[LoggedUser])
+
+  case class DeleteGroupByName(name: String, user: Option[LoggedUser])
 
   case class FindAllGroups(user: Option[LoggedUser])
+
+  case class FindGroupByID(id: String, user: Option[LoggedUser])
+
+  case class FindGroupByName(name: String, user: Option[LoggedUser])
+
 
   case object Initialize
 

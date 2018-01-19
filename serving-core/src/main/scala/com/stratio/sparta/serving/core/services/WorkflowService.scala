@@ -51,14 +51,14 @@ class WorkflowService(
   }
 
   def find(query: WorkflowQuery): Workflow =
-    exists(query.name, query.version.getOrElse(0L), query.group.getOrElse(DefaultGroup))
+    exists(query.name, query.version.getOrElse(0L), query.group.getOrElse(DefaultGroup.id.get))
       .getOrElse(throw new ServerException(s"No workflow with name ${query.name}"))
 
   def findList(query: WorkflowsQuery): Seq[Workflow] =
-    existsList(query.group.getOrElse(DefaultGroup), query.tags)
+    existsList(query.group.getOrElse(DefaultGroup.id.get), query.tags)
 
-  def findByGroup(group: String): Seq[Workflow] =
-    existsList(group)
+  def findByGroupID(groupId: String): Seq[Workflow] =
+    existsList(groupId)
 
   def findByIdList(workflowIds: Seq[String]): List[Workflow] = {
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
@@ -230,7 +230,7 @@ class WorkflowService(
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.find { workflow =>
-          workflow.name == name && workflow.version == version && workflow.group == group
+          workflow.name == name && workflow.version == version && workflow.group.id.get == group
         }
       } else None
     } match {
@@ -240,11 +240,11 @@ class WorkflowService(
         None
     }
 
-  private[sparta] def existsList(group: String, tags: Seq[String] = Seq.empty[String]): Seq[Workflow] =
+  private[sparta] def existsList(groupId: String, tags: Seq[String] = Seq.empty[String]): Seq[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>
-          workflow.group == group &&
+          workflow.group.id.get == groupId &&
             (workflow.tag.isEmpty || (workflow.tag.isDefined && tags.contains(workflow.tag.get)))
         }
       } else Seq.empty[Workflow]
@@ -290,7 +290,7 @@ class WorkflowService(
   private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
     workflow.copy(lastUpdateDate = Some(new DateTime()))
 
-  private[sparta] def workflowVersions(name: String, group: String): Seq[Workflow] =
+  private[sparta] def workflowVersions(name: String, group: Group): Seq[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>
