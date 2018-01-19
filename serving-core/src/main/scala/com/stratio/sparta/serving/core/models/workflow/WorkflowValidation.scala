@@ -36,22 +36,33 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
   val InputMessage = "input"
   val OutputMessage = "output"
 
+  /**A group name is correct if and only if:
+    * 1) there are no two or more consecutives /
+    * 2) it starts with /home (the default root)
+    * 3) the group name has no Uppercase letters or other special characters (except / and -)
+  */
+  val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
+
+  // A Workflow name should not contain special characters and Uppercase letters (because of DCOS deployment)
+  val regexName = "^[a-z0-9-]*"
+
   def validateGroupName(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
     if (curator.isEmpty) this
     else {
       val groupService = new GroupService(curator.get)
-      val groupInZk = groupService.findByID(workflow.group.id.get)
-      if(groupInZk.toOption.isDefined) this
+      val groupInZk = groupService.findByID(workflow.group.id.get).toOption
+      if (groupInZk.isDefined && groupInZk.get.name.matches(regexGroups))
+        this
       else {
-        val msg = messages :+ "The workflow group not exists"
+        val msg = messages :+ "The workflow group not exists or is invalid"
         copy(valid = false, messages = msg)
       }
     }
   }
 
   def validateName(implicit workflow: Workflow): WorkflowValidation = {
-    if (workflow.name.nonEmpty) this
-    else copy(valid = false, messages = messages :+ "The workflow name is empty")
+    if (workflow.name.nonEmpty && workflow.name.matches(regexName)) this
+    else copy(valid = false, messages = messages :+ "The workflow name is empty or invalid")
   }
 
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =

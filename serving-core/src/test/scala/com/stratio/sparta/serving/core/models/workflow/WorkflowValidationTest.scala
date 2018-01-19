@@ -16,11 +16,18 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import java.util.UUID
+
 import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
 import com.stratio.sparta.serving.core.services.WorkflowValidatorService
+import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.api.{ExistsBuilder, GetDataBuilder}
+import org.apache.zookeeper.data.Stat
 import org.junit.runner.RunWith
+import org.mockito.Mockito.when
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
@@ -311,6 +318,88 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
 
       val result = new WorkflowValidation().validateExistenceCorrectPath
 
+      result.valid shouldBe false
+    }
+
+    "validate a graph if the group is correct" in {
+      val invalidGroupJSON =
+        """
+          | {
+          |  "id" : "aaaaa",
+          |  "name": "/home/test1"
+          |  }
+        """.stripMargin
+      val invalidGroup= Group(Some("aaaaa"),"/home/test1")
+      implicit val workflow = emptyWorkflow.copy(group= invalidGroup)
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val curatorFramework = mock[CuratorFramework]
+      val existsBuilder = mock[ExistsBuilder]
+      val getDataBuilder = mock[GetDataBuilder]
+
+      CuratorFactoryHolder.setInstance(curatorFramework)
+
+      when(curatorFramework.checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
+        .thenReturn(new Stat())
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
+        .thenReturn(invalidGroupJSON.getBytes)
+
+      val result = new WorkflowValidation().validateGroupName(workflow, Some(curatorFramework))
+
+      result.valid shouldBe true
+    }
+
+    "not validate a graph if the group is not correct" in {
+      val invalidGroupJSON =
+        """
+          | {
+          |  "id" : "aaaaa",
+          |  "name": "/home//"
+          |  }
+        """.stripMargin
+      val invalidGroup= Group(Some("aaaaa"),"/home//")
+      implicit val workflow = emptyWorkflow.copy(group= invalidGroup)
+      implicit val graph = GraphHelper.createGraph(workflow)
+
+      val curatorFramework = mock[CuratorFramework]
+      val existsBuilder = mock[ExistsBuilder]
+      val getDataBuilder = mock[GetDataBuilder]
+
+      CuratorFactoryHolder.setInstance(curatorFramework)
+
+      when(curatorFramework.checkExists())
+        .thenReturn(existsBuilder)
+      when(curatorFramework.checkExists()
+        .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
+        .thenReturn(new Stat())
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"/stratio/sparta/sparta/group/${invalidGroup.id.get}"))
+        .thenReturn(invalidGroupJSON.getBytes)
+
+      val result = new WorkflowValidation().validateGroupName(workflow, Some(curatorFramework))
+
+      result.valid shouldBe false
+    }
+
+    "validate a correct workflow name" in {
+      val pipeline = PipelineGraph(nodes , edges)
+      implicit val workflow = emptyWorkflow.copy(name="workflow-correct", pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateName
+      result.valid shouldBe true
+    }
+
+    "not validate an incorrect workflow name" in {
+      val pipeline = PipelineGraph(nodes , edges)
+      implicit val workflow = emptyWorkflow.copy(name="workflow-Incorrect!", pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateName
       result.valid shouldBe false
     }
   }

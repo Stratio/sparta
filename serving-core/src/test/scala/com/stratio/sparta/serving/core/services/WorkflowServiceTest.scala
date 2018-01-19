@@ -62,14 +62,14 @@ class WorkflowServiceTest extends WordSpecLike
   val workflowService = new WorkflowService(curatorFramework)
   val workflowID = "wf1"
   val newWorkflowID = "wf2"
-  val testWorkflow =  Workflow(Option(workflowID),"wfTest","", settings , pipeGraph)
-  val newWorkflow = Workflow(Option(newWorkflowID),"wfTest2","", settings , pipeGraph)
-  val wrongWorkflow = Workflow(Option(newWorkflowID),"wfTest3","", settings ,wrongPipeGraph)
+  val testWorkflow =  Workflow(Option(workflowID),"wf-test","", settings , pipeGraph)
+  val newWorkflow = Workflow(Option(newWorkflowID),"wf-test2","", settings , pipeGraph)
+  val wrongWorkflow = Workflow(Option(newWorkflowID),"wf-test3","", settings ,wrongPipeGraph)
 
   val workflowRaw =
     """{
       |  "id": "wf1",
-      |  "name": "wfTest",
+      |  "name": "wf-test",
       |  "description": "",
       |  "settings": {},
       |  "version": 0,
@@ -145,7 +145,7 @@ class WorkflowServiceTest extends WordSpecLike
     """
       |{
       |"id": "wf2",
-      |"name": "wfTest2",
+      |"name": "wf-test2",
       | "version": 0,
       | "group": {
       |   "name" : "/home",
@@ -171,9 +171,9 @@ class WorkflowServiceTest extends WordSpecLike
 
     "existByName: returns an option wrapping a workflow with the matching name" in {
       existMock
-      val result = workflowService.exists("wfTest", 0L, DefaultGroup.id.get)
+      val result = workflowService.exists("wf-test", 0L, DefaultGroup.id.get)
 
-      result.get.name shouldBe "wfTest"
+      result.get.name shouldBe "wf-test"
     }
 
     "existById: returns an option wrapping a workflow with the matching ID" in {

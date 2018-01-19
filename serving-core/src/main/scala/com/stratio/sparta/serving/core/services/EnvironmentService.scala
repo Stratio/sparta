@@ -174,7 +174,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             groupService.deleteAll()
             workflowService.deleteAll()
             templateService.deleteAll()
-            initialGroups.foreach(groupService.create)
+            initialGroups.foreach(groupService.create(_))
             initialTemplates.foreach(templateService.create)
             initialWorkflows.foreach(workflowService.create)
           }
