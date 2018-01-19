@@ -1,7 +1,14 @@
+:host {
+    display: block;
+    padding-bottom: 70px;
+}
+
 .tool-bar {
    width: 100%;
    display: block;
    background: white;
+   position:fixed;
+   z-index:100;
 }
 
 .breadcrumb-tool {
