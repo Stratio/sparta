@@ -47,6 +47,51 @@
           "tooltip": "Execution mode used to launch the existing workflows, if nothing is selected Sparta will use the values in the configuration file",
           "qa": "workflow-execution-mode"
         },
+         {
+            "propertyId": "mesosConstraint",
+            "propertyName": "SETTINGS._MESOS_CONSTRAINT_",
+            "width": 4,
+            "newRow": true,
+            "propertyType": "text",
+            "tooltip": "Mesos constraint when launching workflows to Marathon and spark drivers when execute the spark-submit",
+            "qa": "mesos-constraint"
+         },
+         {
+            "propertyId": "mesosConstraintOperator",
+            "propertyName": "SETTINGS._MESOS_CONSTRAINT_OPERATOR_",
+            "required": true,
+            "propertyType": "select",
+            "width": 4,
+            "default": "CLUSTER",
+            "values": [
+               {
+                  "label": "CLUSTER",
+                  "value": "CLUSTER"
+               },
+               {
+                  "label": "LIKE",
+                  "value": "LIKE"
+               },
+               {
+                  "label": "UNLIKE",
+                  "value": "UNLIKE"
+               },
+               {
+                  "label": "MAX_PER",
+                  "value": "MAX_PER"
+               },
+               {
+                  "label": "UNIQUE",
+                  "value": "UNIQUE"
+               },
+               {
+                  "label": "GROUP_BY",
+                  "value": "GROUP_BY"
+               }
+            ],
+            "tooltip": "Mesos operator constraint when launching workflows to Marathon",
+            "qa": "mesos-constraint-operator"
+         },
         {
           "propertyId": "initSqlSentences",
           "propertyName": "SETTINGS._SQL_SENTENCES_",

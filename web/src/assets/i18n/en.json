@@ -142,6 +142,8 @@
       "EXECUTE_QUERY_OK_NO_LIST": "Query completed succesfully."
    },
    "SETTINGS": {
+      "_MESOS_CONSTRAINT_": "Mesos constraint",
+      "_MESOS_CONSTRAINT_OPERATOR_": "Constraint operator",
       "_SPARK_MESOS_SECURITY_ENABLE_": "Mesos security",
       "_SPARK_DEFAULT_PARALLELISM_": "Default parallelism",
       "_SPARK_KRYO_": "Use Kryo Serialization",
