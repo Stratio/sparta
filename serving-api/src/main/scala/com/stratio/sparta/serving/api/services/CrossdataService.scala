@@ -17,21 +17,29 @@
 package com.stratio.sparta.serving.api.services
 
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.xml.bind.DatatypeConverter
+import scala.util.Failure
+import scala.util.Properties
+import scala.util.Success
+import scala.util.Try
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
 import org.apache.spark.SparkConf
 import org.apache.spark.security.ConfigSecurity
-import org.apache.spark.sql.catalog.{Column, Database, Table}
+import org.apache.spark.sql.catalog.Column
+import org.apache.spark.sql.catalog.Database
+import org.apache.spark.sql.catalog.Table
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.sql.json.RowJsonHelper._
 
-import scala.util.{Failure, Properties, Success, Try}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.serving.core.config.SpartaConfig
+import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.services.HdfsService
+import com.stratio.sparta.serving.core.services.SparkSubmitService
 
 class CrossdataService() {
 
@@ -92,7 +100,10 @@ class CrossdataService() {
             row.schema.fields.zipWithIndex.map { case (field, index) =>
               val oldValue = row.get(index)
               val newValue = oldValue match {
-                case  v: java.math.BigDecimal => BigDecimal(v)
+                case v: java.math.BigDecimal => BigDecimal(v)
+                case v: GenericRowWithSchema => {
+                  toJSON(v, Map.empty[String, String])
+                }
                 case _ => oldValue
               }
               field.name -> newValue
