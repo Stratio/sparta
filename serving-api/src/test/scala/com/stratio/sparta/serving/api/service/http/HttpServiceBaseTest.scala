@@ -84,7 +84,7 @@ trait HttpServiceBaseTest extends WordSpec
     EnvironmentVariable("foo", "var")
 
   protected def getEnvironmentData(): EnvironmentData =
-    EnvironmentData(Seq(), Seq(), Seq())
+    EnvironmentData(Seq(), Seq(), Seq(), Seq())
 
   protected def getWorkflowStatusModel(): WorkflowStatus =
     WorkflowStatus("id", WorkflowStatusEnum.Launched)

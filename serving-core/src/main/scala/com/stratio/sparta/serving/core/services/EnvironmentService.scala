@@ -149,15 +149,24 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
     }
 
   def exportData(): Try[EnvironmentData] =
-    Try {
-      EnvironmentData(workflowService.findAll, templateService.findAll, groupService.findAll)
-    }
+    find().map(environment =>
+      EnvironmentData(
+        workflowService.findAll,
+        templateService.findAll,
+        groupService.findAll,
+        environment.variables.map(_.name)
+      ))
 
   def importData(data: EnvironmentData): Try[EnvironmentData] =
     Try {
       val initialTemplates = templateService.findAll
       val initialWorkflows = workflowService.findAll
       val initialGroups = groupService.findAll
+      val initialEnvVariables = find() match {
+        case Success(environment) => environment
+        case Failure(e) => throw new Exception("Error obtaining actual environment data", e)
+      }
+      val initialEnvVariablesNames = initialEnvVariables.variables.map(_.name)
 
       try {
         groupService.deleteAll()
@@ -166,6 +175,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
         groupService.createList(data.groups)
         templateService.createList(data.templates)
         workflowService.createList(data.workflows)
+        data.envVariables.foreach(variable =>
+          if(!initialEnvVariablesNames.contains(variable))
+            createVariable(EnvironmentVariable(variable, ""))
+        )
         data
       } catch {
         case e: Exception =>
@@ -174,11 +187,13 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             groupService.deleteAll()
             workflowService.deleteAll()
             templateService.deleteAll()
-            initialGroups.foreach(groupService.create(_))
+            delete()
+            initialGroups.foreach(groupService.create)
             initialTemplates.foreach(templateService.create)
             initialWorkflows.foreach(workflowService.create)
+            initialEnvVariables.variables.foreach(createVariable)
           }
-          throw new RuntimeException("Error importing environment data", e)
+          throw new Exception("Error importing environment data", e)
       }
     }
 }

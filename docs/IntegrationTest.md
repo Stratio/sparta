@@ -7,18 +7,38 @@ defined at ```ITSERVICES```
 
 ###Docker Containers in local machine
 
+####Zookeeper
+
+```bash
+docker run -d -i jplock/zookeeper:3.5.2-alpha
+```
+
+####Kafka
+
+```bash
+docker run -d -i confluent/kafka:0.10.0.0-cp1
+```
+
+####HDFS
+
+```bash
+docker run -d -i stratio/hdfs:2.6.0
+```
+
+####Posgres
+
+```bash
+docker run -d -i postgresql:9.3
+```
+
+####Elasticsearch
+
+```bash
+docker run -d -i elasticsearch/elasticsearch:5.6.2
+```
 ####Rabbitmq
 
-There are multiple options when running in local machine.
-
-- Stratio qa image (in the CI server this image will be displayed)
-
 ```bash
-docker run -d -i -p 5672:5672 --name rabbitmq qa.stratio.com/rabbitmq:3-management
+docker run -d -i rabbitmq:3.6.6
 ```
 
-- Rabbitmq image 
-
-```bash
-docker run -d -i -p 5672:5672 --name rabbitmq rabbitmq:3.6.6  
-```
