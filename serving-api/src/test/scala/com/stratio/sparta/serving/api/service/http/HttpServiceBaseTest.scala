@@ -110,7 +110,8 @@ trait HttpServiceBaseTest extends WordSpec
       settings = settingsModel,
       name = "testworkflow",
       description = "whatever",
-      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
+      pipelineGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph]),
+      status = Some(getWorkflowStatusModel())
     )
 
     workflow

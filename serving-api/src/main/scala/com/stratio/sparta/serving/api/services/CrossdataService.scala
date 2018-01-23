@@ -17,20 +17,14 @@
 package com.stratio.sparta.serving.api.services
 
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
-import scala.util.Failure
-import scala.util.Properties
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Properties, Success, Try}
 
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.SparkConf
 import org.apache.spark.security.ConfigSecurity
-import org.apache.spark.sql.catalog.Column
-import org.apache.spark.sql.catalog.Database
-import org.apache.spark.sql.catalog.Table
+import org.apache.spark.sql.catalog.{Column, Database, Table}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper._
@@ -38,8 +32,7 @@ import org.apache.spark.sql.json.RowJsonHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.JarsHelper
-import com.stratio.sparta.serving.core.services.HdfsService
-import com.stratio.sparta.serving.core.services.SparkSubmitService
+import com.stratio.sparta.serving.core.services.{HdfsService, SparkSubmitService}
 
 class CrossdataService() {
 

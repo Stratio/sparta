@@ -19,8 +19,16 @@ package com.stratio.sparta.serving.api.service.http
 import java.io.File
 import java.util.UUID
 import javax.ws.rs.Path
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 import akka.pattern.ask
+import com.wordnik.swagger.annotations._
+import org.json4s.jackson.Serialization.write
+import spray.http.HttpHeaders.`Content-Disposition`
+import spray.http.StatusCodes
+import spray.routing._
+
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -28,15 +36,7 @@ import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.Unauthorize
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowQuery, WorkflowValidation, WorkflowVersion}
-import com.wordnik.swagger.annotations._
-import org.json4s.jackson.Serialization.write
-import spray.http.HttpHeaders.`Content-Disposition`
-import spray.http.StatusCodes
-import spray.routing._
-
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import com.stratio.sparta.serving.core.models.workflow._
 
 @Api(value = HttpConstant.WorkflowsPath, description = "Operations over workflows")
 trait WorkflowHttpService extends BaseHttpService {
@@ -85,7 +85,7 @@ trait WorkflowHttpService extends BaseHttpService {
   @ApiOperation(value = "Find all workflows by group id",
     notes = "Find all workflows by group name",
     httpMethod = "GET",
-    response = classOf[Array[Workflow]])
+    response = classOf[Array[WorkflowDto]])
   @ApiImplicitParams(Array(
     new ApiImplicitParam(name = "groupID",
       value = "workflow group",
@@ -103,7 +103,7 @@ trait WorkflowHttpService extends BaseHttpService {
         context =>
           for {
             response <- (supervisor ? FindAllByGroup(groupID, user))
-              .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
+              .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
           } yield getResponse(context, WorkflowServiceFindAllByGroup, response, genericError)
       }
     }
@@ -354,7 +354,6 @@ trait WorkflowHttpService extends BaseHttpService {
                 response <- (supervisor ? UpdateList(workflows, user))
                   .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceUpdateList, response, genericError, StatusCodes.OK)
-
             }
           }
         }

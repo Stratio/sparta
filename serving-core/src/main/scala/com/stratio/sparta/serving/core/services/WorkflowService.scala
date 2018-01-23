@@ -258,8 +258,15 @@ class WorkflowService(
   private[sparta] def existsById(id: String): Option[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(s"${AppConstant.WorkflowsZkPath}/$id")) {
-        Option(read[Workflow](
-          new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowsZkPath}/$id"))))
+        val workFlow = read[Workflow](
+          new Predef.String(curatorFramework.getData.forPath(s"${AppConstant.WorkflowsZkPath}/$id")))
+        Option(workFlow.copy(status =
+          statusService.findById(id) recoverWith {
+            case e =>
+              log.error(s"Error finding workflowStatus with id ${id}", e)
+              Failure(e)
+          } toOption
+        ))
       } else None
     } match {
       case Success(result) => result

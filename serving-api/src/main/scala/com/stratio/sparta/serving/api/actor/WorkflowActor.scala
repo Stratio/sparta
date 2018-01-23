@@ -16,19 +16,21 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import scala.util.Try
+
 import akka.actor.{Actor, ActorRef}
 import akka.event.slf4j.SLF4JLogging
+import org.apache.curator.framework.CuratorFramework
+import org.apache.zookeeper.KeeperException.NoNodeException
+
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
 import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.dto.DtoImplicits._
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowValidatorService}
 import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, CheckpointUtils}
-import org.apache.curator.framework.CuratorFramework
-import org.apache.zookeeper.KeeperException.NoNodeException
-
-import scala.util.Try
 
 class WorkflowActor(
                      val curatorFramework: CuratorFramework,
@@ -129,10 +131,17 @@ class WorkflowActor(
       }
     }
 
+  /**
+    * Implicit transformation to WorkflowDto {@see DtoImplicits.scala} {@see WorkFlowActor.workFlowToDto}
+    *
+    */
   def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
-      Try(workflowService.findByGroupID(groupID)).recover {
-        case _: NoNodeException => Seq.empty[Workflow]
+    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View)) {
+      Try {
+        val groups: Seq[WorkflowDto] = workflowService.findByGroupID(groupID)
+        groups
+      }.recover {
+        case _: NoNodeException => Seq.empty[WorkflowDto]
       }
     }
 
@@ -263,8 +272,24 @@ object WorkflowActor extends SLF4JLogging {
 
   type ResponseWorkflows = Try[Seq[Workflow]]
 
+  type ResponseWorkflowsDto = Try[Seq[WorkflowDto]]
+
   type ResponseWorkflow = Try[Workflow]
 
   type ResponseWorkflowValidation = Try[WorkflowValidation]
 
+  implicit def workFlowToDto(workflow: Workflow): WorkflowDto =
+    WorkflowDto(
+      id = workflow.id,
+      name = workflow.name,
+      description = workflow.description,
+      settings = workflow.settings.global,
+      nodes = workflow.pipelineGraph.nodes.map(nodeToDto),
+      executionEngine = workflow.executionEngine,
+      lastUpdateDate = workflow.lastUpdateDate,
+      version = workflow.version,
+      group = workflow.group.name,
+      status = workflow.status)
+
+  private[sparta] def nodeToDto(node: NodeGraph): NodeGraphDto = NodeGraphDto(node.name, node.stepType)
 }

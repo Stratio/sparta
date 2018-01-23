@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
+import com.stratio.sparta.serving.core.models.dto.Dto
 
 case class NodeGraph(
                       name: String,
@@ -32,3 +32,8 @@ case class NodeGraph(
                       uiConfiguration: Option[NodeUiConfiguration] = None,
                       configuration: Map[String, JsoneyString] = Map()
                     )
+
+/**
+  * Wrapper class used by the api consumers
+  */
+case class NodeGraphDto(name: String, stepType: String) extends Dto

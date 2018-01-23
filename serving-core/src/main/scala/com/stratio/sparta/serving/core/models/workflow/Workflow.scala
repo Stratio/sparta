@@ -21,6 +21,8 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngin
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 import org.joda.time.DateTime
 
+import com.stratio.sparta.serving.core.models.dto.Dto
+
 case class Workflow(
                      id: Option[String] = None,
                      name: String,
@@ -33,5 +35,20 @@ case class Workflow(
                      lastUpdateDate: Option[DateTime] = None,
                      version: Long = 0L,
                      group: Group = DefaultGroup,
-                     tag: Option[String] = None
+                     tag: Option[String] = None,
+                     status: Option[WorkflowStatus] = None
                    )
+
+/**
+  * Wrapper class used by the api consumers
+  */
+case class WorkflowDto(id: Option[String],
+                       name: String,
+                       description: String,
+                       settings: GlobalSettings,
+                       nodes: Seq[NodeGraphDto],
+                       executionEngine: ExecutionEngine,
+                       lastUpdateDate: Option[DateTime],
+                       version: Long,
+                       group: String,
+                       status: Option[WorkflowStatus]) extends Dto

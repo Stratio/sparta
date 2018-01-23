@@ -20,7 +20,7 @@ import java.util
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
@@ -141,6 +141,97 @@ class WorkflowServiceTest extends WordSpecLike
       |}
     """.stripMargin
 
+  val workflowStatusRaw =
+    """{
+      |  "id": "wfs1",
+      |  "name": "wfTest",
+      |  "description": "",
+      |  "settings": {},
+      |  "version": 0,
+      |  "group": "default",
+      |  "pipelineGraph": {
+      |    "nodes": [{
+      |        "name": "kafka",
+      |        "stepType": "Input",
+      |        "className": "KafkaInputStep",
+      |        "classPrettyName": "Kafka",
+      |        "writer": {
+      |          "autoCalculatedFields": [],
+      |          "saveMode": "Append",
+      |          "tableName": "inputkafka"
+      |        },
+      |        "configuration": {
+      |          "outputField": "raw",
+      |          "outputType": "string",
+      |          "key.deserializer": "string",
+      |          "locationStrategy": "preferconsistent",
+      |          "topics": [{
+      |            "topic": "offsetspr"
+      |          }],
+      |          "auto.offset.reset": "latest",
+      |          "partition.assignment.strategy": "range",
+      |          "vaultTLSEnable": false,
+      |          "offsets": [],
+      |          "group.id": "sparta",
+      |          "bootstrap.servers": [{
+      |            "host": "127.0.0.1",
+      |            "port": "9092"
+      |          }],
+      |          "enable.auto.commit": false,
+      |          "value.deserializer": "string",
+      |          "kafkaProperties": [{
+      |            "kafkaPropertyKey": "",
+      |            "kafkaPropertyValue": ""
+      |          }],
+      |          "storeOffsetInKafka": true
+      |        }
+      |      },
+      |      {
+      |        "name": "Print",
+      |        "stepType": "Output",
+      |        "className": "PrintOutputStep",
+      |        "classPrettyName": "Print",
+      |        "arity": [],
+      |        "writer": {
+      |          "saveMode": "Append"
+      |        },
+      |        "description": "",
+      |        "uiConfiguration": {
+      |          "position": {
+      |            "x": 1207,
+      |            "y": 389
+      |          }
+      |        },
+      |        "configuration": {
+      |          "printMetadata": false,
+      |          "printData": true,
+      |          "printSchema": false,
+      |          "logLevel": "error"
+      |        },
+      |        "status": {
+      |           "id": "wfs1",
+      |           "status": "Launched",
+      |           "statusInfo": "Workflow stopped correctly",
+      |           "lastExecutionMode": "local",
+      |           "lastUpdateDate": "2018-01-17T14:38:39Z"
+      |       }
+      |      }
+      |    ]
+      |  }
+      |}
+    """.stripMargin
+
+  val status=
+    """
+      |{
+      |"id": "wfs1",
+      |"status": "Launched",
+      |"statusInfo": "Workflow stopped correctly",
+      |"lastExecutionMode": "local",
+      |"lastUpdateDate": "2018-01-17T14:38:39Z"
+      |}
+  """.stripMargin
+
   val newWorkflowRaw =
     """
       |{
@@ -202,6 +293,13 @@ class WorkflowServiceTest extends WordSpecLike
       val result = workflowService.findAll
 
       result shouldBe a[Seq[_]]
+    }
+
+    "findById with status: should return a workflow with status Launched" in {
+      mockFindByIDwithStatus
+      val result = workflowService.findById("wfs1")
+
+      result.status.get.status should be eq(WorkflowStatusEnum.Launched)
     }
 
     "findByGroup: should return a list with the workflows" in {
@@ -361,6 +459,27 @@ class WorkflowServiceTest extends WordSpecLike
       when(curatorFramework.getData
         .forPath(s"${AppConstant.WorkflowsZkPath}/wf1"))
         .thenReturn(workflowRaw.getBytes)
+    }
+
+    def mockFindByIDwithStatus: OngoingStubbing[Array[Byte]] = {
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowsZkPath}/wfs1"))
+        .thenReturn(new Stat)
+
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowsZkPath}/wfs1"))
+        .thenReturn(workflowStatusRaw.getBytes)
+
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/wfs1"))
+        .thenReturn(new Stat)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/wfs1"))
+        .thenReturn(status.getBytes)
     }
 
     def mockListOfWorkflows: OngoingStubbing[util.List[String]] = {

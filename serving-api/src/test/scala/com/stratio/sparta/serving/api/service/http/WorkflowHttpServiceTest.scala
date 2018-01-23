@@ -16,23 +16,23 @@
 package com.stratio.sparta.serving.api.service.http
 
 import java.util.UUID
+import scala.util.{Failure, Success}
 
 import akka.actor.ActorRef
 import akka.testkit.{TestActor, TestProbe}
-import com.stratio.sparta.sdk.exception.MockException
-import com.stratio.sparta.serving.api.actor.WorkflowActor._
-import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.actor.LauncherActor.Launch
-import com.stratio.sparta.serving.core.actor.StatusActor
-import com.stratio.sparta.serving.core.constants.AkkaConstant
-import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
-import com.stratio.sparta.serving.core.models.workflow._
 import org.junit.runner.RunWith
 import org.scalatest.WordSpec
 import org.scalatest.junit.JUnitRunner
 import spray.http.StatusCodes
 
-import scala.util.{Failure, Success}
+import com.stratio.sparta.sdk.exception.MockException
+import com.stratio.sparta.serving.api.actor.WorkflowActor._
+import com.stratio.sparta.serving.api.constants.HttpConstant
+import com.stratio.sparta.serving.core.actor.StatusActor
+import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.models.dto.{LoggedUser, LoggedUserConstant}
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.workflow._
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowHttpServiceTest extends WordSpec
@@ -67,14 +67,22 @@ with HttpServiceBaseTest {
         status should be(StatusCodes.InternalServerError)
       }
     }
+    "return a workflow with status" in {
+      startAutopilot(Left(Success(getWorkflowModel())))
+      Get(s"/${HttpConstant.WorkflowsPath}/findById/$id") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[Find]
+        responseAs[Workflow].status.get.status should be(WorkflowStatusEnum.Launched)
+      }
+    }
   }
 
   "WorkflowHttpService.findAllByGroup" should {
     "return a workflow list" in {
-      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
+      val seqDto: Seq[WorkflowDto] = Seq(getWorkflowModel())
+      startAutopilot(Left(Success(seqDto)))
       Get(s"/${HttpConstant.WorkflowsPath}/findAllByGroup/$group") ~> routes(rootUser) ~> check {
         testProbe.expectMsgType[FindAllByGroup]
-        responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
+        responseAs[Seq[WorkflowDto]] should equal(seqDto)
       }
     }
     "return a 500 if there was any error" in {
@@ -133,6 +141,14 @@ with HttpServiceBaseTest {
       Post(s"/${HttpConstant.WorkflowsPath}/findByIds", Seq(id)) ~> routes(dummyUser) ~> check {
         testProbe.expectMsgType[FindByIdList]
         status should be(StatusCodes.InternalServerError)
+      }
+    }
+    "find all workflows with status Lauched" in {
+      startAutopilot(Left(Success(Seq(getWorkflowModel()))))
+      Post(s"/${HttpConstant.WorkflowsPath}/findByIds", Seq(id)) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[FindByIdList]
+        responseAs[Seq[Workflow]] should equal(Seq(getWorkflowModel()))
+        responseAs[Seq[Workflow]].head.status should equal(getWorkflowModel().status)
       }
     }
   }
