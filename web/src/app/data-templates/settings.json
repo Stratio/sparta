@@ -700,6 +700,16 @@
                 "qa": "workflow-spark-case-sensitive"
              },
              {
+                "propertyId": "logStagesProgress",
+                "propertyName": "SETTINGS._SPARK_LOG_STAGES_PROGRESS_",
+                "propertyType": "boolean",
+                "required": true,
+                "width": "auto",
+                "default": false,
+                "tooltip": "Show in logs the stages progress",
+                "qa": "workflow-spark-logStagesProgress"
+             },
+             {
                 "propertyId": "parquetBinaryAsString",
                 "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
                 "propertyType": "boolean",

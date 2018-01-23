@@ -144,7 +144,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARTA_CHECKPOINT_PATH","sparta/checkpoint"),
     EnvironmentVariable("SPARK_STREAMING_WINDOW","2s"),
     EnvironmentVariable("SPARK_MASTER","mesos://leader.mesos:5050"),
-    EnvironmentVariable("DRIVER_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
+    EnvironmentVariable("DRIVER_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
     EnvironmentVariable("EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
     EnvironmentVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),
     EnvironmentVariable("SPARK_CORES_MAX","2"),
@@ -153,7 +153,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_DRIVER_CORES","1"),
     EnvironmentVariable("SPARK_DRIVER_MEMORY","2G"),
     EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
-    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.3"),
+    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.4"),
     EnvironmentVariable("EXECUTOR_DOCKER_VOLUMES", "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
       "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
       "/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +

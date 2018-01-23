@@ -57,60 +57,20 @@
         <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.crossdata</groupId>
             <artifactId>crossdata-core_${scala.binary.version}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.zookeeper</groupId>
-                    <artifactId>zookeeper</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -136,6 +96,16 @@
             <groupId>org.apache.bahir</groupId>
             <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
             <version>${twitter.spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.stratio.spark</groupId>
@@ -145,6 +115,10 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

@@ -65,8 +65,7 @@ object MarathonDriver extends SLF4JLogging {
         log.error(driverException.msg, driverException.getCause)
         throw driverException
       case Failure(exception) =>
-        log.error(s"An error was encountered while starting the " +
-          s"Workflow App environment: ${exception.getLocalizedMessage}", exception)
+        log.error(s"An error was encountered while starting the Workflow App environment", exception)
         throw exception
     }
   }

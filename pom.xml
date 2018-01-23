@@ -75,8 +75,7 @@
         <scala.binary.version>2.11</scala.binary.version>
         <scala.version>2.11.8</scala.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <scala-logging>3.3.0</scala-logging>
-        <logback.version>1.1.7</logback.version>
+        <log4j-1.2.version>2.10.0</log4j-1.2.version>
         <nscala.time.version>2.0.0</nscala.time.version>
         <scalatest.version>2.2.5</scalatest.version>
         <spray.version>1.3.4</spray.version>
@@ -98,12 +97,12 @@
         <scalaj.version>2.3.0</scalaj.version>
         <stratio.common.utils.version>0.6.0</stratio.common.utils.version>
         <commons-configuration.version>1.6</commons-configuration.version>
-        <stratio.spark.version>2.2.0.3</stratio.spark.version>
+        <stratio.spark.version>2.2.0.4</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
         <sparta.dyplon.version>0.13.1-RC1</sparta.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
-        <crossdata.version>2.11.0-M2</crossdata.version>
+        <crossdata.version>3.0.0-M2</crossdata.version>
         <postgres.version>42.1.1</postgres.version>
         <mysql.version>5.1.43</mysql.version>
         <scala.graph.version>1.12.1</scala.graph.version>
@@ -167,6 +166,12 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.scalatest</groupId>
@@ -204,6 +209,10 @@
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -219,20 +228,9 @@
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-core_${scala.binary.version}</artifactId>
-                <version>${stratio.spark.version}</version>
-                <exclusions>
                     <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -248,6 +246,29 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.spark</groupId>
+                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
                     </exclusion>
                 </exclusions>
                 <classifier>tests</classifier>
@@ -265,20 +286,9 @@
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.stratio.spark</groupId>
-                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-                <version>${stratio.spark.version}</version>
-                <exclusions>
                     <exclusion>
-                        <groupId>org.apache.zookeeper</groupId>
-                        <artifactId>zookeeper</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -294,6 +304,29 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.spark</groupId>
+                <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+                <version>${stratio.spark.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
                     </exclusion>
                 </exclusions>
                 <classifier>tests</classifier>
@@ -322,6 +355,10 @@
                     <exclusion>
                         <groupId>org.apache.logging.log4j</groupId>
                         <artifactId>log4j-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -475,6 +512,12 @@
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -495,6 +538,12 @@
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -542,6 +591,10 @@
                         <artifactId>slf4j-log4j12</artifactId>
                     </exclusion>
                     <exclusion>
+                        <artifactId>log4j</artifactId>
+                        <groupId>log4j</groupId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>org.apache.zookeeper</groupId>
                         <artifactId>zookeeper</artifactId>
                     </exclusion>
@@ -561,9 +614,20 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+            <version>${log4j-1.2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

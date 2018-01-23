@@ -45,7 +45,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
     case _ => log.info("Unrecognized message in Marathon Launcher Actor")
   }
 
-  override def postStop(): Unit = checkersPolicyStatus.foreach(_.cancel())
+  override def postStop(): Unit = checkersPolicyStatus.foreach(task => if(!task.isCancelled) task.cancel())
 
   //scalastyle:off
   def initializeSubmitRequest(workflow: Workflow): Unit = {
@@ -59,10 +59,10 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       }
       val zookeeperConfig = launcherService.getZookeeperConfig
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
-      val pluginJars = sparkSubmitService.userPluginsJars
+      val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)
-      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf
+      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginJars)
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
         sparkSubmitExecution = SparkSubmitExecution(
@@ -103,9 +103,10 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           status = NotStarted,
           lastExecutionMode = lastExecutionMode))
         marathonApp.launch()
-        clusterListenerService.addMarathonListener(workflow.id.get, context)
-        checkersPolicyStatus += scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
+        val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
           launcherService.checkWorkflowStatus(workflow))
+        clusterListenerService.addMarathonListener(workflow.id.get, context, Option(scheduledTask))
+        checkersPolicyStatus += scheduledTask
     }
   }
 }

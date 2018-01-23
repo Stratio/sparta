@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Obtaining and setting Mesos security configuration"
+INFO "[MESOS-SECURITY] Obtaining and setting Mesos security configuration"
 
 ### Get Mesos user and pass
 getPass "userland" "$TENANT_NAME" "mesos"
@@ -16,4 +16,3 @@ echo "export SPARK_MESOS_SECRET=${SPARK_MESOS_SECRET}" >> ${VARIABLES}
 export SPARK_MESOS_ROLE=$TENANT_NAME
 echo "export SPARK_MESOS_ROLE=${SPARK_MESOS_ROLE}" >> ${VARIABLES}
 
-echo "Mesos security configuration: OK"

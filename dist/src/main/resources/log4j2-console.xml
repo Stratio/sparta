@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    © 2017 Stratio Big Data Inc., Sucursal en España. All rights reserved.
+    This software – including all its source code – contains proprietary information of Stratio Big Data Inc., Sucursal en España and may not be revealed, sold, transferred, modified, distributed or otherwise made available, licensed or sublicensed to third parties; nor reverse engineered, disassembled or decompiled, without express written authorization from Stratio Big Data Inc., Sucursal en España.
+    Usage:
+        In order to use xml properly, log4j 2 Mapping Diagnosis Context (MDC) keys must be replaced by proper key name (the one used inside project to set MDC property value)
+        Example:
+            Considering a project that sets MDC properties using these keys: [user, audit, process, data-json], these replacements must be executed over xml file
+                - sed -i -e 's/\[MDC_USER_KEY\]/user/g' log4j2.xml
+                - sed -i -e 's/\[MDC_AUDIT_KEY\]/audit/g' log4j2.xml
+                - sed -i -e 's/\[MDC_PROCESS_KEY\]/process/g' log4j2.xml
+                - sed -i -e 's/\[MDC_DATA-JSON_KEY\]/data-json/g' log4j2.xml
+-->
+<Configuration monitorInterval="60">
+    <Appenders>
+        <Console name="stderr" target="SYSTEM_ERR">
+            <PatternLayout>
+                <Pattern>
+                    %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %C {"@message":"%m","@data":%replace{%X{[MDC_DATA-JSON_KEY]}}{^.{0}$}{{}}}%n
+                </Pattern>
+            </PatternLayout>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout>
+                <Pattern>
+                    %d{yyyy-MM-dd'T'HH:mm:ss.SSS}%replace{%d{XXX}}{^Z$}{+00:00} %level %replace{%X{[MDC_USER_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_AUDIT_KEY]}}{^.{0}$}{-} %replace{%X{[MDC_PROCESS_KEY]}}{^.{0}$}{-} %C {"@message":"%m","@data":%replace{%X{[MDC_DATA-JSON_KEY]}}{^.{0}$}{{}}}%n
+                </Pattern>
+            </PatternLayout>
+            <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="${sys:SERVICE_LOG_LEVEL:-ERROR}">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Root>
+        <Logger name="com.stratio.sparta" level="${sys:SPARTA_LOG_LEVEL:-INFO}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="${sys:SPARTA_REDIRECTOR:-INFO}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="com.stratio.crossdata" level="${sys:CROSSDATA_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.zookeeper" level="${sys:ZOOKEEPER_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.I0Itec.zkclient" level="${sys:ZOOKEEPER_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.spark" level="${sys:SPARK_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.spark-project" level="${sys:SPARK_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.hadoop" level="${sys:HADOOP_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.parquet" level="${sys:PARQUET_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.avro" level="${sys:AVRO_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.http" level="${sys:HTTP_LOG_LEVEL:-ERROR}" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+    </Loggers>
+</Configuration>

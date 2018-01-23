@@ -39,7 +39,7 @@ object AkkaConstant {
   val GroupActorName = "groupActor"
 
   val DefaultApiTimeout = 19
-  val DefaultSerializationTimeout = 1
+  val DefaultSerializationTimeout = 5
   val DefaultCrossdataQueriesTimeout = 19
   val DefaultInstances = 3
 

@@ -33,6 +33,8 @@ import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.utils.ArgumentsUtils
 import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
+import SparkSubmitService._
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 
 import scala.util.{Properties, Try}
 
@@ -91,14 +93,28 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     )
   }
 
-  def extractSubmitArgsAndSparkConf: (Map[String, String], Map[String, String]) = {
+  def extractSubmitArgsAndSparkConf(pluginsFiles: Seq[String]): (Map[String, String], Map[String, String]) = {
     val sparkConfs = getSparkClusterConfig
     val submitArgs = getSparkSubmitArgs
     val sparkConfFromSubmitArgs = submitArgsToConf(submitArgs)
 
-    (addJdbcDrivers(addSupervisedArgument(addKerberosArguments(submitArgsFiltered(submitArgs)))),
-      addKerberosConfs(addTlsConfs(addPluginsConfs(addSparkUserConf(addAppNameConf(addCalicoNetworkConf
-      (addNginxPrefixConf(addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs)))))))))
+    (
+      addSupervisedArgument(
+        addKerberosArguments(
+          submitArgsFiltered(submitArgs))),
+      addExecutorLogConf(
+        addKerberosConfs(
+          addTlsConfs(
+            addPluginsConfs(
+              addSparkUserConf(
+                addAppNameConf(
+                  addCalicoNetworkConf(
+                    addNginxPrefixConf(
+                      addPluginsFilesToConf(
+                        addMesosSecurityConf(sparkConfs ++ sparkConfFromSubmitArgs),
+                        pluginsFiles
+                      )))))))))
+    )
   }
 
   def userPluginsJars: Seq[String] = {
@@ -125,6 +141,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
       SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
+      SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString),
       SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait.notBlank,
       SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         taskMaxFailures.notBlank,
@@ -140,6 +157,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitGracefullyStopConf -> workflow.settings.streamingSettings.stopGracefully.map(_.toString),
       SubmitGracefullyStopTimeoutConf -> workflow.settings.streamingSettings.stopGracefulTimeout.notBlank,
       SubmitBinaryStringConf -> workflow.settings.sparkSettings.sparkConf.parquetBinaryAsString.map(_.toString),
+      SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString),
       SubmitTotalExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank,
       SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
       SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
@@ -168,7 +186,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkParallelism.notBlank,
       SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
-        .flatMap(enable => if(enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
+        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
       SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI.notBlank
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
@@ -203,6 +221,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     if (!sparkConfs.contains(SubmitSparkUserConf) &&
       workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.isDefined) {
       sparkConfs ++ Map(SubmitSparkUserConf -> workflow.settings.sparkSettings.sparkConf.sparkUser.notBlank.get)
+    } else sparkConfs
+
+  private[core] def addExecutorLogConf(sparkConfs: Map[String, String]): Map[String, String] =
+    if (!sparkConfs.contains(SubmitExecutorLogLevelConf) && sys.env.get("SPARK_LOG_LEVEL").notBlank.isDefined) {
+      sparkConfs ++ Map(SubmitExecutorLogLevelConf -> sys.env.get("SPARK_LOG_LEVEL").notBlank.get)
     } else sparkConfs
 
   private[core] def addCalicoNetworkConf(sparkConfs: Map[String, String]): Map[String, String] =
@@ -414,23 +437,19 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       else Some(argumentKey -> value)
     }
 
-  private[core] def addJdbcDrivers(submitArgs: Map[String, String]): Map[String, String] = {
-    val jdbcDrivers = new File("/jdbc-drivers")
-    if (jdbcDrivers.exists && jdbcDrivers.isDirectory) {
-      val jdbcFiles = jdbcDrivers.listFiles()
-        .filter(file => file.isFile && file.getName.endsWith("jar"))
-        .map(file => file.getAbsolutePath)
-      if (jdbcFiles.isEmpty) submitArgs
-      else Map(SubmitDriverClassPath -> jdbcFiles.mkString(":")) ++ submitArgs
-    } else submitArgs
-  }
+  private[sparta] def addPluginsFilesToConf(
+                                             sparkConfs: Map[String, String],
+                                             pluginsFiles: Seq[String]
+                                           ): Map[String, String] =
+    mixingSparkJarsConfigurations(getJarsSparkConfigurations(pluginsFiles ++ JarsHelper.getJdbcDriverPaths), sparkConfs)
 }
 
 object SparkSubmitService {
 
   def getJarsSparkConfigurations(jarFiles: Seq[String]): Map[String, String] =
     if (jarFiles.exists(_.trim.nonEmpty)) {
-      val jarFilesFiltered = jarFiles.filter(file => !file.startsWith("hdfs") && !file.startsWith("http"))
+      val jarFilesFiltered = jarFiles.filter(file =>
+        !file.startsWith("hdfs") && !file.startsWith("http") && file.nonEmpty)
       val classpathConfs = if (jarFilesFiltered.nonEmpty) {
         val files = jarFilesFiltered.mkString(":")
         Map(
@@ -439,19 +458,22 @@ object SparkSubmitService {
         )
       } else Map.empty[String, String]
 
-      classpathConfs ++ Map(SubmitJarsConf -> jarFiles.mkString(","))
+      classpathConfs ++ Map(SubmitJarsConf -> jarFiles.filter(_.nonEmpty).mkString(","))
     } else Map.empty[String, String]
 
   def mixingSparkJarsConfigurations(
-                                   jarConfs: Map[String, String],
-                                   sparkConfs: Map[String, String]
-                                 ): Map[String, String] =
-    sparkConfs.map { case (confKey, value) =>
-      if (jarConfs.contains(confKey)) {
-        val separator = if (confKey.contains("ClassPath")) ":" else ","
-        confKey -> s"$value$separator${jarConfs(confKey)}"
-      } else confKey -> value
+                                     jarConfs: Map[String, String],
+                                     sparkConfs: Map[String, String]
+                                   ): Map[String, String] = {
+    jarConfs ++ sparkConfs.flatMap { case (confKey, value) =>
+      if(value.nonEmpty) {
+        if (jarConfs.contains(confKey)) {
+          val separator = if (confKey.contains("ClassPath")) ":" else ","
+          Option(confKey -> s"$value$separator${jarConfs(confKey)}")
+        } else Option(confKey -> value)
+      } else None
     }
+  }
 
 }
 

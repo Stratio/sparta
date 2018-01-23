@@ -5,12 +5,12 @@ function make_directory() {
 	local module=$2
 
 	mkdir -p $dir \
-	&& echo "[$module] Created $dir directory" \
-	|| echo "[$module] Something was wrong creating $dir directory or already exists"
+	&& INFO "[$module] Created $dir directory" \
+	|| ERROR "[$module] Something was wrong creating $dir directory or already exists"
 }
 
 function generate_core-site-from-uri() {
-  make_directory $HADOOP_CONF_DIR "HADOOP"
+  make_directory $HADOOP_CONF_DIR "HADOOP-CONF"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
   CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
   wget "${HADOOP_CONF_URI}/conf"
@@ -20,9 +20,9 @@ function generate_core-site-from-uri() {
   sed -i "s|0.0.0.0|${HADOOP_FS_DEFAULT_NAME}|" ${CORE_SITE}
 
   if [[ $? == 0 ]]; then
-    echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
+    INFO "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml configured succesfully"
   else
-    echo "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
+    ERROR "[CORE-SITE] HADOOP $HADOOP_CONF_DIR/core-site.xml was NOT configured"
     exit 1
   fi
   echo "" >> ${VARIABLES}
@@ -32,7 +32,7 @@ function generate_core-site-from-uri() {
 }
 
 function generate_hdfs-conf-from-uri() {
-  make_directory $HADOOP_CONF_DIR "HADOOP"
+  make_directory $HADOOP_CONF_DIR "HADOOP-CONF"
   CORE_SITE="${HADOOP_CONF_DIR}/core-site.xml"
   CORE_SITE_CLASSPATH="${SPARTA_CLASSPATH_DIR}/core-site.xml"
   HDFS_SITE="${HADOOP_CONF_DIR}/hdfs-site.xml"
@@ -47,19 +47,19 @@ function generate_hdfs-conf-from-uri() {
   rm -f hdfs-site.xml
 
   if [[ $? == 0 ]]; then
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    INFO "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
     echo "" >> ${VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${SYSTEM_VARIABLES}
   else
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
+    ERROR "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
     exit 1
   fi
 }
 
 function generate_hdfs-conf-from-fs() {
-  make_directory $HADOOP_CONF_DIR "HADOOP"
+  make_directory $HADOOP_CONF_DIR "HADOOP-CONF"
 
 cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -93,24 +93,24 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
 EOF
 
 sed -i "s#__<SECURITY_AUTH>__#$HADOOP_SECURITY_AUTH#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] hadoop.security.authentication configured in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_SECURITY_AUTH was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] hadoop.security.authentication configured in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_SECURITY_AUTH was configured in core-site.xml"
 
 sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] fs.default.name in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] fs.default.name in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
 
 sed -i "s#__<RPC_PROTECTION>__#$HADOOP_RPC_PROTECTION#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] hadoop.rpc.protection in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_RPC_PROTECTION was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] hadoop.rpc.protection in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_RPC_PROTECTION was configured in core-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] dfs.encrypt.data.transfer in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in core-site.xml"
 
 sed -i "s#__<SECURITY_TOKEN_USE_IP>__#$HADOOP_SECURITY_TOKEN_USE_IP#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] hadoop.security.token.service.use_ip configured in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] hadoop.security.token.service.use_ip configured in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_SECURITY_TOKEN_USE_IP was configured in core-site.xml"
 
 cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -140,28 +140,28 @@ cat > "${HADOOP_CONF_DIR}/hdfs-site.xml" <<EOF
 EOF
 
 sed -i "s#__<KERBEROS_PRINCIPAL>__#$HADOOP_NAMENODE_KRB_PRINCIPAL#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& echo "[hdfs-site.xml] dfs.namenode.kerberos.principal in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL was configured in hdfs-site.xml"
+&& INFO "[HADOOP-CONF] dfs.namenode.kerberos.principal in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL was configured in hdfs-site.xml"
 
 sed -i "s#__<KERBEROS_PRINCIPAL_PATTERN>__#$HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& echo "[hdfs-site.xml] dfs.namenode.kerberos.principal.pattern in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
+&& INFO "[HADOOP-CONF] dfs.namenode.kerberos.principal.pattern in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_NAMENODE_KRB_PRINCIPAL_PATTERN was configured in hdfs-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in hdfs-site.xml"
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER was configured in hdfs-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_SUITES>__#$HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer.cipher.suites in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES was configured in hdfs-site.xml"
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.suites in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_TRANSFER_CIPHER_SUITES was configured in hdfs-site.xml"
 
 sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH#" "${HADOOP_CONF_DIR}/hdfs-site.xml" \
-&& echo "[hdfs-site.xml] dfs.encrypt.data.transfer.cipher.key.bitlength in hdfs-site.xml" \
-|| echo "[hdfs-site.xml-ERROR] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH was configured in hdfs-site.xml"
+&& INFO "[HADOOP-CONF] dfs.encrypt.data.transfer.cipher.key.bitlength in hdfs-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_DFS_ENCRYPT_DATA_CIPHER_KEY_BITLENGTH was configured in hdfs-site.xml"
 
 
   if [[ $? == 0 ]]; then
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
+    INFO "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE configured succesfully"
     echo "" >> ${VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
@@ -173,7 +173,7 @@ sed -i "s#__<ENCRYPT_DATA_TRANSFER_CIPHER_KEY_BITLENGTH>__#$HADOOP_DFS_ENCRYPT_D
     cp "${CORE_SITE}" "${CORE_SITE_CLASSPATH}"
     cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
   else
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
+    ERROR "[HADOOP-CONF] HADOOP $CORE_SITE and $HDFS_SITE was NOT configured"
     exit 1
   fi
 }
@@ -221,12 +221,12 @@ cat > "${HADOOP_CONF_DIR}/core-site.xml" <<EOF
 EOF
 
 sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/core-site.xml" \
-&& echo "[core-site.xml] fs.default.name in core-site.xml" \
-|| echo "[core-site.xml-ERROR] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
+&& INFO "[HADOOP-CONF] fs.default.name in core-site.xml" \
+|| ERROR "[HADOOP-CONF] Something went wrong when HADOOP_FS_DEFAULT_NAME was configured in core-site.xml"
 
 
   if [[ $? == 0 ]]; then
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
+    INFO "[HADOOP-CONF] HADOOP $CORE_SITE not secured configured succesfully"
     echo "" >> ${VARIABLES}
     echo "export HADOOP_CONF_DIR=${HADOOP_CONF_DIR}" >> ${VARIABLES}
     echo "" >> ${SYSTEM_VARIABLES}
@@ -238,7 +238,7 @@ sed -i "s#__<FS_DEFAULT_NAME>__#$HADOOP_FS_DEFAULT_NAME#" "${HADOOP_CONF_DIR}/co
     cp "${CORE_SITE}" "${CORE_SITE_CLASSPATH}"
     cp "${HDFS_SITE}" "${HDFS_SITE_CLASSPATH}"
   else
-    echo "[HADOOP-CONF] HADOOP $CORE_SITE not secured was NOT configured"
+    ERROR "[HADOOP-CONF] HADOOP $CORE_SITE not secured was NOT configured"
     exit 1
   fi
 }

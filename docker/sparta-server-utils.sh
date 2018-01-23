@@ -312,3 +312,10 @@ if [ -v SPARTA_SECURITY_MANAGER_ENABLED ] && [ $SPARTA_SECURITY_MANAGER_ENABLED=
    sed -i "s|.*sparta.security.manager.class.*|sparta.security.manager.class = \""${SPARTA_SECURITY_MANAGER_CLASS}"\"|" ${SPARTA_CONF_FILE}
 fi
 }
+
+function prepareNginx(){
+   #Make cert.crt usable for Nginx by limiting each of its base64 line lengths to 65
+   if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ]; then
+    fold -w65 /tmp/cert.crt > /tmp/nginx_cert.crt
+   fi
+}

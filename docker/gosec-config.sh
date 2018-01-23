@@ -10,11 +10,11 @@ export SPARTA_SECURITY_MANAGER_ENABLED=true
 ## Set GOSEC_LOCAL_IP
 ##########################################
 if [ ! -z ${LIBPROCESS_IP+x} ]; then
-   echo "Setting GOSEC_LOCAL_HOSTNAME"
+   INFO "[GOSEC-CONFIG] Setting GOSEC_LOCAL_HOSTNAME"
    export GOSEC_LOCAL_HOSTNAME=$LIBPROCESS_IP
 fi
 
-echo "Obtaining LDAP user & password from vault"
+INFO "[GOSEC-CONFIG] Obtaining LDAP user & password from vault"
 ### Get LDAP user and pass
 getPass "userland" "$TENANT_NAME" "ldap"
 
@@ -26,16 +26,16 @@ export SPARTA_GOSEC_PLUGIN_LDAP_PASS=${!LDAP_PASS}
 
 
 if [[ -z ${SPARTA_GOSEC_PLUGIN_LDAP_USER} ]]; then
-    log "ERROR" "LDAP User cannot be empty"
+    ERROR "[GOSEC-CONFIG] LDAP User cannot be empty"
     exit 1
 fi
 
 if [[ ${#SPARTA_GOSEC_PLUGIN_LDAP_PASS} -lt 6 ]]; then
-    log "ERROR" "LDAP Password must have at least 6 characters"
+    ERROR "[GOSEC-CONFIG] LDAP Password must have at least 6 characters"
     exit 1
 fi
 
-echo "LDAP user & password from vault: OK"
+INFO "[GOSEC-CONFIG] LDAP user & password from vault: OK"
 
 ###########################################################################
 ## Set Sparta_GoSec_PLUGIN_JKS_PASSWORD && SPARTA_PLUGIN_CLIENT_JAAS_PATH

@@ -1,2 +1,2 @@
 /etc/sds/sparta/reference.conf
-/etc/sds/sparta/logback.xml
+/etc/sds/sparta/log4j2.xml

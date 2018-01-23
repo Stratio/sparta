@@ -1,12 +1,11 @@
 #!/bin/bash
 
-_log_sparta_sec "Getting oauth secrets from vault"
+INFO "[OAUTH] Getting oauth secrets from vault"
 #Downloads client id and secrets for the app
 
 getPass "userland" "$TENANT_NAME" "oauthinfo"
 
-_log_sparta_sec "Exporting sparta oauth variables"
-#TODO: When gosec is available config the app
+INFO "[OAUTH] Exporting sparta oauth variables"
 
 export OAUTH2_ENABLE=${SECURITY_OAUTH2_ENABLE}
 OAUTH_ID_VARIABLE=${TENANT_NORM}_OAUTHINFO_USER

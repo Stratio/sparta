@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Obtaining and setting Mesos security configuration"
+INFO "[MARATHON-SSO] Obtaining and setting Mesos security configuration"
 
 ### Get Mesos user and pass
 getPass "userland" "$TENANT_NAME" "sso"
@@ -14,4 +14,3 @@ echo "export MARATHON_SSO_USERNAME=${MARATHON_SSO_USERNAME}" >> ${VARIABLES}
 export MARATHON_SSO_PASSWORD=${!SSO_PASS}
 echo "export MARATHON_SSO_PASSWORD=${MARATHON_SSO_PASSWORD}" >> ${VARIABLES}
 
-echo "Marathon security configuration: OK"

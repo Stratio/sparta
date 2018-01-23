@@ -15,10 +15,7 @@ function initSpark() {
   if [[ ! -v SPARK_CONF_DEFAULTS_FILE ]]; then
     SPARK_CONF_DEFAULTS_FILE="${SPARK_HOME}/conf/spark-defaults.conf"
   fi
-  if [[ ! -v SPARK_CONF_LOG_FILE ]]; then
-    cp "${SPARK_HOME}/conf/log4j.properties.template" "${SPARK_HOME}/conf/log4j.properties"
-    SPARK_CONF_LOG_FILE="${SPARK_HOME}/conf/log4j.properties"
-  fi
+
   echo "" >> ${VARIABLES}
   echo "export SPARK_HOME=${SPARK_HOME}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
@@ -30,14 +27,14 @@ function initSpark() {
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${VARIABLES}
   echo "" >> ${SYSTEM_VARIABLES}
   echo "export SPARK_CONF_DEFAULTS_FILE=${SPARK_CONF_DEFAULTS_FILE}" >> ${SYSTEM_VARIABLES}
-  echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${VARIABLES}
-  echo "" >> ${SYSTEM_VARIABLES}
-  echo "export SPARK_CONF_LOG_FILE=${SPARK_CONF_LOG_FILE}" >> ${SYSTEM_VARIABLES}
 
   rm "${SPARK_HOME}/jars/curator-client-2.6.0.jar"
   rm "${SPARK_HOME}/jars/curator-recipes-2.6.0.jar"
   rm "${SPARK_HOME}/jars/curator-framework-2.6.0.jar"
   rm "${SPARK_HOME}/jars/zookeeper-3.4.6.jar"
+  #rm "${SPARK_HOME}/jars/log4j-1.2.17.jar"
+  #rm "${SPARK_HOME}/jars/slf4j-api-1.7.16.jar"
+  #rm "${SPARK_HOME}/jars/slf4j-log4j12-1.7.16.jar"
 
 }
 
@@ -45,7 +42,7 @@ function initSparkEnvOptions() {
 
   if [ -v CALICO_ENABLED ] && [ $CALICO_ENABLED == "true" ] && [ -v CALICO_NETWORK ] && [ ${#CALICO_NETWORK} != 0 ]; then
     HOST="$(hostname --all-ip-addresses|xargs)"
-    echo "Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
+    INFO "[COMMON] Virutal network detected changed LIBPROCESS_IP $LIBPROCESS_IP to $HOST"
     export LIBPROCESS_IP=$HOST
   fi
 
@@ -113,73 +110,68 @@ function initHdfs() {
 }
 
 function logLevelOptions() {
+
   if [[ ! -v SERVICE_LOG_LEVEL ]]; then
     SERVICE_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|<root level.*|<root level = \""${SERVICE_LOG_LEVEL}"\">|" ${LOG_CONFIG_FILE}
-  sed -i "s|log4j.appender.console.layout.ConversionPattern.*|log4j.appender.console.layout.ConversionPattern=%d{dd MMM YYYY HH:mm:ss.SSS}\t%p\t%c{35}\t%m%n|" ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.rootLogger.*|log4j.rootLogger= ${SERVICE_LOG_LEVEL}, stdout|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v SPARTA_LOG_LEVEL ]]; then
     SPARTA_LOG_LEVEL="INFO"
   fi
-  sed -i "s|com.stratio.sparta.*|com.stratio.sparta\" level= \""${SPARTA_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.com.stratio.sparta=${SPARTA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.com.stratio.sparta.*|log4j.logger.com.stratio.sparta= ${SPARTA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+
+  if [[ ! -v SPARTA_REDIRECTOR ]]; then
+    SPARTA_REDIRECTOR="INFO"
+  fi
+  sed -i "s|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector.*|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector= ${SPARTA_REDIRECTOR}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v CROSSDATA_LOG_LEVEL ]]; then
       CROSSDATA_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|com.stratio.crossdata.*|com.stratio.crossdata\" level= \""${CROSSDATA_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.com.stratio.crossdata=${CROSSDATA_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.com.stratio.crossdata.*|log4j.logger.com.stratio.crossdata= ${CROSSDATA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v SPARK_LOG_LEVEL ]]; then
     SPARK_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|org.apache.spark.*|org.apache.spark\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  sed -i "s|org.apache.spark-project.*|org.apache.spark-project\" level= \""${SPARK_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  sed -i "s|log4j.rootCategory.*|log4j.rootCategory= ${SPARK_LOG_LEVEL}, console|" ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.spark=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.spark-project=${SPARK_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.org.apache.spark=.*|log4j.logger.org.apache.spark= ${SPARK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|log4j.logger.org.spark-project=.*|log4j.logger.org.spark-project= ${SPARK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v HADOOP_LOG_LEVEL ]]; then
     HADOOP_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|org.apache.hadoop.*|org.apache.hadoop\" level= \""${HADOOP_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.hadoop=${HADOOP_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.org.apache.hadoop=.*|log4j.logger.org.apache.hadoop= ${HADOOP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
     ZOOKEEPER_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|org.apache.zookeeper.ClientCnxn.*|org.apache.zookeeper.ClientCnxn\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  sed -i "s|org.I0Itec.zkclient.*|org.I0Itec.zkclient\" level= \""${ZOOKEEPER_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.zookeeper=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.I0Itec.zkclient=${ZOOKEEPER_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.org.apache.zookeeper.*|log4j.logger.org.apache.zookeeper= ${ZOOKEEPER_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|log4j.logger.org.I0Itec.zkclient.*|log4j.logger.org.I0Itec.zkclient= ${ZOOKEEPER_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v PARQUET_LOG_LEVEL ]]; then
     PARQUET_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|org.apache.parquet.*|org.apache.parquet\" level= \""${PARQUET_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.parquet=${PARQUET_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.org.apache.parquet.*|log4j.logger.org.apache.parquet= ${PARQUET_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v AVRO_LOG_LEVEL ]]; then
     AVRO_LOG_LEVEL="ERROR"
   fi
-  sed -i "s|org.apache.avro.*|org.apache.avro\" level= \""${AVRO_LOG_LEVEL}"\"/>|" ${LOG_CONFIG_FILE}
-  echo "" >> ${SPARK_CONF_LOG_FILE}
-  echo "log4j.logger.org.apache.avro=${AVRO_LOG_LEVEL}" >> ${SPARK_CONF_LOG_FILE}
+  sed -i "s|log4j.logger.org.apache.avro.*|log4j.logger.org.apache.avro= ${AVRO_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+
+  if [[ ! -v HTTP_LOG_LEVEL ]]; then
+    HTTP_LOG_LEVEL="ERROR"
+  fi
+  sed -i "s|log4j.logger.org.apache.http.*|log4j.logger.org.apache.http= ${HTTP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 }
 
-function logLevelToStdout() {
-  SERVICE_LOG_APPENDER="STDOUT"
-  export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE"
-  sed -i "s|<appender-ref ref.*|<appender-ref ref= \""${SERVICE_LOG_APPENDER}"\" />|" ${LOG_CONFIG_FILE}
-}
+function logLevelAppender() {
 
-function logLevelToFile() {
-  SERVICE_LOG_APPENDER="FILE"
-     sed -i "s|<appender-ref ref.*|<appender-ref ref= \""${SERVICE_LOG_APPENDER}"\" />|" ${LOG_CONFIG_FILE}
+  if [ -v LOG_APPENDER ] && [ $LOG_APPENDER == "file" ]; then
+    cp "${SERVER_PROPERTIES}/log4j2-file.xml" "${LOG_CONFIG_FILE}"
+  else
+    cp "${SERVER_PROPERTIES}/log4j2-console.xml" "${LOG_CONFIG_FILE}"
+  fi
+  cp "${LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j2.xml"
+  cp "${SPARK_LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j.properties"
+  cp "${SPARK_LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j.properties.template"
 }

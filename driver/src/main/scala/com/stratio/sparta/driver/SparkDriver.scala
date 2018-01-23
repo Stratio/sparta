@@ -33,7 +33,7 @@ import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
 import com.typesafe.config.ConfigFactory
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-
+import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.ForceInitialization
 
 import scala.util.{Failure, Properties, Success, Try}
 
@@ -70,15 +70,18 @@ object SparkDriver extends SLF4JLogging {
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
+        val environmentStateActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
+        environmentStateActor ! ForceInitialization
         JarsHelper.addJarsToClassPath(pluginsFiles)
         JarsHelper.addJdbcDriversToClassPath()
         val localPlugins = PluginFilesHelper.downloadPlugins(pluginsFiles)
         PluginFilesHelper.addPluginsToClasspath(localPlugins)
-        val environmentStateActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
         val workflowService = new WorkflowService(curatorInstance, Option(system), Option(environmentStateActor))
         val workflow = workflowService.findById(workflowId)
+        log.debug(s"Obtained workflow: ${workflow.toString}")
         val executionService = new ExecutionService(curatorInstance)
         val workflowStatus = statusService.findById(workflowId)
+        log.debug(s"Obtaining execution with workflow id: $workflowId")
         val workflowExecution = executionService.findById(workflowId)
         val startingInfo = s"Launching workflow in Spark driver..."
         log.info(startingInfo)
@@ -144,7 +147,6 @@ object SparkDriver extends SLF4JLogging {
           ))
         case Failure(exception) =>
           val information = s"Error initiating workflow in Spark driver"
-          log.error(information)
           statusService.update(WorkflowStatus(
             id = workflowId,
             status = Failed,
@@ -160,7 +162,7 @@ object SparkDriver extends SLF4JLogging {
         log.error(driverException.msg, driverException.getCause)
         throw driverException
       case Failure(exception) =>
-        log.error(s"Error initiating Sparta environment in Spark driver: ${exception.getLocalizedMessage}", exception)
+        log.error(s"Error initiating Sparta environment in Spark driver", exception)
         throw exception
     }
   }

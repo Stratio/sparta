@@ -126,10 +126,8 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
-    val sparkSubmitService = new SparkSubmitService(workflow)
-    val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
-    sparkClusterContextInstance(sparkConfig ++ stepsSparkConfig, files)
+    sparkClusterContextInstance(stepsSparkConfig, files)
 
     val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curatorFramework)
 

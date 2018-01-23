@@ -17,10 +17,14 @@ package com.stratio.sparta.sdk.properties
 
 import java.io.StringReader
 
+import akka.event.slf4j.SLF4JLogging
 import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.mustache.ScalaObjectHandler
 
-case class JsoneyString(private val string: String, private val environmentContext: Option[EnvironmentContext] = None) {
+case class JsoneyString(
+                         private val string: String,
+                         private val environmentContext: Option[EnvironmentContext] = None
+                       ) extends SLF4JLogging {
 
   override def toString: String = parseStringWithEnvContext(string)
 

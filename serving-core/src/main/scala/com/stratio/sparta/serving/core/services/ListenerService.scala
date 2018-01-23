@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.services
 
-import akka.actor.{ActorContext, ActorRef}
+import akka.actor.{ActorContext, ActorRef, Cancellable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
 import com.stratio.sparta.serving.core.constants.AppConstant._
@@ -87,7 +87,8 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
 
   def addMarathonListener(
                                   workflowId: String,
-                                  akkaContext: ActorContext
+                                  akkaContext: ActorContext,
+                                  scheduledTask : Option[Cancellable] = None
                                 ): Unit = {
     val workflow = workflowService.findById(workflowId)
     log.info(s"Marathon context listener added to ${workflow.name} with id: $workflowId")
@@ -96,6 +97,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
       if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
+          scheduledTask.foreach(task => if(!task.isCancelled) task.cancel())
           val info = s"Finishing workflow with Marathon API"
           log.info(info)
           executionService.findById(workflowId).foreach { execution =>
@@ -135,13 +137,14 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
 
   }
 
-  def addMesosDispatcherListener(workflowId: String): Unit = {
+  def addMesosDispatcherListener(workflowId: String, scheduledTask : Option[Cancellable] = None): Unit = {
     val workflow = workflowService.findById(workflowId)
     log.info(s"Mesos dispatcher listener added to ${workflow.name} with id: $workflowId")
     statusListenerActor ! OnWorkflowChangeDo(workflowId) { workflowStatus =>
       if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
+          scheduledTask.foreach(task => if(!task.isCancelled) task.cancel())
           executionService.findById(workflowId).foreach { execution =>
             (execution.sparkDispatcherExecution, execution.sparkExecution) match {
               case (Some(dispatcherExecution), Some(sparkExecution)) =>
@@ -194,13 +197,14 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
     }
   }
 
-  def addSparkClientListener(workflowId: String, handler: SparkAppHandle): Unit = {
+  def addSparkClientListener(workflowId: String, handler: SparkAppHandle,  scheduledTask : Cancellable): Unit = {
     val workflow = workflowService.findById(workflowId)
     log.info(s"Spark Client listener added to ${workflow.name} with id: $workflowId")
     statusListenerActor ! OnWorkflowChangeDo(workflowId) { workflowStatus =>
       if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
+          if(!scheduledTask.isCancelled) scheduledTask.cancel()
           Try {
             log.info("Stopping submission workflow with handler")
             handler.stop()

@@ -177,6 +177,7 @@
       "_SPARK_EXECUTOR_URI_": "Executor URI",
       "_SPARK_COARSE_": "Coarse",
       "_SPARK_PARQUET_BINARY_STRING_": "Parquet binary as string",
+      "_SPARK_LOG_STAGES_PROGRESS_": "Show stages progress in logs",
       "_SPARK_STOP_GRACEFULLY_": "Stop gracefully",
       "_SPARK_CORES_MAX_": "Cores max",
       "_SPARK_EXECUTOR_MEMORY_": "Executor memory",

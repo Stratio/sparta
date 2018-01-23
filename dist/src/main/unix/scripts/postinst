@@ -45,7 +45,7 @@ changeModeInstall () {
     changeMode /etc/sds/sparta/reference.conf 0640
     changeMode /etc/default/sparta-variables 0640
     changeMode /etc/default/sparta-functions 0640
-    changeMode /etc/sds/sparta/logback.xml 0640
+    changeMode /etc/sds/sparta/log4j2.xml 0640
 
     chown -R root:stratio /etc/init.d/sparta
     chmod  0755 /etc/init.d/sparta

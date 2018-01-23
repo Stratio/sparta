@@ -14,7 +14,8 @@ export SERVER_PROPERTIES=/etc/sds/$NAME
 # Log directory
 export LOG_DIR=/var/log/sds/$NAME
 export LOG_FILE=$LOG_DIR/sparta.log
-export LOG_CONFIG_FILE=$SERVER_PROPERTIES/logback.xml
+export LOG_CONFIG_FILE=$SERVER_PROPERTIES/log4j2.xml
+export SPARK_LOG_CONFIG_FILE=$SERVER_PROPERTIES/log4j.properties
 
 # Data directory
 export DATA_DIR=/var/sds/$NAME

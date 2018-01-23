@@ -17,7 +17,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.{EnvironmentChange, GetEnvironment}
+import com.stratio.sparta.serving.core.actor.EnvironmentStateActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.env.Environment
@@ -37,6 +37,9 @@ class EnvironmentStateActor(curatorFramework: CuratorFramework)
   private case class State(nodeCache: NodeCache)
 
   override def preStart(): Unit = {
+
+    initializeEnvironment()
+
     val environmentPath = AppConstant.EnvironmentZkPath
     val nodeCache = new NodeCache(curatorFramework, environmentPath)
     val nodeListener = new NodeCacheListener {
@@ -55,25 +58,33 @@ class EnvironmentStateActor(curatorFramework: CuratorFramework)
     nodeCache.start()
 
     context.become(receive(State(nodeCache)))
+  }
 
-    environmentService.find().foreach(environment => self ! EnvironmentChange(environmentPath, environment))
-
+  def initializeEnvironment(): Unit = {
+    environmentService.find().foreach { environment =>
+      environmentState = environment.variables.map { envVariable =>
+        envVariable.name -> envVariable.value
+      }.toMap
+    }
   }
 
   def receive(st: State): Receive = {
     {
       case environmentChange: EnvironmentChange => updateEnvironmentState(environmentChange)
       case GetEnvironment => manageGetEnvironment()
+      case ForceInitialization => initializeEnvironment()
     }
   }
 
-  def manageGetEnvironment(): Unit =
+  def manageGetEnvironment(): Unit = {
     sender ! environmentState
+  }
 
   def updateEnvironmentState(environmentChange: EnvironmentChange): Unit = {
-    val newEnvMap = environmentChange.environment.variables.map{envVariable =>
+    val newEnvMap = environmentChange.environment.variables.map { envVariable =>
       envVariable.name -> envVariable.value
     }.toMap
+    log.debug(s"Updating environment state with variables: $newEnvMap")
     environmentState = newEnvMap
     //context.system.eventStream.publish(environmentChange)
   }
@@ -89,5 +100,7 @@ object EnvironmentStateActor {
   case class EnvironmentChange(path: String, environment: Environment) extends Notification
 
   case object GetEnvironment
+
+  case object ForceInitialization
 
 }

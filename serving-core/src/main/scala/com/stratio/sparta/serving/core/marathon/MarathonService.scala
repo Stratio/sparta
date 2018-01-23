@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.core.marathon
 
-import java.util.Calendar
+import java.util.{Calendar, UUID}
 
 import akka.actor.{ActorContext, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
@@ -30,9 +30,7 @@ import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstr
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{
-  PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus
-}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.tikitakka.common.message._
@@ -118,7 +116,7 @@ class MarathonService(context: ActorContext,
   lazy val marathonConfig: Config = SpartaConfig.getMarathonConfig.get
   lazy val upAndDownComponent: UpAndDownComponent = SpartaMarathonComponent.apply
   lazy val upAndDownActor: ActorRef = actorSystem.actorOf(Props(new UpAndDownActor(upAndDownComponent)),
-    s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}")
+    s"${AkkaConstant.UpDownMarathonActor}-${Calendar.getInstance().getTimeInMillis}-${UUID.randomUUID.toString}")
 
   /* PUBLIC METHODS */
 
@@ -364,6 +362,8 @@ class MarathonService(context: ActorContext,
       DefaultFsEnv -> Properties.envOrNone(DefaultFsEnv),
       DefaultHdfsConfUriEnv -> Properties.envOrNone(DefaultHdfsConfUriEnv),
       HadoopConfDirEnv -> Properties.envOrNone(HadoopConfDirEnv),
+      SpartaLogAppender -> Properties.envOrNone(SpartaLogAppender),
+      BashLogLevelEnv -> Properties.envOrNone(BashLogLevelEnv),
       ServiceLogLevelEnv -> Properties.envOrNone(ServiceLogLevelEnv),
       SpartaLogLevelEnv -> Properties.envOrNone(SpartaLogLevelEnv),
       SparkLogLevelEnv -> Properties.envOrNone(SparkLogLevelEnv),
@@ -372,6 +372,8 @@ class MarathonService(context: ActorContext,
       ParquetLogLevelEnv -> Properties.envOrNone(ParquetLogLevelEnv),
       AvroLogLevelEnv -> Properties.envOrNone(AvroLogLevelEnv),
       CrossdataLogLevelEnv -> Properties.envOrNone(CrossdataLogLevelEnv),
+      HttpLogLevelEnv -> Properties.envOrNone(HttpLogLevelEnv),
+      SpartaRedirectorEnv -> Properties.envOrNone(SpartaRedirectorEnv),
       LoggerStderrSizeEnv -> Properties.envOrSome(LoggerStderrSizeEnv, Option("20MB")),
       LoggerStdoutSizeEnv -> Properties.envOrSome(LoggerStdoutSizeEnv, Option("20MB")),
       LoggerStdoutRotateEnv -> Properties.envOrSome(LoggerStdoutRotateEnv, Option("rotate 10")),

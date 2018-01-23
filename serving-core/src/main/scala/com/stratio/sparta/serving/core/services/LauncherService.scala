@@ -41,11 +41,11 @@ class LauncherService(curatorFramework: CuratorFramework) extends SLF4JLogging {
         workflowStatus.status match {
           case status if wrongStartStates.contains(status) =>
             val information = s"Checker: the workflow ${workflow.name} did not start correctly"
-            log.error(information)
+            log.warn(information)
             statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Some(information)))
           case status if wrongStopStates.contains(status) =>
             val information = s"Checker: the workflow ${workflow.name} did not stop correctly"
-            log.error(information)
+            log.warn(information)
             statusService.update(WorkflowStatus(id = workflow.id.get, status = Failed, statusInfo = Some(information)))
           case status if validStartStates.contains(status) =>
             val information = s"Checker: the workflow ${workflow.name} started correctly"

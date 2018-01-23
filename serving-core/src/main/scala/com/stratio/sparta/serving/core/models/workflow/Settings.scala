@@ -70,7 +70,7 @@ case class SubmitArguments(
                             excludePackages: Option[JsoneyString] = None,
                             repositories: Option[JsoneyString] = None,
                             proxyUser: Option[JsoneyString] = None,
-                            driverJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC")),
+                            driverJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")),
                             driverLibraryPath: Option[JsoneyString] = None,
                             driverClassPath: Option[JsoneyString] = None
                           )
@@ -86,6 +86,7 @@ case class SparkConf(
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       parquetBinaryAsString: Option[Boolean] = None,
+                      logStagesProgress: Option[Boolean] = None,
                       executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC"))
                     )
 
@@ -104,7 +105,7 @@ case class SparkResourcesConf(
 
 case class SparkDockerConf(
                             executorDockerImage: Option[JsoneyString] =
-                            Option(JsoneyString("qa.stratio.com/stratio/stratio-spark:2.2.0.3")),
+                            Option(JsoneyString("qa.stratio.com/stratio/stratio-spark:2.2.0.4")),
                             executorDockerVolumes: Option[JsoneyString] =
                             Option(JsoneyString("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
                               "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +

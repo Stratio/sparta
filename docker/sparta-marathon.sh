@@ -1,42 +1,41 @@
 #!/bin/bash -e
 
-function _log_sparta_marathon() {
-    local message=$1
-    echo "[SPARTA-MARATHON] $message"
-}
-
  SPARTA_MARATHON_CONF_FILE=/etc/sds/sparta/marathon/reference.conf
  cp ${SPARTA_MARATHON_CONF_FILE} ${SPARTA_CONF_FILE}
 
- _log_sparta_marathon "Loading Sparta marathon functions ... "
+ INFO "[SPARTA-MARATHON] Loading Sparta common functions ... "
+ source /sparta-common.sh
+ INFO "[SPARTA-MARATHON] Loaded Sparta common functions"
+
+ INFO "[SPARTA-MARATHON] Loading Sparta marathon functions ... "
  source /sparta-marathon-utils.sh
- _log_sparta_marathon "Loaded Sparta marathon functions"
+ INFO "[SPARTA-MARATHON] Loaded Sparta marathon functions"
 
- _log_sparta_marathon "Loading Sparta Java options ... "
+ INFO "[SPARTA-MARATHON] Loading Sparta Java options ... "
  initJavaOptions
- _log_sparta_marathon "Loaded Sparta Java options"
+ INFO "[SPARTA-MARATHON] Loaded Sparta Java options"
 
- _log_sparta_marathon "Loading Sparta Spark options ... "
+ INFO "[SPARTA-MARATHON] Loading Sparta Spark options ... "
  initSpark
  initSparkEnvOptions
  initClusterSparkIp
  initSparkDefaultsOptions
- _log_sparta_marathon "Loaded Sparta Spark options"
+ INFO "[SPARTA-MARATHON] Loaded Sparta Spark options"
 
- _log_sparta_marathon "Loading Sparta Hdfs options ... "
+ INFO "[SPARTA-MARATHON] Loading Sparta Hdfs options ... "
  initHdfs
- _log_sparta_marathon "Loaded Sparta Hdfs options"
+ INFO "[SPARTA-MARATHON] Loaded Sparta Hdfs options"
 
- _log_sparta_marathon "Loading Sparta and system variables ... "
+ INFO "[SPARTA-MARATHON] Loading Sparta and system variables ... "
  loadVariables
- _log_sparta_marathon "Loaded Sparta and system variables"
+ INFO "[SPARTA-MARATHON] Loaded Sparta and system variables"
 
- _log_sparta_marathon "Loading Sparta Log options ... "
+ INFO "[SPARTA-MARATHON] Selecting log appender ... "
  logLevelOptions
- logLevelToStdout
- _log_sparta_marathon "Loaded Sparta Log options"
+ logLevelAppender
+ INFO "[SPARTA-MARATHON] Log appender selected"
 
  # Run Sparta Marathon jar
- #run-marathon-app.sh >> /dev/null 2>$LOG_FILE & echo $! >$PIDFILE
- _log_sparta_marathon "Running Sparta marathon application ... "
+ INFO "[SPARTA-MARATHON] Running Sparta marathon application ... "
+ export SPARTA_OPTS="$SPARTA_OPTS -Dconfig.file=$SPARTA_CONF_FILE"
  source /run-marathon-app.sh

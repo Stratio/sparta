@@ -2,7 +2,12 @@
 
 ## 2.0.0 (upcoming)
 
-* Pending changelog
+* Update Spark Image (2.2.0.4)
+* Environment variables with Moustache substitution
+* Centralized logging
+* Workflow groups management
+* Workflow versioning
+* Batch components integration
 
 ## 1.9.0 (December 29, 2017)
 * **Alpha release for version 2.0**
