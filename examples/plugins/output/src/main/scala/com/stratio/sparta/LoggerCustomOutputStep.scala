@@ -29,20 +29,10 @@ import org.apache.spark.sql.functions._
 import scala.util.{Failure, Success, Try}
 import org.apache.spark.sql._
 
-class FileCustomOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
+class LoggerCustomOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) {
 
-  lazy val path = propertiesWithCustom.get("path").getOrElse("/tmp/file-custom-step")
-  lazy val createDifferentFiles = Try(propertiesWithCustom.getString("createDifferentFiles", "true").toBoolean)
-    .getOrElse(true)
-
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
-    val finalPath = {
-      if (createDifferentFiles)
-        s"${path.toString}/${new Date().getTime}"
-      else path.toString
-    }
-
-    dataFrame.write.json(finalPath)
+    dataFrame.foreach{ row => log.info(row.mkString(",")) }
   }
 }

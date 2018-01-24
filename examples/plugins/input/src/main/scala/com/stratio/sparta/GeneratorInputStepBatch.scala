@@ -14,44 +14,46 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.plugin.workflow.transformation.select
+package com.stratio.sparta
 
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
-import org.apache.spark.sql.Row
+import com.stratio.sparta.sdk.workflow.step._
+import org.apache.spark.sql.{Row, _}
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputStep
-import org.apache.spark.sql._
-import org.apache.spark.sql.crossdata.XDSession
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions._
+import DistributedMonad.Implicits._
 
 import scala.util.{Failure, Success, Try}
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 import scala.util.Try
 
-class RepartitionCustomTransformStep(name: String,
+class GeneratorInputStepBatch(
+                               name: String,
                                outputOptions: OutputOptions,
-                               ssc: StreamingContext,
+                               ssc: Option[StreamingContext],
                                xDSession: XDSession,
-                               properties: Map[String, JSerializable])
-  extends TransformStep(name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+                               properties: Map[String, JSerializable]
+                             )
+  extends InputStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
 
-  lazy val partitions = Try(propertiesWithCustom.getInt("partitions")).getOrElse(
-    throw new Exception("Property partitions is mandatory"))
+  lazy val stringSchema = StructType(Seq(StructField("raw", StringType)))
 
-  def transformFunction(inputSchema: String, inputStream: DStream[Row]): DStream[Row] = {
-    inputStream.repartition(partitions)
+  def init(): DistributedMonad[RDD] = {
+    val register = Seq(new GenericRowWithSchema(Array("test-data"), stringSchema).asInstanceOf[Row])
+    val defaultRDD = xDSession.sparkContext.parallelize(register)
+
+    defaultRDD
   }
-
-  override def transform(inputData: Map[String, DStream[Row]]): DStream[Row] =
-    applyHeadTransform(inputData)(transformFunction)
 }
