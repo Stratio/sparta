@@ -20,7 +20,7 @@ import * as crossdataTemplate from './outputs/crossdata.json';
 import * as csvTemplate from './outputs/csv.json';
 import * as customTemplate from './outputs/custom.json';
 import * as elasticSearchTemplate from './outputs/elastic-search.json';
-//import * as httpTemplate from './outputs/http.json';
+import * as httpTemplate from './outputs/http.json';
 import * as jdbcTemplate from './outputs/jdbc.json';
 import * as jsonTemplate from './outputs/json.json';
 import * as kafkaTemplate from './outputs/kafka.json';
@@ -39,7 +39,7 @@ export const outputs = [
   csvTemplate,
   customTemplate,
   elasticSearchTemplate,
-  //httpTemplate,
+  httpTemplate,
   jdbcTemplate,
   jsonTemplate,
   kafkaTemplate,
