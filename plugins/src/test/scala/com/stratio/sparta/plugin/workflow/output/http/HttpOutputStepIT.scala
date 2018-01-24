@@ -25,12 +25,46 @@ import org.scalatest.{BeforeAndAfterAll, ShouldMatchers}
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.OutputFormatEnum
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives.{as, entity, get, parameterSeq, pathPrefix, post, _}
+import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.stream.ActorMaterializer
+import java.net.ServerSocket
 
 @RunWith(classOf[JUnitRunner])
 class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with BeforeAndAfterAll {
 
+  implicit val system: ActorSystem = ActorSystem()
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+
+  val port = new ServerSocket(0).getLocalPort
+
+  def internalWebServer() = {
+    val routes = pathPrefix("test") {
+      get {
+        parameterSeq { param =>
+          complete(200, "get call ok")
+        }
+      } ~
+        post {
+          entity(as[String]) {
+            ent =>
+              complete(200, "post call ok")
+          }
+        }
+    }
+    Http().bindAndHandle(routes, "0.0.0.0", port)
+  }
+
+  override protected def beforeAll(): Unit = internalWebServer
+
+  override protected def afterAll(): Unit = system.terminate()
+
+  val url = s"http://0.0.0.0:$port/test"
+
   val properties = Map(
-    "url" -> "https://httpbin.org/post",
+    "url" -> url,
     "delimiter" -> ",",
     "parameterName" -> "thisIsAKeyName",
     "readTimeOut" -> "5000",
@@ -69,7 +103,6 @@ class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
 
   val restMock1 = new HttpOutputStep("key", sparkSession, properties)
   "Given a DataFrame it" should "be parsed and send through a Raw data POST request" in {
-
     dfGen().collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock1.sendData(row.mkString(restMock1.delimiter)).code)
     })
@@ -80,9 +113,7 @@ class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
     assertResult(dfGen().count())(size)
   }
 
-  val restMock2 = new HttpOutputStep("key", sparkSession, properties.updated("postType", "parameter")
-    .updated("url", "https://httpbin.org/get"))
-
+  val restMock2 = new HttpOutputStep("key", sparkSession, properties.updated("postType", "parameter"))
   it should "be parsed and send as a Get request along with a parameter stated by properties.parameterKey " in {
     dfGen().collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock2.sendData(row.mkString(restMock2.delimiter)).code)
@@ -96,8 +127,7 @@ class HttpOutputStepIT extends TemporalSparkContext with ShouldMatchers with Bef
     })
   }
 
-  val restMock4 = new HttpOutputStep("key", sparkSession,
-    properties.updated("postType", "parameter").updated("format", "JSON").updated("url", "https://httpbin.org/get"))
+  val restMock4 = new HttpOutputStep("key", sparkSession, properties.updated("postType", "parameter").updated("format", "JSON"))
   it should "sent as a GET request along with a parameter stated by properties.parameterKey " in {
     dfGen().toJSON.collect().foreach(row => {
       assertResult(OkHTTPResponse)(restMock4.sendData(row).code)
