@@ -63,7 +63,7 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
 
     private timer: any;
 
-    constructor(private _store: Store<State>, 
+    constructor(private _store: Store<State>,
         private _modalService: StModalService,
         public workflowsService: WorkflowsService,
         private _cd: ChangeDetectorRef) { }

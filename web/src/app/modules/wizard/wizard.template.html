@@ -4,4 +4,4 @@
     </div>
     <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
 </section>
-<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition" [config]="editionConfigMode$ | async"></wizard-config-editor>
+<wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition" [workflowType]="workflowType" [config]="editionConfigMode$ | async"></wizard-config-editor>

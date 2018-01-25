@@ -32,8 +32,8 @@ export interface State {
     validatedWorkflow: any
   };
   reload: boolean;
+  jsonValidationError: boolean;
   executionInfo: any;
-  displayOptions: Array<any>;
   modalOpen: boolean;
   selectedDisplayOption: string;
   sortOrder: boolean;
@@ -51,6 +51,7 @@ const initialState: State = {
   searchQuery: '',
   executionInfo: null,
   modalOpen: false,
+  jsonValidationError: false,
   sortOrder: true,
   orderBy: 'name',
   workflowNameValidation: {
@@ -58,16 +59,6 @@ const initialState: State = {
     validatedWorkflow: undefined
   },
   reload: false,
-  displayOptions: [
-    {
-      value: 'BLOCKS',
-      icon: 'icon-grid2'
-    },
-    {
-      value: 'ROWS',
-      icon: 'icon-menu2'
-    }
-  ],
   selectedDisplayOption: 'BLOCKS'
 };
 
@@ -112,8 +103,8 @@ export function reducer(state: State = initialState, action: any): State {
     }
     case workflowActions.SELECT_WORKFLOW: {
       return Object.assign({}, state, {
-        selectedWorkflows: [...state.selectedWorkflows, action.payload],
-        selectedWorkflowsIds: [...state.selectedWorkflowsIds, action.payload.id]
+        selectedWorkflows: [action.payload, ...state.selectedWorkflows],
+        selectedWorkflowsIds: [action.payload.id, ...state.selectedWorkflowsIds]
       });
     }
     case workflowActions.DESELECT_WORKFLOW: {
@@ -139,6 +130,11 @@ export function reducer(state: State = initialState, action: any): State {
           workflow.context = (c && Array.isArray(c) && c.length) ? c[0] : {};
           return workflow;
         })
+      });
+    }
+    case workflowActions.SAVE_JSON_WORKFLOW_ERROR: {
+      return Object.assign({}, state, {
+        jsonValidationError: true
       });
     }
     case workflowActions.DELETE_WORKFLOW_COMPLETE: {
@@ -174,7 +170,8 @@ export function reducer(state: State = initialState, action: any): State {
     }
     case workflowActions.RESET_JSON_MODAL: {
       return Object.assign({}, state, {
-        modalOpen: false
+        modalOpen: false,
+        jsonValidationError: false
       });
     }
     case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
@@ -212,7 +209,6 @@ export const getSelectedWorkflows: any = (state: State) => {
   };
 };
 export const getSearchQuery: any = (state: State) => state.searchQuery;
-export const getDisplayOptions: any = (state: State) => state.displayOptions;
 export const getSelectedDisplayOption: any = (state: State) => state.selectedDisplayOption;
 export const getWorkflowNameValidation: any = (state: State) => state.workflowNameValidation;
 export const getWorkflowModalState: any = (state: State) => state.modalOpen;

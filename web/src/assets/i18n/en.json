@@ -471,8 +471,10 @@
       "WORKFLOW_SAVE_SUCCESS": "Workflow has been saved succesfully",
       "UPDATE_INPUT_DESCRIPTION": "Input has been saved",
       "UPDATE_OUTPUT_DESCRIPTION": "Output has been saved",
+      "UPDATE_TRANSFORMATION_DESCRIPTION": "Transformation has been saved",
       "CREATE_INPUT_DESCRIPTION": "Input has been created succesfully",
       "CREATE_OUTPUT_DESCRIPTION": "Output has been created succesfully",
+      "CREATE_TRANSFORMATION_DESCRIPTION": "Transformation has been created succesfully",
       "NO_ENTITY_WORKFLOW_TITLE": "Validation error",
       "NO_ENTITY_WORKFLOW_MESSAGE": "Workflow must have at least one node",
       "VALIDATION_ERRORS_MESSAGE": "At least one node has errors",
@@ -482,7 +484,10 @@
       "SERVER_ERROR": "Server error",
       "SAVE_ENVIRONMENT": "The environment variables have been saved",
       "EXPORT_ENVIRONMENT": "The environment data have been exported",
-      "IMPORT_ENVIRONMENT": "The environment data have been imported"
+      "IMPORT_ENVIRONMENT": "The environment data have been imported",
+      "DELETE_INPUT_DESCRIPTION": "The input has been deleted",
+      "DELETE_OUTPUT_DESCRIPTION": "The output has been deleted",
+      "DELETE_TRANSFORMATION_DESCRIPTION": "The transformation has been deleted"
    },
    "WIZARD": {
       "INPUTS": "Inputs",

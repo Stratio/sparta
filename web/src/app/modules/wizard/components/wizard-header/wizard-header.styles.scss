@@ -1,0 +1,160 @@
+@import '~@stratio/egeo/theme/constants';
+$cloudy-black: #cdd6df;
+.title-header {
+   background-color: white;
+   border-bottom: 1px solid $cloudy-black;
+   padding: 9px 0 1px;
+   height: 62px;
+   overflow: hidden;
+}
+
+.main-title {
+   display: inline-block;
+   font-size: 28px;
+   position: relative;
+}
+
+.tool-header {
+   padding: 12px 0;
+   border-bottom: 1px solid #ddd;
+}
+
+.position-tools {
+   display: inline-block;
+}
+
+.show-options {
+   margin-right: 40px;
+}
+
+.header-info {
+   display: inline-block;
+}
+
+.st-logo {
+   float: left;
+   margin-top: 8px;
+}
+
+.undo-action {
+   margin-left: 15px;
+}
+
+.workflow-name {
+   line-height: 27px;
+   vertical-align: bottom;
+   display: inline-block;
+   margin-left: 35px;
+   margin-top: -2px;
+   margin-bottom: 9px;
+   input {
+      min-width: 400px;
+      padding: 0 4px;
+      border: 0;
+      outline: 0;
+      &:focus {
+         border: 1px solid $brand;
+      }
+      &.error {
+         border: 1px solid #f59ea9;
+      }
+   }
+}
+
+[hidden] {
+   display: none;
+}
+
+.workflow-name-container {
+   float: left;
+   margin-left: 24px;
+   margin-top: 3px;
+   margin-bottom: 6px;
+   .title {
+      margin-right: 10px;
+      /* cursor: text; */
+   }
+   .icon-edit {
+      font-size: 22px;
+      color: #bbb;
+      margin-top: 2px;
+   }
+}
+
+.header-links {
+   float: right;
+   .link {
+      margin-right: 30px;
+      color: $action-primary-default;
+      cursor: pointer;
+      &:hover {
+         color: $action-primary-hover;
+      }
+   }
+}
+
+.validation-message {
+   font-size: 14px;
+   word-break: break-word;
+   padding: 2px 0;
+}
+
+.errors {
+   color: $status-critical-default;
+   border-color: $status-critical-default;
+   background: #fff;
+   &.selected-button {
+      color: $status-critical-hover;
+      border-color: $status-critical-hover!important;
+   }
+   &:hover {
+      color: $status-critical-hover;
+      border-color: $status-critical-hover!important;
+   }
+}
+
+.errors-list {
+   color: #555;
+   list-style: none;
+   li {}
+}
+
+.validation-title {
+   color: #333;
+   font-family: $egeo-nunito-sans-semiBold;
+}
+
+.options-button {
+   display: inline-block;
+   background-color: #128bde;
+   color: #fff;
+   font-family: Nunito Sans Bold;
+   font-size: 1rem;
+   text-overflow: ellipsis;
+   border-radius: 4px;
+   line-height: 1.313rem;
+   cursor: pointer;
+   &[disabled] {
+      background-color: #ededed;
+   }
+   .main-button {
+      display: inline-block;
+      vertical-align: top;
+      padding: 0.56em 1.2em;
+   }
+   .secondary-button {
+      display: inline-block;
+      border-left: 1px solid white;
+      font-size: 14px;
+      margin: 2px 0;
+      padding: 0.56em 0.55em;
+      vertical-align: middle;
+   }
+}
+
+.workflow-type {
+   float: left;
+   font-size: 28px;
+   line-height: 43px;
+   color: #888;
+}

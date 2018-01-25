@@ -1,7 +1,7 @@
   {
      "name": "Select",
      "icon": "Select",
-     "className": "SelectTransformStepStream",
+     "className": "SelectTransformStep",
      "classPrettyName": "Select",
      "arity": ["UnaryToNary"],
      "description": "Select fields from the events in the input DStream",

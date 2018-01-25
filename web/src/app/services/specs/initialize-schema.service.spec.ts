@@ -15,12 +15,12 @@
 ///
 
 import { InitializeSchemaService } from '../initialize-schema.service';
-import { inputsObject } from 'data-templates/inputs';
-import { outputsObject } from 'data-templates/outputs';
+import {streamingInputsObject } from 'data-templates/inputs';
+import { streamingOutputsObject } from 'data-templates/outputs';
 import { settingsTemplate } from 'data-templates/index';
 
-const kafkaTemplate = inputsObject['Kafka'];
-const printTemplate = outputsObject['Print'];
+const kafkaTemplate = streamingInputsObject['Kafka'];
+const printTemplate = streamingOutputsObject['Print'];
 const initializeSchemaService: InitializeSchemaService = new InitializeSchemaService();
 const schema = [
     {

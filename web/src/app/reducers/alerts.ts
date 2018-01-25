@@ -15,8 +15,9 @@
 ///
 
 import * as backupsActions from 'actions/backups';
-import * as inputActions from 'actions/input';
-import * as outputActions from 'actions/output';
+import * as inputActions from './../modules/templates/actions/input';
+import * as outputActions from './../modules/templates/actions/output';
+import * as transformationActions from './../modules/templates/actions/transformation';
 import * as workflowActions from './../modules/workflows/actions/workflow-list';
 import * as wizardActions from 'actions/wizard';
 import * as errorsActions from 'actions/errors';
@@ -67,6 +68,42 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'UPDATE_INPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case transformationActions.UPDATE_TRANSFORMATION_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'UPDATE_TRANSFORMATION_DESCRIPTION'
+                }]
+            });
+        }
+        case inputActions.DELETE_INPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_INPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case outputActions.DELETE_OUTPUT_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_OUTPUT_DESCRIPTION'
+                }]
+            });
+        }
+        case transformationActions.DELETE_TRANSFORMATION_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_TRANSFORMATION_DESCRIPTION'
                 }]
             });
         }
@@ -172,7 +209,8 @@ export function reducer(state: State = initialState, action: any): State {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
-                    description: 'WORKFLOW_SAVE_SUCCESS'
+                    description: 'WORKFLOW_SAVE_SUCCESS',
+                    duration: 1500
                 }]
             });
         }
@@ -194,6 +232,15 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case transformationActions.CREATE_TRANSFORMATION_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'CREATE_TRANSFORMATION_DESCRIPTION'
+                }]
+            });
+        }
         case errorsActions.SERVER_ERROR: {
             return Object.assign({}, state, {
                 currentAlert: [{
@@ -201,7 +248,7 @@ export function reducer(state: State = initialState, action: any): State {
                     notranslate: true,
                     title: action.payload.title,
                     description: action.payload.description,
-                    duration: 1500
+                    duration: 5000
                 }]
             });
         }

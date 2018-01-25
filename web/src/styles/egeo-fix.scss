@@ -50,6 +50,11 @@
    background-color: #fff!important;
    box-shadow: 0 1px 4px 2px rgba(124, 124, 124, 0.15);
    border-radius: 4px;
+
+   .sth-alert-box-close-button {
+    color: #666!important;
+   }
+
    .sth-alert-box-message-header-title {
       color: #111111!important;
       font-size: 15px!important;
@@ -160,6 +165,11 @@ sp-textarea {
       opacity: 1;
       transform: none;
    }
+}
+
+.st-tooltip {
+    min-height: 18px!important;
+    line-height: 18px!important;
 }
 
 

@@ -155,7 +155,6 @@
           "propertyName": "SETTINGS._WORKFLOW_REMEMBER_FIELD_",
           "propertyType": "text",
           "tooltip": "Maximum time a certain query will be executed before being aborted",
-          "required": false,
            "width": 4,
           "qa": "spark-streaming-remember-number"
         },

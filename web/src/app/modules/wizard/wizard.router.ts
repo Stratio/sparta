@@ -20,23 +20,23 @@ import { WizardComponent } from './wizard.component';
 
 
 const wizardRoutes: Routes = [
-   {
-      path: '',
-      component: WizardComponent,
-   },
-   {
-       path: ':id',
-       component: WizardComponent,
-   }
+    {
+        path: ':type',
+        component: WizardComponent,
+    },
+    {
+        path: 'edit/:id',
+        component: WizardComponent,
+    }
 ];
 
 @NgModule({
-   exports: [
-      RouterModule
-   ],
-   imports: [
-      RouterModule.forChild(wizardRoutes)
-   ]
+    exports: [
+        RouterModule
+    ],
+    imports: [
+        RouterModule.forChild(wizardRoutes)
+    ]
 })
 
 export class WizardRoutingModule { }

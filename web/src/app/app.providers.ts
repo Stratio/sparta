@@ -29,7 +29,6 @@ import {
     BreadcrumbMenuService,
     InitializeSchemaService,
     InitializeWorkflowService,
-    ValidateSchemaService
 } from 'services';
 import { AppState } from './app.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -54,6 +53,5 @@ export const APP_PROVIDERS: Array<any> = [
     BreadcrumbMenuService,
     ApiService,
     ErrorMessagesService,
-    InitializeWorkflowService,
-    ValidateSchemaService
+    InitializeWorkflowService
 ];

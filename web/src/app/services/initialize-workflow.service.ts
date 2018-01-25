@@ -29,7 +29,7 @@ export class InitializeWorkflowService {
             };
         }
         const nodes = workflow.pipelineGraph.nodes;
-        let x = 40;
+        let x = 40; // default node positions
         let y = 100;
         let h = true;
         if (nodes && nodes.length && !nodes[0].uiConfiguration) {
@@ -40,7 +40,7 @@ export class InitializeWorkflowService {
                     y: y
                 };
 
-                h ? x += 200 : y+=120;
+                h ? x += 200 : y += 120;
                 h = !h;
             });
         }

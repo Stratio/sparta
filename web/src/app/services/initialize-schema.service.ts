@@ -15,7 +15,6 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { ValidationModel, ValidationErrorModel } from 'app/models/validation-schema.model';
 import { writerTemplate } from 'data-templates/index';
 
 

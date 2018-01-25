@@ -11,7 +11,8 @@
         "propertyName": "_PATH_",
         "propertyType": "text",
         "required": true,
-        "qa": "fragment-details-csv-path"
+        "qa": "fragment-details-csv-path",
+        "tooltip": "ie: file://"
       },
       {
         "propertyId": "header",

@@ -1,5 +1,9 @@
+:host {
+        display: block;
+    width: 100%;
+}
+
 .editor {
-   display: flex;
    .json-info {
       display: flex;
       font-size: 12px;
@@ -12,10 +16,13 @@
 .workflow-fields {
    width: 250px;
    margin-right: 32px;
+   display: inline-block;
+       vertical-align: top;
 }
 
 .workflow-json {
-   flex: 1;
+    width: calc(100% - 290px);
+    display: inline-block;
 }
 
 .workflow-json-content {
@@ -29,4 +36,11 @@
 
 .description {
    margin-top: 20px;
+}
+
+.validation-error{
+        display: block;
+    margin-bottom: 15px;
+    color:#ec445c;
+    font-size:14px;
 }

@@ -62,14 +62,25 @@ export class WorkflowsHeaderComponent {
 
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         this.menuOptions = [
-            {
-                name: 'New workflow from scratch',
-                value: 'scratch'
-            },
+
             {
                 name: 'New workflow from json file',
                 value: 'file'
-        }];
+            },
+            {
+                name: 'New workflow from scratch',
+                value: 'scratch',
+                /* subMenus: [
+                     {
+                         name: 'Streaming',
+                         value: 'streaming'
+                     },
+                     {
+                         name: 'Batch',
+                         value: 'batch'
+                     }
+                 ]*/
+            }];
         const deleteWorkflowModalTitle = 'DASHBOARD.DELETE_WORKFLOW_TITLE';
         const deleteWorkflowModalMessage = 'DASHBOARD.DELETE_WORKFLOW_MESSAGE';
         const messageDeleteTitle = 'DASHBOARD.MESSAGE_DELETE_TITLE';
@@ -102,7 +113,7 @@ export class WorkflowsHeaderComponent {
     }
 
     public editWorkflow(): void {
-        this.route.navigate(['wizard', this.selectedWorkflows[0].id]);
+        this.route.navigate(['wizard', 'edit', this.selectedWorkflows[0].id]);
     }
 
     public deleteWorkflows(): void {
@@ -130,12 +141,21 @@ export class WorkflowsHeaderComponent {
     }
 
     public selectedMenuOption(event: any) {
-        if (event.value === 'scratch') {
-            this.route.navigate(['wizard']);
-        } else if (event.value === 'group') {
-            this.workflowsService.createWorkflowGroup();
-        } else {
-            this.workflowsService.showCreateJsonModal();
+        switch (event.value) {
+            case 'streaming':
+                this.route.navigate(['wizard', 'streaming']);
+                break;
+            case 'batch':
+                this.route.navigate(['wizard', 'batch']);
+                break;
+            case 'group':
+                break;
+            case 'scratch':
+                this.route.navigate(['wizard', 'streaming']);
+                break;
+            case 'file':
+                this.workflowsService.showCreateJsonModal();
+                break;
         }
     }
 }

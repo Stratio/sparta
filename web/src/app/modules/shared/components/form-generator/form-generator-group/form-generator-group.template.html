@@ -8,7 +8,7 @@
       </div>
       <div *ngFor="let category of formData; let i = index;">
          <div [hidden]="activeOption !== category.name">
-            <form-generator [forceValidations]="submitted" [(ngModel)]="stModel[category.name]" [name]="category.name" [formData]="category.properties"></form-generator>
+            <form-generator [forceValidations]="forceValidations" [(ngModel)]="stModel[category.name]" [name]="category.name" [formData]="category.properties"></form-generator>
          </div>
       </div>
    </div>

@@ -31,7 +31,6 @@ export const inputs = [
     crossdataTemplate,
     customTemplate,
     kafkaTemplate,
-
     filesystemTemplate,
     //flumeTemplate,
     //rabbitmqDistributedTemplate,
@@ -42,12 +41,34 @@ export const inputs = [
     websocketTemplate
 ];
 
-export const inputsObject: any = {};
-export const inputNames = inputs.map((input: any) => {
-    inputsObject[input.classPrettyName] = input;
-    return {
-        name: input.name,
-        value: input,
-        stepType: 'Input'
-    };
+
+/*********************** */
+
+const _streamingInputsNames: Array<any> = [];
+const _batchInputsNames: Array<any> = [];
+const _streamingInputsObject: any = [];
+const _batchInputsObject: any = [];
+
+inputs.forEach((input: any) => {
+    if (input.type && input.type === 'batch' ) {
+        _batchInputsObject[input.classPrettyName] = input;
+        _batchInputsNames.push({
+            name: input.name,
+            value: input,
+            stepType: 'Input'
+        });
+    } else {
+        _streamingInputsObject[input.classPrettyName] = input;
+        _streamingInputsNames.push({
+            name: input.name,
+            value: input,
+            stepType: 'Input'
+        });
+    }
 });
+
+export const streamingInputsNames = _streamingInputsNames;
+export const batchInputsNames = _batchInputsNames;
+export const streamingInputsObject = _streamingInputsObject;
+export const batchInputsObject = _batchInputsObject;
+

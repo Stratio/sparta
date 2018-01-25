@@ -38,11 +38,9 @@ export const getWorkflowsEntityState = createSelector(
    state => state.workflows
 );
 
-
 export const getWorkflowList: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getWorkFlowList);
 export const getSelectedWorkflows: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSelectedWorkflows);
 export const getWorkflowSearchQuery: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSearchQuery);
-export const getDisplayOptions: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getDisplayOptions);
 export const getSelectedDisplayOption: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getSelectedDisplayOption);
 export const getWorkflowNameValidation: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getWorkflowNameValidation);
 export const getReloadState: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getReloadState);
@@ -51,3 +49,4 @@ export const getExecutionInfo: any = createSelector(getWorkflowsEntityState, fro
 export const getCurrentGroupLevel: any = createSelector(getWorkflowsEntityState, (state) => state.currentLevel);
 export const getGroupsList: any = createSelector(getWorkflowsEntityState, fromWorkflowList.getGroupsList);
 export const getCreateGroupModalOpen: any = createSelector(getWorkflowsEntityState, (state) => state.createGroupModalOpen);
+export const getJsonValidationErrors: any = createSelector(getWorkflowsEntityState, (state) => state.jsonValidationError);

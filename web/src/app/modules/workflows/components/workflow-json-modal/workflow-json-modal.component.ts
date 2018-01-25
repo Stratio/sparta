@@ -14,11 +14,14 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { Subscription } from 'rxjs/Rx';
+import { Observable } from 'rxjs/Observable';
+
 import * as workflowActions from './../../actions/workflow-list';
-import * as fromRoot from './../../reducers';
+import * as fromWorkflows from './../../reducers';
 
 @Component({
     selector: 'workflow-json-modal',
@@ -26,13 +29,18 @@ import * as fromRoot from './../../reducers';
     styleUrls: ['./workflow-json-modal.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkflowJsonModal implements OnInit {
+export class WorkflowJsonModal implements OnInit, OnDestroy {
 
     @Output() onCloseJsonModal = new EventEmitter<string>();
 
     @ViewChild('jsonWorkflowForm') public jsonWorkflowForm: NgForm;
 
     public workflowValidationError = false;
+    public forceValidations = false;
+
+    public jsonValidationError$: Observable<boolean>;
+
+    private _reloadStateSubscription: Subscription;
 
     public model: any = {
         name: '',
@@ -40,7 +48,7 @@ export class WorkflowJsonModal implements OnInit {
         json: ''
     };
 
-    constructor(private store: Store<fromRoot.State>) { }
+    constructor(private store: Store<fromWorkflows.State>) { }
 
     onChangedFile($event: string): void {
         try {
@@ -55,31 +63,40 @@ export class WorkflowJsonModal implements OnInit {
 
     onSubmitWorkflow(): void {
         if (this.jsonWorkflowForm.valid) {
-            let parsedJson = JSON.parse(this.model.json);
-            let name = this.model.name;
-            let description = this.model.description;
+            try {
+                const parsedJson = JSON.parse(this.model.json);
+                let name = this.model.name;
+                let description = this.model.description;
 
-            /* override json value */
-            if (name.length) {
-                parsedJson.name = name;
+                /* override json value */
+                if (name.length) {
+                    parsedJson.name = name;
+                }
+
+                if (description.length) {
+                    parsedJson.description = description;
+                }
+
+                this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(parsedJson));
+            } catch (error) {
+                console.log('Parse error');
             }
-
-            if (description.length) {
-                parsedJson.description = description;
-            }
-
-            this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(parsedJson));
+        } else {
+            this.forceValidations = true;
         }
     }
 
     ngOnInit() {
-
-        this.store.select(fromRoot.getReloadState).subscribe((res: boolean) => {
+        this._reloadStateSubscription = this.store.select(fromWorkflows.getReloadState).subscribe((res: boolean) => {
             if (res) {
                 this.store.dispatch(new workflowActions.ListWorkflowAction());
             }
         });
+        this.jsonValidationError$ = this.store.select(fromWorkflows.getJsonValidationErrors);
     }
 
+    ngOnDestroy(): void {
+        this._reloadStateSubscription && this._reloadStateSubscription.unsubscribe();
+    }
 }
 

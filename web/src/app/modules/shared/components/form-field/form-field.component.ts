@@ -119,7 +119,7 @@ export class FormFieldComponent implements Validator, ControlValueAccessor, OnIn
             case 'text':
                 return '';
             case 'select':
-                return '';
+                return this.field.default ? this.field.default : '';
             case 'boolean':
                 return false;
             case 'list':

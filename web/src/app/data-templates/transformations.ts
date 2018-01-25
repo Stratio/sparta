@@ -60,12 +60,32 @@ export const transformations: any = [
    windowTemplate
 ];
 
-export const transformationsObject: any = {};
-export const transformationNames = transformations.map((transformation: any) => {
-  transformationsObject[transformation.classPrettyName] = transformation;
-  return {
-        name: transformation.name,
-        value: transformation,
-        stepType: 'Transformation'
-  };
+/*********************** */
+
+const _streamingTransformationsNames: Array<any> = [];
+const _batchTransformationsNames: Array<any> = [];
+const _streamingTransformationsObject: any = [];
+const _batchTransformationsObject: any = [];
+
+transformations.forEach((transformation: any) => {
+    if (transformation.type && transformation.type === 'batch' ) {
+        _batchTransformationsObject[transformation.classPrettyName] = transformation;
+        _batchTransformationsNames.push({
+            name: transformation.name,
+            value: transformation,
+            stepType: 'Transformation'
+        });
+    } else {
+        _streamingTransformationsObject[transformation.classPrettyName] = transformation;
+        _streamingTransformationsNames.push({
+            name: transformation.name,
+            value: transformation,
+            stepType: 'Transformation'
+        });
+    }
 });
+
+export const streamingTransformationsNames = _streamingTransformationsNames;
+export const batchTransformationsNames = _batchTransformationsNames;
+export const streamingTransformationsObject = _streamingTransformationsObject;
+export const batchTransformationsObject = _batchTransformationsObject;

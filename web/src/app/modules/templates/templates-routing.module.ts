@@ -17,12 +17,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TemplatesComponent } from './templates.component';
-import { InputsComponent } from './template-list/inputs.component';
-import { OutputsComponent } from './template-list/outputs.component';
-import { TransformationsComponent } from './template-list/transformations.component';
-import { CreateInputComponent } from './template-creation/create-input.component';
-import { CreateOutputComponent } from './template-creation/create-output.component';
-import { CreateTransformationsComponent } from './template-creation/create-transformation.component';
+import { InputsComponent } from './components/template-list/inputs.component';
+import { OutputsComponent } from './components/template-list/outputs.component';
+import { TransformationsComponent } from './components/template-list/transformations.component';
+import { CreateInputComponent } from './components/template-creation/create-input.component';
+import { CreateOutputComponent } from './components/template-creation/create-output.component';
+import { CreateTransformationsComponent } from './components/template-creation/create-transformation.component';
 
 const templatesRoutes: Routes = [
     {

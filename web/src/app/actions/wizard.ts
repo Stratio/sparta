@@ -61,6 +61,7 @@ export const VALIDATE_WORKFLOW = '[Wizard] Validate workflow';
 export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
 export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
 export const SET_WIZARD_DIRTY = '[Wizard] Set wizard state dirty';
+export const SET_WORKFLOW_TYPE = '[Wizard] Set workflow type';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -261,6 +262,11 @@ export class SetWizardStateDirtyAction implements Action {
     readonly type = SET_WIZARD_DIRTY;
 }
 
+export class SetWorkflowTypeAction implements Action {
+    readonly type = SET_WORKFLOW_TYPE;
+    constructor(public payload: any) { }
+}
+
 
 export type Actions =
     ResetWizardAction |
@@ -302,4 +308,5 @@ export type Actions =
     ValidateWorkflowAction |
     ValidateWorkflowCompleteAction |
     ValidateWorkflowErrorAction |
-    SetWizardStateDirtyAction;
+    SetWizardStateDirtyAction |
+    SetWorkflowTypeAction;

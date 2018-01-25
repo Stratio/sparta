@@ -24,8 +24,10 @@ import {
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
-import { WizardModalComponent } from '@app/wizard/wizard-modal/wizard-modal.component';
-import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details/wizard-details.component';
+import { WizardModalComponent } from './components/wizard-modal/wizard-modal.component';
+import { WizardDetailsComponent } from './components/wizard-editor/wizard-details/wizard-details.component';
+import { WizardService } from './services/wizard.service';
+import { ValidateSchemaService } from './services/validate-schema.service';
 
 
 @NgModule({
@@ -50,7 +52,7 @@ import { WizardDetailsComponent } from '@app/wizard/wizard-editor/wizard-details
         FormsModule,
         ReactiveFormsModule
     ],
-    providers: [WizardEditorService]
+    providers: [WizardEditorService, WizardService, ValidateSchemaService]
 })
 
 export class WizardModule { }

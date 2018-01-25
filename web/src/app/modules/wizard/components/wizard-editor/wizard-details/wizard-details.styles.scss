@@ -1,0 +1,32 @@
+@import '~@stratio/egeo/theme/constants';
+.not-selected {
+   text-align: center;
+   .workflow-info {
+      margin-top: 20px;
+   }
+}
+
+.type {
+   display: block;
+   color: $neutral-11;
+   font-size: 15px;
+}
+
+.title {
+   color: $action-secondary-06;
+   font-size: 14px;
+   margin-top: 6px;
+   display: block;
+}
+
+.selected {
+   position: absolute;
+   width: 330px;
+   height: calc(100% - 90px);
+   overflow-y: auto;
+}
+
+.values {
+   display: block;
+   word-break: break-all;
+}

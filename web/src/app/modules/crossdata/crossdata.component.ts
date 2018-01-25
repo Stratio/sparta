@@ -14,7 +14,8 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+
 import { BreadcrumbMenuService } from 'services';
 
 @Component({
@@ -23,7 +24,7 @@ import { BreadcrumbMenuService } from 'services';
     styleUrls: ['./crossdata.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CrossdataComponent implements OnInit {
+export class CrossdataComponent {
 
     public options: Array<any> = [
         {
@@ -46,11 +47,6 @@ export class CrossdataComponent implements OnInit {
     public onChangedOption(event: string) {
         this.activeMenuOption = event;
         this._cd.detectChanges();
-    }
-
-
-    ngOnInit() {
-
     }
 
     constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {

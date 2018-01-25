@@ -138,7 +138,6 @@ export class WorkflowEffect {
                 return [new workflowActions.SaveJsonWorkflowActionComplete(), new workflowActions.ListWorkflowAction()];
             }).catch(function (error) {
                 return Observable.of(new workflowActions.SaveJsonWorkflowActionError());
-
             });
         });
 

@@ -1,6 +1,6 @@
 :host {
-    display: block;
-    padding-bottom: 70px;
+    display:block;
+    padding-bottom:70px;
 }
 
 .tool-bar {
@@ -8,7 +8,8 @@
    display: block;
    background: white;
    position:fixed;
-   z-index:100;
+   box-shadow: 0px 0px 10px rgba(144,144,144, 0.14);
+    z-index: 100;
 }
 
 .breadcrumb-tool {

@@ -51,12 +51,34 @@ export const outputs = [
   textTemplate
 ];
 
-export const outputsObject: any = {};
-export const outputNames = outputs.map((output: any) => {
-  outputsObject[output.classPrettyName] = output;
-  return {
-        name: output.name,
-        value: output,
-        stepType: 'Output'
-  };
+/*********************** */
+
+const _streamingOutputsNames: Array<any> = [];
+const _batchOutputsNames: Array<any> = [];
+
+const _streamingOutputsObject: any = [];
+const _batchOutputsObject: any = [];
+
+outputs.forEach((output: any) => {
+    if (output.type && output.type === 'batch' ) {
+        _batchOutputsObject[output.classPrettyName] = output;
+        _batchOutputsNames.push({
+            name: output.name,
+            value: output,
+            stepType: 'Output'
+        });
+    } else {
+        _streamingOutputsObject[output.classPrettyName] = output;
+        _streamingOutputsNames.push({
+            name: output.name,
+            value: output,
+            stepType: 'Output'
+        });
+    }
 });
+
+export const streamingOutputsNames = _streamingOutputsNames;
+export const batchOutputsNames = _batchOutputsNames;
+
+export const streamingOutputsObject = _streamingOutputsObject;
+export const batchOutputsObject = _batchOutputsObject;

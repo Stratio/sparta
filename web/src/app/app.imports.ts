@@ -25,12 +25,8 @@ import { reducers } from './reducers';
 import { BrowserModule } from '@angular/platform-browser';
 import { EffectsModule } from '@ngrx/effects';
 
-import { InputEffect } from './effects/input';
 import { BackupsEffect } from './effects/backups';
-import { OutputEffect } from './effects/output';
-import { TransformationEffect } from './effects/transformation';
 import { ResourcesEffect } from './effects/resources';
-import { CrossdataEffect } from './effects/crossdata';
 import { UserEffect } from './effects/user';
 import { EnvironmentEffect } from './effects/environment';
 import { WizardEffect } from './effects/wizard';
@@ -52,14 +48,10 @@ export const APP_IMPORTS: Array<any> = [
         TranslateModule.forRoot(TRANSLATE_CONFIG),
         StoreModule.forRoot(reducers),
         EffectsModule.forRoot([
-                InputEffect,
-                OutputEffect,
                 BackupsEffect,
                 ResourcesEffect,
-                CrossdataEffect,
                 WizardEffect,
                 EnvironmentEffect,
-                UserEffect,
-                TransformationEffect
+                UserEffect
         ])
 ];

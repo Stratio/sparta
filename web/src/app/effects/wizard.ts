@@ -1,3 +1,4 @@
+import { WizardService } from '../modules/wizard/wizard.service';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -75,8 +76,9 @@ export class WizardEffect {
         .ofType(wizardActions.SAVE_WORKFLOW)
         .map(toPayload)
         // Retrieve part of the current state
-        .withLatestFrom(this.store.select(state => state.wizard))
-        .switchMap(([payload, wizard]: [any, any]) => {
+        .withLatestFrom(this.store.select(state => state))
+        .switchMap(([payload, state]: [any, any]) => {
+            const wizard = state.wizard;
             if (!wizard.nodes.length) {
                 return Observable.of(new wizardActions.SaveWorkflowErrorAction({
                     title: 'NO_ENTITY_WORKFLOW_TITLE',
@@ -94,6 +96,8 @@ export class WizardEffect {
 
             const workflow = Object.assign({
                 id: wizard.workflowId,
+                version: wizard.workflowVersion,
+                executionEngine: wizard.workflowType,
                 uiSettings: {
                     position: wizard.svgPosition
                 },
@@ -105,6 +109,7 @@ export class WizardEffect {
             }, wizard.settings.basic);
 
             if (wizard.workflowId && wizard.workflowId.length) {
+                workflow.group = wizard.workflowGroup;
                 return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
@@ -112,6 +117,7 @@ export class WizardEffect {
                 });
             } else {
                 delete workflow.id;
+                workflow.group = state.workflows.workflows.currentLevel;
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
@@ -130,11 +136,11 @@ export class WizardEffect {
         .map(([payload, wizard]: [any, any]) => {
             let relationExist = false;
             // get number of connected entities in destionation and check if relation exists
-            const filtered = wizard.edges.filter((edge: any) => {
-                if ((edge.origin === payload.origin && edge.destination === payload.destination) || (edge.origin === payload.destination && edge.destination === payload.origin)) {
+            wizard.edges.forEach((edge: any) => {
+                if ((edge.origin === payload.origin && edge.destination === payload.destination) ||
+                    (edge.origin === payload.destination && edge.destination === payload.origin)) {
                     relationExist = true;
                 }
-                return edge.destination === payload.destination;
             });
             // throw error if relation exist or destination is the same than the origin
             if (relationExist || (payload.origin === payload.destination)) {
@@ -150,8 +156,12 @@ export class WizardEffect {
         .map((action: any) => action.payload)
         .switchMap((id: any) => {
             return this.workflowService.getWorkflowById(id)
-                .map((workflow: any) => {
-                    return new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow));
+                .switchMap((workflow: any) => {
+                    return [
+                        new wizardActions.SetWorkflowTypeAction(workflow.executionEngine),
+                        new wizardActions.GetMenuTemplatesAction(),
+                        new wizardActions.ModifyWorkflowCompleteAction(this.initializeWorkflowService.getInitializedWorkflow(workflow))
+                    ];
                 }).catch(function (error: any) {
                     return Observable.of(new wizardActions.ModifyWorkflowErrorAction(''));
                 });

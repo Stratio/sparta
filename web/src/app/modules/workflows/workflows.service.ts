@@ -36,6 +36,7 @@ export class WorkflowsService {
     public createGroupModalTitle: string;
 
     public showCreateJsonModal(): void {
+        this.store.dispatch(new workflowActions.ResetJSONModal());
         this._modalService.show({
             modalTitle: this.workflowJsonModalTitle,
             maxWidth: 980,

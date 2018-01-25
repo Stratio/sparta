@@ -16,14 +16,17 @@
 
 import * as wizardActions from 'actions/wizard';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
-import { inputNames } from 'data-templates/inputs';
-import { transformationNames } from 'data-templates/transformations';
-import { outputNames } from 'data-templates/outputs';
+import { streamingInputsNames, batchInputsNames } from 'data-templates/inputs';
+import { streamingTransformationsNames, batchTransformationsNames } from 'data-templates/transformations';
+import { streamingOutputsNames, batchOutputsNames } from 'data-templates/outputs';
 import { settingsTemplate } from 'data-templates/index';
 import { InitializeSchemaService } from 'app/services';
 
 export interface State {
     workflowId: string;
+    workflowGroup: string;
+    workflowVersion: string;
+    workflowType: string;
     nodes: Array<any>;
     edges: Array<any>;
     redoStates: any;
@@ -50,6 +53,9 @@ const defaultSettings = InitializeSchemaService.setDefaultWorkflowSettings(setti
 
 const initialState: State = {
     workflowId: '',
+    workflowGroup: '',
+    workflowType: '',
+    workflowVersion: '0',
     settings: Object.assign({}, defaultSettings),
     svgPosition: {
         x: 0,
@@ -81,7 +87,7 @@ const initialState: State = {
             name: 'Templates',
             value: '',
             subMenus: []
-        }], ...inputNames]
+        }]]
     },
     {
         name: 'Transformation',
@@ -91,7 +97,7 @@ const initialState: State = {
             name: 'Templates',
             value: '',
             subMenus: []
-        }], ...transformationNames]
+        }]]
     },
     {
         name: 'Output',
@@ -101,38 +107,14 @@ const initialState: State = {
             name: 'Templates',
             value: '',
             subMenus: []
-        }], ...outputNames]
+        }]]
     }]
 };
 
 export function reducer(state: State = initialState, action: any): State {
     switch (action.type) {
         case wizardActions.RESET_WIZARD: {
-            return Object.assign({}, state, {
-                validationErrors: {},
-                workflowId: '',
-                svgPosition: {
-                    x: 0,
-                    y: 0,
-                    k: 1
-                },
-                settings: Object.assign({}, defaultSettings),
-                nodes: [],
-                edges: [],
-                redoStates: [],
-                undoStates: [],
-                pristineWorkflow: true,
-                savedWorkflow: false,
-                selectedCreationEntity: null,
-                entityCreationMode: false,
-                editionConfig: false,
-                floatingMenuSearch: '',
-                editionConfigType: '',
-                editionConfigData: null,
-                editionSaved: false,
-                selectedEntity: '',
-                showEntityDetails: false
-            });
+            return Object.assign({}, initialState)
         }
         case wizardActions.SELECTED_CREATION_ENTITY: {
             return Object.assign({}, state, {
@@ -297,6 +279,8 @@ export function reducer(state: State = initialState, action: any): State {
                 nodes: workflow.pipelineGraph.nodes,
                 edges: workflow.pipelineGraph.edges,
                 workflowId: workflow.id,
+                workflowGroup: workflow.group,
+                workflowVersion: workflow.version,
                 settings: {
                     basic: {
                         name: workflow.name,
@@ -392,6 +376,28 @@ export function reducer(state: State = initialState, action: any): State {
                 validationErrors: action.payload
             });
         }
+        case wizardActions.SET_WORKFLOW_TYPE: {
+            const menuOptions = JSON.parse(JSON.stringify(state.menuOptions));
+            return Object.assign({}, state, {
+                workflowType: action.payload,
+                menuOptions: menuOptions.map((option: any) => {
+                    switch (option.name) {
+                        case 'Input':
+                            option.subMenus = option.subMenus.concat(action.payload === 'Streaming' ?
+                                streamingInputsNames : batchInputsNames);
+                            return option;
+                        case 'Output':
+                            option.subMenus = option.subMenus.concat(action.payload === 'Streaming' ?
+                                streamingOutputsNames : batchOutputsNames);
+                            return option;
+                        case 'Transformation':
+                            option.subMenus = option.subMenus.concat(action.payload === 'Streaming' ?
+                                streamingTransformationsNames : batchTransformationsNames);
+                            return option;
+                    }
+                })
+            });
+        }
         case wizardActions.SET_WIZARD_DIRTY: {
             return Object.assign({}, state, {
                 pristineWorkflow: false
@@ -466,6 +472,7 @@ export const areUndoRedoEnabled: any = (state: State) => {
     };
 };
 export const getSelectedRelation: any = (state: State) => state.selectedRelation;
+export const getWorkflowType: any = (state: State) => state.workflowType;
 export const getEditionConfigMode: any = (state: State) => {
     return {
         isEdition: state.editionConfig,

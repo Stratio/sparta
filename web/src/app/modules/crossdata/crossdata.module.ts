@@ -1,3 +1,4 @@
+import { StoreModule } from '@ngrx/store';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -16,12 +17,16 @@
 
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { EgeoModule } from '@stratio/egeo';
-import { CrossdataTables } from './crossdata-tables/crossdata-tables.component';
-import { CrossdataQueries } from './crossdata-queries/crossdata-queries.component';
+import { StSearchModule, StSwitchModule, StTableModule, StCheckboxModule, StPaginationModule, StBreadcrumbsModule } from '@stratio/egeo';
+import { EffectsModule } from '@ngrx/effects';
+
+import { CrossdataTables } from './components/crossdata-tables/crossdata-tables.component';
+import { CrossdataQueries } from './components/crossdata-queries/crossdata-queries.component';
 import { SharedModule } from '@app/shared';
 import { CrossdataComponent } from './crossdata.component';
 import { CrossdataRouter } from './crossdata.router';
+import { CrossdataEffect } from './effects/crossdata';
+import { reducers } from './reducers/';
 
 @NgModule({
    declarations: [
@@ -30,10 +35,17 @@ import { CrossdataRouter } from './crossdata.router';
       CrossdataComponent
    ],
    imports: [
-      EgeoModule,
       FormsModule,
       CrossdataRouter,
-      SharedModule
+      EffectsModule.forFeature([CrossdataEffect]),
+      StoreModule.forFeature('crossdata', reducers),
+      SharedModule,
+      StSearchModule,
+      StSwitchModule,
+      StTableModule,
+      StCheckboxModule,
+      StPaginationModule,
+      StBreadcrumbsModule
    ]
 })
 

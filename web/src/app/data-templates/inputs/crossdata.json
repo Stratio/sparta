@@ -1,7 +1,7 @@
   {
     "name": "Crossdata",
     "icon": "Crossdata",
-     "className": "CrossdataInputStepStream",
+    "className": "CrossdataInputStepStream",
     "classPrettyName": "Crossdata",
      "arity": ["NullaryToNary"],
     "description": "Allows you to load data from external Datasources using Crossdata and monitoring tables migrating data in streaming processes with finite or infinite duration",

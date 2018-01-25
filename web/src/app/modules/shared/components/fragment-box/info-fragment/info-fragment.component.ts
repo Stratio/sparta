@@ -14,11 +14,10 @@
 /// limitations under the License.
 ///
 
-import { Component, OnDestroy, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef, HostListener } from '@angular/core';
-import { icons } from '@app/shared/constants/icons';
-import { inputsObject } from 'data-templates/inputs';
-import { outputsObject } from 'data-templates/outputs';
-import { transformationsObject } from 'data-templates/transformations';
+import { Component, OnDestroy, OnInit, Input, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { streamingInputsObject, batchInputsObject } from 'data-templates/inputs';
+import { streamingOutputsObject, batchOutputsObject } from 'data-templates/outputs';
+import { streamingTransformationsObject, batchTransformationsObject } from 'data-templates/transformations';
 
 @Component({
     selector: 'info-fragment',
@@ -28,6 +27,7 @@ import { transformationsObject } from 'data-templates/transformations';
 })
 export class InfoFragmentComponent implements OnInit, OnDestroy {
 
+    @Input() templateType = 'Streaming';
     @Input() stepType: string;
     @Input() classPrettyName: string;
 
@@ -39,6 +39,9 @@ export class InfoFragmentComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        const inputsObject = this.templateType === 'Streaming' ? streamingInputsObject : batchInputsObject;
+        const transformationsObject = this.templateType === 'Streaming' ? streamingTransformationsObject : batchTransformationsObject;
+        const outputsObject = this.templateType === 'Streaming' ? streamingOutputsObject : batchOutputsObject;
         switch (this.stepType) {
             case 'input':
                 this.fragmentInfo = inputsObject[this.classPrettyName].description;

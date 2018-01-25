@@ -7,7 +7,7 @@
    "scripts": {
       "ng": "ng",
       "start": "ng serve --proxy-config proxy.config.json --base-href=",
-      "start:prod": "ng serve --proxy-config proxy.config.json --prod --base-href=",
+      "start:prod": "npm run start -- --prod",
       "templates": "node build/template-cache",
       "prebuild": "mkdirp ./target && mkdirp ./target/classes && mkdirp ./target/classes/web",
       "build": "ng build --prod --progress=false --base-href=",

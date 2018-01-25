@@ -27,4 +27,3 @@ export * from './breadcrumb-menu.service';
 export * from './error-messages.service';
 export * from './initialize-schema.service';
 export * from './initialize-workflow.service';
-export * from './validate-schema.service';

@@ -22,6 +22,7 @@ import { Observable, Subscription } from 'rxjs/Rx';
 
 import * as fromRoot from 'reducers';
 import * as wizardActions from 'actions/wizard';
+import { WizardService } from './services/wizard.service';
 
 
 @Component({
@@ -36,25 +37,36 @@ export class WizardComponent implements OnInit, OnDestroy {
     public editionConfigMode$: Observable<any>;
     private _paramSubscription: Subscription;
     private _saveSubscription: Subscription;
+    private _workflowTypeSubscription: Subscription;
 
     constructor(
         private _cd: ChangeDetectorRef,
         private _store: Store<fromRoot.State>,
         private _translate: TranslateService,
         private _router: Router,
-        private _route: ActivatedRoute) {
+        private _route: ActivatedRoute,
+        private _wizardService: WizardService) {
+
+        this._store.dispatch(new wizardActions.ResetWizardAction());                    // Reset wizard to default settings
+        const type = 'Streaming'; //this._route.snapshot.params.type === 'streaming' ? 'Streaming' : 'Batch';
+        const id = this._route.snapshot.params.id;
+
+        if (id && id.length) {
+            this._store.dispatch(new wizardActions.ModifyWorkflowAction(id));
+        } else {
+            this._wizardService.workflowType = type;
+            this._store.dispatch(new wizardActions.SetWorkflowTypeAction(type));
+            this._store.dispatch(new wizardActions.GetMenuTemplatesAction());
+        }
+
+        this._workflowTypeSubscription = this._store.select(fromRoot.getWorkflowType).subscribe((workflowType: string) => {
+            this._wizardService.workflowType = workflowType;
+        });
     }
 
     ngOnInit(): void {
-        this._store.dispatch(new wizardActions.ResetWizardAction());                    // Reset wizard to default settings
         this.creationMode$ = this._store.select(fromRoot.isCreationMode);               // show create node pointer icon
         this.editionConfigMode$ = this._store.select(fromRoot.getEditionConfigMode);    // show node/settings editor view
-        this._paramSubscription = this._route.params.subscribe(params => {
-            if (params && params.id) {
-                this._store.dispatch(new wizardActions.ModifyWorkflowAction(params.id));
-            }
-        });
-
         this._saveSubscription = this._store.select(fromRoot.isSavedWorkflow).subscribe((isSaved: boolean) => {
             if (isSaved) {
                 this._router.navigate(['']);
@@ -65,5 +77,6 @@ export class WizardComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this._paramSubscription && this._paramSubscription.unsubscribe();
         this._saveSubscription && this._saveSubscription.unsubscribe();
+        this._workflowTypeSubscription && this._workflowTypeSubscription.unsubscribe();
     }
 }

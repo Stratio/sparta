@@ -1,4 +1,3 @@
-import { SubscribeOnObservable } from 'rxjs/observable/SubscribeOnObservable';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///

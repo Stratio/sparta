@@ -1,17 +1,16 @@
   {
      "name": "Repartition",
      "icon": "Repartition",
-     "className": "RepartitionTransformStepStream",
+     "className": "RepartitionTransformStep",
      "classPrettyName": "Repartition",
-     "arity": ["UnaryToNary"],
-     "description": "Repartition the input stream",
+     "description": "Repartition the input DStream",
      "properties": [
         {
            "propertyId": "partitions",
            "propertyName": "_PARTITIONS_",
            "propertyType": "text",
            "required": false,
-           "tooltip": "Changes the number of partitions associated to the Spark RDDs",
+           "tooltip": "Change the number of partitions associated to the Spark RDDs",
            "qa": "fragment-details-repartition-partitions"
         }
      ]

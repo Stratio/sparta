@@ -3,7 +3,7 @@
         <span class="icon-arrow2_up"></span>
     </div>
     <div class="hide-scrollbar">
-        <ul [style.maxHeight.px]="maxHeight" (scroll)="onScroll($event)" (mouseenter)="showArrows()">   
+        <ul [style.maxHeight.px]="maxHeight" (scroll)="onScroll($event)">   
             <li class="search" *ngIf="search">
                 <input type="text" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
                 <span class="delete icon-cross" *ngIf="searchOption.length"></span>
@@ -14,8 +14,15 @@
                     <i [ngClass]="item.icon" *ngIf="item.icon" class="item-icon"></i>
                     {{item.name}}
                 </span>
-                <i class="icon-arrow2_right has-submenu" *ngIf="item.subMenus && item.subMenus.length"></i>
-                <menu-options [menuOptions]="item.subMenus" [maxHeight]="maxHeightChild" [style.top.px]="menuPosition"  (selectedOption)="selectedOption.emit($event)" *ngIf="item.subMenus && item.subMenus.length"
+                <i class="icon-arrow2_right has-submenu" *ngIf="item.subMenus && item.subMenus.length && position !== 'right'"></i>
+                <menu-options 
+                    [menuOptions]="item.subMenus" 
+                    [active]="item.active" 
+                    [position]="position" 
+                    [maxHeight]="maxHeightChild" 
+                    [style.top.px]="menuPosition"  
+                    (selectedOption)="selectedOption.emit($event)" 
+                    *ngIf="item.subMenus && item.subMenus.length"
                     class="submenu"></menu-options>
             </li>
         </ul>

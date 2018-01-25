@@ -27,5 +27,4 @@ export class ToolBarComponent {
     @Input() largeTools = false;
 
     constructor() { }
-
 }

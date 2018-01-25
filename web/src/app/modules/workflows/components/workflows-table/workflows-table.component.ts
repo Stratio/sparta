@@ -65,10 +65,9 @@ export class WorkflowsTableComponent {
         window.open(url, '_blank');
     }
 
-
     editSelectedWorkflow($event: any, workflowId: string) {
         $event.stopPropagation();
-        this.route.navigate(['wizard', workflowId]);
+        this.route.navigate(['wizard', 'edit', workflowId]);
     }
 
     constructor(private route: Router) {

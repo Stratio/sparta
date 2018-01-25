@@ -22,7 +22,10 @@ import {
     EventEmitter,
     Input,
     OnInit,
-    Output
+    Output,
+    OnChanges,
+    SimpleChanges,
+    ChangeDetectorRef
 } from '@angular/core';
 import { FloatingMenuModel } from '@app/shared/components/floating-menu/floating-menu.component';
 import { Subscription } from 'rxjs/Rx';
@@ -34,13 +37,13 @@ import { FormControl } from '@angular/forms';
     styleUrls: ['./menu-options.styles.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MenuOptionsComponent implements OnInit, AfterViewInit {
-
+export class MenuOptionsComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() debounce = 200;
     @Input() menuOptions: Array<FloatingMenuModel>;
     @Input() position = 'left';
     @Input() search = false;
     @Input() maxHeight = 1200;
+    @Input() active = false;
     @Output() selectedOption = new EventEmitter<any>();
     @Output() searchChange = new EventEmitter<string>();
 
@@ -61,8 +64,18 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit {
         });
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.active && changes.active.currentValue) {
+            setTimeout(() => {
+                this.scrollTopEnabled = this.scrollList.scrollTop > 0;
+                this.scrollBottomEnabled = (this.scrollList.offsetHeight + this.scrollList.scrollTop) < this.scrollList.scrollHeight;
+                this._cd.detectChanges();
+            });
+        }
+    }
+
     selectOption(option: any) {
-       this.selectedOption.emit(option);
+        this.selectedOption.emit(option);
     }
 
     ngOnInit() {
@@ -70,37 +83,31 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit {
     }
 
     onScroll(event: any) {
-        this.scrollTopEnabled = event.srcElement.scrollTop > 0;
-        this.scrollBottomEnabled = (this.scrollList.offsetHeight + event.srcElement.scrollTop) + 1 < event.srcElement.scrollHeight;
+        this.scrollTopEnabled = event.target.scrollTop > 0;
+        this.scrollBottomEnabled = (this.scrollList.offsetHeight + event.target.scrollTop) + 1 < event.target.scrollHeight;
     }
 
     showMenu(index: number, item: any, event: any) {
         if (item.subMenus) {
-            this.menuPosition = event.srcElement.offsetTop;
-            this.maxHeightChild = window.innerHeight - event.srcElement.getBoundingClientRect().y - 30;
+            this.menuPosition = event.target.offsetTop;
+            this.maxHeightChild = window.innerHeight - event.target.getBoundingClientRect().y - 30;
         }
         item.active = true;
-    }
-
-    showArrows() {
-        this.scrollTopEnabled = this.scrollList.scrollTop > 0;
-        this.scrollBottomEnabled = (this.scrollList.offsetHeight + this.scrollList.scrollTop) < this.scrollList.scrollHeight;
+        this._cd.detectChanges();
     }
 
     hideMenu(item: any) {
-        item.active =  false;
+        item.active = false;
     }
 
     scrollTop() {
         this._scrollHandler = setInterval(() => {
-
             this.scrollList.scrollTo(0, this.scrollList.scrollTop - 1);
         }, 5);
     }
 
     scrollBottom() {
         this._scrollHandler = setInterval(() => {
-
             this.scrollList.scrollTo(0, this.scrollList.scrollTop + 1);
         }, 4);
     }
@@ -112,15 +119,15 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit {
 
     private manageSubscription(): void {
         if (this.subscriptionSearch !== undefined) {
-           this.subscriptionSearch.unsubscribe();
+            this.subscriptionSearch.unsubscribe();
         }
 
         this.subscriptionSearch = this.searchBox
             .valueChanges
             .debounceTime(this.debounce)
             .subscribe((event) => this.searchChange.emit(this.searchBox.value));
-     }
+    }
 
-    constructor(private elementRef: ElementRef) { }
+    constructor(private elementRef: ElementRef, private _cd: ChangeDetectorRef) { }
 
 }
