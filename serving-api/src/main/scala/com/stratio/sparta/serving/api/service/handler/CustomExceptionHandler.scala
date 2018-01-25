@@ -39,7 +39,7 @@ object CustomExceptionHandler extends MiscDirectives
     ExceptionHandler {
       case exception: Throwable =>
         requestUri { _ =>
-          log.error(exception.getLocalizedMessage, exception)
+          log.warn(exception.getLocalizedMessage)
           respondWithMediaType(MediaTypes.`application/json`) {
             Try(ErrorModel.toErrorModel(exception.getLocalizedMessage)) match {
               case Success(error) =>
