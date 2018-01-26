@@ -76,6 +76,24 @@ with HttpServiceBaseTest {
     }
   }
 
+  "WorkflowHttpService.findAllMonitoring" should {
+    "return a workflow list" in {
+      val seqDto: Seq[WorkflowDto] = Seq(getWorkflowModel())
+      startAutopilot(Left(Success(seqDto)))
+      Get(s"/${HttpConstant.WorkflowsPath}/findAllMonitoring") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindAllMonitoring]
+        responseAs[Seq[WorkflowDto]] should equal(seqDto)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Get(s"/${HttpConstant.WorkflowsPath}/findAllMonitoring") ~> routes(rootUser) ~> check {
+        testProbe.expectMsgType[FindAllMonitoring]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
   "WorkflowHttpService.findAllByGroup" should {
     "return a workflow list" in {
       val seqDto: Seq[WorkflowDto] = Seq(getWorkflowModel())

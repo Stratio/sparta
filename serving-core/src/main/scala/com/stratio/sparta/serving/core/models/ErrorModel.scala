@@ -125,6 +125,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceFindAllWithEnv = "721"
   val WorkflowServiceNewVersion = "722"
   val WorkflowServiceFindAllByGroup = "723"
+  val WorkflowServiceFindAllMonitoring = "724"
 
   /* Metadata Service 725-749 */
   val MetadataServiceUnexpected = "725"
@@ -193,6 +194,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceFindByNameWithEnv -> "Error finding workflows by name with environment",
     WorkflowServiceFindAllWithEnv -> "Error finding all workflows with environment",
     WorkflowServiceFindAllByGroup -> "Error finding all workflows by group",
+    WorkflowServiceFindAllMonitoring -> "Error finding all workflows for monitoring",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",

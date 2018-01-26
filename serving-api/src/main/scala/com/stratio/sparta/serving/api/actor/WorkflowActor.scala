@@ -65,6 +65,7 @@ class WorkflowActor(
     case Query(query, user) => doQuery(query, user)
     case FindAll(user) => findAll(user)
     case FindAllWithEnv(user) => findAllWithEnv(user)
+    case FindAllMonitoring(user) => findAllMonitoring(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
@@ -112,6 +113,16 @@ class WorkflowActor(
         workflowService.findAll
       } recover {
         case _: NoNodeException => Seq.empty[Workflow]
+      }
+    }
+
+  def findAllMonitoring(user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
+      Try {
+        val workflowsDto : Seq[WorkflowDto] = workflowService.findAll
+        workflowsDto
+      } recover {
+        case _: NoNodeException => Seq.empty[WorkflowDto]
       }
     }
 
@@ -252,6 +263,8 @@ object WorkflowActor extends SLF4JLogging {
   case class FindAll(user: Option[LoggedUser])
 
   case class FindAllWithEnv(user: Option[LoggedUser])
+
+  case class FindAllMonitoring(user: Option[LoggedUser])
 
   case class Find(id: String, user: Option[LoggedUser])
 

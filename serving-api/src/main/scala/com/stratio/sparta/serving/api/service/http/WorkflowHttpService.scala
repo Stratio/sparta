@@ -51,7 +51,8 @@ trait WorkflowHttpService extends BaseHttpService {
     find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~ run(user) ~ stop(user) ~ reset(user) ~
       update(user) ~ updateList(user) ~ remove(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
-      resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user)
+      resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
+      findAllMonitoring(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -219,6 +220,29 @@ trait WorkflowHttpService extends BaseHttpService {
               response <- (supervisor ? FindAll(user))
                 .mapTo[Either[ResponseWorkflows, UnauthorizedResponse]]
             } yield getResponse(context, WorkflowServiceFindAll, response, genericError)
+        }
+      }
+    }
+  }
+
+  @Path("/findAllMonitoring")
+  @ApiOperation(value = "Finds all workflows Dto for monitoring.",
+    notes = "Finds all workflows with less fields for monitoring view.",
+    httpMethod = "GET",
+    response = classOf[Array[WorkflowDto]])
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def findAllMonitoring(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "findAllMonitoring") {
+      pathEndOrSingleSlash {
+        get {
+          context =>
+            for {
+              response <- (supervisor ? FindAllMonitoring(user))
+                .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
+            } yield getResponse(context, WorkflowServiceFindAllMonitoring, response, genericError)
         }
       }
     }
