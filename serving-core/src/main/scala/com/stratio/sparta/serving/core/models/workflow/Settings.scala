@@ -52,9 +52,9 @@ case class StreamingSettings(
 
 case class SparkSettings(
                           master: JsoneyString =  JsoneyString("mesos://leader.mesos:5050"),
-                          sparkKerberos: Boolean = false,
-                          sparkDataStoreTls: Boolean = false,
-                          sparkMesosSecurity: Boolean = false,
+                          sparkKerberos: Boolean = true,
+                          sparkDataStoreTls: Boolean = true,
+                          sparkMesosSecurity: Boolean = true,
                           killUrl: Option[JsoneyString] = None,
                           submitArguments: SubmitArguments,
                           sparkConf: SparkConf
@@ -70,15 +70,14 @@ case class SubmitArguments(
                             excludePackages: Option[JsoneyString] = None,
                             repositories: Option[JsoneyString] = None,
                             proxyUser: Option[JsoneyString] = None,
-                            driverJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")),
+                            driverJavaOptions: Option[JsoneyString] = Option(JsoneyString(
+                              "-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")),
                             driverLibraryPath: Option[JsoneyString] = None,
                             driverClassPath: Option[JsoneyString] = None
                           )
 
 case class SparkConf(
                       sparkResourcesConf: SparkResourcesConf,
-                      sparkDockerConf: SparkDockerConf,
-                      sparkMesosConf: SparkMesosConf,
                       userSparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
                       coarse: Option[Boolean] = None,
                       sparkUser: Option[JsoneyString] = None,
@@ -102,24 +101,6 @@ case class SparkResourcesConf(
                                sparkMemoryFraction: Option[JsoneyString] = Option(JsoneyString("0.6")),
                                sparkParallelism: Option[JsoneyString] = None
                              )
-
-case class SparkDockerConf(
-                            executorDockerImage: Option[JsoneyString] =
-                            Option(JsoneyString("qa.stratio.com/stratio/stratio-spark:2.2.0.4")),
-                            executorDockerVolumes: Option[JsoneyString] =
-                            Option(JsoneyString("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
-                              "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
-                              "/etc/pki/ca-trust/extracted/java/cacerts/:" +
-                              "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
-                              "/etc/resolv.conf:/etc/resolv.conf:ro")),
-                            executorForcePullImage: Option[Boolean] = None
-                          )
-
-case class SparkMesosConf(
-                           mesosNativeJavaLibrary: Option[JsoneyString] = Option(
-                             JsoneyString("/opt/mesosphere/lib/libmesos.so")),
-                           mesosHDFSConfURI: Option[JsoneyString] = None
-                         )
 
 case class UserSubmitArgument(
                                submitArgument: JsoneyString,

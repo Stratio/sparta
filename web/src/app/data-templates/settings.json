@@ -300,7 +300,7 @@
           "propertyName": "SETTINGS._SPARK_KERBEROS_ENABLE_",
           "propertyType": "boolean",
           "width": "auto",
-          "default": false,
+          "default": true,
           "tooltip": "Enables Kerberos integration and send the principal and keytab arguments if  available through the spark submit",
           "qa": "workflow-spark-kerberos"
         },
@@ -309,7 +309,7 @@
           "propertyName": "SETTINGS._SPARK_DATASTORE_TLS_ENABLE_",
           "propertyType": "boolean",
           "width": "auto",
-          "default": false,
+          "default": true,
           "tooltip": "Enables dataStore with TLS integration and send options through the spark submit",
           "qa": "workflow-spark-datastore-tls"
         },
@@ -318,7 +318,7 @@
            "propertyName": "SETTINGS._SPARK_MESOS_SECURITY_ENABLE_",
            "propertyType": "boolean",
            "width": "auto",
-           "default": false,
+           "default": true,
            "tooltip": "Enables MESOS security and send options through the spark submit",
            "qa": "workflow-spark-enable-mesos"
         },
@@ -548,63 +548,6 @@
                       "width": 4,
                       "tooltip": "Default number of partitions in RDDs returned by transformations like join, reduceByKey, and parallelize when not set by user",
                       "qa": "workflow-spark-default-parallelism"
-                   }
-                ]
-             },
-            {
-                "name": "sparkDockerConf",
-                "listCompressed": true,
-                "properties": [
-                   {
-                      "propertyId": "executorDockerImage",
-                      "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{EXECUTOR_SPARK_BASE_IMAGE}}",
-                      "tooltip": "Run over Mesos Clusters with Docker containers",
-                      "qa": "workflow-spark-executorDockerImage"
-                   },
-                   {
-                      "propertyId": "executorDockerVolumes",
-                      "propertyName": "SETTINGS._SPARK_DOCKER_VOLUMES_",
-                      "propertyType": "text",
-                      "width": 4,
-                      "default": "{{EXECUTOR_DOCKER_VOLUMES}}",
-                      "tooltip": "Mount volumes from host machine in the executor docker container",
-                      "qa": "workflow-spark-executorDockerVolumes"
-                   },
-                   {
-                      "propertyId": "executorForcePullImage",
-                      "propertyName": "SETTINGS._SPARK_DOCKER_FORCE_PULL_IMAGE_",
-                      "propertyType": "boolean",
-                      "default": false,
-                      "width": "auto",
-                      "newRow": true,
-                      "tooltip": "Force pull image for each execution",
-                      "qa": "workflow-spark-executorForcePullImage"
-                   }
-                ]
-             },
-            {
-                "name": "sparkMesosConf",
-                "listCompressed": true,
-                "properties": [
-                   {
-                      "propertyId": "mesosNativeJavaLibrary",
-                      "width": 4,
-                      "propertyName": "SETTINGS._SPARK_MESOS_NATIVE_LIBRARY_",
-                      "propertyType": "text",
-                      "default": "/opt/mesosphere/lib/libmesos.so",
-                      "tooltip": "Mesos native library location",
-                      "qa": "workflow-spark-mesosNativeJavaLibrary"
-                   },
-                   {
-                      "propertyId": "mesosHDFSConfURI",
-                      "width": 4,
-                      "propertyName": "SETTINGS._SPARK_MESOS_HDFS_CONF_URI_",
-                      "propertyType": "text",
-                      "tooltip": "Download HDFS configuration in Stratio's Spark fork",
-                      "qa": "workflow-spark-mesos-HDFS-ConfURI"
                    }
                 ]
              },

@@ -28,7 +28,7 @@ import scala.util.Properties
  */
 object AppConstant extends ZookeeperUtils {
 
-  val version = "1.8.0-SNAPSHOT"
+  val version = "2.0.0-SNAPSHOT"
   val ConfigAppName = "sparta"
   val ConfigApi = "api"
   val ConfigHdfs = "hdfs"
@@ -153,11 +153,6 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_DRIVER_CORES","1"),
     EnvironmentVariable("SPARK_DRIVER_MEMORY","2G"),
     EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
-    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.4"),
-    EnvironmentVariable("EXECUTOR_DOCKER_VOLUMES", "/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
-      "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
-      "/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
-      "/etc/resolv.conf:/etc/resolv.conf:ro"),
     EnvironmentVariable("SPARK_TASK_MAX_FAILURES","8"),
     EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6")
   )

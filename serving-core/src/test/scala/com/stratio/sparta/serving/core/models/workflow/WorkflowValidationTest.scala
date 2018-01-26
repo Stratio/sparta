@@ -48,7 +48,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     GlobalSettings(),
     StreamingSettings(JsoneyString("6s"), None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
-      None, SubmitArguments(), SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf())
+      None, SubmitArguments(), SparkConf(SparkResourcesConf())
     )
   )
   implicit val workflowValidatorService = new WorkflowValidatorService

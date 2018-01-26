@@ -43,7 +43,7 @@ abstract class BaseUtilsTest extends TestKit(ActorSystem("UtilsText", SpartaConf
       GlobalSettings(executionMode),
       StreamingSettings(JsoneyString("6s"), None, None, None, None, None, CheckpointSettings()),
       SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
-        SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+        SparkConf(SparkResourcesConf()))
     )
     val workflow = Workflow(
       id = id,

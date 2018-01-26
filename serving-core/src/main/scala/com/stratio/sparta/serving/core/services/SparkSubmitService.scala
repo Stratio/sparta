@@ -17,7 +17,6 @@
 package com.stratio.sparta.serving.core.services
 
 
-import java.io.File
 import java.nio.file.{Files, Paths}
 import javax.xml.bind.DatatypeConverter
 
@@ -174,20 +173,18 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions.notBlank,
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkMemoryFraction.notBlank,
-      SubmitExecutorDockerImageConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
-        executorDockerImage.notBlank,
-      SubmitExecutorDockerVolumeConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
-        executorDockerVolumes.notBlank,
-      SubmitExecutorDockerForcePullConf -> workflow.settings.sparkSettings.sparkConf.sparkDockerConf.
-        executorForcePullImage.map(_.toString),
-      SubmitMesosNativeLibConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.
-        mesosNativeJavaLibrary.notBlank,
+      SubmitExecutorDockerImageConf -> Option("qa.stratio.com/stratio/stratio-spark:2.2.0.4"),
+      SubmitExecutorDockerVolumeConf -> Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
+        "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
+        "/etc/pki/ca-trust/extracted/java/cacerts/:" +
+        "/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro," +
+        "/etc/resolv.conf:/etc/resolv.conf:ro"),
+      SubmitMesosNativeLibConf -> Option("/opt/mesosphere/lib/libmesos.so"),
       SubmitExecutorHomeConf -> Option("/opt/spark/dist"),
       SubmitDefaultParalelismConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkParallelism.notBlank,
       SubmitKryoSerializationConf -> workflow.settings.sparkSettings.sparkConf.sparkKryoSerialization
-        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None),
-      SubmitHdfsUriConf -> workflow.settings.sparkSettings.sparkConf.sparkMesosConf.mesosHDFSConfURI.notBlank
+        .flatMap(enable => if (enable) Option("org.apache.spark.serializer.KryoSerializer") else None)
     ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
   }
 

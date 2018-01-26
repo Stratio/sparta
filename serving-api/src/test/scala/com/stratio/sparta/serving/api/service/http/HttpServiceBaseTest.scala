@@ -103,7 +103,7 @@ trait HttpServiceBaseTest extends WordSpec
       StreamingSettings(JsoneyString("6s"), None, None, None, None, None,
         CheckpointSettings(JsoneyString("test/test"))),
       SparkSettings(JsoneyString("local[*]"), false, false, false, None, SubmitArguments(),
-        SparkConf(SparkResourcesConf(), SparkDockerConf(), SparkMesosConf()))
+        SparkConf(SparkResourcesConf()))
     )
     val workflow = Workflow(
       id = Option("id"),
