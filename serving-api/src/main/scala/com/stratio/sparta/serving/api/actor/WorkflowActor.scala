@@ -44,6 +44,7 @@ class WorkflowActor(
   val ResourceWorkflow = "workflow"
   val ResourceCP = "checkpoint"
   val ResourceStatus = "status"
+  val ResourceEnvironment = "environment"
 
   private val workflowService = new WorkflowService(curatorFramework)
   private val wServiceWithEnv = new WorkflowService(curatorFramework, Option(context.system), Option(envStateActor))
@@ -101,12 +102,12 @@ class WorkflowActor(
   }
 
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try(workflowValidatorService.validate(workflow))
     }
 
   def findAll(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try {
         workflowService.findAll
       } recover {
@@ -115,7 +116,8 @@ class WorkflowActor(
     }
 
   def findAllWithEnv(user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View,
+      ResourceEnvironment -> View)) {
       Try {
         wServiceWithEnv.findAll
       } recover {
@@ -124,7 +126,7 @@ class WorkflowActor(
     }
 
   def find(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try(workflowService.findById(id)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with id $id.")
@@ -136,7 +138,7 @@ class WorkflowActor(
     *
     */
   def findAllByGroup(groupID: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try {
         val groups: Seq[WorkflowDto] = workflowService.findByGroupID(groupID)
         groups
@@ -146,7 +148,8 @@ class WorkflowActor(
     }
 
   def findWithEnv(id: String, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View,
+      ResourceEnvironment -> View)) {
       Try(wServiceWithEnv.findById(id)).recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with id $id.")
@@ -154,12 +157,12 @@ class WorkflowActor(
     }
 
   def findByIdList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try(workflowService.findByIdList(workflowIds))
     }
 
   def doQuery(query: WorkflowQuery, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View)) {
+    securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try(workflowService.find(query))
     }
 

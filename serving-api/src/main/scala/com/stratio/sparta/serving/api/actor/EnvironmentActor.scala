@@ -32,13 +32,13 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
                       (implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize with SpartaSerializer {
 
-  implicit val as = Option(context.system)
+  implicit val system = Option(context.system)
   private val environmentService = new EnvironmentService(curatorFramework)
-  private val ResourceType = "workflow"
+  private val ResourceType = "environment"
 
   //scalastyle:off
   override def receive: Receive = {
-    case Initialize => environmentService.initialize()
+    case Initialize => sender ! environmentService.initialize()
     case CreateEnvironment(request, user) => createEnvironment(request, user)
     case CreateEnvironmentVariable(request, user) => createEnvironmentVariable(request, user)
     case UpdateEnvironment(request, user) => updateEnvironment(request, user)

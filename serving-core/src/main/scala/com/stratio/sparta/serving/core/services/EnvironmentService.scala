@@ -34,27 +34,31 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   private val groupService = new GroupService(curatorFramework)
 
   def initialize(): Try[Unit] = {
+    log.debug("Initializing environment")
     Try {
       if (find().toOption.isEmpty) {
         create(Environment(AppConstant.DefaultEnvironment))
         log.debug("The environment initialization have been completed")
       } else log.debug("The environment is already created")
     }
-    }
+  }
   
-  def find(): Try[Environment] =
+  def find(): Try[Environment] = {
+    log.debug("Finding environment")
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath))
         read[Environment](new String(curatorFramework.getData.forPath(AppConstant.EnvironmentZkPath)))
       else throw new ServerException(s"No environment found")
     }
+  }
 
   def create(environment: Environment): Try[Environment] = {
+    log.debug("Creating environment")
     if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
+      log.debug(s"The environment exists, updating it")
       update(environment)
     } else {
       Try {
-        log.debug(s"Creating environment")
         curatorFramework.create.creatingParentsIfNeeded.forPath(
           AppConstant.EnvironmentZkPath,
           write(environment).getBytes
@@ -65,6 +69,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   }
 
   def update(environment: Environment): Try[Environment] = {
+    log.debug(s"Updating environment")
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
         curatorFramework.setData().forPath(AppConstant.EnvironmentZkPath, write(environment).getBytes)
@@ -73,15 +78,18 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
     }
   }
 
-  def delete(): Try[Unit] =
+  def delete(): Try[Unit] = {
+    log.debug(s"Deleting environment")
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
         log.debug(s"Deleting environment")
         curatorFramework.delete().forPath(AppConstant.EnvironmentZkPath)
       } else throw new ServerException(s"No environment available to delete")
     }
+  }
 
-  def createVariable(environmentVariable: EnvironmentVariable): Try[EnvironmentVariable] =
+  def createVariable(environmentVariable: EnvironmentVariable): Try[EnvironmentVariable] = {
+    log.debug(s"Creating environment variable ${environmentVariable.name}")
     Try {
       find() match {
         case Success(environment) =>
@@ -102,13 +110,15 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             throw new ServerException(s"Impossible to create environment with the variable, ${e.getLocalizedMessage}"))
       }
     }
+  }
 
-  def updateVariable(environmentVariable: EnvironmentVariable): Try[EnvironmentVariable] =
+  def updateVariable(environmentVariable: EnvironmentVariable): Try[EnvironmentVariable] = {
+    log.debug(s"Updating environment variable ${environmentVariable.name}")
     Try {
       find() match {
         case Success(environment) =>
           if (environment.variables.exists(presentEnv => presentEnv.name == environmentVariable.name)) {
-            log.debug(s"The variable: ${environmentVariable.name} exists, replacing it")
+            log.debug(s"The variable ${environmentVariable.name} exists, replacing it")
             val newEnvironment = environment.copy(
               variables = environment.variables.map(variable =>
                 if (variable.name == environmentVariable.name)
@@ -122,8 +132,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
           throw new ServerException(s"Impossible to update variable, ${e.getLocalizedMessage}")
       }
     }
+  }
 
-  def deleteVariable(name: String): Try[Environment] =
+  def deleteVariable(name: String): Try[Environment] = {
+    log.debug(s"Deleting environment variable $name")
     Try {
       find() match {
         case Success(environment) =>
@@ -136,8 +148,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
           throw new ServerException(s"Impossible to delete variable, ${e.getLocalizedMessage}")
       }
     }
+  }
 
-  def findVariable(name: String): Try[EnvironmentVariable] =
+  def findVariable(name: String): Try[EnvironmentVariable] = {
+    log.debug(s"Finding environment variable $name")
     Try {
       find() match {
         case Success(environment) =>
@@ -147,8 +161,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
           throw new ServerException(s"Impossible to find variable, ${e.getLocalizedMessage}")
       }
     }
+  }
 
-  def exportData(): Try[EnvironmentData] =
+  def exportData(): Try[EnvironmentData] = {
+    log.debug(s"Exporting environment data")
     find().map(environment =>
       EnvironmentData(
         workflowService.findAll,
@@ -156,8 +172,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
         groupService.findAll,
         environment.variables.map(_.name)
       ))
+  }
 
-  def importData(data: EnvironmentData): Try[EnvironmentData] =
+  def importData(data: EnvironmentData): Try[EnvironmentData] = {
+    log.debug(s"Importing environment data")
     Try {
       val initialTemplates = templateService.findAll
       val initialWorkflows = workflowService.findAll
@@ -176,13 +194,13 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
         templateService.createList(data.templates)
         workflowService.createList(data.workflows)
         data.envVariables.foreach(variable =>
-          if(!initialEnvVariablesNames.contains(variable))
+          if (!initialEnvVariablesNames.contains(variable))
             createVariable(EnvironmentVariable(variable, ""))
         )
         data
       } catch {
         case e: Exception =>
-          log.error("Error importing data. All groups, workflows and templates will be rolled back", e)
+          log.error("Error importing data. All groups, workflows, env. variables and templates will be rolled back", e)
           Try {
             groupService.deleteAll()
             workflowService.deleteAll()
@@ -192,8 +210,15 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             initialTemplates.foreach(templateService.create)
             initialWorkflows.foreach(workflowService.create)
             initialEnvVariables.variables.foreach(createVariable)
+          } match {
+            case Success(_) =>
+              log.info("Restoring data after error caused in environment import completed successful")
+            case Failure(e: Exception) =>
+              log.error("Restoring data after error caused in environment import with errors." +
+                " The data maybe corrupt. Contact with the support.", e)
           }
           throw new Exception("Error importing environment data", e)
       }
     }
+  }
 }

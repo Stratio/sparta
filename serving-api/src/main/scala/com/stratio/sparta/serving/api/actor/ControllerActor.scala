@@ -18,34 +18,44 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
+import akka.pattern.ask
 import akka.routing.RoundRobinPool
+import akka.util.Timeout
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
+import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.ForceInitialization
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
 import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, _}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
+import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
-import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.spray.oauth2.client.OauthClient
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
-import com.stratio.sparta.serving.core.constants.MarathonConstant._
+import scala.concurrent.duration._
 
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Try}
 
 class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager])
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
 
   override implicit def actorRefFactory: ActorContext = context
-  val isNginxRequired : Boolean = Properties.envOrNone(NginxMarathonLBHostEnv).fold(false){_ => true}
+
+  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout"))
+    .getOrElse(AkkaConstant.DefaultApiTimeout)
+  implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
+
+  val isNginxRequired: Boolean = Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true }
+
+  log.debug("Initializing actors in Controller Actor")
 
   val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
   val envStateActor = context.actorOf(Props(new EnvironmentStateActor(curatorFramework)))
@@ -76,13 +86,9 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
   val nginxActor =
-    if(isNginxRequired)
+    if (isNginxRequired)
       Option(context.actorOf(Props(new NginxActor()), NginxActorName))
     else None
-
-  statusActor ! AddClusterListeners
-  environmentActor ! EnvironmentActor.Initialize
-  groupActor ! GroupActor.Initialize
 
   val actorsMap = Map(
     StatusActorName -> statusActor,
@@ -98,17 +104,30 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     EnvironmentActorName -> environmentActor,
     GroupActorName -> groupActor
   ) ++ {
-    if(isNginxRequired) Map(NginxActorName -> nginxActor.get) else Map.empty
+    if (isNginxRequired) Map(NginxActorName -> nginxActor.get) else Map.empty
   }
 
   val serviceRoutes: ServiceRoutes = new ServiceRoutes(actorsMap, context, curatorFramework)
-
   val oauthConfig: Option[Config] = SpartaConfig.getOauth2Config
   val enabledSecurity: Boolean = Try(oauthConfig.get.getString("enable").toBoolean).getOrElse(false)
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
   override def preStart(): Unit = {
+    log.debug("Creating status listeners")
     statusActor ! AddClusterListeners
+
+    log.debug("Initializing Environment Actor")
+    for {
+      response <- (environmentActor ? EnvironmentActor.Initialize).mapTo[Try[Unit]]
+    } yield response match {
+      case scala.util.Success(_) =>
+        log.debug("Initializing Environment State Actor")
+        envStateActor ! ForceInitialization
+      case Failure(e) => log.warn(s"Error initializing Environment Actor. Error: ${e.getLocalizedMessage}")
+    }
+
+    log.debug("Initializing Group Actor")
+    groupActor ! GroupActor.Initialize
   }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))

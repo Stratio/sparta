@@ -33,15 +33,18 @@ import scala.util.{Failure, Success, Try}
 
 class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSerializer with SLF4JLogging {
 
-  def findById(id: String): Try[WorkflowStatus] =
+  def findById(id: String): Try[WorkflowStatus] = {
+    log.debug(s"Finding workflow status with id $id")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(statusPath))
         read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
       else throw new ServerException(s"No workflow status with id $id.")
     }
+  }
 
-  def findAll(): Try[Seq[WorkflowStatus]] =
+  def findAll(): Try[Seq[WorkflowStatus]] = {
+    log.debug(s"Finding all workflow statuses")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
@@ -54,15 +57,17 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         policiesStatus
       } else Seq.empty[WorkflowStatus]
     }
+  }
 
   def create(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
+    log.debug(s"Creating workflow ${workflowStatus.id} with status ${workflowStatus.status}")
     val workflowStatusWithFields = addCreationDate(workflowStatus)
     val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatusWithFields.id}"
     if (CuratorFactoryHolder.existsPath(statusPath)) {
+      log.debug(s"The workflow status ${workflowStatus.id} exists, updating it")
       update(workflowStatusWithFields)
     } else {
       Try {
-        log.info(s"Creating workflow ${workflowStatusWithFields.id} with status ${workflowStatusWithFields.status}")
         curatorFramework.create.creatingParentsIfNeeded.forPath(statusPath, write(workflowStatusWithFields).getBytes)
         workflowStatusWithFields
       }
@@ -71,6 +76,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
 
   //scalastyle:off
   def update(workflowStatus: WorkflowStatus): Try[WorkflowStatus] = {
+    log.debug(s"Updating workflow ${workflowStatus.id} with status ${workflowStatus.status}")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/${workflowStatus.id}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
@@ -108,16 +114,18 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
 
   //scalastyle:on
 
-  def delete(id: String): Try[Unit] =
+  def delete(id: String): Try[Unit] = {
+    log.debug(s"Deleting workflow status $id")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
-        log.info(s"Deleting status $id")
         curatorFramework.delete().forPath(statusPath)
       } else throw new ServerException(s"No workflow status found with id: $id.")
     }
+  }
 
-  def deleteAll(): Try[Unit] =
+  def deleteAll(): Try[Unit] = {
+    log.debug(s"Deleting all workflow statuses")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
@@ -128,14 +136,15 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         }
       }
     }
+  }
 
   def clearLastError(id: String): Try[Option[WorkflowStatus]] = {
+    log.debug(s"Clearing last workflow status error with id $id")
     Try {
       val statusPath = s"${AppConstant.WorkflowStatusesZkPath}/$id"
       if (CuratorFactoryHolder.existsPath(statusPath)) {
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
         val newStatus = actualStatus.copy(lastError = None)
-        log.debug(s"Clearing last error for status: ${actualStatus.id}")
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
         Some(newStatus)
       } else None

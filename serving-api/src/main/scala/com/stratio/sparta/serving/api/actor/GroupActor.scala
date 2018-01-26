@@ -60,7 +60,7 @@ class GroupActor(val curatorFramework: CuratorFramework)
 
 
   def updateGroup(request: Group, user: Option[LoggedUser]): Unit =
-    securityActionAuthorizer(user, Map(ResourceGroupType -> Edit)) {
+    securityActionAuthorizer(user, Map(ResourceGroupType -> Edit, ResourceWorkflowType -> Edit)) {
       groupService.update(request)
     }
 

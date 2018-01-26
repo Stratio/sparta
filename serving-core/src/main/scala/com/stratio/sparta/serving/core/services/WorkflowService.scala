@@ -47,20 +47,28 @@ class WorkflowService(
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
 
   def findById(id: String): Workflow = {
+    log.debug(s"Finding workflow by id $id")
     existsById(id).getOrElse(throw new ServerException(s"No workflow with id $id"))
   }
 
-  def find(query: WorkflowQuery): Workflow =
+  def find(query: WorkflowQuery): Workflow = {
+    log.debug(s"Finding workflow by query $query")
     exists(query.name, query.version.getOrElse(0L), query.group.getOrElse(DefaultGroup.id.get))
       .getOrElse(throw new ServerException(s"No workflow with name ${query.name}"))
+  }
 
-  def findList(query: WorkflowsQuery): Seq[Workflow] =
+  def findList(query: WorkflowsQuery): Seq[Workflow] = {
+    log.debug(s"Finding workflows by query $query")
     existsList(query.group.getOrElse(DefaultGroup.id.get), query.tags)
+  }
 
-  def findByGroupID(groupId: String): Seq[Workflow] =
+  def findByGroupID(groupId: String): Seq[Workflow] = {
+    log.debug(s"Finding workflows by group id $groupId")
     existsList(groupId)
+  }
 
   def findByIdList(workflowIds: Seq[String]): List[Workflow] = {
+    log.debug(s"Finding workflows by ids ${workflowIds.mkString(",")}")
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
 
     JavaConversions.asScalaBuffer(children).toList.flatMap { id =>
@@ -71,20 +79,29 @@ class WorkflowService(
   }
 
   def findAll: List[Workflow] = {
+    log.debug(s"Finding all workflows")
     val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
 
     JavaConversions.asScalaBuffer(children).toList.map(id => findById(id))
   }
 
   def create(workflow: Workflow): Workflow = {
-
+    log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
+      s"and group ${workflow.group.name}")
     validateWorkflow(workflow)
 
     val workflowWithFields = addCreationDate(addId(workflow))
 
     existsById(workflowWithFields.id.get).foreach(searchWorkflow => throw new ServerException(
-      s"Workflow with name ${workflowWithFields.name} and version ${workflowWithFields.version} exists." +
-        s"The actual workflow is: ${searchWorkflow.id}"))
+      s"Workflow with id ${workflowWithFields.id.get} exists." +
+        s" The created workflow has name ${searchWorkflow.name}," +
+        s" version ${searchWorkflow.version} and group ${searchWorkflow.group.name}"))
+
+    exists(workflowWithFields.name, workflowWithFields.version, workflowWithFields.group.id.get)
+      .foreach(searchWorkflow => throw new ServerException(
+        s"Workflow with name ${workflowWithFields.name}," +
+          s" version ${workflowWithFields.version} and group ${workflowWithFields.group.name} exists." +
+          s" The created workflow has id ${searchWorkflow.id.get}"))
 
     curatorFramework.create.creatingParentsIfNeeded.forPath(
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
@@ -97,6 +114,7 @@ class WorkflowService(
   }
 
   def createVersion(workflowVersion: WorkflowVersion): Workflow = {
+    log.debug(s"Creating workflow version $workflowVersion")
     existsById(workflowVersion.id) match {
       case Some(workflow) =>
         val workflowWithVersionFields = workflow.copy(
@@ -119,18 +137,19 @@ class WorkflowService(
     }
   }
 
-
-  def createList(workflows: Seq[Workflow]): Seq[Workflow] =
+  def createList(workflows: Seq[Workflow]): Seq[Workflow] = {
+    log.debug(s"Creating workflows from list")
     workflows.map(create)
+  }
 
   def update(workflow: Workflow): Workflow = {
-
+    log.debug(s"Updating workflow with id ${workflow.id.get}")
     validateWorkflow(workflow)
 
     val searchWorkflow = existsById(workflow.id.get)
 
     if (searchWorkflow.isEmpty) {
-      throw new ServerException(s"Workflow with name ${workflow.name} does not exist")
+      throw new ServerException(s"Workflow with id ${workflow.id.get} does not exist")
     } else {
       val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
       curatorFramework.setData().forPath(
@@ -140,26 +159,29 @@ class WorkflowService(
     }
   }
 
-  def updateList(workflows: Seq[Workflow]): Seq[Workflow] =
+  def updateList(workflows: Seq[Workflow]): Seq[Workflow] = {
+    log.debug(s"Updating workflows from list")
     workflows.map(update)
+  }
 
-  def delete(id: String): Try[Unit] =
+  def delete(id: String): Try[Unit] = {
+    log.debug(s"Deleting workflow with id: $id")
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}/$id"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.debug(s"Deleting workflow with id: $id")
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
       } else throw new ServerException(s"No workflow with id $id")
     }
+  }
 
-  def deleteList(workflowIds: Seq[String]): Try[Unit] =
+  def deleteList(workflowIds: Seq[String]): Try[Unit] = {
+    log.debug(s"Deleting existing workflows from id list: $workflowIds")
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.debug(s"Deleting existing workflows from id list: $workflowIds")
         val workflows = findByIdList(workflowIds)
 
         try {
@@ -173,13 +195,14 @@ class WorkflowService(
         }
       }
     }
+  }
 
-  def deleteAll(): Try[Unit] =
+  def deleteAll(): Try[Unit] = {
+    log.debug(s"Deleting all existing workflows")
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.debug(s"Deleting all existing workflows")
         val children = curatorFramework.getChildren.forPath(workflowPath)
         val workflows = JavaConversions.asScalaBuffer(children).toList.map(workflow =>
           read[Workflow](new String(curatorFramework.getData.forPath(
@@ -197,13 +220,14 @@ class WorkflowService(
         }
       }
     }
+  }
 
-  def resetAllStatuses(): Try[Unit] =
+  def resetAllStatuses(): Try[Unit] = {
+    log.debug(s"Resetting the execution status for every workflow")
     Try {
       val workflowPath = s"${AppConstant.WorkflowsZkPath}"
 
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
-        log.debug(s"Resetting the execution status for every workflow")
         val children = curatorFramework.getChildren.forPath(workflowPath)
 
         JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
@@ -211,12 +235,17 @@ class WorkflowService(
         )
       }
     }
+  }
 
-  def stop(id: String): Try[Any] =
+  def stop(id: String): Try[Any] = {
+    log.debug(s"Stopping workflow with id $id")
     statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Stopping))
+  }
 
-  def reset(id: String): Try[Any] =
+  def reset(id: String): Try[Any] = {
+    log.debug(s"Resetting workflow with id $id")
     statusService.update(WorkflowStatus(id, WorkflowStatusEnum.NotStarted))
+  }
 
   /** PRIVATE METHODS **/
 
