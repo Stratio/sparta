@@ -243,7 +243,7 @@
    "_DESERIALIZER_JSON_SCHEMA_": "Json/Spark schema",
    "_DESERIALIZER_AVRO_SCHEMA_": "Avro schema",
    "_KAFKA_AVRO_SCHEMA_FROM_ROW_": "Avro schema from each row",
-   "_KAFKA_AVRO_SCHEMA_RECORD_TOP_LEVEL_RECORD_": "Avro schema top level record",
+   "_KAFKA_AVRO_SCHEMA_RECORD_NAME": "Avro schema record name",
    "_KAFKA_AVRO_SCHEMA_RECORD_NAMESPACE_": "Avro schema record namespace",
    "_KEY_SEPARATOR_": "Key separator",
    "_VAULT_TLS_ENABLE_": "Vault TLS enable",

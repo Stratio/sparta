@@ -60,10 +60,10 @@ class RowSerializer extends Serializer[Row] {
     }
 
     recordNamespace =
-      configs.getOrElse(s"$configPrefix.serializer.avro.recordNamespace", "").toString
+      configs.getOrElse(s"$configPrefix.serializer.avro.schema.recordNamespace", "").toString
 
     recordName =
-      configs.getOrElse(s"$configPrefix.serializer.avro.recordName", "topLevelRecord").toString
+      configs.getOrElse(s"$configPrefix.serializer.avro.schema.recordName", "topLevelRecord").toString
 
     delimiter = configs.getOrElse(s"$configPrefix.serializer.row.delimiter", ",").toString
 

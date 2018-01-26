@@ -75,7 +75,7 @@
         "qa": "fragment-details-kafka-row-separator"
       },
        {
-          "propertyId": "key.serializer.avro.schema.recordNamespace",
+          "propertyId": "value.serializer.avro.schema.recordNamespace",
           "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_NAMESPACE_",
           "propertyType": "text",
           "required": false,
@@ -90,8 +90,8 @@
           "qa": "fragment-details-kafka-avro-recordNamespace"
        },
        {
-          "propertyId": "key.serializer.avro.schema.topLevelRecord",
-          "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_TOP_LEVEL_RECORD_",
+          "propertyId": "value.serializer.avro.schema.recordName",
+          "propertyName": "_KAFKA_AVRO_SCHEMA_RECORD_NAME",
           "propertyType": "text",
           "required": false,
           "visible": [
