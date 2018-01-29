@@ -29,7 +29,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathTransformStepStreamTest extends WordSpecLike with Matchers {
+class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
 
   val inputField = "json"
   val schema = StructType(Seq(StructField(inputField, StringType)))

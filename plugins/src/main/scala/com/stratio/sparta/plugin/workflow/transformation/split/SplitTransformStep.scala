@@ -32,18 +32,18 @@ import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
-class  SplitTransformStep (name: String,
-                          outputOptions: OutputOptions,
-                          ssc: Option[StreamingContext],
-                          xDSession: XDSession,
-                          properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow
-    with SchemaCasting {
+abstract class SplitTransformStep[Underlying[Row]](
+                                                    name: String,
+                                                    outputOptions: OutputOptions,
+                                                    ssc: Option[StreamingContext],
+                                                    xDSession: XDSession,
+                                                    properties: Map[String, JSerializable]
+                                                  )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
+    with ErrorCheckingStepRow with SchemaCasting {
 
   lazy val splitBy: SplitMethod = SplitMethodEnum.withName(properties.getString("splitMethod", "byRegex").toUpperCase)
   lazy val splitByPattern: Option[String] = Try(Option(properties.getString("byRegexPattern"))).getOrElse(None)
@@ -53,7 +53,7 @@ class  SplitTransformStep (name: String,
   lazy val discardCharAtSplitIndex: Boolean = Try(properties.getBoolean("excludeIndexes")).getOrElse(false)
   lazy val leaveEmptySubstrings: Int = -1
 
-  lazy val schemaInputMode =  SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS"))
+  lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "FIELDS"))
   lazy val sparkSchema = properties.getString("schema.sparkSchema", None)
   lazy val fieldsModel = properties.getPropertiesFields("schema.fields")
   lazy val inputField = Try(properties.getString("inputField"))
@@ -78,13 +78,12 @@ class  SplitTransformStep (name: String,
           )
         }
       case _ => throw new Exception("Incorrect schema arguments")
-  }
+    }
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
-    applyHeadTransform(inputData){ (inputSchema, inputStream) =>
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
+    applyHeadTransform(inputData) { (_, inputStream) =>
       inputStream.flatMap(data => parse(data))
     }
-  }
 
   //scalastyle:off
   def parse(row: Row): Seq[Row] =
@@ -108,7 +107,7 @@ class  SplitTransformStep (name: String,
                   case Some(pattern) => Try(valuesParsed.split(pattern, leaveEmptySubstrings).toSeq) match {
                     case Success(splitFields) => splitFields
                     case Failure(e: PatternSyntaxException) => returnWhenError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
-                    case Failure(e:Exception) => returnWhenError(e)
+                    case Failure(e: Exception) => returnWhenError(e)
                   }
                   case None => returnWhenError(new IllegalStateException(
                     s"Impossible to split inputField $inputField by regex without providing a regular expression"))
@@ -117,7 +116,7 @@ class  SplitTransformStep (name: String,
                   case Some(stringChar) => Try(splitByCharString(stringChar, valuesParsed, leaveEmptySubstrings)) match {
                     case Success(splitFields) => splitFields
                     case Failure(e: PatternSyntaxException) => returnWhenError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
-                    case Failure(e:Exception) => returnWhenError(e)
+                    case Failure(e: Exception) => returnWhenError(e)
                   }
                   case None => returnWhenError(new IllegalStateException(
                     s"Impossible to split inputField $inputField by char without providing a char"))
@@ -145,17 +144,17 @@ class  SplitTransformStep (name: String,
                   case None =>
                     Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
                       returnWhenError(new IllegalStateException(
-                          s"The values parsed don't contain the schema field: ${outputField.name}"))))
-                  }
+                        s"The values parsed don't contain the schema field: ${outputField.name}"))))
                 }
               }
+            }
             else returnWhenError(new IllegalStateException(s"The number of split values (${valuesSplit.size}) is greater or lower than the output fields (${providedSchema.size})"))
 
           case None =>
             returnWhenError(new IllegalStateException(s"The input value is null or empty"))
         }
-        new GenericRowWithSchema(newData.toArray, outputSchema)
-  }
+      new GenericRowWithSchema(newData.toArray, outputSchema)
+    }
 }
 
 object SplitTransformStep {
@@ -210,5 +209,7 @@ object SplitTransformStep {
     type SplitMethod = Value
     val BYINDEX, BYREGEX, BYCHAR = Value
   }
+
 }
+
 //scalastyle:on

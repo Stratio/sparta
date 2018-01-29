@@ -1,7 +1,7 @@
 {
    "name": "Split",
    "icon": "Split",
-   "className": "SplitTransformStep",
+   "className": "SplitTransformStepStream",
    "classPrettyName": "Split",
    "arity": ["UnaryToNary"],
    "description": "Split values according to a selected method",

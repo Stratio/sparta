@@ -28,7 +28,7 @@ import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 
 @RunWith(classOf[JUnitRunner])
-class SplitTransformStepTest extends WordSpecLike with Matchers {
+class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
 
   val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
   val inputField = "split"
@@ -66,7 +66,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
 
       "split a field according to them" in {
 
-        val result = new SplitTransformStep(
+        val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -82,7 +82,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
         val expected = Seq(Row("3", "33", "2", "1", "0"))
         assertResult(expected)(result)
 
-        val resultNoRemoved = new SplitTransformStep(
+        val resultNoRemoved = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -111,7 +111,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
             |""".stripMargin
         val excluded = "2017-12-12"
         val inputExcluded = new GenericRowWithSchema(Array(excluded), schema)
-        val resultExcludedIndexes = new SplitTransformStep(
+        val resultExcludedIndexes = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -136,7 +136,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
       val listIndexesUnaryIncrease = "1,3,4,7"
 
       "throw an IllegalStateException" in {
-        an[IllegalStateException] should be thrownBy new SplitTransformStep(
+        an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -148,7 +148,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
             "schema.inputMode" -> "FIELDS")
         ).parse(input)
 
-        an[IllegalStateException] should be thrownBy new SplitTransformStep(
+        an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -160,7 +160,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
             "schema.inputMode" -> "FIELDS")
         ).parse(input)
 
-        an[IllegalStateException] should be thrownBy new SplitTransformStep(
+        an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -172,7 +172,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
             "schema.inputMode" -> "FIELDS")
         ).parse(input)
 
-        an[IllegalStateException] should be thrownBy new SplitTransformStep(
+        an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -207,7 +207,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
       val listIndexes = "1,3,4,5"
       "throw an IllegalStateException" in {
         val exceptionThrown = the[IllegalStateException] thrownBy {
-          new SplitTransformStep(
+          new SplitTransformStepStream(
             inputField,
             outputOptions,
             null,
@@ -247,7 +247,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
 
       "correctly split into values" in {
         val ipString = new GenericRowWithSchema(Array("172.0.0.1"), schema)
-        val result = new SplitTransformStep(
+        val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -262,7 +262,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
         assertResult(expected)(result)
 
         val ipStringEmpty = new GenericRowWithSchema(Array("172..."), schema)
-        val resultEmpty = new SplitTransformStep(
+        val resultEmpty = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -286,7 +286,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
         val ipString = new GenericRowWithSchema(Array("""172\0\0\1"""), schema)
 
         val exceptionThrown = the[IllegalStateException] thrownBy {
-          new SplitTransformStep(
+          new SplitTransformStepStream(
             inputField,
             outputOptions,
             null,
@@ -320,7 +320,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
 
       "throw an IllegalStateException" in {
         val exceptionThrown = the[IllegalStateException] thrownBy {
-          new SplitTransformStep(
+          new SplitTransformStepStream(
             inputField,
             outputOptions,
             null,
@@ -360,7 +360,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
       "correctly split into values" in {
         val regexPoints = """\"""
         val ipString = new GenericRowWithSchema(Array("""172\0\0\1"""), schema)
-        val result = new SplitTransformStep(
+        val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -376,7 +376,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
 
         val regexDollar = "$"
         val ipStringDollar = new GenericRowWithSchema(Array("172$0$0$1"), schema)
-        val resultDollar = new SplitTransformStep(
+        val resultDollar = new SplitTransformStepStream(
           inputField,
           outputOptions,
           null,
@@ -409,7 +409,7 @@ class SplitTransformStepTest extends WordSpecLike with Matchers {
           |""".stripMargin
       "throw an IllegalStateException" in {
         val exceptionThrown = the[IllegalStateException] thrownBy {
-          new SplitTransformStep(
+          new SplitTransformStepStream(
             inputField,
             outputOptions,
             null,
