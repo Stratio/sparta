@@ -154,6 +154,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_DRIVER_MEMORY","2G"),
     EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
     EnvironmentVariable("SPARK_TASK_MAX_FAILURES","8"),
-    EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6")
+    EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6"),
+    EnvironmentVariable("SPARK_BLOCK_INTERVAL","100ms")
   )
 }

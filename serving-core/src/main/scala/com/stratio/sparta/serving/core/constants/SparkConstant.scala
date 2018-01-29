@@ -76,6 +76,7 @@ object SparkConstant {
   val SubmitKryoSerializationConf = "spark.serializer"
   val SubmitExecutorHomeConf = "spark.mesos.executor.home"
   val SubmitDefaultParalelismConf = "spark.default.parallelism"
+  val SubmitBlockIntervalConf = "spark.streaming.blockInterval"
   val SubmitHdfsUriConf = "spark.mesos.driverEnv.HDFS_CONF_URI"
   val SubmitMesosRoleConf = "spark.mesos.role"
   val SubmitMesosConstraintConf = "spark.mesos.constraints"

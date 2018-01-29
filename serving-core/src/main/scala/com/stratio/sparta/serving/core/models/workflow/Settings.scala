@@ -45,6 +45,7 @@ case class StreamingSettings(
                               remember: Option[JsoneyString] = None,
                               backpressure: Option[Boolean] = None,
                               backpressureInitialRate: Option[JsoneyString] = None,
+                              blockInterval: Option[JsoneyString] = Option(JsoneyString("100ms")),
                               stopGracefully: Option[Boolean] = None,
                               stopGracefulTimeout: Option[JsoneyString] = None,
                               checkpointSettings: CheckpointSettings
@@ -63,17 +64,8 @@ case class SparkSettings(
 case class SubmitArguments(
                             userArguments: Seq[UserSubmitArgument] = Seq.empty[UserSubmitArgument],
                             deployMode: Option[String] = Option("client"),
-                            supervise: Option[Boolean] = None,
-                            jars: Option[JsoneyString] = None,
-                            propertiesFile: Option[JsoneyString] = None,
-                            packages: Option[JsoneyString] = None,
-                            excludePackages: Option[JsoneyString] = None,
-                            repositories: Option[JsoneyString] = None,
-                            proxyUser: Option[JsoneyString] = None,
                             driverJavaOptions: Option[JsoneyString] = Option(JsoneyString(
-                              "-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml")),
-                            driverLibraryPath: Option[JsoneyString] = None,
-                            driverClassPath: Option[JsoneyString] = None
+                              "-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"))
                           )
 
 case class SparkConf(
@@ -84,7 +76,6 @@ case class SparkConf(
                       sparkLocalDir: Option[JsoneyString] = None,
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
-                      parquetBinaryAsString: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
                       executorExtraJavaOptions: Option[JsoneyString] = Option(JsoneyString("-XX:+UseConcMarkSweepGC"))
                     )

@@ -31,18 +31,15 @@
           "propertyType": "select",
           "width": 4,
           "default": "marathon",
-          "values": [{
-            "label": "Local",
-            "value": "local"
-          },
-            {
-              "label": "Mesos",
-              "value": "mesos"
-            },
-            {
-              "label": "Marathon",
-              "value": "marathon"
-            }
+          "values": [
+             {
+                "label": "Local",
+                "value": "local"
+             },
+             {
+                "label": "Marathon",
+                "value": "marathon"
+             }
           ],
           "tooltip": "Execution mode used to launch the existing workflows, if nothing is selected Sparta will use the values in the configuration file",
           "qa": "workflow-execution-mode"
@@ -158,6 +155,15 @@
            "width": 4,
           "qa": "spark-streaming-remember-number"
         },
+         {
+            "propertyId": "blockInterval",
+            "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
+            "propertyType": "text",
+            "width": 4,
+            "default": "{{SPARK_BLOCK_INTERVAL}}",
+            "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark",
+            "qa": "workflow-spark-blockInterval"
+         },
         {
           "propertyId": "backpressure",
           "propertyName": "SETTINGS._SPARK_STREAMING_BACK_PRESSURE_",
@@ -360,25 +366,6 @@
                   ]
                },
                {
-                  "propertyId": "deployMode",
-                  "propertyName": "SETTINGS._SPARK_DEPLOY_MODE_",
-                  "propertyType": "select",
-                  "width": 4,
-                  "values": [
-                     {
-                        "label": "Client",
-                        "value": "client"
-                     },
-                     {
-                        "label": "Cluster",
-                        "value": "cluster"
-                     }
-                  ],
-                  "default": "client",
-                  "tooltip": "Sets the spark deploy mode in cluster executions",
-                  "qa": "workflow-spark-deploy-mode"
-               },
-               {
                   "propertyId": "driverJavaOptions",
                   "propertyName": "SETTINGS._SPARK_DRIVER_JAVA_OPTIONS_",
                   "propertyType": "text",
@@ -387,66 +374,6 @@
                   "default": "{{DRIVER_JAVA_OPTIONS}}",
                   "tooltip": "Extra Java options to pass to the driver",
                   "qa": "workflow-spark-driverJavaOptions"
-               },
-               {
-                  "propertyId": "driverLibraryPath",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_LIBRARY_PATH_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "float": true,
-                  "tooltip": "Extra library path entries to be passed to the driver",
-                  "qa": "workflow-spark-driverLibraryPath"
-               },
-               {
-                  "propertyId": "driverClassPath",
-                  "propertyName": "SETTINGS._SPARK_DRIVER_CLASS_PATH_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Extra class path entries to passed to the driver. Note that jars added with --jars are automatically included in the classpath",
-                  "qa": "workflow-spark-driverClassPath"
-               },
-               {
-                  "propertyId": "packages",
-                  "propertyName": "SETTINGS._SPARK_PACKAGES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "float": true,
-                  "tooltip": "Comma-separated list of jars expressed as maven coordinates to include in the driver and executor classPaths. This will search first in the local maven repo, then in maven central and any additional remote repositories given by --repositories. The format for the coordinates should be groupId:artifactId:version",
-                  "qa": "workflow-spark-packages"
-               },
-               {
-                  "propertyId": "excludePackages",
-                  "propertyName": "SETTINGS._SPARK_EXCLUDE_PACKAGES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "float": true,
-                  "tooltip": "Comma-separated list of groupId:artifactId coordinates to exclude while resolving the dependencies provided in --packages in order to avoid dependency conflicts",
-                  "qa": "workflow-spark-excludePackages"
-               },
-               {
-                  "propertyId": "repositories",
-                  "propertyName": "SETTINGS._SPARK_REPOSITORIES_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Comma-separated list of additional remote repositories where to look for the maven coordinates given with --packages",
-                  "qa": "workflow-spark-repositories"
-               },
-               {
-                  "propertyId": "jars",
-                  "propertyName": "SETTINGS._SPARK_JARS_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "float": true,
-                  "tooltip": "Comma-separated list of local jars to include on the driver and executor classPaths",
-                  "qa": "workflow-spark-jars"
-               },
-               {
-                  "propertyId": "propertiesFile",
-                  "propertyName": "SETTINGS._SPARK_PROPERTIES_FILE_",
-                  "propertyType": "text",
-                  "width": 4,
-                  "tooltip": "Path to a file from which to load extra properties. If not specified, this will look for conf/spark-defaults.conf",
-                  "qa": "workflow-spark-propertiesFile"
                }
             ]
          },
@@ -650,16 +577,6 @@
                 "default": false,
                 "tooltip": "Show in logs the stages progress",
                 "qa": "workflow-spark-logStagesProgress"
-             },
-             {
-                "propertyId": "parquetBinaryAsString",
-                "propertyName": "SETTINGS._SPARK_PARQUET_BINARY_STRING_",
-                "propertyType": "boolean",
-                "required": true,
-                "width": "auto",
-                "default": true,
-                "tooltip": "Tells Spark SQL to treat binary-encoded data as strings",
-                "qa": "workflow-spark-parquetBinaryAsString"
              }
           ]
         }

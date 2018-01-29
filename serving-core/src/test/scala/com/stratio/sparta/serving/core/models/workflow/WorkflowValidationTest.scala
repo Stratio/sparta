@@ -46,8 +46,10 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
     GlobalSettings(),
-    StreamingSettings(JsoneyString("6s"), None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
-    SparkSettings(JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
+    StreamingSettings(
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+    SparkSettings(
+      JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
       None, SubmitArguments(), SparkConf(SparkResourcesConf())
     )
   )
