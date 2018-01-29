@@ -4,7 +4,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    When I run 'dcos task | grep pg-0001 | awk '{print $2}'' in the ssh connection and save the value in environment variable 'pgIP'
+    When I run 'dcos task | grep ${POSTGRES_NODE} | awk '{print $2}'' in the ssh connection and save the value in environment variable 'pgIP'
     Then I wait '10' seconds
 
   #********************
@@ -14,7 +14,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
     Given I send a 'POST' request to '/service/gosecmanagement/api/policy' based on 'schemas/gosec/kafka_policy.json' as 'json' with:
       |   $.id                    |  UPDATE    | spartak                   | n/a |
       |   $.name                  |  UPDATE    | spartak                   | n/a |
-      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}       | n/a |
+      |   $.users[0]              |  UPDATE    | ${DCOS_SERVICE_NAME}      | n/a |
     Then the service response status must be '201'
 
   #******************************
@@ -37,7 +37,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Scenario:[SPARTA-1279][07] Install kafka-postgres workflow
     #include workflow
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
-      | id | DELETE | N/A  |
+    |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | "jdbc:postgresql://${POSTGRES_NODE}-${POSTGRES_NAME}.service.paas.labs.stratio.com:5432/postgres?user=${DCOS_SERVICE_NAME}"   | n/a |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
     And I save element '$.name' in environment variable 'nameWorkflow'
@@ -50,6 +50,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #********************************
   # VERIFY kafka-postgres WORKFLOW*
   #********************************
+
   Scenario:[SPARTA-1279][09] Test kafka-postgres workflow in Dcos
     Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w kafka-postgres | wc -l' contains '1'
     #Get ip in marathon

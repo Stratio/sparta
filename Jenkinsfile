@@ -139,6 +139,8 @@ hose {
             | -DWORKFLOW_LIST=testinput-kafka,kafka-postgres
             | -Dquietasdefault=false
             | -DNGINX_ACTIVE=false
+            | -DPOSTGRES_NODE=pg-0001
+            | -DPOSTGRES_NAME=postgrestls
             """
             
     INSTALL = { config ->
