@@ -31,7 +31,7 @@ import org.scalatest.junit.JUnitRunner
 import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
-class ExplodeTransformStepIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
+class ExplodeTransformStepStreamIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
 
   "A ExplodeTransformStepIT" should "transform explode events from the input DStream" in {
     val inputField = "explode"
@@ -61,7 +61,7 @@ class ExplodeTransformStepIT extends TemporalSparkContext with Matchers with Dis
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
 
-    val result = new ExplodeTransformStep(
+    val result = new ExplodeTransformStepStream(
       "dummy",
       outputOptions,
       Option(ssc),

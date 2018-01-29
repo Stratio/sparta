@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
+import scala.util.Try
 
-import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
-import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
-import com.stratio.sparta.plugin.helper.SchemaHelper._
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step._
+import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
-import scala.util.Try
+import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
+import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
+import com.stratio.sparta.plugin.helper.SchemaHelper.getNewOutputSchema
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.workflow.step._
 
-
-class ExplodeTransformStep(name: String,
-                           outputOptions: OutputOptions,
-                           ssc: Option[StreamingContext],
-                           xDSession: XDSession,
-                           properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow
-    with SchemaCasting {
+abstract class ExplodeTransformStep[Underlying[Row]](
+                                                      name: String,
+                                                      outputOptions: OutputOptions,
+                                                      ssc: Option[StreamingContext],
+                                                      xDSession: XDSession,
+                                                      properties: Map[String, JSerializable]
+                                                    )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow
+    with SchemaCasting with SLF4JLogging {
 
   lazy val inputField: String = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
@@ -70,13 +71,12 @@ class ExplodeTransformStep(name: String,
             )
           })
         case _ => throw new Exception("Incorrect schema arguments")
-
       }
     }
   }
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
-    applyHeadTransform(inputData) { (inputSchema, inputStream) =>
+  override def transform(inputData: Map[String, DistributedMonad[Underlying]]): DistributedMonad[Underlying] =
+    applyHeadTransform(inputData) { (_, inputStream) =>
       inputStream.flatMap(data => parse(data))
     }
 

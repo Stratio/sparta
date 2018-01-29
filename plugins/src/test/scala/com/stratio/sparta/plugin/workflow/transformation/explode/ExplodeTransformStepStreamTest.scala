@@ -26,7 +26,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 
 @RunWith(classOf[JUnitRunner])
-class ExplodeTransformStepTest extends WordSpecLike with Matchers {
+class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
 
   val inputField = "explode"
   val schema = StructType(Seq(StructField(inputField, StringType)))
@@ -43,7 +43,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       val explodeField = Seq(Map("color" -> red, "price" -> redPrice))
       val input = new GenericRowWithSchema(Array(explodeField), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -61,7 +61,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       val explodeFieldMoreFields = Seq(Map("color" -> red, "price" -> redPrice), Map("color" -> blue, "price" -> bluePrice))
       val input = new GenericRowWithSchema(Array(explodeFieldMoreFields), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -79,7 +79,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       val explodeFieldMoreFields = Seq(Map("color" -> red, "price" -> redPrice), Map("color" -> blue))
       val input = new GenericRowWithSchema(Array(explodeFieldMoreFields), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -98,7 +98,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       val explodeField = Map("color" -> red, "price" -> redPrice)
       val input = new GenericRowWithSchema(Array(explodeField), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -117,7 +117,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       val explodeField = Seq(new GenericRowWithSchema(Array(red, redPrice), inputSchema))
       val input = new GenericRowWithSchema(Array(explodeField), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -139,7 +139,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
       )
       val input = new GenericRowWithSchema(Array(explodeField), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -174,7 +174,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
           |}
           |]
           |""".stripMargin
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -209,7 +209,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
           |}
           |]
           |""".stripMargin
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -248,7 +248,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
           |}
           |]
           |""".stripMargin
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -287,7 +287,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
           |}
           |]
           |""".stripMargin
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
@@ -326,7 +326,7 @@ class ExplodeTransformStepTest extends WordSpecLike with Matchers {
           |}
           |]
           |""".stripMargin
-      val result = new ExplodeTransformStep(
+      val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
         null,
