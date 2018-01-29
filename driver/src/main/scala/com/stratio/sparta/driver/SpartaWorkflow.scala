@@ -49,7 +49,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   // Clear last error if it was saved in Zookeeper
   clearError()
 
-  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout")).getOrElse(AkkaConstant.DefaultApiTimeout)
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+    .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 

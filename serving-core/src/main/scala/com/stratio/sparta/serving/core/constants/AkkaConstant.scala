@@ -38,9 +38,6 @@ object AkkaConstant {
   val EnvironmentActorName = "environmentActor"
   val GroupActorName = "groupActor"
 
-  val DefaultApiTimeout = 19
-  val DefaultSerializationTimeout = 5
-  val DefaultCrossdataQueriesTimeout = 19
   val DefaultInstances = 3
 
   def cleanActorName(initialName: String): String = initialName.replace(" ", "_")

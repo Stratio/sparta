@@ -23,7 +23,7 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import com.stratio.sparta.security._
-import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
@@ -55,11 +55,10 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
 
   def retrieveStringConfig(user: Option[LoggedUser]): Try[FrontendConfiguration] = {
     Try {
-      if (enabledSecurity)
-        FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get.getInt("timeout"))
-          .getOrElse(AppConstant.DefaultFrontEndTimeout), retrieveNameUser(user))
-      else FrontendConfiguration(Try(SpartaConfig.getFrontendConfig.get.getInt("timeout"))
-        .getOrElse(AppConstant.DefaultFrontEndTimeout), emptyField)
+      val timeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+        .getOrElse(AppConstant.DefaultApiTimeout) + 1
+      if (enabledSecurity) FrontendConfiguration(timeout, retrieveNameUser(user))
+      else FrontendConfiguration(timeout, emptyField)
     }
 
   }

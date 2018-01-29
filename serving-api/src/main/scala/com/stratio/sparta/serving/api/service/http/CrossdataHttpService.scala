@@ -19,11 +19,8 @@ package com.stratio.sparta.serving.api.service.http
 import javax.ws.rs.Path
 
 import akka.pattern.ask
-import akka.util.Timeout
 import com.stratio.sparta.serving.api.actor.CrossdataActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
-import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel
 import com.stratio.sparta.serving.core.models.ErrorModel._
@@ -34,16 +31,10 @@ import org.apache.spark.sql.catalog.{Column, Database, Table}
 import spray.http.StatusCodes
 import spray.routing._
 
-import scala.concurrent.duration._
 import scala.util.Try
 
 @Api(value = HttpConstant.CrossdataPath, description = "Operations over Crossdata catalog")
 trait CrossdataHttpService extends BaseHttpService {
-
-  private val timeoutConfig: Int = Try(SpartaConfig.apiConfig.get.getInt("crossdata.timeout"))
-    .getOrElse(AkkaConstant.DefaultCrossdataQueriesTimeout)
-
-  override implicit val timeout: Timeout = Timeout(timeoutConfig.seconds)
 
   override def routes(user: Option[LoggedUser] = None): Route = findAllDatabases(user) ~ executeQuery(user) ~
     findTables(user) ~ describeTable(user) ~ findAllTables(user)

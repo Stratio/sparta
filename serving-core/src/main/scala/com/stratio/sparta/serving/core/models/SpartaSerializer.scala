@@ -23,7 +23,7 @@ import akka.util.Timeout
 import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
 import com.stratio.sparta.sdk.workflow.enumerators.{InputFormatEnum, OutputFormatEnum, SaveModeEnum, WhenError}
 import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.GetEnvironment
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
 import org.json4s.ext.{DateTimeSerializer, EnumNameSerializer}
@@ -69,7 +69,7 @@ object SpartaSerializer extends SLF4JLogging {
 
   def getEnvironmentContext(actorSystem: ActorSystem, envStateActor: ActorRef): Option[EnvironmentContext] = {
     implicit val system: ActorSystem = actorSystem
-    implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultSerializationTimeout.seconds)
+    implicit val timeout: Timeout = Timeout(AppConstant.DefaultSerializationTimeout.seconds)
 
     Try {
       val future = envStateActor ? GetEnvironment

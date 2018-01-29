@@ -36,7 +36,6 @@ object AppConstant extends ZookeeperUtils {
   val ConfigOauth2 = "oauth2"
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
-  val ConfigFrontend = "config.frontend"
   val DefaultOauth2CookieName = "user"
   val ConfigLocal = "local"
   val ConfigMesos = "mesos"
@@ -52,7 +51,6 @@ object AppConstant extends ZookeeperUtils {
   val DriverLocation = "driverLocation"
   val PluginsLocation = "pluginsLocation"
   val DefaultPluginsLocation = "plugins"
-  val DefaultFrontEndTimeout = 20000
   val ConfigSecurity = "security"
   val AwaitWorkflowChangeStatus = "awaitWorkflowChangeStatus"
   val DefaultAwaitWorkflowChangeStatus = "360s"
@@ -62,6 +60,8 @@ object AppConstant extends ZookeeperUtils {
   val DefaultPreStopMarathonInterval = "5s"
   val DefaultkillUrl = "http://127.0.0.1:7077/v1/submissions/kill"
   val DefaultGroup = Group(Option("940800b2-6d81-44a8-84d9-26913a2faea4"), "/home")
+  val DefaultApiTimeout = 20
+  val DefaultSerializationTimeout = 5
 
   //Hdfs Options
   val HadoopUserName = "hadoopUserName"

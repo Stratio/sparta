@@ -89,9 +89,9 @@ object SparkContextFactory extends SLF4JLogging {
     sc.fold(log.warn("Spark Context is empty")) { sparkContext =>
       synchronized {
         try {
-          log.debug("Stopping SparkContext named: " + sparkContext.appName)
+          log.debug("Stopping SparkContext: " + sparkContext.appName)
           sparkContext.stop()
-          log.info("SparkContext named: " + sparkContext.appName + "stopped correctly")
+          log.info("SparkContext: " + sparkContext.appName + " stopped correctly")
         } finally {
           xdSession = None
           sqlInitialSentences = Seq.empty[String]

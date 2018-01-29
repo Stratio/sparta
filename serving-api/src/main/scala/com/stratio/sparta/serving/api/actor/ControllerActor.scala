@@ -49,8 +49,8 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
 
   override implicit def actorRefFactory: ActorContext = context
 
-  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout"))
-    .getOrElse(AkkaConstant.DefaultApiTimeout)
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+    .getOrElse(AppConstant.DefaultApiTimeout) - 1
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
   val isNginxRequired: Boolean = Properties.envOrNone(NginxMarathonLBHostEnv).fold(false) { _ => true }

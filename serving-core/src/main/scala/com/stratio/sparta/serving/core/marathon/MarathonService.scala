@@ -63,7 +63,9 @@ class MarathonService(context: ActorContext,
   /* Implicit variables */
 
   implicit val actorSystem: ActorSystem = context.system
-  implicit val timeout: Timeout = Timeout(AkkaConstant.DefaultApiTimeout.seconds)
+  val timeoutConfig = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+    .getOrElse(AppConstant.DefaultApiTimeout) - 1
+  implicit val timeout: Timeout = Timeout(timeoutConfig.seconds)
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
 
   /* Constant variables */

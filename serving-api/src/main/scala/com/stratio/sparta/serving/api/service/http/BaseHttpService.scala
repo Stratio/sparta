@@ -20,7 +20,7 @@ import akka.actor.ActorRef
 import akka.event.slf4j.SLF4JLogging
 import akka.util.Timeout
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper.UnauthorizedResponse
 import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
@@ -40,8 +40,8 @@ import scala.util.{Failure, Success, Try}
   */
 trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaSerializer with SLF4JLogging {
 
-  private val apiTimeout = Try(SpartaConfig.apiConfig.get.getInt("timeout"))
-    .getOrElse(AkkaConstant.DefaultApiTimeout)
+  private val apiTimeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
+    .getOrElse(AppConstant.DefaultApiTimeout) - 1
 
   implicit val timeout: Timeout = Timeout(apiTimeout.seconds)
 
