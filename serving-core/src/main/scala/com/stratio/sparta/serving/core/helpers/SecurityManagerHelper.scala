@@ -56,7 +56,7 @@ object SecurityManagerHelper {
     UnauthorizedResponse(ServerException(ErrorModel.toString(ErrorModel(
       StatusCodes.Unauthorized.intValue,
       StatusCodes.Unauthorized.intValue.toString,
-      ErrorCodesMessages.getOrElse(StatusCodes.Unauthorized.intValue.toString, UnknownError),
+      ErrorCodesMessages.getOrElse(StatusCodes.Unauthorized.intValue.toString, UnAuthorizedError),
       Option(msg)
     ))))
   }
@@ -67,7 +67,7 @@ object SecurityManagerHelper {
     UnauthorizedResponse(ServerException(ErrorModel.toString(ErrorModel(
       StatusCodes.InternalServerError.intValue,
       UserNotFound,
-      ErrorCodesMessages.getOrElse(UserNotFound, UnknownError),
+      ErrorCodesMessages.getOrElse(UserNotFound, UnAuthorizedError),
       Option(msg)
     ))))
   }

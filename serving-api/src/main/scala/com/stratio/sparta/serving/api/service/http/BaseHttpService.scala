@@ -58,75 +58,63 @@ trait BaseHttpService extends HttpService with Json4sJacksonSupport with SpartaS
                       errorCodeToReturn: String,
                       response: Either[Try[T], UnauthorizedResponse],
                       genericError: ErrorModel
-                    )(implicit marshaller: ToResponseMarshaller[T]): Unit = {
+                    )(implicit marshaller: ToResponseMarshaller[T]): Unit =
     response match {
       case Left(Success(data)) =>
         context.complete(data)
       case Left(Failure(e)) =>
-        Try(ErrorModel.toErrorModel(e.getLocalizedMessage)) match {
-          case Success(error) =>
-            context.complete(error.statusCode, error)
-          case Failure(_) =>
-            context.complete(StatusCodes.InternalServerError, ErrorModel(
-              StatusCodes.InternalServerError.intValue,
-              errorCodeToReturn,
-              ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
-              None,
-              Option(e.getLocalizedMessage)
-            ))
-        }
+        context.failWith(e)
       case Right(UnauthorizedResponse(exception)) =>
         val errorModel = ErrorModel.toErrorModel(exception.getLocalizedMessage)
         context.complete(errorModel.statusCode, errorModel)
       case _ =>
-        context.complete(genericError.statusCode, genericError)
+        context.failWith(throw new ServerException(ErrorModel.toString(genericError)))
     }
-  }
 
   def deletePostPutResponse[T](
                                 errorCodeToReturn: String,
                                 response: Either[Try[T], UnauthorizedResponse],
                                 genericError: ErrorModel
-                              ): T = {
+                              ): T =
     response match {
       case Left((Success(data))) =>
         data
       case Left((Failure(e))) =>
-        throw new ServerException(ErrorModel.toString(ErrorModel(
-          StatusCodes.InternalServerError.intValue,
-          errorCodeToReturn,
-          ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
-          None,
-          Option(e.getLocalizedMessage)
-        )))
+        throwExceptionResponse(e, errorCodeToReturn)
       case Right(UnauthorizedResponse(exception)) =>
         throw exception
       case _ =>
         throw new ServerException(ErrorModel.toString(genericError))
     }
-  }
 
   def deletePostPutResponse(
-                                errorCodeToReturn: String,
-                                response: Either[Try[_], UnauthorizedResponse],
-                                genericError: ErrorModel,
-                                statusResponse: StatusCode
-                              ): StatusCode = {
+                             errorCodeToReturn: String,
+                             response: Either[Try[_], UnauthorizedResponse],
+                             genericError: ErrorModel,
+                             statusResponse: StatusCode
+                           ): StatusCode =
     response match {
       case Left((Success(_))) =>
         statusResponse
       case Left((Failure(e))) =>
-        throw new ServerException(ErrorModel.toString(ErrorModel(
-          StatusCodes.InternalServerError.intValue,
-          errorCodeToReturn,
-          ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
-          None,
-          Option(e.getLocalizedMessage)
-        )))
+        throwExceptionResponse(e, errorCodeToReturn)
       case Right(UnauthorizedResponse(exception)) =>
         throw exception
       case _ =>
         throw new ServerException(ErrorModel.toString(genericError))
     }
-  }
+
+  protected def throwExceptionResponse(exception: Throwable, errorCodeToReturn: String): Nothing =
+    Try(ErrorModel.toErrorModel(exception.getLocalizedMessage)) match {
+      case Success(error) =>
+        throw new ServerException(ErrorModel.toString(error))
+      case Failure(_) =>
+        throw new ServerException(ErrorModel.toString(ErrorModel(
+          StatusCodes.InternalServerError.intValue,
+          errorCodeToReturn,
+          ErrorCodesMessages.getOrElse(errorCodeToReturn, UnknownError),
+          None,
+          Option(exception.getLocalizedMessage)
+        )))
+    }
 }
