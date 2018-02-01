@@ -19,12 +19,15 @@ package com.stratio.sparta.serving.core.utils
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, StandardCopyOption}
 
+import collection.JavaConverters._
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import com.fasterxml.jackson.databind.node.NullNode
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.stratio.tikitakka.common.util.HttpRequestUtils
 
 import scala.sys.process._
-import scala.util.{Properties, Try}
+import scala.util.{Failure, Properties, Success, Try}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
@@ -324,21 +327,56 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
 
   def retrieveIPandPorts: Future[Seq[AppParameters]] = {
     val groupPath = s"v2/groups/sparta/$instanceName/workflows"
+
     for {
       group <- doRequest[String](marathonApiUri.get, groupPath, cookies = Seq(getToken))
-      appsStrings: Seq[String] <- Future.sequence {
-        extractAppsId(group).get map { appId =>
-          doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
-        }
+      seqApps = extractAppsId(group) match {
+        case Some(groups) =>
+          Future.sequence {
+            groups.map { appId =>
+              doRequest[String](marathonApiUri.get, s"v2/apps/$appId", cookies = Seq(getToken))
+            }
+          }
+        case None => Future(Seq.empty[String])
       }
-    } yield appsStrings flatMap extractAppParameters
+      appsStrings <- seqApps
+    } yield appsStrings.flatMap(extractAppParameters)
+  }
+
+  def extractAppIDs(stringJson: String): Seq[String] = {
+    if (stringJson.trim.isEmpty) Seq.empty
+    else {
+      Try (new ObjectMapper().readTree(stringJson)) match {
+        case Success(json) => extractID(json)
+        case Failure(_) => Seq.empty
+      }
+    }
+  }
+
+  def extractID(jsonNode: JsonNode): List[String] =  {
+    //Find apps and related ids in this node and all its subtrees
+    val apps = jsonNode.findValues("apps")
+    if (apps.isEmpty) List.empty
+    else {
+      apps.asScala.toList.flatMap( app =>
+        if(app.elements().asScala.toList.nonEmpty)
+          Try(app.findValue("id").asText) match {
+            case Success(id) if !id.isEmpty => Option(id.toString)
+            case _ => None
+          }
+        else None
+      )
+    }
   }
 
   private def queryJson[T](json: String)(query: => String): Option[T] =
     Try(new JsonPathExtractor(json, false).query(query).asInstanceOf[T]).toOption
 
   def extractAppsId(json: String): Option[Seq[String]] =
-    queryJson[JSONArray](json)("$.groups.[*].groups[*].apps[*].id").map(_.toArray.map(_.toString))
+    extractAppIDs(json) match {
+      case seq if seq.nonEmpty => Some(seq)
+      case _ => None
+    }
 
   def extractAppParameters(json: String): Option[AppParameters] = {
     val queryId = "$.app.id"

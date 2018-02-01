@@ -133,7 +133,7 @@
                "value": "SPARKFORMAT"
             }
          ],
-         "default": "HEADER",
+         "default": "FIELDS",
          "qa": "fragment-details-input-schema-type"
       },
       {

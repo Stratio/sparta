@@ -16,8 +16,9 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import java.util.concurrent.TimeUnit
+
 import akka.actor.Actor
-import akka.pattern.pipe
 import akka.stream.ActorMaterializer
 import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
@@ -25,8 +26,8 @@ import com.stratio.sparta.serving.api.actor.NginxActor._
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.WorkflowChange
 
 import scala.concurrent.Future
-import scala.util.{Success, Try}
-
+import scala.concurrent.duration.Duration
+import scala.util.Success
 
 
 class NginxActor extends Actor {
@@ -35,6 +36,9 @@ class NginxActor extends Actor {
 
   override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[WorkflowChange])
+    context.system.scheduler.scheduleOnce(Duration(30, TimeUnit.SECONDS),
+      self,
+      UpdateAndMakeSureIsRunning)
   }
 
   private val nginxService = {
@@ -42,6 +46,12 @@ class NginxActor extends Actor {
     val config = NginxMetaConfig()
     new NginxUtils(context.system, materializer, config)
   }
+
+  context.system.scheduler.schedule(
+    Duration(3, TimeUnit.MINUTES), //Initial delay
+    Duration(3, TimeUnit.MINUTES), //Interval
+    self,
+    GetServiceStatus)
 
   private def updateAndMakeSureIsRunning: Future[Unit] =
     for {
@@ -51,9 +61,7 @@ class NginxActor extends Actor {
 
   override def receive: Receive = {
     case GetServiceStatus =>
-      sender ! Success {
-        if(nginxService.isNginxRunning) Up else Down
-      }
+      self ! { if(nginxService.isNginxRunning) Up else Down }
     case Start =>
       nginxService.startNginx()
     case Stop =>
@@ -62,6 +70,9 @@ class NginxActor extends Actor {
       nginxService.reloadNginx()
     case Update =>
       nginxService.updateNginx()
+    case Down =>
+      nginxService.startNginx()
+      updateAndMakeSureIsRunning
     case UpdateAndMakeSureIsRunning =>
       updateAndMakeSureIsRunning
     case _: WorkflowChange =>

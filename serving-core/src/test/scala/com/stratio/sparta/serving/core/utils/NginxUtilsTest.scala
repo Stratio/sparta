@@ -715,14 +715,89 @@ class NginxUtilsTest extends BaseUtilsTest {
   "retrieveAppId" should{
     "retrieve two appID" when {
       "it parses the testJson" in {
-        testNginx.extractAppsId(jsonApp) shouldBe Some {
-          Seq("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1")
-        }
+        testNginx.extractAppsId(jsonApp).get should contain
+        ("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+          "/sparta/sparta-server/workflows/testinput-kafka2")
       }
     }
   }
 
+  "retrieveAppId" should{
+    "retrieve an empty list" when {
+      "it parses an empty JSON" in {
+        testNginx.extractAppsId("") shouldBe None
+      }
+    }
+  }
+
+  "retrieveAppId" should{
+    "retrieve a list with one element" when {
+      "it parses a deeply nested JSON" in {
+        val fakeJSON =
+          """{
+            |"apps":[],
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"apps": [
+            |    {"id": "/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1"},
+            |    {"id": "/sparta/sparta-server/workflows/testinput-kafka2"}
+            |    ]
+            |}]
+            |}]
+            |}]
+            |}]
+            |}]
+            |}
+          """.stripMargin
+
+        testNginx.extractAppsId(fakeJSON).get should contain
+        ("/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+          "/sparta/sparta-server/workflows/testinput-kafka2")
+      }
+    }
+  }
+
+  "retrieveAppId" should{
+    "retrieve an empty list" when {
+      "it parses a JSON with empty apps" in {
+        val fakeJSON =
+          """{
+            |"apps":[{"id": []}]
+            |"groups":[{
+            |"groups":[{
+            |"groups":[{
+            |"apps":[{"id": []}]
+            |}]
+            |}]
+            |}]
+            |}
+          """.stripMargin
+
+        testNginx.extractAppsId(fakeJSON) shouldBe None
+      }
+    }
+  }
+
+
+
   "retrieveIPandPort" should {
+    "retrieve a tuple (String, Int)" when {
+      "it parses the testJson" in {
+        testNginx.extractAppParameters(appId) shouldBe Some(
+          AppParameters(
+            "/sparta/sparta-server/workflows/group1/nameworkflow/nameworkflow-v1",
+            "172.25.159.108",
+            4040
+          )
+        )
+      }
+    }
+  }
+
+  "retrieveIPandPorts" should {
     "retrieve a tuple (String, Int)" when {
       "it parses the testJson" in {
         testNginx.extractAppParameters(appId) shouldBe Some(
