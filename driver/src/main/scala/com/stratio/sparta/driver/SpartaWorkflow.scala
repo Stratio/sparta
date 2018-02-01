@@ -125,6 +125,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     executeWorkflow
   }
 
+  //scalastyle:off
   /**
     * Execute the workflow and use the context with the Spark contexts, this function create the graph associated with
     * the workflow, in this graph the nodes are the steps and the edges are the relations.
@@ -138,7 +139,20 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   private[driver] def executeWorkflow(implicit workflowContext: WorkflowContext): Unit = {
     val nodesModel = workflow.pipelineGraph.nodes
     val graph: Graph[NodeGraph, DiEdge] = createGraph(workflow)
-    val nodeOrdering = getGraphOrdering(graph)
+    val nodeOrdering = graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
+      case (x, _) if x == InputStep.StepType => 1
+      case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
+      case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
+        if (graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) 1
+        else if (graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) -1
+        else {
+          val xPredecessors = graph.get(nodeX).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
+          val yPredecessors = graph.get(nodeY).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
+
+          xPredecessors.compare(yPredecessors) * -1
+        }
+      case _ => 0
+    })
     val parameters = Parameters(direction = Predecessors)
     val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData[Underlying]]
     val inputs = scala.collection.mutable.HashMap.empty[String, InputStepData[Underlying]]
@@ -177,6 +191,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
       }
     }
   }
+
+  //scalastyle:on
 
   /**
     * Create the step associated to the node passed as parameter.

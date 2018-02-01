@@ -17,7 +17,6 @@
 package com.stratio.sparta.serving.core.helpers
 
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.sdk.workflow.step.{InputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.workflow.{EdgeGraph, NodeGraph, Workflow}
 
 import scalax.collection.Graph
@@ -40,22 +39,4 @@ object GraphHelper extends SLF4JLogging {
       }
     }
 
-  //scalastyle:off
-  def getGraphOrdering(graph: Graph[NodeGraph, DiEdge]): graph.NodeOrdering =
-    graph.NodeOrdering((nodeX, nodeY) => (nodeX.stepType.toLowerCase, nodeY.stepType.toLowerCase) match {
-      case (x, _) if x == InputStep.StepType => 1
-      case (x, y) if x != InputStep.StepType && y == InputStep.StepType => -1
-      case (x, y) if x == TransformStep.StepType && y == TransformStep.StepType =>
-        if (graph.get(nodeX).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) 1
-        else if (graph.get(nodeY).diPredecessors.forall(_.stepType.toLowerCase == InputStep.StepType)) -1
-        else {
-          val xPredecessors = graph.get(nodeX).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
-          val yPredecessors = graph.get(nodeY).diPredecessors.count(_.stepType.toLowerCase == TransformStep.StepType)
-
-          xPredecessors.compare(yPredecessors) * -1
-        }
-      case _ => 0
-    })
-
-  //scalastyle:on
 }
