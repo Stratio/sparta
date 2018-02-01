@@ -102,7 +102,7 @@
       {
         "name": "JsonPath",
         "stepType": "Transformation",
-        "className": "JsonPathTransformStep",
+        "className": "JsonPathTransformStepStream",
         "classPrettyName": "JsonPath",
         "arity": [
           "UnaryToNary"
@@ -170,7 +170,7 @@
       {
         "name": "idtable",
         "stepType": "Transformation",
-        "className": "TriggerTransformStep",
+        "className": "TriggerTransformStepStream",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",

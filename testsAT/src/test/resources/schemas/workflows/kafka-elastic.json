@@ -117,7 +117,7 @@
       {
         "name": "tabletest",
         "stepType": "Transformation",
-        "className": "TriggerTransformStep",
+        "className": "TriggerTransformStepStream",
         "classPrettyName": "Trigger",
         "arity": [
           "BinaryToNary",
