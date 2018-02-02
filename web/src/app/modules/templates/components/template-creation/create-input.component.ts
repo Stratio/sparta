@@ -38,6 +38,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
     @Output() onCloseInputModal = new EventEmitter<string>();
     @ViewChild('inputForm') public inputForm: NgForm;
+
     public fragmentIndex = 0;
     public listData: any;
     public submitted = false;

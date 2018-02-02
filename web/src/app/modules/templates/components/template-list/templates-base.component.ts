@@ -111,6 +111,10 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
         this.route.navigate(['edit'], { relativeTo: this.currentActivatedRoute });
     }
 
+    public trackByTemplateFn(index: number, item: any) {
+        return item.name;
+    }
+
     checkRow(isChecked: boolean, value: any) {
         this.onCheckedTemplate({
             checked: isChecked,

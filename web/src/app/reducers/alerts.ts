@@ -195,6 +195,24 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case outputActions.LIST_OUTPUT_FAIL: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'LIST_OUTPUT_ERROR'
+                }]
+            });
+        }
+        case transformationActions.LIST_TRANSFORMATION_FAIL: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'LIST_TRANSFORMATION_ERROR'
+                }]
+            });
+        }
         case workflowActions.LIST_WORKFLOW_FAIL: {
             return Object.assign({}, state, {
                 currentAlert: [{
@@ -210,6 +228,16 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'WORKFLOW_SAVE_SUCCESS',
+                    duration: 1500
+                }]
+            });
+        }
+        case wizardActions.GET_MENU_TEMPLATES_ERROR: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'MENU_TEMPLATES_ERROR',
                     duration: 1500
                 }]
             });

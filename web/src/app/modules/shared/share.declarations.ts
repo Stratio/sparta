@@ -35,7 +35,6 @@ import { FormGeneratorGroupComponent } from './components/form-generator/form-ge
 import { OrderByPipe } from './pipes/sort.pipe';
 import { FormListStringComponent } from './components/form-string-list/form-string-list.component';
 import { Keyobject } from './pipes/keyobject';
-import { SpHighlightTextareaComponent } from './components/highlight-textarea/highlight-textarea.component';
 import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
 import { NotificationAlertComponent } from './components/notification-alert/notification-alert.component';
 import { SpPopoverComponent } from './components/sp-popover/sp-popover.component';
@@ -55,7 +54,6 @@ export const shareComponents = [
     SpPopoverComponent,
     FormFieldComponent,
     FloatingMenuComponent,
-    SpHighlightTextareaComponent,
     MenuOptionsComponent,
     FormGeneratorComponent,
     NotificationAlertComponent,

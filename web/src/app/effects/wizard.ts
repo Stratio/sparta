@@ -44,7 +44,8 @@ export class WizardEffect {
                 });
                 return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
             }).catch((error) => {
-                return Observable.of(new wizardActions.GetMenuTemplatesErrorAction());
+                return  error.statusText === 'Unknown Error' ? Observable.of(new wizardActions.GetMenuTemplatesErrorAction()) :
+                    Observable.of({type: 'NO_ACTION'});
             });
         });
 

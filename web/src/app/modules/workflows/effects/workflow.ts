@@ -43,7 +43,8 @@ export class WorkflowEffect {
                 });
                 return new workflowActions.ListWorkflowCompleteAction(workflows);
             }).catch((error: any) => {
-                return Observable.of(new workflowActions.ListWorkflowFailAction());
+                return error.statusText === 'Unknown Error' ?
+                    Observable.of(new workflowActions.ListWorkflowFailAction()) : Observable.of({type: 'NO_ACTION'});
             });
         });
 

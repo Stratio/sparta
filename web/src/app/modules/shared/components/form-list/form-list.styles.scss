@@ -30,6 +30,9 @@
 .list-title {
     margin-bottom:14px;
     display:block;
+    color: #888;
+    font-size:$egeo-font-size-small;
+        font-family: Nunito Sans ExtraBold;
 }
 
 .list-field {
@@ -44,7 +47,7 @@
    color: $neutral-07;
    position: relative;
    .icon {
-    margin-top: 28px;
+    margin-top: 41px;
     display: block;
     cursor: pointer;
    }

@@ -15,7 +15,6 @@
 ///
 
 import { Action } from '@ngrx/store';
-import { type } from '../utils';
 
 export const LIST_INPUT = '[Input] List inputs';
 export const LIST_INPUT_COMPLETE = '[Input] List inputs complete';

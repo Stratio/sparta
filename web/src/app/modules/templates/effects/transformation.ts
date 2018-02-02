@@ -34,7 +34,8 @@ export class TransformationEffect {
                 .map((transformationList: any) => {
                     return new transformationActions.ListTransformationCompleteAction(transformationList);
                 }).catch(function (error: any) {
-                    return Observable.of(new transformationActions.ListTransformationFailAction(''));
+                    return error.statusText === 'Unknown Error' ? Observable.of(new transformationActions.ListTransformationFailAction(''))
+                     : Observable.of({type: 'NO_ACTION'});
                 });
         });
 

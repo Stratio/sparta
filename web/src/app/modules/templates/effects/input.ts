@@ -34,7 +34,8 @@ export class InputEffect {
                 .map((inputList: any) => {
                     return new inputActions.ListInputCompleteAction(inputList);
                 }).catch(function (error: any) {
-                    return Observable.of(new inputActions.ListInputFailAction(''));
+                    return error.statusText === 'Unknown Error' ? Observable.of(new inputActions.ListInputFailAction(''))
+                        : Observable.of({type: 'NO_ACTION'});
                 });
         });
 

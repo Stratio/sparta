@@ -50,7 +50,6 @@ import { OutputEffect} from './effects/output';
         StoreModule.forFeature('templates', reducers),
         EffectsModule.forFeature([InputEffect, TransformationEffect, OutputEffect]),
         ReactiveFormsModule,
-        SharedModule,
         TemplatesRoutingModule,
         SharedModule,
         StBreadcrumbsModule,

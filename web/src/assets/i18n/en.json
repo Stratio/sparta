@@ -466,9 +466,12 @@
       "RUN_WORKFLOW": "The workflow {{name}} is running!",
       "STOP_WORKFLOW": "The workflow is stopping!",
       "DELETE_WORKFLOW": "Workflow '{{name}}' has been deleted.",
-      "LIST_INPUT_ERROR": "Cannot get input template list",
+      "LIST_INPUT_ERROR": "Cannot get inputs template list",
+      "LIST_OUTPUT_ERROR": "Cannot get outputs template list",
+      "LIST_TRANSFORMATION_ERROR": "Cannot get transformations template list",
       "LIST_WORKFLOW_ERROR": "Cannot get workflow list",
       "WORKFLOW_SAVE_SUCCESS": "Workflow has been saved succesfully",
+      "MENU_TEMPLATES_ERROR": "Cannot get templates",
       "UPDATE_INPUT_DESCRIPTION": "Input has been saved",
       "UPDATE_OUTPUT_DESCRIPTION": "Output has been saved",
       "UPDATE_TRANSFORMATION_DESCRIPTION": "Transformation has been saved",
@@ -485,9 +488,9 @@
       "SAVE_ENVIRONMENT": "The environment variables have been saved",
       "EXPORT_ENVIRONMENT": "The environment data have been exported",
       "IMPORT_ENVIRONMENT": "The environment data have been imported",
-      "DELETE_INPUT_DESCRIPTION": "The input has been deleted",
-      "DELETE_OUTPUT_DESCRIPTION": "The output has been deleted",
-      "DELETE_TRANSFORMATION_DESCRIPTION": "The transformation has been deleted"
+      "DELETE_INPUT_DESCRIPTION": "The input/s has been deleted",
+      "DELETE_OUTPUT_DESCRIPTION": "The output/s has been deleted",
+      "DELETE_TRANSFORMATION_DESCRIPTION": "The transformation/s has been deleted"
    },
    "WIZARD": {
       "INPUTS": "Inputs",

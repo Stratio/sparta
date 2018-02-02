@@ -90,7 +90,7 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit, OnChanges {
     showMenu(index: number, item: any, event: any) {
         if (item.subMenus) {
             this.menuPosition = event.target.offsetTop;
-            this.maxHeightChild = window.innerHeight - event.target.getBoundingClientRect().y - 30;
+            this.maxHeightChild = window.innerHeight - event.target.getBoundingClientRect().top - 30;
         }
         item.active = true;
         this._cd.detectChanges();
@@ -102,13 +102,13 @@ export class MenuOptionsComponent implements OnInit, AfterViewInit, OnChanges {
 
     scrollTop() {
         this._scrollHandler = setInterval(() => {
-            this.scrollList.scrollTo(0, this.scrollList.scrollTop - 1);
+            this.scrollList.scrollTop -= 1;
         }, 5);
     }
 
     scrollBottom() {
         this._scrollHandler = setInterval(() => {
-            this.scrollList.scrollTo(0, this.scrollList.scrollTop + 1);
+            this.scrollList.scrollTop += 1;
         }, 4);
     }
 

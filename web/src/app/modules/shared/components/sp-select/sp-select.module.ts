@@ -19,10 +19,10 @@ import { NgModule } from '@angular/core';
 
 import { SpSelectComponent } from './sp-select.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { StLabelModule } from '@stratio/egeo';
+import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
 
 @NgModule({
-   imports: [CommonModule, FormsModule, ReactiveFormsModule, StLabelModule],
+   imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
    declarations: [SpSelectComponent],
    exports: [SpSelectComponent]
 })

@@ -34,10 +34,9 @@ import * as fromRoot from 'reducers';
 export class ApiInterceptor implements HttpInterceptor {
     constructor(private store: Store<fromRoot.State>) { }
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
         return next.handle(request).do((event: HttpEvent<any>) => {
             if (event instanceof HttpResponse) {
-                // intercept request. TODO jwt token?
+
             }
         }, (err: any) => {
             if (err instanceof HttpErrorResponse) {
@@ -48,10 +47,11 @@ export class ApiInterceptor implements HttpInterceptor {
                 if (err.error) {
                     try {
                         const error = JSON.parse(err.error);
-                        if (error.message && error.exception) {
+                        const errorMessage = error.detailMessage && error.detailMessage.length ? error.detailMessage : error.exception;
+                        if (error.message && errorMessage) {
                             this.store.dispatch(new errorsActions.ServerErrorAction({
                                 title: error.message,
-                                description: error.exception
+                                description: errorMessage
                             }));
                         }
                     } catch (e) {
@@ -61,4 +61,4 @@ export class ApiInterceptor implements HttpInterceptor {
             }
         });
     }
-}
+};

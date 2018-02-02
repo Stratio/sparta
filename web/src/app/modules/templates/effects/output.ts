@@ -33,7 +33,8 @@ export class OutputEffect {
                 .map((outputList: any) => {
                     return new outputActions.ListOutputCompleteAction(outputList);
                 }).catch(function (error: any) {
-                    return Observable.of(new outputActions.ListOutputFailAction(''));
+                   return error.statusText === 'Unknown Error' ? Observable.of(new outputActions.ListOutputFailAction('')) :
+                    Observable.of({type: 'NO_ACTION'});
                 });
         });
 

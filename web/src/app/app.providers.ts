@@ -37,7 +37,7 @@ export const APP_PROVIDERS: Array<any> = [
     AppState,
     ConfigService,
     INITIALIZER,
-     {
+    {
       provide: HTTP_INTERCEPTORS,
       useClass: ApiInterceptor,
       multi: true

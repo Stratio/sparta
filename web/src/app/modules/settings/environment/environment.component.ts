@@ -109,8 +109,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
             for (const value of variables) {
                 const item: any = {};
                 for (const field of this.fields) {
-                    item[field.propertyId] = [Validators.required];
-                    item[field.propertyId][0] = value[field.propertyId];
+                    item[field.propertyId] = [value[field.propertyId], Validators.required];
                 }
                 const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);

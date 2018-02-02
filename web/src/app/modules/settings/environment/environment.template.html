@@ -32,19 +32,19 @@
                     <div formArrayName="variables">
                         <div class="list-item" *ngFor="let item of items.controls; let i = index; let last = last;" [hidden]="isHidden(item.value)">
                             <div [formGroup]="item" class="row">
-                            <div class="list-field">
-                                <ng-container *ngFor="let field of fields; let j = index;">
-                                    <div [className]="'col-sm-' + field.width">
-                                        <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
-                                        label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
-                                        [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
-                                        contextualHelp="{{field.tooltip | translate}}" class="st-form-field"></sp-input>
+                                <div class="list-field">
+                                    <ng-container *ngFor="let field of fields; let j = index;">
+                                        <div [className]="'col-sm-' + field.width">
+                                            <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
+                                                label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
+                                                [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
+                                                contextualHelp="{{field.tooltip | translate}}" class="st-form-field"></sp-input>
+                                        </div>
+                                    </ng-container>
+                                    <div>
+                                        <i class="icon-cross icon-remove" (click)="deleteItem(i)"></i>
                                     </div>
-        
-                                </ng-container>
-                                <div><i class="icon-cross icon-remove" (click)="deleteItem(i)"></i></div>
-                            </div>
-
+                                </div>
                             </div>
                         </div>
                     </div>

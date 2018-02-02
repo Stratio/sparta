@@ -1,7 +1,7 @@
 <div class="form-list">
 
    <div class="col-sm-12" [ngClass]="{'disabled' : isDisabled}">
-      <span class="egeo-title-small list-title">{{label}}</span>
+      <span class="list-title">{{label}}</span>
    </div>
    <form class="items-list col-sm-12" [formGroup]="internalControl" *ngIf="items.controls.length && !isDisabled">
       <div formArrayName="items">

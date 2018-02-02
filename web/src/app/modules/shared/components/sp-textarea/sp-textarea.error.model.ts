@@ -15,7 +15,7 @@
 ///
 
 
-import { TranslateableElement } from "@stratio/egeo";
+import { TranslateableElement } from '@stratio/egeo';
 
 export interface SpTextareaError {
   generic?: string;

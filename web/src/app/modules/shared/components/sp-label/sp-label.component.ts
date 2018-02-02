@@ -18,7 +18,7 @@ import { Component, ElementRef, HostBinding, HostListener, Input } from '@angula
 
 
 @Component({
-    host: { class: 'sp-label' },
+    host: { class: 'st-label' },
     selector: '[sp-label]',
     styleUrls: ['./sp-label.styles.scss'],
     templateUrl: './sp-label.component.html'
@@ -64,6 +64,4 @@ export class SpLabelComponent {
         this.showOnClick = false;
         this.title = this.el.nativeElement.title;
     }
-
-
 }

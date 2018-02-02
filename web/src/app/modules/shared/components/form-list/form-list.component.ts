@@ -75,9 +75,6 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
     private itemssubscription: Array<Subscription> = [];
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (this.forceValidations && this.internalControl) {
-           this.writeValue(this.internalControl.value);
-        }
         this._cd.markForCheck();
     }
 

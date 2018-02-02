@@ -27,6 +27,7 @@ import { CrossdataComponent } from './crossdata.component';
 import { CrossdataRouter } from './crossdata.router';
 import { CrossdataEffect } from './effects/crossdata';
 import { reducers } from './reducers/';
+import { HighlightTextareaModule } from '@app/shared/components/highlight-textarea/hightlight-textarea.module';
 
 @NgModule({
    declarations: [
@@ -39,6 +40,7 @@ import { reducers } from './reducers/';
       CrossdataRouter,
       EffectsModule.forFeature([CrossdataEffect]),
       StoreModule.forFeature('crossdata', reducers),
+      HighlightTextareaModule,
       SharedModule,
       StSearchModule,
       StSwitchModule,

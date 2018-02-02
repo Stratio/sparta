@@ -21,7 +21,8 @@ import {
     Input,
     Output,
     ViewChild,
-    ViewContainerRef
+    ViewContainerRef,
+    OnChanges
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -33,10 +34,8 @@ import { BreadcrumbMenuService } from 'services';
 @Component({
     selector: 'workflows-header',
     styleUrls: ['workflows-header.component.scss'],
-    templateUrl: 'workflows-header.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: 'workflows-header.component.html'
 })
-
 export class WorkflowsHeaderComponent {
 
     @ViewChild('newWorkflowModal', { read: ViewContainerRef }) target: any;

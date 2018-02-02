@@ -18,12 +18,12 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { SpInputComponent } from './sp-input.component';
+import { SpHighlightTextareaComponent } from './highlight-textarea.component';
 import { SpLabelModule } from '@app/shared/components/sp-label/sp-label.module';
 
 @NgModule({
    imports: [CommonModule, FormsModule, ReactiveFormsModule, SpLabelModule],
-   declarations: [SpInputComponent],
-   exports: [SpInputComponent]
+   declarations: [SpHighlightTextareaComponent],
+   exports: [SpHighlightTextareaComponent]
 })
-export class SpInputModule { }
+export class HighlightTextareaModule { }
