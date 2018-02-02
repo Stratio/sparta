@@ -128,7 +128,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     else Seq.empty[String]
     val userPlugins = workflow.settings.global.userPluginsJars.map(userJar => userJar.jarPath.toString.trim)
 
-    uploadedPlugins ++ userPlugins
+    uploadedPlugins ++ userPlugins ++ JarsHelper.getJdbcDriverPaths
   }
 
   def getSparkLocalConfig: Map[String, String] =
@@ -428,7 +428,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
                                              sparkConfs: Map[String, String],
                                              pluginsFiles: Seq[String]
                                            ): Map[String, String] =
-    mixingSparkJarsConfigurations(getJarsSparkConfigurations(pluginsFiles ++ JarsHelper.getJdbcDriverPaths), sparkConfs)
+    mixingSparkJarsConfigurations(getJarsSparkConfigurations(pluginsFiles), sparkConfs)
 }
 
 object SparkSubmitService {

@@ -25,7 +25,11 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.services.HdfsService
 import org.apache.commons.io.FileUtils
 
-object JarsHelper extends SLF4JLogging {
+object JarsHelper extends JarsHelper
+
+trait JarsHelper extends SLF4JLogging {
+
+  protected lazy val hdfsService = HdfsService()
 
   /**
     * Finds files that are the driver application.
@@ -84,29 +88,42 @@ object JarsHelper extends SLF4JLogging {
       if (filePath.startsWith("http")) addFromHttp(filePath)
     }
 
+  def getLocalPathFromJars(jarFiles: Seq[String]): Seq[String] =
+    jarFiles.flatMap { filePath =>
+      if (filePath.startsWith("/") || filePath.startsWith("file://"))
+        Option(pathFromLocal(filePath))
+      else if (filePath.startsWith("hdfs") || filePath.startsWith("http"))
+        Option(pathFromURI(filePath))
+      else None
+    }
+
+  private def pathFromLocal(filePath: String) : String = filePath.replace("file://", "")
+
   private def addFromLocal(filePath: String): Unit = {
     log.debug(s"Getting file from local: $filePath")
-    val file = new File(filePath.replace("file://", ""))
+    val file = new File(pathFromLocal(filePath))
     addJarToClasspath(file)
   }
 
+  private def pathFromURI(fileURI: String): String =
+    s"/tmp/sparta/userjars/${fileURI.split("/").last}"
+
   private def addFromHdfs(fileHdfsPath: String): Unit = {
     log.debug(s"Getting file from HDFS: $fileHdfsPath")
-    val inputStream = HdfsService().getFile(fileHdfsPath)
     val fileName = fileHdfsPath.split("/").last
     log.debug(s"HDFS file name is $fileName")
-    val file = new File(s"/tmp/sparta/userjars/${UUID.randomUUID().toString}/$fileName")
+    val file = new File(pathFromURI(fileHdfsPath))
     log.debug(s"Downloading HDFS file to local file system: ${file.getAbsoluteFile}")
-    FileUtils.copyInputStreamToFile(inputStream, file)
+    FileUtils.copyInputStreamToFile(hdfsService.getFile(fileHdfsPath), file)
     addJarToClasspath(file)
   }
 
   private def addFromHttp(fileURI: String): Unit = {
     log.debug(s"Getting file from HTTP: $fileURI")
-    val tempFile = File.createTempFile(s"sparta-plugin-${Calendar.getInstance().getTimeInMillis}", ".jar")
+    val file = new File(pathFromURI(fileURI))
     val url = new URL(fileURI)
-    FileUtils.copyURLToFile(url, tempFile)
-    addJarToClasspath(tempFile)
+    FileUtils.copyURLToFile(url, file)
+    addJarToClasspath(file)
   }
 
 }

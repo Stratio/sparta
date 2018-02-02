@@ -20,7 +20,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.driver.helpers.PluginFilesHelper
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -73,9 +72,7 @@ object SparkDriver extends SLF4JLogging {
         val environmentStateActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
         environmentStateActor ! ForceInitialization
         JarsHelper.addJarsToClassPath(pluginsFiles)
-        JarsHelper.addJdbcDriversToClassPath()
-        val localPlugins = PluginFilesHelper.downloadPlugins(pluginsFiles)
-        PluginFilesHelper.addPluginsToClasspath(localPlugins)
+        val localPlugins = JarsHelper.getLocalPathFromJars(pluginsFiles)
         val workflowService = new WorkflowService(curatorInstance, Option(system), Option(environmentStateActor))
         val workflow = workflowService.findById(workflowId)
         log.debug(s"Obtained workflow: ${workflow.toString}")

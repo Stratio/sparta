@@ -23,6 +23,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequ
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.helpers.JarsHelper
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
 import com.stratio.sparta.serving.core.services._
@@ -63,8 +64,9 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
+      val localPluginJars = JarsHelper.getLocalPathFromJars(pluginJars)
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)
-      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginJars)
+      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(localPluginJars)
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
         sparkSubmitExecution = SparkSubmitExecution(

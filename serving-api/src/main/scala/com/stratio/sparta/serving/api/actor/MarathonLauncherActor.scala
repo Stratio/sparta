@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant._
-import com.stratio.sparta.serving.core.helpers.WorkflowHelper
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, WorkflowHelper}
 import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
@@ -60,9 +60,10 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
       val zookeeperConfig = launcherService.getZookeeperConfig
       val driverFile = sparkSubmitService.extractDriverSubmit(detailConfig)
       val pluginJars = sparkSubmitService.userPluginsJars.filter(_.nonEmpty)
+      val localPluginJars = JarsHelper.getLocalPathFromJars(pluginJars)
       val sparkHome = sparkSubmitService.validateSparkHome
       val driverArgs = sparkSubmitService.extractDriverArgs(zookeeperConfig, pluginJars, detailConfig)
-      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(pluginJars)
+      val (sparkSubmitArgs, sparkConfs) = sparkSubmitService.extractSubmitArgsAndSparkConf(localPluginJars)
       val executionSubmit = WorkflowExecution(
         id = workflow.id.get,
         sparkSubmitExecution = SparkSubmitExecution(
