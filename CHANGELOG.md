@@ -2,12 +2,47 @@
 
 ## 2.0.0 (upcoming)
 
-* Update Spark Image (2.2.0.4)
-* Environment variables with Moustache substitution
-* Centralized logging
+* New UI with a powerful data pipeline and workflow designer
+* Monitoring view
+* Repository view
+* Workflow life cycle:
+    - Environment variables management
+    - Moustache substitution on workflow properties with environment variables
 * Workflow groups management
 * Workflow versioning
-* Batch components integration
+* Batch execution mode (experimental)
+* New plugins implementation: 
+    - Avro
+    - Casting
+    - Checkpoint
+    - Distinct
+    - Intersection
+    - Json
+    - OrderBy
+    - Persist
+    - Select
+    - Union
+    - Window
+* Mayor refactor in existent plugins:
+    - Crossdata input
+    - Cube
+    - Datetime
+    - Filter
+     - JDBC/Postgres
+    - Trigger
+* Centralized logging integration
+* Errors management at workflow, row or field level
+* Reprocessing process with error outputs policies
+* Security settings refactor
+* Plugins management integrated with HDFS
+* Update Spark Image (2.2.0.4)
+* Avro/Json serializers and deserializers for kafka input and output
+* Cube optimization with mapWithState
+* Spark Streaming jobs optimized with less stages
+* Nginx integration for monitoring workflows with the Spark UI
+* Error catalog for API calls
+* Bugfixing over all reported errors on the 1.x Sparta version
+
 
 ## 1.9.0 (December 29, 2017)
 * **Alpha release for version 2.0**
