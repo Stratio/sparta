@@ -51,7 +51,6 @@
       "@types/jasmine": "2.5.53",
       "@types/jasminewd2": "2.0.2",
       "@types/node": "6.0.60",
-      "@stratio/egeo-ui-base": "1.4.1",
       "codelyzer": "2.0.0",
       "commitizen": "2.9.6",
       "cz-conventional-changelog": "2.0.0",
