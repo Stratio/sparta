@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -63,7 +63,8 @@ class PersistTransformStepBatchIT  extends TemporalSparkContext with Matchers wi
     val result = new PersistTransformStepBatch(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],
         "inputField" -> inputField,

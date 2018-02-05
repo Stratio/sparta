@@ -47,7 +47,7 @@ class WorkflowServiceTest extends WordSpecLike
   val setDataBuilder = mock[SetDataBuilder]
   val deleteBuilder = mock[DeleteBuilder]
   val protectedACL = mock[ProtectACLCreateModeStatPathAndBytesable[String]]
-  val settings = mock[Settings]
+  val settings = Settings()
 
   val nodes = Seq(
     NodeGraph("a", "Input", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),

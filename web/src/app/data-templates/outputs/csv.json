@@ -3,7 +3,7 @@
     "icon": "Csv",
     "className": "CsvOutputStep",
     "classPrettyName": "Csv",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Persist your data in HDFS with CSV format.",
     "properties": [
       {
@@ -45,6 +45,14 @@
         "required": true,
         "qa": "fragment-details-csv-delimiter"
       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_CSV_SAVE_PROPERTIES_",

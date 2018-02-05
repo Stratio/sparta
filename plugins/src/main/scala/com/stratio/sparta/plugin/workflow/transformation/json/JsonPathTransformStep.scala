@@ -35,12 +35,12 @@ import scala.util.{Failure, Success, Try}
 abstract class JsonPathTransformStep[Underlying[Row]](
                                                        name: String,
                                                        outputOptions: OutputOptions,
+                                                       transformationStepsManagement: TransformationStepManagement,
                                                        ssc: Option[StreamingContext],
                                                        xDSession: XDSession,
                                                        properties: Map[String, JSerializable]
                                                      )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val queriesModel: PropertiesQueriesModel = properties.getPropertiesQueries("queries")
 
@@ -100,7 +100,7 @@ abstract class JsonPathTransformStep[Underlying[Row]](
               case Success(newValue) =>
                 newValue
               case Failure(e) =>
-                returnWhenError(new Exception(s"Impossible to parse outputField: $outputField " +
+                returnWhenFieldError(new Exception(s"Impossible to parse outputField: $outputField " +
                   s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
             }
           }

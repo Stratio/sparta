@@ -147,34 +147,44 @@
            ]
         },
         {
-           "propertyId": "whenError",
-           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
-           "propertyType": "select",
-           "default": "Error",
-           "required": true,
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "Error"
-              },
-              {
-                 "label": "Discard",
-                 "value": "Discard"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
-              }
-           ],
-           "qa": "workflow-transformation-json-whenError"
-        },
-        {
            "propertyId": "supportNullValues",
            "propertyName": "_SUPPORT_NULL_VALUES_",
            "propertyType": "boolean",
            "default": true,
            "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
            "qa": "workflow-transformation-json-supportNullValues"
+        },
+        {
+           "propertyId": "whenRowError",
+           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+           "propertyType": "select",
+           "values": [
+              {
+                 "label": "Error",
+                 "value": "RowError"
+              },
+              {
+                 "label": "Discard",
+                 "value": "RowDiscard"
+              }
+           ],
+           "qa": "workflow-transformation-whenRowError"
+        },
+        {
+           "propertyId": "whenFieldError",
+           "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+           "propertyType": "select",
+           "values": [
+              {
+                 "label": "Error",
+                 "value": "FieldError"
+              },
+              {
+                 "label": "Null",
+                 "value": "Null"
+              }
+           ],
+           "qa": "workflow-transformation-whenFieldError"
         }
      ]
   }

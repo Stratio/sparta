@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.serving.core.models.workflow
+package com.stratio.sparta.sdk.workflow.enumerators
 
-import com.stratio.sparta.sdk.properties.JsoneyString
-import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
+object WhenFieldError extends Enumeration {
 
-case class WriterGraph(
-                        saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                        tableName: Option[JsoneyString] = None,
-                        partitionBy: Option[JsoneyString] = None,
-                        primaryKey: Option[JsoneyString] = None,
-                        errorTableName: Option[JsoneyString] = None
-                      )
+  type WhenFieldError = Value
+  val FieldError, Null, FieldDiscard = Value
+
+}

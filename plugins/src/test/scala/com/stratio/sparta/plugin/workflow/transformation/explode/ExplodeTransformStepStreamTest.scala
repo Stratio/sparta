@@ -17,7 +17,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
@@ -46,6 +46,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
@@ -64,6 +65,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
@@ -82,11 +84,12 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
           "inputField" -> inputField,
-          "whenError" -> "Null",
+          "whenRowError" -> "RowDiscard",
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
       ).parse(input)
 
@@ -101,6 +104,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
@@ -120,6 +124,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
@@ -142,6 +147,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> true,
@@ -177,6 +183,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> false,
@@ -212,6 +219,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> false,
@@ -251,6 +259,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> false,
@@ -290,6 +299,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> false,
@@ -329,6 +339,7 @@ class ExplodeTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new ExplodeTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fromRow" -> false,

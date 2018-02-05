@@ -3,7 +3,7 @@
      "icon": "Jdbc",
      "className": "JdbcOutputStep",
     "classPrettyName": "Jdbc",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "With one jdbc connection it's possible to write data into relational SQL Databases.",
     "properties": [
       {
@@ -78,6 +78,14 @@
           "tooltip": "Extract schema from output database",
           "default": false,
           "qa": "fragment-details-jdbc-schema-database"
+       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
        },
       {
         "propertyId": "saveOptions",

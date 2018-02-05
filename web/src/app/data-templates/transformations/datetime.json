@@ -6,28 +6,6 @@
    "description": "Parses or creates a list of input field according to a given time format and returns all the obtained new fields or the selected ones",
    "properties": [
       {
-         "propertyId": "whenError",
-         "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
-         "propertyType": "select",
-         "default": "Error",
-         "required": true,
-         "values": [
-            {
-               "label": "Error",
-               "value": "Error"
-            },
-            {
-               "label": "Discard",
-               "value": "Discard"
-            },
-            {
-               "label": "Null",
-               "value": "Null"
-            }
-         ],
-         "qa": "workflow-transformation-datetime-whenError"
-      },
-      {
          "propertyId": "fieldsDatetime",
          "propertyName": "_FIELDS_DATETIME_DEFINITION_",
          "propertyType": "list",
@@ -536,6 +514,38 @@
                "required": false
             }
          ]
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "qa": "workflow-transformation-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Null",
+               "value": "Null"
+            }
+         ],
+         "qa": "workflow-transformation-whenFieldError"
       }
    ]
 }

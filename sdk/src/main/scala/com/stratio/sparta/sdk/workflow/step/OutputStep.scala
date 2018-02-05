@@ -48,8 +48,13 @@ abstract class OutputStep[Underlying[Row]](
     * @param inputData     Input stream data to save
     * @param outputOptions Options to save
     */
-  def writeTransform(inputData: DistributedMonad[Underlying], outputOptions: OutputOptions): Unit =
-    inputData.write(outputOptions, xDSession)(save)
+  def writeTransform(
+                      inputData: DistributedMonad[Underlying],
+                      outputOptions: OutputOptions,
+                      errorsManagement: ErrorsManagement,
+                      errorOutputs: Seq[OutputStep[Underlying]]
+                    ): Unit =
+    inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs)(save)
 
   /**
     * Save function that implements the plugins.

@@ -25,5 +25,6 @@ object NodeArityEnum extends Enumeration {
   val UnaryToNary = Value("UnaryToNary")
   val BinaryToNary = Value("BinaryToNary")
   val NaryToNullary = Value("NaryToNullary")
+  val NullaryToNullary = Value("NullaryToNullary")
   val NaryToNary = Value("NaryToNary")
 }

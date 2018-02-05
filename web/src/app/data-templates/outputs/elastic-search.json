@@ -3,7 +3,7 @@
    "classPrettyName": "ElasticSearch",
    "className": "ElasticSearchOutputStep",
    "icon": "Elasticsearch",
-  "arity": ["NaryToNullary"],
+   "arity": ["NullaryToNullary", "NaryToNullary"],
    "description": "Elasticsearch is a search server based on Lucene. This output uses the generic implementation with DataFrames.",
    "properties": [
       {
@@ -77,6 +77,14 @@
          "tooltip": "Specify the format the timestamp will have",
          "required": false,
          "qa": "fragment-details-elasticSearch-ts-mapper-format"
+      },
+      {
+         "propertyId": "errorSink",
+         "propertyName": "_ERROR_SINK_",
+         "propertyType": "boolean",
+         "tooltip": "This output can be used for sending errors in the errors management settings",
+         "default": false,
+         "qa": "fragment-details-errorSink"
       },
       {
          "propertyId": "saveOptions",

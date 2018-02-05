@@ -22,10 +22,12 @@ import akka.util.Timeout
 import com.stratio.sparta.driver.error._
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.factory.SparkContextFactory._
-import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.utils.{AggregationTimeUtils, ClasspathUtils}
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils
 import com.stratio.sparta.sdk.workflow.step._
+import com.stratio.sparta.sdk.{ContextBuilder, DistributedMonad}
+import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.GraphHelper._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
@@ -34,8 +36,6 @@ import com.stratio.sparta.serving.core.utils.CheckpointUtils
 import org.apache.curator.framework.CuratorFramework
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.{Duration, StreamingContext}
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.config.SpartaConfig
 
 import scala.concurrent.duration._
 import scala.util.Try
@@ -126,6 +126,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
   }
 
   //scalastyle:off
+
   /**
     * Execute the workflow and use the context with the Spark contexts, this function create the graph associated with
     * the workflow, in this graph the nodes are the steps and the edges are the relations.
@@ -156,6 +157,11 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val parameters = Parameters(direction = Predecessors)
     val transformations = scala.collection.mutable.HashMap.empty[String, TransformStepData[Underlying]]
     val inputs = scala.collection.mutable.HashMap.empty[String, InputStepData[Underlying]]
+    val errorOutputs: Seq[OutputStep[Underlying]] = nodesModel.filter { node =>
+      val isSinkOutput = Try(node.configuration(WorkflowHelper.OutputStepErrorProperty).toString.toBoolean)
+        .getOrElse(false)
+      node.stepType.toLowerCase == OutputStep.StepType && isSinkOutput
+    }.map(errorOutputNode => createOutputStep(errorOutputNode))
 
     implicit val graphContext = GraphContext(graph, inputs, transformations)
 
@@ -173,7 +179,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             inputs.find(_._1 == predecessor.name).foreach {
               case (_, InputStepData(step, data)) =>
-                newOutput.writeTransform(data, step.outputOptions)
+                newOutput.writeTransform(
+                  data,
+                  step.outputOptions,
+                  workflow.settings.errorsManagement,
+                  errorOutputs
+                )
             }
           }
         }
@@ -184,7 +195,12 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
           traceFunction(phaseEnum, okMessage, errorMessage) {
             transformations.find(_._1 == predecessor.name).foreach { case (_, transform) =>
-              newOutput.writeTransform(transform.data, transform.step.outputOptions)
+              newOutput.writeTransform(
+                transform.data,
+                transform.step.outputOptions,
+                workflow.settings.errorsManagement,
+                errorOutputs
+              )
             }
           }
         }
@@ -210,6 +226,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val data = input.init()
           val inputStepData = InputStepData(input, data)
 
+          data.setStepName(input.outputOptions.errorTableName.getOrElse(input.name))
           graphContext.inputs += (input.name -> inputStepData)
         }
       case value if value == TransformStep.StepType =>
@@ -272,20 +289,23 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
+      val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName.notBlank.getOrElse(node.name),
+        tableName,
         node.writer.partitionBy.notBlank,
-        node.writer.primaryKey.notBlank
+        node.writer.primaryKey.notBlank,
+        node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[TransformStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
           classOf[OutputOptions],
+          classOf[TransformationStepManagement],
           classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputOptions, workflowContext.ssc, workflowContext.xDSession, node.configuration)
+        ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement, workflowContext.ssc, workflowContext.xDSession, node.configuration)
           .asInstanceOf[TransformStep[Underlying]]
       )
     }
@@ -306,11 +326,13 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
       val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
+      val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
-        node.writer.tableName.notBlank.getOrElse(node.name),
+        tableName,
         node.writer.partitionBy.notBlank,
-        node.writer.primaryKey.notBlank
+        node.writer.primaryKey.notBlank,
+        node.writer.errorTableName.notBlank.orElse(Option(tableName))
       )
       workflowContext.classUtils.tryToInstantiate[InputStep[Underlying]](classType, (c) =>
         c.getDeclaredConstructor(

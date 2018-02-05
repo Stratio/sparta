@@ -2,6 +2,7 @@
    "name": "Custom",
    "icon": "Custom",
    "className": "CustomOutputStep",
+   "arity": ["NullaryToNullary", "NaryToNullary"],
    "classPrettyName": "Custom",
    "description": "Custom output defined by user. User can extend the Sparta SDK with his own implementation of Output class",
    "properties": [
@@ -13,6 +14,14 @@
          "required": true,
          "tooltip": "Output class type that implements the input SDK step",
          "qa": "custom-output-modelType"
+      },
+      {
+         "propertyId": "errorSink",
+         "propertyName": "_ERROR_SINK_",
+         "propertyType": "boolean",
+         "tooltip": "This output can be used for sending errors in the errors management settings",
+         "default": false,
+         "qa": "fragment-details-errorSink"
       },
       {
          "propertyId": "saveOptions",

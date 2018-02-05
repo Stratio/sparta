@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.workflow.transformation.split
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -27,7 +27,8 @@ import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 class SplitTransformStepStream(
                               name: String,
                               outputOptions: OutputOptions,
+                              transformationStepsManagement: TransformationStepManagement,
                               ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends SplitTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                            ) extends SplitTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)

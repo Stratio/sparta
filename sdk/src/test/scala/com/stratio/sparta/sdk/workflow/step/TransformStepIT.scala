@@ -36,6 +36,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
   import DistributedMonad.Implicits._
 
   val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+  val transformationsStepManagement = TransformationStepManagement()
   def passSameStream(
                       stepName: String,
                       generateDStream: DistributedMonad[DStream]
@@ -54,6 +55,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
+      transformationsStepManagement,
       Option(ssc),
       sparkSession,
       properties
@@ -78,6 +80,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
+      transformationsStepManagement,
       Option(ssc),
       sparkSession,
       properties
@@ -109,6 +112,7 @@ class TransformStepIT extends TemporalSparkContext with Matchers {
     val transformStep = new MockTransformStep(
       name,
       outputOptions,
+      transformationsStepManagement,
       Option(ssc),
       sparkSession,
       properties

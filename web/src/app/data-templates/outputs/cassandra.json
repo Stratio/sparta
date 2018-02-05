@@ -75,6 +75,14 @@
           }
         ]
       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_CASSANDRA_SAVE_PROPERTIES_",

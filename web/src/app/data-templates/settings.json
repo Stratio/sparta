@@ -20,7 +20,7 @@
     }
   ],
   "advancedSettings": [
-    {
+     {
       "name" : "global",
       "listCompressed": true,
       "properties": [
@@ -134,7 +134,7 @@
          }
       ]
     },
-    {
+     {
       "name" : "streamingSettings",
       "properties": [
         {
@@ -289,7 +289,7 @@
         }
       ]
     },
-    {
+     {
       "name" : "sparkSettings",
       "properties": [
         {
@@ -581,7 +581,144 @@
           ]
         }
       ]
-    }
+    },
+     {
+        "name" : "errorsManagement",
+        "properties": [
+           {
+              "name": "genericErrorManagement",
+              "properties": [
+                 {
+                    "propertyId": "whenError",
+                    "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
+                    "required": true,
+                    "propertyType": "select",
+                    "width": 4,
+                    "default": "Error",
+                    "values": [
+                       {
+                          "label": "Error",
+                          "value": "Error"
+                       },
+                       {
+                          "label": "Discard",
+                          "value": "Discard"
+                       }
+                    ],
+                    "tooltip": "When an error occurs, the workflow must do the selected action",
+                    "qa": "workflow-errors-whenError"
+                 }
+              ]
+           },
+           {
+              "name": "transformationStepsManagement",
+              "properties": [
+                 {
+                    "propertyId": "whenError",
+                    "propertyName": "SETTINGS._ERROR_WHEN_ERROR_",
+                    "propertyType": "select",
+                    "width": 4,
+                    "default": "Error",
+                    "values": [
+                       {
+                          "label": "Error",
+                          "value": "Error"
+                       },
+                       {
+                          "label": "Discard",
+                          "value": "Discard"
+                       }
+                    ],
+                    "tooltip": "When an error occurs on Transformation steps, the transformation must do the selected action by default",
+                    "qa": "workflow-errors-whenError"
+                 },
+                 {
+                    "propertyId": "whenRowError",
+                    "propertyName": "SETTINGS._ERROR_WHEN_ROW_ERROR_",
+                    "propertyType": "select",
+                    "width": 4,
+                    "default": "RowError",
+                    "values": [
+                       {
+                          "label": "Error",
+                          "value": "RowError"
+                       },
+                       {
+                          "label": "Discard",
+                          "value": "RowDiscard"
+                       }
+                    ],
+                    "tooltip": "When an error occurs on Transformation steps when parsing rows, the transformation must do the selected action by default",
+                    "qa": "workflow-errors-whenRowError"
+                 },
+                 {
+                    "propertyId": "whenFieldError",
+                    "propertyName": "SETTINGS._ERROR_WHEN_FIELD_ERROR_",
+                    "propertyType": "select",
+                    "width": 4,
+                    "default": "Error",
+                    "values": [
+                       {
+                          "label": "Error",
+                          "value": "FieldError"
+                       },
+                       {
+                          "label": "Null",
+                          "value": "Null"
+                       }
+                    ],
+                    "tooltip": "When an error occurs on Transformation steps when parsing fields, the transformation must do the selected action by default",
+                    "qa": "workflow-errors-whenFieldError"
+                 }
+              ]
+           },
+           {
+              "name": "transactionsManagement",
+              "properties": [
+                 {
+                    "propertyId": "sendToOutputs",
+                    "propertyName": "SETTINGS._ERROR_SAVE_TO_OUTPUTS_",
+                    "propertyType": "list",
+                    "tooltip": "Send data to the selected error Outputs when an error occurs",
+                    "qa": "workflow-errors-sendToOutputs",
+                    "fields": [
+                       {
+                          "propertyId": "outputStepName",
+                          "propertyName": "SETTINGS._OUTPUT_STEP_NAME_",
+                          "propertyType": "text",
+                          "tooltip": "Error Output name that executes the save action",
+                          "qa": "workflow-errors-outputStepName"
+                       },
+                       {
+                          "propertyId": "omitSaveErrors",
+                          "propertyName": "SETTINGS._OMIT_ERRORS_",
+                          "propertyType": "boolean",
+                          "default": true,
+                          "tooltip": "Omit errors when the data is saved to the error Output",
+                          "qa": "workflow-errors-omitSaveErrors"
+                       }
+                    ]
+                 },
+                 {
+                    "propertyId": "sendInputData",
+                    "propertyName": "SETTINGS._SEND_INPUT_DATA_",
+                    "propertyType": "boolean",
+                    "default": true,
+                    "tooltip": "Send the data of the all input steps to error Outputs",
+                    "qa": "workflow-errors-sendInputData"
+                 },
+                 {
+                    "propertyId": "sendStepData",
+                    "propertyName": "SETTINGS._SEND_STEP_DATA_",
+                    "propertyType": "boolean",
+                    "default": false,
+                    "tooltip": "Send the data of the transformation step to error Outputs",
+                    "qa": "workflow-errors-sendStepData"
+                 }
+              ]
+           }
+        ]
+     }
   ],
   "helpLinks": [
   ]

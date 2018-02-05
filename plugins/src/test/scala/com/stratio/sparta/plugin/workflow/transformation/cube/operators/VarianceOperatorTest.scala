@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -36,18 +36,18 @@ class VarianceOperatorTest extends WordSpec with Matchers {
     ))
 
     "processMap must be " in {
-      val operator = new VarianceOperator("Variance", WhenError.Error, inputField = Some("field1"))
+      val operator = new VarianceOperator("Variance", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator.processMap(new GenericRowWithSchema(Array(1, 2, 3), initSchema)) should be(Some(1))
     }
 
     "processReduce must be " in {
-      val operator = new VarianceOperator("Variance", WhenError.Error, inputField = Some("field1"))
+      val operator = new VarianceOperator("Variance", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator.processReduce(Seq(Some(1L), Some(3L), None)) should be(Some(2.0))
 
-      val operator2 = new VarianceOperator("Variance", WhenError.Error, inputField = Some("field1"))
+      val operator2 = new VarianceOperator("Variance", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator2.processReduce(Seq(Some(1), Some(1))) should be(Some(0))
 
-      val operator3 = new VarianceOperator("Variance", WhenError.Error, inputField = Some("field1"))
+      val operator3 = new VarianceOperator("Variance", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator3.processReduce(Seq(None)) should be(Some(0))
     }
   }

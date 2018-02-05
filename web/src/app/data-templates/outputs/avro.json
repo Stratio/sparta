@@ -3,7 +3,7 @@
     "icon": "Avro",
     "className": "AvroOutputStep",
     "classPrettyName": "Avro",
-     "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
     "properties": [
       {
@@ -14,6 +14,14 @@
         "tooltip": "",
         "qa": "fragment-details-avro-path"
       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_AVRO_SAVE_PROPERTIES_",

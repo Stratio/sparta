@@ -18,16 +18,17 @@ package com.stratio.sparta.plugin.workflow.transformation.avro
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 class AvroTransformStepStream(
                                name: String,
                                outputOptions: OutputOptions,
+                               transformationStepsManagement: TransformationStepManagement,
                                ssc: Option[StreamingContext],
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
-                             ) extends AvroTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                             ) extends AvroTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)

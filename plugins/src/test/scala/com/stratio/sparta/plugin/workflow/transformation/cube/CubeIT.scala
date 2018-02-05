@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.cube
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -43,7 +43,7 @@ class CubeIT extends TemporalSparkContext with Matchers {
       StructField("op1", IntegerType, nullable = false)
     ))
     val dimensions = Seq(Dimension("dim1"))
-    val operators = Seq(new CountOperator("count1", WhenError.Error))
+    val operators = Seq(new CountOperator("count1", WhenRowError.RowError, WhenFieldError.FieldError))
     val cube = new Cube(dimensions, operators)
     val fields = new GenericRowWithSchema(Array("foo", 1, 2), initSchema)
     val rdd = sc.parallelize(Seq(fields))

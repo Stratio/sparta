@@ -3,7 +3,7 @@
     "icon": "Parquet",
     "className": "ParquetOutputStep",
     "classPrettyName": "Parquet",
-   "arity": ["NaryToNullary"],
+    "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Apache Parquet is a columnar storage format available to any project in the Hadoop ecosystem, regardless of the choice of data processing framework, data model or programming language.",
     "properties": [
       {
@@ -14,6 +14,14 @@
         "tooltip": "",
         "qa": "fragment-details-parquet-path"
       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       },
       {
         "propertyId": "saveOptions",
         "propertyName": "_PARQUET_SAVE_PROPERTIES_",

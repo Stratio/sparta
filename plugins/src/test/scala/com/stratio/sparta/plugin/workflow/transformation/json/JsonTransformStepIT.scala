@@ -21,7 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -34,7 +34,6 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.reflect.runtime.universe._
-
 import collection.mutable.Queue
 
 @RunWith(classOf[JUnitRunner])
@@ -74,13 +73,21 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     implicit ssc: StreamingContext, xDSession: XDSession
   ): JsonTransformStepStream = {
     val name = "JsonTransformStep"
-    new JsonTransformStepStream(name, OutputOptions(tableName = name), Option(ssc), xDSession, properties)
+    new JsonTransformStepStream(
+      name,
+      OutputOptions(tableName = name),
+      TransformationStepManagement(),
+      Option(ssc),
+      xDSession,
+      properties
+    )
   }
 
   def doTransformStream(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
     new JsonTransformStepStream(
       "dummy",
       OutputOptions(tableName = "jsonTransform"),
+      TransformationStepManagement(),
       Option(ssc),
       sparkSession,
       properties).transform(Map("step1" -> ds)).ds
@@ -89,6 +96,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
     new JsonTransformStepBatch(
       "dummy",
       OutputOptions(tableName = "jsonTransform"),
+      TransformationStepManagement(),
       None,
       sparkSession,
       properties).transform(Map("step1" -> df)).ds

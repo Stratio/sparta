@@ -18,16 +18,17 @@ package com.stratio.sparta.plugin.workflow.transformation.datetime
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 class DateTimeTransformStepStream(
                                name: String,
                                outputOptions: OutputOptions,
+                               transformationStepsManagement: TransformationStepManagement,
                                ssc: Option[StreamingContext],
                                xDSession: XDSession,
                                properties: Map[String, JSerializable]
-                             ) extends DateTimeTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                             ) extends DateTimeTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)

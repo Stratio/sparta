@@ -25,10 +25,12 @@ import org.apache.spark.streaming.dstream.DStream
 
 class MockTransformStep(name: String,
                           outputOptions: OutputOptions,
+                          transformationStepsManagement: TransformationStepManagement,
                           ssc: Option[StreamingContext],
                           xDSession: XDSession,
                           properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+  extends TransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
-  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = inputData.head._2
+  override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =
+    inputData.head._2
 }

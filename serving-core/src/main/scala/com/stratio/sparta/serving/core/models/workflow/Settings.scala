@@ -17,11 +17,13 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
+import com.stratio.sparta.sdk.workflow.step.{ErrorsManagement, GenericManagement, TransactionsManagement, TransformationStepManagement}
 
 case class Settings(
-                     global: GlobalSettings,
-                     streamingSettings: StreamingSettings,
-                     sparkSettings: SparkSettings
+                     global: GlobalSettings = GlobalSettings(),
+                     streamingSettings: StreamingSettings = StreamingSettings(),
+                     sparkSettings: SparkSettings = SparkSettings(),
+                     errorsManagement: ErrorsManagement = ErrorsManagement()
                    )
 
 case class GlobalSettings(
@@ -48,7 +50,7 @@ case class StreamingSettings(
                               blockInterval: Option[JsoneyString] = Option(JsoneyString("100ms")),
                               stopGracefully: Option[Boolean] = None,
                               stopGracefulTimeout: Option[JsoneyString] = None,
-                              checkpointSettings: CheckpointSettings
+                              checkpointSettings: CheckpointSettings = CheckpointSettings()
                             )
 
 case class SparkSettings(
@@ -57,8 +59,8 @@ case class SparkSettings(
                           sparkDataStoreTls: Boolean = true,
                           sparkMesosSecurity: Boolean = true,
                           killUrl: Option[JsoneyString] = None,
-                          submitArguments: SubmitArguments,
-                          sparkConf: SparkConf
+                          submitArguments: SubmitArguments = SubmitArguments(),
+                          sparkConf: SparkConf = SparkConf()
                         )
 
 case class SubmitArguments(
@@ -69,7 +71,7 @@ case class SubmitArguments(
                           )
 
 case class SparkConf(
-                      sparkResourcesConf: SparkResourcesConf,
+                      sparkResourcesConf: SparkResourcesConf = SparkResourcesConf(),
                       userSparkConf: Seq[SparkProperty] = Seq.empty[SparkProperty],
                       coarse: Option[Boolean] = None,
                       sparkUser: Option[JsoneyString] = None,

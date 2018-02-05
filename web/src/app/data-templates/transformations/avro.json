@@ -45,25 +45,20 @@
            "qa": "workflow-transformation-avro-schema-provided"
         },
         {
-           "propertyId": "whenError",
-           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+           "propertyId": "whenRowError",
+           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
            "propertyType": "select",
-           "default": "Error",
-           "required": true,
-           "values": [{
+           "values": [
+              {
                  "label": "Error",
-                 "value": "Error"
+                 "value": "RowError"
               },
               {
                  "label": "Discard",
-                 "value": "Discard"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
+                 "value": "RowDiscard"
               }
            ],
-           "qa": "workflow-transformation-avro-whenError"
+           "qa": "workflow-transformation-whenRowError"
         }
      ]
   }

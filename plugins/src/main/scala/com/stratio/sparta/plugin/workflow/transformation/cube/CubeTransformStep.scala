@@ -26,11 +26,13 @@ import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.utils.{CastingUtils, ClasspathUtils}
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{DataType, LongType, StructField, StructType}
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 import org.json4s.jackson.Serialization.read
@@ -40,10 +42,11 @@ import scala.util.{Failure, Success, Try}
 
 class CubeTransformStep(name: String,
                         outputOptions: OutputOptions,
+                        transformationStepsManagement: TransformationStepManagement,
                         override val ssc: Option[StreamingContext],
                         xDSession: XDSession,
                         properties: Map[String, JSerializable])
-  extends TransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+  extends TransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging with ErrorCheckingOption with ErrorCheckingDStream {
 
   lazy val partitions: Option[Int] = properties.getInt("partitions", None)
@@ -119,7 +122,15 @@ class CubeTransformStep(name: String,
 
   private[cube] def createCube: Cube = {
     Try {
-      Cube(createDimensions, createOperators, whenErrorDo, partitions, timeoutKey, createWaterMarkPolicy)
+      Cube(
+        createDimensions,
+        createOperators,
+        whenRowErrorDo,
+        whenFieldErrorDo,
+        partitions,
+        timeoutKey,
+        createWaterMarkPolicy
+      )
     } match {
       case Success(cubeCreated) => cubeCreated
       case Failure(e) => throw new Exception("Impossible to create cube", e)
@@ -140,9 +151,10 @@ class CubeTransformStep(name: String,
       classpathUtils.tryToInstantiate[Operator](operatorModel.classType + Operator.ClassSuffix, (c) =>
         c.getDeclaredConstructor(
           classOf[String],
-          classOf[WhenError],
+          classOf[WhenRowError],
+          classOf[WhenFieldError],
           classOf[Option[String]]
-        ).newInstance(operatorModel.name, whenErrorDo, operatorModel.inputField).asInstanceOf[Operator],
+        ).newInstance(operatorModel.name, whenRowErrorDo, whenFieldErrorDo, operatorModel.inputField).asInstanceOf[Operator],
         operatorClasses
       )
     }
@@ -156,7 +168,7 @@ class CubeTransformStep(name: String,
     }
 
   private[cube] def toRow(dimensionValues: DimensionValues, measures: MeasuresValues): Option[Row] = {
-    returnFromTry(s"Error generating row from dimensions and measures in CubeStep." +
+    returnRowFromTry(s"Error generating row from dimensions and measures in CubeStep." +
       s" Dimensions: $dimensionValues and Measures: $measures") {
       Try {
         val measuresValues = measures.values.map { case (measureName, measureValue) =>
@@ -167,7 +179,7 @@ class CubeTransformStep(name: String,
               case Some(value) =>
                 CastingUtils.castingToSchemaType(schema.dataType, value)
               case None =>
-                returnWhenError(new Exception(s"Wrong value in measure $measureName"))
+                returnWhenFieldError(new Exception(s"Wrong value in measure $measureName"))
             }
           )
         }

@@ -36,13 +36,12 @@ import scala.util.{Failure, Success, Try}
 abstract class CsvTransformStep[Underlying[Row]](
                                                   name: String,
                                                   outputOptions: OutputOptions,
+                                                  transformationStepsManagement: TransformationStepManagement,
                                                   ssc: Option[StreamingContext],
                                                   xDSession: XDSession,
                                                   properties: Map[String, JSerializable]
                                                 )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow
-    with SchemaCasting {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val schemaInputMode = SchemaInputMode.withName(properties.getString("schema.inputMode", "HEADER").toUpperCase)
 
@@ -141,16 +140,16 @@ abstract class CsvTransformStep[Underlying[Row]](
                     case Success(newValue) =>
                       newValue
                     case Failure(e) =>
-                      returnWhenError(
+                      returnWhenFieldError(
                         new Exception(s"Impossible to parse outputField: $outputField " +
                           s"from extracted values: ${valuesParsed.keys.mkString(",")}", e))
                   }
                 }
-              } else returnWhenError(new Exception(s"The number of values splitted does not match the number of " +
-                s"fields defined in the schema"))
-            } else returnWhenError(new Exception(s"The input value is empty"))
+              } else throw new Exception(s"The number of values splitted does not match the number of " +
+                s"fields defined in the schema")
+            } else throw new Exception(s"The input value is empty")
           case None =>
-            returnWhenError(new Exception(s"The input value is null"))
+            throw new Exception(s"The input value is null")
         }
       new GenericRowWithSchema(newValues.toArray, outputSchema)
     }

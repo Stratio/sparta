@@ -3,7 +3,7 @@
     "icon": "MongoDb",
     "className": "MongoDbOutputStep",
     "classPrettyName": "MongoDb",
-   "arity": ["NaryToNullary"],
+    "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "properties": [
       {
@@ -43,6 +43,14 @@
         "required": true,
         "tooltip": "Default value set to sparta.",
         "qa": "fragment-details-mongoDb-dbName"
-      }
+      },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       }
     ]
   }

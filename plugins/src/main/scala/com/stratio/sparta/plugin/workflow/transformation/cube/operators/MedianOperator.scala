@@ -20,6 +20,8 @@ import breeze.stats._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
 import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{DataType, DoubleType}
 
@@ -27,9 +29,10 @@ import scala.util.Try
 
 class MedianOperator(
                       name: String,
-                      val whenErrorDo: WhenError,
-                      inputField: Option[String]
-                    ) extends Operator(name, whenErrorDo, inputField) {
+                      val whenRowErrorDo: WhenRowError,
+                      val whenFieldErrorDo: WhenFieldError,
+                      inputField: Option[String] = None
+                    ) extends Operator(name, whenRowErrorDo, whenFieldErrorDo, inputField) {
 
   assert(inputField.isDefined)
 

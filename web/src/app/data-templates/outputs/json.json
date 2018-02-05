@@ -3,7 +3,7 @@
      "icon": "Json",
      "className": "JsonOutputStep",
     "classPrettyName": "Json",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Saves the processed data to json file into any storage service",
     "properties": [
       {
@@ -14,6 +14,14 @@
         "tooltip": "",
         "qa": "fragment-details-filesystem-path"
       },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       },
        {
           "propertyId": "saveOptions",
           "propertyName": "_JSON_SAVE_PROPERTIES_",

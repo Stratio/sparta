@@ -30,6 +30,8 @@ object WorkflowHelper extends SLF4JLogging {
 
   lazy val classpathUtils = new ClasspathUtils
 
+  val OutputStepErrorProperty = "errorSink"
+
   def getConfigurationsFromObjects(elements: Seq[NodeGraph], methodName: String): Map[String, String] = {
     log.debug("Initializing reflection ...")
     elements.flatMap { o =>

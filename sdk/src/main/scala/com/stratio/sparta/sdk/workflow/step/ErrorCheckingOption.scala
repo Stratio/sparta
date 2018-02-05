@@ -15,33 +15,44 @@
  */
 package com.stratio.sparta.sdk.workflow.step
 
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenFieldError, WhenRowError}
 
 import scala.util.{Failure, Success, Try}
 
 trait ErrorCheckingOption {
 
-  val whenErrorDo: WhenError
+  val whenFieldErrorDo: WhenFieldError
+  val whenRowErrorDo: WhenRowError
 
   //scalastyle:off
   def returnFromTryWithNullCheck[T](errorMessage: String)(actionFunction: => Try[T]): Option[Any] =
     actionFunction match {
       case Success(value) => Option(value)
-      case Failure(e) => whenErrorDo match {
-        case WhenError.Discard => None
-        case WhenError.Null => Some(null)
+      case Failure(e) => whenFieldErrorDo match {
+        case WhenFieldError.FieldDiscard => None
+        case WhenFieldError.Null => Some(null)
         case _ => throw new Exception(errorMessage, e)
       }
     }
 
   //scalastyle:on
 
-  def returnFromTry[T](errorMessage: String)(actionFunction: => Try[T]): Option[T] =
+  def returnRowFromTry[T](errorMessage: String)(actionFunction: => Try[T]): Option[T] =
     actionFunction match {
       case Success(value) => Option(value)
-      case Failure(e) => whenErrorDo match {
-        case WhenError.Discard => None
+      case Failure(e) => whenRowErrorDo match {
+        case WhenRowError.RowDiscard => None
+        case _ => throw new Exception(errorMessage, e)
+      }
+    }
+
+  def returnFieldFromTry[T](errorMessage: String)(actionFunction: => Try[T]): Option[T] =
+    actionFunction match {
+      case Success(value) => Option(value)
+      case Failure(e) => whenFieldErrorDo match {
+        case WhenFieldError.FieldDiscard => None
         case _ => throw new Exception(errorMessage, e)
       }
     }

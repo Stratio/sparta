@@ -21,7 +21,7 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -67,6 +67,7 @@ class CsvTransformStepBatchIT extends TemporalSparkContext with Matchers with Di
     val result = new CsvTransformStepBatch(
       "dummy",
       outputOptions,
+      TransformationStepManagement(),
       Option(ssc),
       sparkSession,
       Map("schema.fields" -> fields.asInstanceOf[JSerializable],

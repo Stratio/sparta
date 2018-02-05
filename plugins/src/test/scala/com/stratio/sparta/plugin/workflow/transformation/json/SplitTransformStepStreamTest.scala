@@ -18,9 +18,8 @@ package com.stratio.sparta.plugin.workflow.transformation.json
 
 import java.io.{Serializable => JSerializable}
 
-import com.jayway.jsonpath.PathNotFoundException
-import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError, WhenFieldError}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
@@ -74,6 +73,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json",
@@ -105,6 +105,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable],
@@ -137,6 +138,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       an[AssertionError] should be thrownBy new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
@@ -164,6 +166,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       an[Exception] should be thrownBy new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable], "inputField" -> "json")
@@ -200,10 +203,11 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable],
-          "whenError" -> WhenError.Null,
+          "whenFieldError" -> WhenFieldError.Null,
           "fieldsPreservationPolicy" -> "APPEND",
           "inputField" -> "json")
       ).parse(input)
@@ -241,11 +245,12 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val result = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable],
           "fieldsPreservationPolicy" -> "APPEND",
-          "whenError" -> WhenError.Null,
+          "whenFieldError" -> WhenFieldError.Null,
           "inputField" -> "json")
       ).parse(input)
       val expected = Seq(Row(JSON, "red", null))
@@ -282,10 +287,11 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val transform = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable],
-          "whenError" -> WhenError.Error,
+          "whenFieldError" -> WhenFieldError.FieldError,
           "inputField" -> "json",
           "supportNullValues" -> false,
           "fieldsPreservationPolicy" -> "JUST_EXTRACTED")
@@ -323,10 +329,11 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
       val transform = new JsonPathTransformStepStream(
         "json",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("queries" -> queries.asInstanceOf[JSerializable],
-          "whenError" -> WhenError.Null,
+          "whenFieldError" -> WhenFieldError.Null,
           "inputField" -> "json",
           "supportNullValues" -> false,
           "fieldsPreservationPolicy" -> "APPEND")

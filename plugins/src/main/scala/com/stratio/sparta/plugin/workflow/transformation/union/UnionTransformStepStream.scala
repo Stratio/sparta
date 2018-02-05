@@ -20,7 +20,7 @@ import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -32,10 +32,11 @@ import scala.collection.mutable
 class UnionTransformStepStream(
                                 name: String,
                                 outputOptions: OutputOptions,
+                                transformationStepsManagement: TransformationStepManagement,
                                 ssc: Option[StreamingContext],
                                 xDSession: XDSession,
                                 properties: Map[String, JSerializable]
-                              ) extends UnionTransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+                              ) extends UnionTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
     val streams = inputData.map { case (_, dStream) =>

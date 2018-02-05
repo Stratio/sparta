@@ -3,7 +3,7 @@
      "icon": "Crossdata",
      "className": "CrossdataOutputStep",
     "classPrettyName": "Crossdata",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
     "properties": [
       {
@@ -13,6 +13,14 @@
         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
         "default": false,
         "qa": "fragment-details-postgres-tls"
-      }
+      },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       }
     ]
   }

@@ -24,7 +24,7 @@ import com.stratio.sparta.plugin.helper.SchemaHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.plugin.helper.SchemaHelper._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.json.RowJsonHelper.{extractSchemaFromJson, toRow}
@@ -32,14 +32,15 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.streaming.StreamingContext
 
 abstract class JsonTransformStep[Underlying[Row]](
-                         name: String,
-                         outputOptions: OutputOptions,
-                         ssc: Option[StreamingContext],
-                         xDSession: XDSession,
-                         properties: Map[String, JSerializable]
-                       )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-  with ErrorCheckingStepRow with SLF4JLogging {
+                                                   name: String,
+                                                   outputOptions: OutputOptions,
+                                                   transformationStepsManagement: TransformationStepManagement,
+                                                   ssc: Option[StreamingContext],
+                                                   xDSession: XDSession,
+                                                   properties: Map[String, JSerializable]
+                                                 )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   lazy val inputFieldName: String = properties.getString("inputField")
 

@@ -20,7 +20,10 @@ package com.stratio.sparta.sdk.workflow.step
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 
 
-case class OutputOptions(saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
-                         tableName: String,
-                         partitionBy: Option[String] = None,
-                         primaryKey: Option[String] = None)
+case class OutputOptions(
+                          saveMode: SaveModeEnum.Value = SaveModeEnum.Append,
+                          tableName: String,
+                          partitionBy: Option[String] = None,
+                          primaryKey: Option[String] = None,
+                          errorTableName: Option[String] = None
+                        )

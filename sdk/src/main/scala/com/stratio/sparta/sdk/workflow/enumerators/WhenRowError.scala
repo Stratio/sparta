@@ -13,23 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.sdk.workflow.step
 
-import com.stratio.sparta.sdk.utils.CastingUtils
-import org.apache.spark.sql.types.StructField
+package com.stratio.sparta.sdk.workflow.enumerators
 
-import scala.util.{Failure, Success, Try}
+object WhenRowError extends Enumeration {
 
-trait SchemaCasting {
-  self: GraphStep =>
-
-  def castingToOutputSchema(outSchema: StructField, inputValue: Any): Any =
-    Try {
-      CastingUtils.castingToSchemaType(outSchema.dataType, inputValue.asInstanceOf[Any])
-    } match {
-      case Success(result) => result
-      case Failure(e) => returnWhenError(new Exception(
-        s"Error casting to output type the value: ${inputValue.toString}", e))
-    }
+  type WhenRowError = Value
+  val RowError, RowDiscard = Value
 
 }

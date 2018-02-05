@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
-import com.stratio.sparta.sdk.workflow.enumerators.{InputFormatEnum, OutputFormatEnum, SaveModeEnum, WhenError}
+import com.stratio.sparta.sdk.workflow.enumerators._
 import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.GetEnvironment
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
@@ -57,6 +57,8 @@ trait SpartaSerializer {
       new EnumNameSerializer(InputFormatEnum) +
       new EnumNameSerializer(OutputFormatEnum) +
       new EnumNameSerializer(WhenError) +
+      new EnumNameSerializer(WhenRowError) +
+      new EnumNameSerializer(WhenFieldError) +
       new EnumNameSerializer(WorkflowExecutionEngine) +
       new EnumNameSerializer(PhaseEnum)
   }

@@ -3,7 +3,7 @@
      "icon": "Print",
      "className": "PrintOutputStep",
     "classPrettyName": "Print",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Print the number of elements, schemas and data",
     "properties": [
       {
@@ -56,6 +56,14 @@
         "required": true,
         "tooltip": "Sets the log level when printing the data",
         "qa": "fragment-details-output-print-logLevel"
-      }
+      },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       }
     ]
   }

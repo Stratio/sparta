@@ -245,26 +245,36 @@
            "qa": "workflow-transformation-csv-delimiterType"
         },
         {
-           "propertyId": "whenError",
-           "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+           "propertyId": "whenRowError",
+           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
            "propertyType": "select",
-           "default": "Error",
-           "required": true,
            "values": [
               {
-              "label": "Error",
-              "value": "Error"
+                 "label": "Error",
+                 "value": "RowError"
               },
               {
                  "label": "Discard",
-                 "value": "Discard"
+                 "value": "RowDiscard"
+              }
+           ],
+           "qa": "workflow-transformation-whenRowError"
+        },
+        {
+           "propertyId": "whenFieldError",
+           "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+           "propertyType": "select",
+           "values": [
+              {
+                 "label": "Error",
+                 "value": "FieldError"
               },
               {
                  "label": "Null",
                  "value": "Null"
               }
            ],
-           "qa": "workflow-transformation-csv-whenError"
+           "qa": "workflow-transformation-whenFieldError"
         }
      ]
   }

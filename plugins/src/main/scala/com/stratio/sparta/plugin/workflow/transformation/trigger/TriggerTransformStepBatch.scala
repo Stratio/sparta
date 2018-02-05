@@ -20,36 +20,40 @@ import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
-class TriggerTransformStepBatch(name: String,
-                                outputOptions: OutputOptions,
-                                ssc: Option[StreamingContext],
-                                xDSession: XDSession,
-                                properties: Map[String, JSerializable])
-  extends TriggerTransformStep[RDD](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+class TriggerTransformStepBatch(
+                                 name: String,
+                                 outputOptions: OutputOptions,
+                                 transformationStepsManagement: TransformationStepManagement,
+                                 ssc: Option[StreamingContext],
+                                 xDSession: XDSession,
+                                 properties: Map[String, JSerializable]
+                               )
+  extends TriggerTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   override def transform(inputData: Map[String, DistributedMonad[RDD]]): DistributedMonad[RDD] = {
     val emptySteps = scala.collection.mutable.HashSet[String]()
     val wrongNameSteps = scala.collection.mutable.HashSet[String]()
 
-    inputData.foreach{ case(stepName, stepData) =>
-      if(!isCorrectTableName(stepName))
+    inputData.foreach { case (stepName, stepData) =>
+      if (!isCorrectTableName(stepName))
         wrongNameSteps.+=(stepName)
       if (stepData.ds.isEmpty())
         emptySteps.+=(stepName)
-      if(emptySteps.isEmpty && wrongNameSteps.isEmpty){
+      if (emptySteps.isEmpty && wrongNameSteps.isEmpty) {
         val schema = stepData.ds.first().schema
         log.debug(s"Registering temporal table in Spark with name: $stepName")
         xDSession.createDataFrame(stepData.ds, schema).createOrReplaceTempView(stepName)
       }
     }
 
-    if(wrongNameSteps.nonEmpty || emptySteps.nonEmpty){
+    if (wrongNameSteps.nonEmpty || emptySteps.nonEmpty) {
       val wrongNameError = wrongNameSteps.map(stepName =>
         s"The step($stepName) have wrong name and is not possible to register as temporal table."
       ).mkString("\n\t")

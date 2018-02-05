@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.workflow.transformation.orderBy
 
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -28,7 +28,6 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 
 import scala.collection.mutable
-
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 @RunWith(classOf[JUnitRunner])
@@ -57,7 +56,8 @@ class OrderByTransformStepStreamIT extends TemporalSparkContext with Matchers {
     val result = new OrderByTransformStepStream(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("orderExp" -> "color")
     ).transform(inputData)

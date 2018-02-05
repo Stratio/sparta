@@ -2,10 +2,10 @@
     "name": "Text",
      "icon": "Text",
      "className": "TextOutputStep",
-    "classPrettyName": "Text",
-    "arity": ["NaryToNullary"],
-    "description": "Saves the processed data to text file into any storage service",
-    "properties": [
+     "classPrettyName": "Text",
+     "arity": ["NullaryToNullary", "NaryToNullary"],
+     "description": "Saves the processed data to text file into any storage service",
+     "properties": [
       {
         "propertyId": "path",
         "propertyName": "_PATH_",
@@ -27,6 +27,14 @@
         "required": false,
         "qa": "fragment-details-filesystem-delimiter"
       },
+        {
+           "propertyId": "errorSink",
+           "propertyName": "_ERROR_SINK_",
+           "propertyType": "boolean",
+           "tooltip": "This output can be used for sending errors in the errors management settings",
+           "default": false,
+           "qa": "fragment-details-errorSink"
+        },
        {
           "propertyId": "saveOptions",
           "propertyName": "_TEXT_SAVE_PROPERTIES_",

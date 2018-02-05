@@ -16,18 +16,21 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
+import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
 import com.stratio.sparta.serving.core.services.GroupService
 import org.apache.curator.framework.CuratorFramework
 
+import scala.util.Try
 import scalax.collection.{Graph, GraphTraversal}
 import scalax.collection.GraphPredef
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.Visitor
 import scalax.collection.edge.WDiEdge
 
-case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
+case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
   def this(valid: Boolean) = this(valid, messages = Seq.empty[String])
 
@@ -36,12 +39,12 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
   val InputMessage = "input"
   val OutputMessage = "output"
 
-  /**A group name is correct if and only if:
+  /** A group name is correct if and only if:
     * 1) there are no two or more consecutives /
     * 2) it starts with /home (the default root)
     * 3) the group name has no Uppercase letters or other special characters (except / and -)
-  */
-  val regexGroups= "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
+    */
+  val regexGroups = "^(?!.*[/]{2}.*$)(^(/home)+(/)*([a-z0-9-/]*)$)"
 
   // A Workflow name should not contain special characters and Uppercase letters (because of DCOS deployment)
   val regexName = "^[a-z0-9-]*"
@@ -58,6 +61,27 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
         copy(valid = false, messages = msg)
       }
     }
+  }
+
+  def validateErrorOutputs(implicit workflow: Workflow): WorkflowValidation = {
+    val errorOutputNodes = workflow.pipelineGraph.nodes.filter { node =>
+      val isSinkOutput = Try(node.configuration(WorkflowHelper.OutputStepErrorProperty).toString.toBoolean)
+        .getOrElse(false)
+      node.stepType.toLowerCase == OutputStep.StepType && isSinkOutput
+    }.map(_.name)
+
+    val saveErrors = workflow.settings.errorsManagement.transactionsManagement.sendToOutputs.flatMap { action =>
+      if (!errorOutputNodes.contains(action.outputStepName)) {
+        Option(action.outputStepName)
+      } else None
+    }
+
+    if (saveErrors.nonEmpty) {
+      copy(
+        valid = false,
+        messages = messages :+ s"The workflow has output errors that not exists in nodes. ${saveErrors.mkString(", ")}"
+      )
+    } else this
   }
 
   def validateName(implicit workflow: Workflow): WorkflowValidation = {
@@ -106,9 +130,9 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
     def node(outer: NodeGraph): graph.NodeT = (graph get outer).asInstanceOf[graph.NodeT]
 
     val inputNodes: Seq[graph.NodeT] = workflow.pipelineGraph.nodes
-      .filter( node => node.stepType.equals("Input")).map(node(_))
+      .filter(node => node.stepType.equals("Input")).map(node(_))
     val outputNodes: Seq[graph.NodeT] = workflow.pipelineGraph.nodes
-      .filter( node => node.stepType.equals("Output")).map(node(_))
+      .filter(node => node.stepType.equals("Output")).map(node(_))
 
     val path = {
       for {in <- inputNodes.toStream
@@ -116,10 +140,10 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
       } yield {
         in.pathTo(out)(Visitor.empty)
       }
-    } exists(_.isDefined)
+    } exists (_.isDefined)
 
 
-    if(path) this else this.copy(
+    if (path) this else this.copy(
       valid = false,
       messages = messages :+ s"The workflow has no I->O path"
     )
@@ -187,6 +211,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]){
         combineWithAnd(
           validateDegree(inDegree, Nary, InvalidMessage(nodeGraph.name, InputMessage)),
           validateDegree(outDegree, Nary, InvalidMessage(nodeGraph.name, OutputMessage))
+        )
+      case NullaryToNullary =>
+        combineWithAnd(
+          validateDegree(inDegree, Nullary, InvalidMessage(nodeGraph.name, InputMessage)),
+          validateDegree(outDegree, Nullary, InvalidMessage(nodeGraph.name, OutputMessage))
         )
     }
 

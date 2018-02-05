@@ -21,7 +21,7 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
@@ -29,11 +29,13 @@ import org.apache.spark.streaming.dstream.DStream
 class DistinctTransformStepStream(
                                    name: String,
                                    outputOptions: OutputOptions,
+                                   transformationStepsManagement: TransformationStepManagement,
                                    ssc: Option[StreamingContext],
                                    xDSession: XDSession,
                                    properties: Map[String, JSerializable]
                                  )
-  extends DistinctTransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+  extends DistinctTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   def transformFunction(inputSchema: String, inputStream: DistributedMonad[DStream]): DistributedMonad[DStream] = {
     inputStream.ds.transform { rdd =>

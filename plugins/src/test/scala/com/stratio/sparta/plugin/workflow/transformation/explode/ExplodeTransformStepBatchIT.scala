@@ -22,11 +22,10 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
-
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 
 @RunWith(classOf[JUnitRunner])
 class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers with DistributedMonadImplicits {
@@ -61,6 +60,7 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
     val result = new ExplodeTransformStepBatch(
       "dummy",
       outputOptions,
+      TransformationStepManagement(),
       Option(ssc),
       sparkSession,
       Map("schema.fromRow" -> true,

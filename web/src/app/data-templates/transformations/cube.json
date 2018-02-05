@@ -137,8 +137,6 @@
          "propertyId": "whenError",
          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
          "propertyType": "select",
-         "default": "Error",
-         "required": true,
          "values": [
             {
                "label": "Error",
@@ -147,14 +145,45 @@
             {
                "label": "Discard",
                "value": "Discard"
+            }
+         ],
+         "qa": "workflow-transformation-whenError"
+      },
+      {
+         "propertyId": "whenRowError",
+         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "RowError"
+            },
+            {
+               "label": "Discard",
+               "value": "RowDiscard"
+            }
+         ],
+         "qa": "workflow-transformation-whenRowError"
+      },
+      {
+         "propertyId": "whenFieldError",
+         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+         "propertyType": "select",
+         "values": [
+            {
+               "label": "Error",
+               "value": "FieldError"
+            },
+            {
+               "label": "Discard",
+               "value": "FieldDiscard"
             },
             {
                "label": "Null",
                "value": "Null"
             }
          ],
-         "tooltip": "Action to execute when one error appears",
-         "qa": "workflow-transformation-cube-whenError"
+         "qa": "workflow-transformation-whenFieldError"
       }
    ]
 }

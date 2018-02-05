@@ -21,7 +21,7 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformStep, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
@@ -30,13 +30,15 @@ import org.apache.spark.streaming.StreamingContext
 import scala.util.{Failure, Success, Try}
 
 abstract class TriggerTransformStep[Underlying[Row]](
-                                             name: String,
-                                             outputOptions: OutputOptions,
-                                             ssc: Option[StreamingContext],
-                                             xDSession: XDSession,
-                                             properties: Map[String, JSerializable]
-                                           )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+                                                      name: String,
+                                                      outputOptions: OutputOptions,
+                                                      transformationStepsManagement: TransformationStepManagement,
+                                                      ssc: Option[StreamingContext],
+                                                      xDSession: XDSession,
+                                                      properties: Map[String, JSerializable]
+                                                    )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   lazy val sql = Try(properties.getString("sql"))
     .getOrElse(throw new IllegalArgumentException("Is mandatory one sql query"))

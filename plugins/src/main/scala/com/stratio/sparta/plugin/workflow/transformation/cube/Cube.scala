@@ -21,8 +21,10 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.Cube._
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
 import com.stratio.sparta.sdk.utils.CastingUtils
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step.ErrorCheckingOption
 import org.apache.spark.HashPartitioner
 import org.apache.spark.sql.Row
@@ -34,7 +36,8 @@ import scala.util.{Failure, Success, Try}
 case class Cube(
                  dimensions: Seq[Dimension],
                  operators: Seq[Operator],
-                 whenErrorDo: WhenError = WhenError.Error,
+                 override val whenRowErrorDo: WhenRowError = WhenRowError.RowError,
+                 override val whenFieldErrorDo: WhenFieldError = WhenFieldError.FieldError,
                  partitions: Option[Int] = None,
                  timeOutKey: Option[Int] = None,
                  waterMarkPolicy: Option[WaterMarkPolicy] = None
@@ -57,7 +60,7 @@ case class Cube(
 
   def createDStream(inputStream: DStream[Row]): DStream[(DimensionValues, InputFields)] =
     inputStream.flatMap { row =>
-      returnFromTry(s"Error creating cube value from row: $row") {
+      returnRowFromTry(s"Error creating cube value from row: $row") {
         Try {
           val schema = row.schema
           val dimValues = dimensions.map { dimension =>

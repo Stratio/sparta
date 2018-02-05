@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.trigger
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -49,7 +49,8 @@ class TriggerTransformStepStreamIT extends TemporalSparkContext with Matchers wi
     val result = new TriggerTransformStepStream(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("sql" -> query)
     ).transform(inputData)
@@ -101,7 +102,8 @@ class TriggerTransformStepStreamIT extends TemporalSparkContext with Matchers wi
     val result = new TriggerTransformStepStream(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("sql" -> query)
     ).transform(inputData)

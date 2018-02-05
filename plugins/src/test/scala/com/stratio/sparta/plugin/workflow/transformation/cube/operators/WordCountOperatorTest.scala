@@ -17,7 +17,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.cube.operators
 
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.Operator
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.{WhenError, WhenFieldError, WhenRowError}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.junit.runner.RunWith
@@ -37,21 +37,21 @@ class WordCountOperatorTest extends WordSpec with Matchers {
     ))
 
     "processMap must be " in {
-      val operator = new WordCountOperator("wordcount", WhenError.Error, inputField = Some("field1"))
+      val operator = new WordCountOperator("wordcount", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       val result = operator.processMap(new GenericRowWithSchema(Array("hi sparta", 2, 3), initSchema))
       result should be(Some(Seq("hi", "sparta")))
     }
 
     "processReduce must be " in {
-      val operator = new WordCountOperator("wordcount", WhenError.Error, inputField = Some("field1"))
+      val operator = new WordCountOperator("wordcount", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator.processReduce(Seq(Some("hi"), Some("sparta"), None)) should be(Some(Seq("hi", "sparta")))
 
-      val operator2 = new WordCountOperator("wordcount", WhenError.Error, inputField = Some("field1"))
+      val operator2 = new WordCountOperator("wordcount", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       operator2.processReduce(Seq(Some(Seq("hi")), Some(Seq("sparta")))) should be(Some(Seq("hi", "sparta")))
     }
 
     "associative process must be " in {
-      val operator = new WordCountOperator("wordcount", WhenError.Error, inputField = Some("field1"))
+      val operator = new WordCountOperator("wordcount", WhenRowError.RowError, WhenFieldError.FieldError, inputField = Some("field1"))
       val resultInput = Seq((Operator.OldValuesKey, Some(Map("hi" -> 1L))),
         (Operator.NewValuesKey, Some(Seq("hi", "sparta"))),
         (Operator.NewValuesKey, None))

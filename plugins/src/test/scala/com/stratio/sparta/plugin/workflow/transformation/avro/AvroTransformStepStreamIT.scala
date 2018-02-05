@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import com.twitter.bijection.avro.GenericAvroCodecs
 import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericData, GenericRecord}
@@ -71,9 +71,11 @@ class AvroTransformStepStreamIT extends TemporalSparkContext with Matchers with 
     val stream = ssc.queueStream(dataQueue)
     val inputData = Map("step1" -> stream)
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
+    val transformationsStepManagement = TransformationStepManagement()
     val result = new AvroTransformStepStream(
       "dummy",
       outputOptions,
+      transformationsStepManagement,
       Some(ssc),
       sparkSession,
       Map(

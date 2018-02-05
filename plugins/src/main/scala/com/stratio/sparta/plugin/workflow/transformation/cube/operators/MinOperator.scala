@@ -20,6 +20,8 @@ import java.util.Date
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk.{Associative, Operator}
 import com.stratio.sparta.sdk.utils.CastingUtils
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 
@@ -27,9 +29,10 @@ import scala.util.Try
 
 class MinOperator(
                    name: String,
-                   val whenErrorDo: WhenError,
-                   inputField: Option[String]
-                 ) extends Operator(name, whenErrorDo, inputField) with Associative {
+                   val whenRowErrorDo: WhenRowError,
+                   val whenFieldErrorDo: WhenFieldError,
+                   inputField: Option[String] = None
+                 ) extends Operator(name, whenRowErrorDo, whenFieldErrorDo, inputField) with Associative {
 
   assert(inputField.isDefined)
 

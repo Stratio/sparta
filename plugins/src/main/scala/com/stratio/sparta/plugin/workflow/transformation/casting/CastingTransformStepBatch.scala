@@ -18,16 +18,17 @@ package com.stratio.sparta.plugin.workflow.transformation.casting
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import org.apache.spark.rdd.RDD
 
 class CastingTransformStepBatch(
                               name: String,
                               outputOptions: OutputOptions,
+                              transformationStepsManagement: TransformationStepManagement,
                               ssc: Option[StreamingContext],
                               xDSession: XDSession,
                               properties: Map[String, JSerializable]
-                            ) extends CastingTransformStep[RDD](name, outputOptions, ssc, xDSession, properties)
+                            ) extends CastingTransformStep[RDD](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)

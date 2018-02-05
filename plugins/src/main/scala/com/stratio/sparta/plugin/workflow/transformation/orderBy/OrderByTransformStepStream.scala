@@ -18,19 +18,21 @@ package com.stratio.sparta.plugin.workflow.transformation.orderBy
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import org.apache.spark.sql.functions.col
 import org.apache.spark.streaming.dstream.DStream
 
-class OrderByTransformStepStream (name: String,
+class OrderByTransformStepStream(
+                                  name: String,
                                   outputOptions: OutputOptions,
+                                  transformationStepsManagement: TransformationStepManagement,
                                   ssc: Option[StreamingContext],
                                   xDSession: XDSession,
-                                  properties: Map[String, JSerializable])
-  extends OrderByTransformStep[DStream](name, outputOptions, ssc, xDSession, properties) {
+                                  properties: Map[String, JSerializable]
+                                )
+  extends OrderByTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] =

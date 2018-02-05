@@ -18,6 +18,8 @@ package com.stratio.sparta.plugin.workflow.transformation.cube.sdk
 
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenFieldError.WhenFieldError
+import com.stratio.sparta.sdk.workflow.enumerators.WhenRowError.WhenRowError
 import com.stratio.sparta.sdk.workflow.step.ErrorCheckingOption
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.DataType
@@ -26,7 +28,8 @@ import scala.util.Try
 
 abstract class Operator(
                          val name: String,
-                         whenErrorDo: WhenError,
+                         whenRowErrorDo: WhenRowError,
+                         whenFieldErrorDo: WhenFieldError,
                          inputField: Option[String]
                        ) extends SLF4JLogging with Serializable with ErrorCheckingOption {
 
@@ -40,7 +43,7 @@ abstract class Operator(
 
   def processMapFromInputField(inputRow: Row): Option[Any] =
     inputField.flatMap { field =>
-      returnFromTry(s"Error in process map with operator: $name, inputRow: $inputRow and field: $field") {
+      returnFieldFromTry(s"Error in process map with operator: $name, inputRow: $inputRow and field: $field") {
         Try(inputRow.get(inputRow.schema.fieldIndex(field)))
       }
     }

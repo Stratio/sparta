@@ -36,12 +36,13 @@ import com.stratio.sparta.sdk.workflow.step._
 abstract class ExplodeTransformStep[Underlying[Row]](
                                                       name: String,
                                                       outputOptions: OutputOptions,
+                                                      transformationStepsManagement: TransformationStepManagement,
                                                       ssc: Option[StreamingContext],
                                                       xDSession: XDSession,
                                                       properties: Map[String, JSerializable]
                                                     )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties) with ErrorCheckingStepRow
-    with SchemaCasting with SLF4JLogging {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   lazy val inputField: String = Try(properties.getString("inputField"))
     .getOrElse(throw new IllegalArgumentException("The inputField is mandatory"))
@@ -115,7 +116,7 @@ abstract class ExplodeTransformStep[Underlying[Row]](
                   castingToOutputSchema(outputField, valueParsed)
                 case None =>
                   Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse {
-                    returnWhenError(new Exception(s"Impossible to parse outputField: $outputField in the schema"))
+                    returnWhenFieldError(new Exception(s"Impossible to parse outputField: $outputField in the schema"))
                   }
               }
             }

@@ -27,9 +27,10 @@ import com.stratio.sparta.sdk.workflow.step._
 
 class ExplodeTransformStepStream(name: String,
                                  outputOptions: OutputOptions,
+                                 transformationStepsManagement: TransformationStepManagement,
                                  ssc: Option[StreamingContext],
                                  xDSession: XDSession,
                                  properties: Map[String, JSerializable])
-  extends ExplodeTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+  extends ExplodeTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
 
 

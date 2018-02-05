@@ -20,8 +20,8 @@ import com.stratio.sparta.plugin.workflow.transformation.cube.model.{CubeModel, 
 import com.stratio.sparta.plugin.workflow.transformation.cube.operators.CountOperator
 import com.stratio.sparta.plugin.workflow.transformation.cube.sdk._
 import com.stratio.sparta.plugin.{TemporalSparkContext, TestReceiver}
-import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError, WhenFieldError, WhenRowError}
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
@@ -61,7 +61,8 @@ class CubeTransformStepIT extends TemporalSparkContext with Matchers {
     val step = new CubeTransformStep(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("dimensions" -> dimensionsProp, "operators" -> operatorsProp)
     )
@@ -83,7 +84,7 @@ class CubeTransformStepIT extends TemporalSparkContext with Matchers {
     step.availability should be(None)
 
     val dimensionsExpected = Seq(Dimension("dim1"))
-    val operatorsExpected = Seq(new CountOperator("count1", WhenError.Error))
+    val operatorsExpected = Seq(new CountOperator("count1", WhenRowError.RowError, WhenFieldError.FieldError))
     val cubeExpected = new Cube(dimensionsExpected, operatorsExpected)
 
     step.cube.dimensions should be(cubeExpected.dimensions)

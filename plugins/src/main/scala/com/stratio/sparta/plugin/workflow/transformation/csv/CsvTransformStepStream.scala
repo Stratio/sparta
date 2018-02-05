@@ -18,16 +18,17 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 
 import java.io.{Serializable => JSerializable}
 
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.DistributedMonad.Implicits._
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 
 class CsvTransformStepStream(
-                               name: String,
-                               outputOptions: OutputOptions,
-                               ssc: Option[StreamingContext],
-                               xDSession: XDSession,
-                               properties: Map[String, JSerializable]
-                             ) extends CsvTransformStep[DStream](name, outputOptions, ssc, xDSession, properties)
+                              name: String,
+                              outputOptions: OutputOptions,
+                              transformationStepsManagement: TransformationStepManagement,
+                              ssc: Option[StreamingContext],
+                              xDSession: XDSession,
+                              properties: Map[String, JSerializable]
+                            ) extends CsvTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)

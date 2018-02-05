@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, WordSpecLike}
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 
 @RunWith(classOf[JUnitRunner])
@@ -69,6 +69,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -85,6 +86,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val resultNoRemoved = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -114,6 +116,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val resultExcludedIndexes = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -139,6 +142,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -151,6 +155,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -163,6 +168,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -175,6 +181,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         an[IllegalStateException] should be thrownBy new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYINDEX",
@@ -210,6 +217,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
           new SplitTransformStepStream(
             inputField,
             outputOptions,
+            TransformationStepManagement(),
             null,
             null,
             Map("splitMethod" -> "BYINDEX",
@@ -250,6 +258,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYREGEX",
@@ -265,6 +274,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val resultEmpty = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYREGEX",
@@ -289,6 +299,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
           new SplitTransformStepStream(
             inputField,
             outputOptions,
+            TransformationStepManagement(),
             null,
             null,
             Map("splitMethod" -> "BYREGEX",
@@ -323,6 +334,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
           new SplitTransformStepStream(
             inputField,
             outputOptions,
+            TransformationStepManagement(),
             null,
             null,
             Map("splitMethod" -> "BYREGEX",
@@ -363,6 +375,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val result = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYCHAR",
@@ -379,6 +392,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
         val resultDollar = new SplitTransformStepStream(
           inputField,
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("splitMethod" -> "BYCHAR",
@@ -412,6 +426,7 @@ class SplitTransformStepStreamTest extends WordSpecLike with Matchers {
           new SplitTransformStepStream(
             inputField,
             outputOptions,
+            TransformationStepManagement(),
             null,
             null,
             Map("splitMethod" -> "BYCHAR",

@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.csv
 import java.io.{Serializable => JSerializable}
 
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
@@ -53,6 +53,7 @@ class CsvTransformStepTest extends WordSpecLike
       val result = new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],
@@ -81,6 +82,7 @@ class CsvTransformStepTest extends WordSpecLike
       val result = new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],
@@ -100,6 +102,7 @@ class CsvTransformStepTest extends WordSpecLike
       val result = new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.header" -> header,
@@ -120,6 +123,7 @@ class CsvTransformStepTest extends WordSpecLike
       val result = new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.header" -> header,
@@ -139,6 +143,7 @@ class CsvTransformStepTest extends WordSpecLike
       val result = new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.sparkSchema" -> sparkSchema,
@@ -168,6 +173,7 @@ class CsvTransformStepTest extends WordSpecLike
       an[Exception] should be thrownBy new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],
@@ -196,6 +202,7 @@ class CsvTransformStepTest extends WordSpecLike
       an[Exception] should be thrownBy new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],
@@ -221,6 +228,7 @@ class CsvTransformStepTest extends WordSpecLike
       an[Exception] should be thrownBy new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],
@@ -247,6 +255,7 @@ class CsvTransformStepTest extends WordSpecLike
       an[Exception] should be thrownBy new CsvTransformStepStream(
         inputField,
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("schema.fields" -> fields.asInstanceOf[JSerializable],

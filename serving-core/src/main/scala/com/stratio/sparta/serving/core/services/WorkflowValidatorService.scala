@@ -35,6 +35,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
     val validationResult = new WorkflowValidation()
       .validateGroupName
       .validateName
+      .validateErrorOutputs
       .validateNonEmptyNodes
       .validateNonEmptyEdges
       .validateEdgesNodesExists

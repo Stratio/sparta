@@ -2,7 +2,7 @@
     "name": "Http",
     "className": "HttpOutputStep",
     "classPrettyName": "Http",
-    "arity": ["NaryToNullary"],
+     "arity": ["NullaryToNullary", "NaryToNullary"],
     "description": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with a parameter name or attached in the request body.",
     "properties": [
       {
@@ -89,6 +89,14 @@
         "required": false,
         "tooltip": "Valid only if Post Type is set to parameter. Value entered will be used a key name.",
         "qa": "fragment-details-http-parameter-name"
-      }
+      },
+       {
+          "propertyId": "errorSink",
+          "propertyName": "_ERROR_SINK_",
+          "propertyType": "boolean",
+          "tooltip": "This output can be used for sending errors in the errors management settings",
+          "default": false,
+          "qa": "fragment-details-errorSink"
+       }
     ]
   }

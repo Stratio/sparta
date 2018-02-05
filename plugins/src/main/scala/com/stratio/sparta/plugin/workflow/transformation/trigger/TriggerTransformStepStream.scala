@@ -21,19 +21,23 @@ import java.io.{Serializable => JSerializable}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
 
-class TriggerTransformStepStream(name: String,
-                                 outputOptions: OutputOptions,
-                                 ssc: Option[StreamingContext],
-                                 xDSession: XDSession,
-                                 properties: Map[String, JSerializable])
-  extends TriggerTransformStep[DStream](name, outputOptions, ssc, xDSession, properties) with SLF4JLogging {
+class TriggerTransformStepStream(
+                                  name: String,
+                                  outputOptions: OutputOptions,
+                                  transformationStepsManagement: TransformationStepManagement,
+                                  ssc: Option[StreamingContext],
+                                  xDSession: XDSession,
+                                  properties: Map[String, JSerializable]
+                                )
+  extends TriggerTransformStep[DStream](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
+    with SLF4JLogging {
 
   override def transform(inputData: Map[String, DistributedMonad[DStream]]): DistributedMonad[DStream] = {
     assert(inputData.size == 2 || inputData.size == 1,

@@ -17,7 +17,7 @@
 package com.stratio.sparta.plugin.workflow.transformation.datetime
 
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.junit.runner.RunWith
@@ -59,6 +59,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -91,6 +92,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -124,6 +126,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
       an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -155,6 +158,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -185,6 +189,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -216,6 +221,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -250,6 +256,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
         new DateTimeTransformStepStream(
           "testTransformation",
           outputOptions,
+          TransformationStepManagement(),
           null,
           null,
           Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -281,6 +288,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
       an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -309,6 +317,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
       an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))
@@ -337,6 +346,7 @@ class DateTimeTransformStepStreamTest extends WordSpecLike
       an[Exception] should be thrownBy new DateTimeTransformStepStream(
         "testTransformation",
         outputOptions,
+        TransformationStepManagement(),
         null,
         null,
         Map("fieldsDatetime" -> fieldsDatetime.asInstanceOf[JSerializable]))

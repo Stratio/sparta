@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.select
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions}
+import com.stratio.sparta.sdk.workflow.step.{OutputFields, OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -55,7 +55,8 @@ class SelectTransformStepStreamIT extends TemporalSparkContext with Matchers wit
     val result = new SelectTransformStepStream(
       "dummy",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map("selectExp" -> "color")
     ).transform(inputData)

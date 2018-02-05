@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.transformation.union
 import com.stratio.sparta.plugin.TemporalSparkContext
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import com.stratio.sparta.sdk.workflow.step.OutputOptions
+import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepManagement}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.junit.runner.RunWith
@@ -46,7 +46,8 @@ class UnionTransformStepStreamIT extends TemporalSparkContext with Matchers with
     val result = new UnionTransformStepStream(
       "union",
       outputOptions,
-      Option(ssc),
+      TransformationStepManagement(),
+ Option(ssc),
       sparkSession,
       Map()
     ).transform(inputData)

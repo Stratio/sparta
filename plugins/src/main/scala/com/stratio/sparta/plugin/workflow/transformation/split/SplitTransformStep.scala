@@ -26,7 +26,7 @@ import com.stratio.sparta.plugin.workflow.transformation.split.SplitTransformSte
 import com.stratio.sparta.plugin.workflow.transformation.split.SplitTransformStep.{SplitMethodEnum, _}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.sdk.workflow.step.{ErrorCheckingStepRow, OutputOptions, SchemaCasting, TransformStep}
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
@@ -38,12 +38,12 @@ import scala.util.{Failure, Success, Try}
 abstract class SplitTransformStep[Underlying[Row]](
                                                     name: String,
                                                     outputOptions: OutputOptions,
+                                                    transformationStepsManagement: TransformationStepManagement,
                                                     ssc: Option[StreamingContext],
                                                     xDSession: XDSession,
                                                     properties: Map[String, JSerializable]
                                                   )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val splitBy: SplitMethod = SplitMethodEnum.withName(properties.getString("splitMethod", "byRegex").toUpperCase)
   lazy val splitByPattern: Option[String] = Try(Option(properties.getString("byRegexPattern"))).getOrElse(None)
@@ -106,32 +106,32 @@ abstract class SplitTransformStep[Underlying[Row]](
                 case SplitMethodEnum.BYREGEX => splitByPattern match {
                   case Some(pattern) => Try(valuesParsed.split(pattern, leaveEmptySubstrings).toSeq) match {
                     case Success(splitFields) => splitFields
-                    case Failure(e: PatternSyntaxException) => returnWhenError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
-                    case Failure(e: Exception) => returnWhenError(e)
+                    case Failure(e: PatternSyntaxException) => returnWhenFieldError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
+                    case Failure(e: Exception) => returnWhenFieldError(e)
                   }
-                  case None => returnWhenError(new IllegalStateException(
-                    s"Impossible to split inputField $inputField by regex without providing a regular expression"))
+                  case None =>
+                    throw new IllegalStateException(s"Impossible to split inputField $inputField by regex without providing a regular expression")
                 }
                 case SplitMethodEnum.BYCHAR => splitByChar match {
                   case Some(stringChar) => Try(splitByCharString(stringChar, valuesParsed, leaveEmptySubstrings)) match {
                     case Success(splitFields) => splitFields
-                    case Failure(e: PatternSyntaxException) => returnWhenError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
-                    case Failure(e: Exception) => returnWhenError(e)
+                    case Failure(e: PatternSyntaxException) => returnWhenFieldError(new IllegalStateException(s" Impossible to split with the provided regex: ${e.getMessage}"))
+                    case Failure(e: Exception) => returnWhenFieldError(e)
                   }
-                  case None => returnWhenError(new IllegalStateException(
-                    s"Impossible to split inputField $inputField by char without providing a char"))
+                  case None =>
+                    throw new IllegalStateException(s"Impossible to split inputField $inputField by char without providing a char")
                 }
                 case SplitMethodEnum.BYINDEX => splitByIndexes match {
                   case Some(listIndexes) =>
                     Try(splitStringByIndexes(listIndexes, valuesParsed, discardCharAtSplitIndex)) match {
                       case Success(splitFields) => splitFields
-                      case Failure(e: Exception) => returnWhenError(e)
+                      case Failure(e: Exception) => returnWhenFieldError(e)
                     }
-                  case None => returnWhenError(new IllegalStateException(
-                    s"Impossible to split inputField $inputField by indexes without providing a list of indexes"))
+                  case None =>
+                    throw new IllegalStateException(s"Impossible to split inputField $inputField by indexes without providing a list of indexes")
                 }
-                case _ => returnWhenError(new IllegalStateException(
-                  s"Impossible to split inputField $inputField without specifying a splitting method"))
+                case _ =>
+                  throw new IllegalStateException(s"Impossible to split inputField $inputField without specifying a splitting method")
               }
 
             if (valuesSplit.length == providedSchema.size) {
@@ -142,16 +142,16 @@ abstract class SplitTransformStep[Underlying[Row]](
                   case Some(valueParsed) => if (valueParsed != null)
                     castingToOutputSchema(outputField, valueParsed)
                   case None =>
-                    Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
-                      returnWhenError(new IllegalStateException(
-                        s"The values parsed don't contain the schema field: ${outputField.name}"))))
+                    Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(
+                      returnWhenFieldError(new IllegalStateException(
+                        s"The values parsed don't contain the schema field: ${outputField.name}")))
                 }
               }
             }
-            else returnWhenError(new IllegalStateException(s"The number of split values (${valuesSplit.size}) is greater or lower than the output fields (${providedSchema.size})"))
+            else throw new IllegalStateException(s"The number of split values (${valuesSplit.size}) is greater or lower than the output fields (${providedSchema.size})")
 
           case None =>
-            returnWhenError(new IllegalStateException(s"The input value is null or empty"))
+            throw new IllegalStateException(s"The input value is null or empty")
         }
       new GenericRowWithSchema(newData.toArray, outputSchema)
     }
@@ -163,7 +163,9 @@ object SplitTransformStep {
 
     def checkIfValid(indexes: Seq[Int]): Boolean = {
       def monotonicallyIncreasing: Boolean = indexes.zip(indexes.tail).forall { case (x, y) => x < y }
+
       def monotonicallyIncreasingAndNotUnaryIncrease: Boolean = indexes.zip(indexes.tail).forall { case (x, y) => x + 1 < y }
+
       def restraintsOnIndexes: Boolean =
         if (!discardCharAtSplitIndex) monotonicallyIncreasing
         else monotonicallyIncreasingAndNotUnaryIncrease

@@ -22,25 +22,24 @@ import java.text.SimpleDateFormat
 import java.util.{Date, Locale, TimeZone}
 
 import com.github.nscala_time.time.Imports.DateTime
+import com.stratio.sparta.plugin.enumerations.DateFormatEnum._
+import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
+import com.stratio.sparta.plugin.enumerations.{DateFormatEnum, FieldsPreservationPolicy}
+import com.stratio.sparta.plugin.workflow.transformation.datetime.DateTimeTransformStep._
+import com.stratio.sparta.plugin.workflow.transformation.datetime.models.{DateTimeItem, DateTimeItemModel}
+import com.stratio.sparta.sdk.DistributedMonad
+import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
 import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
-import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
-import com.stratio.sparta.sdk.utils.AggregationTimeUtils._
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
+import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
-import com.stratio.sparta.plugin.enumerations.FieldsPreservationPolicy._
-import com.stratio.sparta.plugin.enumerations.DateFormatEnum._
-import com.stratio.sparta.plugin.enumerations.{DateFormatEnum, FieldsPreservationPolicy}
-import com.stratio.sparta.plugin.workflow.transformation.datetime.models.{DateTimeItem, DateTimeItemModel}
-import com.stratio.sparta.sdk.properties.JsoneyStringSerializer
-import org.json4s.{DefaultFormats, Formats}
+import org.apache.spark.streaming.StreamingContext
+import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import org.json4s.jackson.Serialization.read
-import com.stratio.sparta.plugin.workflow.transformation.datetime.DateTimeTransformStep._
-import com.stratio.sparta.sdk.DistributedMonad
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
+import org.json4s.{DefaultFormats, Formats}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
@@ -48,12 +47,12 @@ import scala.util.Try
 abstract class DateTimeTransformStep[Underlying[Row]](
                                                        name: String,
                                                        outputOptions: OutputOptions,
+                                                       transformationStepsManagement: TransformationStepManagement,
                                                        ssc: Option[StreamingContext],
                                                        xDSession: XDSession,
                                                        properties: Map[String, JSerializable]
                                                      )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow with SchemaCasting {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val fieldsModel: Seq[DateTimeItemModel] = {
     implicit val json4sJacksonFormats: Formats = DefaultFormats + new JsoneyStringSerializer()
@@ -100,9 +99,9 @@ abstract class DateTimeTransformStep[Underlying[Row]](
                 case Some(value) =>
                   Try {
                     (itemDateTime.outputFieldName, castingToOutputSchema(outputFieldStruct, applyOutputFormatToDate(applyGranularity(parseDate(value)))))
-                  }.getOrElse(returnWhenError(new Exception(s"Impossible to parse outputField: ${itemDateTime.outputFieldName}")))
+                  }.getOrElse(returnWhenFieldError(new Exception(s"Impossible to parse outputField: ${itemDateTime.outputFieldName}")))
                 case None =>
-                  returnWhenError(new Exception(
+                  returnWhenFieldError(new Exception(
                     s"Impossible to parse because the field ${outputFieldStruct.name} value is empty"))
               }
           }
@@ -113,7 +112,7 @@ abstract class DateTimeTransformStep[Underlying[Row]](
         mapValues.get(outputField.name) match {
           case Some(valueParsed) => valueParsed
           case _ =>
-            Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenError(
+            Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse(returnWhenFieldError(
               new Exception(s"Impossible to parse outputField: $outputField in the schema")))
         }
       }
@@ -196,7 +195,7 @@ abstract class DateTimeTransformStep[Underlying[Row]](
             if (index != -1)
               newOutputSchema.update(index, providedSchema)
             else
-              returnWhenError(throw new
+              returnWhenFieldError(throw new
                   Exception(s"The field specified as input does not exists in the current Row"))
           case JUST_EXTRACTED => Nil
         }

@@ -19,6 +19,7 @@ package com.stratio.sparta.sdk.workflow.enumerators
 object WhenError extends Enumeration {
 
   type WhenError = Value
-  val Error, Discard, Null = Value
+
+  val Error, Discard = Value
 
 }

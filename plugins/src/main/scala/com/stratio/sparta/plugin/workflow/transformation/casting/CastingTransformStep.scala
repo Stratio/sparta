@@ -21,25 +21,23 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
-import org.apache.spark.sql.{Encoder, Row}
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 
 import scala.util.{Failure, Success, Try}
 
 abstract class CastingTransformStep[Underlying[Row]](
                                                       name: String,
                                                       outputOptions: OutputOptions,
+                                                      transformationStepsManagement: TransformationStepManagement,
                                                       ssc: Option[StreamingContext],
                                                       xDSession: XDSession,
                                                       properties: Map[String, JSerializable]
                                                     )(implicit dsMonadEvidence: Underlying[Row] => DistributedMonad[Underlying])
-  extends TransformStep[Underlying](name, outputOptions, ssc, xDSession, properties)
-    with ErrorCheckingStepRow
-    with SchemaCasting {
+  extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties) {
 
   lazy val outputFieldsFrom = OutputFieldsFrom.withName(properties.getString("outputFieldsFrom", "FIELDS").toUpperCase)
   lazy val fieldsString = properties.getString("fieldsString", None).notBlank
@@ -103,11 +101,11 @@ abstract class CastingTransformStep[Underlying[Row]](
                     case Success(dataRow) =>
                       dataRow
                     case Failure(e) =>
-                      returnWhenError(new Exception(
+                      returnWhenFieldError(new Exception(
                         s"Impossible to find outputField: $outputField in the schema $inputSchema", e))
                   }
                 case Failure(e: Exception) =>
-                  returnWhenError(e)
+                  returnWhenFieldError(e)
               }
             }
             new GenericRowWithSchema(newValues.toArray, outputSchema)
