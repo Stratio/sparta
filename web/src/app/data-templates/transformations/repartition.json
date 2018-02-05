@@ -1,7 +1,7 @@
   {
      "name": "Repartition",
      "icon": "Repartition",
-     "className": "RepartitionTransformStep",
+     "className": "RepartitionTransformStepStream",
      "classPrettyName": "Repartition",
      "description": "Repartition the input DStream",
      "properties": [
