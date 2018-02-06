@@ -95,7 +95,8 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
             this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
         } else {
             this.settingsForm = true;
-            this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((settings: any) => {
+            this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((currentSettings: any) => {
+                const settings = JSON.parse(JSON.stringify(currentSettings));
                 this.basicFormModel = settings.basic;
                 this.settingsFormModel = settings.advancedSettings;
             });
@@ -144,6 +145,7 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
                     basic: this.basicFormModel,
                     advancedSettings: this.settingsFormModel
                 }));
+                this.store.dispatch(new wizardActions.ValidateWorkflowAction());
                 this.store.dispatch(new wizardActions.HideEditorConfigAction());
             }
         }
