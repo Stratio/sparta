@@ -11,7 +11,7 @@
         "propertyId": "connectionHost",
         "propertyName": "_CONTACT_POINT_",
         "propertyType": "text",
-        "default": "{{CASSANDRA_HOST}}",
+        "default": "{{{CASSANDRA_HOST}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-cassandra-connectionHost"

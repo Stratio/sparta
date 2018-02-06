@@ -10,7 +10,7 @@
         "propertyId": "url",
         "propertyName": "_URL_",
         "propertyType": "text",
-        "default": "{{WEBSOCKET_URL}}",
+        "default": "{{{WEBSOCKET_URL}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-websocket-url"

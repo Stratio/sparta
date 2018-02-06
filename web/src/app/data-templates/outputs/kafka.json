@@ -18,7 +18,7 @@
             "propertyId": "host",
             "propertyName": "_HOST_",
             "propertyType": "text",
-            "default": "{{KAFKA_BROKER_HOST}}",
+            "default": "{{{KAFKA_BROKER_HOST}}}",
             "required": true,
             "tooltip": "Kafka's address.",
              "width": 6,

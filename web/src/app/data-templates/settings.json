@@ -371,7 +371,7 @@
                   "propertyType": "text",
                   "width": 4,
                   "float": true,
-                  "default": "{{DRIVER_JAVA_OPTIONS}}",
+                  "default": "{{{DRIVER_JAVA_OPTIONS}}}",
                   "tooltip": "Extra Java options to pass to the driver",
                   "qa": "workflow-spark-driverJavaOptions"
                }
@@ -516,7 +516,7 @@
                 "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
                 "propertyType": "text",
                 "width": 4,
-                "default": "{{EXECUTOR_EXTRA_JAVA_OPTIONS}}",
+                "default": "{{{EXECUTOR_EXTRA_JAVA_OPTIONS}}}",
                 "tooltip": "Extra Java options to pass to the executors",
                 "qa": "workflow-spark-executorJavaOptions"
              },

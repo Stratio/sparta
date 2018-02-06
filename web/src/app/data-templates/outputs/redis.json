@@ -10,7 +10,7 @@
         "propertyId": "hostname",
         "propertyName": "_HOST_",
         "propertyType": "text",
-        "default": "{{REDIS_HOST}}",
+        "default": "{{{REDIS_HOST}}}",
         "required": true,
         "tooltip": "",
         "qa": "fragment-details-redis-hostname"
