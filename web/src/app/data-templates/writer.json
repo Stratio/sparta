@@ -50,7 +50,7 @@
        "propertyId": "primaryKey",
        "propertyName": "_PRIMARY_KEY_",
        "propertyType": "text",
-       "required": false,
+       "required": true,
        "visible": [
           [
              {
