@@ -201,7 +201,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
       } catch {
         case e: Exception =>
           log.error("Error importing data. All groups, workflows, env. variables and templates will be rolled back", e)
-          Try {
+          val detailMsg = Try {
             groupService.deleteAll()
             workflowService.deleteAll()
             templateService.deleteAll()
@@ -212,12 +212,15 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             initialEnvVariables.variables.foreach(createVariable)
           } match {
             case Success(_) =>
-              log.info("Restoring data after error caused in environment import completed successful")
-            case Failure(e: Exception) =>
-              log.error("Restoring data after error caused in environment import with errors." +
-                " The data maybe corrupt. Contact with the support.", e)
+              log.info("Restoring data process after environment import completed successful")
+              None
+            case Failure(exception: Exception) =>
+              log.error("Restoring data process after environment import has failed." +
+                " The data maybe corrupt. Contact with the support.", exception)
+              Option(exception.getLocalizedMessage)
           }
-          throw new Exception("Error importing environment data", e)
+          throw new Exception(s"Error importing environment data." +
+            s"${if(detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
       }
     }
   }

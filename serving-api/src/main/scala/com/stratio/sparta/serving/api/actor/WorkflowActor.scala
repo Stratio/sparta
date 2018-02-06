@@ -74,6 +74,7 @@ class WorkflowActor(
     case ResetAllStatuses(user) => resetAllStatuses(user)
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
+    case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -234,6 +235,11 @@ class WorkflowActor(
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
       Try(workflowService.createVersion(workflowVersion))
     }
+
+  def rename(workflowRename: WorkflowRename, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Edit)) {
+      workflowService.rename(workflowRename)
+    }
 }
 
 object WorkflowActor extends SLF4JLogging {
@@ -277,6 +283,8 @@ object WorkflowActor extends SLF4JLogging {
   case class Query(query: WorkflowQuery, user: Option[LoggedUser])
 
   case class CreateWorkflowVersion(query: WorkflowVersion, user: Option[LoggedUser])
+
+  case class RenameWorkflow(query: WorkflowRename, user: Option[LoggedUser])
 
   case class DeleteCheckpoint(id: String, user: Option[LoggedUser])
 

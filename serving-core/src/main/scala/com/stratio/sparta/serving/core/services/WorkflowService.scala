@@ -113,6 +113,38 @@ class WorkflowService(
     workflowWithFields
   }
 
+  def rename(workflowRename: WorkflowRename): Try[Unit] = {
+    log.debug(s"Renaming workflow versions for group: ${workflowRename.groupId} and name: ${workflowRename.oldName}")
+    Try {
+      val oldWorkflows = workflowVersions(workflowRename.oldName, workflowRename.groupId)
+      Try {
+        oldWorkflows.foreach{workflow =>
+          update(workflow.copy(name = workflowRename.newName))
+        }
+      } match {
+        case Success(_) =>
+          log.debug(s"Workflows correctly updated with the new name: ${workflowRename.newName}")
+        case Failure(e) =>
+          log.error("Error updating workflow names. All workflows will be rolled back", e)
+          val detailMsg = Try {
+            oldWorkflows.foreach(workflow => update(workflow))
+          } match {
+            case Success(_) =>
+              log.info("Restoring data process after renaming errors completed successful")
+              None
+            case Failure(exception: Exception) =>
+              log.error("Restoring data process after renaming errors has failed." +
+                " The data maybe corrupt. Contact with the support.", exception)
+              Option(exception.getLocalizedMessage)
+          }
+
+          throw new Exception(
+            s"Workflows not updated with the new name: ${workflowRename.newName}. The old values was restored." +
+              s"${if(detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
+      }
+    }
+  }
+
   def createVersion(workflowVersion: WorkflowVersion): Workflow = {
     log.debug(s"Creating workflow version $workflowVersion")
     existsById(workflowVersion.id) match {
@@ -147,9 +179,15 @@ class WorkflowService(
     validateWorkflow(workflow)
 
     val searchWorkflow = existsById(workflow.id.get)
+    val searchByName = exists(workflow.name, workflow.version, workflow.group.id.get)
 
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with id ${workflow.id.get} does not exist")
+    } else if(searchWorkflow.isDefined && searchByName.isDefined && searchWorkflow.get.id != searchByName.get.id) {
+      throw new ServerException(
+        s"Workflow with name ${searchByName.get.name}," +
+          s" version ${searchByName.get.version} and group ${searchByName.get.group.name} exists." +
+          s" The created workflow has id ${searchByName.get.id.get}")
     } else {
       val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
       curatorFramework.setData().forPath(
@@ -312,7 +350,8 @@ class WorkflowService(
   private[sparta] def incVersion(workflow: Workflow, userVersion: Option[Long] = None): Workflow =
     userVersion match {
       case None =>
-        val maxVersion = Try(workflowVersions(workflow.name, workflow.group).map(_.version).max + 1).getOrElse(0L)
+        val maxVersion = Try(workflowVersions(workflow.name, workflow.group.id.get).map(_.version).max + 1)
+          .getOrElse(0L)
         workflow.copy(version = maxVersion)
       case Some(usrVersion) => workflow.copy(version = usrVersion)
     }
@@ -326,11 +365,11 @@ class WorkflowService(
   private[sparta] def addUpdateDate(workflow: Workflow): Workflow =
     workflow.copy(lastUpdateDate = Some(new DateTime()))
 
-  private[sparta] def workflowVersions(name: String, group: Group): Seq[Workflow] =
+  private[sparta] def workflowVersions(name: String, group: String): Seq[Workflow] =
     Try {
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>
-          workflow.name == name && workflow.group == group
+          workflow.name == name && workflow.group.id.isDefined && workflow.group.id.get == group
         }
       } else Seq.empty
     } match {

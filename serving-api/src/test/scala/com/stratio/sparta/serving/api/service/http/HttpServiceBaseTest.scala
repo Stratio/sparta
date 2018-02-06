@@ -118,6 +118,10 @@ trait HttpServiceBaseTest extends WordSpec
     workflow
   }
 
+  protected def getWorkflowRenameModel(): WorkflowRename = {
+    WorkflowRename("groupÌd", "testworkflow", "newName")
+  }
+
   protected def getWorkflowQueryModel(): WorkflowQuery = {
     WorkflowQuery("testworkflow")
   }

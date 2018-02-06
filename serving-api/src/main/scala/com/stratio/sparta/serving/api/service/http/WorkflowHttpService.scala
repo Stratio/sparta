@@ -52,7 +52,7 @@ trait WorkflowHttpService extends BaseHttpService {
       update(user) ~ updateList(user) ~ remove(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user)
+      findAllMonitoring(user) ~ rename(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -691,6 +691,38 @@ trait WorkflowHttpService extends BaseHttpService {
                 response <- (supervisor ? CreateWorkflowVersion(workflowVersion, user))
                   .mapTo[Either[ResponseWorkflow, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceNewVersion, response, genericError)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/rename")
+  @ApiOperation(value = "Update the workflow names for all workflow versions.",
+    notes = "Update the names for all workflow versions",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "query",
+      value = "new workflow name",
+      dataType = "WorkflowRename",
+      required = true,
+      paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def rename(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "rename") {
+      pathEndOrSingleSlash {
+        put {
+          entity(as[WorkflowRename]) { query =>
+            complete {
+              for {
+                response <- (supervisor ? RenameWorkflow(query, user))
+                  .mapTo[Either[Response, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceRename, response, genericError, StatusCodes.OK)
             }
           }
         }

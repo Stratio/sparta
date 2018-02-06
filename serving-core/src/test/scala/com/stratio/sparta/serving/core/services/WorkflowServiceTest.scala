@@ -33,6 +33,8 @@ import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
 import com.stratio.sparta.serving.core.constants.AppConstant._
 
+import scala.util.Success
+
 @RunWith(classOf[JUnitRunner])
 class WorkflowServiceTest extends WordSpecLike
   with BeforeAndAfter
@@ -65,6 +67,7 @@ class WorkflowServiceTest extends WordSpecLike
   val testWorkflow =  Workflow(Option(workflowID),"wf-test","", settings , pipeGraph)
   val newWorkflow = Workflow(Option(newWorkflowID),"wf-test2","", settings , pipeGraph)
   val wrongWorkflow = Workflow(Option(newWorkflowID),"wf-test3","", settings ,wrongPipeGraph)
+  val renameWorkflow = WorkflowRename(DefaultGroup.id.get, "wf-test", "wf-test2")
 
   val workflowRaw =
     """{
@@ -78,7 +81,7 @@ class WorkflowServiceTest extends WordSpecLike
       |   "id" : "940800b2-6d81-44a8-84d9-26913a2faea4" },
       |  "pipelineGraph": {
       |    "nodes": [{
-      |        "name": "kafka",
+      |        "name": "a",
       |        "stepType": "Input",
       |        "className": "KafkaInputStep",
       |        "classPrettyName": "Kafka",
@@ -114,7 +117,7 @@ class WorkflowServiceTest extends WordSpecLike
       |        }
       |      },
       |      {
-      |        "name": "Print",
+      |        "name": "b",
       |        "stepType": "Output",
       |        "className": "PrintOutputStep",
       |        "classPrettyName": "Print",
@@ -136,7 +139,13 @@ class WorkflowServiceTest extends WordSpecLike
       |          "logLevel": "error"
       |        }
       |      }
-      |    ]
+      |    ],
+      |    "edges": [
+      |        {
+      |          "origin": "a",
+      |          "destination": "b"
+      |        }
+      |      ]
       |  }
       |}
     """.stripMargin
@@ -151,7 +160,7 @@ class WorkflowServiceTest extends WordSpecLike
       |  "group": "default",
       |  "pipelineGraph": {
       |    "nodes": [{
-      |        "name": "kafka",
+      |        "name": "a",
       |        "stepType": "Input",
       |        "className": "KafkaInputStep",
       |        "classPrettyName": "Kafka",
@@ -187,7 +196,7 @@ class WorkflowServiceTest extends WordSpecLike
       |        }
       |      },
       |      {
-      |        "name": "Print",
+      |        "name": "b",
       |        "stepType": "Output",
       |        "className": "PrintOutputStep",
       |        "classPrettyName": "Print",
@@ -216,7 +225,13 @@ class WorkflowServiceTest extends WordSpecLike
       |           "lastUpdateDate": "2018-01-17T14:38:39Z"
       |       }
       |      }
-      |    ]
+      |    ],
+      |    "edges": [
+      |        {
+      |          "origin": "a",
+      |          "destination": "b"
+      |        }
+      |      ]
       |  }
       |}
     """.stripMargin
@@ -434,6 +449,22 @@ class WorkflowServiceTest extends WordSpecLike
       val result = workflowService.create(newWorkflow)
 
       result.id.get shouldBe "wf2"
+
+    }
+
+    "rename workflow: given a certain workflow name all the workflow versions should be updated" in {
+      existMock
+      mockListOfWorkflows
+      mockFindByID
+
+      when(curatorFramework.setData())
+        .thenReturn(setDataBuilder)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowsZkPath}/$workflowID"))
+        .thenReturn(new Stat)
+
+      val result = workflowService.rename(renameWorkflow)
+      result shouldBe Success()
 
     }
 

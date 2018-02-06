@@ -101,7 +101,7 @@ object ErrorModel extends SpartaSerializer {
   val PluginsServiceDeleteByName = "689"
   val PluginsServiceDownload = "690"
 
-  /* Workflow Service 700-724 */
+  /* Workflow Service 700-749 */
   val WorkflowServiceUnexpected = "700"
   val WorkflowServiceFindById = "701"
   val WorkflowServiceFind = "702"
@@ -127,16 +127,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceNewVersion = "722"
   val WorkflowServiceFindAllByGroup = "723"
   val WorkflowServiceFindAllMonitoring = "724"
-
-  /* Metadata Service 725-749 */
-  val MetadataServiceUnexpected = "725"
-  val MetadataServiceBuildBackup = "726"
-  val MetadataServiceExecuteBackup = "727"
-  val MetadataServiceUploadBackup = "728"
-  val MetadataServiceFindAllBackups = "729"
-  val MetadataServiceDeleteAllBackups = "730"
-  val MetadataServiceDeleteBackup = "731"
-  val MetadataServiceCleanAll = "732"
+  val WorkflowServiceRename = "725"
 
   /* Environment Service 750-760 */
   val EnvironmentServiceUnexpected = "750"
@@ -151,7 +142,7 @@ object ErrorModel extends SpartaSerializer {
   val EnvironmentServiceExportData = "759"
   val EnvironmentServiceImportData = "760"
 
-  /* Group Service 750-760 */
+  /* Group Service 775-799 */
   val GroupServiceUnexpected = "770"
   val GroupServiceFindGroup = "771"
   val GroupServiceFindAllGroups = "772"
@@ -159,6 +150,16 @@ object ErrorModel extends SpartaSerializer {
   val GroupServiceDeleteGroup = "774"
   val GroupServiceDeleteAllGroups = "775"
   val GroupServiceUpdateGroup = "776"
+
+  /* Metadata Service 800-825 */
+  val MetadataServiceUnexpected = "800"
+  val MetadataServiceBuildBackup = "801"
+  val MetadataServiceExecuteBackup = "802"
+  val MetadataServiceUploadBackup = "803"
+  val MetadataServiceFindAllBackups = "804"
+  val MetadataServiceDeleteAllBackups = "805"
+  val MetadataServiceDeleteBackup = "806"
+  val MetadataServiceCleanAll = "807"
 
   /* Map with all error codes and messages */
   val ErrorCodesMessages = Map(
@@ -196,6 +197,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceFindAllWithEnv -> "Error finding all workflows with environment",
     WorkflowServiceFindAllByGroup -> "Error finding all workflows by group",
     WorkflowServiceFindAllMonitoring -> "Error finding all workflows for monitoring",
+    WorkflowServiceRename -> "Error renaming all workflow versions",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",

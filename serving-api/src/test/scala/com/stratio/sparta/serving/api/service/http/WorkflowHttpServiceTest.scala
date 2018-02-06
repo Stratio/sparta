@@ -411,4 +411,21 @@ with HttpServiceBaseTest {
     }
   }
 
+  "WorkflowHttpService.rename" should {
+    "return an OK because the workflows was updated" in {
+      startAutopilot(Left(Success(getWorkflowRenameModel())))
+      Put(s"/${HttpConstant.WorkflowsPath}/rename", getWorkflowRenameModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[RenameWorkflow]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Put(s"/${HttpConstant.WorkflowsPath}/rename", getWorkflowRenameModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[RenameWorkflow]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
 }
