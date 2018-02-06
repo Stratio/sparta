@@ -102,7 +102,7 @@ abstract class CastingTransformStep[Underlying[Row]](
                       dataRow
                     case Failure(e) =>
                       returnWhenFieldError(new Exception(
-                        s"Impossible to find outputField: $outputField in the schema $inputSchema", e))
+                        s"Impossible to cast outputField: $outputField in the schema $inputSchema", e))
                   }
                 case Failure(e: Exception) =>
                   returnWhenFieldError(e)

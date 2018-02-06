@@ -197,7 +197,7 @@ object CastingUtils {
             if (cast._2 == null) null else cast._2.toString
           }))
         case Some(_: GenericRowWithSchema) =>
-          value.asInstanceOf[Seq[GenericRowWithSchema]].map(row => row.getValuesMap[String](row.schema.fieldNames))
+          value.asInstanceOf[Seq[GenericRowWithSchema]].map(row => row.schema.fieldNames.map(field => (field, row.get(row.fieldIndex(field)).toString)).toMap)
         case _ => throw new Exception("Impossible to casting Array of Strings")
       }
       case value if value == null => null
@@ -228,7 +228,7 @@ object CastingUtils {
         cast._1.toString -> {
           if (cast._2 == null) null else cast._2.toString
         })
-      case value: GenericRowWithSchema => value.getValuesMap[String](value.schema.fieldNames)
+      case value: GenericRowWithSchema => value.schema.fieldNames.map(field => (field, value.get(value.fieldIndex(field)).toString)).toMap
       case value if value == null => null
       case _ => origValue.asInstanceOf[Map[String, String]]
     }
