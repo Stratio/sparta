@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
@@ -44,13 +44,13 @@ class ExplodeTransformStepBatchIT extends TemporalSparkContext with Matchers wit
       StructField("foo", StringType),
       StructField(inputField, StringType)
     ))
-    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataIn = Seq(
       new GenericRowWithSchema(Array("var", explodeFieldMoreFields), inputSchema).asInstanceOf[Row]
     )
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("red", redPrice.toString), outputSchema).asInstanceOf[Row],
-      new GenericRowWithSchema(Array("blue", bluePrice.toString), outputSchema).asInstanceOf[Row]
+      new GenericRowWithSchema(Array("red", redPrice), outputSchema).asInstanceOf[Row],
+      new GenericRowWithSchema(Array("blue", bluePrice), outputSchema).asInstanceOf[Row]
     )
     val dataQueue = sc.parallelize(dataIn)
 

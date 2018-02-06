@@ -54,7 +54,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     else {
       val groupService = new GroupService(curator.get)
       val groupInZk = groupService.findByID(workflow.group.id.get).toOption
-      if (groupInZk.isDefined && groupInZk.get.name.matches(regexGroups))
+      if (groupInZk.isDefined && workflow.group.name.equals(groupInZk.get.name)
+        && workflow.group.name.matches(regexGroups))
         this
       else {
         val msg = messages :+ "The workflow group not exists or is invalid"

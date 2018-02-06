@@ -23,7 +23,7 @@ import com.stratio.sparta.sdk.workflow.step.{OutputOptions, TransformationStepMa
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType}
 import org.junit.runner.RunWith
 import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
@@ -47,14 +47,14 @@ class ExplodeTransformStepStreamIT extends TemporalSparkContext with Matchers wi
       StructField("foo", StringType),
       StructField(inputField, StringType)
     ))
-    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", StringType)))
+    val outputSchema = StructType(Seq(StructField("color", StringType), StructField("price", DoubleType)))
     val dataQueue = new mutable.Queue[RDD[Row]]()
     val dataIn = Seq(
       new GenericRowWithSchema(Array("var", explodeFieldMoreFields), inputSchema)
     )
     val dataOut = Seq(
-      new GenericRowWithSchema(Array("red", redPrice.toString), outputSchema),
-      new GenericRowWithSchema(Array("blue", bluePrice.toString), outputSchema)
+      new GenericRowWithSchema(Array("red", redPrice), outputSchema),
+      new GenericRowWithSchema(Array("blue", bluePrice), outputSchema)
     )
     dataQueue += sc.parallelize(dataIn)
     val stream = ssc.queueStream(dataQueue)
@@ -79,11 +79,10 @@ class ExplodeTransformStepStreamIT extends TemporalSparkContext with Matchers wi
       totalEvents += streamingEvents
       log.info(s" TOTAL EVENTS : \t $totalEvents")
       val streamingRegisters = rdd.collect()
-      if (!rdd.isEmpty())
-        streamingRegisters.foreach { row =>
-          assert(dataOut.contains(row))
-          assert(outputSchema == row.schema)
-        }
+      if (!rdd.isEmpty()) {
+        assert(streamingRegisters.head.schema == outputSchema)
+        assert(streamingRegisters.forall(row => dataOut.contains(row)))
+      }
     })
     ssc.start()
     ssc.awaitTerminationOrTimeout(3000L)

@@ -3,7 +3,7 @@
      "icon": "Intersection",
      "className": "IntersectionTransformStepStream",
      "classPrettyName": "Intersection",
-     "arity": ["UnaryToNary"],
+     "arity": ["BinaryToNary"],
      "description": "Select the intersection of events from the two input DStream",
      "properties": [
         {

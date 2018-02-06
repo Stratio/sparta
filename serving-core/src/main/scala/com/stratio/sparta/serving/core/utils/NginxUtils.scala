@@ -272,7 +272,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
       calicoAddresses <- retrieveIPandPorts
       res <- modifyConf(calicoAddresses, workflowsUiVhost)
     } yield {
-      log.info(s"Nginx configuration correctly updated")
+      log.debug(s"Nginx configuration correctly updated")
       res
     }
   } recoverWith { case e: Exception =>

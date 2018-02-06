@@ -20,6 +20,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import akka.util.Timeout
 import java.util
+
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.GroupActor._
 import com.stratio.sparta.serving.core.constants.AppConstant
@@ -288,6 +289,47 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
 
         expectMsg(Left(Failure(
           new ServerException(s"Unable to update group ${inexistentGroupElementModel.id.get}: group not found"))))
+      }
+
+    "UpdateGroup: tries to create a group but throw exception because there is a group with the same name" in
+      new TestData {
+        when(curatorFramework.getChildren)
+          .thenReturn(getChildrenBuilder)
+        when(curatorFramework.getChildren
+          .forPath(s"${AppConstant.GroupZkPath}"))
+          .thenReturn(new util.ArrayList[String](
+            util.Arrays.asList(newGroupInstance.id.get,updateGroupModel.id.get)))
+        when(curatorFramework.checkExists())
+          .thenReturn(existsBuilder)
+        when(curatorFramework.checkExists()
+          .forPath(s"/stratio/sparta/sparta/group/${updateGroupModel.id.get}"))
+          .thenReturn(new Stat())
+        when(curatorFramework.getData)
+          .thenReturn(getDataBuilder)
+        when(curatorFramework.getData
+          .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
+          .thenReturn(newGroupInstanceJSON.getBytes)
+        when(curatorFramework.getData)
+          .thenReturn(getDataBuilder)
+        when(curatorFramework.getData
+          .forPath(s"/stratio/sparta/sparta/group/${updateGroupModel.id.get}"))
+          .thenReturn(updateGroupInstanceJSON.getBytes)
+        when(curatorFramework.setData())
+          .thenReturn(setDataBuilder)
+        when(curatorFramework.setData()
+          .forPath(s"/stratio/sparta/sparta/group/${updateGroupModel.id.get}", newGroupInstanceJSON.getBytes))
+          .thenReturn(new Stat())
+        when(curatorFramework.checkExists())
+          .thenReturn(existsBuilder)
+        when(curatorFramework.checkExists()
+          .forPath(s"/stratio/sparta/sparta/group/${newGroupInstance.id.get}"))
+          .thenReturn(new Stat())
+
+
+        groupActor ! GroupActor.UpdateGroup(updateGroupModel, rootUser)
+        expectMsg(Left(Failure(
+          new ServerException(s"Unable to update group ${updateGroupModel.id.get} " +
+            s"with name ${updateGroupModel.name}:target group already existing"))))
       }
 
     "DeleteGroupById: delete a group by its ID" in new TestData {

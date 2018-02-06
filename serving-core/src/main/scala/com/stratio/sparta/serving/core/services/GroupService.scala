@@ -121,6 +121,10 @@ class GroupService(curatorFramework: CuratorFramework) extends SpartaSerializer 
       if (!Group.isValid(group))
         throw new ServerException(s"Unable to update group ${group.id.get} with name ${group.name}:" +
           s"invalid name detected")
+      else if (findByName(group.name).isSuccess){
+        throw new ServerException(s"Unable to update group ${group.id.get} with name ${group.name}:" +
+          s"target group already existing")
+      }
       else {
         findByID(group.id.get) match {
           case Failure(_) => throw new ServerException(s"Unable to update group ${group.id.get}: group not found")

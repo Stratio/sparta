@@ -17,21 +17,22 @@
 package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
+import java.util
+import scala.collection.JavaConverters._
 import scala.util.Try
-
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-
 import com.stratio.sparta.plugin.enumerations.SchemaInputMode.{FIELDS, SPARKFORMAT}
 import com.stratio.sparta.plugin.enumerations.{FieldsPreservationPolicy, SchemaInputMode}
 import com.stratio.sparta.plugin.helper.SchemaHelper.getNewOutputSchema
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step._
+import com.stratio.sparta.sdk.utils.CastingUtils._
 
 abstract class ExplodeTransformStep[Underlying[Row]](
                                                       name: String,
@@ -88,30 +89,23 @@ abstract class ExplodeTransformStep[Underlying[Row]](
       Option(row.get(inputSchema.fieldIndex(inputField))) match {
         case Some(value) =>
           val (rowFieldValues, rowFieldSchema) = value match {
-            case valueCast: Map[String, _] =>
-              (Seq(valueCast), valueCast.map { case (key, _) => StructField(key, StringType) }.toSeq)
             case valueCast: GenericRowWithSchema =>
-              (Seq(valueCast.getValuesMap(valueCast.schema.fieldNames)), valueCast.schema.fields.toSeq)
-            case valueCast: Seq[_] =>
+              (Seq(valueCast), valueCast.schema)
+            case _ =>
               Try {
-                val valueInstance = valueCast.asInstanceOf[Seq[Map[String, _]]]
-                (valueInstance, valueInstance.head.map { case (key, _) => StructField(key, StringType) }.toSeq)
-              } orElse Try {
-                val valueInstance = valueCast.asInstanceOf[Seq[GenericRowWithSchema]]
-                (valueInstance.map(row => row.getValuesMap(row.schema.fieldNames)), valueInstance.head.schema.fields.toSeq)
+                val valueInstance = checkArrayStructType(value).asInstanceOf[Seq[GenericRowWithSchema]]
+                (valueInstance, valueInstance.head.schema)
               } getOrElse {
                 throw new Exception(s"The input value has incorrect type Seq(Map()) or Seq(Row). Value:${value.toString}")
               }
-            case _ => throw new Exception(
-              s"The input value has incorrect type, Seq(Map()),  Map() or Rows with schema. Value:${value.toString}")
           }
 
           val outputSchema = getNewOutputSchema(inputSchema, preservationPolicy,
-            providedSchema.getOrElse(rowFieldSchema), inputField)
+            providedSchema.getOrElse(rowFieldSchema.fields.toSeq), inputField)
 
           rowFieldValues.map { valuesMap =>
             val newValues = outputSchema.map { outputField =>
-              valuesMap.get(outputField.name) match {
+              Try(valuesMap.get(valuesMap.fieldIndex(outputField.name))).toOption match {
                 case Some(valueParsed) => if (valueParsed != null)
                   castingToOutputSchema(outputField, valueParsed)
                 case None =>
