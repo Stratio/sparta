@@ -10,8 +10,8 @@ Feature: [SPARTA-1487] Test secure workflow execution
     And I save element '$.name' in environment variable 'nameWorkflow'
     And I wait '2' seconds
   Scenario:[SPARTA-1487][02] Run workflow
-    When I send a 'GET' request to '/workflows/run/!{previousWorkflowID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
+    When I send a 'POST' request to '/workflows/run/!{previousWorkflowID}'
+    Then the service response status must be '200' and its response must contain the text 'OK'
   Scenario:[SPARTA-1487][03] delete workflow
     When I send a 'DELETE' request to '/workflows/!{previousWorkflowID}'
     Then the service response status must be '200'

@@ -15,19 +15,19 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
     And I save element '$.name' in environment variable 'nameWorkflow'
     And I wait '10' seconds
     #Execute workflow
-    Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows/run/!{previousWorkflowID}'
+    Then the service response status must be '200' and its response must contain the text 'OK'
     #verify the generation of  workflow in dcos
 
   Scenario:[SPARTA-1196][02]Test workflow in Dcos '<WORKFLOW>'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w <WORKFLOW> | wc -l' contains '1'
+    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w <WORKFLOW>' contains '<WORKFLOW>'
     #Get ip in marathon
     When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/<WORKFLOW>  | awk '{print $5}' | grep <WORKFLOW> ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     #Check workflow is runing in DCOS
     And I wait '1' seconds
     And  I run 'echo !{workflowTaskId}' in the ssh connection
-    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING | wc -l' contains '1'
+    Then in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep TASK_RUNNING' contains 'TASK_RUNNING'
     And in less than '300' seconds, checking each '20' seconds, the command output 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/<WORKFLOW>  | grep ${DCOS_SERVICE_NAME} | awk '{print $2}'' contains 'True'
 
     #MVN Example

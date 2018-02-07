@@ -13,8 +13,8 @@ Feature: [SPARTA-1487] Test workflow execution
     And I wait '2' seconds
 
   Scenario: [SPARTA-1487][02] Run workflow
-    When I send a 'GET' request to '/workflows/run/!{previousWorkflowID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
+    When I send a 'POST' request to '/workflows/run/!{previousWorkflowID}'
+    Then the service response status must be '200' and its response must contain the text 'OK'
 
   Scenario: [SPARTA-1487][03] Delete workflow
     When I send a 'DELETE' request to '/workflows/!{previousWorkflowID}'

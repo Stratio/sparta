@@ -13,7 +13,7 @@ Feature: [SPARTA-1183] Install and Execute Workflow
     And I wait '2' seconds
     #Execute workflow
     Given I send a 'GET' request to '/service/sparta-server/workflows/run/!{previousWorkflowID}'
-    Then the service response status must be '200' and its response must contain the text '{"message":"Launched policy with name !{nameWorkflow}'
+    Then the service response status must be '200' and its response must contain the text 'OK'
     #verify the generation of  workflow in dcos
   Scenario: [SPARTA-1183][02] Worklflow test in Dcos
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
