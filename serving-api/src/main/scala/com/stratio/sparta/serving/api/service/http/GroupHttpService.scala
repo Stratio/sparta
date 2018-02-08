@@ -181,7 +181,7 @@ trait GroupHttpService extends BaseHttpService {
     Array(new ApiResponse(code = HttpConstant.NotFound,
       message = HttpConstant.NotFoundMessage)))
   def deleteByName(user: Option[LoggedUser]): Route = {
-    path(HttpConstant.GroupsPath / "deleteByName" / Segment) { (name) =>
+    path(HttpConstant.GroupsPath / "deleteByName" / Rest) { (name) =>
       delete {
         complete {
           for {
