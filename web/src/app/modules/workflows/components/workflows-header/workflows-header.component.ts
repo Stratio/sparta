@@ -34,7 +34,8 @@ import { BreadcrumbMenuService } from 'services';
 @Component({
     selector: 'workflows-header',
     styleUrls: ['workflows-header.component.scss'],
-    templateUrl: 'workflows-header.component.html'
+    templateUrl: 'workflows-header.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkflowsHeaderComponent {
 

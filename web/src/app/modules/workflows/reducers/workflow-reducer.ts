@@ -129,7 +129,8 @@ export function reducer(state: State = initialState, action: any): State {
           });
           workflow.context = (c && Array.isArray(c) && c.length) ? c[0] : {};
           return workflow;
-        })
+        }),
+        selectedWorkflows: Object.assign([], state.selectedWorkflows)
       });
     }
     case workflowActions.SAVE_JSON_WORKFLOW_ERROR: {
