@@ -42,6 +42,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
       .validateGraphIsAcyclic
       .validateArityOfNodes
       .validateExistenceCorrectPath
+      .validateDuplicateNames
       .validateCheckpointCubes
 
     validationResult.copy(messages = validationResult.messages.distinct)

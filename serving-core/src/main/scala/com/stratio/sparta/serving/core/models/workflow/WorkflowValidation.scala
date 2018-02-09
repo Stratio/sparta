@@ -213,6 +213,18 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     )
   }
 
+  def validateDuplicateNames(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
+    val nodes: Seq[NodeGraph] = workflow.pipelineGraph.nodes
+    nodes.groupBy(_.name).find(listName => listName._2.size > 1) match {
+      case Some(duplicate) =>
+        this.copy(
+          valid = false,
+          messages = messages :+ s"The workflow has two nodes with the same name: ${duplicate._1}"
+        )
+      case None => this
+    }
+  }
+
 
   def validateArityOfNodes(implicit workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): WorkflowValidation = {
     workflow.pipelineGraph.nodes.foldLeft(this) { case (lastValidation, node) =>
