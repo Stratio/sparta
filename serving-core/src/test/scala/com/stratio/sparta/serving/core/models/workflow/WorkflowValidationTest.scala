@@ -45,7 +45,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings(),
+    GlobalSettings(executionMode = "local"),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
@@ -61,6 +61,7 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     description = "whatever",
     pipelineGraph = emptyPipeGraph
   )
+
 
 
   "workflowValidation" must {
@@ -402,6 +403,77 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       val pipeline = PipelineGraph(nodes , edges)
       implicit val workflow = emptyWorkflow.copy(name="workflow-Incorrect!", pipelineGraph = pipeline)
       val result = new WorkflowValidation().validateName
+      result.valid shouldBe false
+    }
+
+    "not validate an incorrect execution mode" in {
+      val pipeline = PipelineGraph(nodes , edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings(executionMode = "marathon"),
+        StreamingSettings(
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+        SparkSettings(
+          JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
+          None, SubmitArguments(), SparkConf(SparkResourcesConf())
+        )
+      )
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateExecutionMode
+      result.valid shouldBe false
+    }
+
+    "not validate an incorrect deploy mode" in {
+      val pipeline = PipelineGraph(nodes , edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings(executionMode = "marathon"),
+        StreamingSettings(
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+        SparkSettings(
+          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          sparkMesosSecurity = false, None, SubmitArguments(deployMode = Option("cluster")),
+          SparkConf(SparkResourcesConf())
+        )
+      )
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateDeployMode
+      result.valid shouldBe false
+    }
+
+    "not validate an incorrect spark cores" in {
+      val pipeline = PipelineGraph(nodes , edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings(executionMode = "marathon"),
+        StreamingSettings(
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+        SparkSettings(
+          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          sparkMesosSecurity = false, None, SubmitArguments(),
+          SparkConf(SparkResourcesConf(coresMax = Option(JsoneyString("1")), executorCores = Option(JsoneyString("3"))))
+        )
+      )
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateSparkCores
+      result.valid shouldBe false
+    }
+
+    "not validate an incorrect cube checkpoint settings" in {
+      val cubeNodes = Seq(
+        NodeGraph("a", "", "CubeTransformStep", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+        NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+      )
+      val pipeline = PipelineGraph(cubeNodes , edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings(executionMode = "marathon"),
+        StreamingSettings(
+          JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"), false)),
+        SparkSettings(
+          JsoneyString("mesos://leader.mesos"), sparkKerberos = false, sparkDataStoreTls = false,
+          sparkMesosSecurity = false, None, SubmitArguments(),
+          SparkConf(SparkResourcesConf())
+        )
+      )
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateCheckpointCubes
       result.valid shouldBe false
     }
   }

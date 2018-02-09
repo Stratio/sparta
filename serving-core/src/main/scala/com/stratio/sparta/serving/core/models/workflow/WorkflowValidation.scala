@@ -17,6 +17,7 @@
 package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.workflow.step.OutputStep
+import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
@@ -48,6 +49,68 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
   // A Workflow name should not contain special characters and Uppercase letters (because of DCOS deployment)
   val regexName = "^[a-z0-9-]*"
+
+  def validateExecutionMode(implicit workflow: Workflow): WorkflowValidation = {
+    if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
+      workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
+      !workflow.settings.sparkSettings.master.toString.startsWith("mesos://"))
+      copy(
+        valid = false,
+        messages = messages :+ s"The selected execution mode is Marathon or Mesos," +
+          s" therefore Spark Master should start with mesos://"
+      )
+    else if (workflow.settings.global.executionMode == AppConstant.ConfigLocal &&
+      !workflow.settings.sparkSettings.master.toString.startsWith("local"))
+      copy(
+        valid = false,
+        messages = messages :+ s"The selected execution mode is local, therefore Spark Master should start with local"
+      )
+    else this
+  }
+
+  def validateDeployMode(implicit workflow: Workflow): WorkflowValidation = {
+    if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.get != "client")
+      copy(
+        valid = false,
+        messages = messages :+ s"The selected execution mode is Marathon and the deploy mode is not client"
+      )
+    else if (workflow.settings.global.executionMode == AppConstant.ConfigMesos &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.get != "cluster")
+      copy(
+        valid = false,
+        messages = messages :+ s"The selected execution mode is Mesos and the deploy mode is not cluster"
+      )
+    else this
+  }
+
+  def validateSparkCores(implicit workflow: Workflow): WorkflowValidation = {
+    if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
+      workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
+      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.isDefined &&
+        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.isDefined &&
+      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
+        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
+      copy(
+        valid = false,
+        messages = messages :+ s"The total number of executor cores (max cores) should be greater than" +
+          s" the number of executor cores"
+      )
+    else this
+  }
+
+  def validateCheckpointCubes(implicit workflow: Workflow): WorkflowValidation =
+    workflow.pipelineGraph.nodes.find(node => node.className == "CubeTransformStep") match {
+      case Some(_) => if (!workflow.settings.streamingSettings.checkpointSettings.enableCheckpointing)
+        copy(
+          valid = false,
+          messages = messages :+ s"The workflow contains Cubes and the checkpoint is not enabled"
+        )
+      else this
+      case None => this
+    }
 
   def validateGroupName(implicit workflow: Workflow, curator: Option[CuratorFramework]): WorkflowValidation = {
     if (curator.isEmpty) this
@@ -168,11 +231,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     }
   }
 
-  private[workflow] def combineWithAnd(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
+  def combineWithAnd(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
     if (first.valid && second.valid) new WorkflowValidation()
     else WorkflowValidation(valid = false, messages = first.messages ++ second.messages)
 
-  private[workflow] def combineWithOr(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
+  def combineWithOr(first: WorkflowValidation, second: WorkflowValidation): WorkflowValidation =
     if (first.valid || second.valid) new WorkflowValidation()
     else WorkflowValidation(valid = false, messages = first.messages ++ second.messages)
 

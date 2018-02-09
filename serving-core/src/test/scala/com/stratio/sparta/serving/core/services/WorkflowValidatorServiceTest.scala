@@ -37,7 +37,15 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
   val validPipeGraph = PipelineGraph(nodes , edges)
   val emptyPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
   val settingsModel = Settings(
-    GlobalSettings(),
+    GlobalSettings(executionMode = "local"),
+    StreamingSettings(
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+    SparkSettings(
+      JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false,
+      sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))
+  )
+  val wrongSettingsModel = Settings(
+    GlobalSettings(executionMode = "marathon"),
     StreamingSettings(
       JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
     SparkSettings(
@@ -59,15 +67,20 @@ class WorkflowValidatorServiceTest extends WordSpec with Matchers with MockitoSu
     "validate a correct workflow" in {
       val workflow = emptyWorkflow.copy(pipelineGraph = validPipeGraph)
       val result = workflowValidatorService.validate(workflow)
+      val advancedResult = workflowValidatorService.validateJsoneySettings(workflow)
 
       result.valid shouldBe true
+      advancedResult.valid shouldBe true
+
     }
 
     "validate a wrong workflow" in {
       val workflow = emptyWorkflow.copy(pipelineGraph = emptyPipeGraph)
       val result = workflowValidatorService.validate(workflow)
+      val advancedResult = workflowValidatorService.validateJsoneySettings(workflow.copy(settings = wrongSettingsModel))
 
       result.valid shouldBe false
+      advancedResult.valid shouldBe false
     }
 
     "validate a wrong workflow with empty name" in {

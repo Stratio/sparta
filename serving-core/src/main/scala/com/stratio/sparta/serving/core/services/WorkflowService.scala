@@ -85,10 +85,10 @@ class WorkflowService(
     JavaConversions.asScalaBuffer(children).toList.map(id => findById(id))
   }
 
-  def create(workflow: Workflow): Workflow = {
+  def create(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
     log.debug(s"Creating workflow with name ${workflow.name}, version ${workflow.version} " +
       s"and group ${workflow.group.name}")
-    validateWorkflow(workflow)
+    validateWorkflow(workflow, workflowWithEnv)
 
     val workflowWithFields = addCreationDate(addId(workflow))
 
@@ -169,14 +169,18 @@ class WorkflowService(
     }
   }
 
-  def createList(workflows: Seq[Workflow]): Seq[Workflow] = {
+  def createList(workflows: Seq[Workflow], workflowsWithEnv: Seq[Workflow] = Seq.empty): Seq[Workflow] = {
     log.debug(s"Creating workflows from list")
-    workflows.map(create)
+    workflows.map { workflow =>
+      val workflowWithEnv = workflowsWithEnv.find(withEnv =>
+        withEnv.name == workflow.name && withEnv.group == workflow.group && withEnv.version == workflow.version)
+      create(workflow, workflowWithEnv)
+    }
   }
 
-  def update(workflow: Workflow): Workflow = {
+  def update(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {
     log.debug(s"Updating workflow with id ${workflow.id.get}")
-    validateWorkflow(workflow)
+    validateWorkflow(workflow, workflowWithEnv)
 
     val searchWorkflow = existsById(workflow.id.get)
     val searchByName = exists(workflow.name, workflow.version, workflow.group.id.get)
@@ -197,9 +201,13 @@ class WorkflowService(
     }
   }
 
-  def updateList(workflows: Seq[Workflow]): Seq[Workflow] = {
+  def updateList(workflows: Seq[Workflow], workflowsWithEnv: Seq[Workflow] = Seq.empty): Seq[Workflow] = {
     log.debug(s"Updating workflows from list")
-    workflows.map(update)
+    workflows.map { workflow =>
+      val workflowWithEnv = workflowsWithEnv.find(withEnv =>
+        withEnv.name == workflow.name && withEnv.group == workflow.group && withEnv.version == workflow.version)
+      update(workflow, workflowWithEnv)
+    }
   }
 
   def delete(id: String): Try[Unit] = {
@@ -228,7 +236,7 @@ class WorkflowService(
         } catch {
           case e: Exception =>
             log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
-            Try(workflows.foreach(create))
+            Try(workflows.foreach(workflow => create(workflow)))
             throw new RuntimeException("Error deleting workflows", e)
         }
       }
@@ -253,7 +261,7 @@ class WorkflowService(
         } catch {
           case e: Exception =>
             log.error("Error deleting workflows. The workflows deleted will be rolled back", e)
-            Try(workflows.foreach(create))
+            Try(workflows.foreach(workflow => create(workflow)))
             throw new RuntimeException("Error deleting workflows", e)
         }
       }
@@ -285,10 +293,21 @@ class WorkflowService(
     statusService.update(WorkflowStatus(id, WorkflowStatusEnum.NotStarted))
   }
 
+  def applyEnv(workflow: Workflow): Workflow = {
+    val workflowWithoutEnv = write(workflow)
+    read[Workflow](workflowWithoutEnv)
+  }
+
   /** PRIVATE METHODS **/
 
-  private[sparta] def validateWorkflow(workflow: Workflow): Unit = {
-    val validationResult = validatorService.validate(workflow)
+  private[sparta] def validateWorkflow(workflow: Workflow, envWorkflow: Option[Workflow] = None): Unit = {
+    val basicValidation = validatorService.validate(workflow)
+    val validationResult = envWorkflow match {
+      case Some(workflowWithEnv) =>
+        basicValidation.combineWithAnd(basicValidation, validatorService.validateJsoneySettings(workflowWithEnv))
+      case None =>
+        basicValidation
+    }
     if (!validationResult.valid)
       throw new ServerException(s"Workflow not valid. Cause: ${validationResult.messages.mkString("-")}")
   }

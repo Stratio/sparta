@@ -208,7 +208,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             delete()
             initialGroups.foreach(groupService.create)
             initialTemplates.foreach(templateService.create)
-            initialWorkflows.foreach(workflowService.create)
+            initialWorkflows.foreach(workflow => workflowService.create(workflow))
             initialEnvVariables.variables.foreach(createVariable)
           } match {
             case Success(_) =>

@@ -105,7 +105,12 @@ class WorkflowActor(
 
   def validate(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflowValidation](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
-      Try(workflowValidatorService.validate(workflow))
+      Try {
+        val withEnv = wServiceWithEnv.applyEnv(workflow)
+        val basicValidation = workflowValidatorService.validate(workflow)
+        val advancedValidation = workflowValidatorService.validateJsoneySettings(withEnv)
+        basicValidation.combineWithAnd(basicValidation, advancedValidation)
+      }
     }
 
   def findAll(user: Option[LoggedUser]): Unit =
@@ -120,7 +125,7 @@ class WorkflowActor(
   def findAllMonitoring(user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> View, ResourceStatus -> View)) {
       Try {
-        val workflowsDto : Seq[WorkflowDto] = workflowService.findAll
+        val workflowsDto: Seq[WorkflowDto] = workflowService.findAll
         workflowsDto
       } recover {
         case _: NoNodeException => Seq.empty[WorkflowDto]
@@ -180,17 +185,26 @@ class WorkflowActor(
 
   def create(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflow](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
-      Try(workflowService.create(workflow))
+      Try {
+        val withEnv = wServiceWithEnv.applyEnv(workflow)
+        wServiceWithEnv.create(workflow, Option(withEnv))
+      }
     }
 
   def createList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[ResponseWorkflows](user, Map(ResourceWorkflow -> Create, ResourceStatus -> Create)) {
-      Try(workflowService.createList(workflows))
+      Try {
+        val withEnv = workflows.map(workflow => wServiceWithEnv.applyEnv(workflow))
+        wServiceWithEnv.createList(workflows, withEnv)
+      }
     }
 
   def update(workflow: Workflow, user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceWorkflow -> Edit)) {
-      Try(workflowService.update(workflow)).recover {
+      Try {
+        val withEnv = wServiceWithEnv.applyEnv(workflow)
+        wServiceWithEnv.update(workflow, Option(withEnv))
+      }.recover {
         case _: NoNodeException =>
           throw new ServerException(s"No workflow with name ${workflow.name}.")
       }
@@ -198,7 +212,10 @@ class WorkflowActor(
 
   def updateList(workflows: Seq[Workflow], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer(user, Map(ResourceWorkflow -> Edit)) {
-      Try(workflowService.updateList(workflows))
+      Try {
+        val withEnv = workflows.map(workflow => wServiceWithEnv.applyEnv(workflow))
+        wServiceWithEnv.updateList(workflows, withEnv)
+      }
     }
 
   def delete(id: String, user: Option[LoggedUser]): Unit =

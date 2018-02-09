@@ -42,6 +42,20 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
       .validateGraphIsAcyclic
       .validateArityOfNodes
       .validateExistenceCorrectPath
+      .validateCheckpointCubes
+
+    validationResult.copy(messages = validationResult.messages.distinct)
+  }
+
+  def validateJsoneySettings(workflow: Workflow): WorkflowValidation = {
+
+    implicit val workflowToValidate: Workflow = workflow
+    implicit val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
+
+    val validationResult = new WorkflowValidation()
+      .validateExecutionMode
+      .validateDeployMode
+      .validateSparkCores
 
     validationResult.copy(messages = validationResult.messages.distinct)
   }
