@@ -1,0 +1,302 @@
+{
+  "id": "f7b36f3b-302d-41e9-833c-b847eead6378",
+  "name": "crossdata-hdfs",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [
+        {
+          "sentence": "CREATE TABLE IF NOT EXISTS  postgres1 USING org.apache.spark.sql.jdbc OPTIONS (url 'jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server&ssl=true&sslmode=verify-full&sslcert=/tmp/cert.crt&sslrootcert=/tmp/ca.crt&sslkey=/tmp/key.pkcs8', dbtable 'tabletestdate')"
+        }
+      ],
+      "addAllUploadedPlugins": true,
+      "mesosConstraint": "",
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "10s",
+      "remember": "",
+      "checkpointSettings": {
+        "checkpointPath": "sparta/checkpoint",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "mesos://leader.mesos:5050",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "jars": "",
+        "propertiesFile": "",
+        "packages": "",
+        "excludePackages": "",
+        "repositories": "",
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
+        "driverLibraryPath": "",
+        "driverClassPath": ""
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "1",
+          "executorMemory": "2G",
+          "executorCores": "1",
+          "driverCores": "1",
+          "driverMemory": "2G",
+          "mesosExtraCores": "",
+          "localityWait": "100",
+          "taskMaxFailures": "8",
+          "sparkMemoryFraction": "0.6",
+          "sparkParallelism": ""
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkUser": "",
+        "sparkLocalDir": "/opt/spark/dist",
+        "sparkKryoSerialization": false,
+        "sparkSqlCaseSensitive": false,
+        "parquetBinaryAsString": true,
+        "logStagesProgress": false,
+        "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "tabletestcrossdata",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStream",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 729,
+            "y": 322
+          }
+        },
+        "configuration": {
+          "sql": "select id from JsonPath"
+        }
+      },
+      {
+        "name": "Print",
+        "stepType": "Output",
+        "className": "PrintOutputStep",
+        "classPrettyName": "Print",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 464,
+            "y": -25
+          }
+        },
+        "configuration": {
+          "printMetadata": true,
+          "printData": true,
+          "printSchema": true,
+          "logLevel": "error"
+        }
+      },
+      {
+        "name": "Cubecrossdata",
+        "stepType": "Transformation",
+        "className": "CubeTransformStep",
+        "classPrettyName": "Cube",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 723,
+            "y": 20
+          }
+        },
+        "configuration": {
+          "waterMark": "",
+          "whenError": "Error",
+          "availability": "1m",
+          "dimensions": [
+            {
+              "name": "id"
+            }
+          ],
+          "partitions": "",
+          "timeoutKey": "",
+          "operators": [
+            {
+              "name": "idcube",
+              "classType": "Count",
+              "inputField": "id"
+            }
+          ]
+        }
+      },
+      {
+        "name": "Crossdata",
+        "stepType": "Input",
+        "className": "CrossdataInputStepStream",
+        "classPrettyName": "Crossdata",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 299,
+            "y": 175
+          }
+        },
+        "configuration": {
+          "offsetLocation": "ZOOKEEPER",
+          "query": "select * from postgres1",
+          "finishAppWhenEmpty": false,
+          "zookeeperConnection": "zk-0001.zkuserland.mesos:2181,zk-0002-zkuserland.service.paas.labs.stratio.com:2181,zk-0003-zkuserland.service.paas.labs.stratio.com:2181",
+          "tlsEnabled": true,
+          "stopContexts": true,
+          "limitRecords": "100",
+          "resetOffsetOnStart": false,
+          "offsetFields": [
+            {
+              "offsetField": "dateparsed",
+              "offsetOperator": ">=",
+              "offsetValue": ""
+            }
+          ],
+          "zookeeperPath": "/pathzookeeper8",
+          "storageLevel": "MEMORY_ONLY_SER"
+        }
+      },
+      {
+        "name": "Parquet",
+        "stepType": "Output",
+        "className": "ParquetOutputStep",
+        "classPrettyName": "Parquet",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 987,
+            "y": 226
+          }
+        },
+        "configuration": {
+          "path": "hdfs://10.200.0.74:8020/user/sparta-server",
+          "saveOptions": "[]"
+        }
+      },
+      {
+        "name": "JsonPath",
+        "stepType": "Transformation",
+        "className": "JsonPathTransformStepStream",
+        "classPrettyName": "JsonPath",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 503,
+            "y": 264
+          }
+        },
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.Id",
+              "type": "string"
+            }
+          ],
+          "whenError": "Error",
+          "supportNullValues": true,
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "id"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Crossdata",
+        "destination": "Print"
+      },
+      {
+        "origin": "Crossdata",
+        "destination": "Cubecrossdata"
+      },
+      {
+        "origin": "Cubecrossdata",
+        "destination": "Parquet"
+      },
+      {
+        "origin": "tabletestcrossdata",
+        "destination": "Parquet"
+      },
+      {
+        "origin": "Crossdata",
+        "destination": "JsonPath"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "tabletestcrossdata"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": -19,
+      "y": 44,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2018-02-01T12:32:23Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "f7b36f3b-302d-41e9-833c-b847eead6378",
+    "status": "Finished",
+    "statusInfo": "Workflow correctly finished in Marathon API",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-02-01T12:32:23Z"
+  }
+}

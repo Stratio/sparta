@@ -8,9 +8,9 @@ Feature: [SPARTA-1196] Generate and Execute Workflow and see Streaming
   @loop(WORKFLOW_LIST,WORKFLOW)
   Scenario:[SPARTA-1196][01]Generate report of Spark Streaming '<WORKFLOW>'
     Given I open a ssh connection to '${DCOS_CLI_HOST}' with user 'root' and password 'stratio'
-    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w '<WORKFLOW>' | wc -l' contains '1'
+    Given in less than '300' seconds, checking each '20' seconds, the command output 'dcos task | grep -w '<WORKFLOW>-v0' | wc -l' contains '1'
     #Get ip in marathon
-    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/<WORKFLOW>/<WORKFLOW>-v0 awk '{print $5}' | grep <WORKFLOW> ' in the ssh connection and save the value in environment variable 'workflowTaskId'
+    When I run 'dcos marathon task list /sparta/${DCOS_SERVICE_NAME}/workflows/home/<WORKFLOW>/<WORKFLOW>-v0 | awk '{print $5}' | grep <WORKFLOW> ' in the ssh connection and save the value in environment variable 'workflowTaskId'
     #Check workflow is runing in DCOS
     And I wait '1' seconds
     And  I run 'echo !{workflowTaskId}' in the ssh connection

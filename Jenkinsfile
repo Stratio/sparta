@@ -124,7 +124,7 @@ hose {
             | -DHDFS_IP=10.200.0.74
             | -DHDFS_PORT=8020
             | -DHDFS_REALM=DEMO.STRATIO.COM
-            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.1.0.4
+            | -DCROSSDATA_SERVER_CONFIG_SPARK_IMAGE=qa.stratio.com/stratio/stratio-spark:2.2.0.4
             | -DROLE_SPARTA=open
             | -DID_POLICY_ZK=spartazk
             | -DDCOS_CLI_HOST=%%DCOSCLI#0
@@ -141,6 +141,7 @@ hose {
             | -DNGINX_ACTIVE=false
             | -DPOSTGRES_NODE=pg-0001
             | -DPOSTGRES_NAME=postgrestls
+            | -DPOSTGRES_VERSION=0.17.0
             """
             
     INSTALL = { config ->

@@ -131,8 +131,8 @@
       "storage_path": "/tmp"
     },
     "Spark": {
-      "master": "local[*]",
-      "image": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
+      "master": "mesos://leader.mesos:5050",
+      "image": "qa.stratio.com/stratio/stratio-spark:2.2.0.4",
       "ui_enabled": true,
       "executor_memory": "1G",
       "driver_memory": "1G",

@@ -12,6 +12,7 @@
     "streamingSettings": {
       "window": "2s",
       "remember": "",
+      "blockInterval": "100ms",
       "checkpointSettings": {
         "checkpointPath": "sparta/checkpoint",
         "enableCheckpointing": true,
@@ -27,15 +28,7 @@
       "submitArguments": {
         "userArguments": [],
         "deployMode": "client",
-        "supervise": false,
-        "jars": "",
-        "propertiesFile": "",
-        "packages": "",
-        "excludePackages": "",
-        "repositories": "",
-        "driverJavaOptions": "-XX:+UseConcMarkSweepGC",
-        "driverLibraryPath": "",
-        "driverClassPath": ""
+        "driverJavaOptions": "-XX:+UseConcMarkSweepGC"
       },
       "sparkConf": {
         "sparkResourcesConf": {
@@ -49,23 +42,26 @@
           "taskMaxFailures": "8",
           "sparkMemoryFraction": "0.6"
         },
-        "sparkDockerConf": {
-          "executorDockerImage": "qa.stratio.com/stratio/stratio-spark:2.1.0.6",
-          "executorDockerVolumes": " /opt/mesosphere/packages/:/opt/mesosphere/packages/:ro,/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro,/etc/pki/ca-trust/extracted/java/cacerts/:/usr/lib/jvm/jre1.8.0_112/lib/security/cacerts:ro,/etc/resolv.conf:/etc/resolv.conf:ro",
-          "executorForcePullImage": false
-        },
-        "sparkMesosConf": {
-          "mesosNativeJavaLibrary": "/opt/mesosphere/lib/libmesos.so",
-          "mesosHDFSConfURI": ""
-        },
         "userSparkConf": [],
         "coarse": true,
-        "stopGracefully": true,
-        "stopGracefulTimeout": "",
         "sparkUser": "",
         "sparkLocalDir": "/opt/spark/dist",
-        "parquetBinaryAsString": true,
         "executorExtraJavaOptions": "-XX:+UseConcMarkSweepGC"
+      }
+    },
+    "errorsManagement": {
+      "genericErrorManagement": {
+        "whenError": "Error"
+      },
+      "transformationStepsManagement": {
+        "whenError": "Error",
+        "whenRowError": "RowError",
+        "whenFieldError": "FieldError"
+      },
+      "transactionsManagement": {
+        "sendToOutputs": [],
+        "sendStepData": false,
+        "sendInputData": true
       }
     }
   },
@@ -105,8 +101,8 @@
           "group.id": "sparta_2",
           "bootstrap.servers": [
             {
-              "host": "broker-0001.kafka-sec.mesos",
-              "port": "9092"
+              "port": "9092",
+              "host": "broker-0001.kafka-sec.mesos"
             }
           ],
           "enable.auto.commit": false,
@@ -144,6 +140,7 @@
         "className": "PostgresOutputStep",
         "classPrettyName": "Postgres",
         "arity": [
+          "NullaryToNullary",
           "NaryToNullary"
         ],
         "writer": {
@@ -156,12 +153,14 @@
           }
         },
         "configuration": {
+          "errorSink": false,
           "url": "jdbc:postgresql://pg-0001-postgrestls.service.paas.labs.stratio.com:5432/postgres?user=sparta-server",
           "postgresSaveMode": "STATEMENT",
           "batchsize": "1000",
           "isolationLevel": "READ_UNCOMMITTED",
           "tlsEnabled": true,
           "driver": "",
+          "schemaFromDatabase": false,
           "saveOptions": "[]"
         }
       },
@@ -183,10 +182,10 @@
           }
         },
         "configuration": {
-          "printMetadata": true,
-          "printData": true,
           "printSchema": true,
-          "logLevel": "warn"
+          "logLevel": "warn",
+          "printMetadata": true,
+          "printData": true
         }
       },
       {
@@ -221,9 +220,9 @@
           "timeoutKey": "",
           "operators": [
             {
+              "inputField": "id",
               "name": "idcube",
-              "classType": "Count",
-              "inputField": "id"
+              "classType": "Count"
             }
           ]
         }
@@ -260,5 +259,17 @@
       "k": 1
     }
   },
-  "lastUpdateDate": "2018-01-11T08:29:43Z"
+  "lastUpdateDate": "2018-02-08T15:37:37Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "19779487-bf3b-45b4-8408-5c42beed18b7",
+    "status": "Finished",
+    "statusInfo": "Workflow correctly finished in Marathon API",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-02-08T15:39:01Z"
+  }
 }

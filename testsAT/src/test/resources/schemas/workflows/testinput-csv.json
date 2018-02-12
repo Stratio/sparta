@@ -1,0 +1,201 @@
+{
+  "id": "b6f1c2b3-9f38-41ac-9fd8-dd6c76e37291",
+  "name": "testinput-csv",
+  "description": "",
+  "settings": {
+    "global": {
+      "executionMode": "marathon",
+      "userPluginsJars": [],
+      "initSqlSentences": [],
+      "addAllUploadedPlugins": true,
+      "mesosConstraintOperator": "CLUSTER"
+    },
+    "streamingSettings": {
+      "window": "{{SPARK_STREAMING_WINDOW}}",
+      "stopGracefully": true,
+      "checkpointSettings": {
+        "checkpointPath": "{{SPARTA_CHECKPOINT_PATH}}",
+        "enableCheckpointing": true,
+        "autoDeleteCheckpoint": true,
+        "addTimeToCheckpointPath": false
+      }
+    },
+    "sparkSettings": {
+      "master": "{{SPARK_MASTER}}",
+      "sparkKerberos": true,
+      "sparkDataStoreTls": true,
+      "sparkMesosSecurity": true,
+      "submitArguments": {
+        "userArguments": [],
+        "deployMode": "client",
+        "driverJavaOptions": "{{DRIVER_JAVA_OPTIONS}}"
+      },
+      "sparkConf": {
+        "sparkResourcesConf": {
+          "coresMax": "{{SPARK_CORES_MAX}}",
+          "executorMemory": "{{SPARK_EXECUTOR_MEMORY}}",
+          "executorCores": "{{SPARK_EXECUTOR_CORES}}",
+          "driverCores": "{{SPARK_DRIVER_CORES}}",
+          "driverMemory": "{{SPARK_DRIVER_MEMORY}}",
+          "localityWait": "{{SPARK_LOCALITY_WAIT}}",
+          "taskMaxFailures": "{{SPARK_TASK_MAX_FAILURES}}",
+          "sparkMemoryFraction": "{{SPARK_MEMORY_FRACTION}}"
+        },
+        "userSparkConf": [],
+        "coarse": true,
+        "sparkLocalDir": "{{SPARK_LOCAL_PATH}}",
+        "sparkSqlCaseSensitive": true,
+        "parquetBinaryAsString": true,
+        "executorExtraJavaOptions": "{{EXECUTOR_EXTRA_JAVA_OPTIONS}}"
+      }
+    }
+  },
+  "pipelineGraph": {
+    "nodes": [
+      {
+        "name": "Test",
+        "stepType": "Input",
+        "className": "TestInputStepStream",
+        "classPrettyName": "Test",
+        "arity": [
+          "NullaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 187,
+            "y": 146
+          }
+        },
+        "configuration": {
+          "maxNumbEvents": "10000",
+          "eventType": "STRING",
+          "outputField": "raw",
+          "event": "{\"id\":\"1234\",\"detail\":\"valor1\"}",
+          "numEvents": "1000"
+        }
+      },
+      {
+        "name": "JsonPath",
+        "stepType": "Transformation",
+        "className": "JsonPathTransformStepStream",
+        "classPrettyName": "JsonPath",
+        "arity": [
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 439,
+            "y": 145
+          }
+        },
+        "configuration": {
+          "queries": [
+            {
+              "field": "id",
+              "query": "$.id",
+              "type": "string"
+            }
+          ],
+          "whenError": "Error",
+          "supportNullValues": true,
+          "fieldsPreservationPolicy": "REPLACE",
+          "inputField": "raw"
+        }
+      },
+      {
+        "name": "trigger",
+        "stepType": "Transformation",
+        "className": "TriggerTransformStepStream",
+        "classPrettyName": "Trigger",
+        "arity": [
+          "BinaryToNary",
+          "UnaryToNary"
+        ],
+        "writer": {
+          "saveMode": "Append",
+          "tableName": "",
+          "partitionBy": ""
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 670,
+            "y": 145
+          }
+        },
+        "configuration": {
+          "sql": "select id from JsonPath"
+        }
+      },
+      {
+        "name": "Csv",
+        "stepType": "Output",
+        "className": "CsvOutputStep",
+        "classPrettyName": "Csv",
+        "arity": [
+          "NaryToNullary"
+        ],
+        "writer": {
+          "saveMode": "Append"
+        },
+        "uiConfiguration": {
+          "position": {
+            "x": 892,
+            "y": 142
+          }
+        },
+        "configuration": {
+          "path": "/user/sparta-server",
+          "inferSchema": false,
+          "header": false,
+          "saveOptions": "[]",
+          "delimiter": ","
+        }
+      }
+    ],
+    "edges": [
+      {
+        "origin": "Test",
+        "destination": "JsonPath"
+      },
+      {
+        "origin": "JsonPath",
+        "destination": "trigger"
+      },
+      {
+        "origin": "trigger",
+        "destination": "Csv"
+      }
+    ]
+  },
+  "executionEngine": "Streaming",
+  "uiSettings": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "k": 1
+    }
+  },
+  "lastUpdateDate": "2018-02-01T11:32:18Z",
+  "version": 0,
+  "group": {
+    "id": "940800b2-6d81-44a8-84d9-26913a2faea4",
+    "name": "/home"
+  },
+  "status": {
+    "id": "b6f1c2b3-9f38-41ac-9fd8-dd6c76e37291",
+    "status": "Finished",
+    "statusInfo": "Workflow correctly finished in Marathon API",
+    "lastExecutionMode": "marathon",
+    "lastUpdateDate": "2018-02-01T11:53:54Z"
+  }
+}

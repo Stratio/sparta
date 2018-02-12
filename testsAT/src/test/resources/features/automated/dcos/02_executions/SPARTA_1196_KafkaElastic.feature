@@ -1,5 +1,5 @@
 @rest
-Feature: [SPARTA-1196] E2E Execution of Workflow Kafka Postgres 400 Elements
+Feature: [SPARTA-1196] E2E Execution of Workflow Kafka Elastic 400 Elements
   Background: conect to navigator
     Given I set sso token using host '${CLUSTER_ID}.labs.stratio.com' with user 'admin' and password '1234'
     And I securely send requests to '${CLUSTER_ID}.labs.stratio.com:443'
@@ -66,7 +66,7 @@ Feature: [SPARTA-1196] E2E Execution of Workflow Kafka Postgres 400 Elements
     And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep healthCheckResults' contains 'healthCheckResults'
     And in less than '300' seconds, checking each '10' seconds, the command output 'dcos marathon task show !{workflowTaskId} | grep  '"alive": true'' contains '"alive": true'
   @ignore @manual
-  Scenario:[SPARTA-1196][05] Delete table in Elastic
+  Scenario:[SPARTA-1196][07] Delete table in Elastic
     Given I send requests to '/coordinator.elasticsearchstratio.l4lb.thisdcos.directory:9200/myindex \ --cacert ca.pem --cert keystore.pem'
     And   I send a 'DELETE' request to '/triggertickets?pretty'
     Then the service response status must be '200'
