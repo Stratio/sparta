@@ -29,6 +29,7 @@ import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
 import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.ForceInitialization
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
+import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{OnWorkflowChangeDo, OnWorkflowsChangesDo}
 import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, _}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
@@ -40,8 +41,8 @@ import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import spray.http.StatusCodes._
 import spray.routing._
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Properties, Try}
 
 class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager])
@@ -58,8 +59,10 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   log.debug("Initializing actors in Controller Actor")
 
   val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
+  val localWorkflowPublisherActor = context.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
   val envStateActor = context.actorOf(Props(new EnvironmentStateActor(curatorFramework)))
-  val stListenerActor = context.actorOf(Props(new WorkflowListenerActor()))
+  val stListenerActor = context.actorOf(Props(new WorkflowStatusListenerActor()))
+  val workflowListenerActor = context.actorOf(Props(new WorkflowListenerActor()))
   val scService = StreamingContextService(curatorFramework, stListenerActor)
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new StatusActor(curatorFramework, stListenerActor))), StatusActorName)

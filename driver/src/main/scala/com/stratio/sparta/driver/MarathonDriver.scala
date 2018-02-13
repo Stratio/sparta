@@ -22,7 +22,7 @@ import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
 import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowListenerActor}
+import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowStatusListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
@@ -50,7 +50,7 @@ object MarathonDriver extends SLF4JLogging {
 
       val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
       val envStatusActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
-      val statusListenerActor = system.actorOf(Props(new WorkflowListenerActor))
+      val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
 
       val marathonAppActor = system.actorOf(
         Props(new MarathonAppActor(curatorInstance, statusListenerActor, envStatusActor)),

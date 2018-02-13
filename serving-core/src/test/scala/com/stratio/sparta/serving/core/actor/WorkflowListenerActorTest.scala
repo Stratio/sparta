@@ -18,11 +18,12 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.{ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
+import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
-import com.stratio.sparta.serving.core.actor.StatusPublisherActor.{Notification, WorkflowChange}
+import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.{Notification, WorkflowChange}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.workflow._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpecLike}
 
@@ -32,47 +33,77 @@ class WorkflowListenerActorTest extends TestKit(ActorSystem("ListenerActorSpec",
   with ImplicitSender
   with MockitoSugar {
 
+  val nodes = Seq(
+    NodeGraph("a", "", "", "", Seq(NodeArityEnum.NullaryToNary), WriterGraph()),
+    NodeGraph("b", "", "", "", Seq(NodeArityEnum.NaryToNullary), WriterGraph())
+  )
+  val edges = Seq(
+    EdgeGraph("a", "b")
+  )
+  val validPipeGraph = PipelineGraph(nodes, edges)
+  val settingsModel = Settings(
+    GlobalSettings(executionMode = "local"),
+    StreamingSettings(
+      JsoneyString("6s"), None, None, None, None, None, None, CheckpointSettings(JsoneyString("test/test"))),
+    SparkSettings(
+      JsoneyString("local[*]"), sparkKerberos = false, sparkDataStoreTls = false, sparkMesosSecurity = false,
+      None, SubmitArguments(), SparkConf(SparkResourcesConf())
+    )
+  )
+
   def publishEvent(event: Notification): Unit =
     system.eventStream.publish(event)
 
-  "A ListenerActor" should {
+  "A Status Listener Actor" should {
 
-    val statusListenerActor = system.actorOf(Props(new WorkflowListenerActor))
+    val workflowListenerActor = system.actorOf(Props(new WorkflowListenerActor))
 
-    val testWorkflowStatus01 = WorkflowStatus("workflow-01", WorkflowStatusEnum.Finished)
-    val testWorkflowStatus02 = WorkflowStatus("workflow-02", WorkflowStatusEnum.Launched)
+    val testWorkflow01 = Workflow(
+      id = Option("workflow-01"),
+      settings = settingsModel,
+      name = "workflow-01",
+      description = "whatever",
+      pipelineGraph = validPipeGraph
+    )
+    val testWorkflow02 = Workflow(
+      id = Option("workflow-02"),
+      settings = settingsModel,
+      name = "workflow-02",
+      description = "whatever",
+      pipelineGraph = validPipeGraph
+    )
 
     "Accept subscription requests from clients" in {
-      statusListenerActor ! OnWorkflowChangeDo(testWorkflowStatus01.id)(self ! _)
+      workflowListenerActor ! OnWorkflowChangeDo(testWorkflow01.id.get)(self ! _)
       expectNoMsg()
     }
 
     "Execute registered callbacks when the right event has been published" in {
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus01))
-      expectMsg(testWorkflowStatus01)
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus02))
+      publishEvent(WorkflowChange("whatever", testWorkflow01))
+      expectMsg(testWorkflow01)
+      publishEvent(WorkflowChange("whatever", testWorkflow02))
       expectNoMsg()
     }
 
     "Accept additional subscriptions and execute all registered callbacks" in {
-      statusListenerActor ! OnWorkflowChangeDo(testWorkflowStatus02.id)(self ! _)
+      workflowListenerActor ! OnWorkflowChangeDo(testWorkflow02.id.get)(self ! _)
       expectNoMsg()
 
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus01))
-      expectMsg(testWorkflowStatus01)
+      publishEvent(WorkflowChange("whatever", testWorkflow01))
+      expectMsg(testWorkflow01)
 
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus02))
-      expectMsg(testWorkflowStatus02)
+      publishEvent(WorkflowChange("whatever", testWorkflow02))
+      expectMsg(testWorkflow02)
     }
 
     "Remove all callbacks associated with a workflow id" in {
-      statusListenerActor ! ForgetWorkflowActions(testWorkflowStatus01.id)
+      workflowListenerActor ! ForgetWorkflowActions(testWorkflow01.id.get)
 
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus01))
+      publishEvent(WorkflowChange("whatever", testWorkflow01))
       expectNoMsg()
 
-      publishEvent(WorkflowChange("whatever", testWorkflowStatus02))
-      expectMsg(testWorkflowStatus02)
+      publishEvent(WorkflowChange("whatever", testWorkflow02))
+      expectMsg(testWorkflow02)
     }
 
 

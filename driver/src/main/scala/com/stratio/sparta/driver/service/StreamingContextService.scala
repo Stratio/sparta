@@ -24,7 +24,7 @@ import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
 import com.stratio.sparta.sdk.workflow.step.GraphStep
-import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
+import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
@@ -141,13 +141,13 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   private[driver] def killLocalContextListener(workflow: Workflow, name: String): Unit = {
     log.info(s"Listener added for workflow ${workflow.name}")
 
-    listenerActor ! OnWorkflowChangeDo(workflow.id.get) { workflowStatus =>
+    listenerActor ! OnWorkflowStatusChangeDo(workflow.id.get) { workflowStatus =>
       if (workflowStatus.status == Stopping)
         try {
           log.info("Stopping message received from Zookeeper")
           closeContexts(workflow.id.get)
         } finally {
-          listenerActor ! ForgetWorkflowActions(workflow.id.get)
+          listenerActor ! ForgetWorkflowStatusActions(workflow.id.get)
         }
     }
 

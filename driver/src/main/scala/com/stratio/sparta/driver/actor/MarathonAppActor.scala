@@ -21,7 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.driver.actor.MarathonAppActor.{StartApp, StopApp}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.StartWithRequest
-import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{ForgetWorkflowActions, OnWorkflowChangeDo}
+import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
@@ -110,14 +110,14 @@ class MarathonAppActor(
   def closeChecker(workflowId: String, workflowName: String): Unit = {
     log.info(s"Listener added to $workflowName with id: $workflowId")
 
-    listenerActor ! OnWorkflowChangeDo(workflowId) { workflowStatus =>
+    listenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatus =>
       if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
         try {
           val information = s"Executing pre-close actions in Workflow App ..."
           log.info(information)
           preStopActions()
         } finally {
-          listenerActor ! ForgetWorkflowActions(workflowId)
+          listenerActor ! ForgetWorkflowStatusActions(workflowId)
         }
       }
     }
