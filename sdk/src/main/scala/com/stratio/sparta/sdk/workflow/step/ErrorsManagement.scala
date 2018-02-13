@@ -40,7 +40,13 @@ case class TransformationStepManagement(
 case class TransactionsManagement(
                                    sendToOutputs: Seq[ErrorOutputAction] = Seq.empty,
                                    sendStepData: Boolean = false,
+                                   sendPredecessorsData: Boolean = false,
                                    sendInputData: Boolean = true
                                  )
 
-case class ErrorOutputAction(outputStepName: String, omitSaveErrors: Boolean = true)
+case class ErrorOutputAction(
+                              outputStepName: String,
+                              omitSaveErrors: Boolean = true,
+                              addRedirectDate: Boolean = false,
+                              redirectDateColName: Option[String] = None
+                            )

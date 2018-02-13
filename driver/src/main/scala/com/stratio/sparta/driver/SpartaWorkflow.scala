@@ -183,7 +183,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
                   data,
                   step.outputOptions,
                   workflow.settings.errorsManagement,
-                  errorOutputs
+                  errorOutputs,
+                  Seq.empty[String]
                 )
             }
           }
@@ -199,7 +200,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
                 transform.data,
                 transform.step.outputOptions,
                 workflow.settings.errorsManagement,
-                errorOutputs
+                errorOutputs,
+                transform.predecessors
               )
             }
           }
@@ -218,7 +220,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     * @param graphContext    The context contains the graph and the steps created
     */
   private[driver] def createStep(node: NodeGraph)
-                                (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying]): Unit =
+                                (implicit workflowContext: WorkflowContext, graphContext: GraphContext[Underlying])
+  : Unit =
     node.stepType.toLowerCase match {
       case value if value == InputStep.StepType =>
         if (!graphContext.inputs.contains(node.name)) {
@@ -226,7 +229,7 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val data = input.init()
           val inputStepData = InputStepData(input, data)
 
-          data.setStepName(input.outputOptions.errorTableName.getOrElse(input.name))
+          data.setStepName(inputIdentificationName(input), forced = true)
           graphContext.inputs += (input.name -> inputStepData)
         }
       case value if value == TransformStep.StepType =>
@@ -235,13 +238,25 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           val iPredecessors = findInputPredecessors(node)
           val transform = createTransformStep(node)
           val data = transform.transform(iPredecessors.mapValues(_.data).toMap ++ tPredecessors.mapValues(_.data))
+          val iPredecessorsNames = iPredecessors.map { case (_, pInput) => inputIdentificationName(pInput.step) }.toSeq
+          val tPredecessorsNames = tPredecessors.map { case (_, pTransform) =>
+            transformIdentificationName(pTransform.step)
+          }.toSeq
 
-          graphContext.transformations += (transform.name -> TransformStepData(transform, data))
+          data.setStepName(transformIdentificationName(transform), forced = false)
+          graphContext.transformations += (transform.name -> TransformStepData(
+            transform, data, iPredecessorsNames ++ tPredecessorsNames))
         }
       case _ =>
         log.warn(s"Invalid node step type, the predecessor nodes must be input or transformation. Node: ${node.name} " +
           s"\tWrong type: ${node.stepType}")
     }
+
+  private[driver] def inputIdentificationName(step: InputStep[Underlying]): String =
+    s"${InputStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
+
+  private[driver] def transformIdentificationName(step: TransformStep[Underlying]): String =
+    s"${TransformStep.StepType}-${step.outputOptions.errorTableName.getOrElse(step.name)}"
 
   /**
     * Find the input steps that are predecessors to the node passed as parameter.
@@ -305,7 +320,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
           classOf[Option[StreamingContext]],
           classOf[XDSession],
           classOf[Map[String, Serializable]]
-        ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement, workflowContext.ssc, workflowContext.xDSession, node.configuration)
+        ).newInstance(node.name, outputOptions, workflow.settings.errorsManagement.transformationStepsManagement,
+          workflowContext.ssc, workflowContext.xDSession, node.configuration)
           .asInstanceOf[TransformStep[Underlying]]
       )
     }
@@ -374,10 +390,14 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
 
 }
 
-case class TransformStepData[Underlying[Row]](step: TransformStep[Underlying], data: DistributedMonad[Underlying])
+case class TransformStepData[Underlying[Row]](
+                                               step: TransformStep[Underlying],
+                                               data: DistributedMonad[Underlying],
+                                               predecessors: Seq[String]
+                                             )
 
 case class InputStepData[Underlying[Row]](step: InputStep[Underlying], data: DistributedMonad[Underlying])
 
 case class GraphContext[Underlying[Row]](graph: Graph[NodeGraph, DiEdge],
-                        inputs: scala.collection.mutable.HashMap[String, InputStepData[Underlying]],
-                        transformations: scala.collection.mutable.HashMap[String, TransformStepData[Underlying]])
+                                         inputs: scala.collection.mutable.HashMap[String, InputStepData[Underlying]],
+                                         transformations: scala.collection.mutable.HashMap[String, TransformStepData[Underlying]])

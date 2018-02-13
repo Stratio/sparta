@@ -57,6 +57,7 @@ checkpoint
 spark-warehouse
 node
 node_modules
+node_tmp
 bower_components
 data
 

@@ -52,9 +52,10 @@ abstract class OutputStep[Underlying[Row]](
                       inputData: DistributedMonad[Underlying],
                       outputOptions: OutputOptions,
                       errorsManagement: ErrorsManagement,
-                      errorOutputs: Seq[OutputStep[Underlying]]
+                      errorOutputs: Seq[OutputStep[Underlying]],
+                      predecessors: Seq[String]
                     ): Unit =
-    inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs)(save)
+    inputData.write(outputOptions, xDSession, errorsManagement, errorOutputs, predecessors)(save)
 
   /**
     * Save function that implements the plugins.

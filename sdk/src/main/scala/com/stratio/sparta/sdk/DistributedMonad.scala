@@ -16,12 +16,15 @@
 
 package com.stratio.sparta.sdk
 
+import java.sql.Timestamp
+import java.util.Calendar
+
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.{TableNameKey, saveOptionsFromOutputOptions}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.enumerators.{SaveModeEnum, WhenError}
-import com.stratio.sparta.sdk.workflow.step.{ErrorsManagement, OutputOptions, OutputStep}
+import com.stratio.sparta.sdk.workflow.step._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.crossdata.XDSession
@@ -46,6 +49,17 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   val ds: Underlying[Row] // Wrapped collection
 
+  val processedKey = "REDIRECTED"
+  val defaultRedirectDateName = "redirectDate"
+
+  case class RedirectContext(
+                              rdd: RDD[Row],
+                              outputOptions: OutputOptions,
+                              outputsToSend: Seq[OutputStep[Underlying]],
+                              errorOutputActions: Seq[ErrorOutputAction],
+                              currentDate: Timestamp
+                            )
+
   // Common interface:
 
   def map(func: Row => Row): Underlying[Row]
@@ -54,7 +68,7 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
 
   def toEmpty: DistributedMonad[Underlying]
 
-  def setStepName(name: String): Unit
+  def setStepName(name: String, forced: Boolean): Unit
 
   /**
     * Write operation, note this is a public interface for users to call,
@@ -72,10 +86,11 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
                    outputOptions: OutputOptions,
                    xDSession: XDSession,
                    errorsManagement: ErrorsManagement,
-                   errorOutputs: Seq[OutputStep[Underlying]]
+                   errorOutputs: Seq[OutputStep[Underlying]],
+                   predecessors: Seq[String]
                  )(save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit): Unit = {
     xdSession = xDSession
-    writeTemplate(outputOptions, errorsManagement, errorOutputs, save)
+    writeTemplate(outputOptions, errorsManagement, errorOutputs, predecessors, save)
   }
 
   /**
@@ -86,17 +101,89 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
                                outputOptions: OutputOptions,
                                errorsManagement: ErrorsManagement,
                                errorOutputs: Seq[OutputStep[Underlying]],
+                               predecessors: Seq[String],
                                save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                              ): Unit
 
   @transient protected var xdSession: XDSession = _
 
+  private def redirectDependencies(redirectContext: RedirectContext, predecessors: Seq[String]): Unit = {
+    import redirectContext._
+
+    rdd.dependencies.filter { dependency =>
+      redirectDependencies(
+        RedirectContext(
+          dependency.rdd.asInstanceOf[RDD[Row]],
+          outputOptions,
+          outputsToSend,
+          errorOutputActions,
+          currentDate
+        ),
+        predecessors
+      )
+      if (Option(dependency.rdd.name).notBlank.isDefined) {
+        val isCurrentRdd = Option(rdd.name).notBlank.isDefined && rdd.name == dependency.rdd.name
+        val pendingToSend = predecessors.exists(pName => dependency.rdd.name.contains(pName)) &&
+          !dependency.rdd.name.contains(processedKey)
+
+        !isCurrentRdd && pendingToSend && !dependency.rdd.isEmpty()
+      } else false
+    }.foreach { dependencyStepRdd =>
+      val inputRdd = dependencyStepRdd.rdd.asInstanceOf[RDD[Row]]
+      val tableName = inputRdd.name.split("#").find(pName => predecessors.exists(iName => pName.contains(iName)))
+        .getOrElse(throw new Exception(s"The RDD name (${inputRdd.name}) is not present in ${predecessors.mkString}"))
+        .replace(s"${InputStep.StepType}-", "")
+        .replace(s"${TransformStep.StepType}-", "")
+
+      redirectToOutput(
+        RedirectContext(inputRdd, outputOptions, outputsToSend, errorOutputActions, currentDate),
+        Map(TableNameKey -> tableName)
+      )
+    }
+  }
+
+  private def redirectToOutput(redirectContext: RedirectContext, saveOptions: Map[String, String]): Unit = {
+    import redirectContext._
+
+    val schema = rdd.first().schema
+    val dataFrame = xdSession.createDataFrame(rdd, schema)
+
+    rdd.setName(s"${rdd.name}#$processedKey")
+
+    outputsToSend.foreach { output =>
+      val (addDate, omitSaveErrors, dateField) = errorOutputActions.find(_.outputStepName == output.name) match {
+        case Some(toOutput) => (
+          toOutput.addRedirectDate,
+          toOutput.omitSaveErrors,
+          toOutput.redirectDateColName.notBlank.getOrElse(defaultRedirectDateName)
+        )
+        case None => (false, true, defaultRedirectDateName)
+      }
+      val dataFrameToSave = if (addDate) {
+        import org.apache.spark.sql.functions._
+        dataFrame.withColumn(dateField, lit(currentDate))
+      } else dataFrame
+
+      Try(output.save(dataFrameToSave, outputOptions.saveMode, saveOptions)) match {
+        case Success(_) =>
+          log.debug(s"Data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
+        case Failure(exception) =>
+          if (omitSaveErrors)
+            log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}." +
+              s" ${exception.getLocalizedMessage}")
+          else throw exception
+      }
+    }
+  }
+
   //scalastyle:off
-  def writeRDDTemplate(
+
+  protected def writeRDDTemplate(
                         rdd: RDD[Row],
                         outputOptions: OutputOptions,
                         errorsManagement: ErrorsManagement,
                         errorOutputs: Seq[OutputStep[Underlying]],
+                        predecessors: Seq[String],
                         save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                       ): Unit = {
     Try {
@@ -117,70 +204,39 @@ trait DistributedMonad[Underlying[Row]] extends SLF4JLogging with Serializable {
           val outputsToSend = errorOutputs.filter { output =>
             sendToOutputsNames.contains(output.name)
           }
-          val processedKey = "PROCESSED"
+          val currentDate = new Timestamp(Calendar.getInstance().getTimeInMillis)
 
-          if (Option(rdd.name).notBlank.isDefined && rdd.name != processedKey && !rdd.isEmpty() && sendStepData) {
-            val schema = rdd.first().schema
-            val dataFrame = xdSession.createDataFrame(rdd, schema)
-            val saveOptions = Map(TableNameKey -> outputOptions.errorTableName.getOrElse(outputOptions.tableName))
-
-            rdd.setName(processedKey)
-
-            outputsToSend.foreach { output =>
-              Try(output.save(dataFrame, outputOptions.saveMode, saveOptions)) match {
-                case Success(_) =>
-                  log.debug(s"Step data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
-                case Failure(exception) =>
-                  val omitSaveErrors = sendToOutputs.find(_.outputStepName == output.name) match {
-                    case Some(toOutput) => toOutput.omitSaveErrors
-                    case None => true
-                  }
-                  if (omitSaveErrors)
-                    log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}. ${exception.getLocalizedMessage}")
-                  else throw exception
-              }
-            }
-          }
-
-          if (sendInputData) {
-            rdd.dependencies.find { dependency =>
-              Option(dependency.rdd.name).notBlank.isDefined && dependency.rdd.name != processedKey && !dependency.rdd.isEmpty()
-            }.foreach { inputStepRdd =>
-              val inputRdd = inputStepRdd.rdd.asInstanceOf[RDD[Row]]
-              val schema = inputRdd.first().schema
-              val dataFrame = xdSession.createDataFrame(inputRdd, schema)
-              val saveOptions = Map(TableNameKey -> inputRdd.name)
-
-              inputStepRdd.rdd.setName(processedKey)
-
-              outputsToSend.foreach { output =>
-                Try(output.save(dataFrame, outputOptions.saveMode, saveOptions)) match {
-                  case Success(_) =>
-                    log.debug(s"Step data saved correctly into table ${saveOptions(TableNameKey)} in the output ${output.name}")
-                  case Failure(exception) =>
-                    val omitSaveErrors = sendToOutputs.find(_.outputStepName == output.name) match {
-                      case Some(toOutput) => toOutput.omitSaveErrors
-                      case None => true
-                    }
-                    if (omitSaveErrors)
-                      log.debug(s"Error saving data into table ${saveOptions(TableNameKey)} in the output ${output.name}. ${exception.getLocalizedMessage}")
-                    else throw exception
-                }
-              }
-            }
-          }
+          if (sendInputData)
+            redirectDependencies(
+              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
+              Seq(InputStep.StepType)
+            )
+          if (sendPredecessorsData)
+            redirectDependencies(
+              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
+              predecessors
+            )
+          if (sendStepData && Option(rdd.name).notBlank.isDefined && rdd.name != processedKey && !rdd.isEmpty())
+            redirectToOutput(
+              RedirectContext(rdd, outputOptions, outputsToSend, sendToOutputs, currentDate),
+              Map(TableNameKey -> outputOptions.errorTableName.getOrElse(outputOptions.tableName))
+            )
         } match {
           case Success(_) =>
             log.debug(s"Error management executed correctly in ${outputOptions.tableName}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
               throw e
           case Failure(exception) =>
-            log.debug(s"Error management executed with errors in ${outputOptions.tableName}. ${exception.getLocalizedMessage}")
+            log.debug(s"Error management executed with errors in ${outputOptions.tableName}." +
+              s" ${exception.getLocalizedMessage}")
             if (errorsManagement.genericErrorManagement.whenError == WhenError.Error)
-              throw new Exception(s"Main exception: ${e.getLocalizedMessage}. Error management exception: ${exception.getLocalizedMessage}", e)
+              throw new Exception(s"Main exception: ${e.getLocalizedMessage}." +
+                s" Error management exception: ${exception.getLocalizedMessage}", e)
         }
     }
   }
+
+  //scalastyle:on
 }
 
 object DistributedMonad {
@@ -213,16 +269,22 @@ object DistributedMonad {
       override def toEmpty: DistributedMonad[DStream] =
         ds.transform(rdd => rdd.sparkContext.emptyRDD[Row])
 
-      override def setStepName(name: String): Unit = ds.foreachRDD(rdd => rdd.setName(name))
+      override def setStepName(name: String, forced: Boolean): Unit =
+        ds.foreachRDD { rdd =>
+          if (Option(rdd.name).notBlank.isDefined && !forced)
+            rdd.setName(s"${rdd.name}#$name")
+          else rdd.setName(name)
+        }
 
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[DStream]],
+                                  predecessors: Seq[String],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                                 ): Unit = {
         ds.foreachRDD { rdd =>
-          writeRDDTemplate(rdd, outputOptions, errorsManagement, errorOutputs, save)
+          writeRDDTemplate(rdd, outputOptions, errorsManagement, errorOutputs, predecessors, save)
         }
       }
     }
@@ -243,7 +305,8 @@ object DistributedMonad {
       }
 
       override def flatMap(func: Row => TraversableOnce[Row]): Dataset[Row] = {
-        val newSchema = if (ds.rdd.isEmpty()) StructType(Nil) else {
+        val newSchema = if (ds.rdd.isEmpty()) StructType(Nil)
+        else {
           val firstValue = func(ds.first()).toSeq
           if (firstValue.nonEmpty) firstValue.head.schema else StructType(Nil)
         }
@@ -254,15 +317,19 @@ object DistributedMonad {
         xdSession.emptyDataset(RowEncoder(StructType(Nil)))
       }
 
-      override def setStepName(name: String): Unit = ds.rdd.setName(name)
+      override def setStepName(name: String, forced: Boolean): Unit =
+        if (Option(ds.rdd.name).notBlank.isDefined && !forced)
+          ds.rdd.setName(s"${ds.rdd.name}#$name")
+        else ds.rdd.setName(name)
 
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[Dataset]],
+                                  predecessors: Seq[String],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                                 ): Unit =
-        writeRDDTemplate(ds.rdd, outputOptions, errorsManagement, errorOutputs, save)
+        writeRDDTemplate(ds.rdd, outputOptions, errorsManagement, errorOutputs, predecessors, save)
 
     }
 
@@ -282,15 +349,19 @@ object DistributedMonad {
 
       override def toEmpty: DistributedMonad[RDD] = ds.sparkContext.emptyRDD[Row]
 
-      override def setStepName(name: String): Unit = ds.setName(name)
+      override def setStepName(name: String, forced: Boolean): Unit =
+        if (Option(ds.name).notBlank.isDefined && !forced)
+          ds.setName(s"${ds.name}#$name")
+        else ds.setName(name)
 
       override def writeTemplate(
                                   outputOptions: OutputOptions,
                                   errorsManagement: ErrorsManagement,
                                   errorOutputs: Seq[OutputStep[RDD]],
+                                  predecessors: Seq[String],
                                   save: (DataFrame, SaveModeEnum.Value, Map[String, String]) => Unit
                                 ): Unit =
-        writeRDDTemplate(ds, outputOptions, errorsManagement, errorOutputs, save)
+        writeRDDTemplate(ds, outputOptions, errorsManagement, errorOutputs, predecessors, save)
     }
 
     implicit def asDistributedMonadMap[K, Underlying[Row]](m: Map[K, Underlying[Row]])(

@@ -696,6 +696,31 @@
                           "default": true,
                           "tooltip": "Omit errors when the data is saved to the error Output",
                           "qa": "workflow-errors-omitSaveErrors"
+                       },
+                       {
+                          "propertyId": "addRedirectDate",
+                          "propertyName": "SETTINGS._ADD_REDIRECT_DATE_",
+                          "propertyType": "boolean",
+                          "default": false,
+                          "float": false,
+                          "tooltip": "Add the current date to all elements redirected as new column",
+                          "qa": "workflow-errors-addRedirectDate"
+                       },
+                       {
+                          "propertyId": "redirectDateColName",
+                          "propertyName": "SETTINGS._REDIRECT_DATE_NAME_",
+                          "propertyType": "text",
+                          "tooltip": "Column name for the redirect date",
+                          "default": "redirectDate",
+                          "visible": [
+                             [
+                                {
+                                   "propertyId": "addRedirectDate",
+                                   "value": true
+                                }
+                             ]
+                          ],
+                          "qa": "workflow-errors-redirectDateColName"
                        }
                     ]
                  },
@@ -704,7 +729,15 @@
                     "propertyName": "SETTINGS._SEND_INPUT_DATA_",
                     "propertyType": "boolean",
                     "default": true,
-                    "tooltip": "Send the data of the all input steps to error Outputs",
+                    "tooltip": "Send the data of all input steps to error Outputs",
+                    "qa": "workflow-errors-sendInputData"
+                 },
+                 {
+                    "propertyId": "sendPredecessorsData",
+                    "propertyName": "SETTINGS._SEND_PREDECESSORS_DATA_",
+                    "propertyType": "boolean",
+                    "default": true,
+                    "tooltip": "Send the predecessors data for the current step to error Outputs",
                     "qa": "workflow-errors-sendInputData"
                  },
                  {
@@ -712,7 +745,7 @@
                     "propertyName": "SETTINGS._SEND_STEP_DATA_",
                     "propertyType": "boolean",
                     "default": false,
-                    "tooltip": "Send the data of the transformation step to error Outputs",
+                    "tooltip": "Send the data of the transformation step to error Outputs, only available when the error is generated on save process",
                     "qa": "workflow-errors-sendStepData"
                  }
               ]
