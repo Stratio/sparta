@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.serving.core.services
 
 import java.util
+import scala.util.Success
 
-import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
-import com.stratio.sparta.serving.core.exception.ServerException
-import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
-import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.api._
 import org.apache.zookeeper.data.Stat
@@ -31,15 +28,19 @@ import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, Matchers, WordSpecLike}
-import com.stratio.sparta.serving.core.constants.AppConstant._
 
-import scala.util.Success
+import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.serving.core.constants.AppConstant._
+import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.exception.ServerException
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
+import com.stratio.sparta.serving.core.models.workflow._
 
 @RunWith(classOf[JUnitRunner])
 class WorkflowServiceTest extends WordSpecLike
   with BeforeAndAfter
   with MockitoSugar
-  with Matchers{
+  with Matchers {
 
   val curatorFramework = mock[CuratorFramework]
   val existsBuilder = mock[ExistsBuilder]
@@ -58,15 +59,15 @@ class WorkflowServiceTest extends WordSpecLike
   val edges = Seq(
     EdgeGraph("a", "b")
   )
-  val pipeGraph = PipelineGraph(nodes , edges)
+  val pipeGraph = PipelineGraph(nodes, edges)
   val wrongPipeGraph = PipelineGraph(Seq.empty[NodeGraph], Seq.empty[EdgeGraph])
 
   val workflowService = new WorkflowService(curatorFramework)
   val workflowID = "wf1"
   val newWorkflowID = "wf2"
-  val testWorkflow =  Workflow(Option(workflowID),"wf-test","", settings , pipeGraph)
-  val newWorkflow = Workflow(Option(newWorkflowID),"wf-test2","", settings , pipeGraph)
-  val wrongWorkflow = Workflow(Option(newWorkflowID),"wf-test3","", settings ,wrongPipeGraph)
+  val testWorkflow = Workflow(Option(workflowID), "wf-test", "", settings, pipeGraph)
+  val newWorkflow = Workflow(Option(newWorkflowID), "wf-test2", "", settings, pipeGraph)
+  val wrongWorkflow = Workflow(Option(newWorkflowID), "wf-test3", "", settings, wrongPipeGraph)
   val renameWorkflow = WorkflowRename(DefaultGroup.id.get, "wf-test", "wf-test2")
   val deleteWorkflow = WorkflowDelete(DefaultGroup.id.get, "wf-test2")
 
@@ -237,7 +238,7 @@ class WorkflowServiceTest extends WordSpecLike
       |}
     """.stripMargin
 
-  val status=
+  val status =
     """
       |{
       |"id": "wfs1",
@@ -246,7 +247,7 @@ class WorkflowServiceTest extends WordSpecLike
       |"lastExecutionMode": "local",
       |"lastUpdateDate": "2018-01-17T14:38:39Z"
       |}
-  """.stripMargin
+    """.stripMargin
 
   val newWorkflowRaw =
     """
@@ -270,7 +271,7 @@ class WorkflowServiceTest extends WordSpecLike
       |}
     """.stripMargin
 
-  before{
+  before {
     CuratorFactoryHolder.setInstance(curatorFramework)
   }
 
@@ -316,7 +317,7 @@ class WorkflowServiceTest extends WordSpecLike
       mockFindByIDwithStatus
       val result = workflowService.findById("wfs1")
 
-      result.status.get.status should be eq(WorkflowStatusEnum.Launched)
+      result.status.get.status should be eq (WorkflowStatusEnum.Launched)
     }
 
     "findByGroup: should return a list with the workflows" in {
@@ -355,7 +356,6 @@ class WorkflowServiceTest extends WordSpecLike
       val result = workflowService.create(newWorkflow)
 
       result.id.get shouldBe "wf2"
-
     }
 
     "create: given a certain wrong workflow model one exception should be generated" in {
@@ -390,7 +390,6 @@ class WorkflowServiceTest extends WordSpecLike
       val result = workflowService.createList(Seq(newWorkflow))
 
       result.head.id.get shouldBe "wf2"
-
     }
 
     "update: given a certain workflow if a matching id is found the information regarding that " +
@@ -429,7 +428,6 @@ class WorkflowServiceTest extends WordSpecLike
         .forPath(s"${AppConstant.WorkflowsZkPath}/$workflowID"))
         .thenReturn(null)
 
-
       val result = workflowService.delete(workflowID)
     }
 
@@ -451,7 +449,6 @@ class WorkflowServiceTest extends WordSpecLike
       val result = workflowService.create(newWorkflow)
 
       result.id.get shouldBe "wf2"
-
     }
 
     "rename workflow: given a certain workflow name all the workflow versions should be updated" in {
@@ -467,7 +464,68 @@ class WorkflowServiceTest extends WordSpecLike
 
       val result = workflowService.rename(renameWorkflow)
       result shouldBe Success()
+    }
 
+    "move workflow with all his versions: from source group to target group" in {
+      existMock
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowsZkPath}${testWorkflow.group.name}"))
+        .thenReturn(new Stat)
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowsZkPath}/home/target"))
+        .thenReturn(new Stat)
+
+      mockListOfWorkflows
+      mockFindByID
+
+      when(curatorFramework.setData())
+        .thenReturn(setDataBuilder)
+      when(curatorFramework.setData()
+        .forPath(s"${AppConstant.WorkflowsZkPath}/$workflowID"))
+        .thenReturn(new Stat)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowsZkPath}/$workflowID"))
+        .thenReturn(workflowRaw.getBytes)
+
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$workflowID"))
+        .thenReturn(new Stat)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.WorkflowStatusesZkPath}/$workflowID"))
+        .thenReturn(status.getBytes)
+
+      val groupTarget = Group(Some("testUUID"), "/home/target")
+      val groupRawTarget =
+        """
+          |{
+          |"name" : "/home/target",
+          |"id" : "testUUID"
+          |}
+        """.stripMargin
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.GroupZkPath}/${groupTarget.id.get}"))
+        .thenReturn(new Stat)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.GroupZkPath}/${groupTarget.id.get}"))
+        .thenReturn(groupRawTarget.getBytes)
+
+      when(curatorFramework.checkExists()
+        .forPath(s"${AppConstant.GroupZkPath}/${testWorkflow.group.id.get}"))
+        .thenReturn(new Stat)
+      when(curatorFramework.getData)
+        .thenReturn(getDataBuilder)
+      when(curatorFramework.getData
+        .forPath(s"${AppConstant.GroupZkPath}/${testWorkflow.group.id.get}"))
+        .thenReturn(groupRaw.getBytes)
+
+
+      val result = workflowService.moveTo(WorkflowMove(testWorkflow.group.id.get, groupTarget.id.get, testWorkflow
+        .name))
+      result.head.group should be eq (groupTarget)
     }
 
     "delete workflow and its versions: given a certain workflow name, deletes the workflow and all its versions" in {
@@ -487,7 +545,6 @@ class WorkflowServiceTest extends WordSpecLike
 
       val result = workflowService.deleteWithAllVersions(deleteWorkflow)
       result shouldBe Success()
-
     }
 
     def mockDefaultGroup: OngoingStubbing[Array[Byte]] = {
@@ -545,7 +602,7 @@ class WorkflowServiceTest extends WordSpecLike
         })
     }
 
-    def existMock: OngoingStubbing[Array[Byte]]= {
+    def existMock: OngoingStubbing[Array[Byte]] = {
       when(curatorFramework
         .checkExists())
         .thenReturn(existsBuilder)

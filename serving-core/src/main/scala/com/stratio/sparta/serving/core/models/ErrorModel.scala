@@ -129,6 +129,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceFindAllMonitoring = "724"
   val WorkflowServiceRename = "725"
   val WorkflowServiceDeleteWithAllVersions = "726"
+  val WorkflowServiceMove = "727"
 
   /* Environment Service 750-760 */
   val EnvironmentServiceUnexpected = "750"
@@ -200,6 +201,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceFindAllByGroup -> "Error finding all workflows by group",
     WorkflowServiceFindAllMonitoring -> "Error finding all workflows for monitoring",
     WorkflowServiceRename -> "Error renaming all workflow versions",
+    WorkflowServiceMove -> "Error moving workflow between groups",
     WorkflowStatusUnexpected -> "Unexpected behaviour in Workflow status service",
     WorkflowStatusFindAll -> "Error obtaining all workflow statuses",
     WorkflowStatusFindById -> "Error obtaining workflow status",
