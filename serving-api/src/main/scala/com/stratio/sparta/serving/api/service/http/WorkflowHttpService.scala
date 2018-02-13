@@ -49,7 +49,7 @@ trait WorkflowHttpService extends BaseHttpService {
 
   override def routes(user: Option[LoggedUser] = None): Route =
     find(user) ~ findAll(user) ~ create(user) ~ createList(user) ~ run(user) ~ stop(user) ~ reset(user) ~
-      update(user) ~ updateList(user) ~ remove(user) ~ download(user) ~ findById(user) ~
+      update(user) ~ updateList(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
       findAllMonitoring(user) ~ rename(user)
@@ -467,6 +467,39 @@ trait WorkflowHttpService extends BaseHttpService {
       }
     }
   }
+
+  @Path("/removeWithAllVersions")
+  @ApiOperation(value = "Removes a workflow and all its versions.",
+    notes = "Removes a workflow and all its versions",
+    httpMethod = "DELETE")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "query",
+      value = "workflow name",
+      dataType = "WorkflowDelete",
+      required = true,
+      paramType = "body")
+  ))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def removeWithAllVersions(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "removeWithAllVersions") {
+      pathEndOrSingleSlash {
+        delete {
+          entity(as[WorkflowDelete]) { query =>
+            complete {
+              for {
+                response <- (supervisor ? DeleteWorkflowWithAllVersions(query, user))
+                  .mapTo[Either[Response, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceDeleteWithAllVersions, response, genericError, StatusCodes.OK)
+            }
+          }
+        }
+      }
+    }
+  }
+
 
   // scalastyle:off cyclomatic.complexity
   @Path("/checkpoint/{id}")

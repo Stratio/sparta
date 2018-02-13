@@ -68,6 +68,7 @@ class WorkflowActor(
     case FindAllMonitoring(user) => findAllMonitoring(user)
     case FindAllByGroup(group, user) => findAllByGroup(group, user)
     case DeleteWorkflow(id, user) => delete(id, user)
+    case DeleteWorkflowWithAllVersions(workflowDelete, user) => deleteWithAllVersion(workflowDelete,user)
     case DeleteList(workflowIds, user) => deleteList(workflowIds, user)
     case DeleteAll(user) => deleteAll(user)
     case DeleteCheckpoint(id, user) => deleteCheckpoint(id, user)
@@ -223,6 +224,11 @@ class WorkflowActor(
       workflowService.delete(id)
     }
 
+  def deleteWithAllVersion(workflowDelete: WorkflowDelete ,user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Delete, ResourceCP -> Delete)) {
+      workflowService.deleteWithAllVersions(workflowDelete)
+    }
+
   def deleteList(workflowIds: Seq[String], user: Option[LoggedUser]): Unit =
     securityActionAuthorizer[Response](user,
       Map(ResourceWorkflow -> Delete, ResourceStatus -> Delete, ResourceCP -> Delete)) {
@@ -278,6 +284,8 @@ object WorkflowActor extends SLF4JLogging {
   case class UpdateList(workflows: Seq[Workflow], user: Option[LoggedUser])
 
   case class DeleteWorkflow(id: String, user: Option[LoggedUser])
+
+  case class DeleteWorkflowWithAllVersions(query: WorkflowDelete, user: Option[LoggedUser])
 
   case class DeleteAll(user: Option[LoggedUser])
 

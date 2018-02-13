@@ -326,6 +326,25 @@ with HttpServiceBaseTest {
     }
   }
 
+  "WorkflowHttpService.removeWithAllVersions" should {
+    "return an OK if the workflows were deleted" in {
+      startAutopilot(Left(Success(getWorkflowDeleteModel())))
+        Delete(s"/${HttpConstant.WorkflowsPath}/removeWithAllVersions", getWorkflowDeleteModel()) ~>
+        routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteWorkflowWithAllVersions]
+        status should be(StatusCodes.OK)
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Delete(s"/${HttpConstant.WorkflowsPath}/removeWithAllVersions", getWorkflowDeleteModel()) ~>
+        routes(dummyUser) ~> check {
+        testProbe.expectMsgType[DeleteWorkflowWithAllVersions]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
+
   "WorkflowHttpService.removeList" should {
     "return an OK because the workflows was deleted" in {
       startAutopilot(Left(Success(getFragmentModel())))
@@ -427,5 +446,7 @@ with HttpServiceBaseTest {
       }
     }
   }
+
+
 
 }

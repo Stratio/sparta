@@ -118,6 +118,10 @@ trait HttpServiceBaseTest extends WordSpec
     workflow
   }
 
+  protected def getWorkflowDeleteModel(): WorkflowDelete = {
+    WorkflowDelete("groupId", "testworkflow")
+  }
+
   protected def getWorkflowRenameModel(): WorkflowRename = {
     WorkflowRename("groupÌd", "testworkflow", "newName")
   }

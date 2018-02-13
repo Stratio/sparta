@@ -128,6 +128,7 @@ object ErrorModel extends SpartaSerializer {
   val WorkflowServiceFindAllByGroup = "723"
   val WorkflowServiceFindAllMonitoring = "724"
   val WorkflowServiceRename = "725"
+  val WorkflowServiceDeleteWithAllVersions = "726"
 
   /* Environment Service 750-760 */
   val EnvironmentServiceUnexpected = "750"
@@ -182,6 +183,7 @@ object ErrorModel extends SpartaSerializer {
     WorkflowServiceUpdate -> "Error updating workflow",
     WorkflowServiceUpdateList -> "Error updating workflows",
     WorkflowServiceDeleteAll -> "Error deleting all workflows",
+    WorkflowServiceDeleteWithAllVersions -> "Error deleting the workflow and its versions",
     WorkflowServiceDeleteList -> "Error deleting workflows",
     WorkflowServiceDeleteById -> "Error deleting workflows by ID",
     WorkflowServiceDeleteCheckpoint -> "Error deleting checkpoint",

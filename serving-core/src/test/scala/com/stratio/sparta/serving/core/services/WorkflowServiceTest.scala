@@ -68,6 +68,7 @@ class WorkflowServiceTest extends WordSpecLike
   val newWorkflow = Workflow(Option(newWorkflowID),"wf-test2","", settings , pipeGraph)
   val wrongWorkflow = Workflow(Option(newWorkflowID),"wf-test3","", settings ,wrongPipeGraph)
   val renameWorkflow = WorkflowRename(DefaultGroup.id.get, "wf-test", "wf-test2")
+  val deleteWorkflow = WorkflowDelete(DefaultGroup.id.get, "wf-test2")
 
   val workflowRaw =
     """{
@@ -464,6 +465,26 @@ class WorkflowServiceTest extends WordSpecLike
         .thenReturn(new Stat)
 
       val result = workflowService.rename(renameWorkflow)
+      result shouldBe Success()
+
+    }
+
+    "delete workflow and its versions: given a certain workflow name, deletes the workflow and all its versions" in {
+      existMock
+      mockListOfWorkflows
+      mockFindByID
+
+      when(curatorFramework.create)
+        .thenReturn(createBuilder)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded)
+        .thenReturn(protectedACL)
+      when(curatorFramework.create
+        .creatingParentsIfNeeded
+        .forPath(s"${AppConstant.WorkflowsZkPath}/newWorkflow"))
+        .thenReturn(newWorkflowRaw)
+
+      val result = workflowService.deleteWithAllVersions(deleteWorkflow)
       result shouldBe Success()
 
     }

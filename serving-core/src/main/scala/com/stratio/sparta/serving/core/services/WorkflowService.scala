@@ -94,14 +94,14 @@ class WorkflowService(
 
     existsById(workflowWithFields.id.get).foreach(searchWorkflow => throw new ServerException(
       s"Workflow with id ${workflowWithFields.id.get} exists." +
-        s" The created workflow has name ${searchWorkflow.name}," +
+        s" The created workflow name is ${searchWorkflow.name}," +
         s" version ${searchWorkflow.version} and group ${searchWorkflow.group.name}"))
 
     exists(workflowWithFields.name, workflowWithFields.version, workflowWithFields.group.id.get)
       .foreach(searchWorkflow => throw new ServerException(
         s"Workflow with name ${workflowWithFields.name}," +
           s" version ${workflowWithFields.version} and group ${workflowWithFields.group.name} exists." +
-          s" The created workflow has id ${searchWorkflow.id.get}"))
+          s" The created workflow id is ${searchWorkflow.id.get}"))
 
     curatorFramework.create.creatingParentsIfNeeded.forPath(
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
@@ -130,16 +130,16 @@ class WorkflowService(
             oldWorkflows.foreach(workflow => update(workflow))
           } match {
             case Success(_) =>
-              log.info("Restoring data process after renaming errors completed successful")
+              log.info("Renaming process encountered an error.The previous data was successfully restored")
               None
             case Failure(exception: Exception) =>
-              log.error("Restoring data process after renaming errors has failed." +
+              log.error("Unable to restore the old data after failing to rename the workflows." +
                 " The data maybe corrupt. Contact with the support.", exception)
               Option(exception.getLocalizedMessage)
           }
 
           throw new Exception(
-            s"Workflows not updated with the new name: ${workflowRename.newName}. The old values was restored." +
+            s"Workflows were not updated with the new name: ${workflowRename.newName}. The old values was restored." +
               s"${if(detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
       }
     }
@@ -165,7 +165,7 @@ class WorkflowService(
         ))
 
         workflowWithFields
-      case None => throw new ServerException(s"Workflow with id ${workflowVersion.id} not exists.")
+      case None => throw new ServerException(s"Workflow with id ${workflowVersion.id} does not exist.")
     }
   }
 
@@ -219,6 +219,24 @@ class WorkflowService(
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
       } else throw new ServerException(s"No workflow with id $id")
+    }
+  }
+
+  def deleteWithAllVersions(workflowDelete: WorkflowDelete): Try[Unit] = {
+    log.debug(s"Deleting workflow with name ${workflowDelete.name} belonging to " +
+      s"the group ${workflowDelete.groupId} and all its version.")
+
+    Try{
+      val workflowsList = workflowVersions(workflowDelete.name, workflowDelete.groupId)
+      try{
+        workflowsList.foreach{ workflow => delete(workflow.id.get)}
+        log.debug(s"The workflow and all its versions were successfully deleted")
+      } catch {
+        case e: Exception =>
+          log.error("Error deleting the workflows. The deletion will be rolled back")
+          Try(workflowsList.foreach(workflow => create(workflow)))
+          throw new RuntimeException("Error deleting workflows", e)
+      }
     }
   }
 
@@ -309,7 +327,7 @@ class WorkflowService(
         basicValidation
     }
     if (!validationResult.valid)
-      throw new ServerException(s"Workflow not valid. Cause: ${validationResult.messages.mkString("-")}")
+      throw new ServerException(s"Workflow is not valid. Cause: ${validationResult.messages.mkString("-")}")
   }
 
   private[sparta] def exists(name: String, version: Long, group: String): Option[Workflow] =
