@@ -57,6 +57,7 @@ class WorkflowValidatorService(curatorFramework: Option[CuratorFramework] = None
       .validateExecutionMode
       .validateDeployMode
       .validateSparkCores
+      .validateMesosConstraints
 
     validationResult.copy(messages = validationResult.messages.distinct)
   }

@@ -16,8 +16,6 @@
 
 package com.stratio.sparta.serving.core.models.workflow
 
-import java.util.UUID
-
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.GraphHelper
@@ -522,6 +520,42 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
       implicit val graph = GraphHelper.createGraph(workflow)
 
       val result = new WorkflowValidation().validateDuplicateNames
+
+      result.valid shouldBe false
+    }
+
+    "not validate Mesos constraints without a colon" in {
+      val pipeline = PipelineGraph(nodes,edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1constraint2")))
+        )
+
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateMesosConstraints
+
+      result.valid shouldBe false
+    }
+
+    "not validate Mesos constraints with more than a colon" in {
+      val pipeline = PipelineGraph(nodes,edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString("constraint1:constraint2:")))
+      )
+
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateMesosConstraints
+
+      result.valid shouldBe false
+    }
+
+    "not validate Mesos constraints with a colon at the beginning or end of the string" in {
+      val pipeline = PipelineGraph(nodes,edges)
+      val wrongSettingsModel = Settings(
+        GlobalSettings("marathon", Seq.empty, Seq.empty, true ,Some(JsoneyString(":constraint1")))
+      )
+
+      implicit val workflow = emptyWorkflow.copy(settings = wrongSettingsModel, pipelineGraph = pipeline)
+      val result = new WorkflowValidation().validateMesosConstraints
 
       result.valid shouldBe false
     }

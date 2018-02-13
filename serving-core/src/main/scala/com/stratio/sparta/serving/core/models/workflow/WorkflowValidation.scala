@@ -18,6 +18,7 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.workflow.step.OutputStep
 import com.stratio.sparta.serving.core.constants.AppConstant
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper
 import com.stratio.sparta.serving.core.models.enumerators.ArityValueEnum.{ArityValue, _}
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.{NodeArity, _}
@@ -25,11 +26,9 @@ import com.stratio.sparta.serving.core.services.GroupService
 import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
-import scalax.collection.{Graph, GraphTraversal}
-import scalax.collection.GraphPredef
+import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.GraphTraversal.Visitor
-import scalax.collection.edge.WDiEdge
 
 case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
@@ -63,21 +62,22 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
       !workflow.settings.sparkSettings.master.toString.startsWith("local"))
       copy(
         valid = false,
-        messages = messages :+ s"The selected execution mode is local, therefore Spark Master should start with local"
+        messages = messages :+ s"The selected execution mode is local, therefore, the Spark Master " +
+          s"value should start with local"
       )
     else this
   }
 
   def validateDeployMode(implicit workflow: Workflow): WorkflowValidation = {
     if (workflow.settings.global.executionMode == AppConstant.ConfigMarathon &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.notBlank.isDefined &&
       workflow.settings.sparkSettings.submitArguments.deployMode.get != "client")
       copy(
         valid = false,
         messages = messages :+ s"The selected execution mode is Marathon and the deploy mode is not client"
       )
     else if (workflow.settings.global.executionMode == AppConstant.ConfigMesos &&
-      workflow.settings.sparkSettings.submitArguments.deployMode.isDefined &&
+      workflow.settings.sparkSettings.submitArguments.deployMode.notBlank.isDefined &&
       workflow.settings.sparkSettings.submitArguments.deployMode.get != "cluster")
       copy(
         valid = false,
@@ -89,8 +89,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
   def validateSparkCores(implicit workflow: Workflow): WorkflowValidation = {
     if ((workflow.settings.global.executionMode == AppConstant.ConfigMarathon ||
       workflow.settings.global.executionMode == AppConstant.ConfigMesos) &&
-      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.isDefined &&
-        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.isDefined &&
+      workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.notBlank.isDefined &&
+        workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank.isDefined &&
       workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.coresMax.get.toString.toDouble <
         workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.get.toString.toDouble)
       copy(
@@ -121,10 +121,36 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
         && workflow.group.name.matches(regexGroups))
         this
       else {
-        val msg = messages :+ "The workflow group not exists or is invalid"
+        val msg = messages :+ "The workflow group does not exist or is invalid"
         copy(valid = false, messages = msg)
       }
     }
+  }
+
+  def validateMesosConstraints(implicit workflow: Workflow): WorkflowValidation = {
+    if (workflow.settings.global.mesosConstraint.notBlank.isDefined && !workflow.settings.global.
+      mesosConstraint.get.toString.contains(":"))
+      copy(
+        valid = false,
+        messages = messages :+ s"The Mesos constraints must be two alphanumeric strings separated by a colon"
+      )
+    else if(workflow.settings.global.mesosConstraint.notBlank.isDefined &&
+      workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
+      workflow.settings.global.mesosConstraint.get.toString.count(_ == ':') > 1)
+      copy(
+        valid = false,
+        messages = messages :+ s"The colon may appear only once in the Mesos constraint definition"
+      )
+    else if(workflow.settings.global.mesosConstraint.notBlank.isDefined &&
+      workflow.settings.global.mesosConstraint.get.toString.contains(":") &&
+      (workflow.settings.global.mesosConstraint.get.toString.indexOf(":") == 0 ||
+        workflow.settings.global.mesosConstraint.get.toString.indexOf(":") ==
+          workflow.settings.global.mesosConstraint.get.toString.length))
+      copy(
+        valid = false,
+        messages = messages :+ s"The colon cannot be situated at the edges of the Mesos constraint definition"
+      )
+    else this
   }
 
   def validateErrorOutputs(implicit workflow: Workflow): WorkflowValidation = {
@@ -143,7 +169,8 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     if (saveErrors.nonEmpty) {
       copy(
         valid = false,
-        messages = messages :+ s"The workflow has output errors that not exists in nodes. ${saveErrors.mkString(", ")}"
+        messages = messages :+ s"The workflow has 'Error outputs' defined" +
+          s"that don't exist as nodes. ${saveErrors.mkString(", ")}"
       )
     } else this
   }
@@ -155,11 +182,11 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
 
   def validateNonEmptyNodes(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.nodes.size >= 2) this
-    else copy(valid = false, messages = messages :+ "The workflow must contains at least two nodes")
+    else copy(valid = false, messages = messages :+ "The workflow must contain at least two nodes")
 
   def validateNonEmptyEdges(implicit workflow: Workflow): WorkflowValidation =
     if (workflow.pipelineGraph.edges.nonEmpty) this
-    else copy(valid = false, messages = messages :+ "The workflow must contains at least one relation")
+    else copy(valid = false, messages = messages :+ "The workflow must contain at least one relation")
 
   def validateEdgesNodesExists(implicit workflow: Workflow): WorkflowValidation = {
     val nodesNames = workflow.pipelineGraph.nodes.map(_.name)
@@ -171,7 +198,7 @@ case class WorkflowValidation(valid: Boolean, messages: Seq[String]) {
     if (wrongEdges.isEmpty || workflow.pipelineGraph.edges.isEmpty) this
     else copy(
       valid = false,
-      messages = messages :+ s"The workflow has relations that not exists in nodes: ${wrongEdges.mkString(" , ")}"
+      messages = messages :+ s"The workflow has relations that don't exist as nodes: ${wrongEdges.mkString(" , ")}"
     )
   }
 
