@@ -277,6 +277,7 @@ class WorkflowServiceTest extends WordSpecLike
   "workflowService" must {
 
     "existByName: returns an option wrapping a workflow with the matching name" in {
+
       existMock
       val result = workflowService.exists("wf-test", 0L, DefaultGroup.id.get)
 

@@ -80,9 +80,10 @@ class WorkflowService(
 
   def findAll: List[Workflow] = {
     log.debug(s"Finding all workflows")
-    val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
-
-    JavaConversions.asScalaBuffer(children).toList.map(id => findById(id))
+    if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+      val children = curatorFramework.getChildren.forPath(AppConstant.WorkflowsZkPath)
+      JavaConversions.asScalaBuffer(children).toList.map(id => findById(id))
+    } else List.empty[Workflow]
   }
 
   def create(workflow: Workflow, workflowWithEnv: Option[Workflow] = None): Workflow = {

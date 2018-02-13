@@ -180,9 +180,10 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
       val initialTemplates = templateService.findAll
       val initialWorkflows = workflowService.findAll
       val initialGroups = groupService.findAll
-      val initialEnvVariables = find() match {
+      val initialEnvVariables: Environment = find() match {
         case Success(environment) => environment
-        case Failure(e) => throw new Exception("Error obtaining actual environment data", e)
+        case Failure(e) => log.info("No previous environment found during import")
+          Environment(Seq.empty[EnvironmentVariable])
       }
       val initialEnvVariablesNames = initialEnvVariables.variables.map(_.name)
 
