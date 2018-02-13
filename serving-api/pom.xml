@@ -55,6 +55,10 @@
         </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
+            <artifactId>dg-agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
             <artifactId>plugins</artifactId>
         </dependency>
         <dependency>

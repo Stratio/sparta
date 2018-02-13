@@ -36,6 +36,7 @@ tmp
 temp
 test-output
 build.log
+persistence
 
 # other scm
 .svn

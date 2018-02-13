@@ -35,6 +35,7 @@
     <url>http://www.stratio.com</url>
 
     <modules>
+        <module>dg-agent</module>
         <module>sdk</module>
         <module>plugins</module>
         <module>serving-core</module>
@@ -139,6 +140,11 @@
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
                 <artifactId>driver</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.sparta</groupId>
+                <artifactId>dg-agent</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

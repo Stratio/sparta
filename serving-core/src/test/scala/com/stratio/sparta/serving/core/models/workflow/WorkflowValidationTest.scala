@@ -561,4 +561,3 @@ class WorkflowValidationTest extends WordSpec with Matchers with MockitoSugar {
     }
   }
 }
-
