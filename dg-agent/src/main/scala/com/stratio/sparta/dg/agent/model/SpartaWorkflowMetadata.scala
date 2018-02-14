@@ -17,7 +17,7 @@ package com.stratio.sparta.dg.agent.model
 
 import com.stratio.governance.commons.agent.model.metadata.{CustomType, GenericType, SourceType}
 
-class SpartaWorkflowMetadata (
+case class SpartaWorkflowMetadata (
                                genericType: GenericType, //To be GenericType.WORKFLOW
                                customType: CustomType = SpartaType.WORKFLOW,
                                sourceType: SourceType = SourceType.SPARTA
