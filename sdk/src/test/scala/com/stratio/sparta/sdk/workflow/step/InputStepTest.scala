@@ -19,9 +19,7 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.Serializable
 
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
 import org.junit.runner.RunWith
@@ -70,6 +68,17 @@ class InputStepTest extends WordSpec with Matchers with MockitoSugar {
       result should be(expected)
     }
 
+    "Properties map should be cast to Map[String,String]" in {
+      val inputStep = new MockInputStep(
+        name,
+        outputOptions,
+        ssc,
+        sparkSession,
+        properties
+      )
+
+      inputStep.lineageProperties() shouldBe a[Map[String,String]]
+    }
   }
 
   "Input classSuffix must be corrected" in {

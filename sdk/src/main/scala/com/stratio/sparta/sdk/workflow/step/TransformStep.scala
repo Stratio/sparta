@@ -113,6 +113,7 @@ abstract class TransformStep[Underlying[Row]](
 
   def returnSeqDataFromRows(newData: => Seq[Row]): Seq[Row] = manageErrorWithTry(newData)
 
+
   private def manageErrorWithTry[T](newData: => T): Seq[Row] =
     Try(newData) match {
       case Success(data) => manageSuccess(data)

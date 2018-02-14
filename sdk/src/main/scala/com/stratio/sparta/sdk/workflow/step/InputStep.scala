@@ -20,7 +20,6 @@ import java.io.{Serializable => JSerializable}
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.properties.Parameterizable
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.storage.StorageLevel
@@ -58,7 +57,6 @@ abstract class InputStep[Underlying[Row]](
     * @return The DStream created with spark rows
     */
   def init(): DistributedMonad[Underlying]
-
 
 }
 
