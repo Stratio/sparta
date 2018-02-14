@@ -28,22 +28,6 @@
     <properties>
         <dg.commons.version>0.5.0-SNAPSHOT</dg.commons.version>
     </properties>
-    <build>
-        <sourceDirectory>src/main/scala</sourceDirectory>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <!-- DO NOT include log4j2.xml file in your Jar -->
-                    <excludes>
-                        <exclude>**/log4j2.*</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 
     <dependencies>
         <dependency>
@@ -70,5 +54,24 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.stratio.sparta</groupId>
+            <artifactId>serving-core</artifactId>
+        </dependency>
     </dependencies>
+    <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <!-- DO NOT include log4j2.xml file in your Jar -->
+                    <excludes>
+                        <exclude>**/log4j2.*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
