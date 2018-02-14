@@ -19,20 +19,16 @@ package com.stratio.sparta.serving.core.actor
 import akka.actor.Actor
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.actor.TemplateActor._
-import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper._
-import com.stratio.sparta.serving.core.models.ErrorModel
-import com.stratio.sparta.serving.core.models.ErrorModel.{ErrorCodesMessages, UnknownError}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
-import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, TemplateType}
+import com.stratio.sparta.serving.core.models.workflow.TemplateElement
 import com.stratio.sparta.serving.core.services.TemplateService
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
-import spray.http.StatusCodes
 
 import scala.util.Try
 
-class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   private val templateService = new TemplateService(curatorFramework)
