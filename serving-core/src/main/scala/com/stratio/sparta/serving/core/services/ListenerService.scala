@@ -214,19 +214,19 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
               log.info(information)
               statusService.update(WorkflowStatus(
                 id = workflowId,
-                status = Stopped,
+                status = if(workflowStatus.status == Stopping) Stopped else Failed,
                 statusInfo = Some(information)
               ))
             case Failure(e: Exception) =>
               val error = s"An error was encountered while stopping workflow with Spark Handler, killing it ..."
-              log.warn(error, e)
+              log.warn(s"$error. With exception: ${e.getLocalizedMessage}")
               Try(handler.kill()) match {
                 case Success(_) =>
                   val information = s"Workflow killed with Spark Handler"
                   log.info(information)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
-                    status = Stopped,
+                    status = if(workflowStatus.status == Stopping) Stopped else Failed,
                     statusInfo = Some(information)
                   ))
                 case Failure(e: Exception) =>
@@ -234,7 +234,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   log.warn(error)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
-                    status = Stopped,
+                    status = Failed,
                     statusInfo = Some(error),
                     lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
                   ))

@@ -137,6 +137,7 @@ object CrossdataService extends SLF4JLogging {
       val environment = ConfigSecurity.prepareEnvironment
 
       log.debug(s"XDSession secured environment prepared with variables: $environment")
+      sparkConf.setAll(environment.toSeq)
     } else log.debug(s"XDSession secured environment not configured")
 
     val xDSession = XDSession.builder()

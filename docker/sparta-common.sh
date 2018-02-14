@@ -121,10 +121,10 @@ function logLevelOptions() {
   fi
   sed -i "s|log4j.logger.com.stratio.sparta.*|log4j.logger.com.stratio.sparta= ${SPARTA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
-  if [[ ! -v SPARTA_REDIRECTOR ]]; then
-    SPARTA_REDIRECTOR="INFO"
+  if [[ ! -v SPARTA_REDIRECTOR_LOG_LEVEL ]]; then
+    SPARTA_REDIRECTOR_LOG_LEVEL="INFO"
   fi
-  sed -i "s|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector.*|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector= ${SPARTA_REDIRECTOR}|" ${SPARK_LOG_CONFIG_FILE}
+  sed -i "s|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector.*|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector= ${SPARTA_REDIRECTOR_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
 
   if [[ ! -v CROSSDATA_LOG_LEVEL ]]; then
       CROSSDATA_LOG_LEVEL="ERROR"

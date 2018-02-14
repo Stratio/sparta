@@ -7,9 +7,6 @@ function initDatastoreTls() {
         echo "" >> ${SYSTEM_VARIABLES}
         echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${SYSTEM_VARIABLES}
         echo "" >> ${VARIABLES}
-        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${VARIABLES}
-        echo "" >> ${SYSTEM_VARIABLES}
-        echo "export SPARK_SECURITY_DATASTORE_ENABLE=true" >> ${SYSTEM_VARIABLES}
     fi
 }
 
@@ -317,6 +314,7 @@ fi
 function prepareNginx(){
    #Make cert.crt usable for Nginx by limiting each of its base64 line lengths to 65
    if [ -v SECURITY_TLS_ENABLE ] && [ ${#SECURITY_TLS_ENABLE} != 0 ] && [ $SECURITY_TLS_ENABLE == "true" ]; then
-    fold -w65 /tmp/cert.crt > /tmp/nginx_cert.crt
+    rm /etc/nginx/sites-available/default
+    touch /etc/nginx/nginx.conf
    fi
 }

@@ -13,7 +13,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.11</scala.binary.version>
-        <stratio.spark.version>2.2.0.4</stratio.spark.version>
+        <stratio.spark.version>2.2.0.5-RC2</stratio.spark.version>
     </properties>
 
     <dependencies>

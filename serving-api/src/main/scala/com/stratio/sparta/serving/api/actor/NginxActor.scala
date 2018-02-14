@@ -24,6 +24,9 @@ import com.stratio.sparta.serving.core.utils.NginxUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
 import com.stratio.sparta.serving.api.actor.NginxActor._
 import com.stratio.sparta.serving.core.actor.StatusPublisherActor.WorkflowStatusChange
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+
 
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -59,6 +62,12 @@ class NginxActor extends Actor {
       res <- if(haveChanges) nginxService.reloadNginx() else Future.successful(())
     } yield res
 
+  private def updateIfNecessary(workflowStatus: WorkflowStatus): Unit =
+    if(workflowStatus.status == Started || workflowStatus.status == Stopped || workflowStatus.status == Failed)
+      updateAndMakeSureIsRunning
+    else Future.successful(())
+
+
   override def receive: Receive = {
     case GetServiceStatus =>
       self ! { if(nginxService.isNginxRunning) Up else Down }
@@ -75,8 +84,8 @@ class NginxActor extends Actor {
       updateAndMakeSureIsRunning
     case UpdateAndMakeSureIsRunning =>
       updateAndMakeSureIsRunning
-    case _: WorkflowStatusChange =>
-      updateAndMakeSureIsRunning
+    case workflowStatusChange: WorkflowStatusChange =>
+      updateIfNecessary(workflowStatusChange.workflowStatus)
   }
 
   override def postStop(): Unit =

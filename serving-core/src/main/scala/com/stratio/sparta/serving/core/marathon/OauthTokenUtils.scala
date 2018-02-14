@@ -59,22 +59,22 @@ trait OauthTokenUtils extends SLF4JLogging {
           val dcosCookie = tokenCookie.filter(cookie =>
             cookie.getName.equalsIgnoreCase(dcosAuthCookieName))
           if (dcosCookie.nonEmpty) {
-            log.info(s"""Marathon Token "$dcosAuthCookieName" correctly retrieved """ +
+            log.debug(s"""Marathon Token "$dcosAuthCookieName" correctly retrieved """ +
               s"at retry attempt n. $numberCurrentRetries")
             dcosCookie.head
           }
           else {
-            log.info(s"Retry attempt n. $numberCurrentRetries :" +
+            log.debug(s"Retry attempt n. $numberCurrentRetries :" +
               s"Error trying to recover the Oauth token: cookie $dcosAuthCookieName not found")
             retryGetToken(numberCurrentRetries + 1)(getTokenFn)
           }
         }
         case Failure(ex: Throwable) =>
-          log.info(s"Retry attempt n. $numberCurrentRetries :" +
+          log.debug(s"Retry attempt n. $numberCurrentRetries :" +
             s" Error trying to recover Oauth token: ${ex.getMessage}")
           retryGetToken(numberCurrentRetries + 1)(getTokenFn)
         case _ =>
-          log.info(s"Retry attempt n. $numberCurrentRetries :" +
+          log.debug(s"Retry attempt n. $numberCurrentRetries :" +
             s" Token not found in last response")
           retryGetToken(numberCurrentRetries + 1)(getTokenFn)
       }
