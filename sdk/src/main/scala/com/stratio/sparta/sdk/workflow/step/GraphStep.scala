@@ -19,10 +19,6 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.Serializable
 
 import com.stratio.sparta.sdk.properties.CustomProperties
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError
-import com.stratio.sparta.sdk.workflow.enumerators.WhenError.WhenError
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.parser.LegacyTypeStringParser
 import org.apache.spark.sql.types.{IntegerType, _}
 
@@ -68,6 +64,9 @@ trait GraphStep extends CustomProperties {
 
   def schemaFromString(raw: String): DataType =
     Try(DataType.fromJson(raw)).getOrElse(LegacyTypeStringParser.parse(raw))
+
+
+  def lineageProperties(): Map[String, String] = properties.asInstanceOf[Map[String,String]]
 
 }
 

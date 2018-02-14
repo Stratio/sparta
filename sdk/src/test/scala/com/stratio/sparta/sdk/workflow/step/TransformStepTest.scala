@@ -19,18 +19,13 @@ package com.stratio.sparta.sdk.workflow.step
 import java.io.Serializable
 
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.crossdata.XDSession
-import org.apache.spark.sql.types.{DoubleType, StringType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, WordSpec}
-
-import scala.collection.mutable
 
 @RunWith(classOf[JUnitRunner])
 class TransformStepTest extends WordSpec with Matchers with MockitoSugar {
@@ -45,12 +40,26 @@ class TransformStepTest extends WordSpec with Matchers with MockitoSugar {
     val outputsFields = Seq(OutputFields("color", "string"), OutputFields("price", "double"))
     val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
     val properties = Map("addAllInputFields" -> true.asInstanceOf[Serializable])
+    val transformationStepManagement = TransformationStepManagement()
 
 
     "Transform classSuffix must be corrected" in {
       val expected = "transformation"
       val result = TransformStep.StepType
       result should be(expected)
+    }
+
+    "Properties map should be cast to Map[String,String]" in {
+      val transformStep = new MockTransformStep(
+        name,
+        outputOptions,
+        transformationStepManagement,
+        Option(ssc),
+        sparkSession,
+        properties
+      )
+
+      transformStep.lineageProperties() shouldBe a[Map[String,String]]
     }
   }
 

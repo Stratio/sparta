@@ -18,8 +18,9 @@ package com.stratio.sparta.plugin.workflow.transformation.explode
 
 import java.io.{Serializable => JSerializable}
 import java.util
+
 import scala.collection.JavaConverters._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import akka.event.slf4j.SLF4JLogging
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
@@ -94,9 +95,11 @@ abstract class ExplodeTransformStep[Underlying[Row]](
             case _ =>
               Try {
                 val valueInstance = checkArrayStructType(value).asInstanceOf[Seq[GenericRowWithSchema]]
-                (valueInstance, valueInstance.head.schema)
-              } getOrElse {
-                throw new Exception(s"The input value has incorrect type Seq(Map()) or Seq(Row). Value:${value.toString}")
+                if (valueInstance.size > 1) (valueInstance, valueInstance.head.schema)
+                else (valueInstance, StructType(Nil))
+              } match {
+                case Success(x) => x
+                case Failure(e) => throw new Exception(s"The input value has incorrect type Seq(Map()) or Seq(Row). Value:${value.toString}", e)
               }
           }
 
@@ -105,13 +108,14 @@ abstract class ExplodeTransformStep[Underlying[Row]](
 
           rowFieldValues.map { valuesMap =>
             val newValues = outputSchema.map { outputField =>
-              Try(valuesMap.get(valuesMap.fieldIndex(outputField.name))).toOption match {
-                case Some(valueParsed) => if (valueParsed != null)
-                  castingToOutputSchema(outputField, valueParsed)
-                case None =>
-                  Try(row.get(inputSchema.fieldIndex(outputField.name))).getOrElse {
-                    returnWhenFieldError(new Exception(s"Impossible to parse outputField: $outputField in the schema"))
-                  }
+              Try {
+                Try(valuesMap.get(valuesMap.fieldIndex(outputField.name))) match {
+                  case Success(parsedValue) if parsedValue != null => castingToOutputSchema(outputField, parsedValue)
+                  case _ => row.get(inputSchema.fieldIndex(outputField.name))
+                }
+              } match {
+                case Success(correctValue) => correctValue
+                case Failure(e) => returnWhenFieldError(new Exception(s"Impossible to parse outputField: $outputField in the schema", e))
               }
             }
             new GenericRowWithSchema(newValues.toArray, outputSchema)

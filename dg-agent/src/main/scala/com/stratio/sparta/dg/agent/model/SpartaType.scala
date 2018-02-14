@@ -19,6 +19,8 @@ import com.stratio.governance.commons.agent.model.metadata.CustomType
 
 object SpartaType {
 
+    val TENANT =  SpartaType(SpartaTenantMetadata.getClass.getTypeName)
+    val WORKFLOW =  SpartaType(SpartaWorkflowMetadata.getClass.getTypeName)
     val INPUT =  SpartaType(SpartaInputMetadata.getClass.getTypeName)
     val OUTPUT =  SpartaType(SpartaOutputMetadata.getClass.getTypeName)
     val TRANSFORMATION =  SpartaType(SpartaTransformationMetadata.getClass.getTypeName)

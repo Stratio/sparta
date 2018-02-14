@@ -143,7 +143,7 @@ object CastingUtils {
       case value: Seq[_] => value.headOption match {
         case Some(_: Map[_, _]) => value.map(mapValues => checkStructType(mapValues))
         case Some(_: GenericRowWithSchema) => value
-        case _ => throw new Exception("Impossible to casting Array of StructTypes")
+        case _ => Seq.empty[GenericRowWithSchema]
       }
       case value if value == null => null
       case _ => origValue.asInstanceOf[Seq[GenericRowWithSchema]]
@@ -198,7 +198,7 @@ object CastingUtils {
           }))
         case Some(_: GenericRowWithSchema) =>
           value.asInstanceOf[Seq[GenericRowWithSchema]].map(row => row.schema.fieldNames.map(field => (field, row.get(row.fieldIndex(field)).toString)).toMap)
-        case _ => throw new Exception("Impossible to casting Array of Strings")
+        case _ => Seq.empty[Map[String, String]]
       }
       case value if value == null => null
       case _ => origValue.asInstanceOf[Seq[Map[String, String]]]
@@ -212,7 +212,7 @@ object CastingUtils {
       case value: Map[_, _] => value.headOption match {
         case Some((_, _: Map[_, _])) => value.map(values => values._1.toString -> checkStructType(values._2))
         case Some((_, _: GenericRowWithSchema)) => value
-        case _ => throw new Exception("Impossible to casting Map of StructType")
+        case _ => Map.empty[String, GenericRowWithSchema]
       }
       case value if value == null => null
       case _ => origValue.asInstanceOf[Map[String, GenericRowWithSchema]]

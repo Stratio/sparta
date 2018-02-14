@@ -46,6 +46,16 @@ class OutputStepTest extends WordSpec with Matchers with MockitoSugar {
       val expected = SaveModeEnum.allSaveModes
       result should be(expected)
     }
+
+    "Properties map should be cast to Map[String,String]" in {
+      val outputStep = new MockOutputStep(
+        name,
+        sparkSession,
+        properties
+      )
+
+      outputStep.lineageProperties() shouldBe a[Map[String,String]]
+    }
   }
 
   "Ouput classSuffix must be corrected" in {
