@@ -120,7 +120,7 @@ class WorkflowService(
     Try {
       val oldWorkflows = workflowVersions(workflowRename.oldName, workflowRename.groupId)
       Try {
-        oldWorkflows.foreach{workflow =>
+        oldWorkflows.foreach { workflow =>
           update(workflow.copy(name = workflowRename.newName))
         }
       } match {
@@ -142,7 +142,7 @@ class WorkflowService(
 
           throw new Exception(
             s"Workflows were not updated with the new name: ${workflowRename.newName}. The old values was restored." +
-              s"${if(detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
+              s"${if (detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
       }
     }
   }
@@ -189,7 +189,7 @@ class WorkflowService(
 
     if (searchWorkflow.isEmpty) {
       throw new ServerException(s"Workflow with id ${workflow.id.get} does not exist")
-    } else if(searchWorkflow.isDefined && searchByName.isDefined && searchWorkflow.get.id != searchByName.get.id) {
+    } else if (searchWorkflow.isDefined && searchByName.isDefined && searchWorkflow.get.id != searchByName.get.id) {
       throw new ServerException(
         s"Workflow with name ${searchByName.get.name}," +
           s" version ${searchByName.get.version} and group ${searchByName.get.group.name} exists." +
@@ -229,10 +229,10 @@ class WorkflowService(
     log.debug(s"Deleting workflow with name ${workflowDelete.name} belonging to " +
       s"the group ${workflowDelete.groupId} and all its version.")
 
-    Try{
+    Try {
       val workflowsList = workflowVersions(workflowDelete.name, workflowDelete.groupId)
-      try{
-        workflowsList.foreach{ workflow => delete(workflow.id.get)}
+      try {
+        workflowsList.foreach { workflow => delete(workflow.id.get) }
         log.debug(s"The workflow and all its versions were successfully deleted")
       } catch {
         case e: Exception =>
@@ -317,6 +317,27 @@ class WorkflowService(
   def applyEnv(workflow: Workflow): Workflow = {
     val workflowWithoutEnv = write(workflow)
     read[Workflow](workflowWithoutEnv)
+  }
+
+  def moveTo(workflowMove: WorkflowMove): List[Workflow] = {
+    //Validate groups
+    if (CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupSourceId}") &&
+      CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupTargetId}")) {
+      val groupTarget = read[Group](new String(curatorFramework.getData.forPath(s"$GroupZkPath/${workflowMove.groupTargetId}")))
+      val all = findAll
+      //In this path not exists a workflow with that name
+      if (all.count(w => w.group.name == groupTarget.name && w.name == workflowMove.workflowName) > 0) {
+        throw new RuntimeException(s"Workflow with the name ${workflowMove.workflowName} already exist on the target group ${groupTarget.name}")
+      } else {
+        val workflowsToMove = all.filter(w => w.group.id.get == workflowMove.groupSourceId && w.name == workflowMove
+          .workflowName)
+        workflowsToMove.map(w =>
+          update(w.copy(group = groupTarget))
+        )
+      }
+    } else {
+      throw new ServerException(s"No groups found")
+    }
   }
 
   /** PRIVATE METHODS **/
@@ -418,5 +439,4 @@ class WorkflowService(
         log.error(exception.getLocalizedMessage, exception)
         Seq.empty
     }
-
 }

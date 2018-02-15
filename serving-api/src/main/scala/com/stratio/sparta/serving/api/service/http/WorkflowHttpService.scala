@@ -52,7 +52,7 @@ trait WorkflowHttpService extends BaseHttpService {
       update(user) ~ updateList(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user) ~ rename(user)
+      findAllMonitoring(user) ~ rename(user) ~ move(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -756,6 +756,38 @@ trait WorkflowHttpService extends BaseHttpService {
                 response <- (supervisor ? RenameWorkflow(query, user))
                   .mapTo[Either[Response, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceRename, response, genericError, StatusCodes.OK)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/move")
+  @ApiOperation(value = "Move workflow versions between groups.",
+    notes = "Move workflow versions between groups",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "query",
+      defaultValue = "",
+      value = "workflow to move",
+      dataType = "WorkflowMove",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def move(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "move") {
+      pathEndOrSingleSlash {
+        put {
+          entity(as[WorkflowMove]) { query =>
+            complete {
+              for {
+                response <- (supervisor ? MoveWorkflow(query, user))
+                  .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceMove, response, genericError)
             }
           }
         }

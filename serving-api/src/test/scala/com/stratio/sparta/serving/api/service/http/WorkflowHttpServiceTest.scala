@@ -447,6 +447,23 @@ with HttpServiceBaseTest {
     }
   }
 
-
+  "WorkflowHttpService.move" should {
+    "return an OK because the workflow was moved" in {
+      val seqDto: Seq[WorkflowDto] = Seq(getWorkflowModel())
+      startAutopilot(Left(Success(seqDto)))
+      Put(s"/${HttpConstant.WorkflowsPath}/move", getWorkflowMoveModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[MoveWorkflow]
+        val a = responseAs[Seq[WorkflowDto]]
+        a.head
+      }
+    }
+    "return a 500 if there was any error" in {
+      startAutopilot(Left(Failure(new MockException())))
+      Put(s"/${HttpConstant.WorkflowsPath}/move", getWorkflowMoveModel()) ~> routes(dummyUser) ~> check {
+        testProbe.expectMsgType[MoveWorkflow]
+        status should be(StatusCodes.InternalServerError)
+      }
+    }
+  }
 
 }
