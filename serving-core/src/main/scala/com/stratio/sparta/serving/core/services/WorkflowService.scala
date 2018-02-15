@@ -42,6 +42,7 @@ class WorkflowService(
                      ) extends SpartaSerializer with SLF4JLogging {
 
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val executionService = new ExecutionService(curatorFramework)
   private val validatorService = new WorkflowValidatorService(Option(curatorFramework))
 
   /** METHODS TO MANAGE WORKFLOWS IN ZOOKEEPER **/
@@ -219,6 +220,7 @@ class WorkflowService(
       if (CuratorFactoryHolder.existsPath(workflowPath)) {
         curatorFramework.delete().forPath(s"${AppConstant.WorkflowsZkPath}/$id")
         statusService.delete(id)
+        executionService.delete(id)
       } else throw new ServerException(s"No workflow with id $id")
     }
   }
