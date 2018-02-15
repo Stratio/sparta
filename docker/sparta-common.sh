@@ -1,11 +1,14 @@
 #!/bin/bash
 
 function loadVariables() {
+
  source "${VARIABLES}"
  source "${SYSTEM_VARIABLES}"
+
 }
 
 function initSpark() {
+
   if [[ ! -v SPARK_HOME ]]; then
     SPARK_HOME="/opt/spark/dist"
   fi
@@ -46,13 +49,10 @@ function initSparkEnvOptions() {
     export LIBPROCESS_IP=$HOST
   fi
 
- # if [ -v PORT_SPARKUI ] && [ ${#PORT_SPARKUI} != 0 ]; then
- #  sed -i "s|.*SPARK_MASTER_WEBUI_PORT.*|SPARK_MASTER_WEBUI_PORT=${PORT_SPARKUI}|" ${SPARK_ENV_FILE}
- # fi
-
 }
 
 function initHdfs() {
+
   if [[ -v HADOOP_USER_NAME ]]; then
     echo "" >> ${VARIABLES}
     echo "export HADOOP_USER_NAME=${HADOOP_USER_NAME}" >> ${VARIABLES}
@@ -67,7 +67,6 @@ function initHdfs() {
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_hdfs-conf-from-uri
   fi
@@ -79,7 +78,6 @@ function initHdfs() {
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_CONF_URI}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_core-site-from-uri
   fi
@@ -91,7 +89,6 @@ function initHdfs() {
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_FS_DEFAULT_NAME}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_hdfs-conf-from-fs
   fi
@@ -103,10 +100,10 @@ function initHdfs() {
     if [ ! -v HADOOP_CONF_DIR ] && [ ${#HADOOP_CONF_DIR} != 0 ]; then
       HADOOP_CONF_DIR=/opt/sds/hadoop/conf
     fi
-    sed -i "s|.*sparta.hdfs.hdfsMaster.*|#sparta.hdfs.hdfsMaster = \""${HADOOP_FS_DEFAULT_NAME}"\"|" ${SPARTA_CONF_FILE}
     source hdfs_utils.sh
     generate_hdfs-conf-from-fs-not-secured
   fi
+
 }
 
 function logLevelOptions() {
@@ -162,6 +159,7 @@ function logLevelOptions() {
     HTTP_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.http.*|log4j.logger.org.apache.http= ${HTTP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+
 }
 
 function logLevelAppender() {
@@ -174,4 +172,5 @@ function logLevelAppender() {
   cp "${LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j2.xml"
   cp "${SPARK_LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j.properties"
   cp "${SPARK_LOG_CONFIG_FILE}" "${SPARK_HOME}/conf/log4j.properties.template"
+
 }

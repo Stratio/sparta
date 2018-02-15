@@ -53,10 +53,10 @@
             <groupId>com.stratio.sparta</groupId>
             <artifactId>serving-core</artifactId>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>dg-agent</artifactId>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>plugins</artifactId>

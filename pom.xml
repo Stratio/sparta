@@ -81,9 +81,11 @@
         <scalatest.version>2.2.5</scalatest.version>
         <spray.version>1.3.4</spray.version>
         <spray.json.test.version>1.3.2</spray.json.test.version>
-        <akka.version>2.4.8</akka.version>
+        <akka.version>2.4.10</akka.version>
+        <thoughtworks.paranamer.version>2.6</thoughtworks.paranamer.version>
         <json4s.version>3.2.11</json4s.version>
-        <jackson.version>2.6.5</jackson.version>
+        <jackson.version>2.7.1</jackson.version>
+        <play.json.version>2.5.8</play.json.version>
         <swagger.version>0.5.1</swagger.version>
         <mockito.version>1.10.19</mockito.version>
         <exec.maven.plugin.version>1.4.0</exec.maven.plugin.version>
@@ -109,6 +111,8 @@
         <scala.graph.version>1.12.3</scala.graph.version>
         <json-path.version>2.2.0</json-path.version>
         <java.moustache.version>0.9.5</java.moustache.version>
+        <bijection.version>0.9.6</bijection.version>
+        <avro.version>1.7.6</avro.version>
         <sonar.exclusions>
             **/*.js,
             **/*.scss,
@@ -142,11 +146,11 @@
                 <artifactId>driver</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!--<dependency>
+            <dependency>
                 <groupId>com.stratio.sparta</groupId>
                 <artifactId>dg-agent</artifactId>
                 <version>${project.version}</version>
-            </dependency>-->
+            </dependency>
             <dependency>
                 <groupId>com.stratio.sparta</groupId>
                 <artifactId>sdk</artifactId>
@@ -409,6 +413,16 @@
                 <version>${akka.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-protobuf_${scala.binary.version}</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.akka</groupId>
+                <artifactId>akka-persistence_${scala.binary.version}</artifactId>
+                <version>${akka.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.spray</groupId>
                 <artifactId>spray-can_${scala.binary.version}</artifactId>
                 <version>${spray.version}</version>
@@ -446,12 +460,22 @@
             <dependency>
                 <groupId>io.spray</groupId>
                 <artifactId>spray-json_${scala.binary.version}</artifactId>
-                <version>${spray.json.test.version}</version>
+                <version>${spray.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.gettyimages</groupId>
                 <artifactId>spray-swagger_${scala.binary.version}</artifactId>
                 <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.typesafe.play</groupId>
+                <artifactId>play-json_${scala.binary.version}</artifactId>
+                <version>${play.json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -466,7 +490,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-scala_${scala.binary.version}</artifactId>
-                <version>${jackson.version}</version>
+                <version>2.7.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.google.guava</groupId>
@@ -513,6 +537,27 @@
                 <groupId>org.reflections</groupId>
                 <artifactId>reflections</artifactId>
                 <version>${reflections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro</artifactId>
+                <version>${avro.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.twitter</groupId>
+                <artifactId>bijection-core_${scala.binary.version}</artifactId>
+                <version>${bijection.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.twitter</groupId>
+                <artifactId>bijection-avro_${scala.binary.version}</artifactId>
+                <version>${bijection.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
@@ -615,6 +660,11 @@
                 <groupId>org.scala-graph</groupId>
                 <artifactId>graph-core_${scala.binary.version}</artifactId>
                 <version>${scala.graph.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.thoughtworks.paranamer</groupId>
+                <artifactId>paranamer</artifactId>
+                <version>${thoughtworks.paranamer.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -16,19 +16,18 @@
 
 package com.stratio.sparta.serving.api.service.http
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import java.util.UUID
 import javax.ws.rs.Path
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
 import akka.pattern.ask
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.StatusCodes
 import spray.routing._
-
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -689,7 +688,12 @@ trait WorkflowHttpService extends BaseHttpService {
         onComplete(workflowTempFile(id, user)) {
           case Success((workflow, tempFile)) =>
             respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${workflow.name}.json"))) {
-              scala.tools.nsc.io.File(tempFile).writeAll(write(workflow))
+              val printWriter = new PrintWriter(tempFile)
+              try {
+                printWriter.write(write(workflow))
+              } finally {
+                printWriter.close()
+              }
               getFromFile(tempFile)
             }
           case Failure(ex) => throw ex

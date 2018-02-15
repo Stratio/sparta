@@ -30,33 +30,9 @@
  loadVariables
  INFO "[SPARTA-SERVER] Loaded Sparta and system variables"
 
- INFO "[SPARTA-SERVER] Loading Sparta Hdfs options ... "
- hdfsOptions
- INFO "[SPARTA-SERVER] Loaded Sparta Hdfs options"
-
  INFO "[SPARTA-SERVER] Loading Sparta API options ... "
  apiOptions
  INFO "[SPARTA-SERVER] Loaded Sparta API options"
-
- INFO "[SPARTA-SERVER] Loading Sparta OAUTH options ... "
- oauthOptions
- INFO "[SPARTA-SERVER] Loaded Sparta OAUTH options"
-
- INFO "[SPARTA-SERVER] Loading Sparta Zookeeper options ... "
- zookeeperOptions
- INFO "[SPARTA-SERVER] Loaded Sparta Zookeeper options"
-
- INFO "[SPARTA-SERVER] Loading Sparta Config options ... "
- configOptions
- INFO "[SPARTA-SERVER] Loaded Sparta Config options"
-
- INFO "[SPARTA-SERVER] Loading Sparta Marathon options ... "
- marathonOptions
- INFO "[SPARTA-SERVER] Loaded Sparta Marathon options"
-
- INFO "[SPARTA-SERVER] Loading Gosec options ... "
- goSecOptions
- INFO "[SPARTA-SERVER] Loaded Gosec options"
 
  if [ -v MARATHON_APP_LABEL_HAPROXY_1_VHOST ] ; then
    INFO "[SPARTA-SERVER] Configuring Nginx environment..."
