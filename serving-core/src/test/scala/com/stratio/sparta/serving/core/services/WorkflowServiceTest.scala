@@ -466,7 +466,7 @@ class WorkflowServiceTest extends WordSpecLike
       result shouldBe Success()
     }
 
-    "move workflow with all his versions: from source group to target group" in {
+    "move workflow with all its versions: from source group to target group" in {
       existMock
       when(curatorFramework.checkExists()
         .forPath(s"${AppConstant.WorkflowsZkPath}${testWorkflow.group.name}"))
@@ -516,12 +516,6 @@ class WorkflowServiceTest extends WordSpecLike
       when(curatorFramework.checkExists()
         .forPath(s"${AppConstant.GroupZkPath}/${testWorkflow.group.id.get}"))
         .thenReturn(new Stat)
-      when(curatorFramework.getData)
-        .thenReturn(getDataBuilder)
-      when(curatorFramework.getData
-        .forPath(s"${AppConstant.GroupZkPath}/${testWorkflow.group.id.get}"))
-        .thenReturn(groupRaw.getBytes)
-
 
       val result = workflowService.moveTo(WorkflowMove(testWorkflow.group.id.get, groupTarget.id.get, testWorkflow
         .name))

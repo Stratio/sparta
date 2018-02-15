@@ -321,14 +321,13 @@ class WorkflowService(
     //Validate groups
     if (CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupSourceId}") &&
       CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupTargetId}")) {
-      val groupSource = read[Group](new String(curatorFramework.getData.forPath(s"$GroupZkPath/${workflowMove.groupSourceId}")))
       val groupTarget = read[Group](new String(curatorFramework.getData.forPath(s"$GroupZkPath/${workflowMove.groupTargetId}")))
       val all = findAll
       //In this path not exists a workflow with that name
       if (all.count(w => w.group.name == groupTarget.name && w.name == workflowMove.workflowName) > 0) {
-        throw new RuntimeException(s"Target group already exists for workflow name ${workflowMove.workflowName}")
+        throw new RuntimeException(s"Workflow with the name ${workflowMove.workflowName} already exist on the target group ${groupTarget.name}")
       } else {
-        val workflowsToMove = all.filter(w => w.group.name == groupSource.name && w.name == workflowMove
+        val workflowsToMove = all.filter(w => w.group.id.get == workflowMove.groupSourceId && w.name == workflowMove
           .workflowName)
         workflowsToMove.map(w =>
           update(w.copy(group = groupTarget))
