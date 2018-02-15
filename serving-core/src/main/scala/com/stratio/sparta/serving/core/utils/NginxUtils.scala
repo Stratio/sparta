@@ -80,6 +80,7 @@ object NginxUtils {
                               configFile: File,
                               pidFile: File,
                               instanceName: String,
+                              securityFolder: String,
                               workflowsUiVhost: String,
                               workflowsUiPort: Int,
                               useSsl: Boolean
@@ -88,15 +89,26 @@ object NginxUtils {
   object NginxMetaConfig {
     def apply(configPath: String = "/etc/nginx/nginx.conf",
               pidFilePath: String = "/run/nginx.pid",
-              instanceName: String = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta"),
-              workflowsUiVhost: String = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_1_VHOST", "sparta-server"),
+              instanceName: String = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
+                Properties.envOrElse("TENANT_NAME","sparta")),
+              securityFolder: String = Properties.envOrElse("SPARTA_SECRET_FOLDER", "/etc/sds/sparta/security"),
+              workflowsUiVhost: String = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_1_VHOST",
+                "sparta.stratio.com"),
               workflowsUiPort: Int = Properties.envOrElse("PORT_SPARKAPI", "4040").toInt,
               useSsl: Boolean = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
                 Try(strVal.toBoolean).toOption
               } getOrElse false
              ): NginxMetaConfig = {
       implicit def path2file(path: String): File = new File(path)
-      new NginxMetaConfig(configPath, pidFilePath, instanceName, workflowsUiVhost, workflowsUiPort, useSsl)
+      new NginxMetaConfig(
+        configPath,
+        pidFilePath,
+        instanceName,
+        securityFolder,
+        workflowsUiVhost,
+        workflowsUiPort,
+        useSsl
+      )
     }
 
 
@@ -236,7 +248,10 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
           val generatedLines = config.split("\n").toSeq collect {
             case line if line.nonEmpty => line.trim
           }
-          fileLines != generatedLines
+
+          if(generatedLines.nonEmpty)
+            fileLines != generatedLines
+          else false
         }
 
         // Avoid re-writing files when there are no changes
@@ -248,17 +263,13 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
           if (!checkSyntax(tempFile))
             throw InvalidConfig(Some(config))
 
-          Files.move(
-            tempFile.toPath,
-            configFile.toPath,
-            StandardCopyOption.REPLACE_EXISTING
-          ) : Unit
-        }
+          Files.move(tempFile.toPath, configFile.toPath, StandardCopyOption.REPLACE_EXISTING)
+        } else Files.deleteIfExists(tempFile.toPath)
 
         diff
       } recoverWith {
         case e: Exception =>
-          Try(Files.delete(tempFile.toPath))
+          Try(Files.deleteIfExists(tempFile.toPath))
           val problem = CouldNotWriteConfig(configFile, Some(e))
           log.error(problem.getMessage)
           Future.failed(problem)
@@ -294,8 +305,8 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
        |
        |    listen $workflowsUiPort${if(useSsl) " ssl" else ""};
        |    server_name $uiVirtualHost;
-       |    ${if(useSsl) "ssl_certificate /tmp/nginx_cert.crt;" else ""}
-       |    ${if(useSsl) s"ssl_certificate_key /tmp/$instanceName.key;" else ""}
+       |    ${if(useSsl) s"ssl_certificate $securityFolder/nginx_cert.crt;" else ""}
+       |    ${if(useSsl) s"ssl_certificate_key $securityFolder/$instanceName.key;" else ""}
        |    access_log /dev/stdout combined;
        |    error_log stderr info;
        |

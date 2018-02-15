@@ -39,7 +39,7 @@
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="stderr"/>
         </Logger>
-        <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="${sys:SPARTA_REDIRECTOR:-INFO}" additivity="false">
+        <Logger name="org.apache.spark.launcher.SpartaOutputRedirector" level="${sys:SPARTA_REDIRECTOR_LOG_LEVEL:-INFO}" additivity="false">
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="stderr"/>
         </Logger>

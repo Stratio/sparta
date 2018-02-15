@@ -61,6 +61,7 @@ object MarathonDriver extends SLF4JLogging {
     } match {
       case Success(_) =>
         log.info("Workflow App environment started")
+     //TODO we should set the failed status and if the error appears before on the service creation, ends with the exception
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException

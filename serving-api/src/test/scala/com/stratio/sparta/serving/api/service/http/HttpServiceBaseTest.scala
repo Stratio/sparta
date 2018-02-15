@@ -134,6 +134,10 @@ trait HttpServiceBaseTest extends WordSpec
     WorkflowVersion("id", None, None, None)
   }
 
+  protected def getWorkflowMoveModel(): WorkflowMove = {
+    WorkflowMove("groupSourceId", "groupTargetId", "testworkflow")
+  }
+
   protected def getWorkflowExecutionModel: WorkflowExecution =
     WorkflowExecution(
       id = "exec1",

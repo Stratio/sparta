@@ -13,14 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.dg.agent.model
 
-import com.stratio.governance.commons.agent.model.metadata.{CustomType, GenericType, SourceType}
+package com.stratio.sparta.serving.core.models.workflow
 
-case class SpartaWorkflowMetadata (
-                               genericType: GenericType, //To be GenericType.WORKFLOW
-                               customType: CustomType = SpartaType.WORKFLOW,
-                               sourceType: SourceType = SourceType.SPARTA
-                             ){ //to-do extend trait WorkflowMetadata{
-
-}
+case class WorkflowMove(groupSourceId: String, groupTargetId: String, workflowName: String)

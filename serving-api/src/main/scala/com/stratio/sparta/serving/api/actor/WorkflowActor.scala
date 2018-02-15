@@ -76,6 +76,7 @@ class WorkflowActor(
     case ValidateWorkflow(workflow, user) => validate(workflow, user)
     case CreateWorkflowVersion(workflowVersion, user) => createVersion(workflowVersion, user)
     case RenameWorkflow(workflowRename, user) => rename(workflowRename, user)
+    case MoveWorkflow(workflowMove, user) => moveTo(workflowMove, user)
     case _ => log.info("Unrecognized message in Workflow Actor")
   }
 
@@ -263,6 +264,16 @@ class WorkflowActor(
     securityActionAuthorizer[Response](user, Map(ResourceWorkflow -> Edit)) {
       workflowService.rename(workflowRename)
     }
+
+  def moveTo(workflowMove: WorkflowMove, user: Option[LoggedUser]): Unit =
+    securityActionAuthorizer[ResponseWorkflowsDto](user, Map(ResourceWorkflow -> Edit)) {
+      Try {
+        val workflowsDto: Seq[WorkflowDto] = workflowService.moveTo(workflowMove)
+        workflowsDto
+      } recover {
+        case _: NoNodeException => Seq.empty[WorkflowDto]
+      }
+    }
 }
 
 object WorkflowActor extends SLF4JLogging {
@@ -314,6 +325,8 @@ object WorkflowActor extends SLF4JLogging {
   case class DeleteCheckpoint(id: String, user: Option[LoggedUser])
 
   case class ResetAllStatuses(user: Option[LoggedUser])
+
+  case class MoveWorkflow(query: WorkflowMove, user: Option[LoggedUser])
 
   type Response = Try[Unit]
 

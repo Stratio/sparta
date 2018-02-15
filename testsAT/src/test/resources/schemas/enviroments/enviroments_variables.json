@@ -1,0 +1,156 @@
+{
+  "variables": [
+    {
+      "name": "DEFAULT_OUTPUT_FIELD",
+      "value": "raw"
+    },
+    {
+      "name": "DEFAULT_DELIMITER",
+      "value": ","
+    },
+    {
+      "name": "CROSSDATA_ZOOKEEPER_CONNECTION",
+      "value": "localhost:2181"
+    },
+    {
+      "name": "CROSSDATA_ZOOKEEPER_PATH",
+      "value": "/crossdata/offsets"
+    },
+    {
+      "name": "KAFKA_BROKER_HOST",
+      "value": "localhost"
+    },
+    {
+      "name": "KAFKA_BROKER_PORT",
+      "value": "9092"
+    },
+    {
+      "name": "KAFKA_GROUP_ID",
+      "value": "sparta"
+    },
+    {
+      "name": "WEBSOCKET_URL",
+      "value": "ws://stream.meetup.com/2/rsvps"
+    },
+    {
+      "name": "CASSANDRA_HOST",
+      "value": "localhost"
+    },
+    {
+      "name": "CASSANDRA_PORT",
+      "value": "9042"
+    },
+    {
+      "name": "CASSANDRA_KEYSPACE",
+      "value": "sparta"
+    },
+    {
+      "name": "CASSANDRA_CLUSTER",
+      "value": "sparta"
+    },
+    {
+      "name": "ES_HOST",
+      "value": "localhost"
+    },
+    {
+      "name": "ES_PORT",
+      "value": "9200"
+    },
+    {
+      "name": "ES_CLUSTER",
+      "value": "elasticsearch"
+    },
+    {
+      "name": "ES_INDEX_MAPPING",
+      "value": "sparta"
+    },
+    {
+      "name": "JDBC_URL",
+      "value": "jdbc:postgresql://dbserver:port/database?user=postgres"
+    },
+    {
+      "name": "POSTGRES_URL",
+      "value": "jdbc:postgresql://dbserver:port/database?user=postgres"
+    },
+    {
+      "name": "MONGODB_HOST",
+      "value": "localhost"
+    },
+    {
+      "name": "MONGODB_PORT",
+      "value": "27017"
+    },
+    {
+      "name": "MONGODB_DB",
+      "value": "sparta"
+    },
+    {
+      "name": "REDIS_HOST",
+      "value": "localhost"
+    },
+    {
+      "name": "REDIS_PORT",
+      "value": "6379"
+    },
+    {
+      "name": "SPARTA_CHECKPOINT_PATH",
+      "value": "sparta/checkpoint"
+    },
+    {
+      "name": "SPARK_STREAMING_WINDOW",
+      "value": "2s"
+    },
+    {
+      "name": "SPARK_MASTER",
+      "value": "mesos://leader.mesos:5050"
+    },
+    {
+      "name": "DRIVER_JAVA_OPTIONS",
+      "value": "-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"
+    },
+    {
+      "name": "EXECUTOR_EXTRA_JAVA_OPTIONS",
+      "value": "-XX:+UseConcMarkSweepGC"
+    },
+    {
+      "name": "SPARK_LOCAL_PATH",
+      "value": "/opt/spark/dist"
+    },
+    {
+      "name": "SPARK_CORES_MAX",
+      "value": "2"
+    },
+    {
+      "name": "SPARK_EXECUTOR_MEMORY",
+      "value": "2G"
+    },
+    {
+      "name": "SPARK_EXECUTOR_CORES",
+      "value": "1"
+    },
+    {
+      "name": "SPARK_DRIVER_CORES",
+      "value": "1"
+    },
+    {
+      "name": "SPARK_DRIVER_MEMORY",
+      "value": "2G"
+    },
+    {
+      "name": "SPARK_LOCALITY_WAIT",
+      "value": "100"
+    },
+    {
+      "name": "SPARK_TASK_MAX_FAILURES",
+      "value": "8"
+    },
+    {
+      "name": "SPARK_MEMORY_FRACTION",
+      "value": "0.6"
+    },
+    {
+      "name": "SPARK_BLOCK_INTERVAL",
+      "value": "100ms"
+    }
+  ]
+}

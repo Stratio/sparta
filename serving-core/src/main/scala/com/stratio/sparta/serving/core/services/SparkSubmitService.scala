@@ -171,7 +171,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       SubmitExecutorExtraJavaOptionsConf -> workflow.settings.sparkSettings.sparkConf.executorExtraJavaOptions.notBlank,
       SubmitMemoryFractionConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
         sparkMemoryFraction.notBlank,
-      SubmitExecutorDockerImageConf -> Option("qa.stratio.com/stratio/stratio-spark:2.2.0.4"),
+      SubmitExecutorDockerImageConf -> Option("qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2"),
       SubmitExecutorDockerVolumeConf -> Option("/opt/mesosphere/packages/:/opt/mesosphere/packages/:ro," +
         "/opt/mesosphere/lib/:/opt/mesosphere/lib/:ro," +
         "/etc/pki/ca-trust/extracted/java/cacerts/:" +
@@ -300,9 +300,13 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      Properties.envOrNone(MesosRoleEnv).notBlank match {
-        case Some(role) =>
-          Map("spark.mesos.role" -> role) ++ securityOptions
+      (Properties.envOrNone(MesosRoleEnv).notBlank, Properties.envOrNone(TenantEnv).notBlank)  match {
+        case (Some(role), Some(tenantName)) =>
+          Map(
+            "spark.mesos.role" -> role,
+            "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_ENABLE" -> "true",
+            "spark.mesos.driverEnv.SPARK_SECURITY_MESOS_VAULT_PATH" -> s"v1/userland/passwords/$tenantName/mesos"
+          ) ++ securityOptions
         case _ =>
           log.warn("Mesos security is enabled but the properties are wrong")
           Map.empty[String, String]
@@ -327,9 +331,11 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
             keyPassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
             trustStorePath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
             trustStorePassPath <- envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
+            driverSecretFolder <- envOrNone("SPARK_DRIVER_SECRET_FOLDER").notBlank
           } yield {
             Map(
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE" -> "true",
+              "spark.mesos.driverEnv.SPARK_DRIVER_SECRET_FOLDER" -> driverSecretFolder,
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,
@@ -337,6 +343,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
               "spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH" -> trustStorePassPath,
               "spark.executorEnv.SPARK_DATASTORE_SSL_ENABLE" -> "true",
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE" -> "true",
+              "spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER" -> driverSecretFolder,
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH" -> certPath,
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH" -> certPassPath,
               "spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH" -> keyPassPath,

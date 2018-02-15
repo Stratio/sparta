@@ -213,6 +213,21 @@
                                     <path>/var/sds/sparta</path>
                                 </mkdirs>
                                 <mkdirs>
+                                    <path>/var/sds/sparta/dg-agent</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/dg-agent</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/persistence</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/persistence/journal</path>
+                                </mkdirs>
+                                <mkdirs>
+                                    <path>/var/sds/sparta/persistence/snapshots</path>
+                                </mkdirs>
+                                <mkdirs>
                                     <path>/var/log/sds/sparta</path>
                                 </mkdirs>
                                 <!-- For the jars plugin -->

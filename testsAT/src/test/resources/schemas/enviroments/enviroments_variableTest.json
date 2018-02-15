@@ -1,0 +1,12 @@
+{
+  "variables": [
+    {
+      "name": "DEFAULT_CONFIGURATION_TEST",
+      "value": "123456"
+    },
+    {
+      "name": "DEFAULT_CONFIGURATION_TEST2",
+      "value": "1234536"
+    }
+  ]
+}

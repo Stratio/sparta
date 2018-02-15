@@ -16,7 +16,7 @@
 
 package com.stratio.sparta.serving.api.service.http
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import javax.ws.rs.Path
 
 import akka.pattern.ask
@@ -278,9 +278,14 @@ trait EnvironmentHttpService extends BaseHttpService {
     path(HttpConstant.EnvironmentPath / "export") {
       get {
         onComplete(environmentDataTempFile(user)) {
-          case Success((workflow, tempFile)) =>
+          case Success((envData, tempFile)) =>
             respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"environmentData.json"))) {
-              scala.tools.nsc.io.File(tempFile).writeAll(write(workflow))
+              val printWriter = new PrintWriter(tempFile)
+              try {
+                printWriter.write(write(envData))
+              } finally {
+                printWriter.close()
+              }
               getFromFile(tempFile)
             }
           case Failure(ex) => throw ex

@@ -37,18 +37,22 @@ object SecurityHelper {
       val vaultKeyPassPath = Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH").notBlank
       val vaultTrustStorePath = Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH").notBlank
       val vaultTrustStorePassPath = Properties.envOrNone("SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH").notBlank
+      val driverSecretFolder = Properties.envOrNone("SPARK_DRIVER_SECRET_FOLDER").notBlank
 
-      (vaultCertPath, vaultCertPassPath, vaultKeyPassPath, vaultTrustStorePath, vaultTrustStorePassPath) match {
+      (vaultCertPath, vaultCertPassPath, vaultKeyPassPath, vaultTrustStorePath, vaultTrustStorePassPath,
+        driverSecretFolder) match {
         case (Some(certPath), Some(certPassPath), Some(keyPassPath),
-        Some(trustStorePath), Some(trustStorePassPath)) =>
+        Some(trustStorePath), Some(trustStorePassPath), Some(secretFolder)) =>
           Seq(
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
+            ("spark.mesos.driverEnv.SPARK_DRIVER_SECRET_FOLDER", secretFolder),
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PATH", trustStorePath),
             ("spark.mesos.driverEnv.SPARK_SECURITY_DATASTORE_VAULT_TRUSTSTORE_PASS_PATH", trustStorePassPath),
             ("spark.executorEnv.SPARK_SECURITY_DATASTORE_ENABLE", "true"),
+            ("spark.executorEnv.SPARK_DRIVER_SECRET_FOLDER", secretFolder),
             ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PATH", certPath),
             ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_CERT_PASS_PATH", certPassPath),
             ("spark.executorEnv.SPARK_SECURITY_DATASTORE_VAULT_KEY_PASS_PATH", keyPassPath),

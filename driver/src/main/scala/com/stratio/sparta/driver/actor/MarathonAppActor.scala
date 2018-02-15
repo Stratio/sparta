@@ -82,7 +82,7 @@ class MarathonAppActor(
             preStopActions()
             statusService.update(WorkflowStatus(
               id = workflowId,
-              status = Stopped,
+              status = Failed,
               statusInfo = Option(information),
               lastError = Option(WorkflowError(information, PhaseEnum.Execution, ""))
             ))

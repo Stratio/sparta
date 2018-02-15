@@ -16,19 +16,18 @@
 
 package com.stratio.sparta.serving.api.service.http
 
-import java.io.File
+import java.io.{File, PrintWriter}
 import java.util.UUID
 import javax.ws.rs.Path
+
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-
 import akka.pattern.ask
 import com.wordnik.swagger.annotations._
 import org.json4s.jackson.Serialization.write
 import spray.http.HttpHeaders.`Content-Disposition`
 import spray.http.StatusCodes
 import spray.routing._
-
 import com.stratio.sparta.serving.api.actor.WorkflowActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.exception.ServerException
@@ -52,7 +51,7 @@ trait WorkflowHttpService extends BaseHttpService {
       update(user) ~ updateList(user) ~ remove(user) ~ removeWithAllVersions(user) ~ download(user) ~ findById(user) ~
       removeAll(user) ~ deleteCheckpoint(user) ~ removeList(user) ~ findList(user) ~ validate(user) ~
       resetAllStatuses(user) ~ createVersion(user) ~ findWithEnv(user) ~ findAllWithEnv(user) ~ findAllByGroup(user) ~
-      findAllMonitoring(user) ~ rename(user)
+      findAllMonitoring(user) ~ rename(user) ~ move(user)
 
   @Path("/findById/{id}")
   @ApiOperation(value = "Finds a workflow from its id.",
@@ -689,7 +688,12 @@ trait WorkflowHttpService extends BaseHttpService {
         onComplete(workflowTempFile(id, user)) {
           case Success((workflow, tempFile)) =>
             respondWithHeader(`Content-Disposition`("attachment", Map("filename" -> s"${workflow.name}.json"))) {
-              scala.tools.nsc.io.File(tempFile).writeAll(write(workflow))
+              val printWriter = new PrintWriter(tempFile)
+              try {
+                printWriter.write(write(workflow))
+              } finally {
+                printWriter.close()
+              }
               getFromFile(tempFile)
             }
           case Failure(ex) => throw ex
@@ -756,6 +760,38 @@ trait WorkflowHttpService extends BaseHttpService {
                 response <- (supervisor ? RenameWorkflow(query, user))
                   .mapTo[Either[Response, UnauthorizedResponse]]
               } yield deletePostPutResponse(WorkflowServiceRename, response, genericError, StatusCodes.OK)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Path("/move")
+  @ApiOperation(value = "Move workflow versions between groups.",
+    notes = "Move workflow versions between groups",
+    httpMethod = "PUT")
+  @ApiImplicitParams(Array(
+    new ApiImplicitParam(name = "query",
+      defaultValue = "",
+      value = "workflow to move",
+      dataType = "WorkflowMove",
+      required = true,
+      paramType = "body")))
+  @ApiResponses(Array(
+    new ApiResponse(code = HttpConstant.NotFound,
+      message = HttpConstant.NotFoundMessage)
+  ))
+  def move(user: Option[LoggedUser]): Route = {
+    path(HttpConstant.WorkflowsPath / "move") {
+      pathEndOrSingleSlash {
+        put {
+          entity(as[WorkflowMove]) { query =>
+            complete {
+              for {
+                response <- (supervisor ? MoveWorkflow(query, user))
+                  .mapTo[Either[ResponseWorkflowsDto, UnauthorizedResponse]]
+              } yield deletePostPutResponse(WorkflowServiceMove, response, genericError)
             }
           }
         }

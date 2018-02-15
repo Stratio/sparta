@@ -47,6 +47,14 @@ else
 export TRUSTSTORE_CA_NAME='ca'
 fi
 
+if [[ ! -v SPARTA_SECRET_FOLDER ]]; then
+export SPARTA_SECRET_FOLDER="/etc/sds/sparta/security"
+fi
+
+if [[ ! -v SPARK_DRIVER_SECRET_FOLDER ]]; then
+export SPARK_DRIVER_SECRET_FOLDER="/tmp/secrets"
+fi
+
 #Setup tenant_normalized for access kms_utils
 export TENANT_UNDERSCORE=${TENANT_NAME//-/_}
 export TENANT_NORM="${TENANT_UNDERSCORE^^}"

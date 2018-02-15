@@ -35,7 +35,7 @@
 * Reprocessing process with error outputs policies
 * Security settings refactor
 * Plugins management integrated with HDFS
-* Update Spark Image (2.2.0.4)
+* Update Spark Image (2.2.0.5)
 * Avro/Json serializers and deserializers for kafka input and output
 * Cube optimization with mapWithState
 * Spark Streaming jobs optimized with less stages
