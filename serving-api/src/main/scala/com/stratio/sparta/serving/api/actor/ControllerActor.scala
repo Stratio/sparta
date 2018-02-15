@@ -21,6 +21,7 @@ import akka.event.slf4j.SLF4JLogging
 import akka.pattern.ask
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
+import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.constants.HttpConstant
@@ -88,6 +89,9 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
+  val lineageService = if(Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
+    Option(new LineageService(context.system))
+  } else None
   val nginxActor =
     if (isNginxRequired)
       Option(context.actorOf(Props(new NginxActor()), NginxActorName))
@@ -131,6 +135,21 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
 
     log.debug("Initializing Group Actor")
     groupActor ! GroupActor.Initialize
+
+    lineageService.foreach{ lineageExtractor =>
+      log.debug("Initializing lineage")
+      lineageExtractor.extractTenantMetadata()
+      lineageExtractor.extractWorkflowChanges()
+      lineageExtractor.extractStatusChanges()
+    }
+  }
+
+  override def postStop(): Unit = {
+    lineageService.foreach { lineageExtractor =>
+      log.debug("Stopping lineage")
+      lineageExtractor.stopWorkflowChangesExtraction()
+      lineageExtractor.stopWorkflowStatusChangesExtraction()
+    }
   }
 
   def receive: Receive = runRoute(handleExceptions(exceptionHandler)(getRoutes))
