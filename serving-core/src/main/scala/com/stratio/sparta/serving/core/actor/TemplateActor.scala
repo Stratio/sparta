@@ -28,7 +28,7 @@ import org.apache.curator.framework.CuratorFramework
 
 import scala.util.Try
 
-class TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
+class  TemplateActor(val curatorFramework: CuratorFramework)(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with ActionUserAuthorize {
 
   private val templateService = new TemplateService(curatorFramework)

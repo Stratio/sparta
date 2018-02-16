@@ -11,7 +11,7 @@
            "propertyName": "_FILTER_EXPRESSION_",
            "propertyType": "text",
            "required": false,
-           "tooltip": "Filter the events based in one expression, support UDFs, logical operators, etc ...",
+           "tooltip": "Filter the events based in one expression. Supports UDFs, logical operators, etc ...",
            "qa": "fragment-details-filter-expression"
         }
      ]

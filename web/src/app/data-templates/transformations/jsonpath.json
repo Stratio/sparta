@@ -151,7 +151,7 @@
            "propertyName": "_SUPPORT_NULL_VALUES_",
            "propertyType": "boolean",
            "default": true,
-           "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
+           "tooltip": "If checked, the input fields with null values will be supported, otherwise generate error and continue to 'when error do' property",
            "qa": "workflow-transformation-json-supportNullValues"
         },
         {

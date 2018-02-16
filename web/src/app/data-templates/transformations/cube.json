@@ -22,7 +22,7 @@
                "qa": "fragment-details-cube-dimension-name"
             }
          ],
-         "tooltip": "List of dimensions assigned to the cube, in one sql query will be the fields into the Group By sentence",
+         "tooltip": "List of dimensions assigned to the cube, similar to the fields defined in a GroupBy of a SQL query",
          "qa": "fragment-details-cube-dimensions"
       },
       {
@@ -96,7 +96,7 @@
                "qa": "fragment-details-cube-operator-inputField"
             }
          ],
-         "tooltip": "List of operators assigned to the cube, in one sql query will be the fields into the select aggregation functions",
+         "tooltip": "List of operators assigned to the cube, similar to the fields used in aggregation functions for an SQL query",
          "qa": "fragment-details-cube-measures"
       },
       {
@@ -105,7 +105,7 @@
          "propertyType": "text",
          "float": true,
          "width": 3,
-         "tooltip": "Is possible to indicates one water mark, this is useful to aggregate the data. Needs one input field, then is possible to remove the in-memory data states according to his value",
+         "tooltip": "It is possible to indicates one water mark. This is useful to aggregate the data. Needs one input field, then it's possible to remove the in-memory data states according to this value",
          "qa": "fragment-details-cube-waterMark"
       },
       {
@@ -114,7 +114,7 @@
          "propertyType": "text",
          "default": "1m",
          "width": 3,
-         "tooltip": "When one water mark is defined it's necessary to indicates the availability of the data, the input data is discarded if it's less than (current date - availability). The value indicates one duration",
+         "tooltip": "When one water mark is defined it's necessary to indicates the availability of the data. The input data is discarded if it's less than (current date - availability). The value indicates one duration",
          "qa": "fragment-details-cube-availability"
       },
       {
