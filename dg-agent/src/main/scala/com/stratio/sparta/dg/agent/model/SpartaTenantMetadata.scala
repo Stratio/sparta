@@ -13,14 +13,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.dg.agent.model
 
-import com.stratio.governance.commons.agent.model.metadata.{CustomType, GenericType, SourceType}
+import play.api.libs.json.{JsObject, Json, Reads, Writes}
 
-case class SpartaTenantMetadata (
-                                  genericType: GenericType, //To be GenericType.TENANT
-                                  customType: CustomType = SpartaType.TENANT,
-                                  sourceType: SourceType = SourceType.SPARTA
-                                ){ //to-do extend trait TenantMetadata{
+import com.stratio.governance.commons.agent.model.metadata._
+import com.stratio.governance.commons.agent.model.metadata.lineage.TenantMetadata
 
+case class SpartaTenantMetadata(
+                                 name: String,
+                                 key: String,
+                                 metadataPath: MetadataPath,
+                                 outcomingNodes: Seq[MetadataPath],
+                                 agentVersion: String = SpartaType.agentVersion,
+                                 serverVersion: String = SpartaType.serverVersion,
+                                 tags: List[String],
+                                 modificationTime: Option[Long] = Some(System.currentTimeMillis()),
+                                 accessTime: Option[Long] = Some(System.currentTimeMillis()),
+                                 operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN,
+                                 genericType: GenericType = GenericType.TENANT,
+                                 customType: CustomType = SpartaType.TENANT,
+                                 sourceType: SourceType = SourceType.SPARTA
+                               ) extends TenantMetadata {
+
+  def serialize: String =
+    Json.stringify(
+      JsObject(
+        Json.toJson(this).as[JsObject].fieldSet.map {
+          case (key, value) => (camelToUnderscores(key), value)
+        }.toMap
+      )
+    )
+
+  def asMap: Map[String, Any] = this.getClass.getDeclaredFields
+    .map(_.getName) // all field names
+    .zip(this.productIterator.to).map(t => t._2 match {
+    case mt: MetadataType => (t._1, Some(mt.value))
+    case None => (t._1, None)
+    case Some(_) => (t._1, t._2)
+    case _ => (t._1, Some(t._2))
+  }).toMap.collect {
+    case (key, Some(value)) => camelToUnderscores(key) -> value
+  }
+
+  def toJson: JsObject = Json.toJson(this).as[JsObject]
+
+  override def metadataCopy(operationCommandType: OperationCommandType): Metadata =
+    this.copy(operationCommandType = operationCommandType)
+}
+
+object SpartaTenantMetadata {
+
+  implicit val writes: Writes[SpartaTenantMetadata] = Json.writes[SpartaTenantMetadata]
+  implicit val reads: Reads[SpartaTenantMetadata] = Json.reads[SpartaTenantMetadata]
 }

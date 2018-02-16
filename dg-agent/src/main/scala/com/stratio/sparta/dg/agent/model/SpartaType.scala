@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 package com.stratio.sparta.dg.agent.model
+import scala.util.Try
 
 import com.stratio.governance.commons.agent.model.metadata.CustomType
+import com.stratio.sparta.serving.core.helpers.InfoHelper
 
 object SpartaType {
+
+    lazy val UNDEFINED = "UNDEFINED"
+    val agentVersion = Try(s"dg-sparta-agent-${InfoHelper.getAppInfo.pomVersion}").getOrElse(UNDEFINED)
+    val serverVersion = Try(InfoHelper.getAppInfo.pomVersion).getOrElse(UNDEFINED)
 
     val TENANT =  SpartaType(SpartaTenantMetadata.getClass.getTypeName)
     val WORKFLOW =  SpartaType(SpartaWorkflowMetadata.getClass.getTypeName)
