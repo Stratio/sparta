@@ -23,7 +23,7 @@ Feature: [SPARTA-1641] Environment: Operations over environment
     Then the service response status must be '200' and its response must contain the text '${ENVIROMENT_VARIABLE_VALUE:-6666}'
 
   Scenario:[SPARTA-1641][04] Update an enviroment variable
-    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/environment' based on 'schemas/enviroments/enviroments_1value.json' as 'json' with:
+    Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/environment' based on 'schemas/enviroments/enviroment_1variable.json' as 'json' with:
       |$.variables[0].name |  UPDATE  |   ${ENVIROMENT_NAME:-DEFAULT_ENVIROMENT_NAME}  | n/a |
       |$.variables[0].value |  UPDATE  |   ${ENVIROMENT_VALUE_UPDATE:-77777}  | n/a |
     Then the service response status must be '200' and its response must contain the text '${ENVIROMENT_VALUE_UPDATE:-77777}'
