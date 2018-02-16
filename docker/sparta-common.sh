@@ -112,54 +112,73 @@ function logLevelOptions() {
     SERVICE_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.rootLogger.*|log4j.rootLogger= ${SERVICE_LOG_LEVEL}, stdout|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export SERVICE_LOG_LEVEL=${SERVICE_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export SERVICE_LOG_LEVEL=${SERVICE_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v SPARTA_LOG_LEVEL ]]; then
     SPARTA_LOG_LEVEL="INFO"
   fi
   sed -i "s|log4j.logger.com.stratio.sparta.*|log4j.logger.com.stratio.sparta= ${SPARTA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export SPARTA_LOG_LEVEL=${SPARTA_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export SPARTA_LOG_LEVEL=${SPARTA_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v SPARTA_REDIRECTOR_LOG_LEVEL ]]; then
     SPARTA_REDIRECTOR_LOG_LEVEL="INFO"
   fi
   sed -i "s|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector.*|log4j.logger.org.apache.spark.launcher.SpartaOutputRedirector= ${SPARTA_REDIRECTOR_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export SPARTA_REDIRECTOR_LOG_LEVEL=${SPARTA_REDIRECTOR_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export SPARTA_REDIRECTOR_LOG_LEVEL=${SPARTA_REDIRECTOR_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v CROSSDATA_LOG_LEVEL ]]; then
       CROSSDATA_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.com.stratio.crossdata.*|log4j.logger.com.stratio.crossdata= ${CROSSDATA_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export CROSSDATA_LOG_LEVEL=${CROSSDATA_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export CROSSDATA_LOG_LEVEL=${CROSSDATA_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v SPARK_LOG_LEVEL ]]; then
     SPARK_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.spark=.*|log4j.logger.org.apache.spark= ${SPARK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   sed -i "s|log4j.logger.org.spark-project=.*|log4j.logger.org.spark-project= ${SPARK_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export SPARK_LOG_LEVEL=${SPARK_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export SPARK_LOG_LEVEL=${SPARK_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v HADOOP_LOG_LEVEL ]]; then
     HADOOP_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.hadoop=.*|log4j.logger.org.apache.hadoop= ${HADOOP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export HADOOP_LOG_LEVEL=${HADOOP_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export HADOOP_LOG_LEVEL=${HADOOP_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v ZOOKEEPER_LOG_LEVEL ]]; then
     ZOOKEEPER_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.zookeeper.*|log4j.logger.org.apache.zookeeper= ${ZOOKEEPER_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
   sed -i "s|log4j.logger.org.I0Itec.zkclient.*|log4j.logger.org.I0Itec.zkclient= ${ZOOKEEPER_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export ZOOKEEPER_LOG_LEVEL=${ZOOKEEPER_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export ZOOKEEPER_LOG_LEVEL=${ZOOKEEPER_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v PARQUET_LOG_LEVEL ]]; then
     PARQUET_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.parquet.*|log4j.logger.org.apache.parquet= ${PARQUET_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export PARQUET_LOG_LEVEL=${PARQUET_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export PARQUET_LOG_LEVEL=${PARQUET_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v AVRO_LOG_LEVEL ]]; then
     AVRO_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.avro.*|log4j.logger.org.apache.avro= ${AVRO_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
+  echo "export AVRO_LOG_LEVEL=${AVRO_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export AVRO_LOG_LEVEL=${AVRO_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 
   if [[ ! -v HTTP_LOG_LEVEL ]]; then
     HTTP_LOG_LEVEL="ERROR"
   fi
   sed -i "s|log4j.logger.org.apache.http.*|log4j.logger.org.apache.http= ${HTTP_LOG_LEVEL}|" ${SPARK_LOG_CONFIG_FILE}
-
+  echo "export HTTP_LOG_LEVEL=${HTTP_LOG_LEVEL}" >> ${VARIABLES}
+  echo "export HTTP_LOG_LEVEL=${HTTP_LOG_LEVEL}" >> ${SYSTEM_VARIABLES}
 }
 
 function logLevelAppender() {
