@@ -40,8 +40,8 @@ abstract class TriggerTransformStep[Underlying[Row]](
   extends TransformStep[Underlying](name, outputOptions, transformationStepsManagement, ssc, xDSession, properties)
     with SLF4JLogging {
 
-  lazy val sql = Try(properties.getString("sql"))
-    .getOrElse(throw new IllegalArgumentException("Is mandatory one sql query"))
+  lazy val sql = Try(properties.getString("sql").trim)
+    .getOrElse(throw new IllegalArgumentException("It is mandatory to define an SQL query"))
 
   def executeSQL: RDD[Row] = {
     log.debug(s"Executing query in Spark: $sql")

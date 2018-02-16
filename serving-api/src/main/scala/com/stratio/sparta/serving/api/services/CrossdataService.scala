@@ -86,8 +86,8 @@ class CrossdataService() {
 
   def executeQuery(query: String): Try[Array[Map[String, Any]]] =
     Try {
-      if (validateQuery(query))
-        crossdataSession.sql(query)
+      if (validateQuery(query.trim))
+        crossdataSession.sql(query.trim)
           .collect()
           .map { row =>
             row.schema.fields.zipWithIndex.map { case (field, index) =>

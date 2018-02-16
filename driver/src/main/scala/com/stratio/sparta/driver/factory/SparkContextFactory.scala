@@ -55,9 +55,10 @@ object SparkContextFactory extends SLF4JLogging {
           .config(sc.get.getConf)
           .create(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "dummyUser")))
         sqlInitialSentences.filter(_.nonEmpty).foreach { sentence =>
-          if (sentence.startsWith("CREATE") || sentence.startsWith("IMPORT"))
-            xdSession.get.sql(sentence)
-          else log.warn(s"Initial query ($sentence) not supported. Available operations: CREATE and IMPORT")
+          val trimSentence = sentence.trim
+          if (trimSentence.startsWith("CREATE") || trimSentence.startsWith("IMPORT"))
+            xdSession.get.sql(trimSentence)
+          else log.warn(s"Initial query ($trimSentence) not supported. Available operations: CREATE and IMPORT")
         }
         xdSession.get
       }
