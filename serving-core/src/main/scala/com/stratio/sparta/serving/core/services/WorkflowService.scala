@@ -198,7 +198,6 @@ class WorkflowService(
       val workflowId = addUpdateDate(workflow.copy(id = searchWorkflow.get.id))
       curatorFramework.setData().forPath(
         s"${AppConstant.WorkflowsZkPath}/${workflowId.id.get}", write(workflowId).getBytes)
-      statusService.update(WorkflowStatus(id = workflowId.id.get, status = WorkflowStatusEnum.NotDefined))
       workflowId
     }
   }
