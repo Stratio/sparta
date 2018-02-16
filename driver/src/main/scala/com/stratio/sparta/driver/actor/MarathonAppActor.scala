@@ -76,17 +76,7 @@ class MarathonAppActor(
                 clusterLauncherActor ! StartWithRequest(workflow, executionSubmit)
               case Failure(exception) => throw exception
             }
-          } else {
-            val information = s"Workflow App launched by Marathon with incorrect state, the job was not executed"
-            log.warn(information)
-            preStopActions()
-            statusService.update(WorkflowStatus(
-              id = workflowId,
-              status = Failed,
-              statusInfo = Option(information),
-              lastError = Option(WorkflowError(information, PhaseEnum.Execution, ""))
-            ))
-          }
+          } else throw new Exception("Workflow App launched by Marathon with incorrect state, the job was not executed")
         case Failure(e) => throw e
       }
     } match {
@@ -100,7 +90,7 @@ class MarathonAppActor(
           id = workflowId,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
         ))
     }
   }
@@ -108,7 +98,7 @@ class MarathonAppActor(
   //scalastyle:on
 
   def closeChecker(workflowId: String, workflowName: String): Unit = {
-    log.info(s"Listener added to $workflowName with id: $workflowId")
+    log.debug(s"Close checker added to $workflowName with id: $workflowId")
 
     listenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatus =>
       if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {

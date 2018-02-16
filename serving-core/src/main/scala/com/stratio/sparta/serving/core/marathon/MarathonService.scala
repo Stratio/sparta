@@ -81,9 +81,7 @@ class MarathonService(context: ActorContext,
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
   val HostMesosLib = s"$HostMesosNativeLibPath"
   val HostMesosNativeLib = s"$HostMesosNativeLibPath/libmesos.so"
-  val ServiceName = workflowModel.fold("") { workflow =>
-    WorkflowHelper.getMarathonId(workflow)
-  }
+  val ServiceName = workflowModel.fold("") { workflow => WorkflowHelper.getMarathonId(workflow) }
   val DefaultMemory = 1024
   val Krb5ConfFile = "/etc/krb5.conf"
   val ResolvConfigFile = "/etc/resolv.conf"
@@ -129,32 +127,11 @@ class MarathonService(context: ActorContext,
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
-        val information = s"An error was encountered while launching the Workflow App in the Marathon API with id: ${response.appInfo.id}"
+        val information = s"Workflow App ${response.appInfo.id} cannot be deployed: ${response.msg}"
         log.error(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, response.msg))))
-        log.error(s"Service ${response.appInfo.id} cannot be deployed: ${response.msg}")
+        throw new Exception(information)
       case response: UpServiceResponse =>
-        val information = s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}"
-        log.info(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = Uploaded,
-          statusInfo = Option(information),
-          sparkURI = NginxUtils.buildSparkUI(s"${workflowModel.get.name}-v${workflowModel.get.version}",
-            Option(workflowModel.get.settings.global.executionMode))
-        ))
-      case _ =>
-        val information = "Unrecognized message received from Marathon API"
-        log.warn(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = NotDefined,
-          statusInfo = Option(information)
-        ))
+        log.info(s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}")
     }
   }
 

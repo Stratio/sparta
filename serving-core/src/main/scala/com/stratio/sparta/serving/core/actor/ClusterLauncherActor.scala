@@ -91,7 +91,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
         ))
       case Success(Failure(exception)) =>
         val information = s"An error was encountered while creating an execution submit in the persistence"
@@ -100,7 +100,7 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
           id = workflow.id.get,
           status = Failed,
           statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
         ))
       case Success(Success(submitRequestCreated)) =>
         val information = "Submit options initialized correctly"
@@ -123,8 +123,8 @@ class ClusterLauncherActor(val curatorFramework: CuratorFramework, statusListene
         s"Main Class: $SpartaDriverClass\n\t" +
         s"Driver file: ${submitRequest.sparkSubmitExecution.driverFile}\n\t" +
         s"Master: ${submitRequest.sparkSubmitExecution.master}\n\t" +
-        s"Spark submit arguments: ${submitRequest.sparkSubmitExecution.submitArguments.mkString(",")}" +
-        s"\n\tSpark configurations: ${submitRequest.sparkSubmitExecution.sparkConfigurations.mkString(",")}\n\t" +
+        s"Spark submit arguments: ${submitRequest.sparkSubmitExecution.submitArguments.mkString(",")}\n\t" +
+        s"Spark configurations: ${submitRequest.sparkSubmitExecution.sparkConfigurations.mkString(",")}\n\t" +
         s"Driver arguments: ${submitRequest.sparkSubmitExecution.driverArguments}")
 
       val spartaLauncher = new SpartaLauncher()

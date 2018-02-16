@@ -62,6 +62,7 @@
       "STATUS_INFORMATION": "Status information",
       "LAST_ERROR": "Last error",
       "NOTSTARTED": "Not started",
+      "CREATED": "Created",
       "FAILED": "Failed",
       "LAUNCHED": "Launched",
       "STOPPED": "Stopped",

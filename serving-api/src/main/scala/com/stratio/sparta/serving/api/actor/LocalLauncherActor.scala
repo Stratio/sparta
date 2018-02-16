@@ -45,12 +45,13 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
 
   //scalastyle:off
   private def doInitSpartaContext(workflow: Workflow): Unit = {
-    val jars = userPluginsFiles(workflow)
-
-    jars.foreach(file => JarsHelper.addJarToClasspath(file))
-    JarsHelper.addJdbcDriversToClassPath()
     Try {
-      val startingInfo = s"Starting local job for the workflow"
+      val jars = userPluginsFiles(workflow)
+
+      jars.foreach(file => JarsHelper.addJarToClasspath(file))
+      JarsHelper.addJdbcDriversToClassPath()
+
+      val startingInfo = s"Starting local execution for the workflow"
       log.info(startingInfo)
       statusService.update(WorkflowStatus(
         id = workflow.id.get,
@@ -58,9 +59,9 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         statusInfo = Some(startingInfo),
         lastExecutionMode = Option(AppConstant.ConfigLocal)
       ))
-      if(workflow.executionEngine == WorkflowExecutionEngine.Streaming)
+      if (workflow.executionEngine == WorkflowExecutionEngine.Streaming)
         executeLocalStreamingContext(workflow, jars)
-      if(workflow.executionEngine == WorkflowExecutionEngine.Batch)
+      if (workflow.executionEngine == WorkflowExecutionEngine.Batch)
         executeLocalBatchContext(workflow, jars)
     } match {
       case Success(_) =>
@@ -87,7 +88,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     }
   }
 
-  private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]) : Unit = {
+  private def executeLocalStreamingContext(workflow: Workflow, jars: Seq[File]): Unit = {
     val (spartaWorkflow, ssc) = streamingContextService.localStreamingContext(workflow, jars)
     spartaWorkflow.setup()
     ssc.start()
@@ -102,7 +103,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     spartaWorkflow.cleanUp()
   }
 
-  private def executeLocalBatchContext(workflow: Workflow, jars: Seq[File]) : Unit = {
+  private def executeLocalBatchContext(workflow: Workflow, jars: Seq[File]): Unit = {
     val startedInformation = s"Starting workflow"
     log.info(startedInformation)
     statusService.update(WorkflowStatus(
@@ -119,7 +120,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
     val uploadedPlugins = if (workflow.settings.global.addAllUploadedPlugins)
       Try {
         hdfsFilesService.browsePlugins.flatMap { fileStatus =>
-          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar")){
+          if (fileStatus.isFile && fileStatus.getPath.getName.endsWith(".jar")) {
             val fileName = fileStatus.getPath.toUri.toString.replace("file://", "")
             Option(new File(fileName))
           } else None

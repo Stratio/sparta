@@ -122,7 +122,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(error),
-                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                      lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                     ))
                 }
               case None =>
@@ -174,7 +174,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(information),
-                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Execution, error))
+                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
                     ))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
@@ -183,7 +183,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(error),
-                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                      lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                     ))
                 }
               case _ =>
@@ -236,7 +236,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     id = workflowId,
                     status = Failed,
                     statusInfo = Some(error),
-                    lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                    lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                   ))
               }
           }

@@ -107,7 +107,7 @@ export class WorkflowsHeaderComponent {
     }
 
     public isRunning(policyStatus: string) {
-        return policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
+        return policyStatus.toLowerCase() !== 'created' && policyStatus.toLowerCase() !== 'failed' &&
             policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
             policyStatus.toLowerCase() !== 'finished';
     }

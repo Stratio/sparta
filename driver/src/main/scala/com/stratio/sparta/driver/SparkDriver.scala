@@ -48,14 +48,15 @@ object SparkDriver extends SLF4JLogging {
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
-    assert(args.length == NumberOfArguments,
-      s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
+      assert(args.length == NumberOfArguments,
+        s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
       Properties.envOrNone(JaasConfEnv).foreach(jaasConf => {
-        log.info(s"Adding java security configuration file: $jaasConf")
+        log.debug(s"Adding java security configuration file: $jaasConf")
         System.setProperty("java.security.auth.login.config", jaasConf)
       })
-      log.info(s"Arguments: ${args.mkString(", ")}")
+      log.debug(s"Arguments: ${args.mkString(", ")}")
+
       val workflowId = args(WorkflowIdIndex)
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigIndex)))
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigIndex)))
@@ -65,7 +66,7 @@ object SparkDriver extends SLF4JLogging {
 
       initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
-      val system = ActorSystem("WorkflowJob")
+      val system = ActorSystem("SparkDriver")
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
@@ -88,9 +89,8 @@ object SparkDriver extends SLF4JLogging {
           statusInfo = Some(startingInfo)
         ))
 
-        val statusPublisherActor = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
+        val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
         val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
-        
         val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
 
         def notifyWorkflowStarted = {
@@ -148,7 +148,7 @@ object SparkDriver extends SLF4JLogging {
             id = workflowId,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
           ))
           throw DriverException(information, exception)
       }
@@ -171,7 +171,7 @@ object SparkDriver extends SLF4JLogging {
       s"${detailConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${locationConfig.stripPrefix("{").stripSuffix("}")}"
-    log.info(s"Parsed config: sparta { $configStr }")
+    log.debug(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
   }
 

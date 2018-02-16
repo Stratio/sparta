@@ -24,8 +24,11 @@ import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowStatusListenerActor}
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AkkaConstant
+import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.typesafe.config.ConfigFactory
 
 import scala.util.{Failure, Success, Try}
@@ -38,30 +41,44 @@ object MarathonDriver extends SLF4JLogging {
   val DetailConfigurationIndex = 2
 
   def main(args: Array[String]): Unit = {
-    assert(args.length == NumberOfArguments,
-      s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
-      val policyId = args(PolicyIdIndex)
+      assert(args.length == NumberOfArguments,
+        s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
+      log.debug(s"Arguments: ${args.mkString(", ")}")
+
+      val workflowId = args(PolicyIdIndex)
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigurationIndex)))
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
+
       initSpartaConfig(zookeeperConf, detailConf)
+
       val curatorInstance = CuratorFactoryHolder.getInstance()
-      val system = ActorSystem("WorkflowJob")
+      val system = ActorSystem("MarathonApp")
+      val statusService = new WorkflowStatusService(curatorInstance)
 
-      val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
-      val envStatusActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
-      val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+      Try {
+        val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
+        val envStatusActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
+        val stListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+        val marathonAppActor = system.actorOf(
+          Props(new MarathonAppActor(curatorInstance, stListenerActor, envStatusActor)), MarathonAppActorName)
 
-      val marathonAppActor = system.actorOf(
-        Props(new MarathonAppActor(curatorInstance, statusListenerActor, envStatusActor)),
-        AkkaConstant.MarathonAppActorName
-      )
-
-      marathonAppActor ! StartApp(policyId)
+        marathonAppActor ! StartApp(workflowId)
+      } match {
+        case Success(_) =>
+        case Failure(exception) =>
+          val information = s"Error initiating workflow app environment in Marathon driver"
+          statusService.update(WorkflowStatus(
+            id = workflowId,
+            status = Failed,
+            statusInfo = Option(information),
+            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          ))
+          throw DriverException(information, exception)
+      }
     } match {
       case Success(_) =>
         log.info("Workflow App environment started")
-     //TODO we should set the failed status and if the error appears before on the service creation, ends with the exception
       case Failure(driverException: DriverException) =>
         log.error(driverException.msg, driverException.getCause)
         throw driverException
@@ -74,7 +91,7 @@ object MarathonDriver extends SLF4JLogging {
   def initSpartaConfig(zKConfig: String, detailConf: String): Unit = {
     val configStr = s"${detailConf.stripPrefix("{").stripSuffix("}")}" +
       s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}"
-    log.info(s"Parsed config: sparta { $configStr }")
+    log.debug(s"Parsed config: sparta { $configStr }")
     val composedStr = s" sparta { $configStr } "
     SpartaConfig.initMainWithFallbackConfig(ConfigFactory.parseString(composedStr))
   }
