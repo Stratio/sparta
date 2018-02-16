@@ -8,7 +8,7 @@ Feature: [SPARTA-1641] Environment: Operations over environment
 
   Scenario:[SPARTA-1641][01] Find enviroment
     Given I send a 'GET' request to '/service/${DCOS_SERVICE_NAME}/environment'
-    Then the service response status must be '200' and its response must contain the text 'variables'
+    Then the service response status must be '200'
 
   Scenario:[SPARTA-1641][02] Create enviroment
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/environment' based on 'schemas/enviroments/enviroments_variableTest.json' as 'json' with:

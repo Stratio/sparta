@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 public class SPARTA_1641_Enviroments_IT extends BaseTest  {
     public SPARTA_1641_Enviroments_IT() {this.browser = browser;
     }
-    @Test(enabled = true, groups = {"dcos_enviroments"}, dependsOnGroups = {"dcos_installations_executions"})
+    @Test(enabled = true, groups = {"dcos_enviroments"})
     public void ExecuteWorkflow() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

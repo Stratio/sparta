@@ -23,9 +23,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-       "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature",
-       "src/test/resources/features/automated/dcos/02_executions/SPARTA_1656_StreamingListWorkflows_IT.feature",
-       "src/test/resources/features/automated/dcos/02_executions/SPARTA_1641_Enviroments_IT.feature"
+       "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
 })
 
 public class SPARTA_1278_Executions_IT extends BaseTest  {
