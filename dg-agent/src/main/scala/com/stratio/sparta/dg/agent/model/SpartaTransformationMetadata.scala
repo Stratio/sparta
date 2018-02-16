@@ -13,14 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.sparta.dg.agent.model
 
-import com.stratio.governance.commons.agent.model.metadata.{CustomType, GenericType, SourceType}
+import play.api.libs.json.{JsObject, Json, Reads, Writes}
+
+import com.stratio.governance.commons.agent.model.metadata.lineage.TransformationMetadata
+import com.stratio.governance.commons.agent.model.metadata._
 
 case class SpartaTransformationMetadata(
-                                      genericType: GenericType, //To be GenericType.Transformation
-                                      customType: CustomType = SpartaType.TRANSFORMATION,
-                                      sourceType: SourceType = SourceType.SPARTA
-                                    ){ //to-do extend trait TransformationMetadata
+                                         name: String,
+                                         key: String,
+                                         metadataPath: MetadataPath,
+                                         incomingNodes: Seq[MetadataPath],
+                                         outcomingNodes: Seq[MetadataPath],
+                                         agentVersion: String = SpartaType.agentVersion,
+                                         serverVersion: String = SpartaType.serverVersion,
+                                         tags: List[String],
+                                         modificationTime: Option[Long] = Some(System.currentTimeMillis()),
+                                         accessTime: Option[Long] = Some(System.currentTimeMillis()),
+                                         operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN,
+                                         genericType: GenericType = GenericType.TRANSFORMATION,
+                                         customType: CustomType = SpartaType.TRANSFORMATION,
+                                         sourceType: SourceType = SourceType.SPARTA
+                                       ) extends TransformationMetadata {
 
+  def serialize: String =
+    Json.stringify(
+      JsObject(
+        Json.toJson(this).as[JsObject].fieldSet.map {
+          case (key, value) => (camelToUnderscores(key), value)
+        }.toMap
+      )
+    )
+
+  def asMap: Map[String, Any] = this.getClass.getDeclaredFields
+    .map(_.getName) // all field names
+    .zip(this.productIterator.to).map(t => t._2 match {
+    case mt: MetadataType => (t._1, Some(mt.value))
+    case None => (t._1, None)
+    case Some(_) => (t._1, t._2)
+    case _ => (t._1, Some(t._2))
+  }).toMap.collect {
+    case (key, Some(value)) => camelToUnderscores(key) -> value
+  }
+
+  def toJson: JsObject = Json.toJson(this).as[JsObject]
+
+  override def metadataCopy(operationCommandType: OperationCommandType): Metadata =
+    this.copy(operationCommandType = operationCommandType)
+}
+
+object SpartaTransformationMetadata {
+
+  implicit val writes: Writes[SpartaTransformationMetadata] = Json.writes[SpartaTransformationMetadata]
+  implicit val reads: Reads[SpartaTransformationMetadata] = Json.reads[SpartaTransformationMetadata]
 }
