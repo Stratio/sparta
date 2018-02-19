@@ -17,10 +17,10 @@
 package com.stratio.sparta.dg.agent.model
 
 import play.api.libs.json.{JsObject, Json, Reads, Writes}
-
 import com.stratio.governance.commons.agent.model.metadata._
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
 import com.stratio.governance.commons.agent.model.metadata.lineage.{EventType, StatusMetadata}
+import org.joda.time.DateTime
 
 case class SpartaWorkflowStatusMetadata(
                                          name: String,
@@ -33,7 +33,7 @@ case class SpartaWorkflowStatusMetadata(
                                          tags: List[String],
                                          modificationTime: Option[Long] = Some(System.currentTimeMillis()),
                                          accessTime: Option[Long] = Some(System.currentTimeMillis()),
-                                         operationCommandType: OperationCommandType = OperationCommandType.UNKNOWN,
+                                         operationCommandType: OperationCommandType = OperationCommandType.ALTER,
                                          genericType: GenericType = GenericType.STATUS,
                                          customType: CustomType = SpartaType.STATUS,
                                          sourceType: SourceType = SourceType.SPARTA

@@ -15,20 +15,55 @@
  */
 package com.stratio.sparta.dg.agent.common
 
-import akka.actor.ActorRef
-import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
+import com.stratio.governance.commons.agent.model.metadata.MetadataPath
 import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
-import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
+import com.stratio.governance.commons.agent.model.metadata.lineage.EventType
+import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
+import com.stratio.sparta.serving.core.models.workflow.WorkflowStatusStream
+import org.joda.time.DateTime
 
 object WorkflowStatusUtils {
 
-  def extractMetadataPath(implicit workflowStatus: WorkflowStatus)
+  def processStatus(workflowStatusStream: WorkflowStatusStream): Option[List[SpartaWorkflowStatusMetadata]] =
+    if (checkIfProcessableStatus(workflowStatusStream)) {
+      val metadataSerialized = new SpartaWorkflowStatusMetadata(
+        name = workflowStatusStream.workflow.get.name,
+        status = mapSparta2GovernanceStatuses(workflowStatusStream.workflowStatus.status),
+        error = if (workflowStatusStream.workflowStatus.status == Failed)
+          Some(workflowStatusStream.workflowStatus.lastError.get.message) else None,
+        key = workflowStatusStream.workflowStatus.id,
+        metadataPath = extractMetadataPath(workflowStatusStream),
+        tags = workflowStatusStream.workflow.get.tag.fold(List.empty[String]){tag => tag.split(",").toList},
+        modificationTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflow.get.lastUpdateDate),
+        accessTime =  fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate)
+      )
+      Some(List(metadataSerialized))
+    }
+    else None
 
-  def processStatus(workflowStatus: WorkflowStatus, topicKafka: String): KafkaEvent = {
+  private def fromDatetimeToLongWithDefault(dateTime: Option[DateTime]) : Option[Long] =
+    dateTime.fold(Some(System.currentTimeMillis())){dt => Some(dt.getMillis)}
 
-    val metadataSerialized =new SpartaWorkflowStatusMetadata(
-
-    )
-    KafkaEvent(List(metadataSerialized),topicKafka)
+  private def checkIfProcessableStatus(workflowStatusStream: WorkflowStatusStream): Boolean = {
+    val eventStatus = workflowStatusStream.workflowStatus.status
+    (eventStatus == Started || eventStatus == Finished || eventStatus == Failed) &&
+      workflowStatusStream.workflow.isDefined
   }
+
+  private def extractMetadataPath(workflowStatusStream: WorkflowStatusStream) : MetadataPath =
+    MetadataPath(Seq(
+      workflowStatusStream.workflow.get.group.name.replaceAll("/", "_"),
+      workflowStatusStream.workflow.get.name,
+      workflowStatusStream.workflow.get.version,
+      workflowStatusStream.workflow.get.lastUpdateDate.getOrElse(DateTime.now()).getMillis
+    ).map(_.toString))
+
+  private def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value) : EventType =
+    spartaStatus match {
+      case Started => EventType.Running
+      case Finished => EventType.Success
+      case Failed => EventType.Failed
+    }
 }
