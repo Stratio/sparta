@@ -1,0 +1,12 @@
+<div>
+   <group-selector [blockChilds]="true"
+        [groups]="groups" 
+        [parentGroup]="parentGroup" 
+        [currentGroup]="currentGroup" 
+        [selectedFolder]="selectedFolder" 
+        (onSelectFolder)="selectFolder($event)"></group-selector>
+   <div class="footer">
+      <button class="button button-primary save-button" (click)="updateFolder()" [disabled]="!selectedFolder.length">Save</button>
+      <button class="button button-secondary-gray cancel-button" (click)="onCloseMoveGroup.emit()">Cancel</button>
+   </div>
+</div>

@@ -38,7 +38,7 @@ trait ErrorCheckingDStream extends SLF4JLogging {
       case Success(value) => value
       case Failure(e) => whenErrorDo match {
         case WhenError.Discard =>
-          warningMessage.foreach(log.warn(_, e))
+          warningMessage.foreach(message => log.warn(s"$message. ${e.getLocalizedMessage}"))
           ssc.get.queueStream[T](new mutable.Queue[RDD[T]])
         case _ => throw new Exception(errorMessage, e)
       }

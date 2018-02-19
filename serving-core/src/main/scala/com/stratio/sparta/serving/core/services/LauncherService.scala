@@ -33,7 +33,7 @@ class LauncherService(curatorFramework: CuratorFramework) extends SLF4JLogging {
   def checkWorkflowStatus(workflow: Workflow): Unit = {
     statusService.findById(workflow.id.get) match {
       case Success(workflowStatus) =>
-        val wrongStartStates = Seq(Launched, Starting, Uploaded, NotStarted)
+        val wrongStartStates = Seq(Launched, Starting, Uploaded, NotStarted, Created)
         val validStartStates = Seq(Started)
         val wrongStopStates = Seq(Stopping)
         val validStopStates = Seq(Stopped, Failed, Killed, Finished)

@@ -45,7 +45,7 @@ trait KafkaBase extends SLF4JLogging {
       else s"$defaultHost:$defaultPort"
     } catch {
       case e: Exception =>
-        log.warn("Error extracting kafka connection chain, using default values...", e)
+        log.warn(s"Error extracting kafka connection chain, using default values... Error: ${e.getLocalizedMessage}")
         s"$defaultHost:$defaultPort"
     }
 

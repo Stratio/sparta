@@ -16,18 +16,23 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorRef, ActorSystem}
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
 import scala.util.Try
 
-class WorkflowPublisherActor(curatorFramework: CuratorFramework) extends Actor with SpartaSerializer with SLF4JLogging {
+class WorkflowPublisherActor(
+                              curatorFramework: CuratorFramework,
+                              override val serializerSystem: Option[ActorSystem] = None,
+                              override val environmentStateActor: Option[ActorRef] = None
+                            ) extends Actor with SpartaSerializer with SLF4JLogging {
 
   import WorkflowPublisherActor._
 
@@ -40,8 +45,14 @@ class WorkflowPublisherActor(curatorFramework: CuratorFramework) extends Actor w
         val eventData = event.getData
         Try {
           read[Workflow](new String(eventData.getData))
-        } foreach {
-          self ! WorkflowChange(eventData.getPath, _)
+        } foreach { workflow =>
+          event.getType match {
+            case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
+              self ! WorkflowChange(event.getData.getPath, workflow)
+            case Type.CHILD_REMOVED =>
+              self ! WorkflowRemove(event.getData.getPath, workflow)
+            case _ => {}
+          }
         }
       }
     }
@@ -57,6 +68,8 @@ class WorkflowPublisherActor(curatorFramework: CuratorFramework) extends Actor w
   override def receive: Receive = {
     case cd: WorkflowChange =>
       context.system.eventStream.publish(cd)
+    case cd: WorkflowRemove =>
+      context.system.eventStream.publish(cd)
     case _ =>
       log.debug("Unrecognized message in Workflow Publisher Actor")
   }
@@ -68,5 +81,7 @@ object WorkflowPublisherActor {
   trait Notification
 
   case class WorkflowChange(path: String, workflow: Workflow) extends Notification
+
+  case class WorkflowRemove(path: String, workflow: Workflow) extends Notification
 
 }

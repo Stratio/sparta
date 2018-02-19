@@ -32,4 +32,5 @@ object WorkflowStatusEnum extends Enumeration {
   val NotStarted = Value("NotStarted")
   val Uploaded = Value("Uploaded")
   val NotDefined = Value("NotDefined")
+  val Created = Value("Created")
 }

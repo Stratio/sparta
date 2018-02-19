@@ -16,14 +16,13 @@ import { Subscription } from 'rxjs/Rx';
 /// limitations under the License.
 ///
 
-import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Store } from '@ngrx/store';
 import resourcesMenu from '@app/settings/resources/resources-menu';
 
 import * as fromRoot from 'reducers';
 import * as resourcesActions from 'actions/resources';
 
-import { Observable } from 'rxjs/Observable';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService, StHorizontalTab
 } from '@stratio/egeo';
@@ -41,29 +40,33 @@ export class SpartaPlugins implements OnInit, OnDestroy {
 
     @ViewChild('pluginModal', { read: ViewContainerRef }) target: any;
 
-    public pluginsList$: Observable<any>;
+    public pluginsList:Array<any> = [];
     public deletePluginModalTitle: string;
     public deletePluginModalMessage: string;
     public deletePluginModalMessageTitle: string;
     public options: Array<StHorizontalTab> = [];
-    public selectedPlugins: Array<string>;
+    public selectedPlugins: Array<string> = [];
     public breadcrumbOptions: Array<any>;
     public activeOption = 'PLUGINS';
     public fields: StTableHeader[] = [
-        { id: 'check', label: '', sortable: false },
         { id: 'fileName', label: 'Name' },
         { id: 'uri', label: 'URI' }
     ];
 
     private selectedPluginsSubscription: Subscription;
+    private pluginsListSubscription: Subscription;
 
     ngOnInit() {
         this._modalService.container = this.target;
         this.store.dispatch(new resourcesActions.ListPluginsAction());
-        this.pluginsList$ = this.store.select(fromRoot.getPluginsList);
+        this.pluginsListSubscription = this.store.select(fromRoot.getPluginsList).subscribe((pluginsList: any) => {
+            this.pluginsList = pluginsList;
+            this._cd.detectChanges();
+        });
 
         this.selectedPluginsSubscription = this.store.select(fromRoot.getSelectedPlugins).subscribe((selectedPlugins: Array<string>) => {
             this.selectedPlugins = selectedPlugins;
+            this._cd.detectChanges();
         });
     }
 
@@ -71,6 +74,9 @@ export class SpartaPlugins implements OnInit, OnDestroy {
         this.store.dispatch(new resourcesActions.UploadPluginAction(event[0]));
     }
 
+    public selectAll(event: any) {
+        this.store.dispatch(new resourcesActions.SelectAllPluginsAction(event));
+    }
     public downloadPlugin(uri: string) {
         window.open(uri);
     }
@@ -125,7 +131,8 @@ export class SpartaPlugins implements OnInit, OnDestroy {
 
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
-        private route: Router, private currentActivatedRoute: ActivatedRoute, public breadcrumbMenuService: BreadcrumbMenuService) {
+        private route: Router, private currentActivatedRoute: ActivatedRoute, public breadcrumbMenuService: BreadcrumbMenuService,
+         private _cd: ChangeDetectorRef) {
         this.options = resourcesMenu;
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         const deletePluginModalTitle = 'DASHBOARD.DELETE_PLUGIN_TITLE';
@@ -142,6 +149,7 @@ export class SpartaPlugins implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.selectedPluginsSubscription && this.selectedPluginsSubscription.unsubscribe();
+        this.pluginsListSubscription && this.pluginsListSubscription.unsubscribe();
     }
 
 }

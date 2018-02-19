@@ -19,6 +19,7 @@ import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, Subscription } from 'rxjs/Rx';
+import { Location } from '@angular/common';
 import { StModalService } from '@stratio/egeo';
 
 import * as fromRoot from 'reducers';
@@ -39,7 +40,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     @Output() onZoomOut = new EventEmitter();
     @Output() onCenter = new EventEmitter();
     @Output() onDelete = new EventEmitter();
-    @Output() onShowSettings = new EventEmitter();
     @Output() onSaveWorkflow = new EventEmitter();
     @Output() onEditEntity = new EventEmitter();
     @Output() deleteSelection = new EventEmitter();
@@ -56,6 +56,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public isShowedEntityDetails$: Observable<boolean>;
     public menuOptions$: Observable<Array<FloatingMenuModel>>;
     public workflowName = '';
+    public workflowVersion = 0;
     public showErrors = false;
 
     public editName = false;
@@ -84,13 +85,14 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
-        private _cd: ChangeDetectorRef, private _modalService: StModalService) { }
+        private _cd: ChangeDetectorRef, private _modalService: StModalService, private _location: Location) { }
 
     ngOnInit(): void {
         this._modalService.container = this.target;
         this.isShowedEntityDetails$ = this.store.select(fromRoot.isShowedEntityDetails).distinctUntilChanged();
-        this._nameSubscription = this.store.select(fromRoot.getWorkflowName).subscribe((name: string) => {
-            this.workflowName = name;
+        this._nameSubscription = this.store.select(fromRoot.getWorkflowHeaderData).subscribe((data: any) => {
+            this.workflowName = data.name;
+            this.workflowVersion = data.version;
         });
 
         this._areUndoRedoEnabledSubscription = this.store.select(fromRoot.areUndoRedoEnabled).subscribe((actions: any) => {
@@ -115,6 +117,10 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         this.store.dispatch(new wizardActions.SelectedCreationEntityAction($event));
     }
 
+    showSettings() {
+        this.store.dispatch(new wizardActions.ShowSettingsAction());
+    }
+
     onBlurWorkflowName(): void {
         this.editName = false;
         this.store.dispatch(new wizardActions.ChangeWorkflowNameAction(this.workflowName));
@@ -131,7 +137,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
 
     public showConfirmModal(): void {
         if (this.isPristine) {
-            this.route.navigate(['']);
+            this.redirectPrevious();
             return;
         }
         this._modalService.show({
@@ -149,11 +155,17 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     onCloseConfirmationModal(event: any) {
         this._modalService.close();
         if (event === '1') {
-
             this.onSaveWorkflow.emit();
-
         } else {
-            this.route.navigate(['']);
+            this.redirectPrevious();
+        }
+    }
+
+    redirectPrevious() {
+        if (window.history.length > 2) {
+            this._location.back();
+        } else {
+            this.route.navigate(['workflow-managing']);
         }
     }
 

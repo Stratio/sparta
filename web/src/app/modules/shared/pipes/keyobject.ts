@@ -24,7 +24,7 @@ export class Keyobject {
 
 transform(value: any, args:string[]):any {
     const keys = [];
-    for (let key in value) {
+    for (const key in value) {
         keys.push({key: key, value: value[key]});
     }
     return keys;

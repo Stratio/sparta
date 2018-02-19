@@ -17,11 +17,11 @@
 import { EnvironmentService } from 'services/environment.service';
 import { Injectable } from '@angular/core';
 import { Action } from '@ngrx/store';
-
 import { Effect, Actions } from '@ngrx/effects';
+
 import { Observable } from 'rxjs/Observable';
 import { generateJsonFile } from 'utils';
-
+import * as errorActions from 'actions/errors';
 import * as environmentActions from 'actions/environment';
 
 
@@ -35,7 +35,10 @@ export class EnvironmentEffect {
                 .map((environmentList: any) => {
                     return new environmentActions.ListEnvironmentCompleteAction(environmentList);
                 }).catch(function (error: any) {
-                    return Observable.of(new environmentActions.ListEnvironmentErrorAction(''));
+                    return Observable.from([
+                        new environmentActions.ListEnvironmentErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -47,7 +50,10 @@ export class EnvironmentEffect {
                 .map((environmentList: any) => {
                     return new environmentActions.ListEnvironmentAction();
                 }).catch(function (error: any) {
-                    return Observable.of(new environmentActions.SaveEnvironmentErrorAction(''));
+                    return Observable.from([
+                        new environmentActions.SaveEnvironmentErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -55,10 +61,16 @@ export class EnvironmentEffect {
     importEnvironment$: Observable<Action> = this.actions$
         .ofType(environmentActions.IMPORT_ENVIRONMENT).switchMap((response: any) => {
             return this.environmentService.importEnvironment(response.payload)
-                .map((environmentList: any) => {
-                    return new environmentActions.ImportEnvironmentCompleteAction();
+                .mergeMap((environmentList: any) => {
+                    return [
+                        new environmentActions.ImportEnvironmentCompleteAction(), 
+                        new environmentActions.ListEnvironmentAction()
+                    ];
                 }).catch(function (error: any) {
-                    return Observable.of(new environmentActions.ImportEnvironmentErrorAction());
+                    return Observable.from([
+                        new environmentActions.ImportEnvironmentErrorAction(),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -70,7 +82,10 @@ export class EnvironmentEffect {
                     generateJsonFile('environment-data', envData);
                     return new environmentActions.ExportEnvironmentCompleteAction();
                 }).catch(function (error: any) {
-                    return Observable.of(new environmentActions.ExportEnvironmentErrorAction());
+                    return Observable.from([
+                        new environmentActions.ExportEnvironmentErrorAction(),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 

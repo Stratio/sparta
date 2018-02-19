@@ -1,0 +1,34 @@
+<div>
+   <form #jsonWorkflowForm="ngForm" novalidate autocomplete="off">
+      <div class="editor">
+         <div class="workflow-fields">
+            <sp-input #input label="{{'DASHBOARD.WORKFLOW_NAME' | translate}}" [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.NAME_PLACEHOLDER' | translate}}"
+               name="name" qaTag="workflow-name" [(ngModel)]="model.name" class="st-form-field"></sp-input>
+            <br>
+            <sp-textarea class="description st-form-field" [forceValidations]="forceValidations" label="{{'DASHBOARD.WORKFLOW_DESCRIPTION' | translate}}" placeholder="{{'DASHBOARD.DESCRIPTION_PLACEHOLDER' | translate}}"
+               name="description" qaTag="workflow-description" [rows]="2" [(ngModel)]="model.description"></sp-textarea>
+            <p class="json-info">
+               <span class="icon"><i class="icon-pin"></i></span>
+               <span>{{'DASHBOARD.JSON_INFO' | translate}}</span>
+            </p>
+            <p>
+         </div>
+         <div class="workflow-json">
+            <!--<p *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>-->
+            <sp-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
+               required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
+               <!-- {{serverErrors | async | json}} -->
+            <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
+
+            <div class="edition-buttons">
+                <button class="button button-secondary-gray cancel-button" (click)="onCloseJsonModal.emit('0')">
+                    <span>{{'DASHBOARD.CANCEL' | translate}}</span>
+                </button>
+                <button class="button button-primary" (click)="onSubmitWorkflow()">
+                    <span>{{'DASHBOARD.CREATE' | translate}}</span>
+                </button>
+            </div>
+         </div>
+      </div>
+   </form>
+</div>

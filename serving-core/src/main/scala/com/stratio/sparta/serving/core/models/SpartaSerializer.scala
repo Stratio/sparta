@@ -22,7 +22,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.stratio.sparta.sdk.properties.{EnvironmentContext, JsoneyStringSerializer}
 import com.stratio.sparta.sdk.workflow.enumerators._
-import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.GetEnvironment
+import com.stratio.sparta.serving.core.actor.EnvironmentListenerActor.GetEnvironment
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.enumerators.{ArityValueEnum, NodeArityEnum, WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.PhaseEnum
@@ -81,7 +81,7 @@ object SpartaSerializer extends SLF4JLogging {
         environmentContext = Option(EnvironmentContext(newEnvironment))
         environmentContext
       case Failure(e) =>
-        log.warn("No environment result, returning the last value", e)
+        log.warn(s"No environment result, returning the last value. ${e.getLocalizedMessage}")
         environmentContext
     }
   }

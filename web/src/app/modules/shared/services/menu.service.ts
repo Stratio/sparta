@@ -24,13 +24,13 @@ export class MenuService {
 
     private _menuOptions: StHeaderMenuOption[] = [
         {
-            icon: 'icon-input',
+            icon: 'icon-record',
             label: 'Workflows',
-            link: DASHBOARD_ROUTES.WORKFLOWS,
+            link: DASHBOARD_ROUTES.WORKFLOWS_MANAGING,
             subMenus: []
         },
         {
-            icon: 'icon-puzzle',
+            icon: 'icon-record',
             label: 'Templates',
             link: DASHBOARD_ROUTES.TEMPLATES,
             subMenus: [
@@ -49,7 +49,13 @@ export class MenuService {
             ]
         },
         {
-            icon: 'icon-cog',
+            icon: 'icon-record',
+            label: 'Crossdata',
+            link: DASHBOARD_ROUTES.CROSSDATA,
+            subMenus: []
+        },
+        {
+            icon: 'icon-record',
             label: 'Settings',
             link: DASHBOARD_ROUTES.SETTINGS,
             subMenus: [
@@ -63,20 +69,14 @@ export class MenuService {
                     link: DASHBOARD_ROUTES.BACKUPS
                 },
                 {
-                    label: 'Resources',
-                    link: DASHBOARD_ROUTES.RESOURCES
+                    label: 'Plugins',
+                    link: DASHBOARD_ROUTES.PLUGINS
                 },
                 {
                     label: 'Environment',
                     link: DASHBOARD_ROUTES.ENVIRONMENT
                 }
             ]
-        },
-        {
-            icon: 'icon-cog',
-            label: 'Crossdata',
-            link: DASHBOARD_ROUTES.CROSSDATA,
-            subMenus: []
         }
     ];
 

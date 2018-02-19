@@ -20,7 +20,8 @@ import { EgeoModule, StModalModule } from '@stratio/egeo';
 import {
     WizardComponent, WizardHeaderComponent, WizardConfigEditorComponent,
     WizardEditorComponent, WizardEditorService, WizardNodeComponent,
-    DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent
+    DraggableSvgDirective, WizardEdgeComponent, SelectedEntityComponent,
+    WizardSettingsComponent
 } from '.';
 import { WizardRoutingModule } from './wizard.router';
 import { SharedModule } from '@app/shared';
@@ -35,6 +36,7 @@ import { ValidateSchemaService } from './services/validate-schema.service';
         WizardComponent,
         WizardHeaderComponent,
         WizardEditorComponent,
+        WizardSettingsComponent,
         WizardNodeComponent,
         WizardDetailsComponent,
         DraggableSvgDirective,

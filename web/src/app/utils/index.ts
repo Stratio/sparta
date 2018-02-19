@@ -15,6 +15,11 @@
 ///
 
 const typeCache: { [label: string]: boolean } = {};
+
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
 export function type<T>(label: T | ''): T {
   if (typeCache[<string>label]) {
     throw new Error(`Action type "${label}" is not unique"`);
@@ -63,6 +68,9 @@ function getOrderPropertyValue(value: any, orderProperty: string): any {
     if (properties.length > 1) {
       let val = value;
       for (let i = 0; i < properties.length; i++) {
+        if(!val[properties[i]]) {
+          return null;
+        }
         val = val[properties[i]];
       }
       return val;
@@ -74,3 +82,27 @@ function getOrderPropertyValue(value: any, orderProperty: string): any {
   }
 }
 
+export function formatDate(stringDate: string, hours = true) {
+  if(!stringDate) {
+    return '';
+  }
+  try {
+    const date: Date = new Date(stringDate);
+    const todaysDate = new Date();
+    // call setHours to take the time out of the comparison
+    if (date.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
+      // Date equals today's date
+      const dateToday: Date = new Date(stringDate);
+      return dateToday.getHours() + ':' + ('0' + dateToday.getMinutes()).slice(-2);
+
+    } else {
+      const date: Date = new Date(stringDate);
+      const month: any = date.getMonth();
+      return hours ?  date.getDate() + ' ' + monthNames[month] + ' ' + date.getFullYear() + ' - ' + date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2):
+        date.getDate() + ' ' + 'Jan' + ' ' + date.getFullYear();
+
+    }
+  } catch (error) {
+    return '';
+  }
+}

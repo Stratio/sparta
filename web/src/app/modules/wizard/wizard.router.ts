@@ -21,6 +21,10 @@ import { WizardComponent } from './wizard.component';
 
 const wizardRoutes: Routes = [
     {
+        path: '',
+        redirectTo: 'streaming'
+    },
+    {
         path: ':type',
         component: WizardComponent,
     },

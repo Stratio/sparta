@@ -42,8 +42,8 @@ export const DELETE_METADATA_COMPLETE = '[Backups] delete metadata complete';
 export const DELETE_METADATA_ERROR = '[Backups] delete metadata error';
 export const UPLOAD_BACKUP = '[Backups] upload backup';
 export const UPLOAD_BACKUP_COMPLETE = '[Backups] upload backup complete';
-export const UPLOAD_BACKUP_ERROR = '[Backups] upload backup error'
-
+export const UPLOAD_BACKUP_ERROR = '[Backups] upload backup error';
+export const CHANGE_ORDER = '[Backups] Change order';
 
 export class ListBackupAction implements Action {
     readonly type = LIST_BACKUP;
@@ -57,6 +57,7 @@ export class ListBackupCompleteAction implements Action {
 
 export class SelectAllBackups implements Action {
     readonly type = SELECT_ALL_BACKUPS;
+    constructor(public payload: any) { }
 }
 
 export class SelectBackupAction implements Action {
@@ -176,6 +177,11 @@ export class UploadBackupErrorAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class ChangeOrderAction implements Action {
+    readonly type = CHANGE_ORDER;
+    constructor(public payload: any) { }
+}
+
 
 export type Actions =
     ListBackupAction |
@@ -204,4 +210,5 @@ export type Actions =
     DeleteMetadataErrorAction |
     UploadBackupAction |
     UploadBackupCompleteAction |
-    UploadBackupErrorAction;
+    UploadBackupErrorAction |
+    ChangeOrderAction;

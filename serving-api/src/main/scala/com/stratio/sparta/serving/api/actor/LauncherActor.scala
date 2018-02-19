@@ -24,11 +24,13 @@ import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Failed
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
 import org.apache.curator.framework.CuratorFramework
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class LauncherActor(streamingService: StreamingContextService,
                     curatorFramework: CuratorFramework,
@@ -71,11 +73,23 @@ class LauncherActor(streamingService: StreamingContextService,
               new LocalLauncherActor(streamingService, streamingService.curatorFramework)), actorName))
           case _ =>
             throw new Exception(
-              s"Invalid execution mode in workflow ${workflow.name}" +
-                s": ${workflow.settings.global.executionMode}")
+              s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")
         }
 
         workflowLauncherActor ! Start(workflow)
+        (workflow, workflowLauncherActor)
+      } match {
+        case Success((workflow, launcherActor)) =>
+          log.info(s"Workflow ${workflow.name} launched to: ${launcherActor.toString()}")
+        case Failure(exception) =>
+          val information = s"Error launching workflow with the selected execution mode"
+          log.error(information)
+          statusService.update(WorkflowStatus(
+            id = id,
+            status = Failed,
+            statusInfo = Option(information),
+            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
+          ))
       }
     }
   }

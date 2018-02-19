@@ -1,0 +1,9 @@
+<form #renameForm="ngForm" novalidate autocomplete="off">
+   <sp-input pattern="^[a-z0-9-]*$" [label]="(entityType === 'Group' ? 'DASHBOARD.RENAME_GROUP_INPUT_LABEL' : 'DASHBOARD.RENAME_WORKFLOW_INPUT_LABEL') | translate"
+      [placeholder]="'DASHBOARD.RENAME_INPUT_PLACEHOLDER' | translate" [isFocused]="true" [forceValidations]="forceValidations" [errors]="errorsService.errors.inputErrors"
+      [(ngModel)]="name" qaTag="group-name" class="st-form-field" required="true" name="name"></sp-input>
+</form>
+<div class="footer">
+   <button class="button button-primary save-button" (click)="updateEntity()">Save</button>
+   <button class="button button-secondary-gray cancel-button" (click)="onCloseRenameModal.emit()">Cancel</button>
+</div>

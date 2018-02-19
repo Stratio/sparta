@@ -17,7 +17,7 @@ package com.stratio.sparta.serving.core.actor
 
 import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
-import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.WorkflowChange
+import com.stratio.sparta.serving.core.actor.WorkflowPublisherActor.{WorkflowChange, WorkflowRemove}
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 
 import scala.concurrent.{Future, blocking}
@@ -29,11 +29,15 @@ class WorkflowListenerActor extends Actor with SLF4JLogging {
   private val workflowActions = scala.collection.mutable.Map[String, List[WorkflowChangeAction]]()
   private val genericActions = scala.collection.mutable.Map[String, List[WorkflowChangeAction]]()
 
-  override def preStart(): Unit =
+  override def preStart(): Unit = {
     context.system.eventStream.subscribe(self, classOf[WorkflowChange])
+    context.system.eventStream.subscribe(self, classOf[WorkflowRemove])
+  }
 
-  override def postStop(): Unit =
+  override def postStop(): Unit = {
     context.system.eventStream.unsubscribe(self, classOf[WorkflowChange])
+    context.system.eventStream.unsubscribe(self, classOf[WorkflowRemove])
+  }
 
   override def receive: Receive = {
     case request@OnWorkflowChangeDo(id) =>
@@ -46,17 +50,29 @@ class WorkflowListenerActor extends Actor with SLF4JLogging {
     case WorkflowChange(_, workflow) =>
       workflowActions.getOrElse(workflow.id.getOrElse(""), Nil) foreach { callback =>
         Future {
-          blocking(callback(workflow))
+          try {
+            blocking(callback(workflow))
+          } catch {
+            case e: Exception =>
+              log.error(s"Error executing action for workflow ${workflow.name}." +
+                s" With exception: ${e.getLocalizedMessage}")
+          }
         }(context.dispatcher)
       }
       genericActions.foreach { case (_, actions) =>
         actions.foreach { callback =>
           Future {
-            blocking(callback(workflow))
+            try {
+              blocking(callback(workflow))
+            } catch {
+              case e: Exception => log.error(s"Error executing action for workflow ${workflow.name}." +
+                s" With exception: ${e.getLocalizedMessage}")
+            }
           }(context.dispatcher)
         }
       }
-
+    case WorkflowRemove(_, workflow) =>
+      workflowActions -= workflow.id.get
     case _ => log.debug("Unrecognized message in Workflow Listener Actor")
   }
 

@@ -15,3 +15,9 @@
 ///
 
 export const isMobile = false;
+
+export const homeGroup = {
+    id: '940800b2-6d81-44a8-84d9-26913a2faea4',
+    name: '/home',
+    label: 'home'
+};

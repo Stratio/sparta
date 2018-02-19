@@ -18,7 +18,8 @@ import * as backupsActions from 'actions/backups';
 import * as inputActions from './../modules/templates/actions/input';
 import * as outputActions from './../modules/templates/actions/output';
 import * as transformationActions from './../modules/templates/actions/transformation';
-import * as workflowActions from './../modules/workflows/actions/workflow-list';
+import * as workflowActions from './../modules/workflows/workflow-managing/actions/workflow-list';
+import * as workflowMonitoringActions from './../modules/workflows/workflow-monitoring/actions/workflow-list';
 import * as wizardActions from 'actions/wizard';
 import * as errorsActions from 'actions/errors';
 import * as environmentActions from 'actions/environment';
@@ -134,12 +135,30 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
+        case backupsActions.DELETE_METADATA_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_METADATA_DESCRIPTION'
+                }]
+            });
+        }
         case workflowActions.SAVE_JSON_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.SUCCESS,
                     title: 'SUCCESS',
                     description: 'CREATED_WORKFLOW'
+                }]
+            });
+        }
+        case workflowActions.DUPLICATE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DUPLICATED_WORKFLOW'
                 }]
             });
         }
@@ -164,26 +183,65 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case workflowActions.DELETE_WORKFLOW_COMPLETE: {
-            let names = '';
-            const workflows = action.payload;
-            for (let i = 0; i < workflows.length; i++) {
-                names += workflows[i].name;
-                if (i < workflows.length) {
-                    names += ', ';
-                }
-            };
+        case workflowMonitoringActions.RUN_WORKFLOW_COMPLETE: {
             return Object.assign({}, state, {
-                currentAlert: action.payload.map((workflow: any) => {
-                    return {
-                        type: STALERT_SEVERITY.SUCCESS,
-                        title: 'SUCCESS',
-                        description: 'DELETE_WORKFLOW',
-                        params: {
-                            name: names
-                        }
-                    };
-                })
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'RUN_WORKFLOW',
+                    params: {
+                        name: action.payload
+                    }
+                }]
+            });
+        }
+        case workflowMonitoringActions.STOP_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'STOP_WORKFLOW'
+                }]
+            });
+        }
+        case workflowActions.DELETE_WORKFLOW_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_WORKFLOW',
+
+                }]
+            })
+        }
+        case workflowActions.DELETE_GROUP_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_GROUP',
+
+                }]
+            });
+        }
+        case workflowActions.DELETE_VERSION_COMPLETE: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'DELETE_VERSION',
+
+                }]
+            })
+        }
+        case workflowActions.GENERATE_NEW_VERSION: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.SUCCESS,
+                    title: 'SUCCESS',
+                    description: 'GENERATE_NEW_VERSION',
+
+                }]
             });
         }
         case inputActions.LIST_INPUT_FAIL: {
@@ -192,6 +250,24 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.ERROR,
                     title: 'ERROR',
                     description: 'LIST_INPUT_ERROR'
+                }]
+            });
+        }
+        case workflowActions.LIST_GROUP_WORKFLOWS_FAIL: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'LIST_WORKFLOW_ERROR'
+                }]
+            });
+        }
+        case workflowMonitoringActions.LIST_WORKFLOW_FAIL: {
+            return Object.assign({}, state, {
+                currentAlert: [{
+                    type: STALERT_SEVERITY.ERROR,
+                    title: 'ERROR',
+                    description: 'LIST_WORKFLOW_ERROR'
                 }]
             });
         }
@@ -210,15 +286,6 @@ export function reducer(state: State = initialState, action: any): State {
                     type: STALERT_SEVERITY.ERROR,
                     title: 'ERROR',
                     description: 'LIST_TRANSFORMATION_ERROR'
-                }]
-            });
-        }
-        case workflowActions.LIST_WORKFLOW_FAIL: {
-            return Object.assign({}, state, {
-                currentAlert: [{
-                    type: STALERT_SEVERITY.ERROR,
-                    title: 'ERROR',
-                    description: 'LIST_WORKFLOW_ERROR'
                 }]
             });
         }
@@ -269,7 +336,7 @@ export function reducer(state: State = initialState, action: any): State {
                 }]
             });
         }
-        case errorsActions.SERVER_ERROR: {
+        case errorsActions.SERVER_ERROR_COMPLETE: {
             return Object.assign({}, state, {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
@@ -285,7 +352,7 @@ export function reducer(state: State = initialState, action: any): State {
                 currentAlert: [{
                     type: STALERT_SEVERITY.ERROR,
                     title: action.payload.title ? action.payload.title : 'ERROR',
-                    description: action.payload.description ? action.payload.description : 'SERVER_ERROR'
+                    description: action.payload.description ? action.payload.description : (action.payload.exception ? action.payload.exception : 'SERVER_ERROR')
                 }]
             });
         }

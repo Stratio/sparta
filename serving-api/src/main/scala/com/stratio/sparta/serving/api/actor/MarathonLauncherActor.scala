@@ -92,7 +92,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           status = Failed,
           statusInfo = Option(information),
           lastExecutionMode = Option(workflow.settings.global.executionMode),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+          lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
         ))
         self ! PoisonPill
       case Success(marathonApp) =>
@@ -103,11 +103,27 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
           workflow.id.get,
           status = NotStarted,
           lastExecutionMode = lastExecutionMode))
-        marathonApp.launch()
-        val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
-          launcherService.checkWorkflowStatus(workflow))
-        clusterListenerService.addMarathonListener(workflow.id.get, context, Option(scheduledTask))
-        checkersPolicyStatus += scheduledTask
+        Try(marathonApp.launch()) match {
+          case Success(_) =>
+            statusService.update(WorkflowStatus(
+              id = workflow.id.get,
+              status = Uploaded,
+              statusInfo = Option(information),
+              sparkURI = NginxUtils.buildSparkUI(s"${workflow.name}-v${workflow.version}",
+                Option(workflow.settings.global.executionMode))
+            ))
+            val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
+              launcherService.checkWorkflowStatus(workflow))
+            clusterListenerService.addMarathonListener(workflow.id.get, context, Option(scheduledTask))
+            checkersPolicyStatus += scheduledTask
+          case Failure(e) =>
+            val information = s"An error was encountered while launching the Workflow App in the Marathon API"
+            statusService.update(WorkflowStatus(
+              id = workflow.id.get,
+              status = Failed,
+              statusInfo = Option(information),
+              lastError = Option(WorkflowError(information, PhaseEnum.Launch, e.toString))))
+        }
     }
   }
 }

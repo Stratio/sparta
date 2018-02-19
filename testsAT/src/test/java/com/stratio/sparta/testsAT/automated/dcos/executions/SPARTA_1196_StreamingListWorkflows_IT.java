@@ -23,7 +23,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1196_StreamingListWorkflows_IT.feature"
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA_1656_StreamingListWorkflows_IT.feature"
 
 })
 public class SPARTA_1196_StreamingListWorkflows_IT extends BaseTest {
@@ -33,7 +33,7 @@ public class SPARTA_1196_StreamingListWorkflows_IT extends BaseTest {
         this.browser = browser;
     }
 
-    @Test(enabled = true,groups = {"dcos_streaming"})
+    @Test(enabled = true, groups = {"dcos_streaming"})
     public void AppWithSecurityES() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

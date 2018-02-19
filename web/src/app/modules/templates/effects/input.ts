@@ -22,6 +22,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as inputActions from './../actions/input';
+import * as errorActions from 'actions/errors';
 
 
 @Injectable()
@@ -35,7 +36,7 @@ export class InputEffect {
                     return new inputActions.ListInputCompleteAction(inputList);
                 }).catch(function (error: any) {
                     return error.statusText === 'Unknown Error' ? Observable.of(new inputActions.ListInputFailAction(''))
-                        : Observable.of({type: 'NO_ACTION'});
+                        : Observable.of(new errorActions.ServerErrorAction(error));
                 });
         });
 
@@ -51,7 +52,7 @@ export class InputEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new inputActions.DeleteInputCompleteAction(inputs), new inputActions.ListInputAction()];
             }).catch(function (error) {
-                return Observable.of(new inputActions.DeleteInputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -64,7 +65,7 @@ export class InputEffect {
             return this.templatesService.createTemplate(input).mergeMap((data: any) => {
                 return [new inputActions.DuplicateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
-                return Observable.of(new inputActions.DuplicateInputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -75,7 +76,7 @@ export class InputEffect {
             return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new inputActions.CreateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
-                return Observable.of(new inputActions.CreateInputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -86,7 +87,7 @@ export class InputEffect {
             return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new inputActions.UpdateInputCompleteAction(), new inputActions.ListInputAction];
             }).catch(function (error: any) {
-                return Observable.of(new inputActions.UpdateInputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 

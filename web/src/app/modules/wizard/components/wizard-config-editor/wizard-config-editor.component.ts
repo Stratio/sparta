@@ -18,15 +18,15 @@ import {
     Component, OnInit, OnDestroy, ChangeDetectionStrategy, Input, ViewChild
 } from '@angular/core';
 import { Store } from '@ngrx/store';
-import * as fromRoot from 'reducers';
-import { Subscription } from 'rxjs/Subscription';
-import * as wizardActions from 'actions/wizard';
-import { BreadcrumbMenuService, ErrorMessagesService } from 'services';
-import { settingsTemplate, writerTemplate } from 'data-templates/index';
 import { NgForm } from '@angular/forms';
 import { StHorizontalTab } from '@stratio/egeo';
-import { WizardService } from '@app/wizard/services/wizard.service';
+import * as wizardActions from 'actions/wizard';
 
+import * as fromRoot from 'reducers';
+import { Subscription } from 'rxjs/Subscription';
+import { ErrorMessagesService } from 'services';
+import { writerTemplate } from 'data-templates/index';
+import { WizardService } from '@app/wizard/services/wizard.service';
 
 @Component({
     selector: 'wizard-config-editor',
@@ -43,16 +43,13 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
 
     public basicSettings: any = [];
     public writerSettings: any = [];
-    public advancedSettings: Array<any> = [];
     public submitted = true;
-    public breadcrumbOptions: any = [];
     public currentName = '';
     public arity: any;
-    public settingsForm = false;
 
+    public validatedName = false;
     public basicFormModel: any = {};    // inputs, outputs, transformation basic settings (name, description)
     public entityFormModel: any = {};   // common config
-    public settingsFormModel: any = {}; // advanced settings
 
     public activeOption = 'Global';
     public options: StHorizontalTab[] = [{
@@ -64,17 +61,23 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }];
 
     private saveSubscription: Subscription;
-    private settingsSubscription: Subscription;
-
+    public validatedNameSubcription: Subscription;
     ngOnInit(): void {
-        this.store.select(fromRoot.isEntitySaved).subscribe((isEntitySaved) => {
+        this.validatedNameSubcription = this.store.select(fromRoot.getValidatedEntityName).subscribe((validation: boolean) => {
+            this.validatedName = validation;
+        });
+
+        this.saveSubscription = this.store.select(fromRoot.isEntitySaved).subscribe((isEntitySaved) => {
             if (isEntitySaved) {
                 // hide edition when its saved
                 this.store.dispatch(new wizardActions.HideEditorConfigAction());
             }
         });
-
         this.getFormTemplate();
+    }
+
+    resetValidation() {
+        this.store.dispatch(new wizardActions.SaveEntityErrorAction(false));
     }
 
     cancelEdition() {
@@ -86,28 +89,14 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     getFormTemplate() {
-        if (this.config.editionType.stepType !== 'settings') {
-            if (this.config.editionType.data.createdNew) {
-                this.submitted = false;
-            }
-            this.entityFormModel = Object.assign({}, this.config.editionType.data);
-            this.currentName = this.entityFormModel['name'];
-            this.breadcrumbOptions = this.breadcrumbMenuService.getOptions(this.config.editionType.data.name);
-        } else {
-            this.settingsForm = true;
-            this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((currentSettings: any) => {
-                const settings = JSON.parse(JSON.stringify(currentSettings));
-                this.basicFormModel = settings.basic;
-                this.settingsFormModel = settings.advancedSettings;
-            });
+        if (this.config.editionType.data.createdNew) {
+            this.submitted = false;
         }
+        this.entityFormModel = Object.assign({}, this.config.editionType.data);
+        this.currentName = this.entityFormModel['name'];
+
         let template: any;
         switch (this.config.editionType.stepType) {
-            case 'settings':
-                const settings = <any>settingsTemplate;
-                this.basicSettings = settings.basicSettings;
-                this.advancedSettings = settings.advancedSettings;
-                return;
             case 'Input':
                 template = this._wizardService.getInputs()[this.config.editionType.data.classPrettyName];
                 this.writerSettings = writerTemplate;
@@ -127,41 +116,25 @@ export class WizardConfigEditorComponent implements OnInit, OnDestroy {
     }
 
     public saveForm() {
-        if (this.config.editionType.stepType !== 'settings') {
-
-            this.entityFormModel.hasErrors = this.entityForm.invalid;
-            if (this.arity) {
-                this.entityFormModel.arity = this.arity;
-            }
-            this.entityFormModel.createdNew = false;
-            this.store.dispatch(new wizardActions.SaveEntityAction({
-                oldName: this.config.editionType.data.name,
-                data: this.entityFormModel
-            }));
-
-        } else {
-            if (this.entityForm.valid) {
-                this.store.dispatch(new wizardActions.SaveSettingsAction({
-                    basic: this.basicFormModel,
-                    advancedSettings: this.settingsFormModel
-                }));
-                this.store.dispatch(new wizardActions.ValidateWorkflowAction());
-                this.store.dispatch(new wizardActions.HideEditorConfigAction());
-            }
+        this.entityFormModel.hasErrors = this.entityForm.invalid;
+        if (this.arity) {
+            this.entityFormModel.arity = this.arity;
         }
+        this.entityFormModel.createdNew = false;
+        this.store.dispatch(new wizardActions.SaveEntityAction({
+            oldName: this.config.editionType.data.name,
+            data: this.entityFormModel
+        }));
     }
-
 
     constructor(private store: Store<fromRoot.State>,
         private _wizardService: WizardService,
-        public breadcrumbMenuService: BreadcrumbMenuService,
         public errorsService: ErrorMessagesService) {
-        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
     }
 
     ngOnDestroy(): void {
         this.saveSubscription && this.saveSubscription.unsubscribe();
-        this.settingsSubscription && this.settingsSubscription.unsubscribe();
+        this.validatedNameSubcription && this.validatedNameSubcription.unsubscribe();
     }
 
 }

@@ -27,6 +27,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { EnvironmentComponent } from './environment/environment.component';
 import { ImportEnvironmentModalComponent } from './environment/import-environment-modal/import-environment-modal.component';
+import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,8 @@ import { ImportEnvironmentModalComponent } from './environment/import-environmen
     imports: [
         EgeoModule.forRoot(),
         FormsModule,
-         ReactiveFormsModule,
+        ReactiveFormsModule,
+        SpTooltipModule,
         StModalModule.withComponents([ExecuteBackup, ImportEnvironmentModalComponent]),
         SettingsRoutingModule,
         SharedModule

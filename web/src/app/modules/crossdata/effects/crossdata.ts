@@ -20,6 +20,8 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import * as crossdataActions from './../actions/crossdata';
+import * as errorActions from 'actions/errors';
+
 import { CrossdataService } from 'app/services';
 
 
@@ -33,7 +35,10 @@ export class CrossdataEffect {
                 .map((crossdataList: any) => {
                     return new crossdataActions.GetDatabasesCompleteAction(crossdataList);
                 }).catch(function (error) {
-                    return Observable.of(new crossdataActions.GetDatabasesErrorAction());
+                    return Observable.from([
+                        new crossdataActions.GetDatabasesErrorAction(),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -44,7 +49,10 @@ export class CrossdataEffect {
                 .map((crossdataList: any) => {
                     return new crossdataActions.ListCrossdataTablesCompleteAction(crossdataList);
                 }).catch(function (error) {
-                    return Observable.of(new crossdataActions.ListCrossdataTablesErrorAction(''));
+                    return Observable.from([
+                        new crossdataActions.ListCrossdataTablesErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -76,7 +84,10 @@ export class CrossdataEffect {
             }).map((crossdataList: any) => {
                 return new crossdataActions.ListDatabaseTablesCompleteAction(crossdataList);
             }).catch(function (error) {
-                return Observable.of(new crossdataActions.ListCrossdataTablesErrorAction(''));
+                return Observable.from([
+                    new crossdataActions.ListCrossdataTablesErrorAction(''),
+                    new errorActions.ServerErrorAction(error)
+                ]);
             });
         });
 
@@ -91,7 +102,10 @@ export class CrossdataEffect {
                     info: tableInfo
                 });
             }).catch(function (error) {
-                return Observable.of(new crossdataActions.GetTableInfoErrorAction(''));
+                return Observable.from([
+                    new crossdataActions.GetTableInfoErrorAction(''),
+                    new errorActions.ServerErrorAction(error)
+                ]);
             });
         });
 

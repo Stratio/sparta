@@ -9,9 +9,11 @@
    width: 0; 
    overflow: hidden;
    box-shadow: none;
+   margin-left:0px;
 
    &.show {
       width: 387px;
+      margin-left: 30px;
       box-shadow: 0 6px 10px 2px #dedede;
       /*margin-left: 35px;*/
    }

@@ -70,7 +70,9 @@
                 "Create",
                 "Delete",
                 "Audit",
-                "Edit"
+                "Edit",
+                "Upload",
+                "Download"
               ],
               "allActions": []
             },

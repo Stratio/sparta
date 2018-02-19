@@ -62,6 +62,8 @@ export const VALIDATE_WORKFLOW_COMPLETE = '[Wizard] Validate workflow complete';
 export const VALIDATE_WORKFLOW_ERROR = '[Wizard] Validate workflow error';
 export const SET_WIZARD_DIRTY = '[Wizard] Set wizard state dirty';
 export const SET_WORKFLOW_TYPE = '[Wizard] Set workflow type';
+export const SHOW_SETTINGS = '[Wizard] Show settings';
+export const HIDE_SETTINGS = '[Wizard] Hide settings';
 
 export class GetMenuTemplatesAction implements Action {
     readonly type = GET_MENU_TEMPLATES;
@@ -267,6 +269,14 @@ export class SetWorkflowTypeAction implements Action {
     constructor(public payload: any) { }
 }
 
+export class ShowSettingsAction implements Action {
+    readonly type = SHOW_SETTINGS;
+}
+
+export class HideSettingsAction implements Action {
+    readonly type = HIDE_SETTINGS;
+}
+
 
 export type Actions =
     ResetWizardAction |
@@ -309,4 +319,6 @@ export type Actions =
     ValidateWorkflowCompleteAction |
     ValidateWorkflowErrorAction |
     SetWizardStateDirtyAction |
-    SetWorkflowTypeAction;
+    SetWorkflowTypeAction |
+    HideSettingsAction |
+    ShowSettingsAction;

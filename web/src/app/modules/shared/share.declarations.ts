@@ -15,7 +15,6 @@
 ///
 
 import { FormFieldComponent } from './components/form-field/form-field.component';
-import { SearchFilterComponent } from './components/search-filter/search-filter.component';
 import { FormFileComponent } from './components/form-file/form-file.component';
 import { MenuService } from './services/menu.service';
 import { FileReaderComponent } from './components/file-reader/file-reader.component';
@@ -47,7 +46,6 @@ export const sharedProvider = [
 ];
 
 export const shareComponents = [
-    SearchFilterComponent,
     FileReaderComponent,
     FormListComponent,
     FormListStringComponent,

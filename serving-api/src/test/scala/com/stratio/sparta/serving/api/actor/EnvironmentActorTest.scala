@@ -177,7 +177,7 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
 
       environmentActor ! EnvironmentActor.FindEnvironmentVariable("other", rootUser)
 
-      expectMsg(Left(Failure(new ServerException(s"The environment variable not exists"))))
+      expectMsg(Left(Failure(new ServerException(s"The environment variable doesn't exist"))))
     }
 
     "FindEnvironmentVariable: returns the environment" in new TestData {
@@ -332,7 +332,7 @@ class EnvironmentActorTest extends TestKit(ActorSystem("EnvironmentActorSpec"))
       val spartaVariable = EnvironmentVariable("sparta", "stratio")
       environmentActor ! EnvironmentActor.UpdateEnvironmentVariable(spartaVariable, rootUser)
 
-      expectMsg(Left(Failure(new ServerException("The environment variable not exists"))))
+      expectMsg(Left(Failure(new ServerException("The environment variable doesn't exist"))))
     }
 
     "UpdateEnvironmentVariable: update a environment variable and return the modified variable" in new TestData {

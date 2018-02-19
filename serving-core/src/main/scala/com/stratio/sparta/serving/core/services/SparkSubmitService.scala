@@ -87,7 +87,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       "detailConfig" -> keyConfigEncoded("config", detailConfig),
       "hdfsConfig" -> keyOptionConfigEncoded("hdfs", hdfsConfig),
       "plugins" -> pluginsEncoded(pluginsFiles),
-      "workflowId" -> workflow.id.get.trim,
+      "workflowId" -> workflowEncoded(workflow),
       "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig)
     )
   }
@@ -227,7 +227,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     for {
       _ <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").notBlank
       appName <- Properties.envOrNone(DcosServiceName).notBlank
-    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName/${workflow.name}-v${workflow.version}")
+    } yield sparkConfs + (SubmitUiProxyPrefix -> s"/workflows-$appName${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
   } getOrElse sparkConfs
 
 

@@ -25,6 +25,8 @@ interface WorkflowListTransformations {
 export interface WorkflowListType {
    id: string;
    context: any;
+   executionEngine: string;
+   group: string;
    outputs: any;
    input: any;
    cubes: any;

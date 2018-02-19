@@ -21,6 +21,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
 import org.json4s.jackson.Serialization.read
 
@@ -36,11 +37,16 @@ class StatusPublisherActor(curatorFramework: CuratorFramework) extends Actor wit
     val statusesPath = AppConstant.WorkflowStatusesZkPath
     val nodeListener = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
-        val eventData = event.getData
         Try {
-          read[WorkflowStatus](new String(eventData.getData))
-        } foreach {
-          self ! WorkflowStatusChange(eventData.getPath, _)
+          read[WorkflowStatus](new String(event.getData.getData))
+        } foreach { status =>
+          event.getType match {
+            case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
+              self ! WorkflowStatusChange(event.getData.getPath, status)
+            case Type.CHILD_REMOVED =>
+              self ! WorkflowStatusRemove(event.getData.getPath, status)
+            case _ => {}
+          }
         }
       }
     }
@@ -56,6 +62,8 @@ class StatusPublisherActor(curatorFramework: CuratorFramework) extends Actor wit
   override def receive: Receive = {
     case cd: WorkflowStatusChange =>
       context.system.eventStream.publish(cd)
+    case cd: WorkflowStatusRemove =>
+      context.system.eventStream.publish(cd)
     case _ =>
       log.debug("Unrecognized message in Workflow Status Publisher Actor")
   }
@@ -68,5 +76,7 @@ object StatusPublisherActor {
   trait Notification
 
   case class WorkflowStatusChange(path: String, workflowStatus: WorkflowStatus) extends Notification
+
+  case class WorkflowStatusRemove(path: String, workflowStatus: WorkflowStatus) extends Notification
 
 }

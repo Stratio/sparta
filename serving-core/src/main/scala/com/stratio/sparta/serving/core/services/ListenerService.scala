@@ -24,7 +24,7 @@ import com.stratio.sparta.serving.core.marathon.MarathonService
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.submit.SubmissionResponse
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow._
 import org.apache.curator.framework.CuratorFramework
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.HttpClientBuilder
@@ -47,7 +47,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
     * @param id       of the workflow.
     * @param callback with a function that will be executed.
     */
-  def addWorkflowStatusListener(id: String, callback: WorkflowStatus => Unit): Unit =
+  def addWorkflowStatusListener(id: String, callback: WorkflowStatusStream => Unit): Unit =
     statusListenerActor ! OnWorkflowStatusChangeDo(id)(callback)
 
   /** Spark Launcher functions **/
@@ -93,8 +93,8 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
     val workflow = workflowService.findById(workflowId)
     log.info(s"Marathon context listener added to ${workflow.name} with id: $workflowId")
 
-    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatus =>
-      if (workflowStatus.status == Stopped || workflowStatus.status == Failed) {
+    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatusStream =>
+      if (workflowStatusStream.workflowStatus.status == Stopped || workflowStatusStream.workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
           scheduledTask.foreach(task => if(!task.isCancelled) task.cancel())
@@ -108,7 +108,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                 } match {
                   case Success(_) =>
                     val information = s"Workflow correctly finished in Marathon API"
-                    val newStatus = if (workflowStatus.status == Failed) NotDefined else Finished
+                    val newStatus = if (workflowStatusStream.workflowStatus.status == Failed) NotDefined else Finished
                     log.info(information)
                     statusService.update(WorkflowStatus(
                       id = workflowId,
@@ -122,7 +122,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(error),
-                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                      lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                     ))
                 }
               case None =>
@@ -140,8 +140,8 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
   def addMesosDispatcherListener(workflowId: String, scheduledTask : Option[Cancellable] = None): Unit = {
     val workflow = workflowService.findById(workflowId)
     log.info(s"Mesos dispatcher listener added to ${workflow.name} with id: $workflowId")
-    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatus =>
-      if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
+    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatusStream =>
+      if (workflowStatusStream.workflowStatus.status == Stopping || workflowStatusStream.workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
           scheduledTask.foreach(task => if(!task.isCancelled) task.cancel())
@@ -159,7 +159,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                 } match {
                   case Success(submissionResponse) if submissionResponse.success =>
                     val information = s"Workflow killed correctly with Spark API"
-                    val newStatus = if (workflowStatus.status == Failed) NotDefined else Killed
+                    val newStatus = if (workflowStatusStream.workflowStatus.status == Failed) NotDefined else Killed
                     log.info(information)
                     statusService.update(WorkflowStatus(
                       id = workflowId,
@@ -174,7 +174,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(information),
-                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Execution, error))
+                      lastError = submissionResponse.message.map(error => WorkflowError(information, PhaseEnum.Stop, error))
                     ))
                   case Failure(e) =>
                     val error = "Impossible to parse submission killing response"
@@ -183,7 +183,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                       id = workflowId,
                       status = Failed,
                       statusInfo = Some(error),
-                      lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                      lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                     ))
                 }
               case _ =>
@@ -200,8 +200,8 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
   def addSparkClientListener(workflowId: String, handler: SparkAppHandle,  scheduledTask : Cancellable): Unit = {
     val workflow = workflowService.findById(workflowId)
     log.info(s"Spark Client listener added to ${workflow.name} with id: $workflowId")
-    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatus =>
-      if (workflowStatus.status == Stopping || workflowStatus.status == Failed) {
+    statusListenerActor ! OnWorkflowStatusChangeDo(workflowId) { workflowStatusStream =>
+      if (workflowStatusStream.workflowStatus.status == Stopping || workflowStatusStream.workflowStatus.status == Failed) {
         log.info("Stop message received from Zookeeper")
         try {
           if(!scheduledTask.isCancelled) scheduledTask.cancel()
@@ -214,7 +214,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
               log.info(information)
               statusService.update(WorkflowStatus(
                 id = workflowId,
-                status = if(workflowStatus.status == Stopping) Stopped else Failed,
+                status = if(workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                 statusInfo = Some(information)
               ))
             case Failure(e: Exception) =>
@@ -226,7 +226,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   log.info(information)
                   statusService.update(WorkflowStatus(
                     id = workflowId,
-                    status = if(workflowStatus.status == Stopping) Stopped else Failed,
+                    status = if(workflowStatusStream.workflowStatus.status == Stopping) Stopped else Failed,
                     statusInfo = Some(information)
                   ))
                 case Failure(e: Exception) =>
@@ -236,7 +236,7 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                     id = workflowId,
                     status = Failed,
                     statusInfo = Some(error),
-                    lastError = Option(WorkflowError(error, PhaseEnum.Execution, e.toString))
+                    lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
                   ))
               }
           }

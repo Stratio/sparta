@@ -18,7 +18,6 @@ package com.stratio.sparta.serving.api.actor
 
 import akka.actor.{ActorContext, ActorRef, _}
 import akka.event.slf4j.SLF4JLogging
-import akka.pattern.ask
 import akka.routing.RoundRobinPool
 import akka.util.Timeout
 import com.stratio.sparta.dg.agent.lineage.LineageService
@@ -28,10 +27,8 @@ import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.api.headers.{CacheSupport, CorsSupport}
 import com.stratio.sparta.serving.api.service.handler.CustomExceptionHandler._
 import com.stratio.sparta.serving.api.service.http._
-import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.ForceInitialization
 import com.stratio.sparta.serving.core.actor.StatusActor.AddClusterListeners
-import com.stratio.sparta.serving.core.actor.WorkflowListenerActor.{OnWorkflowChangeDo, OnWorkflowsChangesDo}
-import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, _}
+import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
@@ -44,7 +41,7 @@ import spray.http.StatusCodes._
 import spray.routing._
 
 import scala.concurrent.duration._
-import scala.util.{Failure, Properties, Try}
+import scala.util.{Properties, Try}
 
 class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: Option[SpartaSecurityManager])
   extends HttpServiceActor with SLF4JLogging with CorsSupport with CacheSupport with OauthClient {
@@ -59,20 +56,23 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
 
   log.debug("Initializing actors in Controller Actor")
 
-  val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
-  val localWorkflowPublisherActor = context.actorOf(Props(new WorkflowPublisherActor(curatorFramework)))
-  val envStateActor = context.actorOf(Props(new EnvironmentStateActor(curatorFramework)))
+  val envListenerActor = context.actorOf(Props(new EnvironmentListenerActor()))
+  val envPublisherActor = context.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
   val stListenerActor = context.actorOf(Props(new WorkflowStatusListenerActor()))
   val workflowListenerActor = context.actorOf(Props(new WorkflowListenerActor()))
+  val localWorkflowPublisherActor = context.actorOf(Props(
+    new WorkflowPublisherActor(curatorFramework, Option(context.system), Option(envListenerActor))))
+  val localExecutionPublisherActor = context.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
+  val localStatusPublisherActor = context.actorOf(Props(new StatusPublisherActor(curatorFramework)))
   val scService = StreamingContextService(curatorFramework, stListenerActor)
   val statusActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new StatusActor(curatorFramework, stListenerActor))), StatusActorName)
   val templateActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new TemplateActor(curatorFramework))), TemplateActorName)
   val launcherActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new LauncherActor(scService, curatorFramework, stListenerActor, envStateActor))), LauncherActorName)
+    .props(Props(new LauncherActor(scService, curatorFramework, stListenerActor, envListenerActor))), LauncherActorName)
   val workflowActor = context.actorOf(RoundRobinPool(DefaultInstances)
-    .props(Props(new WorkflowActor(curatorFramework, launcherActor, envStateActor))), WorkflowActorName)
+    .props(Props(new WorkflowActor(curatorFramework, launcherActor, envListenerActor))), WorkflowActorName)
   val executionActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new ExecutionActor(curatorFramework))), ExecutionActorName)
   val pluginActor = context.actorOf(RoundRobinPool(DefaultInstances)
@@ -89,7 +89,7 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
     .props(Props(new MetadataActor())), MetadataActorName)
   val crossdataActor = context.actorOf(RoundRobinPool(DefaultInstances)
     .props(Props(new CrossdataActor())), CrossdataActorName)
-  val lineageService = if(Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
+  val lineageService = if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
     Option(new LineageService(context.system))
   } else None
   val nginxActor =
@@ -120,23 +120,11 @@ class ControllerActor(curatorFramework: CuratorFramework)(implicit secManager: O
   val cookieName: String = Try(oauthConfig.get.getString("cookieName")).getOrElse(AppConstant.DefaultOauth2CookieName)
 
   override def preStart(): Unit = {
+
     log.debug("Creating status listeners")
     statusActor ! AddClusterListeners
 
-    log.debug("Initializing Environment Actor")
-    for {
-      response <- (environmentActor ? EnvironmentActor.Initialize).mapTo[Try[Unit]]
-    } yield response match {
-      case scala.util.Success(_) =>
-        log.debug("Initializing Environment State Actor")
-        envStateActor ! ForceInitialization
-      case Failure(e) => log.warn(s"Error initializing Environment Actor. Error: ${e.getLocalizedMessage}")
-    }
-
-    log.debug("Initializing Group Actor")
-    groupActor ! GroupActor.Initialize
-
-    lineageService.foreach{ lineageExtractor =>
+    lineageService.foreach { lineageExtractor =>
       log.debug("Initializing lineage")
       lineageExtractor.extractTenantMetadata()
       lineageExtractor.extractWorkflowChanges()

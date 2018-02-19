@@ -1,0 +1,17 @@
+<div [hidden]="executionInfo">
+   <div #newWorkflowModal qaTag="workflow-modal"></div>
+   <workflows-header-container [showDetails]="showDetails" [selectedWorkflows]="selectedWorkflows" (showWorkflowInfo)="showWorkflowInfo()"></workflows-header-container>
+   <div class="container">
+      <div class="table-container" [ngClass]="{'compressed' : showDetails}">
+         <div class="workflow-list">
+            <workflows-table-container [workflowList]="workflowList" [selectedWorkflowsIds]="selectedWorkflowsIds"></workflows-table-container>
+         </div>
+         <div class="workflow-detail-container">
+            <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
+               <workflow-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)" [workflowData]="selectedWorkflows.length ? selectedWorkflows[0] : null"></workflow-detail>
+            </sparta-sidebar>
+         </div>
+      </div>
+   </div>
+</div>
+<workflow-execution-info *ngIf="executionInfo" [executionInfo]="executionInfo"></workflow-execution-info>

@@ -16,17 +16,20 @@
 
 package com.stratio.sparta.dg.agent.lineage
 
+import scala.util.{Failure, Success, Try}
+import scalax.collection.Graph
+import scalax.collection.GraphEdge.DiEdge
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
+import com.typesafe.config.ConfigFactory
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
 import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
-import com.typesafe.config.ConfigFactory
-
-import scala.util.Try
+import com.stratio.sparta.serving.core.helpers.GraphHelper
+import com.stratio.sparta.serving.core.models.workflow.NodeGraph
 
 class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
@@ -35,32 +38,45 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
   private val statusListenerActor = actorSystem.actorOf(Props(new WorkflowStatusListenerActor()))
   private val workflowListenerActor = actorSystem.actorOf(Props(new WorkflowListenerActor()))
   private val senderKafka = actorSystem.actorOf(Props[KafkaSender])
-  private lazy val config = ConfigFactory.load
+  private val config = ConfigFactory.load
   private val configSettingTopic = "sender.topic"
   private val topicKafka = Try(config.getString(configSettingTopic)).getOrElse("dg-metadata")
 
   def extractTenantMetadata(): Unit = {
-    log.info(s"Sending tenant lineage")
 
-    senderKafka ! KafkaEvent(LineageUtils.tenantMetadataLineage(),topicKafka)
+    log.debug(s"Sending tenant lineage")
+
+    Try(
+      LineageUtils.tenantMetadataLineage()
+    ) match {
+      case Success(tenantMetadataList) =>
+        senderKafka ! KafkaEvent(tenantMetadataList,topicKafka)
+        log.debug("Tenant metadata sent to Kafka")
+      case Failure(ex)=>
+        log.warn(s"The event couldn't be sent to Kafka. Error was: ${ex.getMessage}")
+    }
+
+
   }
 
   def extractWorkflowChanges(): Unit = {
-
-    workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow =>
-
-      log.info(s"Sending workflow lineage for workflow: ${workflow.id.get}")
-
+    workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow => {
+      val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
+      val metadataList = LineageUtils.inputMetadataLineage(workflow, graph) :::
+        LineageUtils.transformationMetadataLineage(workflow, graph) :::
+        LineageUtils.outputMetadataLineage(workflow, graph)
+      senderKafka ! KafkaEvent(metadataList, topicKafka)
+      log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
+    }
     }
   }
 
   def extractStatusChanges(): Unit = {
 
-    statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatus =>
+    statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
 
-      log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatus.id}")
+      log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflowStatus.id}")
     }
-
   }
 
   def stopWorkflowChangesExtraction(): Unit =
@@ -68,7 +84,4 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
   def stopWorkflowStatusChangesExtraction(): Unit =
     statusListenerActor ! ForgetWorkflowStatusActions(WorkflowStatusLineageKey)
-
-
-
 }

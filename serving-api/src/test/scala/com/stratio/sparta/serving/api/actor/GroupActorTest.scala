@@ -329,7 +329,7 @@ class GroupActorTest extends TestKit(ActorSystem("GroupActorSpec"))
         groupActor ! GroupActor.UpdateGroup(updateGroupModel, rootUser)
         expectMsg(Left(Failure(
           new ServerException(s"Unable to update group ${updateGroupModel.id.get} " +
-            s"with name ${updateGroupModel.name}:target group already existing"))))
+            s"with name ${updateGroupModel.name}:target group already exists"))))
       }
 
     "DeleteGroupById: delete a group by its ID" in new TestData {

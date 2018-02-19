@@ -14,7 +14,12 @@
         (search)="onSearchResult($event)" 
         qaTag="filter-environment">
         </st-search>
-         <button class="button button-primary" (click)="saveEnvironment()" [disabled]="internalControl.pristine">{{'DASHBOARD.SAVE' | translate}}</button>
+        <!-- <button class="button button-toolbar">
+            <i class="icon-export"></i>
+        </button>
+        <button class="button button-toolbar">
+            <i class="icon-import"></i>
+        </button>-->
          <floating-menu [menuOptions]="menuOptions" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
             <div menu-action>
                <button class="button button-toolbar">
@@ -22,6 +27,7 @@
                 </button>
             </div>
          </floating-menu>
+         <button class="button button-primary" (click)="saveEnvironment()" [disabled]="internalControl.pristine">{{'DASHBOARD.SAVE' | translate}}</button>
     </div>
 </tool-bar>
 <section>
@@ -36,7 +42,7 @@
                                     <ng-container *ngFor="let field of fields; let j = index;">
                                         <div [className]="'col-sm-' + field.width">
                                             <sp-input [name]="field.propertyId" [errors]="errorsService.errors.inputErrors" [forceValidations]="forceValidations" *ngIf="field.propertyType == 'text' || field.propertyType == 'number'"
-                                                label="{{field.propertyName | translate}}" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
+                                                [label]="i === 0 ? (field.propertyName | translate) : ''" fieldType="{{field.propertyType}}" placeholder="{{field.propertyName | translate}}"
                                                 [formControl]="item.controls[field.propertyId]" qaTag="form-list-input" [required]="field.required"
                                                 contextualHelp="{{field.tooltip | translate}}" class="st-form-field"></sp-input>
                                         </div>
@@ -53,7 +59,6 @@
                     <i class="icon-circle-plus"></i>
                     <span class="element-label">{{'DASHBOARD.ADD_ENVIRONMENT' | translate}}</span>
                 </div>
-                <button class="button button-primary" [disabled]="internalControl.pristine" (click)="saveEnvironment()">{{'DASHBOARD.SAVE' | translate}}</button>
             </div>
         </div>
     </div>

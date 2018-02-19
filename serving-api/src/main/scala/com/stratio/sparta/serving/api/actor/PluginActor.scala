@@ -82,7 +82,7 @@ class PluginActor(implicit val secManagerOpt: Option[SpartaSecurityManager]) ext
         case Failure(e: java.io.FileNotFoundException) =>
           Try(Seq.empty[SpartaFile])
         case Failure(e: Exception) =>
-          log.warn("Error getting files with Hdfs api, getting it from local directory", e)
+          log.warn(s"Error getting files with Hdfs api, getting it from local directory. ${e.getLocalizedMessage}")
           browseDirectory()
       }
     }

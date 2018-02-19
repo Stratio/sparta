@@ -16,6 +16,7 @@
  initSpark
  initSparkEnvOptions
  initLocalSparkIp
+ initSparkUICrossdata
  INFO "[SPARTA-SERVER] Loaded Sparta Spark options"
 
  INFO "[SPARTA-SERVER] Initializing Sparta Hdfs options ... "

@@ -21,6 +21,7 @@ import { Effect, Actions } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
 
 import * as outputActions from './../actions/output';
+import * as errorActions from 'actions/errors';
 
 @Injectable()
 export class OutputEffect {
@@ -34,7 +35,7 @@ export class OutputEffect {
                     return new outputActions.ListOutputCompleteAction(outputList);
                 }).catch(function (error: any) {
                    return error.statusText === 'Unknown Error' ? Observable.of(new outputActions.ListOutputFailAction('')) :
-                    Observable.of({type: 'NO_ACTION'});
+                    Observable.of(new errorActions.ServerErrorAction(error));
                 });
         });
 
@@ -50,7 +51,7 @@ export class OutputEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new outputActions.DeleteOutputCompleteAction(outputs), new outputActions.ListOutputAction()];
             }).catch(function (error) {
-                return Observable.of(new outputActions.DeleteOutputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -63,7 +64,7 @@ export class OutputEffect {
             return this.templatesService.createTemplate(output).mergeMap((data: any) => {
                 return [new outputActions.DuplicateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.of(new outputActions.DuplicateOutputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -75,7 +76,7 @@ export class OutputEffect {
             return this.templatesService.createTemplate(data.payload).mergeMap((data: any) => {
                 return [new outputActions.CreateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.of(new outputActions.CreateOutputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 
@@ -86,7 +87,7 @@ export class OutputEffect {
             return this.templatesService.updateFragment(data.payload).mergeMap((data: any) => {
                 return [new outputActions.UpdateOutputCompleteAction(), new outputActions.ListOutputAction];
             }).catch(function (error: any) {
-                return Observable.of(new outputActions.UpdateOutputErrorAction(''));
+                return Observable.of(new errorActions.ServerErrorAction(error));
             });
         });
 

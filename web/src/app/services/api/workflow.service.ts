@@ -37,6 +37,11 @@ export class WorkflowService extends ApiService {
         return this.request('workflows', 'get', options);
     }
 
+    getWorkflowsByGroup(groupId: string): Observable<any> {
+        const options: any = {};
+        return this.request('workflows/findAllByGroup/' + groupId, 'get', options);
+    }
+
     getGroups(): Observable<any> {
         const options: any = {};
         return this.request('groups', 'get', options);
@@ -49,6 +54,25 @@ export class WorkflowService extends ApiService {
             }
         };
         return this.request('groups', 'post', options);
+    }
+
+    deleteGroupByName(name: string): Observable<any> {
+        const options: any = {
+        };
+        return this.request('groups/deleteByName/' + name, 'delete', options);
+    }
+
+    deleteGroupById(groupId: string): Observable<any> {
+        const options: any = {
+        };
+        return this.request('groups/deleteById/' + groupId, 'delete', options);
+    }
+
+    updateGroup(group: any): Observable<any> {
+        const options: any = {
+            body: group
+        };
+        return this.request('groups', 'put', options);
     }
 
     getWorkFlowContextList(): Observable<any> {
@@ -106,6 +130,13 @@ export class WorkflowService extends ApiService {
         return this.request('workflows/' + id, 'delete', options);
     }
 
+    deleteWorkflowList(ids: Array<string>) {
+        const options: any = {
+            body: ids
+        };
+        return this.request('workflows/list', 'delete', options);
+    }
+
     getWorkflowExecutionInfo(id: string) {
         const options: any = {};
         return this.request('workflowExecutions/' + id, 'get', options);
@@ -116,6 +147,27 @@ export class WorkflowService extends ApiService {
             body: workflow
         };
         return this.request('workflows/validate', 'post', options);
+    }
+
+    renameWorkflow(query: any) {
+        const options: any = {
+            body: query
+        };
+        return this.request('workflows/rename', 'put', options);
+    }
+
+    moveWorkflow(query: any) {
+        const options: any = {
+            body: query
+        };
+        return this.request('workflows/move', 'put', options);
+    }
+
+    generateVersion(workflow: any) {
+        const options: any = {
+            body: workflow
+        };
+        return this.request('workflows/version', 'post', options);
     }
 
 

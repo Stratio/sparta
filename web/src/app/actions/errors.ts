@@ -17,6 +17,7 @@
 import { Action } from '@ngrx/store';
 
 export const SERVER_ERROR = '[Errors] Server error';
+export const SERVER_ERROR_COMPLETE = '[Errors] Server error complete';
 export const FORBIDDEN_ERROR = '[Errors] Forbidden error';
 export const CHANGE_ROUTE = '[Errors] Change route';
 export const HTTP_ERROR = '[Errors] Http error';
@@ -27,6 +28,12 @@ export class ServerErrorAction implements Action {
   readonly type = SERVER_ERROR;
   constructor(public payload: any) { }
 }
+
+export class ServerErrorCompleteAction implements Action {
+  readonly type = SERVER_ERROR_COMPLETE;
+  constructor(public payload: any) { }
+}
+
 
 export class ForbiddenErrorAction implements Action {
   readonly type = FORBIDDEN_ERROR;
@@ -55,5 +62,6 @@ export type Actions = ServerErrorAction |
   ChangeRouteAction |
   HttpErrorAction |
   SavedDataNotificationAction |
-  HideSavedDataNotificationAction;
+  HideSavedDataNotificationAction |
+  ServerErrorCompleteAction;
 

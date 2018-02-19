@@ -21,12 +21,12 @@ import { ActionReducerMap } from '@ngrx/store';
 import * as fromBackups from './backups';
 import * as fromResources from './resources';
 import * as fromAlerts from './alerts';
-import * as fromUser from './user';
+import * as fromGlobal from './global';
 import * as fromWizard from './wizard';
 import * as fromEnvironment from './environment';
 
 export interface State {
-    user: fromUser.State;
+    user: fromGlobal.State;
     backups: fromBackups.State;
     resources: fromResources.State;
     alerts: fromAlerts.State;
@@ -35,7 +35,7 @@ export interface State {
 }
 
 export const reducers: ActionReducerMap<State> = {
-    user: fromUser.reducer,
+    user: fromGlobal.reducer,
     backups: fromBackups.reducer,
     resources: fromResources.reducer,
     alerts: fromAlerts.reducer,
@@ -61,7 +61,6 @@ export const getEnvironmentState: any = createFeatureSelector<fromEnvironment.St
 // backups
 export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);
 export const getSelectedBackups: any =  createSelector(getBackupsState, fromBackups.getSelectedBackups);
-export const getSelectedAll: any =  createSelector(getBackupsState, fromBackups.getSelectedAll);
 
 // resources
 export const getPluginsList: any = createSelector(getResourcesState, fromResources.getPluginsList);
@@ -83,6 +82,7 @@ export const getSelectedEntityData: any = createSelector(getWizardState, fromWiz
 export const getWorkflowRelations: any = createSelector(getWizardState, fromWizard.getWorkflowRelations);
 export const getWorkflowNodes: any = createSelector(getWizardState, fromWizard.getWorkflowNodes);
 export const getEditionConfigMode: any = createSelector(getWizardState, fromWizard.getEditionConfigMode);
+export const showSettings: any = createSelector(getWizardState, fromWizard.showSettings);
 export const isEntitySaved: any = createSelector(getWizardState, fromWizard.isEntitySaved);
 export const getWorkflowSettings: any = createSelector(getWizardState, fromWizard.getWorkflowSettings);
 export const getWorkflowName: any = createSelector(getWizardState, fromWizard.getWorkflowName);
@@ -93,9 +93,12 @@ export const areUndoRedoEnabled: any = createSelector(getWizardState, fromWizard
 export const getValidationErrors: any = createSelector(getWizardState, fromWizard.getValidationErrors);
 export const isPristine: any = createSelector(getWizardState, fromWizard.isPristine);
 export const getWorkflowType: any = createSelector(getWizardState, fromWizard.getWorkflowType);
+export const getWorkflowHeaderData: any = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
+export const getValidatedEntityName: any = createSelector(getWizardState, fromWizard.getValidatedEntityName);
+export const getErrorsManagementOutputs: any = createSelector(getWizardState, fromWizard.getErrorsManagementOutputs);
 
 // environment
 export const getEnvironmentList: any = createSelector(getEnvironmentState, fromEnvironment.getEnvironmentList);
 
 // user
-export const getUsername: any = createSelector(getUserState, fromUser.getUsername);
+export const getUsername: any = createSelector(getUserState, fromGlobal.getUsername);

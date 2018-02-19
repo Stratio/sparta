@@ -49,7 +49,6 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
 
     public breadcrumbOptions: any = [];
 
-
     public item: any = {};
     public internalControl: FormGroup;
     public items: FormArray;
@@ -98,9 +97,14 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
             this.model = envList.variables;
             this.initForm(this.model);
             this._cd.detectChanges();
+
+            setTimeout(() => {
+                if (this.internalControl.invalid) {
+                    this.forceValidations = true;
+                    this._cd.detectChanges();
+                }
+            });
         });
-        /*this.store.dispatch(new errorsActions.SavedDataNotificationAction());
-        console.log(this.store.select(fromRoot.pendingSavedData).take(1).);*/
     }
 
     initForm(variables: Array<any>) {
@@ -121,7 +125,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
     }
 
     isHidden(value: any){
-        return !(value.name.indexOf(this.filter) > -1);
+        return !(value.name.toLowerCase().indexOf(this.filter) > -1);
     }
 
     addItem(): void {
@@ -167,10 +171,11 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
     }
 
     onSearchResult($event: any) {
-        this.filter = $event;
+        this.filter = $event.text.toLowerCase();
     }
 
     public onCloseImportModal() {
+        this.forceValidations = true;
         this._modalService.close();
     }
 

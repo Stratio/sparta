@@ -38,7 +38,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
     Try {
       if (find().toOption.isEmpty) {
         create(Environment(AppConstant.DefaultEnvironment))
-        log.debug("The environment initialization have been completed")
+        log.debug("The environment initialization has been completed")
       } else log.debug("The environment is already created")
     }
   }
@@ -55,7 +55,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
   def create(environment: Environment): Try[Environment] = {
     log.debug("Creating environment")
     if (CuratorFactoryHolder.existsPath(AppConstant.EnvironmentZkPath)) {
-      log.debug(s"The environment exists, updating it")
+      log.debug(s"The environment already exists, updating it")
       update(environment)
     } else {
       Try {
@@ -95,7 +95,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
         case Success(environment) =>
           val newEnvironment = environment.copy(variables = {
             if (environment.variables.exists(presentEnv => presentEnv.name == environmentVariable.name)) {
-              log.debug(s"The variable: ${environmentVariable.name} exists, replacing it")
+              log.debug(s"The variable: ${environmentVariable.name} already exists, replacing it")
               environment.variables.map(variable =>
                 if (variable.name == environmentVariable.name)
                   environmentVariable
@@ -118,7 +118,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
       find() match {
         case Success(environment) =>
           if (environment.variables.exists(presentEnv => presentEnv.name == environmentVariable.name)) {
-            log.debug(s"The variable ${environmentVariable.name} exists, replacing it")
+            log.debug(s"The variable ${environmentVariable.name} already exists, replacing it")
             val newEnvironment = environment.copy(
               variables = environment.variables.map(variable =>
                 if (variable.name == environmentVariable.name)
@@ -127,7 +127,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
               ))
             update(newEnvironment).map(_ => environmentVariable)
               .getOrElse(throw new ServerException(s"Impossible to update variable"))
-          } else throw new ServerException(s"The environment variable not exists")
+          } else throw new ServerException(s"The environment variable doesn't exist")
         case Failure(e) =>
           throw new ServerException(s"Impossible to update variable, ${e.getLocalizedMessage}")
       }
@@ -156,7 +156,7 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
       find() match {
         case Success(environment) =>
           environment.variables.find(variable => variable.name == name)
-            .getOrElse(throw new ServerException(s"The environment variable not exists"))
+            .getOrElse(throw new ServerException(s"The environment variable doesn't exist"))
         case Failure(e) =>
           throw new ServerException(s"Impossible to find variable, ${e.getLocalizedMessage}")
       }
@@ -213,11 +213,11 @@ class EnvironmentService(curatorFramework: CuratorFramework) extends SpartaSeria
             initialEnvVariables.variables.foreach(createVariable)
           } match {
             case Success(_) =>
-              log.info("Restoring data process after environment import completed successful")
+              log.info("Restoring data process after environment import completed successfully")
               None
             case Failure(exception: Exception) =>
               log.error("Restoring data process after environment import has failed." +
-                " The data maybe corrupt. Contact with the support.", exception)
+                " The data may be corrupted. Contact the technical support", exception)
               Option(exception.getLocalizedMessage)
           }
           throw new Exception(s"Error importing environment data." +

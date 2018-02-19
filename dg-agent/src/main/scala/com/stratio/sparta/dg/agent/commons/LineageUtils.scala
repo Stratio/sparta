@@ -17,26 +17,29 @@
 package com.stratio.sparta.dg.agent.commons
 
 import scalax.collection.GraphEdge.DiEdge
-import com.stratio.governance.commons.agent.model.metadata.MetadataPath
-import com.stratio.sparta.dg.agent.model.{SpartaInputMetadata, SpartaTenantMetadata}
-import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
-
 import scalax.collection._
 import org.joda.time.DateTime
+import com.stratio.governance.commons.agent.model.metadata.MetadataPath
+import com.stratio.sparta.dg.agent.model.{SpartaInputMetadata, SpartaOutputMetadata, SpartaTenantMetadata, SpartaTransformationMetadata}
+import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
+import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
 
-import scala.util.Properties
+import scala.util.{Properties, Try}
 
 /**
   * Utilitary object for dg-workflows methods
   */
 object LineageUtils {
 
-  private[commons] def workflowMetadataPathString(workflow: Workflow): String = s"${workflow.group.name}/${
-    workflow.name}/${workflow.version}/${workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis}"
+  val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+
+
+  def workflowMetadataPathString(workflow: Workflow): String = s"${workflow.group.name.replaceAll("/","_")}/${workflow.name}" +
+    s"/${workflow.version}/${workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis}"
 
   def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaInputMetadata] = {
     val metadataPath = workflowMetadataPathString(workflow)
-    workflow.pipelineGraph.nodes.filter(node => node.stepType.equals("Input")).map(
+    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
       n => SpartaInputMetadata(
         name = n.name,
         key = n.classPrettyName,
@@ -47,17 +50,44 @@ object LineageUtils {
     ).toList
   }
 
+  def outputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaOutputMetadata] = {
+    val metadataPath = workflowMetadataPathString(workflow)
+    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
+      n => SpartaOutputMetadata(
+        name = n.name,
+        key = n.classPrettyName,
+        metadataPath = MetadataPath(metadataPath),
+        incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
+        tags = workflow.tag.toList,
+        modificationTime = workflow.lastUpdateDate.map(_.getMillis))
+    ).toList
+  }
+
+  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]):
+  List[SpartaTransformationMetadata] = {
+    val metadataPath = workflowMetadataPathString(workflow)
+    workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
+      n => SpartaTransformationMetadata(
+        name = n.name,
+        key = n.classPrettyName,
+        metadataPath = MetadataPath(metadataPath),
+        outcomingNodes = graph.get(n).diSuccessors.map(s => MetadataPath(s"$metadataPath/${s.name}")).toSeq,
+        incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
+        tags = workflow.tag.toList,
+        modificationTime = workflow.lastUpdateDate.map(_.getMillis))
+    ).toList
+  }
+
   def tenantMetadataLineage() : List[SpartaTenantMetadata] = {
-    val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
 
     val tenantList = List(SpartaTenantMetadata(
       name = tenantName,
       key = tenantName,
       metadataPath = MetadataPath(s"$tenantName"),
       tags = List(),
-      oauthEnable = Properties.envOrElse("SECURITY_OAUTH2_ENABLE", "false").toBoolean,
-      gosecEnable = Properties.envOrElse("ENABLE_GOSEC_AUTH", "false").toBoolean,
-      xdCatalogEnable = Properties.envOrElse("CROSSDATA_CORE_ENABLE_CATALOG", "false").toBoolean,
+      oauthEnable = Try(Properties.envOrElse("SECURITY_OAUTH2_ENABLE", "false").toBoolean).getOrElse(false),
+      gosecEnable = Try(Properties.envOrElse("ENABLE_GOSEC_AUTH", "false").toBoolean).getOrElse(false),
+      xdCatalogEnable = Try(Properties.envOrElse("CROSSDATA_CORE_ENABLE_CATALOG", "false").toBoolean).getOrElse(false),
       mesosHostnameConstraint = Properties.envOrElse("MESOS_HOSTNAME_CONSTRAINT", ""),
       mesosAttributeConstraint = Properties.envOrElse("MESOS_ATTRIBUTE_CONSTRAINT", "")
     ))
