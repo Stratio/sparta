@@ -16,11 +16,11 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import akka.actor.{Actor, ActorRef, ActorSystem}
+import akka.actor.Actor
 import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.Workflow
+import com.stratio.sparta.serving.core.models.env.Environment
 import org.apache.curator.framework.CuratorFramework
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent.Type
 import org.apache.curator.framework.recipes.cache.{PathChildrenCache, PathChildrenCacheEvent, PathChildrenCacheListener}
@@ -28,60 +28,59 @@ import org.json4s.jackson.Serialization.read
 
 import scala.util.Try
 
-class WorkflowPublisherActor(
-                              curatorFramework: CuratorFramework,
-                              override val serializerSystem: Option[ActorSystem] = None,
-                              override val environmentStateActor: Option[ActorRef] = None
-                            ) extends Actor with SpartaSerializer with SLF4JLogging {
+class EnvironmentPublisherActor(curatorFramework: CuratorFramework)
+  extends Actor with SpartaSerializer with SLF4JLogging {
 
-  import WorkflowPublisherActor._
+  import EnvironmentPublisherActor._
 
   private var pathCache: Option[PathChildrenCache] = None
 
   override def preStart(): Unit = {
-    val workflowsPath = AppConstant.WorkflowsZkPath
-    val nodeListener = new PathChildrenCacheListener {
+
+    val environmentPath = AppConstant.BaseZkPath
+    val nodeListener1 = new PathChildrenCacheListener {
       override def childEvent(client: CuratorFramework, event: PathChildrenCacheEvent): Unit = {
         val eventData = event.getData
         Try {
-          read[Workflow](new String(eventData.getData))
-        } foreach { workflow =>
+          read[Environment](new String(eventData.getData))
+        } foreach { environment =>
           event.getType match {
             case Type.CHILD_ADDED | Type.CHILD_UPDATED =>
-              self ! WorkflowChange(event.getData.getPath, workflow)
+              self ! EnvironmentChange(event.getData.getPath, environment)
             case Type.CHILD_REMOVED =>
-              self ! WorkflowRemove(event.getData.getPath, workflow)
+              self ! EnvironmentRemove(event.getData.getPath, environment)
             case _ => {}
           }
         }
       }
     }
 
-    pathCache = Option(new PathChildrenCache(curatorFramework, workflowsPath, true))
-    pathCache.foreach(_.getListenable.addListener(nodeListener, context.dispatcher))
+    pathCache = Option(new PathChildrenCache(curatorFramework, environmentPath, true))
+    pathCache.foreach(_.getListenable.addListener(nodeListener1, context.dispatcher))
     pathCache.foreach(_.start())
+
   }
 
   override def postStop(): Unit =
     pathCache.foreach(_.close())
 
   override def receive: Receive = {
-    case cd: WorkflowChange =>
+    case cd: EnvironmentChange =>
       context.system.eventStream.publish(cd)
-    case cd: WorkflowRemove =>
+    case cd: EnvironmentRemove =>
       context.system.eventStream.publish(cd)
     case _ =>
-      log.debug("Unrecognized message in Workflow Publisher Actor")
+      log.debug("Unrecognized message in Environment Publisher Actor")
   }
 
 }
 
-object WorkflowPublisherActor {
+object EnvironmentPublisherActor {
 
   trait Notification
 
-  case class WorkflowChange(path: String, workflow: Workflow) extends Notification
+  case class EnvironmentChange(path: String, environment: Environment) extends Notification
 
-  case class WorkflowRemove(path: String, workflow: Workflow) extends Notification
+  case class EnvironmentRemove(path: String, environment: Environment) extends Notification
 
 }

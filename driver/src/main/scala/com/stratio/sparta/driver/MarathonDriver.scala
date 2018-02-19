@@ -22,21 +22,23 @@ import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.actor.MarathonAppActor
 import com.stratio.sparta.driver.actor.MarathonAppActor.StartApp
 import com.stratio.sparta.driver.exception.DriverException
-import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowStatusListenerActor}
+import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
+import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.typesafe.config.ConfigFactory
+import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Success, Try}
 
-object MarathonDriver extends SLF4JLogging {
+object MarathonDriver extends SLF4JLogging with SpartaSerializer {
 
   val NumberOfArguments = 3
-  val PolicyIdIndex = 0
+  val WorkflowIdIndex = 0
   val ZookeeperConfigurationIndex = 1
   val DetailConfigurationIndex = 2
 
@@ -45,31 +47,30 @@ object MarathonDriver extends SLF4JLogging {
       assert(args.length == NumberOfArguments,
         s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
       log.debug(s"Arguments: ${args.mkString(", ")}")
-
-      val workflowId = args(PolicyIdIndex)
+      val workflow = read[Workflow](new String(BaseEncoding.base64().decode(args(WorkflowIdIndex))))
+      log.debug(s"Obtained workflow: ${workflow.toString}")
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigurationIndex)))
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigurationIndex)))
-
       initSpartaConfig(zookeeperConf, detailConf)
-
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val system = ActorSystem("MarathonApp")
       val statusService = new WorkflowStatusService(curatorInstance)
 
       Try {
-        val _ = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
-        val envStatusActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
-        val stListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
-        val marathonAppActor = system.actorOf(
-          Props(new MarathonAppActor(curatorInstance, stListenerActor, envStatusActor)), MarathonAppActorName)
+        val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+        system.actorOf(Props(new ExecutionPublisherActor(curatorInstance)))
+        system.actorOf(Props(new WorkflowPublisherActor(curatorInstance)))
+        system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
+        val marathonAppActor = system.actorOf(Props(
+          new MarathonAppActor(curatorInstance, statusListenerActor)), MarathonAppActorName)
 
-        marathonAppActor ! StartApp(workflowId)
+        marathonAppActor ! StartApp(workflow)
       } match {
         case Success(_) =>
         case Failure(exception) =>
           val information = s"Error initiating workflow app environment in Marathon driver"
           statusService.update(WorkflowStatus(
-            id = workflowId,
+            id = workflow.id.get,
             status = Failed,
             statusInfo = Option(information),
             lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))

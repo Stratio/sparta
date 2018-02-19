@@ -44,9 +44,9 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
   def extractStatusChanges(): Unit = {
 
-    statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatus =>
+    statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
 
-      log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatus.id}")
+      log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflowStatus.id}")
     }
 
   }

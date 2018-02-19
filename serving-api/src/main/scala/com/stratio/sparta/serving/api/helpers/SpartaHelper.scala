@@ -21,10 +21,12 @@ import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
+import com.stratio.sparta.serving.core.actor.EnvironmentPublisherActor
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
+import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
 import spray.can.Http
 
 /**
@@ -45,6 +47,10 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
 
       log.debug("Initializing Sparta system ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
+
+      //Initialize data
+      new EnvironmentService(curatorFramework).initialize()
+      new GroupService(curatorFramework).initialize()
 
       val controllerActor =
         system.actorOf(Props(new ControllerActor(curatorFramework)), ControllerActorName)

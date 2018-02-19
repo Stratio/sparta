@@ -87,7 +87,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
       "detailConfig" -> keyConfigEncoded("config", detailConfig),
       "hdfsConfig" -> keyOptionConfigEncoded("hdfs", hdfsConfig),
       "plugins" -> pluginsEncoded(pluginsFiles),
-      "workflowId" -> workflow.id.get.trim,
+      "workflowId" -> workflowEncoded(workflow),
       "zookeeperConfig" -> keyConfigEncoded("zookeeper", zookeeperConfig)
     )
   }

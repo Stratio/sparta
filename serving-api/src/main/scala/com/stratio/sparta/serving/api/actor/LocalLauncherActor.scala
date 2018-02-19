@@ -70,7 +70,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         log.info(information)
         statusService.update(WorkflowStatus(
           id = workflow.id.get,
-          status = WorkflowStatusEnum.Stopped,
+          status = WorkflowStatusEnum.Finished,
           statusInfo = Some(information)
         ))
         self ! PoisonPill

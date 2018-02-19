@@ -23,24 +23,27 @@ import com.stratio.sparta.driver.SpartaWorkflow
 import com.stratio.sparta.driver.factory.SparkContextFactory._
 import com.stratio.sparta.sdk.ContextBuilder.ContextBuilderImplicits
 import com.stratio.sparta.sdk.DistributedMonad.DistributedMonadImplicits
+import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
 import com.stratio.sparta.sdk.workflow.step.GraphStep
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor.{ForgetWorkflowStatusActions, OnWorkflowStatusChangeDo}
+import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.{SparkSubmitService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.models.workflow.{SparkDispatcherExecution, SparkExecution, Workflow, WorkflowStatus}
+import com.stratio.sparta.serving.core.services.{ExecutionService, SparkSubmitService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.{CheckpointUtils, SchedulerUtils}
 import org.apache.curator.framework.CuratorFramework
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.Dataset
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.dstream.DStream
-import org.apache.spark.sql.Dataset
 
 case class StreamingContextService(curatorFramework: CuratorFramework, listenerActor: ActorRef)
 
   extends SchedulerUtils with CheckpointUtils with DistributedMonadImplicits with ContextBuilderImplicits {
 
-
   private val statusService = new WorkflowStatusService(curatorFramework)
+  private val executionService = new ExecutionService(curatorFramework)
 
   def localStreamingContext(workflow: Workflow, files: Seq[File]): (SpartaWorkflow[DStream], StreamingContext) = {
     killLocalContextListener(workflow, workflow.name)
@@ -53,9 +56,8 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
     }
 
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
-    
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
 
+    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
@@ -68,7 +70,6 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-
     (spartaWorkflow, ssc)
   }
 
@@ -86,13 +87,11 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
     val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curatorFramework)
 
     spartaWorkflow.setup()
-
     spartaWorkflow.stages()
-
     spartaWorkflow
   }
 
-  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): (SpartaWorkflow[DStream], StreamingContext) = {
+  def clusterStreamingContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[DStream] = {
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val spartaWorkflow = SpartaWorkflow[DStream](workflow, curatorFramework)
@@ -118,20 +117,26 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setSparkContext(ssc.sparkContext)
     setSparkStreamingContext(ssc)
-
-    (spartaWorkflow, ssc)
+    setDispatcherSettings(workflow, ssc.sparkContext)
+    spartaWorkflow.setup()
+    ssc.start
+    notifyWorkflowStarted(workflow)
+    ssc.awaitTermination()
+    spartaWorkflow
   }
 
   def clusterContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[Dataset] = {
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
     val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
-
-    sparkClusterContextInstance(stepsSparkConfig, files)
-
+    val sparkContext = sparkClusterContextInstance(stepsSparkConfig, files)
     val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curatorFramework)
 
+    setDispatcherSettings(workflow, sparkContext)
+
     spartaWorkflow.setup()
+
+    notifyWorkflowStarted(workflow)
 
     spartaWorkflow.stages()
 
@@ -141,8 +146,9 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   private[driver] def killLocalContextListener(workflow: Workflow, name: String): Unit = {
     log.info(s"Listener added for workflow ${workflow.name}")
 
-    listenerActor ! OnWorkflowStatusChangeDo(workflow.id.get) { workflowStatus =>
-      if (workflowStatus.status == Stopping)
+    listenerActor ! OnWorkflowStatusChangeDo(workflow.id.get) { workflowStatusStream =>
+      if (workflowStatusStream.workflowStatus.status == Stopping ||
+        workflowStatusStream.workflowStatus.status == Stopped)
         try {
           log.info("Stopping message received from Zookeeper")
           closeContexts(workflow.id.get)
@@ -158,9 +164,45 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
     log.info(information)
     statusService.update(WorkflowStatus(
       id = workflowId,
-      status = Stopped,
+      status = Finished,
       statusInfo = Some(information)
     ))
     destroySparkContext()
+  }
+
+  private[driver] def setDispatcherSettings(workflow: Workflow, sparkContext: SparkContext): Unit = {
+    for {
+      status <- statusService.findById(workflow.id.get)
+      execution <- executionService.findById(workflow.id.get)
+      execMode <- status.lastExecutionMode
+    } if (execMode.contains(ConfigMesos))
+      executionService.update {
+        execution.copy(
+          sparkExecution = Option(SparkExecution(
+            applicationId = extractSparkApplicationId(sparkContext.applicationId))),
+          sparkDispatcherExecution = Option(SparkDispatcherExecution(
+            killUrl = workflow.settings.sparkSettings.killUrl.notBlankWithDefault(DefaultkillUrl)
+          ))
+        )
+      }
+  }
+
+  private[driver] def extractSparkApplicationId(contextId: String): String = {
+    if (contextId.contains("driver")) {
+      val sparkApplicationId = contextId.substring(contextId.indexOf("driver"))
+      log.info(s"The extracted Framework id is: ${contextId.substring(0, contextId.indexOf("driver") - 1)}")
+      log.info(s"The extracted Spark application id is: $sparkApplicationId")
+      sparkApplicationId
+    } else contextId
+  }
+
+  private[driver] def notifyWorkflowStarted(workflow: Workflow): Unit = {
+    val startedInfo = s"Workflow in Spark driver was properly launched"
+    log.info(startedInfo)
+    statusService.update(WorkflowStatus(
+      id = workflow.id.get,
+      status = Started,
+      statusInfo = Some(startedInfo)
+    ))
   }
 }

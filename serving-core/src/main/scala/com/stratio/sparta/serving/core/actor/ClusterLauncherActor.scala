@@ -16,8 +16,6 @@
 
 package com.stratio.sparta.serving.core.actor
 
-import java.io.File
-
 import akka.actor.{Actor, ActorRef, Cancellable}
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Start, StartWithRequest}
 import com.stratio.sparta.serving.core.config.SpartaConfig

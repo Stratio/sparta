@@ -17,9 +17,12 @@
 package com.stratio.sparta.serving.core.utils
 
 import com.google.common.io.BaseEncoding
+import com.stratio.sparta.serving.core.models.SpartaSerializer
+import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.typesafe.config.{Config, ConfigRenderOptions}
+import org.json4s.jackson.Serialization._
 
-trait ArgumentsUtils {
+trait ArgumentsUtils extends SpartaSerializer {
 
   def render(config: Config, key: String): String = config.atKey(key).root.render(ConfigRenderOptions.concise)
 
@@ -34,5 +37,7 @@ trait ArgumentsUtils {
     }
 
   def pluginsEncoded(plugins: Seq[String]): String = encode((Seq(" ") ++ plugins).mkString(","))
+
+  def workflowEncoded(workflow: Workflow): String = encode(write(workflow))
 
 }
