@@ -121,13 +121,18 @@ object CrossdataService extends SLF4JLogging {
   private def jdbcDriverVariables: Seq[(String, String)] =
     SparkSubmitService.getJarsSparkConfigurations(JarsHelper.getJdbcDriverPaths).toSeq
 
-  lazy val crossdataSession = {
+  lazy val spartaTenant: String = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+
+  val crossdataSession = {
 
     val reference = getClass.getResource("/reference.conf").getPath
     val additionalConfigurations = kerberosYarnDefaultVariables ++ jdbcDriverVariables
     val sparkConf = new SparkConf()
       .setAll(additionalConfigurations)
-      .setAppName(Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta") + "-crossdata")
+      .setAppName( spartaTenant + "-crossdata")
+
+    if( Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST").isDefined )
+      sparkConf.set("spark.ui.proxyBase", s"/workflows-$spartaTenant/crossdata-sparkUI" )
 
     log.debug(s"Added variables to Spark Conf in XDSession: $additionalConfigurations")
 
