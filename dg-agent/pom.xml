@@ -45,6 +45,11 @@
             <artifactId>akka-actor_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-testkit_${scala.binary.version}</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.binary.version}</artifactId>
             <scope>test</scope>
@@ -57,6 +62,10 @@
         <dependency>
             <groupId>com.stratio.sparta</groupId>
             <artifactId>serving-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-graph</groupId>
+            <artifactId>graph-core_${scala.binary.version}</artifactId>
         </dependency>
     </dependencies>
     <build>
