@@ -28,7 +28,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   #******************************
   Scenario:[SPARTA-1279][02] Obtain postgres docker
     Given I open a ssh connection to '!{pgIP}' with user 'root' and password 'stratio'
-    Then I run 'docker ps | grep postgresql-community:${POSTGRES_VERSION:-0.17.0} | awk '{print $1}'' in the ssh connection and save the value in environment variable 'postgresDocker'
+    Then I run 'docker ps | grep postgresql-community:${STRATIO_POSTGRES_VERSION:-0.18.1} | awk '{print $1}'' in the ssh connection and save the value in environment variable 'postgresDocker'
     And I run 'echo !{postgresDocker}' locally
     And I wait '10' seconds
     And I run 'echo !{postgresDocker}' in the ssh connection with exit status '0'
@@ -44,7 +44,7 @@ Feature: [SPARTA-1279] E2E Execution of Workflow Kafka Postgres x Elements
   Scenario:[SPARTA-1279][04] Install kafka-postgres workflow
     #include workflow
     Given I send a 'POST' request to '/service/${DCOS_SERVICE_NAME}/workflows' based on 'schemas/workflows/kafka-postgres.json' as 'json' with:
-    |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_NODE}-${POSTGRES_NAME}.service.paas.labs.stratio.com:5432/postgres?user=${DCOS_SERVICE_NAME}   | n/a |
+    |$.pipelineGraph.nodes[2].configuration.url|  UPDATE  | jdbc:postgresql://${POSTGRES_INSTANCE}?user=${DCOS_SERVICE_NAME}   | n/a |
     Then the service response status must be '200'
     And I save element '$.id' in environment variable 'previousWorkflowID'
     And I save element '$.name' in environment variable 'nameWorkflow'

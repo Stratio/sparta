@@ -23,14 +23,11 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 @CucumberOptions(features = {
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
-    "src/test/resources/features/automated/dcos/01_installations/SPARTA_1278_AddConfigurationForSparta_IT.feature",
-    "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
+       "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
 })
 
-public class SPARTA_1278_InstallSpartaAndExecuteWorkflow_IT extends BaseTest  {
-    public SPARTA_1278_InstallSpartaAndExecuteWorkflow_IT() {this.browser = browser;
+public class SPARTA_1278_Executions_IT extends BaseTest  {
+    public SPARTA_1278_Executions_IT() {this.browser = browser;
     }
 
     @Test(enabled = true, groups = {"dcos_executions"}, dependsOnGroups = {"dcos_instalation"})

@@ -27,11 +27,11 @@ import org.testng.annotations.Test;
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1161_FullSecurityInstalation_IT.feature",
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
         "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1278_AddConfigurationForSparta_IT.feature",
-        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1278_AddConfigurationForSparta_IT.feature"
+
 
 })
-public class SPARTA_1422_InstalationAndExecutions_IT extends BaseTest {
+public class SPARTA_1277_Installations_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -39,10 +39,10 @@ public class SPARTA_1422_InstalationAndExecutions_IT extends BaseTest {
 
     }
 
-    public SPARTA_1422_InstalationAndExecutions_IT() {this.browser = browser;
+    public SPARTA_1277_Installations_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_installations_executions"})
+    @Test(enabled = true, groups = {"dcos_instalation"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.sparta.testsAT.automated.dcos.installations;
+package com.stratio.sparta.testsAT.automated.dcos.executions;
 
 import com.stratio.qa.cucumber.testng.CucumberRunner;
 import com.stratio.qa.utils.BaseTest;
@@ -24,10 +24,13 @@ import org.testng.annotations.Test;
 
 
 @CucumberOptions(features = {
-        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1161_FullSecurityInstalation_IT.feature"
-
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1161_FullSecurityInstalation_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1162_Gosec_AddzookeperPolicy_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1238_InstalationwithMustache_IT.feature",
+        "src/test/resources/features/automated/dcos/01_installations/SPARTA_1278_AddConfigurationForSparta_IT.feature",
+        "src/test/resources/features/automated/dcos/02_executions/SPARTA-1279_KafkaPostgres_IT.feature"
 })
-public class SPARTA_1277_FullSecurityInstalation_IT extends BaseTest {
+public class SPARTA_1422_InstalationAndExecutions_IT extends BaseTest {
 
     @BeforeClass(groups = {"sparta_eos"})
     public void setUp() {
@@ -35,10 +38,10 @@ public class SPARTA_1277_FullSecurityInstalation_IT extends BaseTest {
 
     }
 
-    public SPARTA_1277_FullSecurityInstalation_IT() {this.browser = browser;
+    public SPARTA_1422_InstalationAndExecutions_IT() {this.browser = browser;
     }
 
-    @Test(enabled = true, groups = {"dcos_instalation"})
+    @Test(enabled = true, groups = {"dcos_installations_executions"})
     public void AppWithoutSecurityTest() throws Exception {
         new CucumberRunner(this.getClass()).runCukes();
     }
