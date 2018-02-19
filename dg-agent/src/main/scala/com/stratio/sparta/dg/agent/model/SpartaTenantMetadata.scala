@@ -24,8 +24,12 @@ import com.stratio.governance.commons.agent.model.metadata.lineage.TenantMetadat
 case class SpartaTenantMetadata(
                                  name: String,
                                  key: String,
+                                 oauthEnable: Boolean,
+                                 gosecEnable: Boolean,
+                                 xdCatalogEnable: Boolean,
+                                 mesosHostnameConstraint: String,
+                                 mesosAttributeConstraint: String,
                                  metadataPath: MetadataPath,
-                                 outcomingNodes: Seq[MetadataPath],
                                  agentVersion: String = SpartaType.agentVersion,
                                  serverVersion: String = SpartaType.serverVersion,
                                  tags: List[String],

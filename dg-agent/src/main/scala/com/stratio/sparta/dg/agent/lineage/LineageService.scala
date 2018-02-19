@@ -18,9 +18,15 @@ package com.stratio.sparta.dg.agent.lineage
 
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.governance.commons.agent.actors.KafkaSender
+import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
+import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
+import com.typesafe.config.ConfigFactory
+
+import scala.util.Try
 
 class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
@@ -28,10 +34,15 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
   private val WorkflowStatusLineageKey = "workflow-status-lineage"
   private val statusListenerActor = actorSystem.actorOf(Props(new WorkflowStatusListenerActor()))
   private val workflowListenerActor = actorSystem.actorOf(Props(new WorkflowListenerActor()))
+  private val senderKafka = actorSystem.actorOf(Props[KafkaSender])
+  private lazy val config = ConfigFactory.load
+  private val configSettingTopic = "sender.topic"
+  private val topicKafka = Try(config.getString(configSettingTopic)).getOrElse("dg-metadata")
 
   def extractTenantMetadata(): Unit = {
-
     log.info(s"Sending tenant lineage")
+
+    senderKafka ! KafkaEvent(LineageUtils.tenantMetadataLineage(),topicKafka)
   }
 
   def extractWorkflowChanges(): Unit = {
@@ -39,6 +50,7 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
     workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow =>
 
       log.info(s"Sending workflow lineage for workflow: ${workflow.id.get}")
+
     }
   }
 
