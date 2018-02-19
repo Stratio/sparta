@@ -48,14 +48,14 @@ abstract class TriggerTransformStep[Underlying[Row]](
 
     val queryDf = Try(xDSession.sql(sql)) match {
       case Success(sqlResult) => sqlResult
-      case Failure(exception: org.apache.spark.sql.AnalysisException) =>
-        val info = s"Error while running analysis in Catalyst, query $sql in the trigger $name"
-        log.warn(info, exception)
-        throw new RuntimeException(info, exception)
-      case Failure(exception) =>
-        val info = s"Error while running query $sql in the trigger $name"
-        log.warn(info, exception)
-        throw new RuntimeException(info, exception)
+      case Failure(e: org.apache.spark.sql.AnalysisException) =>
+        val info = s"Error while running analysis in Catalyst, query $sql in the trigger $name. ${e.getMessage}"
+        log.warn(info)
+        throw new RuntimeException(info, e)
+      case Failure(e) =>
+        val info = s"Error while running query $sql in the trigger $name. ${e.getMessage}"
+        log.warn(info)
+        throw new RuntimeException(info, e)
     }
 
     queryDf.rdd

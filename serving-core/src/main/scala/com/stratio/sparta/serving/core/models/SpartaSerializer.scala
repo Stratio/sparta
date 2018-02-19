@@ -81,7 +81,7 @@ object SpartaSerializer extends SLF4JLogging {
         environmentContext = Option(EnvironmentContext(newEnvironment))
         environmentContext
       case Failure(e) =>
-        log.warn("No environment result, returning the last value", e)
+        log.warn(s"No environment result, returning the last value. ${e.getLocalizedMessage}")
         environmentContext
     }
   }

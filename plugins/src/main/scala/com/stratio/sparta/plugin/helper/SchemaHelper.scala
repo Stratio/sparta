@@ -50,7 +50,8 @@ object SchemaHelper extends SLF4JLogging {
           }
         } recoverWith {
           case e =>
-            log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event", e)
+            log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event." +
+              s" ${e.getLocalizedMessage}")
             Failure(e)
         } toOption
       }
@@ -60,7 +61,8 @@ object SchemaHelper extends SLF4JLogging {
     schemaProvided flatMap { schemaStr =>
       if (useRowSchema) None
       else Try(getSparkSchemaFromAvroSchema(getAvroSchemaFromString(schemaStr))).recoverWith { case e =>
-        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event", e)
+        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event" +
+          s" ${e.getLocalizedMessage}")
         Failure(e)
       }.toOption
     }
@@ -69,7 +71,8 @@ object SchemaHelper extends SLF4JLogging {
     schemaProvided flatMap { schemaStr =>
       if (useRowSchema) None
       else Try(getAvroSchemaFromString(schemaStr)).recoverWith { case e =>
-        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event", e)
+        log.warn(s"Impossible to parse the schema: $schemaStr, the system infer it from each event" +
+          s" ${e.getLocalizedMessage}")
         Failure(e)
       }.toOption
     }

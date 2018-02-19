@@ -151,7 +151,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           case Success(_) =>
             log.debug(s"Save partition correctly on table ${properties.table} and output $outputName")
           case Failure(e) =>
-            log.warn(s"Save partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to save", e)
+            log.warn(s"Save partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to save. ${e.getLocalizedMessage}")
             if (tableExists(properties, repartitionedDF, outputName))
               savePartition(properties, iterator, schema, dialect, batchSize, isolationLevel, outputName, isCaseSensitive)
         }
@@ -198,7 +198,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           case Success(_) =>
             log.debug(s"Upsert partition correctly on table ${properties.table} in output $outputName")
           case Failure(e) =>
-            log.warn(s"Upsert partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to upsert", e)
+            log.warn(s"Upsert partition with errors, attempting it creating the table ${properties.table} in output $outputName and retry to upsert. ${e.getLocalizedMessage}")
             if (tableExists(properties, repartitionedDF, outputName))
               upsertPartition(properties, insert, update, iterator, schema, nullTypes, dialect, searchTypes, updateTypes, outputName)
         }
@@ -342,7 +342,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           log.warn(s"Requested isolation level $isolationLevel, but transactions are unsupported")
         }
       } catch {
-        case NonFatal(e) => log.warn("Exception while detecting transaction support", e)
+        case NonFatal(e) => log.warn(s"Exception while detecting transaction support. ${e.getLocalizedMessage}")
       }
     }
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
@@ -447,7 +447,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
           log.warn(s"Requested isolation level $isolationLevel, but transactions are unsupported")
         }
       } catch {
-        case NonFatal(e) => log.warn("Exception while detecting transaction support", e)
+        case NonFatal(e) => log.warn(s"Exception while detecting transaction support. ${e.getLocalizedMessage}")
       }
     }
     val supportsTransactions = finalIsolationLevel != Connection.TRANSACTION_NONE
@@ -502,7 +502,7 @@ object SpartaJdbcUtils extends SLF4JLogging {
       } catch {
         case e: Exception =>
           if (supportsTransactions) {
-            log.warn("Transaction not succeeded, rollback it", e)
+            log.warn(s"Transaction not succeeded, rollback it. ${e.getLocalizedMessage}")
             conn.rollback()
           }
       }
