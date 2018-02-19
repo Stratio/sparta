@@ -22,10 +22,10 @@ import { Observable } from 'rxjs/Observable';
 import * as resourcesActions from 'actions/resources';
 import { ResourcesService } from 'app/services';
 import * as fromRoot from 'reducers';
+import * as errorActions from 'actions/errors';
 
 @Injectable()
 export class ResourcesEffect {
-
 
     @Effect()
     getPluginsList$: Observable<Action> = this.actions$
@@ -34,7 +34,10 @@ export class ResourcesEffect {
                 .map((pluginsList: any) => {
                     return new resourcesActions.ListPluginsCompleteAction(pluginsList);
                 }).catch(function (error) {
-                    return Observable.of(new resourcesActions.ListPluginsErrorAction(''));
+                    return Observable.from([
+                        new resourcesActions.ListPluginsErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -45,7 +48,10 @@ export class ResourcesEffect {
                 .map((driversList: any) => {
                     return new resourcesActions.ListDriversCompleteAction(driversList);
                 }).catch(function (error) {
-                    return Observable.of(new resourcesActions.ListDriversErrorAction(''));
+                    return Observable.from([
+                        new resourcesActions.ListDriversErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -56,7 +62,10 @@ export class ResourcesEffect {
                 .mergeMap(() => {
                     return [new resourcesActions.UploadDriverCompleteAction(''), new resourcesActions.ListDriversAction()];
                 }).catch(function (error) {
-                    return Observable.of(new resourcesActions.UploadDriverErrorAction(''));
+                    return Observable.from([
+                        new resourcesActions.UploadDriverErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -67,7 +76,10 @@ export class ResourcesEffect {
                 .mergeMap(() => {
                     return [new resourcesActions.UploadPluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
                 }).catch(function (error) {
-                    return Observable.of(new resourcesActions.UploadPluginErrorAction(''));
+                    return Observable.from([
+                        new resourcesActions.UploadPluginErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 
@@ -83,7 +95,10 @@ export class ResourcesEffect {
             return Observable.forkJoin(joinObservables).mergeMap(results => {
                 return [new resourcesActions.DeletePluginCompleteAction(''), new resourcesActions.ListPluginsAction()];
             }).catch(function (error: any) {
-                return Observable.of(new resourcesActions.DeletePluginErrorAction(''));
+                return Observable.from([
+                    new resourcesActions.DeletePluginErrorAction(''),
+                    new errorActions.ServerErrorAction(error)
+                ]);
             });
         });
 
@@ -95,7 +110,10 @@ export class ResourcesEffect {
                 .mergeMap(() => {
                     return [new resourcesActions.DeleteDriverCompleteAction(''), new resourcesActions.ListDriversAction()];
                 }).catch(function (error) {
-                    return Observable.of(new resourcesActions.DeleteDriverErrorAction(''));
+                    return Observable.from([
+                        new resourcesActions.DeleteDriverErrorAction(''),
+                        new errorActions.ServerErrorAction(error)
+                    ]);
                 });
         });
 

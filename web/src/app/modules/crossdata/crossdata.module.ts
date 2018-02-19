@@ -17,7 +17,8 @@ import { StoreModule } from '@ngrx/store';
 
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { StSearchModule, StSwitchModule, StTableModule, StCheckboxModule, StPaginationModule, StBreadcrumbsModule } from '@stratio/egeo';
+import { StSearchModule, StSwitchModule, StTableModule, StCheckboxModule,
+    StPaginationModule, StBreadcrumbsModule, StProgressBarModule } from '@stratio/egeo';
 import { EffectsModule } from '@ngrx/effects';
 
 import { CrossdataTables } from './components/crossdata-tables/crossdata-tables.component';
@@ -47,6 +48,7 @@ import { HighlightTextareaModule } from '@app/shared/components/highlight-textar
       StTableModule,
       StCheckboxModule,
       StPaginationModule,
+      StProgressBarModule,
       StBreadcrumbsModule
    ]
 })

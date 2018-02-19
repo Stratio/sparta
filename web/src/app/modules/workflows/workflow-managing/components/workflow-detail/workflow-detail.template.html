@@ -1,0 +1,54 @@
+<div class="workflow-detail">
+   <!--<st-horizontal-tabs [options]="options" qaTag="workflow-detail-tabs"></st-horizontal-tabs>-->
+   <div class="not-selected" *ngIf="!data || !data.type">
+      <img src="assets/images/workflow-detail.png" class="workflow-detail-image" />
+      <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
+   </div>
+   <div class="selected" *ngIf="data && data.type === 'version'">
+      <span class="status" [ngClass]="workflowData.status.status.toLowerCase()">{{('DASHBOARD.' + (workflowData.status.status | uppercase)) | translate}}</span>
+      <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
+      <span class="description">{{workflowData.description}}</span>
+      <div *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length">
+        <span class="title2">Last update</span>
+        <span class="values">{{workflowData.lastUpdate}}</span>
+     </div>
+      <div *ngIf="workflowData && workflowData.lastExecutionMode">
+         <span class="title2">Execution mode</span>
+         <span class="">{{workflowData.lastExecutionMode}}</span>
+      </div>
+      <div *ngIf="inputs && inputs.length">
+         <span class="title">{{'GLOBAL.INPUTS' | translate}}</span>
+         <span class="values" *ngFor="let input of inputs">{{input}}</span>
+      </div>
+      <div *ngIf="transformations && transformations.length">
+         <span class="title">{{'GLOBAL.TRANSFORMATIONS' | translate}}</span>
+         <span class="values" *ngFor="let transformation of transformations">{{transformation}}</span>
+      </div>
+      <div *ngIf="outputs && outputs.length">
+         <span class="title">{{'GLOBAL.OUTPUTS' | translate}}</span>
+         <span class="values" *ngFor="let output of outputs">{{output}}</span>
+      </div>
+   </div>
+
+   <div class="selected" *ngIf="data && data.type === 'workflow'">
+      <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
+      <span class="type">{{data.type}}</span>
+      <div>
+         <span class="title2">Number of versions</span>
+         <span class="values">{{workflowData.versions.length}}</span>
+      </div>
+      <div *ngIf="workflowData.lastUpdate && workflowData.lastUpdate.length">
+         <span class="title2">Last update</span>
+         <span class="values">{{workflowData.lastUpdate}}</span>
+      </div>
+   </div>
+
+   <div class="selected" *ngIf="data && data.type === 'group'">
+      <h3 class="egeo-title-giant">{{groupLabel}}</h3>
+      <span class="type">{{data.type}}</span>
+      <div>
+         <span class="title2">{{'DASHBOARD.COMPLETE_PATH' | translate}}</span>
+         <span class="values">{{workflowData.name}}</span>
+      </div>
+   </div>
+</div>

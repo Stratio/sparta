@@ -92,8 +92,8 @@ export class CrossdataTables implements OnInit, OnDestroy {
 
     constructor(private store: Store<fromCrossdata.State>, private _cd: ChangeDetectorRef) { }
 
-    onSearchResult(event: string) {
-        this.store.dispatch(new crossdataActions.FilterTablesAction(event));
+    onSearchResult(event: any) {
+        this.store.dispatch(new crossdataActions.FilterTablesAction(event.text));
     }
 
     reloadDatabases() {

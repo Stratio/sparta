@@ -1,18 +1,11 @@
 {
-   "angularCompilerOptions": {
-      "genDir": "./dist/aot"
-   },
-   "buildOnSave": false,
    "compileOnSave": false,
    "compilerOptions": {
       "baseUrl": "./src",
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      "lib": ["es2015", "dom"],
-      "mapRoot": "",
-      "module": "commonjs",
+      "lib": ["es2016", "dom"],
       "moduleResolution": "node",
-      "noImplicitAny": true,
       "outDir": "dist",
       "paths": {
          "@app/*": ["app/modules/*"],
@@ -38,20 +31,18 @@
             "./app/data-templates/*"
          ],
          "assets/*": [
-             "./assets/*"
+            "./assets/*"
          ],
          "constants/*": [
             "./app/modules/shared/constants/*"
-         ]
+         ],
+         "@test/*": ["test/*"],
+         "@test": ["test/index.ts"]
       },
-      "rootDir": ".",
-      "skipLibCheck": true,
       "sourceMap": true,
       "target": "es5",
-      "types": ["jasmine", "node"]
-   },
-   "exclude": ["dist", "node_modules"],
-   "include": [
-      "src/**/*"
-   ]
+      "typeRoots": [
+         "node_modules/@types"
+      ]
+   }
 }

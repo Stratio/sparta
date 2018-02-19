@@ -1,4 +1,3 @@
-import { Store } from '@ngrx/store';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -16,6 +15,8 @@ import { Store } from '@ngrx/store';
 ///
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
+import { Store } from '@ngrx/store';
+
 import * as fromRoot from 'reducers';
 import * as environmentActions from 'actions/environment';
 

@@ -39,15 +39,19 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private usernameSubscription: Subscription;
 
     constructor(private menuService: MenuService, private router: Router, private store: Store<fromRoot.State>) {
-       this.routeSubscription = router.events.subscribe((event) => {
+        this.routeSubscription = router.events.subscribe((event) => {
             if (event instanceof NavigationStart) {
-               this.store.dispatch(new errorsActions.ChangeRouteAction());
+                this.store.dispatch(new errorsActions.ChangeRouteAction());
             }
-       });
+        });
     }
 
     hideAlert() {
         this.store.dispatch(new errorsActions.ChangeRouteAction());
+    }
+
+    redirectHome() {
+        this.router.navigate(['']);
     }
 
     ngOnInit(): void {
@@ -58,7 +62,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy(): void { 
+    ngOnDestroy(): void {
         this.routeSubscription && this.routeSubscription.unsubscribe();
         this.usernameSubscription && this.usernameSubscription.unsubscribe();
     }

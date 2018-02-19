@@ -39,3 +39,15 @@
    margin-left: 20px;
    transform: scale(0.7);
 }
+
+st-pagination {
+   display: block;
+   margin: 20px 0;
+}
+
+.loading-bar {
+   margin-top: -23px;
+   margin-bottom: 20px;
+   margin-left: 3px;
+   width: calc(100% - 5px);
+}

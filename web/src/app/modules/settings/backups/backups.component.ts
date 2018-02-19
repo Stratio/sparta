@@ -17,13 +17,12 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { BackupType } from 'app/models/backup.model';
-import { OnDestroy } from '@angular/core/core';
+import { OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
 
 import * as fromRoot from 'reducers';
 import * as backupsActions from 'actions/backups';
 
-import { Observable } from 'rxjs/Observable';
 import {
     StTableHeader, StModalButton, StModalResponse, StModalService
 } from '@stratio/egeo';
@@ -41,7 +40,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
 
     @ViewChild('backupsModal', { read: ViewContainerRef }) target: any;
 
-    public backupList$: Observable<BackupType>;
+    public backupList: Array<BackupType> = [];
     public deleteBackupModalTitle: string;
     public deleteBackupModalMessage: string;
     public executeBackupModalTitle: string;
@@ -50,32 +49,41 @@ export class SpartaBackups implements OnInit, OnDestroy {
     public deleteMetadataModalMessage: string;
     public executeFileName: string;
     public deleteMetadataModalTitle: string;
+    public deleteMetadataModalMessageTitle: string;
     public breadcrumbOptions: any;
-    public selectedBackups: Array<string>;
+    public selectedBackups: Array<string> = [];
     public deleteAllBackupsModalMessageTitle: string;
     public deleteBackupModalMessageTitle: string;
     public fields: StTableHeader[] = [
-        { id: '', label: '', sortable: false },
         { id: 'fileName', label: 'Name' },
-        { id: 'size', label: 'Size' },
+        { id: 'path', label: 'Path' },
     ];
 
     private selectedBackupsSubscription: Subscription;
+    private backupListSubscription: Subscription;
 
 
     ngOnInit() {
         this._modalService.container = this.target;
         this.store.dispatch(new backupsActions.ListBackupAction());
-        this.backupList$ = this.store.select(fromRoot.getBackupList);
+        this.backupListSubscription = this.store.select(fromRoot.getBackupList).subscribe((backup: any) => {
+            this.backupList = backup;
+            this._cd.detectChanges();
+        });
         this.selectedBackupsSubscription = this.store.select(fromRoot.getSelectedBackups).subscribe((selectedBackups: Array<string>) => {
             this.selectedBackups = selectedBackups;
+            this._cd.detectChanges();
         });
+    }
+
+    selectAll($event: any) {
+        this.store.dispatch(new backupsActions.SelectAllBackups($event));
     }
 
     public deleteBackupConfirmModal(): void {
         const buttons: StModalButton[] = [
             { label: 'Cancel', responseValue: StModalResponse.NO, classes: 'button-secondary-gray', closeOnClick: true },
-            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical'}
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true  }
         ];
 
         this._modalService.show({
@@ -122,6 +130,13 @@ export class SpartaBackups implements OnInit, OnDestroy {
         this._modalService.close();
     }
 
+    changeOrder($event: any): void {
+        this.store.dispatch(new backupsActions.ChangeOrderAction({
+            orderBy: $event.orderBy,
+            sortOrder: $event.type
+        }));
+    }
+
     public deleteAllBackupsConfirmModal(): void {
         const buttons: StModalButton[] = [
             { label: 'Cancel', responseValue: StModalResponse.NO, classes: 'button-secondary-gray', closeOnClick: true },
@@ -145,12 +160,14 @@ export class SpartaBackups implements OnInit, OnDestroy {
 
     public deleteMetadataConfirmModal(): void {
         const buttons: StModalButton[] = [
-            { label: 'Delete', responseValue: StModalResponse.YES },
-            { label: 'Cancel', responseValue: StModalResponse.NO }
+            { label: 'Cancel', responseValue: StModalResponse.NO, classes: 'button-secondary-gray', closeOnClick: true },
+            { label: 'Delete', responseValue: StModalResponse.YES, classes: 'button-critical', closeOnClick: true }
         ];
         this._modalService.show({
             modalTitle: this.deleteMetadataModalTitle,
+            messageTitle: this.deleteMetadataModalMessageTitle,
             buttons: buttons,
+            maxWidth: 500,
             message: this.deleteMetadataModalMessage,
         }).subscribe((response: any) => {
             if (response === 1) {
@@ -169,7 +186,6 @@ export class SpartaBackups implements OnInit, OnDestroy {
     }
 
     checkValue($event: any): void {
-        console.log($event);
         if ($event.checked) {
             this.store.dispatch(new backupsActions.SelectBackupAction($event.value.fileName));
         } else {
@@ -178,7 +194,7 @@ export class SpartaBackups implements OnInit, OnDestroy {
     }
 
     constructor(private store: Store<fromRoot.State>, private _modalService: StModalService, private translate: TranslateService,
-        public breadcrumbMenuService: BreadcrumbMenuService) {
+        public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {
         this.breadcrumbOptions = breadcrumbMenuService.getOptions();
         const deleteBackupModalTitle = 'DASHBOARD.DELETE_BACKUP_TITLE';
         const deleteBackupModalMessage = 'DASHBOARD.DELETE_BACKUP_MESSAGE';
@@ -189,10 +205,11 @@ export class SpartaBackups implements OnInit, OnDestroy {
         const deleteAllBackupsModalMessage = 'DASHBOARD.DELETE_ALL_BACKUPS_MESSAGE';
         const deleteAllBackupsModalMessageTitle = 'DASHBOARD.DELETE_ALL_BACKUPS_MESSAGE_TITLE';
         const deleteBackupModalMessageTitle = 'DASHBOARD.DELETE_ALL_BACKUPS_MESSAGE_TITLE';
+        const deleteMetadataModalMessageTitle = 'DASHBOARD.DELETE_METADATA_TITLE_MESSAGE';
 
         this.translate.get([deleteBackupModalTitle, deleteBackupModalMessage, executeBackupModalTitle,
             deleteAllBackupsModalTitle, deleteAllBackupsModalMessage, deleteMetadataModalTitle, deleteMetadataModalMessage,
-            deleteAllBackupsModalMessageTitle, deleteBackupModalMessageTitle]).subscribe(
+            deleteAllBackupsModalMessageTitle, deleteBackupModalMessageTitle, deleteMetadataModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteBackupModalTitle = value[deleteBackupModalTitle];
                 this.deleteBackupModalMessage = value[deleteBackupModalMessage];
@@ -203,15 +220,14 @@ export class SpartaBackups implements OnInit, OnDestroy {
                 this.deleteAllBackupsModalMessage = value[deleteAllBackupsModalMessage];
                 this.deleteAllBackupsModalMessageTitle = value[deleteAllBackupsModalMessageTitle];
                 this.deleteBackupModalMessageTitle = value[deleteBackupModalMessageTitle];
+                this.deleteMetadataModalMessageTitle = value[deleteMetadataModalMessageTitle];
 
-            }
-            );
-
-
+            });
     }
 
     ngOnDestroy(): void {
         this.selectedBackupsSubscription && this.selectedBackupsSubscription.unsubscribe();
+        this.backupListSubscription && this.backupListSubscription.unsubscribe();
     }
 
 }

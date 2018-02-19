@@ -1,249 +1,249 @@
-  {
-     "name": "Explode",
-     "icon": "Explode",
-     "className": "ExplodeTransformStepStream",
-     "classPrettyName": "Explode",
-     "arity": ["UnaryToNary"],
-     "description": "Explode an input field and returns one row for each element in it",
-     "properties": [
-        {
-           "propertyId": "inputField",
-           "propertyName": "_INPUT_FIELD_",
-           "propertyType": "text",
-           "required": true,
-           "tooltip": "Filed that contains the csv string",
-           "qa": "fragment-details-csv-fieldsString"
-        },
-        {
-           "propertyId": "fieldsPreservationPolicy",
-           "propertyName": "_FIELDS_PRESERVATION_",
-           "required": true,
-           "propertyType": "select",
-           "default": "REPLACE",
-           "values": [
+{
+  "name": "Explode",
+  "icon": "Explode",
+  "className": "ExplodeTransformStepStream",
+  "classPrettyName": "Explode",
+  "arity": ["UnaryToNary"],
+  "description": "Explode an input field and returns one row for each element in the input field",
+  "properties": [
+     {
+        "propertyId": "inputField",
+        "propertyName": "_INPUT_FIELD_",
+        "propertyType": "text",
+        "required": true,
+        "tooltip": "Filed that contains the csv string",
+        "qa": "fragment-details-csv-fieldsString"
+     },
+     {
+        "propertyId": "fieldsPreservationPolicy",
+        "propertyName": "_FIELDS_PRESERVATION_",
+        "required": true,
+        "propertyType": "select",
+        "default": "REPLACE",
+        "values": [
+           {
+              "label": "Replacing input field",
+              "value": "REPLACE"
+           },
+           {
+              "label": "Appending extracted",
+              "value": "APPEND"
+           },
+           {
+              "label": "Keeping just extracted",
+              "value": "JUST_EXTRACTED"
+           }
+        ],
+        "qa": "workflow-transformation-explode-fieldsPreservationPolicy"
+     },
+     {
+        "propertyId": "schema.fromRow",
+        "propertyName": "_SCHEMA_FROM_ROW_",
+        "propertyType": "boolean",
+        "required": true,
+        "default": true,
+        "tooltip": "If checked, each row schema will be inferred from its contents",
+        "qa": "workflow-transformation-explode-schema-fromRow"
+     },
+     {
+        "propertyId": "schema.inputMode",
+        "propertyName": "_INPUT_SCHEMA_FROM_",
+        "propertyType": "select",
+        "required": true,
+        "values": [
+           {
+              "label": "Fields",
+              "value": "FIELDS"
+           },
+           {
+              "label": "Spark format",
+              "value": "SPARKFORMAT"
+           }
+        ],
+        "visible": [
+           [
               {
-                 "label": "Replacing input field",
-                 "value": "REPLACE"
-              },
-              {
-                 "label": "Appending extracted",
-                 "value": "APPEND"
-              },
-              {
-                 "label": "Keeping just extracted",
-                 "value": "JUST_EXTRACTED"
-              }
-           ],
-           "qa": "workflow-transformation-explode-fieldsPreservationPolicy"
-        },
-        {
-           "propertyId": "schema.fromRow",
-           "propertyName": "_SCHEMA_FROM_ROW_",
-           "propertyType": "boolean",
-           "required": true,
-           "default": true,
-           "tooltip": "If checked, each row schema will be inferred from its contents",
-           "qa": "workflow-transformation-explode-schema-fromRow"
-        },
-        {
-           "propertyId": "schema.inputMode",
-           "propertyName": "_INPUT_SCHEMA_FROM_",
-           "propertyType": "select",
-           "required": true,
-           "values": [
-              {
-                 "label": "Fields",
-                 "value": "FIELDS"
-              },
-              {
-                 "label": "Spark format",
-                 "value": "SPARKFORMAT"
-              }
-           ],
-           "visible": [
-              [
-                 {
-                    "propertyId": "schema.fromRow",
-                    "value": false
-                 }
-              ]
-           ],
-           "default": "FIELDS",
-           "qa": "fragment-details-input-schema-type"
-        },
-        {
-           "propertyId": "schema.fields",
-           "propertyName": "_FIELDS_DEFINITION_",
-           "propertyType": "list",
-           "visible": [
-              [
-                 {
-                    "propertyId": "schema.fromRow",
-                    "value": false
-                 },
-                 {
-                    "propertyId": "schema.inputMode",
-                    "value": "FIELDS"
-                 }
-              ]
-           ],
-           "required": true,
-           "tooltip": "Schema definition from list of fields",
-           "qa": "fragment-details-explode-fields",
-           "fields": [
-              {
-                 "propertyId": "name",
-                 "propertyName": "_NAME_",
-                 "propertyType": "text",
-                 "required": true,
-                 "width": 3,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "type",
-                 "propertyName": "_TYPE_",
-                 "propertyType": "select",
-                 "custom": true,
-                 "required": true,
-                 "values": [
-                    {
-                       "label": "String",
-                       "value": "string"
-                    },
-                    {
-                       "label": "Long",
-                       "value": "long"
-                    },
-                    {
-                       "label": "Float",
-                       "value": "float"
-                    },
-                    {
-                       "label": "Double",
-                       "value": "double"
-                    },
-                    {
-                       "label": "Integer",
-                       "value": "integer"
-                    },
-                    {
-                       "label": "Boolean",
-                       "value": "boolean"
-                    },
-                    {
-                       "label": "Binary",
-                       "value": "binary"
-                    },
-                    {
-                       "label": "Date",
-                       "value": "date"
-                    },
-                    {
-                       "label": "Timestamp",
-                       "value": "timestamp"
-                    },
-                    {
-                       "label": "Array(Double)",
-                       "value": "arraydouble"
-                    },
-                    {
-                       "label": "Array(String)",
-                       "value": "arraystring"
-                    },
-                    {
-                       "label": "Array(Long)",
-                       "value": "arraylong"
-                    },
-                    {
-                       "label": "Array(Integer)",
-                       "value": "arrayinteger"
-                    },
-                    {
-                       "label": "Array(Map(String, String))",
-                       "value": "arraymapstringstring"
-                    },
-                    {
-                       "label": "Map(String, Long)",
-                       "value": "mapstringlong"
-                    },
-                    {
-                       "label": "Map(String, Double)",
-                       "value": "mapstringdouble"
-                    },
-                    {
-                       "label": "Map(String, Integer)",
-                       "value": "mapstringint"
-                    },
-                    {
-                       "label": "Map(String, String)",
-                       "value": "mapstringstring"
-                    }
-                 ],
-                 "default": "string",
-                 "width": 3,
-                 "qa": "fragment-details-field-type"
-              },
-              {
-                 "propertyId": "nullable",
-                 "propertyName": "_NULLABLE_",
-                 "propertyType": "boolean",
-                 "default": true,
-                 "required": true,
-                 "qa": "fragment-details-field-nullable"
+                 "propertyId": "schema.fromRow",
+                 "value": false
               }
            ]
-        },
-        {
-           "propertyId": "schema.sparkSchema",
-           "propertyName": "_SPARK_SCHEMA_",
-           "propertyType": "text",
-           "visible": [
-              [
+        ],
+        "default": "FIELDS",
+        "qa": "fragment-details-input-schema-type"
+     },
+     {
+        "propertyId": "schema.fields",
+        "propertyName": "_FIELDS_DEFINITION_",
+        "propertyType": "list",
+        "visible": [
+           [
+              {
+                 "propertyId": "schema.fromRow",
+                 "value": false
+              },
+              {
+                 "propertyId": "schema.inputMode",
+                 "value": "FIELDS"
+              }
+           ]
+        ],
+        "required": true,
+        "tooltip": "Schema definition from list of fields",
+        "qa": "fragment-details-explode-fields",
+        "fields": [
+           {
+              "propertyId": "name",
+              "propertyName": "_NAME_",
+              "propertyType": "text",
+              "required": true,
+              "width": 3,
+              "qa": "fragment-details-field-name"
+           },
+           {
+              "propertyId": "type",
+              "propertyName": "_TYPE_",
+              "propertyType": "select",
+              "custom": true,
+              "required": true,
+              "values": [
                  {
-                    "propertyId": "schema.fromRow",
-                    "value": false
+                    "label": "String",
+                    "value": "string"
                  },
                  {
-                    "propertyId": "schema.inputMode",
-                    "value": "SPARKFORMAT"
+                    "label": "Long",
+                    "value": "long"
+                 },
+                 {
+                    "label": "Float",
+                    "value": "float"
+                 },
+                 {
+                    "label": "Double",
+                    "value": "double"
+                 },
+                 {
+                    "label": "Integer",
+                    "value": "integer"
+                 },
+                 {
+                    "label": "Boolean",
+                    "value": "boolean"
+                 },
+                 {
+                    "label": "Binary",
+                    "value": "binary"
+                 },
+                 {
+                    "label": "Date",
+                    "value": "date"
+                 },
+                 {
+                    "label": "Timestamp",
+                    "value": "timestamp"
+                 },
+                 {
+                    "label": "Array(Double)",
+                    "value": "arraydouble"
+                 },
+                 {
+                    "label": "Array(String)",
+                    "value": "arraystring"
+                 },
+                 {
+                    "label": "Array(Long)",
+                    "value": "arraylong"
+                 },
+                 {
+                    "label": "Array(Integer)",
+                    "value": "arrayinteger"
+                 },
+                 {
+                    "label": "Array(Map(String, String))",
+                    "value": "arraymapstringstring"
+                 },
+                 {
+                    "label": "Map(String, Long)",
+                    "value": "mapstringlong"
+                 },
+                 {
+                    "label": "Map(String, Double)",
+                    "value": "mapstringdouble"
+                 },
+                 {
+                    "label": "Map(String, Integer)",
+                    "value": "mapstringint"
+                 },
+                 {
+                    "label": "Map(String, String)",
+                    "value": "mapstringstring"
                  }
-              ]
-           ],
-           "required": true,
-           "tooltip": "Spark schema for the fields in the explode",
-           "qa": "fragment-details-explode-spark-schema"
-        },
-        {
-           "propertyId": "whenRowError",
-           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-           "propertyType": "select",
-           "values": [
+              ],
+              "default": "string",
+              "width": 3,
+              "qa": "fragment-details-field-type"
+           },
+           {
+              "propertyId": "nullable",
+              "propertyName": "_NULLABLE_",
+              "propertyType": "boolean",
+              "default": true,
+              "required": true,
+              "qa": "fragment-details-field-nullable"
+           }
+        ]
+     },
+     {
+        "propertyId": "schema.sparkSchema",
+        "propertyName": "_SPARK_SCHEMA_",
+        "propertyType": "text",
+        "visible": [
+           [
               {
-                 "label": "Error",
-                 "value": "RowError"
+                 "propertyId": "schema.fromRow",
+                 "value": false
               },
               {
-                 "label": "Discard",
-                 "value": "RowDiscard"
+                 "propertyId": "schema.inputMode",
+                 "value": "SPARKFORMAT"
               }
-           ],
-           "qa": "workflow-transformation-whenRowError"
-        },
-        {
-           "propertyId": "whenFieldError",
-           "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-           "propertyType": "select",
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "FieldError"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
-              }
-           ],
-           "qa": "workflow-transformation-whenFieldError"
-        }
-     ]
-  }
+           ]
+        ],
+        "required": true,
+        "tooltip": "Spark schema for the fields in the explode",
+        "qa": "fragment-details-explode-spark-schema"
+     },
+     {
+        "propertyId": "whenRowError",
+        "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+        "propertyType": "select",
+        "values": [
+           {
+              "label": "Error",
+              "value": "RowError"
+           },
+           {
+              "label": "Discard",
+              "value": "RowDiscard"
+           }
+        ],
+        "qa": "workflow-transformation-whenRowError"
+     },
+     {
+        "propertyId": "whenFieldError",
+        "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+        "propertyType": "select",
+        "values": [
+           {
+              "label": "Error",
+              "value": "FieldError"
+           },
+           {
+              "label": "Null",
+              "value": "Null"
+           }
+        ],
+        "qa": "workflow-transformation-whenFieldError"
+     }
+  ]
+}

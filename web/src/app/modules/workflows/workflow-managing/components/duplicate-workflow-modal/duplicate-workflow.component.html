@@ -1,0 +1,15 @@
+<!-- <form #renameForm="ngForm" novalidate autocomplete="off">
+   <sp-input pattern="^[a-z0-9-]*$" [label]="'DASHBOARD.RENAME_WORKFLOW_INPUT_LABEL' | translate"
+      [placeholder]="'DASHBOARD.RENAME_INPUT_PLACEHOLDER' | translate" [isFocused]="true" [forceValidations]="forceValidations" [errors]="errorsService.errors.inputErrors"
+      [(ngModel)]="name" qaTag="group-name" class="st-form-field" required="true" name="name"></sp-input>
+</form> -->
+<group-selector [blockChilds]="false"
+    [groups]="groups" 
+    [parentGroup]="parentGroup" 
+    [currentGroup]="currentGroup" 
+    [selectedFolder]="selectedFolder" 
+    (onSelectFolder)="selectFolder($event)"></group-selector>
+<div class="footer">
+    <button class="button button-primary save-button" (click)="duplicate()" [disabled]="!selectedFolder.length">Save</button>
+    <button class="button button-secondary-gray cancel-button" (click)="onCloseDuplicateModal.emit()">Cancel</button>
+</div>

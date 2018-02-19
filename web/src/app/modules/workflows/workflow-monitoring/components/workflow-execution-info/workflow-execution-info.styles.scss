@@ -1,0 +1,55 @@
+@import '~@stratio/egeo/theme/constants';
+.spark-submit {
+    margin-top:20px;
+   .title {
+      font-size: $egeo-font-size-xxsmall;
+      font-weight: 600;
+      line-height: 1.43;
+      display: block;
+      color: #6c7b8b;
+   }
+   .values {
+      display: block;
+   }
+}
+
+.execution-info-container {
+   overflow-x: hidden;
+   overflow-y: auto;
+}
+
+.info-data {
+   margin-bottom: 40px;
+}
+
+.table-list {
+   margin-top: 15px;
+}
+
+.spark-config-table {
+   margin-top: 8px;
+   display: block;
+}
+
+.return-link {
+   float: right;
+   font-size: 15px;
+   color: #128bde;
+   cursor: pointer;
+   font-size: 16px;
+   margin-top: 4px;
+   &:hover {
+      color: #0979c4;
+   }
+}
+
+.workflow-name {
+   float: left;
+}
+
+.info-tables {
+   max-width: 500px;
+   display: block;
+   margin-bottom: 20px;
+   margin-top: 50px;
+}

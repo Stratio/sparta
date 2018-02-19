@@ -1,190 +1,192 @@
-  {
-     "name": "JsonPath",
-     "icon": "JsonPath",
-     "className": "JsonPathTransformStepStream",
-     "classPrettyName": "JsonPath",
-     "arity": ["UnaryToNary"],
-     "description": "Parsing input field with json format to selected output fields",
-     "properties": [
+{
+  "name": "JsonPath",
+  "icon": "JsonPath",
+  "className": "JsonPathTransformStepStream",
+  "classPrettyName": "JsonPath",
+  "arity": [
+    "UnaryToNary"
+  ],
+  "description": "Parsing input field with json format to selected output fields",
+  "properties": [
+    {
+      "propertyId": "inputField",
+      "propertyName": "_INPUT_FIELD_",
+      "propertyType": "text",
+      "required": true,
+      "tooltip": "Filed that contains the json string",
+      "qa": "fragment-details-casting-fieldsString"
+    },
+    {
+      "propertyId": "fieldsPreservationPolicy",
+      "propertyName": "_FIELDS_PRESERVATION_",
+      "required": true,
+      "propertyType": "select",
+      "default": "REPLACE",
+      "values": [
         {
-           "propertyId": "inputField",
-           "propertyName": "_INPUT_FIELD_",
-           "propertyType": "text",
-           "required": true,
-           "tooltip": "Filed that contains the json string",
-           "qa": "fragment-details-casting-fieldsString"
+          "label": "Replacing input field",
+          "value": "REPLACE"
         },
         {
-           "propertyId": "fieldsPreservationPolicy",
-           "propertyName": "_FIELDS_PRESERVATION_",
-           "required": true,
-           "propertyType": "select",
-           "default": "REPLACE",
-           "values": [
-              {
-                 "label": "Replacing input field",
-                 "value": "REPLACE"
-              },
-              {
-                 "label": "Appending extracted",
-                 "value": "APPEND"
-              },
-              {
-                 "label": "Keeping just extracted",
-                 "value": "JUST_EXTRACTED"
-              }
-           ],
-           "qa": "workflow-transformation-jsonpath-fieldsPreservationPolicy"
+          "label": "Appending extracted",
+          "value": "APPEND"
         },
         {
-           "propertyId": "queries",
-           "propertyName": "_QUERIES_",
-           "propertyType": "list",
-           "required": true,
-           "tooltip": "Schema definition from list of fields",
-           "qa": "fragment-details-casting-fields",
-           "fields": [
-              {
-                 "propertyId": "field",
-                 "propertyName": "_FIELD_",
-                 "propertyType": "text",
-                 "required": true,
-                 "width": 2,
-                 "qa": "fragment-details-field-name"
-              },
-              {
-                 "propertyId": "query",
-                 "propertyName": "_QUERY_",
-                 "propertyType": "text",
-                 "width": 3,
-                 "required": true,
-                 "qa": "fragment-details-field-query"
-              },
-              {
-                 "propertyId": "type",
-                 "propertyName": "_TYPE_",
-                 "propertyType": "select",
-                 "custom": true,
-                 "required": true,
-                 "values": [
-                    {
-                       "label": "String",
-                       "value": "string"
-                    },
-                    {
-                       "label": "Long",
-                       "value": "long"
-                    },
-                    {
-                       "label": "Float",
-                       "value": "float"
-                    },
-                    {
-                       "label": "Double",
-                       "value": "double"
-                    },
-                    {
-                       "label": "Integer",
-                       "value": "integer"
-                    },
-                    {
-                       "label": "Boolean",
-                       "value": "boolean"
-                    },
-                    {
-                       "label": "Binary",
-                       "value": "binary"
-                    },
-                    {
-                       "label": "Date",
-                       "value": "date"
-                    },
-                    {
-                       "label": "Timestamp",
-                       "value": "timestamp"
-                    },
-                    {
-                       "label": "Array(Double)",
-                       "value": "arraydouble"
-                    },
-                    {
-                       "label": "Array(String)",
-                       "value": "arraystring"
-                    },
-                    {
-                       "label": "Array(Long)",
-                       "value": "arraylong"
-                    },
-                    {
-                       "label": "Array(Integer)",
-                       "value": "arrayinteger"
-                    },
-                    {
-                       "label": "Array(Map(String, String))",
-                       "value": "arraymapstringstring"
-                    },
-                    {
-                       "label": "Map(String, Long)",
-                       "value": "mapstringlong"
-                    },
-                    {
-                       "label": "Map(String, Double)",
-                       "value": "mapstringdouble"
-                    },
-                    {
-                       "label": "Map(String, Integer)",
-                       "value": "mapstringint"
-                    },
-                    {
-                       "label": "Map(String, String)",
-                       "value": "mapstringstring"
-                    }
-                 ],
-                 "default": "string",
-                 "width": 3,
-                 "qa": "fragment-details-field-type"
-              }
-           ]
-        },
-        {
-           "propertyId": "supportNullValues",
-           "propertyName": "_SUPPORT_NULL_VALUES_",
-           "propertyType": "boolean",
-           "default": true,
-           "tooltip": "If checked, the input fields with null values will be supported, otherwise generate error and continue to 'when error do' property",
-           "qa": "workflow-transformation-json-supportNullValues"
-        },
-        {
-           "propertyId": "whenRowError",
-           "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-           "propertyType": "select",
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "RowError"
-              },
-              {
-                 "label": "Discard",
-                 "value": "RowDiscard"
-              }
-           ],
-           "qa": "workflow-transformation-whenRowError"
-        },
-        {
-           "propertyId": "whenFieldError",
-           "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-           "propertyType": "select",
-           "values": [
-              {
-                 "label": "Error",
-                 "value": "FieldError"
-              },
-              {
-                 "label": "Null",
-                 "value": "Null"
-              }
-           ],
-           "qa": "workflow-transformation-whenFieldError"
+          "label": "Keeping just extracted",
+          "value": "JUST_EXTRACTED"
         }
-     ]
-  }
+      ],
+      "qa": "workflow-transformation-jsonpath-fieldsPreservationPolicy"
+    },
+    {
+      "propertyId": "queries",
+      "propertyName": "_QUERIES_",
+      "propertyType": "list",
+      "required": true,
+      "tooltip": "Schema definition from list of fields",
+      "qa": "fragment-details-casting-fields",
+      "fields": [
+        {
+          "propertyId": "field",
+          "propertyName": "_FIELD_",
+          "propertyType": "text",
+          "required": true,
+          "width": 2,
+          "qa": "fragment-details-field-name"
+        },
+        {
+          "propertyId": "query",
+          "propertyName": "_QUERY_",
+          "propertyType": "text",
+          "width": 3,
+          "required": true,
+          "qa": "fragment-details-field-query"
+        },
+        {
+          "propertyId": "type",
+          "propertyName": "_TYPE_",
+          "propertyType": "select",
+          "custom": true,
+          "required": true,
+          "values": [
+            {
+              "label": "String",
+              "value": "string"
+            },
+            {
+              "label": "Long",
+              "value": "long"
+            },
+            {
+              "label": "Float",
+              "value": "float"
+            },
+            {
+              "label": "Double",
+              "value": "double"
+            },
+            {
+              "label": "Integer",
+              "value": "integer"
+            },
+            {
+              "label": "Boolean",
+              "value": "boolean"
+            },
+            {
+              "label": "Binary",
+              "value": "binary"
+            },
+            {
+              "label": "Date",
+              "value": "date"
+            },
+            {
+              "label": "Timestamp",
+              "value": "timestamp"
+            },
+            {
+              "label": "Array(Double)",
+              "value": "arraydouble"
+            },
+            {
+              "label": "Array(String)",
+              "value": "arraystring"
+            },
+            {
+              "label": "Array(Long)",
+              "value": "arraylong"
+            },
+            {
+              "label": "Array(Integer)",
+              "value": "arrayinteger"
+            },
+            {
+              "label": "Array(Map(String, String))",
+              "value": "arraymapstringstring"
+            },
+            {
+              "label": "Map(String, Long)",
+              "value": "mapstringlong"
+            },
+            {
+              "label": "Map(String, Double)",
+              "value": "mapstringdouble"
+            },
+            {
+              "label": "Map(String, Integer)",
+              "value": "mapstringint"
+            },
+            {
+              "label": "Map(String, String)",
+              "value": "mapstringstring"
+            }
+          ],
+          "default": "string",
+          "width": 3,
+          "qa": "fragment-details-field-type"
+        }
+      ]
+    },
+    {
+      "propertyId": "supportNullValues",
+      "propertyName": "_SUPPORT_NULL_VALUES_",
+      "propertyType": "boolean",
+      "default": true,
+      "tooltip": "If checked, the input field values with null be supported, if else then generate error and continue to when error do property",
+      "qa": "workflow-transformation-json-supportNullValues"
+    },
+    {
+      "propertyId": "whenRowError",
+      "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+      "propertyType": "select",
+      "values": [
+        {
+          "label": "Error",
+          "value": "RowError"
+        },
+        {
+          "label": "Discard",
+          "value": "RowDiscard"
+        }
+      ],
+      "qa": "workflow-transformation-whenRowError"
+    },
+    {
+      "propertyId": "whenFieldError",
+      "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+      "propertyType": "select",
+      "values": [
+        {
+          "label": "Error",
+          "value": "FieldError"
+        },
+        {
+          "label": "Null",
+          "value": "Null"
+        }
+      ],
+      "qa": "workflow-transformation-whenFieldError"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+<tool-bar>
+   <div breadcrumb>
+      <st-breadcrumbs [options]="levelOptions" (select)="selectLevel($event)" qaTag="workflows-breadcrumb"></st-breadcrumbs>
+   </div>
+   <div selection-tools>
+
+   </div>
+   <div general-tools>
+      <div class="selection-actions">
+
+         <!-- Edit workflows / groups -->
+         <button class="button button-toolbar" (click)="editWorkflowGroup()" *ngIf="(selectedWorkflowsInner.length === 1 && !selectedGroupsListInner.length) || (!selectedWorkflowsInner.length && selectedGroupsListInner.length === 1)">
+            <i class="icon-edit"></i>
+        </button>
+         <!-- end edit -->
+
+         <button class="button button-toolbar" (click)="runWorkflow(selectedVersionsData[0])" *ngIf="selectedVersionsData && selectedVersionsData.length === 1">
+          <i class="icon-stop" *ngIf="isRunning(selectedVersionsData[0])"></i>
+          <i class="icon-play" *ngIf="!isRunning(selectedVersionsData[0])"></i>
+        </button>
+
+         <button class="button button-toolbar" (click)="downloadWorkflows.emit()" *ngIf="selectedVersionsInner.length && !selectedGroupsListInner.length && !selectedWorkflowsInner.length">
+            <i class="icon-download"></i>
+        </button>
+         <button class="button button-toolbar" (click)="editVersion()" *ngIf="selectedVersionsInner.length === 1">
+            <i class="icon-edit"></i>
+         </button>
+
+         <button class="button button-toolbar" *ngIf="(selectedGroupsListInner.length === 1 && !selectedWorkflowsInner.length) || (!selectedGroupsListInner.length && selectedWorkflowsInner.length === 1)" (click)="moveTo()">
+            <i class="icon-move-to-folder"></i>
+        </button>
+         <button class="button button-toolbar" (click)="deleteWorkflows()" *ngIf="selectedVersionsInner.length || selectedGroupsListInner.length || selectedWorkflowsInner.length">
+            <i class="icon-trash"></i>
+        </button>
+      </div>
+      <div class="general-tools">
+         <floating-menu *ngIf="selectedVersionsInner.length === 1" [menuOptions]="menuOptionsDuplicate" position="right" class="show-options"
+            (selectedOption)="selectedDuplicatedOption($event)">
+            <div menu-action>
+               <button class="button button-toolbar">
+                <i class="icon-copy"></i>
+            </button>
+            </div>
+         </floating-menu>
+         <floating-menu [menuOptions]="menuOptions" *ngIf="!versionsListMode" position="right" class="show-options" (selectedOption)="selectedMenuOption($event)">
+            <div menu-action>
+               <button class="button button-toolbar">
+                <i class="icon-plus"></i>
+            </button>
+            </div>
+         </floating-menu>
+         <button class="button button-toolbar" (click)="showWorkflowInfo.emit()" [ngClass]="{'selected-button': showDetails}">
+            <i class="icon-info1"></i>
+         </button>
+      </div>
+   </div>
+</tool-bar>

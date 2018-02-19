@@ -3,7 +3,7 @@
         [menu]="menu"
         qaTag="sparta-header">
         <div class="sth-header-logo">
-         <img src="assets/images/sparta_logo_header.svg" alt="Sparta"/>
+         <img src="assets/images/sparta_logo_header.svg" (click)="redirectHome()" alt="Sparta" class="home-link"/>
       </div>
       <div class="sth-header-user-menu">
         <user-profile [userName]="userName" *ngIf="userName && userName.length"></user-profile>

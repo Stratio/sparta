@@ -12,7 +12,7 @@
       <button class="button button-toolbar reload" (click)="reloadDatabases()">
           <i class="icon-repeat"></i>
       </button>
-      <st-switch class="show-temporary st-form-field" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [stModel]="showTemporaryTables"
+      <st-switch class="show-temporary st-form-field" label="{{'DASHBOARD.SHOW_TEMPORARY' | translate}}" labelPosition="right" [(ngModel)]="showTemporaryTables"
          qaTag="temporary-tables-switch" (change)="onChangeValue($event)">
       </st-switch>
    </div>

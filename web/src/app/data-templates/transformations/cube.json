@@ -1,189 +1,189 @@
 {
-   "name": "Cube",
-   "icon": "Cube",
-   "className": "CubeTransformStep",
-   "classPrettyName": "Cube",
-   "arity": ["UnaryToNary"],
-   "description": "Create cubes in order to make real time aggregations based in the OLAP concept",
-   "properties": [
-      {
-         "propertyId": "dimensions",
-         "propertyName": "_DIMENSIONS_",
-         "propertyType": "list",
-         "required": true,
-         "fields": [
-            {
-               "propertyId": "name",
-               "propertyName": "_INPUT_FIELD_",
-               "propertyType": "text",
-               "required": true,
-               "width": 6,
-               "tooltip": "Dimension name. This name must be present in the fields that contains the input rows",
-               "qa": "fragment-details-cube-dimension-name"
-            }
-         ],
-         "tooltip": "List of dimensions assigned to the cube, similar to the fields defined in a GroupBy of a SQL query",
-         "qa": "fragment-details-cube-dimensions"
-      },
-      {
-         "propertyId": "operators",
-         "propertyName": "_OPERATORS_",
-         "propertyType": "list",
-         "required": true,
-         "fields": [
-            {
-               "propertyId": "name",
-               "propertyName": "_NAME_",
-               "propertyType": "text",
-               "required": true,
-               "width": 3,
-               "tooltip": "Name assigned to the new field that contains the aggregated value for this operator",
-               "qa": "fragment-details-measure-name"
-            },
-            {
-               "propertyId": "classType",
-               "propertyName": "_CLASS_TYPE_",
-               "propertyType": "select",
-               "required": true,
-               "values": [
-                  {
-                     "label": "Avg",
-                     "value": "Avg"
-                  },
-                  {
-                     "label": "Count",
-                     "value": "Count"
-                  },
-                  {
-                     "label": "Max",
-                     "value": "Max"
-                  },
-                  {
-                     "label": "Median",
-                     "value": "Median"
-                  },
-                  {
-                     "label": "Min",
-                     "value": "Min"
-                  },
-                  {
-                     "label": "Stddev",
-                     "value": "Stddev"
-                  },
-                  {
-                     "label": "Sum",
-                     "value": "Sum"
-                  },
-                  {
-                     "label": "Variance",
-                     "value": "Variance"
-                  },
-                  {
-                     "label": "Word count",
-                     "value": "WordCount"
-                  }
-               ],
-               "width": 3,
-               "tooltip": "Type of aggregation operator used",
-               "qa": "fragment-details-cube-operator-classType"
-            },
-            {
-               "propertyId": "inputField",
-               "propertyName": "_INPUT_FIELD_",
-               "propertyType": "text",
-               "width": 3,
-               "tooltip": "Certain operators need one input field contained into the rows in order to make the aggregation",
-               "qa": "fragment-details-cube-operator-inputField"
-            }
-         ],
-         "tooltip": "List of operators assigned to the cube, similar to the fields used in aggregation functions for an SQL query",
-         "qa": "fragment-details-cube-measures"
-      },
-      {
-         "propertyId": "waterMark",
-         "propertyName": "_WATER_MARK_",
-         "propertyType": "text",
-         "float": true,
-         "width": 3,
-         "tooltip": "It is possible to indicates one water mark. This is useful to aggregate the data. Needs one input field, then it's possible to remove the in-memory data states according to this value",
-         "qa": "fragment-details-cube-waterMark"
-      },
-      {
-         "propertyId": "availability",
-         "propertyName": "_AVAILABILITY_",
-         "propertyType": "text",
-         "default": "1m",
-         "width": 3,
-         "tooltip": "When one water mark is defined it's necessary to indicates the availability of the data. The input data is discarded if it's less than (current date - availability). The value indicates one duration",
-         "qa": "fragment-details-cube-availability"
-      },
-      {
-         "propertyId": "timeoutKey",
-         "propertyName": "_TIMEOUT_KEY_",
-         "propertyType": "text",
-         "required": false,
-         "tooltip": "When no data is received in the selected time frame related to one dimension values group, the aggregation state is removed",
-         "qa": "workflow-transformation-cube-timeoutKey"
-      },
-      {
-         "propertyId": "partitions",
-         "propertyName": "_PARTITIONS_",
-         "propertyType": "text",
-         "required": false,
-         "tooltip": "Number of partitions assigned to the generated streams",
-         "qa": "workflow-transformation-cube-partitions"
-      },
-      {
-         "propertyId": "whenError",
-         "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
-         "propertyType": "select",
-         "values": [
-            {
-               "label": "Error",
-               "value": "Error"
-            },
-            {
-               "label": "Discard",
-               "value": "Discard"
-            }
-         ],
-         "qa": "workflow-transformation-whenError"
-      },
-      {
-         "propertyId": "whenRowError",
-         "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
-         "propertyType": "select",
-         "values": [
-            {
-               "label": "Error",
-               "value": "RowError"
-            },
-            {
-               "label": "Discard",
-               "value": "RowDiscard"
-            }
-         ],
-         "qa": "workflow-transformation-whenRowError"
-      },
-      {
-         "propertyId": "whenFieldError",
-         "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
-         "propertyType": "select",
-         "values": [
-            {
-               "label": "Error",
-               "value": "FieldError"
-            },
-            {
-               "label": "Discard",
-               "value": "FieldDiscard"
-            },
-            {
-               "label": "Null",
-               "value": "Null"
-            }
-         ],
-         "qa": "workflow-transformation-whenFieldError"
-      }
-   ]
-}
+    "name": "Cube",
+    "icon": "Cube",
+    "className": "CubeTransformStep",
+    "classPrettyName": "Cube",
+    "arity": ["UnaryToNary"],
+    "description": "Create cubes in order to make real time aggregations based in the OLAP concept",
+    "properties": [
+       {
+          "propertyId": "dimensions",
+          "propertyName": "_DIMENSIONS_",
+          "propertyType": "list",
+          "required": true,
+          "fields": [
+             {
+                "propertyId": "name",
+                "propertyName": "_INPUT_FIELD_",
+                "propertyType": "text",
+                "required": true,
+                "width": 6,
+                "tooltip": "Dimension name. This name must be present in the fields that contains the input rows",
+                "qa": "fragment-details-cube-dimension-name"
+             }
+          ],
+          "tooltip": "List of dimensions assigned to the cube, in one sql query will be the fields into the Group By sentence",
+          "qa": "fragment-details-cube-dimensions"
+       },
+       {
+          "propertyId": "operators",
+          "propertyName": "_OPERATORS_",
+          "propertyType": "list",
+          "required": true,
+          "fields": [
+             {
+                "propertyId": "name",
+                "propertyName": "_NAME_",
+                "propertyType": "text",
+                "required": true,
+                "width": 3,
+                "tooltip": "Name assigned to the new field that contains the aggregated value for this operator",
+                "qa": "fragment-details-measure-name"
+             },
+             {
+                "propertyId": "classType",
+                "propertyName": "_CLASS_TYPE_",
+                "propertyType": "select",
+                "required": true,
+                "values": [
+                   {
+                      "label": "Avg",
+                      "value": "Avg"
+                   },
+                   {
+                      "label": "Count",
+                      "value": "Count"
+                   },
+                   {
+                      "label": "Max",
+                      "value": "Max"
+                   },
+                   {
+                      "label": "Median",
+                      "value": "Median"
+                   },
+                   {
+                      "label": "Min",
+                      "value": "Min"
+                   },
+                   {
+                      "label": "Stddev",
+                      "value": "Stddev"
+                   },
+                   {
+                      "label": "Sum",
+                      "value": "Sum"
+                   },
+                   {
+                      "label": "Variance",
+                      "value": "Variance"
+                   },
+                   {
+                      "label": "Word count",
+                      "value": "WordCount"
+                   }
+                ],
+                "width": 3,
+                "tooltip": "Type of aggregation operator used",
+                "qa": "fragment-details-cube-operator-classType"
+             },
+             {
+                "propertyId": "inputField",
+                "propertyName": "_INPUT_FIELD_",
+                "propertyType": "text",
+                "width": 3,
+                "tooltip": "Certain operators need one input field contained into the rows in order to make the aggregation",
+                "qa": "fragment-details-cube-operator-inputField"
+             }
+          ],
+          "tooltip": "List of operators assigned to the cube, in one sql query will be the fields into the select aggregation functions",
+          "qa": "fragment-details-cube-measures"
+       },
+       {
+          "propertyId": "waterMark",
+          "propertyName": "_WATER_MARK_",
+          "propertyType": "text",
+          "float": true,
+          "width": 3,
+          "tooltip": "Is possible to indicates one water mark, this is useful to aggregate the data. Needs one input field, then is possible to remove the in-memory data states according to his value",
+          "qa": "fragment-details-cube-waterMark"
+       },
+       {
+          "propertyId": "availability",
+          "propertyName": "_AVAILABILITY_",
+          "propertyType": "text",
+          "default": "1m",
+          "width": 3,
+          "tooltip": "When one water mark is defined it's necessary to indicates the availability of the data, the input data is discarded if it's less than (current date - availability). The value indicates one duration",
+          "qa": "fragment-details-cube-availability"
+       },
+       {
+          "propertyId": "timeoutKey",
+          "propertyName": "_TIMEOUT_KEY_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "When no data is received in the selected time frame related to one dimension values group, the aggregation state is removed",
+          "qa": "workflow-transformation-cube-timeoutKey"
+       },
+       {
+          "propertyId": "partitions",
+          "propertyName": "_PARTITIONS_",
+          "propertyType": "text",
+          "required": false,
+          "tooltip": "Number of partitions assigned to the generated streams",
+          "qa": "workflow-transformation-cube-partitions"
+       },
+       {
+          "propertyId": "whenError",
+          "propertyName": "_TRANSFORMATION_WHEN_ERROR_",
+          "propertyType": "select",
+          "values": [
+             {
+                "label": "Error",
+                "value": "Error"
+             },
+             {
+                "label": "Discard",
+                "value": "Discard"
+             }
+          ],
+          "qa": "workflow-transformation-whenError"
+       },
+       {
+          "propertyId": "whenRowError",
+          "propertyName": "_TRANSFORMATION_WHEN_ROW_ERROR_",
+          "propertyType": "select",
+          "values": [
+             {
+                "label": "Error",
+                "value": "RowError"
+             },
+             {
+                "label": "Discard",
+                "value": "RowDiscard"
+             }
+          ],
+          "qa": "workflow-transformation-whenRowError"
+       },
+       {
+          "propertyId": "whenFieldError",
+          "propertyName": "_TRANSFORMATION_WHEN_FIELD_ERROR_",
+          "propertyType": "select",
+          "values": [
+             {
+                "label": "Error",
+                "value": "FieldError"
+             },
+             {
+                "label": "Discard",
+                "value": "FieldDiscard"
+             },
+             {
+                "label": "Null",
+                "value": "Null"
+             }
+          ],
+          "qa": "workflow-transformation-whenFieldError"
+       }
+    ]
+ }

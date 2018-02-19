@@ -49,7 +49,6 @@ export class WizardEditorService {
             if (entityData.stepType !== 'Output') {
                 entity.writer = this.initializeSchemaService.getDefaultWriterModel();
             }
-            console.log(entityData);
             entity.name = this.getNewEntityName(entityData.data.classPrettyName, entities);
         } else {
             entity = this.initializeSchemaService.setDefaultEntityModel(entityData.value, entityData.stepType, true);

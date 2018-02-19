@@ -1,0 +1,46 @@
+@import '~@stratio/egeo/theme/constants';
+
+.sp-tooltip{
+    display: inline-block;
+}
+.sp-tooltip-container {
+   position: relative;
+}
+
+.tooltip {
+   display: none;
+   background: white;
+   padding: 10px 15px;
+   border-radius: 4px;
+   position: relative;
+   border: solid 1px $neutral-03;
+   position: absolute;
+   left: 50%;
+   transform: translateX(-50%);
+   bottom: 24px;
+   box-shadow: 0 0 10px 2px $neutral-03;
+   &:before {
+      content: ' ';
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 6px solid #fff;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-top: -1px;
+      margin-left: -4px;
+   }
+}
+
+
+.content:hover + .tooltip, .tooltip:hover {
+    display: block;
+    min-width: 100%;
+    width: max-content;
+}
+
+.tooltip {
+    pointer-events: none;
+}

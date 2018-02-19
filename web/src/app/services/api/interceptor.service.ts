@@ -43,21 +43,6 @@ export class ApiInterceptor implements HttpInterceptor {
                 if (err.status === 401) {
                     this.store.dispatch(new errorsActions.ForbiddenErrorAction(''));
                 }
-
-                if (err.error) {
-                    try {
-                        const error = JSON.parse(err.error);
-                        const errorMessage = error.detailMessage && error.detailMessage.length ? error.detailMessage : error.exception;
-                        if (error.message && errorMessage) {
-                            this.store.dispatch(new errorsActions.ServerErrorAction({
-                                title: error.message,
-                                description: errorMessage
-                            }));
-                        }
-                    } catch (e) {
-
-                    }
-                }
             }
         });
     }

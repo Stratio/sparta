@@ -18,6 +18,7 @@
 
 .left-tools {
    display: flex;
+    min-height: 40px;
    justify-content: space-between;
    &>div {
       margin-top: auto;

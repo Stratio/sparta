@@ -32,7 +32,7 @@ export class FormFileComponent implements OnInit {
     ngOnInit(): void { }
 
     onChange(event: any) {
-        this.onFileUpload.emit(event.srcElement.files);
+        this.onFileUpload.emit(event.target.files);
         this.vc.first.nativeElement.value = '';
     }
 

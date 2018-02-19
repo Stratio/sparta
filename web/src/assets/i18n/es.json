@@ -44,7 +44,6 @@
        "JSON_INFO": "You must enter the new name and description before you can save the workflow, it will overwrite the fields of the json",
        "JSON_SAVE_ERROR": "There was an error. The name of the workflow already exists!",
        "NOTSTARTED": "Not started",
-       "CREATED": "Created",
        "FAILED": "Failed",
        "STOPPED": "Stopped",
        "STOPPING": "Stopping",

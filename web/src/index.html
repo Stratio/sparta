@@ -2,20 +2,44 @@
 <html>
 
 <head>
-   <base href="/">
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1">
-   <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png">
-   <title>Stratio Sparta</title>
-   <style>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png">
+    <title>Stratio Sparta</title>
+    <style>
+        .sp-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #eee;
+        }
 
+        .sp-loading-advice {
+            top: 50%;
+            display: none;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            position: fixed;
+        }
 
-   </style>
+        .sp-loading-message {
+            margin-left: 5px;
+        }
+    </style>
 </head>
 
 <body>
-   <st-app>Loading ...</st-app>
+    <st-app>
+        <div class="sp-loading">
+            <div class="sp-loading-advice">
+                <img src="assets/images/favicon.png" />
+                <span class="sp-loading-message">Loading...</span>
+            </div>
+        </div>
+    </st-app>
 </body>
-
 </html>
