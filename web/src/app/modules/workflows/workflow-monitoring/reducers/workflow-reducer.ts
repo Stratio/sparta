@@ -185,9 +185,8 @@ export function reducer(state: State = initialState, action: any): State {
 export const getWorkFlowList: any = (state: State) => orderBy(Object.assign([], (
   state.currentFilterStatus === '' && !state.searchQuery.length ? state.workflowList : state.workflowList.filter((workflow: any) => {
     let search = false;
-    let status = workflow.context.status;
+    const status = workflow.context.status;
     if (state.searchQuery.length) {
-
       const query = state.searchQuery.toLowerCase();
       if (('v' + workflow.version + ' - ' + workflow.name).toLowerCase().indexOf(query) > -1) {
         search = true;

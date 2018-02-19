@@ -14,9 +14,10 @@
 /// limitations under the License.
 ///
 
-import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
+
 import * as workflowActions from './../../actions/workflow-list';
 import * as fromRoot from './../../reducers';
 import { Subscription, Observable } from 'rxjs/Rx';
@@ -35,8 +36,9 @@ export class WorkflowJsonModal implements OnInit {
 
     public workflowValidationError = false;
     public forceValidations = false;
-    public serverErrors: Observable<string>;
-    private openModal$: Subscription;
+    public serverErrorsSubscription: Subscription;
+    public serverErrors = '';
+    private openModal: Subscription;
 
     public model: any = {
         name: '',
@@ -44,7 +46,7 @@ export class WorkflowJsonModal implements OnInit {
         json: ''
     };
 
-    constructor(private store: Store<fromRoot.State>) { }
+    constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef) { }
 
     onChangedFile($event: string): void {
         try {
@@ -58,6 +60,8 @@ export class WorkflowJsonModal implements OnInit {
     }
 
     onSubmitWorkflow(): void {
+        this.workflowValidationError = false;
+        this.serverErrors = '';
         if (this.jsonWorkflowForm.valid) {
             try {
                 const parsedJson = JSON.parse(this.model.json);
@@ -74,9 +78,8 @@ export class WorkflowJsonModal implements OnInit {
                 }
 
                 this.store.dispatch(new workflowActions.SaveJsonWorkflowAction(parsedJson));
-            }
-            catch (error) {
-
+            } catch (error) {
+                this.workflowValidationError = true;
             }
         } else {
             this.forceValidations = true;
@@ -85,10 +88,23 @@ export class WorkflowJsonModal implements OnInit {
 
     ngOnInit() {
 
-        this.serverErrors = this.store.select(fromRoot.getModalError);
+        this.serverErrorsSubscription = this.store.select(fromRoot.getModalError).subscribe((error: any) => {
+            if (error.error && error.error.length) {
+                try {
+                    const parsed = JSON.parse(error.error);
+                    this.serverErrors = parsed.exception;
+
+                } catch (e) {
+                    this.serverErrors = error.error;
+                }
+            } else {
+                this.serverErrors = '';
+            }
+            this._cd.detectChanges();
+        });
 
         this.store.dispatch(new workflowActions.ResetModalAction());
-        this.openModal$ = this.store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
+        this.openModal = this.store.select(fromRoot.getShowModal).subscribe((modalOpen) => {
             if (!modalOpen) {
                 this.onCloseJsonModal.emit();
             }
@@ -96,7 +112,8 @@ export class WorkflowJsonModal implements OnInit {
     }
 
     ngOnDestroy(): void {
-        this.openModal$ && this.openModal$.unsubscribe();
+        this.openModal && this.openModal.unsubscribe();
+        this.serverErrorsSubscription && this.serverErrorsSubscription.unsubscribe();
     }
 
 }

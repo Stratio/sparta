@@ -101,6 +101,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
             setTimeout(() => {
                 if (this.internalControl.invalid) {
                     this.forceValidations = true;
+                    this.internalControl.markAsPristine();
                     this._cd.detectChanges();
                 }
             });
@@ -118,10 +119,11 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
                 const form: FormGroup = this.formBuilder.group(item);
                 this.items.push(form);
             }
-            this._cd.detectChanges();
         } else {
             this.items.controls = [];
         }
+         this.internalControl.markAsPristine();
+         this._cd.detectChanges();
     }
 
     isHidden(value: any){
@@ -148,6 +150,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
         if (this.internalControl.valid) {
             this.forceValidations = false;
             this.store.dispatch(new environmentActions.SaveEnvironmentAction(this.internalControl.value));
+            this.internalControl.markAsPristine();
         } else {
             this.forceValidations = true;
         }

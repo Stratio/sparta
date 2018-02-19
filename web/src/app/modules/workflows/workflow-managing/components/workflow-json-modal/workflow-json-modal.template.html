@@ -13,11 +13,14 @@
             </p>
             <p>
          </div>
-         <div class="workflow-json">
-            <!--<p *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>-->
+         <div class="workflow-json st-form-field" [ngClass]="{'error' : workflowValidationError || serverErrors.length}">
+            
             <sp-textarea [forceValidations]="forceValidations" placeholder="{{'DASHBOARD.WORKFLOW_JSON' | translate}}" label="JSON" name="components-template" [qaTag]="'components-textarea-template'"
                required class="workflow-json-content st-form-field" [rows]="15" [(ngModel)]="model.json"> </sp-textarea>
                <!-- {{serverErrors | async | json}} -->
+               <p class="st-input-error-message validation-error" *ngIf="workflowValidationError">{{'DASHBOARD.JSON_SAVE_ERROR' | translate}}</p>
+               <p class="st-input-error-message validation-error" *ngIf="serverErrors.length"> {{serverErrors}}
+               </p>
             <file-reader text="{{'DASHBOARD.UPLOAD_JSON_FILE' | translate}}" (changedFile)="onChangedFile($event)"></file-reader>
 
             <div class="edition-buttons">
