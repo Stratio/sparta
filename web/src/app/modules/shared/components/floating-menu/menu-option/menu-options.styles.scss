@@ -12,7 +12,7 @@
    /*z-index: -1;*/
    position: absolute;
     &.right-position {
-          right: 100%;
+      right: 100%;
       left: auto;
    }
 }
@@ -37,6 +37,9 @@ ul {
    max-height:400px;
    overflow-y: auto;
    overflow-x: hidden;
+   /*.right-position & {
+       float:right;
+   }*/
 }
 
 .scroll-button {
@@ -88,7 +91,7 @@ li.search {
 
 li.item {
    display: block;
-   min-width: 150px;
+   /*min-width: 150px;*/
    padding: 10px 8px 10px 20px;
    cursor: pointer;
    padding-right: 30px;
@@ -98,7 +101,7 @@ li.item {
    -webkit-tap-highlight-color: transparent;
    .has-submenu {
       font-size: 12px;
-      float: right;
+          float: right;
       margin-top: 6px;
       margin-right: 10px;
    }
@@ -130,7 +133,7 @@ li.item {
 }
 
 .right-position {
-
+    /* text-align: right; */
 }
 
 

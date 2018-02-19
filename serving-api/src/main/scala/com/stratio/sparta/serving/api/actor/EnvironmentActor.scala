@@ -38,7 +38,6 @@ class EnvironmentActor(val curatorFramework: CuratorFramework)
 
   //scalastyle:off
   override def receive: Receive = {
-    case Initialize => sender ! environmentService.initialize()
     case CreateEnvironment(request, user) => createEnvironment(request, user)
     case CreateEnvironmentVariable(request, user) => createEnvironmentVariable(request, user)
     case UpdateEnvironment(request, user) => updateEnvironment(request, user)
@@ -126,8 +125,6 @@ object EnvironmentActor {
   case class FindEnvironmentVariable(name: String, user: Option[LoggedUser])
 
   case class DeleteEnvironmentVariable(name: String, user: Option[LoggedUser])
-
-  case object Initialize
 
   type Response = Try[Unit]
 

@@ -1,0 +1,29 @@
+<div [hidden]="executionInfo">
+   <div #newWorkflowModal qaTag="workflow-modal"></div>
+   <workflows-manage-header-container [showDetails]="showDetails" 
+        [selectedWorkflows]="selectedWorkflows$ | async"
+        [selectedGroupsList]="selectedGroupsList$ | async"
+        [versionsListMode]="(workflowVersions$ | async) && (workflowVersions$ | async).length"
+        [selectedVersions]="selectedVersions$ | async"
+        (showWorkflowInfo)="showWorkflowInfo()"></workflows-manage-header-container>
+   <div class="container">
+       <div class="col-sm-12">
+        <div class="row">
+            <div class="workflow-list">
+                <workflows-manage-table-container [groupList]="groupsList$ | async" 
+                    [workflowList]="workflowList"
+                    [selectedGroupsList]="selectedGroupsList$ | async"
+                    [selectedVersions]="selectedVersions$ | async"
+                    [workflowVersions]="workflowVersions$ | async"
+                    [selectedWorkflows]="selectedWorkflows$ | async"></workflows-manage-table-container>
+            </div>
+            <div class="workflow-detail-container">
+                <sparta-sidebar [isVisible]="showDetails" (onCloseSidebar)="showWorkflowInfo()">
+                <workflow-managing-detail class="workflow-detail" (showWorkflowExecutionInfo)="showWorkflowExecutionInfo($event)" 
+                    [data]="selectedVersion  ? selectedVersion  : (selectedEntity$ | async)"></workflow-managing-detail>
+                </sparta-sidebar>
+            </div>
+          </div>
+      </div>
+   </div>
+</div>

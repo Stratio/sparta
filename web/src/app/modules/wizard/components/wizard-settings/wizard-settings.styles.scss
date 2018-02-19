@@ -1,0 +1,71 @@
+:host {
+    height: 100%;
+    position: fixed;
+    background-color: #fafafa;
+    width: 100%;
+    display: block;
+    overflow: auto;
+}
+
+.title {
+   margin-top: 8px;
+}
+
+.edition-header {
+   width: 100%;
+   background: #fff;
+   z-index: 100;
+   position: fixed;
+   top:0;
+   left:0;
+   width:100%;
+   border-bottom: 1px solid #dedede;
+}
+
+.menu {
+   overflow: hidden;
+   padding: 20px 0;
+   width: 100%;
+}
+
+.action-buttons {
+   float: right;
+}
+
+.cancel-button {
+   margin-right: 20px;
+}
+
+.breadcrumb {
+   display: inline-block;
+}
+
+.advanced-settings,
+.content {
+   margin-top: 30px;
+}
+
+.input-field {
+   margin: 15px 0;
+   display: block;
+}
+
+.entity-categories {
+   margin-bottom: 30px;
+   display: block;
+   width: 340px;
+}
+
+.content {
+   padding-bottom: 50px;
+   padding-top: 70px;
+}
+
+.basic-settings {
+   margin-top: 30px;
+   display: block;
+}
+
+.tag-input {
+    margin-bottom:20px;
+}

@@ -1,0 +1,46 @@
+li {
+   position: relative;
+   .open-icon {
+      position: absolute;
+      left: -3px;
+      font-size: 14px;
+      top: -2px;
+      padding: 5px;
+      color: #333;
+      cursor: pointer;
+   }
+   .selected {
+      background-color: rgba(18,139,221,.07);
+      .folder-name {
+         font-family: Nunito Sans SemiBold;
+      }
+   }
+}
+
+ul,
+li {
+   list-style: none;
+}
+
+.container-group {
+   position: relative;
+   padding-left: 20px;
+}
+
+.folder-content {
+   padding: 4px 0;
+   display: block;
+}
+
+.folder-name {
+   padding: 4px 0;
+}
+
+.current-group {
+   color: #aaa;
+}
+
+.icon-folder {
+   color: #aaa;
+   padding: 0 5px;
+}

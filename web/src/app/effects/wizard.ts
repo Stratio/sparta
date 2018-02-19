@@ -1,4 +1,3 @@
-import { WizardService } from '../modules/wizard/wizard.service';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -20,10 +19,12 @@ import { Injectable } from '@angular/core';
 import { Action, Store } from '@ngrx/store';
 import { Effect, Actions, toPayload } from '@ngrx/effects';
 import { Observable } from 'rxjs/Observable';
-import * as fromRoot from 'reducers';
 
+import * as fromRoot from 'reducers';
+import * as errorActions from 'actions/errors';
 import * as wizardActions from 'actions/wizard';
 import { InitializeWorkflowService, TemplatesService } from 'services/initialize-workflow.service';
+import { homeGroup } from '@app/shared/constants/global';
 
 
 @Injectable()
@@ -44,8 +45,9 @@ export class WizardEffect {
                 });
                 return new wizardActions.GetMenuTemplatesCompleteAction(templatesObj);
             }).catch((error) => {
-                return  error.statusText === 'Unknown Error' ? Observable.of(new wizardActions.GetMenuTemplatesErrorAction()) :
-                    Observable.of({type: 'NO_ACTION'});
+                return  Observable.if(() => error.statusText === 'Unknown Error',
+                Observable.of(new wizardActions.GetMenuTemplatesErrorAction()),
+                Observable.of(new errorActions.ServerErrorAction(error)));
             });
         });
 
@@ -63,7 +65,7 @@ export class WizardEffect {
             } else {
                 for (let i = 0; i < wizard.nodes.length; i++) {
                     if (payload.data.name === wizard.nodes[i].name) {
-                        return new wizardActions.SaveEntityErrorAction('');
+                        return new wizardActions.SaveEntityErrorAction(true);
                     }
                 }
             }
@@ -114,15 +116,15 @@ export class WizardEffect {
                 return this.workflowService.updateWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.of(new wizardActions.SaveWorkflowErrorAction(''));
+                    return Observable.of(new errorActions.ServerErrorAction(error));
                 });
             } else {
                 delete workflow.id;
-                workflow.group = state.workflows.workflows.currentLevel;
+                workflow.group = state.workflowsManaging ? state.workflowsManaging.workflowsManaging.currentLevel : homeGroup;
                 return this.workflowService.saveWorkflow(workflow).map(() => {
                     return new wizardActions.SaveWorkflowCompleteAction(workflow.name);
                 }).catch(function (error) {
-                    return Observable.empty();
+                    return Observable.of(new errorActions.ServerErrorAction(error));
                 });
             }
 

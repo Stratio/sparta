@@ -29,10 +29,7 @@ import com.stratio.sparta.serving.core.constants.MarathonConstant._
 import com.stratio.sparta.serving.core.constants.SparkConstant.SubmitMesosConstraintConf
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
 import com.stratio.sparta.serving.core.helpers.{InfoHelper, WorkflowHelper}
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
-import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowExecution, WorkflowStatus}
-import com.stratio.sparta.serving.core.services.WorkflowStatusService
-import com.stratio.sparta.serving.core.utils.NginxUtils
+import com.stratio.sparta.serving.core.models.workflow.{Workflow, WorkflowExecution}
 import com.stratio.tikitakka.common.message._
 import com.stratio.tikitakka.common.model._
 import com.stratio.tikitakka.core.UpAndDownActor
@@ -69,7 +66,6 @@ class MarathonService(context: ActorContext,
   implicit val materializer: ActorMaterializer = ActorMaterializer(ActorMaterializerSettings(actorSystem))
 
   /* Constant variables */
-  private val statusService = new WorkflowStatusService(curatorFramework)
 
   val AppMainClass = "com.stratio.sparta.driver.MarathonDriver"
   val DefaultMarathonTemplateFile = "/etc/sds/sparta/marathon-app-template.json"
@@ -81,9 +77,7 @@ class MarathonService(context: ActorContext,
   val HostMesosNativePackagesPath = "/opt/mesosphere/packages"
   val HostMesosLib = s"$HostMesosNativeLibPath"
   val HostMesosNativeLib = s"$HostMesosNativeLibPath/libmesos.so"
-  val ServiceName = workflowModel.fold("") { workflow =>
-    WorkflowHelper.getMarathonId(workflow)
-  }
+  val ServiceName = workflowModel.fold("") { workflow => WorkflowHelper.getMarathonId(workflow) }
   val DefaultMemory = 1024
   val Krb5ConfFile = "/etc/krb5.conf"
   val ResolvConfigFile = "/etc/resolv.conf"
@@ -129,36 +123,26 @@ class MarathonService(context: ActorContext,
       response <- (upAndDownActor ? UpServiceRequest(createApp, Try(getToken).toOption)).mapTo[UpAndDownMessage]
     } response match {
       case response: UpServiceFails =>
-        val information = s"An error was encountered while launching the Workflow App in the Marathon API with id: ${response.appInfo.id}"
+        val information = s"Workflow App ${response.appInfo.id} cannot be deployed: ${response.msg}"
         log.error(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = Failed,
-          statusInfo = Option(information),
-          lastError = Option(WorkflowError(information, PhaseEnum.Execution, response.msg))))
-        log.error(s"Service ${response.appInfo.id} cannot be deployed: ${response.msg}")
+        throw new Exception(information)
       case response: UpServiceResponse =>
-        val information = s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}"
-        log.info(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = Uploaded,
-          statusInfo = Option(information),
-          sparkURI = NginxUtils.buildSparkUI(s"${workflowModel.get.name}-v${workflowModel.get.version}",
-            Option(workflowModel.get.settings.global.executionMode))
-        ))
-      case _ =>
-        val information = "Unrecognized message received from Marathon API"
-        log.warn(information)
-        statusService.update(WorkflowStatus(
-          id = workflowModel.get.id.get,
-          status = NotDefined,
-          statusInfo = Option(information)
-        ))
+        log.info(s"Workflow App correctly launched to Marathon API with id: ${response.appInfo.id}")
     }
   }
 
-  def kill(containerId: String): Unit = upAndDownActor ! DownServiceRequest(ContainerId(containerId), Try(getToken).toOption)
+  def kill(containerId: String): Unit = {
+    for {
+      response <- (upAndDownActor ? DownServiceRequest(ContainerId(containerId), Try(getToken).toOption)).mapTo[UpAndDownMessage]
+    } response match {
+      case response: DownServiceFails =>
+        val information = s"Workflow App ${response.appInfo.id} cannot be killed: ${response.msg}"
+        log.error(information)
+        throw new Exception(information)
+      case response: DownServiceResponse =>
+        log.info(s"Workflow App correctly killed with Marathon API and id: ${response.appInfo.id}")
+    }
+  }
 
   /* PRIVATE METHODS */
 
@@ -236,8 +220,7 @@ class MarathonService(context: ActorContext,
         val constraints = workflowConstraint.split(":")
         Seq(
           Option(constraints.head),
-          Option(workflowModel.settings.global.mesosConstraintOperator.notBlankWithDefault("CLUSTER")),
-          {
+          Option(workflowModel.settings.global.mesosConstraintOperator.notBlankWithDefault("CLUSTER")), {
             if (constraints.size == 2 || constraints.size == 3) Option(constraints.last) else None
           }
         ).flatten
@@ -282,7 +265,8 @@ class MarathonService(context: ActorContext,
     )
 
     val newPortMappings = if (calicoEnabled) Option(Seq(PortMapping(portSpark, portSpark, Option(0),
-      protocol = Option("tcp")))) else None
+      protocol = Option("tcp"))))
+    else None
     val networkType = if (calicoEnabled) Option("USER") else app.container.docker.network
     val newDockerContainerInfo = Properties.envOrNone(MesosNativeJavaLibraryEnv) match {
       case Some(_) =>
@@ -348,7 +332,7 @@ class MarathonService(context: ActorContext,
       ZookeeperConfigEnv -> submitRequest.sparkSubmitExecution.driverArguments.get("zookeeperConfig"),
       DetailConfigEnv -> submitRequest.sparkSubmitExecution.driverArguments.get("detailConfig"),
       PluginFiles -> Option(submitRequest.sparkSubmitExecution.pluginFiles.mkString(",")),
-      WorkflowIdEnv -> workflowModel.id,
+      WorkflowIdEnv -> submitRequest.sparkSubmitExecution.driverArguments.get("workflowId"),
       VaultEnableEnv -> Properties.envOrNone(VaultEnableEnv),
       VaultHostsEnv -> Properties.envOrNone(VaultHostsEnv),
       VaultPortEnv -> Properties.envOrNone(VaultPortEnv),

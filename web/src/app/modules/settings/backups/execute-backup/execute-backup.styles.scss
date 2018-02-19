@@ -1,9 +1,16 @@
 :host {
-    min-width: 500px;
+   min-width: 500px;
 }
 
 .confirmation {
    display: block;
+       font-family: Nunito Sans Light;
+    font-size: 1.563rem;
+    line-height: 2.125rem;
+    text-align: left;
+    color: #0f1b27;
+    margin-bottom: 15px;
+    font-weight: 300;
 }
 
 .remove-data {
@@ -16,14 +23,18 @@
    font-size: 15px;
 }
 
-.action-buttons{
-    margin-top:100px;
-    overflow: hidden;
-    .button {
-        padding: .925rem 1.875rem;
-        min-width:9rem;
-    }
-    .save-button {
-        float:right;
-    }
+.action-buttons {
+   margin-top: 100px;
+   overflow: hidden;
+   .button {
+      padding: .925rem 1.875rem;
+      min-width: 9rem;
+   }
+   .save-button {
+      float: right;
+   }
+   .cancel-button {
+      float: right;
+      margin-right: 10px;
+   }
 }

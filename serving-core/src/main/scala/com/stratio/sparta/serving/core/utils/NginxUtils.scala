@@ -60,8 +60,11 @@ object NginxUtils {
     }
   }
 
-  def monitorUrl(vhost: String, spartaInstance: String, workflowId: String, ssl: Boolean = true): String =
-    s"http${if(ssl) "s" else ""}://$vhost/workflows-$spartaInstance/$workflowId/"
+  def monitorUrl(vhost: String, spartaInstance: String, workflowId: String, ssl: Boolean = true): String = {
+    val nameWithoutRoot =
+      if (workflowId.startsWith("/")) workflowId.substring(1) else workflowId
+    s"http${if (ssl) "s" else ""}://$vhost/workflows-$spartaInstance/$nameWithoutRoot/"
+  }
 
   case class AppParameters(appId: String, addressIP: String, port: Int)
 
@@ -157,6 +160,14 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
 
   private val marathonApiUri = Properties.envOrNone("MARATHON_TIKI_TAKKA_MARATHON_URI").notBlank
 
+  val crossdataLocalDeploymentWithUI =
+    Try(Properties.envOrNone("CROSSDATA_SERVER_SPARK_UI_ENABLED").get.toBoolean).getOrElse(true)
+
+  val crossdataItem: AppParameters = AppParameters("crossdata-sparkUI",
+    "127.0.0.1",
+    Try(Properties.envOrNone("CROSSDATA_SERVER_CONFIG_SPARK_UI_PORT").get.toInt).getOrElse(4041))
+
+
   private def checkSyntax(file: File): Boolean = {
     val test_exit_code = Process(s"nginx -t -c ${file.getAbsolutePath}").!
     test_exit_code == 0
@@ -237,8 +248,10 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
     for {
       tempFile <- Future(File.createTempFile(configFile.getName, null))
       res <- Future {
-
-        val config = updatedNginxConf(listWorkflows, uiVirtualHost)
+        val fullListOfWorkflows = if(crossdataLocalDeploymentWithUI)
+          listWorkflows.+:(crossdataItem)
+        else listWorkflows
+        val config = updatedNginxConf(fullListOfWorkflows, uiVirtualHost)
 
         // Detect config changes
         val diff = !configFile.exists || using(scala.io.Source.fromFile(configFile)) { source =>
@@ -320,7 +333,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
   def workflowNginxLocations(implicit listWorkflows: Seq[AppParameters], uiVirtualHost: String): String =
     listWorkflows map { case AppParameters(id, ip, port) =>
 
-      val workflowName = id.split('/').last
+      val workflowName = Try(id.substring(id.indexOf("home"))).getOrElse(id.split('/').last)
       val monitorEndUrl = monitorUrl(uiVirtualHost, instanceName, workflowName ,useSsl)
 
       s"""

@@ -97,6 +97,11 @@ export function reducer(state: State = initialState, action: any): State {
                 driversSortOrder: action.payload.sortOrder
             });
         }
+        case resourcesActions.SELECT_ALL_PLUGINS: {
+            return Object.assign({}, state, {
+                selectedPlugins: action.payload ? state.pluginsList.map((plugin) => plugin.fileName) : []
+            });
+        }
         default:
             return state;
     }

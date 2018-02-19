@@ -48,7 +48,7 @@ class GroupService(curatorFramework: CuratorFramework) extends SpartaSerializer 
     Try {
       if (findByID(DefaultGroup.id.get).toOption.isEmpty) {
         create(DefaultGroup)
-        log.debug("The group initialization have been completed")
+        log.debug("The group initialization has been completed")
       } else log.debug("The default group is already created")
     }
   }
@@ -123,7 +123,7 @@ class GroupService(curatorFramework: CuratorFramework) extends SpartaSerializer 
           s"invalid name detected")
       else if (findByName(group.name).isSuccess){
         throw new ServerException(s"Unable to update group ${group.id.get} with name ${group.name}:" +
-          s"target group already existing")
+          s"target group already exists")
       }
       else {
         findByID(group.id.get) match {

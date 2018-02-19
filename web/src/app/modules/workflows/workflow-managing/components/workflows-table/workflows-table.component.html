@@ -1,0 +1,61 @@
+<!---- groups & workflows ----- -->
+<st-table *ngIf="!workflowVersions || !workflowVersions.length" [fields]="fields" [sortable]="true" qaTag="table-qa-tag"
+   class="workflow-table" (changeOrder)="changeOrder($event)">
+   <tr st-table-row *ngFor="let group of groupList; let i = index;" (click)="checkGroup(group)" [selected]="selectedGroupsList.indexOf(group.name) > -1">
+      <td st-table-cell st-table-row-content class="check-column">
+         <st-checkbox [value]="workflow" (change)="checkGroup(group)" [checked]="selectedGroupsList.indexOf(group.name) > -1"></st-checkbox>
+      </td>
+      <td st-table-cell st-table-row-content>
+         <label (click)="openGroup($event,group)" class="group-name">
+             <span class="icon-folder icon-row"></span>
+             {{group.label}}
+         </label>
+      </td>
+      <td st-table-cell st-table-row-content colspan="2">
+         <label>Group</label>
+      </td>
+   </tr>
+   <tr st-table-row *ngFor="let workflow of workflowList; let i = index;" (click)="checkWorkflow(workflow)" class="workflow-row"
+      [selected]="selectedWorkflows && selectedWorkflows.indexOf(workflow.name) > -1">
+      <td st-table-cell st-table-row-content class="check-column">
+         <st-checkbox [value]="workflow" (change)="checkWorkflow(workflow)" [checked]="selectedWorkflows && selectedWorkflows.indexOf(workflow.name) > -1"></st-checkbox>
+      </td>
+      <td st-table-cell st-table-row-content>
+         <label class="group-name" (click)="openWorkflowClick($event, workflow)">
+            <span *ngIf="workflow.type === 'Streaming'" class="icon icon-infinite icon-row"></span>
+            <span *ngIf="workflow.type === 'Batch'" class="icon icon-channel icon-row"></span> {{workflow.name}}
+          </label>
+      </td>
+      <td st-table-cell st-table-row-content>
+         {{workflow.type}}
+      </td>
+      <td st-table-cell st-table-row-content>
+         {{workflow.lastUpdate}}
+      </td>
+   </tr>
+</st-table>
+
+<!--- versions -- -->
+<st-table *ngIf="workflowVersions && workflowVersions.length" [fields]="versionFields" [sortable]="true" qaTag="table-qa-tag"
+   class="version-table" (changeOrder)="changeOrderVersions($event)">
+   <tr st-table-row *ngFor="let version of workflowVersions; let i = index;" [selected]="selectedVersions && selectedVersions.indexOf(version.id) > -1"
+      (click)="checkVersion(version.id)" class="workflow-versions">
+      <td st-table-cell st-table-row-content class="check-column">
+         <st-checkbox [value]="workflow" (change)="checkVersion(version.id)" [checked]="selectedVersions && selectedVersions.indexOf(version.id) > -1"></st-checkbox>
+      </td>
+      <td st-table-cell st-table-row-content>
+         <label class="version-name workflow-link" (click)="editVersion($event, version.id)">
+            <span *ngIf="version.executionEngine === 'Streaming'" class="icon icon-infinite icon-row"></span>
+            <span *ngIf="version.executionEngine=== 'Batch'" class="icon icon-channel icon-row"></span> 
+           {{version.version}} - {{version.name}}</label>
+      </td>
+      <td st-table-cell st-table-row-content>
+         <label class="status-field" [ngClass]="version.status.status">
+        {{('DASHBOARD.' + version.status.status | uppercase) | translate}}
+        </label>
+      </td>
+      <td st-table-cell st-table-row-content>
+         {{version.lastUpdate}}
+      </td>
+   </tr>
+</st-table>

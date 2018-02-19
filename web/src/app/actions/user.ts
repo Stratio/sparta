@@ -19,7 +19,7 @@ import { Action } from '@ngrx/store';
 export const GET_USER_PROFILE = '[User] Get user profile';
 export const GET_USER_PROFILE_COMPLETE = '[User] Get user profile complete';
 export const GET_USER_PROFILE_ERROR = '[User] Get user profile error';
-
+export const SET_EDIT_MONITORING_MODE = '[User] Set edit monitoring mode';
 
 export class GetUserProfileAction implements Action {
   readonly type = GET_USER_PROFILE;
@@ -38,9 +38,14 @@ export class GetUserProfileErrorAction implements Action {
   constructor(public payload: any) { }
 }
 
+export class SetEditMonitoringModeAction implements Action {
+  readonly type = SET_EDIT_MONITORING_MODE;
+    constructor(public payload: any) { }
+}
 
 export type Actions =
   GetUserProfileAction |
   GetUserProfileCompleteAction |
-  GetUserProfileErrorAction;
+  GetUserProfileErrorAction |
+  SetEditMonitoringModeAction;
 

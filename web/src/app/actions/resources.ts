@@ -46,7 +46,7 @@ export const DOWNLOAD_PLUGIN_COMPLETE = '[Resources] Download plugin complete';
 export const DOWNLOAD_PLUGIN_ERROR = '[Resources] Download plugin error';
 export const CHANGE_ORDER_DRIVERS = '[Resources] Change order drivers';
 export const CHANGE_ORDER_PLUGINS = '[Resources] Change order plugins';
-
+export const SELECT_ALL_PLUGINS = '[Resources] Select all plugins';
 
 export class ListDriversAction implements Action {
   readonly type = LIST_DRIVERS;
@@ -244,6 +244,11 @@ export class ChangeOrderPlugins implements Action {
   constructor(public payload: any) { }
 }
 
+export class SelectAllPluginsAction implements Action {
+  readonly type = SELECT_ALL_PLUGINS;
+  constructor(public payload: any) { }
+}
+
 export type Actions = ListDriversAction |
   ListDriversCompleteAction |
   ListDriversErrorAction |
@@ -273,5 +278,6 @@ export type Actions = ListDriversAction |
   DownloadDriverCompleteAction |
   DownloadDriverErrorAction |
   ChangeOrderDrivers |
-  ChangeOrderPlugins;
+  ChangeOrderPlugins |
+  SelectAllPluginsAction;
 

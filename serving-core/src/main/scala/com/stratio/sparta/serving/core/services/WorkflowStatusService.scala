@@ -21,7 +21,7 @@ import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow.WorkflowStatus
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
@@ -83,10 +83,11 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
         val actualStatus = read[WorkflowStatus](new String(curatorFramework.getData.forPath(statusPath)))
         val workflowStatusWithFields = addUpdateDate(workflowStatus)
         val newStatus = workflowStatusWithFields.copy(
-          status = if (workflowStatusWithFields.status == WorkflowStatusEnum.NotDefined) actualStatus.status
+          status = if (workflowStatusWithFields.status == NotDefined) actualStatus.status
           else workflowStatusWithFields.status,
           lastError = if (workflowStatusWithFields.lastError.isDefined) workflowStatusWithFields.lastError
-          else if (workflowStatusWithFields.status == WorkflowStatusEnum.NotStarted) None else actualStatus.lastError,
+          else if (workflowStatusWithFields.status == Created || workflowStatusWithFields.status == NotStarted) None
+          else actualStatus.lastError,
           statusInfo = if (workflowStatusWithFields.statusInfo.isEmpty) actualStatus.statusInfo
           else workflowStatusWithFields.statusInfo,
           lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
@@ -155,7 +156,7 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
     findAll() match {
       case Success(statuses) =>
         statuses.exists(wStatus =>
-          wStatus.status == WorkflowStatusEnum.Started && wStatus.lastExecutionMode == Option(AppConstant.ConfigLocal))
+          wStatus.status == Started && wStatus.lastExecutionMode == Option(AppConstant.ConfigLocal))
       case Failure(e) =>
         log.error("An error was encountered while finding all the workflow statuses", e)
         false
@@ -174,9 +175,10 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
   private[sparta] def updateSparkURI(workflowStatus: WorkflowStatus,
                                      zkWorkflowStatus: WorkflowStatus): Option[String] = {
     if (workflowStatus.sparkURI.notBlank.isDefined) workflowStatus.sparkURI
-    else if (workflowStatus.status == WorkflowStatusEnum.NotStarted  ||
-      workflowStatus.status == WorkflowStatusEnum.Stopped ||
-      workflowStatus.status == WorkflowStatusEnum.Failed) None
+    else if (workflowStatus.status == NotStarted ||
+      workflowStatus.status == Created ||
+      workflowStatus.status == Stopped ||
+      workflowStatus.status == Failed) None
     else zkWorkflowStatus.sparkURI
   }
 }

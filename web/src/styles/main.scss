@@ -13,6 +13,7 @@ html {
 body {
     margin: 0;
     overflow-x: hidden;
+    overflow-y: scroll;
     background: #fafafa;
     font-family: 'Nunito Sans';
 }
@@ -73,6 +74,10 @@ body {
     }
 }
 
+.sp-loading-advice{
+    display:block!important;
+}
+
 .mobile {
     .type-input .input-entry {
         transform: scale(1)!important;
@@ -84,4 +89,22 @@ body {
      .active.type-output .output-entry, .active.type-transformation .transformation-entry{
         transform: scale(1.3)!important;
      }
+}
+
+.workflow-table .st-table__header th:nth-child(5) label, .workflow-table tr td:nth-child(5) label {
+    transition:0.3s all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display:block;
+}
+
+.compressed  .workflow-table .st-table__header th:nth-child(5) label, .compressed .workflow-table tr td:nth-child(5) label {
+    width: 0;
+    padding:0;
+    opacity: 0;
+}
+
+.sth-header-menu-option-icon{
+    display:none;
 }

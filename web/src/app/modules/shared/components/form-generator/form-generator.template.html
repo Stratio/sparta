@@ -7,7 +7,7 @@
             </div>
             <form-generator [subFormNumber]="subFormNumber+1" [formControl]="prop.formControl" class="col-sm-12" [forceValidations]="submitted" [formData]="prop.field.properties"></form-generator>
          </div>
-         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [ngClass]="getClass(prop.field.width)">
+         <div *ngIf="!prop.field.properties && prop.field.propertyType !== 'list'" [hidden]="prop.field.hidden === true" [ngClass]="getClass(prop.field.width)">
             <form-field [field]="prop.field" [forceValidations]="forceValidations" [formControl]="prop.formControl" [stFormGroup]="stFormGroup"></form-field>
          </div>
          <div *ngIf="!prop.field.properties && prop.field.propertyType === 'list'" class="prop-container">

@@ -109,7 +109,7 @@ class WorkflowService(
       s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
     statusService.update(WorkflowStatus(
       id = workflowWithFields.id.get,
-      status = WorkflowStatusEnum.NotStarted
+      status = WorkflowStatusEnum.Created
     ))
 
     workflowWithFields
@@ -163,7 +163,7 @@ class WorkflowService(
           s"${AppConstant.WorkflowsZkPath}/${workflowWithFields.id.get}", write(workflowWithFields).getBytes)
         statusService.update(WorkflowStatus(
           id = workflowWithFields.id.get,
-          status = WorkflowStatusEnum.NotStarted
+          status = WorkflowStatusEnum.Created
         ))
 
         workflowWithFields
@@ -297,7 +297,7 @@ class WorkflowService(
         val children = curatorFramework.getChildren.forPath(workflowPath)
 
         JavaConversions.asScalaBuffer(children).toList.foreach(workflow =>
-          statusService.update(WorkflowStatus(workflow, WorkflowStatusEnum.NotStarted))
+          statusService.update(WorkflowStatus(workflow, WorkflowStatusEnum.Created))
         )
       }
     }
@@ -310,7 +310,7 @@ class WorkflowService(
 
   def reset(id: String): Try[Any] = {
     log.debug(s"Resetting workflow with id $id")
-    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.NotStarted))
+    statusService.update(WorkflowStatus(id, WorkflowStatusEnum.Created))
   }
 
   def applyEnv(workflow: Workflow): Workflow = {
@@ -322,11 +322,13 @@ class WorkflowService(
     //Validate groups
     if (CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupSourceId}") &&
       CuratorFactoryHolder.existsPath(s"$GroupZkPath/${workflowMove.groupTargetId}")) {
-      val groupTarget = read[Group](new String(curatorFramework.getData.forPath(s"$GroupZkPath/${workflowMove.groupTargetId}")))
+      val groupTarget = read[Group](
+        new String(curatorFramework.getData.forPath(s"$GroupZkPath/${workflowMove.groupTargetId}")))
       val all = findAll
       //In this path not exists a workflow with that name
       if (all.count(w => w.group.name == groupTarget.name && w.name == workflowMove.workflowName) > 0) {
-        throw new RuntimeException(s"Workflow with the name ${workflowMove.workflowName} already exist on the target group ${groupTarget.name}")
+        throw new RuntimeException(
+          s"Workflow with the name ${workflowMove.workflowName} already exist on the target group ${groupTarget.name}")
       } else {
         val workflowsToMove = all.filter(w => w.group.id.get == workflowMove.groupSourceId && w.name == workflowMove
           .workflowName)
@@ -390,7 +392,7 @@ class WorkflowService(
         Option(workFlow.copy(status =
           statusService.findById(id) recoverWith {
             case e =>
-              log.error(s"Error finding workflowStatus with id ${id}", e)
+              log.error(s"Error finding workflowStatus with id $id", e)
               Failure(e)
           } toOption
         ))

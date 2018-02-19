@@ -1,0 +1,71 @@
+@import '~@stratio/egeo/theme/constants';
+
+.workflow-link {
+   cursor: pointer;
+   user-select: none;
+   &:hover {
+      color: #0f1b27;
+   }
+}
+
+.check-column {
+   width: 10px;
+   padding-right: 0;
+}
+
+.workflow-table, .version-table {
+   display: block;
+   margin-top: 30px;
+   user-select: none;
+   tr:hover {
+      cursor: pointer;
+   }
+
+   st-checkbox {
+    pointer-events: none;
+}
+}
+
+.workflow-arrow{
+    font-size:0.8rem;
+    margin-left:0.3em;
+}
+
+.workflow-versions td:first-child{
+    padding-left:40px;
+}
+
+.spark-link {
+   max-width: 10px;
+   padding-left: 0;
+   padding-right: 30px;
+   i {
+      color: #128bde;
+      font-size: 20px;
+      line-height: 9px;
+   }
+}
+
+.status-field {
+   font-family: "Nunito Sans SemiBold";
+   &.Started {
+      color: $status-success-hover;
+   }
+   &.Failed {
+      color: $status-critical-default;
+   }
+}
+
+.icon-row {
+    font-size: 18px;
+    margin-right: 8px;
+    margin-top: 0px;
+    float: left;
+}
+
+.group-name:hover, .version-name:hover{
+    text-decoration: underline;
+    cursor:pointer;
+    overflow:hidden;
+}
+

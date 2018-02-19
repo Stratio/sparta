@@ -42,7 +42,9 @@ export class CrossdataQueries implements OnInit, OnDestroy {
     public isLoadingQuery$: Observable<boolean>;
     public currentPage = 1;
     public perPage = 10;
-    public perPageOptions: any = [10, 20, 40];
+        public perPageOptions: any = [
+      { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 40, showFrom: 0 }
+    ];
 
     public showResult = false;
 

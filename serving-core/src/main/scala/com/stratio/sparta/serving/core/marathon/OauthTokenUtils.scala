@@ -34,7 +34,8 @@ trait OauthTokenUtils extends SLF4JLogging {
   lazy val clientId = ConfigComponent.getString(clientIdField).getOrElse(throw new Exception("clientId not defined"))
   lazy val redirectUri = ConfigComponent.getString(redirectUriField)
     .getOrElse(throw new Exception("redirectUri not defined"))
-  val maxRetries = 3
+  val defaultRetries = 5
+  val maxRetries = Try(ConfigComponent.getInt(retriesField).get).getOrElse(defaultRetries)
   val dcosAuthCookieName = "dcos-acs-auth-cookie"
 
   def getToken: HttpCookie = {
@@ -166,5 +167,6 @@ object OauthTokenUtils {
   val passwordField = "sparta.marathon.sso.password"
   val clientIdField = "sparta.marathon.sso.clientId"
   val redirectUriField = "sparta.marathon.sso.redirectUri"
+  val retriesField = "sparta.marathon.sso.retries"
 }
 

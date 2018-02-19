@@ -29,7 +29,7 @@ let component: SpInputComponent;
 let fixture: ComponentFixture<SpInputComponent>;
 let input: HTMLInputElement;
 
-describe('StInputComponent', () => {
+describe('SpInputComponent', () => {
    beforeEach(async(() => {
       TestBed.configureTestingModule({
          imports: [FormsModule, ReactiveFormsModule, StLabelModule],

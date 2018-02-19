@@ -20,7 +20,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { SpartaBackups } from './backups/backups.component';
 import { SpartaDrivers } from './resources/drivers/drivers.component';
 import { SpartaPlugins } from './resources/plugins/plugins.component';
-import { SpartaCrossdata } from './crossdata/crossdata.component';
 import { EnvironmentComponent } from './environment/environment.component';
 
 
@@ -46,7 +45,7 @@ const settingsRoutes: Routes = [
             component: SpartaDrivers
          },
          {
-            path: 'resources/plugins',
+            path: 'plugins',
             component: SpartaPlugins
          },
          {

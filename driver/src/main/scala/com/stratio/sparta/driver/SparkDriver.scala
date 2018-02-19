@@ -21,22 +21,21 @@ import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
 import com.stratio.sparta.driver.exception.DriverException
 import com.stratio.sparta.driver.service.StreamingContextService
-import com.stratio.sparta.serving.core.actor.{EnvironmentStateActor, StatusPublisherActor, WorkflowStatusListenerActor}
+import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.constants.AppConstant.{ConfigMesos, DefaultkillUrl}
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum._
 import com.stratio.sparta.serving.core.models.workflow._
-import com.stratio.sparta.serving.core.services.{ExecutionService, WorkflowService, WorkflowStatusService}
+import com.stratio.sparta.serving.core.services.WorkflowStatusService
 import com.typesafe.config.ConfigFactory
-import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
-import com.stratio.sparta.serving.core.actor.EnvironmentStateActor.ForceInitialization
+import org.json4s.jackson.Serialization.read
 
 import scala.util.{Failure, Properties, Success, Try}
 
-object SparkDriver extends SLF4JLogging {
+object SparkDriver extends SLF4JLogging with SpartaSerializer {
 
   val NumberOfArguments = 5
   val DetailConfigIndex = 0
@@ -48,15 +47,17 @@ object SparkDriver extends SLF4JLogging {
 
   //scalastyle:off
   def main(args: Array[String]): Unit = {
-    assert(args.length == NumberOfArguments,
-      s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
     Try {
+      assert(args.length == NumberOfArguments,
+        s"Invalid number of arguments: ${args.length}, args: $args, expected: $NumberOfArguments")
       Properties.envOrNone(JaasConfEnv).foreach(jaasConf => {
-        log.info(s"Adding java security configuration file: $jaasConf")
+        log.debug(s"Adding java security configuration file: $jaasConf")
         System.setProperty("java.security.auth.login.config", jaasConf)
       })
-      log.info(s"Arguments: ${args.mkString(", ")}")
-      val workflowId = args(WorkflowIdIndex)
+      log.debug(s"Arguments: ${args.mkString(", ")}")
+
+      val workflow = read[Workflow](new String(BaseEncoding.base64().decode(args(WorkflowIdIndex))))
+      log.debug(s"Obtained workflow: ${workflow.toString}")
       val detailConf = new String(BaseEncoding.base64().decode(args(DetailConfigIndex)))
       val zookeeperConf = new String(BaseEncoding.base64().decode(args(ZookeeperConfigIndex)))
       val pluginsFiles = new String(BaseEncoding.base64().decode(args(PluginsFilesIndex)))
@@ -65,72 +66,27 @@ object SparkDriver extends SLF4JLogging {
 
       initSpartaConfig(detailConf, zookeeperConf, hdfsConf)
 
-      val system = ActorSystem("WorkflowJob")
+      val system = ActorSystem("SparkDriver")
       val curatorInstance = CuratorFactoryHolder.getInstance()
       val statusService = new WorkflowStatusService(curatorInstance)
       Try {
-        val environmentStateActor = system.actorOf(Props(new EnvironmentStateActor(curatorInstance)))
-        environmentStateActor ! ForceInitialization
+        val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
+        system.actorOf(Props(new ExecutionPublisherActor(curatorInstance)))
+        system.actorOf(Props(new WorkflowPublisherActor(curatorInstance)))
+        system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
         JarsHelper.addJarsToClassPath(pluginsFiles)
         val localPlugins = JarsHelper.getLocalPathFromJars(pluginsFiles)
-        val workflowService = new WorkflowService(curatorInstance, Option(system), Option(environmentStateActor))
-        val workflow = workflowService.findById(workflowId)
-        log.debug(s"Obtained workflow: ${workflow.toString}")
-        val executionService = new ExecutionService(curatorInstance)
-        val workflowStatus = statusService.findById(workflowId)
-        log.debug(s"Obtaining execution with workflow id: $workflowId")
-        val workflowExecution = executionService.findById(workflowId)
         val startingInfo = s"Launching workflow in Spark driver..."
         log.info(startingInfo)
         statusService.update(WorkflowStatus(
-          id = workflowId,
+          id = workflow.id.get,
           status = Starting,
           statusInfo = Some(startingInfo)
         ))
-
-        val statusPublisherActor = system.actorOf(Props(new StatusPublisherActor(curatorInstance)))
-        val statusListenerActor = system.actorOf(Props(new WorkflowStatusListenerActor))
-        
         val streamingContextService = StreamingContextService(curatorInstance, statusListenerActor)
-
-        def notifyWorkflowStarted = {
-          val startedInfo = s"Workflow in Spark driver was properly launched"
-          log.info(startedInfo)
-          statusService.update(WorkflowStatus(
-            id = workflowId,
-            status = Started,
-            statusInfo = Some(startedInfo)
-          ))
-        }
-
         val spartaWorkflow = if(workflow.executionEngine == WorkflowExecutionEngine.Batch) {
-          notifyWorkflowStarted
           streamingContextService.clusterContext(workflow, localPlugins)
-        } else {
-
-          val (spartaWorkflow, ssc) = streamingContextService.clusterStreamingContext(workflow, localPlugins)
-
-          for {
-            status <- workflowStatus
-            execution <- workflowExecution
-            execMode <- status.lastExecutionMode
-          } if (execMode.contains(ConfigMesos))
-            executionService.update {
-              execution.copy(
-                sparkExecution = Option(SparkExecution(
-                  applicationId = extractSparkApplicationId(ssc.sparkContext.applicationId))),
-                sparkDispatcherExecution = Option(SparkDispatcherExecution(
-                  killUrl = workflow.settings.sparkSettings.killUrl.notBlankWithDefault(DefaultkillUrl)
-                ))
-              )
-            }
-
-          spartaWorkflow.setup()
-          ssc.start
-          notifyWorkflowStarted
-          ssc.awaitTermination()
-          spartaWorkflow
-        }
+        } else streamingContextService.clusterStreamingContext(workflow, localPlugins)
 
         spartaWorkflow.cleanUp()
       } match {
@@ -138,17 +94,17 @@ object SparkDriver extends SLF4JLogging {
           val information = s"Workflow in Spark driver was properly stopped"
           log.info(information)
           statusService.update(WorkflowStatus(
-            id = workflowId,
+            id = workflow.id.get,
             status = Stopped,
             statusInfo = Some(information)
           ))
         case Failure(exception) =>
           val information = s"Error initiating workflow in Spark driver"
           statusService.update(WorkflowStatus(
-            id = workflowId,
+            id = workflow.id.get,
             status = Failed,
             statusInfo = Option(information),
-            lastError = Option(WorkflowError(information, PhaseEnum.Execution, exception.toString))
+            lastError = Option(WorkflowError(information, PhaseEnum.Launch, exception.toString))
           ))
           throw DriverException(information, exception)
       }
@@ -171,16 +127,8 @@ object SparkDriver extends SLF4JLogging {
       s"${detailConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${zKConfig.stripPrefix("{").stripSuffix("}")}" +
         s"\n${locationConfig.stripPrefix("{").stripSuffix("}")}"
-    log.info(s"Parsed config: sparta { $configStr }")
+    log.debug(s"Parsed config: sparta { $configStr }")
     SpartaConfig.initMainConfig(Option(ConfigFactory.parseString(s"sparta{$configStr}")))
   }
 
-  def extractSparkApplicationId(contextId: String): String = {
-    if (contextId.contains("driver")) {
-      val sparkApplicationId = contextId.substring(contextId.indexOf("driver"))
-      log.info(s"The extracted Framework id is: ${contextId.substring(0, contextId.indexOf("driver") - 1)}")
-      log.info(s"The extracted Spark application id is: $sparkApplicationId")
-      sparkApplicationId
-    } else contextId
-  }
 }

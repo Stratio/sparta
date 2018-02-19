@@ -47,7 +47,6 @@ class GroupActor(val curatorFramework: CuratorFramework)
     case DeleteAllGroups(user) => deleteAllGroups(user)
     case DeleteGroupByID(id, user) => deleteGroupByID(id, user)
     case DeleteGroupByName(name, user) => deleteGroupByName(name, user)
-    case Initialize => groupService.initialize()
     case _ => log.info("Unrecognized message in Group Actor")
   }
 
@@ -112,9 +111,6 @@ object GroupActor {
   case class FindGroupByID(id: String, user: Option[LoggedUser])
 
   case class FindGroupByName(name: String, user: Option[LoggedUser])
-
-
-  case object Initialize
 
   type Response = Try[Unit]
 

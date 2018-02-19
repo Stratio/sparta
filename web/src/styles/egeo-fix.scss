@@ -8,15 +8,6 @@
 }
 
 .st-form-field {
-   .st-label {
-      color: #999;
-      &.active {
-         color: #128bde;
-      }
-      &.disabled {
-         color: #cbcbcb;
-      }
-   }
    .error {
       &.st-label {
          color: #ec445c!important;
@@ -37,6 +28,16 @@
    }
 }
 
+.error .st-form-field {
+   .st-label {
+      color: #ec445c!important;
+   }
+   input,
+   text-area {
+      border-color: #ec445c;
+   }
+}
+
 .st-form-field {
    input,
    textarea {
@@ -46,15 +47,34 @@
    }
 }
 
+.st-pagination.pagination {
+   justify-content: space-between;
+}
+
+.st-table-row.selected {
+   font-family: Nunito Sans;
+}
+
+.sth-alerts {
+   z-index: 99999;
+}
+
+.icon-move-to-folder:before {
+   content: "\e9b0";
+}
+
+//************** end custom sth-alert ****************//
+.st-textarea {
+   height: auto;
+}
+
 .sth-alert-box {
    background-color: #fff!important;
    box-shadow: 0 1px 4px 2px rgba(124, 124, 124, 0.15);
    border-radius: 4px;
-
    .sth-alert-box-close-button {
-    color: #666!important;
+      color: #666!important;
    }
-
    .sth-alert-box-message-header-title {
       color: #111111!important;
       font-size: 15px!important;
@@ -100,16 +120,13 @@
    min-height: 20px;
 }
 
-.st-search-input {
-   border: 1px solid #b5b5b5!important;
-   padding: 20px 24px 18px 12px;
-   color: inherit!important;
-   padding-top: 10px;
-   padding-bottom: 7px;
-   height: auto!important;
-   border-radius: 4px;
+.sth-alert-box-message-body {
+   p {
+      word-break: break-word;
+   }
 }
 
+//************** end custom sth-alert ****************//
 .st-tooltip {
    min-height: 20px;
    line-height: 18px;
@@ -122,26 +139,9 @@ sp-textarea {
    width: 100%;
 }
 
-.sth-pagination.themeA {
-   background: transparent!important;
-}
-
-.sth-alert-box-message-body {
-   p {
-      word-break: break-word;
-   }
-}
-
 // z-index lower than st-alert
 .sth-header {
    z-index: 999!important;
-}
-
-.sth-header-menu-option {
-   cursor: pointer;
-   .sth-header-menu-option-name .sth-header-menu-option-icon {
-      display: none;
-   }
 }
 
 .st-dropdown-menu-item {
@@ -150,6 +150,10 @@ sp-textarea {
 
 .st-modal {
    animation: ModalAnimation 0.3s!important;
+}
+
+.sth-header-menu-option {
+   cursor: pointer;
 }
 
 @keyframes ModalAnimation {
@@ -168,8 +172,12 @@ sp-textarea {
 }
 
 .st-tooltip {
-    min-height: 18px!important;
-    line-height: 18px!important;
+   min-height: 18px!important;
+   line-height: 18px!important;
+}
+
+workflows-manage-header .sth-breadcrumbs__item {
+   text-transform: lowercase;
 }
 
 

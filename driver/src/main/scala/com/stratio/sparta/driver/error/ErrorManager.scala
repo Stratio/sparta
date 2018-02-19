@@ -74,6 +74,6 @@ trait ZooKeeperError extends ErrorManager {
 
 trait LogError extends ErrorManager with SLF4JLogging {
 
-  def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to ZK : $error")
+  def traceError(error: WorkflowError): Unit = log.error(s"This error was not saved to Zookeeper : $error")
 }
 

@@ -25,11 +25,11 @@ const layoutRoutes: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'workflows'
+                loadChildren: '@app/workflows/workflow-monitoring/workflows.module#WorkflowsMonitoringModule'
             },
             {
-                path: 'workflows',
-                loadChildren: '@app/workflows/workflows.module#WorkflowsModule'
+                path: 'workflow-managing',
+                loadChildren: '@app/workflows/workflow-managing/workflows.module#WorkflowsManageModule'
             },
             {
                 path: 'templates',
@@ -40,9 +40,9 @@ const layoutRoutes: Routes = [
                 loadChildren: '@app/settings/settings.module#SettingsModule'
             },
             {
-             path: 'crossdata',
-             loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
-             }
+                path: 'crossdata',
+                loadChildren: '@app/crossdata/crossdata.module#CrossdataModule'
+            }
         ]
     }
 ];

@@ -202,7 +202,7 @@ object HdfsService extends SLF4JLogging {
 
     Option(System.getenv(SystemHadoopConfDir)) match {
       case Some(confDir) =>
-        log.debug(s"The HDFS configuration was read from directory files located at: $confDir")
+        log.debug(s"The HDFS configuration was read from the files located at: $confDir")
       case None =>
         hdfsConfig.foreach { config =>
           val master = Try(config.getString(HdfsMaster))

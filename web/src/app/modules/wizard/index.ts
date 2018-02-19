@@ -19,6 +19,7 @@ export * from './components/wizard-header/wizard-header.component';
 export * from './components/wizard-editor/wizard-editor.component';
 export * from './components/wizard-editor/wizard-node/wizard-node.component';
 export * from './components/wizard-editor/draggable-element.directive';
+export * from './components/wizard-settings/wizard-settings.component';
 export * from './components/wizard-editor/wizard-editor.sevice';
 export * from './components/wizard-editor/wizard-edge/wizard-edge.component';
 export * from './components/wizard-config-editor/wizard-config-editor.component';

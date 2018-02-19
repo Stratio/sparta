@@ -12,7 +12,7 @@
     {
       "propertyId": "description",
       "propertyName": "SETTINGS._DESCRIPTION_",
-      "propertyType": "text",
+      "propertyType": "textarea",
       "required": false,
       "newRow": true,
       "qa": "workflow-description",
@@ -685,9 +685,10 @@
                        {
                           "propertyId": "outputStepName",
                           "propertyName": "SETTINGS._OUTPUT_STEP_NAME_",
-                          "propertyType": "text",
+                          "propertyType": "select",
                           "tooltip": "Error Output name that executes the save action",
-                          "qa": "workflow-errors-outputStepName"
+                          "qa": "workflow-errors-outputStepName",
+                          "values": []
                        },
                        {
                           "propertyId": "omitSaveErrors",
@@ -702,7 +703,6 @@
                           "propertyName": "SETTINGS._ADD_REDIRECT_DATE_",
                           "propertyType": "boolean",
                           "default": false,
-                          "float": false,
                           "tooltip": "Add the current date to all elements redirected as new column",
                           "qa": "workflow-errors-addRedirectDate"
                        },
@@ -710,6 +710,7 @@
                           "propertyId": "redirectDateColName",
                           "propertyName": "SETTINGS._REDIRECT_DATE_NAME_",
                           "propertyType": "text",
+                          "width": 3,
                           "tooltip": "Column name for the redirect date",
                           "default": "redirectDate",
                           "visible": [

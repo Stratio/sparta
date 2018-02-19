@@ -35,7 +35,9 @@ export interface State {
     savedWorkflow: boolean;
     validationErrors: any;
     selectedCreationEntity: any;
+    entityNameValidation: boolean;
     entityCreationMode: boolean;
+    showSettings: boolean;
     editionConfig: boolean;
     editionConfigType: string;
     editionConfigData: any;
@@ -74,10 +76,12 @@ const initialState: State = {
     editionConfigData: null,
     editionSaved: false,
     selectedCreationEntity: null,
+    entityNameValidation: false,
     entityCreationMode: false,
     selectedRelation: null,
     selectedEntity: '',
     showEntityDetails: false,
+    showSettings: false,
     floatingMenuSearch: '',
     menuOptions: [{
         name: 'Input',
@@ -119,6 +123,7 @@ export function reducer(state: State = initialState, action: any): State {
         case wizardActions.SELECTED_CREATION_ENTITY: {
             return Object.assign({}, state, {
                 selectedCreationEntity: action.payload,
+                entityNameValidation: false,
                 entityCreationMode: true
             });
         }
@@ -126,6 +131,11 @@ export function reducer(state: State = initialState, action: any): State {
             return Object.assign({}, state, {
                 selectedCreationEntity: null,
                 entityCreationMode: false
+            });
+        }
+        case wizardActions.SAVE_ENTITY_ERROR: {
+            return Object.assign({}, state, {
+                entityNameValidation: action.payload
             });
         }
         case wizardActions.SELECT_ENTITY: {
@@ -284,7 +294,8 @@ export function reducer(state: State = initialState, action: any): State {
                 settings: {
                     basic: {
                         name: workflow.name,
-                        description: workflow.description
+                        description: workflow.description,
+                        tag: workflow.tag
                     },
                     advancedSettings: workflow.settings
                 }
@@ -403,6 +414,16 @@ export function reducer(state: State = initialState, action: any): State {
                 pristineWorkflow: false
             });
         }
+        case wizardActions.SHOW_SETTINGS: {
+            return Object.assign({}, state, {
+                showSettings: true
+            });
+        }
+        case wizardActions.HIDE_SETTINGS: {
+            return Object.assign({}, state, {
+                showSettings: false
+            });
+        }
         default:
             return state;
     }
@@ -452,16 +473,21 @@ export const getMenuOptions: any = (state: State) => {
 };
 
 export const getSelectedEntities: any = (state: State) => state.selectedEntity;
-export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => {
-    return node.name === state.selectedEntity;
-});
+export const getSelectedEntityData: any = (state: State) => state.nodes.find((node: any) => node.name === state.selectedEntity);
 export const isPristine: any = (state: State) => state.pristineWorkflow;
 export const isShowedEntityDetails: any = (state: State) => state.showEntityDetails;
+export const showSettings: any = (state: State) => state.showSettings;
 export const getWorkflowRelations: any = (state: State) => state.edges;
 export const getWorkflowNodes: any = (state: State) => state.nodes;
 export const isEntitySaved: any = (state: State) => state.editionSaved;
 export const getWorkflowSettings: any = (state: State) => state.settings;
 export const getWorkflowName: any = (state: State) => state.settings.basic.name;
+export const getWorkflowHeaderData: any = (state: State) => {
+    return {
+        name: state.settings.basic.name,
+        version: state.workflowVersion
+    };
+};
 export const getWorkflowPosition: any = (state: State) => state.svgPosition;
 export const isSavedWorkflow: any = (state: State) => state.savedWorkflow;
 export const getValidationErrors: any = (state: State) => state.validationErrors;
@@ -477,13 +503,19 @@ export const getEditionConfigMode: any = (state: State) => {
     return {
         isEdition: state.editionConfig,
         editionType: state.editionConfigType
-    }
-}
+    };
+};
 export const isCreationMode: any = (state: State) => {
     return {
         active: state.entityCreationMode,
         data: state.selectedCreationEntity
     };
 };
-
+export const getValidatedEntityName: any = (state: State) => state.entityNameValidation;
+export const getErrorsManagementOutputs: any = (state: State) => state.nodes.reduce((filtered: Array<string>, workflowNode: any) => {
+    if (workflowNode.stepType === 'Output' && workflowNode.configuration.errorSink) {
+        filtered.push(workflowNode.name);
+    }
+    return filtered;
+}, []);
 

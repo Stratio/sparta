@@ -1,0 +1,23 @@
+:host {
+   display: block;
+   width: 100%;
+}
+
+.footer {
+   margin-top: 20px;
+}
+
+.save-button {
+   float: right;
+}
+
+.cancel-button {
+   float: right;
+   margin-right: 10px;
+}
+
+group-tree {
+   max-height: 350px;
+   display: block;
+   overflow: auto;
+}

@@ -56,7 +56,6 @@ export class BackupService extends ApiService {
     }
 
     executeBackup(fileName: string, removeData: boolean): Observable<any> {
-
         const options: any = {
             body: {
                 fileName: fileName,

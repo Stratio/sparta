@@ -141,7 +141,6 @@ hose {
             | -DNGINX_ACTIVE=false
             | -DPOSTGRES_NODE=pg-0001
             | -DPOSTGRES_NAME=postgrestls
-            | -DPOSTGRES_VERSION=0.17.0
             """
             
     INSTALL = { config ->
@@ -149,7 +148,7 @@ hose {
             config.INSTALLPARAMETERS = "${config.INSTALLPARAMETERS}".replaceAll('-DGROUPS_SPARTA', '-Dgroups')
           doAT(conf: config)
         } else {
-            doAT(conf: config, groups: ['dcos_installations_executions','dcos_streaming'])
+            doAT(conf: config, groups: ['dcos_installations_executions'])
         }
      }
 }

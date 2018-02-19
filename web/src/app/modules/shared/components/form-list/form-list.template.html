@@ -21,7 +21,7 @@
 
                         <st-checkbox *ngIf="field.propertyType == 'boolean'" class="st-form-field" [formControl]="item.controls[field.propertyId]" [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
                      </div>
-                     <div class="col-sm-12" *ngIf="field.float !== undefined && field.float === false"></div>
+                     <div class="col-sm-12" *ngIf="item.controls[field.propertyId].enabled && field.float !== undefined && field.float === false"></div>
                   </ng-container>
                   <div><i class="icon-cross icon" (click)="deleteItem(i)"></i></div>
                </div>
