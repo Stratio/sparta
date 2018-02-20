@@ -11,7 +11,7 @@
         "propertyName": "_QUERY_",
         "propertyType": "textarea",
         "contentType": "SQL",
-        "width": 8,
+        "width": 9,
         "required": true,
         "tooltip": "Query to read data from. Example: select * from tableName",
         "qa": "fragment-details-crossdata-query"

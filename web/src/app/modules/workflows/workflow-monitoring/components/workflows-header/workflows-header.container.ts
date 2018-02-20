@@ -25,7 +25,7 @@ import {
 import { Store } from '@ngrx/store';
 
 import * as workflowActions from './../../actions/workflow-list';
-import { State, getMonitoringStatus, getSelectedFilter } from './../../reducers';
+import { State, getMonitoringStatus, getSelectedFilter, getWorkflowSearchQuery } from './../../reducers';
 import { Observable } from 'rxjs/Observable';
 
 @Component({
@@ -34,6 +34,7 @@ import { Observable } from 'rxjs/Observable';
         <workflows-header [selectedWorkflows]="selectedWorkflows"
             [monitoringStatus]="monitoringStatus$ | async"
             [showDetails]="showDetails"
+            [searchQuery]="searchQuery$ | async"
             [selectedFilter]="selectedFilter$ | async"
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
@@ -52,8 +53,10 @@ export class WorkflowsHeaderContainer implements OnInit {
 
     public monitoringStatus$: Observable<any>;
     public selectedFilter$: Observable<string>;
+    public searchQuery$: Observable<string>;
 
     ngOnInit(): void {
+        this.searchQuery$ = this._store.select(getWorkflowSearchQuery);
         this.monitoringStatus$ = this._store.select(getMonitoringStatus);
         this.selectedFilter$ = this._store.select(getSelectedFilter);
     }

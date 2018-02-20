@@ -180,7 +180,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
         const policyStatus = version.status.status;
         return policyStatus && policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
             policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished';
+            policyStatus.toLowerCase() !== 'finished' && policyStatus.toLowerCase() !== 'created';
     }
 
     public editWorkflowGroup(): void {

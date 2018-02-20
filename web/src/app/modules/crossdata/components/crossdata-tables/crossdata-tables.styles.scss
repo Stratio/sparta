@@ -4,14 +4,16 @@
 }
 
 .filters {
+    width: 100%;
+    overflow: hidden;
+
    .search-input {
-      float: left;
-      margin-top: 23px;
-      margin-left: 20px;
+      float: right;
+      margin-top:24px;
    }
    .show-temporary {
-      float: right;
-      margin-top: 32px;
+      float: left;
+      display:none;
    }
 }
 

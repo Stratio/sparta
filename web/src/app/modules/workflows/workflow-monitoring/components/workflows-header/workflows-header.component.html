@@ -14,7 +14,7 @@
    </div>
    <div class="row tool-bar">
       <div class="col-sm-8">
-         <st-search [placeholder]="'DASHBOARD.HOME.SEARCH_PLACEHOLDER' | translate" (search)="searchWorkflow($event)"></st-search>
+         <st-search [placeholder]="'DASHBOARD.HOME.SEARCH_PLACEHOLDER' | translate" (search)="searchWorkflow($event)" [value]="searchQuery"></st-search>
       </div>
       <div class="col-sm-4">
          <div class="global-actions">

@@ -14,7 +14,7 @@
 /// limitations under the License.
 ///
 
-import * as environmentActions from 'actions/environment';
+import * as environmentActions from './../actions/environment';
 
 export interface State {
     environmentList: Array<any>;
@@ -38,6 +38,4 @@ export function reducer(state: State = initialState, action: any): State {
     }
 }
 
-export const getEnvironmentList: any = (state: State) => {
-    return state.environmentList;
-};
+export const getEnvironmentList: any = (state: State) =>  state.environmentList;

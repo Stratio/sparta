@@ -295,7 +295,7 @@ export function reducer(state: State = initialState, action: any): State {
                     basic: {
                         name: workflow.name,
                         description: workflow.description,
-                        tag: workflow.tag
+                        tags: workflow.tags
                     },
                     advancedSettings: workflow.settings
                 }

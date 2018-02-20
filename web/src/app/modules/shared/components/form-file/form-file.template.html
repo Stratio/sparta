@@ -1,6 +1,6 @@
 <div>
    <button class="button" [ngClass]="type" (click)="file.click()">
-    <i class="icon-upload"></i>
+    <i [ngClass]="icon"></i>
     <span>{{text}}</span>
     </button>
    <input type="file" #fileUpload (change)="onChange($event)" #file/>

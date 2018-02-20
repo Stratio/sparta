@@ -39,6 +39,7 @@ export class WorkflowEffect {
                     const c = context.find((item: any) => {
                         return workflow.id === item.id;
                     });
+                    workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
                     try {
                         workflow.lastUpdate = c.lastUpdateDate ? formatDate(c.lastUpdateDate) : '';
                         workflow.lastUpdateOrder = c.lastUpdateDate ? new Date(c.lastUpdateDate).getTime() : 0;

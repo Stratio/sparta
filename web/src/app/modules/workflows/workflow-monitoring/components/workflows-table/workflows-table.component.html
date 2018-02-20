@@ -12,8 +12,8 @@
                     <div class="workflow-group">{{workflow.group.name}}</div>
                  </div>
                  <div content>
-                    <span *ngIf="workflow.executionEngine === 'Streaming'" class="icon icon-infinite icon-row"></span>
-                    <span *ngIf="workflow.executionEngine === 'Batch'" class="icon icon-channel icon-row"></span>
+                    <span [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Streaming'" class="icon icon-infinite icon-row"></span>
+                    <span [attr.title]="workflow.executionEngine" *ngIf="workflow.executionEngine === 'Batch'" class="icon icon-channel icon-row"></span>
                     {{workflow.name}}
                     <span> - v{{workflow.version}}</span>
                  </div>
@@ -28,11 +28,11 @@
             <sp-tooltip>
                 <div tooltip>
                     <div class="workflow-group">
-                    {{workflow.tag}}
+                    {{workflow.tagsAux}}
                     </div>
                 </div>
                 <div content>
-                    <span>{{workflow.tag}}</span>
+                    <span>{{workflow.tagsAux}}</span>
                 </div>
             </sp-tooltip>
          </label>

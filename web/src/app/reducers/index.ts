@@ -23,7 +23,6 @@ import * as fromResources from './resources';
 import * as fromAlerts from './alerts';
 import * as fromGlobal from './global';
 import * as fromWizard from './wizard';
-import * as fromEnvironment from './environment';
 
 export interface State {
     user: fromGlobal.State;
@@ -31,7 +30,6 @@ export interface State {
     resources: fromResources.State;
     alerts: fromAlerts.State;
     wizard: fromWizard.State;
-    environment: fromEnvironment.State;
 }
 
 export const reducers: ActionReducerMap<State> = {
@@ -40,7 +38,6 @@ export const reducers: ActionReducerMap<State> = {
     resources: fromResources.reducer,
     alerts: fromAlerts.reducer,
     wizard: fromWizard.reducer,
-    environment: fromEnvironment.reducer
 };
 
 // const developmentReducer: ActionReducer<State> = compose(combineReducers)(reducers);
@@ -55,8 +52,6 @@ export const getBackupsState: any = createFeatureSelector<fromBackups.State>('ba
 export const getResourcesState: any = createFeatureSelector<fromResources.State>('resources');
 export const getAlertsState: any = createFeatureSelector<fromAlerts.State>('alerts');
 export const getWizardState: any = createFeatureSelector<fromWizard.State>('wizard');
-export const getEnvironmentState: any = createFeatureSelector<fromEnvironment.State>('environment');
-
 
 // backups
 export const getBackupList: any = createSelector(getBackupsState, fromBackups.getBackupList);
@@ -96,9 +91,6 @@ export const getWorkflowType: any = createSelector(getWizardState, fromWizard.ge
 export const getWorkflowHeaderData: any = createSelector(getWizardState, fromWizard.getWorkflowHeaderData);
 export const getValidatedEntityName: any = createSelector(getWizardState, fromWizard.getValidatedEntityName);
 export const getErrorsManagementOutputs: any = createSelector(getWizardState, fromWizard.getErrorsManagementOutputs);
-
-// environment
-export const getEnvironmentList: any = createSelector(getEnvironmentState, fromEnvironment.getEnvironmentList);
 
 // user
 export const getUsername: any = createSelector(getUserState, fromGlobal.getUsername);

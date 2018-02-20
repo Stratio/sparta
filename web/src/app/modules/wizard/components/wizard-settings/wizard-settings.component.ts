@@ -68,9 +68,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
     getFormTemplate() {
         this.settingsSubscription = this.store.select(fromRoot.getWorkflowSettings).subscribe((currentSettings: any) => {
             const settings = JSON.parse(JSON.stringify(currentSettings));
-            if (settings.basic.tag) {
-                this.tags = settings.basic.tag.split(',');
-            }
+            this.tags = settings.basic.tags;
 
             this.basicFormModel = settings.basic;
             this.settingsFormModel = settings.advancedSettings;
@@ -99,7 +97,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
 
     public saveForm() {
         if (this.entityForm.valid) {
-            this.basicFormModel.tag = this.tags.join(',');
+            this.basicFormModel.tags = this.tags;
             this.store.dispatch(new wizardActions.SaveSettingsAction({
                 basic: this.basicFormModel,
                 advancedSettings: this.settingsFormModel

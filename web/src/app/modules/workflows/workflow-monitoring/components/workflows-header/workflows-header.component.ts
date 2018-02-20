@@ -44,6 +44,7 @@ export class WorkflowsHeaderComponent {
     @Input() showDetails = false;
     @Input() monitoringStatus: any = {};
     @Input() selectedFilter: any = '';
+    @Input() searchQuery = '';
 
     @Output() downloadWorkflows = new EventEmitter<void>();
     @Output() showWorkflowInfo = new EventEmitter<void>();
@@ -103,7 +104,7 @@ export class WorkflowsHeaderComponent {
     public isRunning(policyStatus: string) {
         return policyStatus && policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
             policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
-            policyStatus.toLowerCase() !== 'finished';
+            policyStatus.toLowerCase() !== 'finished' && policyStatus.toLowerCase() !== 'created';
     }
 
     public editWorkflow(): void {

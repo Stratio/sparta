@@ -8,7 +8,7 @@
       <section class="execution-info-container" *ngIf="executionInfo">
          <div class="container">
             <div class="row info-data">
-               <div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
+               <!--<div class="col-sm-12" *ngIf="executionInfo.sparkSubmitExecution.driverClass">
                   <div class="row spark-submit">
                      <div class="title col-sm-3">
                         driverClass
@@ -37,7 +37,7 @@
                         {{executionInfo.sparkSubmitExecution.master}}
                      </div>
                   </div>
-               </div>
+               </div>-->
                <div class="col-sm-12">
                   <st-horizontal-tabs class="info-tables" [options]="options" [qaTag]="'execution-info-tabs'" (changedOption)="changeTableInfo($event)">
                   </st-horizontal-tabs>

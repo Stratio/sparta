@@ -22,7 +22,7 @@ import * as workflowActions from './../modules/workflows/workflow-managing/actio
 import * as workflowMonitoringActions from './../modules/workflows/workflow-monitoring/actions/workflow-list';
 import * as wizardActions from 'actions/wizard';
 import * as errorsActions from 'actions/errors';
-import * as environmentActions from 'actions/environment';
+import * as environmentActions from './../modules/settings/environment/actions/environment';
 
 import { CustomAlert } from 'app/models/alert.model';
 import { STALERT_SEVERITY } from '@stratio/egeo';

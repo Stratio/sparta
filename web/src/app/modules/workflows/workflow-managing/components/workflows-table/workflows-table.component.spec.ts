@@ -100,8 +100,12 @@ describe('[WorkflowsManagingTableComponent]', () => {
             expect(currentOrder.orderBy).toBe('name');
         });
 
-        xit('should select a workflow when the row its clicked', () => {
-
+        it('should select a workflow when the row its clicked', () => {
+            let selectedWorkflow = '';
+            component.selectWorkflow.subscribe((workflowName: string) => selectedWorkflow = workflowName);
+            const rowSelector = fixture.debugElement.query(By.css('.workflow-table tbody tr'));
+            rowSelector.triggerEventHandler('click', {});
+            expect(selectedWorkflow).toBe('');
         });
 
         xit('should select a group when the row its clicked', () => {

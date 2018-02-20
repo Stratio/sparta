@@ -27,10 +27,11 @@ import { ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
 import { NgForm, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
-import * as fromRoot from 'reducers';
-import * as environmentActions from 'actions/environment';
+import * as fromRoot from './reducers';
+import * as environmentActions from './actions/environment';
+import { generateJsonFile } from 'utils';
 
-import { ImportEnvironmentModalComponent } from './import-environment-modal/import-environment-modal.component';
+import { ImportEnvironmentModalComponent } from './components/import-environment-modal/import-environment-modal.component';
 import { StModalService } from '@stratio/egeo';
 import { TranslateService } from '@ngx-translate/core';
 import { BreadcrumbMenuService } from 'services';
@@ -67,18 +68,20 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
         value: 'import'
     }];
     public fields = [
-    {
-        'propertyId': 'name',
-        'propertyName': '_KEY_',
-        'propertyType': 'text',
-        'width': 3
-    },
-    {
-        'propertyId': 'value',
-        'propertyName': '_VALUE_',
-        'propertyType': 'text',
-        'width': 6
-    }];
+        {
+            'propertyId': 'name',
+            'propertyName': '_KEY_',
+            'propertyType': 'text',
+            'width': 3
+        },
+        {
+            'propertyId': 'value',
+            'propertyName': '_VALUE_',
+            'propertyType': 'text',
+            'width': 6
+        }];
+
+    public duplicated: Array<string> = [];
 
     ngOnInit() {
 
@@ -109,7 +112,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
     }
 
     initForm(variables: Array<any>) {
-         if (variables && Array.isArray(variables) && variables.length) {
+        if (variables && Array.isArray(variables) && variables.length) {
             this.items.controls = [];
             for (const value of variables) {
                 const item: any = {};
@@ -122,12 +125,34 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
         } else {
             this.items.controls = [];
         }
-         this.internalControl.markAsPristine();
-         this._cd.detectChanges();
+        this.internalControl.markAsPristine();
+        this.getDuplicated();
+        this._cd.detectChanges();
     }
 
-    isHidden(value: any){
+    isHidden(value: any) {
         return !(value.name.toLowerCase().indexOf(this.filter) > -1);
+    }
+
+    downloadVariables() {
+        generateJsonFile(new Date().getTime().toString(), this.internalControl.value.variables);
+    }
+
+    uploadVariables(event: any) {
+        const reader = new FileReader();
+        reader.readAsText(event[0]);
+        reader.onload = (loadEvent: any) => {
+            try {
+                this.initForm([...this.internalControl.value.variables].concat(JSON.parse(loadEvent.target.result)));
+            } catch (error) {
+
+            }
+        };
+    }
+
+    getDuplicated() {
+        this.duplicated = this.internalControl.value.variables.map((variable: any) => variable.name)
+            .filter((variable: string, index: number, variables: Array<string>) => variable.length && variables.indexOf(variable) !== index);
     }
 
     addItem(): void {
@@ -147,7 +172,8 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
     }
 
     saveEnvironment() {
-        if (this.internalControl.valid) {
+        this.getDuplicated();
+        if (!this.duplicated.length && this.internalControl.valid) {
             this.forceValidations = false;
             this.store.dispatch(new environmentActions.SaveEnvironmentAction(this.internalControl.value));
             this.internalControl.markAsPristine();
@@ -185,7 +211,7 @@ export class EnvironmentComponent implements OnInit, OnDestroy {
     constructor(private store: Store<fromRoot.State>, private _cd: ChangeDetectorRef,
         private _modalService: StModalService, private translate: TranslateService, private formBuilder: FormBuilder,
         public breadcrumbMenuService: BreadcrumbMenuService, public errorsService: ErrorMessagesService) {
-       this.breadcrumbOptions = breadcrumbMenuService.getOptions();
+        this.breadcrumbOptions = breadcrumbMenuService.getOptions();
     }
 
     ngOnDestroy(): void {

@@ -171,6 +171,7 @@
       "SUBTITLE": "Upload an environment backup file",
       "DESCRIPTION": "Importing an environment could cause a potential loss of data.",
       "PARSE_ERROR": "Parse error. Environment must be a json file.",
+      "DUPLICATED_VARIABLE": "Duplicated environment variable name",
       "CONFIRM": "Confirm",
       "CANCEL": "Cancel"
    },

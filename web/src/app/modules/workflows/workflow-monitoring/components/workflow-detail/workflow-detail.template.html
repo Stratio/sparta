@@ -8,18 +8,26 @@
       <span class="status" [ngClass]="workflowData.context.status.toLowerCase()">{{('DASHBOARD.' + (workflowData.context.status | uppercase)) | translate}}</span>
       <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
       <span class="description">{{workflowData.description}}</span>
-      <div *ngIf="workflowData.tag && workflowData.tag.length">
+      <div *ngIf="workflowData.tagsAux && workflowData.tagsAux.length">
          <span class="title2">{{'DASHBOARD.TAGS' | translate}}</span>
-         <span class="values">{{workflowData.tag}}</span>
+         <span class="values">{{workflowData.tagsAux}}</span>
       </div>
       <div *ngIf="workflowData.context && workflowData.context.statusInfo && workflowData.context.statusInfo.length">
          <span class="title2">{{'DASHBOARD.STATUS_INFORMATION' | translate}}</span>
          <span class="values">{{workflowData.context.statusInfo}}</span>
       </div>
+
+      <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
+         <span class="title2">Execution mode</span>
+         <span class="">{{workflowData.context.lastExecutionMode}}</span>
+      </div>
+
       <div *ngIf="workflowData.lastUpdate">
          <span class="title2">{{'DASHBOARD.LAST_STATUS_UPDATE' | translate}}</span>
          <span class="values">{{workflowData.lastUpdate}}</span>
       </div>
+      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" *ngIf="workflowData.context && workflowData.context.lastExecutionMode && workflowData.context.lastExecutionMode === 'marathon'">Show execution info</a>
+
       <div class="last-error" *ngIf="workflowData.context.lastError">
          <span class="title2">{{'DASHBOARD.LAST_ERROR' | translate}}</span>
          <div class="errors">
@@ -34,12 +42,6 @@
             <span class="message">{{workflowData.context.lastError.message}}</span>
             <span class="original-msg">{{workflowData.context.lastError.originalMsg}}</span>
          </div>
-      </div>
-      <a class="execution-info-link" (click)="showWorkflowExecutionInfo.emit({id:workflowData.id, name:workflowData.name})" *ngIf="workflowData.context && workflowData.context.lastExecutionMode && workflowData.context.lastExecutionMode === 'marathon'">Show execution info</a>
-
-      <div *ngIf="workflowData.context && workflowData.context.lastExecutionMode">
-         <span class="title2">Execution mode</span>
-         <span class="">{{workflowData.context.lastExecutionMode}}</span>
       </div>
       <!-- <div *ngIf="inputs && inputs.length">
          <span class="title">{{'GLOBAL.INPUTS' | translate}}</span>

@@ -28,6 +28,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EnvironmentComponent } from './environment/environment.component';
 import { ImportEnvironmentModalComponent } from './environment/import-environment-modal/import-environment-modal.component';
 import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.module';
+import { EnvironmentModule } from '@app/settings/environment/environment.module';
 
 @NgModule({
     declarations: [
@@ -36,15 +37,14 @@ import { SpTooltipModule } from '@app/shared/components/sp-tooltip/sp-tooltip.mo
         ExecuteBackup,
         SpartaDrivers,
         SpartaPlugins,
-        EnvironmentComponent,
-        ImportEnvironmentModalComponent
     ],
     imports: [
         EgeoModule.forRoot(),
         FormsModule,
         ReactiveFormsModule,
+        EnvironmentModule,
         SpTooltipModule,
-        StModalModule.withComponents([ExecuteBackup, ImportEnvironmentModalComponent]),
+        StModalModule.withComponents([ExecuteBackup]),
         SettingsRoutingModule,
         SharedModule
     ]

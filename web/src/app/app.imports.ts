@@ -28,7 +28,6 @@ import { EffectsModule } from '@ngrx/effects';
 import { BackupsEffect } from './effects/backups';
 import { ResourcesEffect } from './effects/resources';
 import { GlobalEffect } from './effects/global';
-import { EnvironmentEffect } from './effects/environment';
 import { WizardEffect } from './effects/wizard';
 import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
@@ -51,7 +50,6 @@ export const APP_IMPORTS: Array<any> = [
                 BackupsEffect,
                 ResourcesEffect,
                 WizardEffect,
-                EnvironmentEffect,
                 GlobalEffect
         ])
 ];

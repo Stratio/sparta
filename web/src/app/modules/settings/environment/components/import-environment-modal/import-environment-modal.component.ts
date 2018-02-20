@@ -17,8 +17,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angular/core';
 import { Store } from '@ngrx/store';
 
-import * as fromRoot from 'reducers';
-import * as environmentActions from 'actions/environment';
+import * as fromRoot from './../../reducers';
+import * as environmentActions from './../../actions/environment';
 
 @Component({
     selector: 'import-environment-modal',

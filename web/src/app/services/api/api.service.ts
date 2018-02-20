@@ -52,6 +52,10 @@ export class ApiService {
                   try {
                         return JSON.parse(res);
                   } catch (error) {
+                        if (res.indexOf('gosec-sso-ha') > -1) {
+                              window.location.href = 'login';
+                              throw new Error;
+                        }
                         return res;
                   }
 
@@ -63,7 +67,7 @@ export class ApiService {
             const object: URLSearchParams = new URLSearchParams();
 
             Object.keys(params).map(function (objectKey: any, index: any): void {
-                  let value: any = params[objectKey];
+                  const value: any = params[objectKey];
                   object.set(objectKey, value);
             });
 

@@ -24,6 +24,7 @@ import { Component, OnInit, Output, EventEmitter, Input, ViewChildren } from '@a
 export class FormFileComponent implements OnInit {
 
     @Input() text: any;
+    @Input() icon = 'icon-upload';
     @Input() type = 'button-primary';
     @Output() onFileUpload = new EventEmitter<string>();
 
