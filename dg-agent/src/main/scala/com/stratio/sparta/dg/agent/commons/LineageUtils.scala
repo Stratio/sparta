@@ -144,7 +144,8 @@ object WorkflowStatusUtils {
       workflowStatusStream.workflow.get.group.name.replaceAll("/", "_"),
       workflowStatusStream.workflow.get.name,
       workflowStatusStream.workflow.get.version,
-      workflowStatusStream.workflow.get.lastUpdateDate.getOrElse(DateTime.now()).getMillis
+      workflowStatusStream.workflow.get.lastUpdateDate.getOrElse(DateTime.now()).getMillis,
+      "status"
     ).map(_.toString))
 
   def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value) : EventType =

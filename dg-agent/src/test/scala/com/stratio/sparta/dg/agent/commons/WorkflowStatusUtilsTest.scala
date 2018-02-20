@@ -88,7 +88,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         EventType.Success,
         None,
         "qwerty12345",
-        MetadataPath(Seq("sparta","_home_test_subgroup","kafka-test","0","1519051473")),
+        MetadataPath(Seq("sparta","_home_test_subgroup","kafka-test","0","1519051473","status")),
         tags = List.empty[String],
         modificationTime = Option(1519051473L),
         accessTime = Option(1519051473L)
