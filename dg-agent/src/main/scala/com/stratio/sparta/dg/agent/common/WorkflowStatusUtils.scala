@@ -54,6 +54,7 @@ object WorkflowStatusUtils {
 
   private def extractMetadataPath(workflowStatusStream: WorkflowStatusStream) : MetadataPath =
     MetadataPath(Seq(
+      tenantName,
       workflowStatusStream.workflow.get.group.name.replaceAll("/", "_"),
       workflowStatusStream.workflow.get.name,
       workflowStatusStream.workflow.get.version,

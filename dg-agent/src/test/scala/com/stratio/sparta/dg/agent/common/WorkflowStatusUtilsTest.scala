@@ -52,8 +52,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
     settings = settingsModel,
     pipelineGraph = pipeline,
     group = Group(Option("987654"), "/home/test/subgroup"),
-    lastUpdateDate = Option(new DateTime(1519051473L)),
-    version = 0L
+    lastUpdateDate = Option(new DateTime(1519051473L))
   )
 
 
@@ -90,12 +89,13 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         None,
         "qwerty12345",
         MetadataPath(Seq("_home_test_subgroup","kafka-test","0","1519051473")),
+        agentVersion = "2.0.0",
         tags = List.empty[String],
         modificationTime = Option(1519051473L),
         accessTime = Option(1519051473L)
       )
 
-      WorkflowStatusUtils.processStatus(statusEvent) should equal (expected)
+      WorkflowStatusUtils.processStatus(statusEvent) should equal (Some(List(expected)))
     }
   }
 
