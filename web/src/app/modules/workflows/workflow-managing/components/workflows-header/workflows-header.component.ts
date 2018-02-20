@@ -178,7 +178,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
 
     public isRunning(version: any) {
         const policyStatus = version.status.status;
-        return policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
+        return policyStatus && policyStatus.toLowerCase() !== 'notstarted' && policyStatus.toLowerCase() !== 'failed' &&
             policyStatus.toLowerCase() !== 'stopped' && policyStatus.toLowerCase() !== 'stopping' &&
             policyStatus.toLowerCase() !== 'finished';
     }

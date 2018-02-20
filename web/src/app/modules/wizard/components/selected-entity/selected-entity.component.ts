@@ -1,3 +1,4 @@
+import { AnyFn } from '@ngrx/store/src/selector';
 ///
 /// Copyright (C) 2015 Stratio (http://stratio.com)
 ///
@@ -27,8 +28,8 @@ import * as fromRoot from 'reducers';
 
 export class SelectedEntityComponent implements OnInit, OnDestroy {
 
-    public topPosition = '0';
-    public leftPosition = '0';
+    public topPosition: any = '0';
+    public leftPosition: any = '0';
 
     constructor(private zone: NgZone, private _cd: ChangeDetectorRef, private store: Store<fromRoot.State>) { }
 

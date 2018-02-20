@@ -33,12 +33,20 @@ export class ImportEnvironmentModalComponent {
 
     public loaded = false;
     public environment: any;
+    public fileValidationError = false;
 
     ngOnInit(): void {}
 
     changedFile(event: any) {
-        this.loaded = true;
-        this.environment = event;
+        this.fileValidationError = false;
+        try {
+            const content = JSON.parse(event);
+            this.loaded = true;
+            this.environment = event;
+        } catch (e) {
+            this.fileValidationError = true;
+        }
+
     }
 
     importEnvironment() {

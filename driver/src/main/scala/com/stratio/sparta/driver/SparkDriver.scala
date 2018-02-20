@@ -19,7 +19,7 @@ package com.stratio.sparta.driver
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.google.common.io.BaseEncoding
-import com.stratio.sparta.driver.exception.DriverException
+import com.stratio.sparta.driver.exception.{DriverException, ErrorManagerException}
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -98,6 +98,13 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
             status = Stopped,
             statusInfo = Some(information)
           ))
+        case Failure(exception: ErrorManagerException) =>
+          statusService.update(WorkflowStatus(
+            id = workflow.id.get,
+            status = Failed,
+            statusInfo = Option(exception.msg)
+          ))
+          throw exception
         case Failure(exception) =>
           val information = s"Error initiating workflow in Spark driver"
           statusService.update(WorkflowStatus(
@@ -111,9 +118,12 @@ object SparkDriver extends SLF4JLogging with SpartaSerializer {
     } match {
       case Success(_) =>
         log.info("Workflow in Spark driver successfully finished")
-      case Failure(driverException: DriverException) =>
-        log.error(driverException.msg, driverException.getCause)
-        throw driverException
+      case Failure(exception: ErrorManagerException) =>
+        log.error(exception.msg, exception.getCause)
+        throw exception
+      case Failure(exception: DriverException) =>
+        log.error(exception.msg, exception.getCause)
+        throw exception
       case Failure(exception) =>
         log.error(s"Error initiating Sparta environment in Spark driver", exception)
         throw exception
