@@ -31,7 +31,8 @@ import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
   */
 object LineageUtils {
 
-  def workflowMetadataPathString(workflow: Workflow): String = s"${workflow.group.name.replaceAll("/","_")}/${workflow.name}" +
+  def workflowMetadataPathString(workflow: Workflow): String =
+    s"${workflow.group.name.replaceAll("/","_")}/${workflow.name}" +
     s"/${workflow.version}/${workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis}"
 
   def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaInputMetadata] = {
@@ -42,7 +43,7 @@ object LineageUtils {
         key = n.classPrettyName,
         metadataPath = MetadataPath(metadataPath),
         outcomingNodes = graph.get(n).diSuccessors.map(s => MetadataPath(s"$metadataPath/${s.name}")).toSeq,
-        tags = workflow.tag.toList,
+        tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
   }
@@ -55,12 +56,13 @@ object LineageUtils {
         key = n.classPrettyName,
         metadataPath = MetadataPath(metadataPath),
         incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
-        tags = workflow.tag.toList,
+        tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
   }
 
-  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaTransformationMetadata] = {
+  def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge])
+  : List[SpartaTransformationMetadata] = {
     val metadataPath = workflowMetadataPathString(workflow)
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
       n => SpartaTransformationMetadata(
@@ -69,7 +71,7 @@ object LineageUtils {
         metadataPath = MetadataPath(metadataPath),
         outcomingNodes = graph.get(n).diSuccessors.map(s => MetadataPath(s"$metadataPath/${s.name}")).toSeq,
         incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
-        tags = workflow.tag.toList,
+        tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
   }

@@ -17,6 +17,7 @@
 package com.stratio.sparta.driver.error
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.driver.exception.ErrorManagerException
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.NotDefined
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.WorkflowStatusService
@@ -28,8 +29,6 @@ trait ErrorManager extends SLF4JLogging {
 
   val workflow: Workflow
 
-  def traceError(error: WorkflowError): Unit
-
   def traceFunction[T](code: PhaseEnum.Value, okMessage: String, errorMessage: String)(f: => T): T = {
     Try(f) match {
       case Success(result) =>
@@ -40,11 +39,13 @@ trait ErrorManager extends SLF4JLogging {
     }
   }
 
-  def logAndCreateEx(code: PhaseEnum.Value,
+  protected def traceError(error: WorkflowError): Unit
+
+  private def logAndCreateEx(code: PhaseEnum.Value,
                      exception: Throwable,
                      workflow: Workflow,
                      message: String
-                    ): RuntimeException = {
+                    ): Throwable = {
     val originalMsg = exception.getCause match {
       case _: ClassNotFoundException => "The component couldn't be found in classpath. Please check the type."
       case _ => exception.toString
@@ -56,7 +57,8 @@ trait ErrorManager extends SLF4JLogging {
     } recover {
       case e => log.error(s"Error while persisting error: $workflowError", e)
     }
-    new RuntimeException(message, exception)
+
+    ErrorManagerException(message, exception)
   }
 }
 

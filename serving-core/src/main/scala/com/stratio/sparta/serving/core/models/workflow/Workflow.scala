@@ -35,7 +35,7 @@ case class Workflow(
                      lastUpdateDate: Option[DateTime] = None,
                      version: Long = 0L,
                      group: Group = DefaultGroup,
-                     tag: Option[String] = None,
+                     tags: Option[Seq[String]] = None,
                      status: Option[WorkflowStatus] = None
                    )
 
