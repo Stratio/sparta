@@ -24,7 +24,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
-import com.stratio.sparta.dg.agent.commons.LineageUtils
+import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
+import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
+import com.stratio.sparta.dg.agent.commons.{LineageUtils, WorkflowStatusUtils}
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
@@ -54,32 +56,41 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
         senderKafka ! KafkaEvent(tenantMetadataList,topicKafka)
         log.debug("Tenant metadata sent to Kafka")
       case Failure(ex)=>
-        log.warn(s"The event couldn't be sent to Kafka. Error was: ${ex.getMessage}")
+        log.warn(s"The tenant event couldn't be sent to Kafka. Error was: ${ex.getMessage}")
     }
-
-
   }
 
-  def extractWorkflowChanges(): Unit = {
+  def extractWorkflowChanges(): Unit =
     workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow => {
       val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
-      val metadataList = LineageUtils.inputMetadataLineage(workflow, graph) :::
+      Try (LineageUtils.inputMetadataLineage(workflow, graph) :::
         LineageUtils.transformationMetadataLineage(workflow, graph) :::
-        LineageUtils.outputMetadataLineage(workflow, graph)
-      senderKafka ! KafkaEvent(metadataList, topicKafka)
-      log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
+        LineageUtils.outputMetadataLineage(workflow, graph)) match {
+        case Success(listSteps) =>
+          senderKafka ! KafkaEvent(listSteps, topicKafka)
+          log.debug(s"Sending workflow lineage for workflow: ${workflow.id.get}")
+        case Failure(exception) =>
+          log.warn(s"Error while generating the metadata related to the workflow steps:${exception.getMessage}")
+        }
+      }
     }
-    }
-  }
+
 
   def extractStatusChanges(): Unit = {
 
     statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
 
-      log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflowStatus.id}")
+      Try(LineageUtils.statusMetadataLineage(workflowStatusStream)) match {
+        case Success(maybeList) =>
+          maybeList.fold () { listMetadata =>
+            senderKafka ! KafkaEvent (listMetadata, topicKafka)
+            log.debug (s"Sending workflow status lineage for workflowStatus: " +
+              s"${workflowStatusStream.workflow.get.name}")}
+        case Failure(exception) =>
+          log.warn(s"Error while generating the metadata related to a status event:${exception.getMessage}")
+      }
     }
   }
-
   def stopWorkflowChangesExtraction(): Unit =
     workflowListenerActor ! ForgetWorkflowActions(WorkflowLineageKey)
 

@@ -30,7 +30,7 @@ import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 
 @RunWith(classOf[JUnitRunner])
@@ -77,14 +77,15 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
 
   "LineageService" should {
 
-    "LineageUtils workflowToMetadapath" in new CommonMetadata {
-      LineageUtils.workflowMetadataPathString(testWorkflow01).split("/")(0) should be eq testWorkflow01.group.name.replace("_", "/")
+    "LineageUtils workflowToMetadatapath" in new CommonMetadata {
+      LineageUtils.workflowMetadataPathString(testWorkflow01,"input").toString()
+        .split("/")(1) should equal (testWorkflow01.group.name.substring(1).replace("_", "/"))
     }
 
     "LineageUtils InputMetadata return metadataList with outcoming nodes" in new CommonMetadata {
       val result = LineageUtils.inputMetadataLineage(testWorkflow01, graph)
       result.head.outcomingNodes.length shouldBe 3
-      result.head.name should be eq testWorkflow01.name
+      result.head.name should equal (nodes.head.name)
     }
 
     "LineageUtils TransformationMetadata return metadataList with incoming and outcoming nodes" in new CommonMetadata {
@@ -96,7 +97,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
     "LineageUtils OutputMetadata return metadataList with incoming nodes" in new CommonMetadata {
       val result = LineageUtils.outputMetadataLineage(testWorkflow01, graph)
       result.head.incomingNodes.length shouldBe 1
-      result.head.name should be eq testWorkflow01.name
+      nodes.filter(_.stepType == "Output").map(_.name) should contain (result.head.name)
     }
 
     "LineageUtils TenantMetada return default values for attributes" in {
@@ -108,5 +109,14 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       result.head.mesosAttributeConstraint shouldBe empty
       result.head.mesosHostnameConstraint shouldBe empty
     }
+
+    "LineageUtils StatusMetadata return metadataList with status" in new CommonMetadata {
+      val result = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
+        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed),
+        Option(testWorkflow01),
+        None))
+      result.head.size shouldBe 1
+    }
+
   }
 }
