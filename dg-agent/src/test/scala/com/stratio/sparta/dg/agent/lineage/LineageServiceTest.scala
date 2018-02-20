@@ -98,5 +98,15 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       result.head.incomingNodes.length shouldBe 1
       result.head.name should be eq testWorkflow01.name
     }
+
+    "LineageUtils TenantMetada return default values for attributes" in {
+      val result = LineageUtils.tenantMetadataLineage()
+
+      result.head.oauthEnable shouldBe false
+      result.head.gosecEnable shouldBe false
+      result.head.xdCatalogEnable shouldBe false
+      result.head.mesosAttributeConstraint shouldBe empty
+      result.head.mesosHostnameConstraint shouldBe empty
+    }
   }
 }

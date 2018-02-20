@@ -18,18 +18,24 @@ package com.stratio.sparta.dg.agent.commons
 
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection._
-
 import org.joda.time.DateTime
-
 import com.stratio.governance.commons.agent.model.metadata.MetadataPath
 import com.stratio.sparta.dg.agent.model.{SpartaInputMetadata, SpartaOutputMetadata, SpartaTransformationMetadata}
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
 
+import scala.util.Properties
+import com.stratio.sparta.dg.agent.model.{SpartaInputMetadata, SpartaOutputMetadata, SpartaTenantMetadata, SpartaTransformationMetadata}
+
+import scala.util.{Properties, Try}
+
 /**
   * Utilitary object for dg-workflows methods
   */
 object LineageUtils {
+
+  val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
+
 
   def workflowMetadataPathString(workflow: Workflow): String =
     s"${workflow.group.name.replaceAll("/","_")}/${workflow.name}" +
@@ -74,5 +80,22 @@ object LineageUtils {
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
+  }
+
+  def tenantMetadataLineage() : List[SpartaTenantMetadata] = {
+
+    val tenantList = List(SpartaTenantMetadata(
+      name = tenantName,
+      key = tenantName,
+      metadataPath = MetadataPath(s"$tenantName"),
+      tags = List(),
+      oauthEnable = Try(Properties.envOrElse("SECURITY_OAUTH2_ENABLE", "false").toBoolean).getOrElse(false),
+      gosecEnable = Try(Properties.envOrElse("ENABLE_GOSEC_AUTH", "false").toBoolean).getOrElse(false),
+      xdCatalogEnable = Try(Properties.envOrElse("CROSSDATA_CORE_ENABLE_CATALOG", "false").toBoolean).getOrElse(false),
+      mesosHostnameConstraint = Properties.envOrElse("MESOS_HOSTNAME_CONSTRAINT", ""),
+      mesosAttributeConstraint = Properties.envOrElse("MESOS_ATTRIBUTE_CONSTRAINT", "")
+    ))
+
+    tenantList
   }
 }

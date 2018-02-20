@@ -16,14 +16,12 @@
 
 package com.stratio.sparta.dg.agent.lineage
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 import scalax.collection.Graph
 import scalax.collection.GraphEdge.DiEdge
-
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
-
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
 import com.stratio.sparta.dg.agent.commons.LineageUtils
@@ -47,7 +45,19 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
   def extractTenantMetadata(): Unit = {
 
-    log.info(s"Sending tenant lineage")
+    log.debug(s"Sending tenant lineage")
+
+    Try(
+      LineageUtils.tenantMetadataLineage()
+    ) match {
+      case Success(tenantMetadataList) =>
+        senderKafka ! KafkaEvent(tenantMetadataList,topicKafka)
+        log.debug("Tenant metadata sent to Kafka")
+      case Failure(ex)=>
+        log.warn(s"The event couldn't be sent to Kafka. Error was: ${ex.getMessage}")
+    }
+
+
   }
 
   def extractWorkflowChanges(): Unit = {
