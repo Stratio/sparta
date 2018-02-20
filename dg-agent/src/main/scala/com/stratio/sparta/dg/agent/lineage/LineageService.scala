@@ -78,17 +78,18 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
     statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
 
-      LineageUtils.statusMetadataLineage(workflowStatusStream).fold(){ listMetadata =>
-        Try(senderKafka ! KafkaEvent(listMetadata,topicKafka)) match {
-          case Success(_) =>
-            log.debug (s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflow.get.name}")
-          case Failure(ex) => log.warn(s"The event couldn't be sent event to Kafka. Error was: ${ex.getMessage}")
-        }
+      Try(LineageUtils.statusMetadataLineage(workflowStatusStream)) match {
+        case Success(maybeList) =>
+          maybeList.fold () { listMetadata =>
+            senderKafka ! KafkaEvent (listMetadata, topicKafka)
+            log.debug (s"Sending workflow status lineage for workflowStatus: " +
+              s"${workflowStatusStream.workflow.get.name}")}
+        case Failure(exception) =>
+          log.warn(s"Error while generating the metadata related to a status event:${exception.getMessage}")
       }
     }
   }
-
-  def stopWorkflowChangesExtraction(): Unit =
+    def stopWorkflowChangesExtraction(): Unit =
     workflowListenerActor ! ForgetWorkflowActions(WorkflowLineageKey)
 
   def stopWorkflowStatusChangesExtraction(): Unit =
