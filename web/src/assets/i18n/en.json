@@ -77,7 +77,7 @@
       "NODE_INFO": "Select a node to view its details",
       "WORKFLOW_JSON": "Paste or upload json workflow definition",
       "JSON_INFO": "You must enter the new name and description before you can save the workflow, it will overwrite the fields of the json",
-      "JSON_SAVE_ERROR": "There was an error. The name of the workflow already exists!",
+      "JSON_SAVE_ERROR": "Parse Error. Workflow definition must be in json format.",
       "STATUS_INFORMATION": "Status information",
       "LAST_ERROR": "Last error",
       "LAST_UPDATE": "Last update",
@@ -166,6 +166,13 @@
       "CROSSDATA": "Crossdata",
       "EXECUTE_QUERY_OK": "Executed SQL: ({{rows}} rows returned)",
       "EXECUTE_QUERY_OK_NO_LIST": "Query completed succesfully."
+   },
+   "ENVIRONMENT": {
+      "SUBTITLE": "Upload an environment backup file",
+      "DESCRIPTION": "Importing an environment could cause a potential loss of data.",
+      "PARSE_ERROR": "Parse error. Environment must be a json file.",
+      "CONFIRM": "Confirm",
+      "CANCEL": "Cancel"
    },
    "SETTINGS": {
       "_ERROR_WHEN_ERROR_": "When an error occurs do",

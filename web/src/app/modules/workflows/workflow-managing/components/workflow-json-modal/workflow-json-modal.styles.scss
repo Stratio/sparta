@@ -1,5 +1,8 @@
+:host {
+    display: block;
+    width: 100%;
+}
 .editor {
-   display: flex;
    .json-info {
       display: flex;
       font-size: 12px;
@@ -12,10 +15,12 @@
 .workflow-fields {
    width: 250px;
    margin-right: 32px;
+   float: left;
 }
 
 .workflow-json {
-   flex: 1;
+  width: calc(100% - 284px);
+  float: left;
 }
 
 .workflow-json-content {
@@ -29,4 +34,9 @@
 
 .description {
    margin-top: 20px;
+}
+
+.validation-error {
+        font-size: 15px;
+    margin-bottom: 20px;
 }

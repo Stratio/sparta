@@ -152,7 +152,7 @@ class WorkflowService(
     existsById(workflowVersion.id) match {
       case Some(workflow) =>
         val workflowWithVersionFields = workflow.copy(
-          tag = workflowVersion.tag,
+          tags = workflowVersion.tags,
           group = workflowVersion.group.getOrElse(workflow.group)
         )
         val workflowWithFields = addCreationDate(incVersion(addId(workflowWithVersionFields, force = true)))
@@ -374,7 +374,11 @@ class WorkflowService(
       if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
         findAll.filter { workflow =>
           workflow.group.id.get == groupId &&
-            (workflow.tag.isEmpty || tags.isEmpty || (workflow.tag.isDefined && tags.contains(workflow.tag.get)))
+            (
+              workflow.tags.isEmpty ||
+                tags.isEmpty ||
+                (workflow.tags.isDefined && tags.forall(tag => workflow.tags.get.contains(tag)))
+              )
         }
       } else Seq.empty[Workflow]
     } match {

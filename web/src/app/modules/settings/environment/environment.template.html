@@ -27,7 +27,7 @@
                 </button>
             </div>
          </floating-menu>
-         <button class="button button-primary" (click)="saveEnvironment()" [disabled]="internalControl.pristine">{{'DASHBOARD.SAVE' | translate}}</button>
+         <button class="button button-primary" [disabled]="internalControl.pristine" (click)="saveEnvironment()">{{'DASHBOARD.SAVE' | translate}}</button>
     </div>
 </tool-bar>
 <section>

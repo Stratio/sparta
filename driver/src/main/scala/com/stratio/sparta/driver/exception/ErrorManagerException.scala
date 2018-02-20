@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.stratio.sparta.driver.exception
 
-package com.stratio.sparta.serving.core.models.workflow
+case class ErrorManagerException(msg: String) extends RuntimeException(msg)
 
-case class WorkflowVersion(id: String, version: Option[Long], tags: Option[Seq[String]], group: Option[Group])
+object ErrorManagerException {
+
+  def apply(msg: String, cause: Throwable): Throwable = new ErrorManagerException(msg).initCause(cause)
+}

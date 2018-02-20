@@ -33,11 +33,12 @@ import com.stratio.sparta.serving.core.models.workflow.NodeGraph
 
 class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
+  private implicit val system = actorSystem
   private val WorkflowLineageKey = "workflow-lineage"
   private val WorkflowStatusLineageKey = "workflow-status-lineage"
   private val statusListenerActor = actorSystem.actorOf(Props(new WorkflowStatusListenerActor()))
   private val workflowListenerActor = actorSystem.actorOf(Props(new WorkflowListenerActor()))
-  private val senderKafka = actorSystem.actorOf(Props[KafkaSender])
+  private val senderKafka = actorSystem.actorOf(Props(new KafkaSender()))
   private val config = ConfigFactory.load
   private val configSettingTopic = "sender.topic"
   private val topicKafka = Try(config.getString(configSettingTopic)).getOrElse("dg-metadata")
