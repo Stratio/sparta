@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.stratio.sparta.dg.agent.common
+package com.stratio.sparta.dg.agent.commons
 
 import com.stratio.governance.commons.agent.model.metadata.MetadataPath
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType
@@ -56,7 +56,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
   )
 
 
-  "WorkflowStatusUtils.processStatus" should {
+  "WorkflowStatusUtils.statusMetadataLineage" should {
     "return None" when {
       "we receive a transient state event" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
@@ -64,7 +64,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
           Some(testWorkflow),
           None
         )
-        WorkflowStatusUtils.processStatus(statusEvent) should be (None)
+        LineageUtils.statusMetadataLineage(statusEvent) should be (None)
       }
 
       "the event has no workflow info associated to the status" in {
@@ -73,7 +73,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
           None,
           None
         )
-        WorkflowStatusUtils.processStatus(statusEvent) should be (None)
+        LineageUtils.statusMetadataLineage(statusEvent) should be (None)
       }
     }
 
@@ -88,14 +88,13 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         EventType.Success,
         None,
         "qwerty12345",
-        MetadataPath(Seq("_home_test_subgroup","kafka-test","0","1519051473")),
-        agentVersion = "2.0.0",
+        MetadataPath(Seq("sparta","_home_test_subgroup","kafka-test","0","1519051473")),
         tags = List.empty[String],
         modificationTime = Option(1519051473L),
         accessTime = Option(1519051473L)
       )
 
-      WorkflowStatusUtils.processStatus(statusEvent) should equal (Some(List(expected)))
+      LineageUtils.statusMetadataLineage(statusEvent) should equal (Some(List(expected)))
     }
   }
 

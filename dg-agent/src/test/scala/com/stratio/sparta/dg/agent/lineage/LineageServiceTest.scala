@@ -30,7 +30,7 @@ import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.helpers.GraphHelper
-import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum
+import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
 
 @RunWith(classOf[JUnitRunner])
@@ -77,8 +77,9 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
 
   "LineageService" should {
 
-    "LineageUtils workflowToMetadapath" in new CommonMetadata {
-      LineageUtils.workflowMetadataPathString(testWorkflow01).split("/")(0) should be eq testWorkflow01.group.name.replace("_", "/")
+    "LineageUtils workflowToMetadatapath" in new CommonMetadata {
+      LineageUtils.workflowMetadataPathString(testWorkflow01)
+        .split("/")(0) should be eq testWorkflow01.group.name.replace("_", "/")
     }
 
     "LineageUtils InputMetadata return metadataList with outcoming nodes" in new CommonMetadata {
@@ -108,5 +109,14 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       result.head.mesosAttributeConstraint shouldBe empty
       result.head.mesosHostnameConstraint shouldBe empty
     }
+
+    "LineageUtils StatusMetadata return metadataList with status" in new CommonMetadata {
+      val result = LineageUtils.statusMetadataLineage(WorkflowStatusStream(
+        WorkflowStatus("qwerty12345", WorkflowStatusEnum.Failed),
+        Option(testWorkflow01),
+        None))
+      result.head.size shouldBe 1
+    }
+
   }
 }

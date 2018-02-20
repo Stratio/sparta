@@ -24,10 +24,9 @@ import akka.event.slf4j.SLF4JLogging
 import com.typesafe.config.ConfigFactory
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
-import com.stratio.sparta.dg.agent.common.WorkflowStatusUtils
 import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
-import com.stratio.sparta.dg.agent.commons.LineageUtils
+import com.stratio.sparta.dg.agent.commons.{LineageUtils, WorkflowStatusUtils}
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
@@ -79,9 +78,9 @@ class LineageService(actorSystem: ActorSystem) extends SLF4JLogging {
 
     statusListenerActor ! OnWorkflowStatusesChangeDo(WorkflowStatusLineageKey) { workflowStatusStream =>
 
-      WorkflowStatusUtils.processStatus(workflowStatusStream).fold(){ listMetadata =>
+      LineageUtils.statusMetadataLineage(workflowStatusStream).fold(){ listMetadata =>
         senderKafka ! KafkaEvent(listMetadata,topicKafka)
-        log.info(s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflowStatus.id}")
+        log.debug(s"Sending workflow status lineage for workflowStatus: ${workflowStatusStream.workflowStatus.id}")
       }
     }
   }
