@@ -24,7 +24,7 @@ import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.JarsHelper
+import com.stratio.sparta.serving.core.helpers.{JarsHelper, LinkHelper}
 import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngine, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
@@ -57,6 +57,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         id = workflow.id.get,
         status = WorkflowStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
+        sparkURI = LinkHelper.getClusterLocalLink,
         lastExecutionMode = Option(AppConstant.ConfigLocal)
       ))
       if (workflow.executionEngine == WorkflowExecutionEngine.Streaming)

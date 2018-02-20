@@ -21,16 +21,17 @@ import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.api.actor.ConfigActor._
 import com.stratio.sparta.serving.api.constants.HttpConstant
 import com.stratio.sparta.serving.core.config.SpartaConfig
-import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
+import com.stratio.sparta.serving.core.utils.{ActionUserAuthorize, NginxUtils}
 import com.stratio.sparta.security._
 import com.stratio.sparta.serving.core.constants.{AkkaConstant, AppConstant}
+import com.stratio.sparta.serving.core.helpers.LinkHelper
 import com.stratio.sparta.serving.core.models.SpartaSerializer
 import com.stratio.sparta.serving.core.models.dto.LoggedUser
 import com.stratio.sparta.serving.core.models.frontend.FrontendConfiguration
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import spray.httpx.Json4sJacksonSupport
 
-import scala.util.Try
+import scala.util.{Properties, Try}
 
 class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
   extends Actor with SLF4JLogging with Json4sJacksonSupport with SpartaSerializer with ActionUserAuthorize {
@@ -57,8 +58,9 @@ class ConfigActor(implicit val secManagerOpt: Option[SpartaSecurityManager])
     Try {
       val timeout = Try(SpartaConfig.getDetailConfig.get.getInt("timeout"))
         .getOrElse(AppConstant.DefaultApiTimeout) + 1
-      if (enabledSecurity) FrontendConfiguration(timeout, retrieveNameUser(user))
-      else FrontendConfiguration(timeout, emptyField)
+      if (enabledSecurity)
+        FrontendConfiguration(timeout, retrieveNameUser(user), LinkHelper.getClusterLocalLink)
+      else FrontendConfiguration(timeout, emptyField, LinkHelper.getClusterLocalLink)
     }
 
   }

@@ -30,7 +30,7 @@ import scala.sys.process._
 import scala.util.{Failure, Properties, Success, Try}
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap.option2NotBlankOption
 import com.stratio.sparta.serving.core.constants.AppConstant
-import com.stratio.sparta.serving.core.helpers.ResourceManagerLinkHelper
+import com.stratio.sparta.serving.core.helpers.LinkHelper
 import com.stratio.sparta.serving.core.marathon.OauthTokenUtils
 import com.stratio.sparta.serving.core.utils.NginxUtils._
 import net.minidev.json.JSONArray
@@ -42,25 +42,20 @@ object NginxUtils {
 
   import com.jayway.jsonpath.{Configuration, JsonPath, ReadContext}
 
-  def buildSparkUI(id: String, lastExecutionMode: Option[String]): Option[String] = {
-    lastExecutionMode match {
-      case Some(AppConstant.ConfigLocal) =>
-        ResourceManagerLinkHelper.getLink(AppConstant.ConfigLocal)
-      case _ =>
-        val url = for {
-          monitorVhost <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST")
-          serviceName <- Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
-        } yield {
-          val useSsl = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
-            Try(strVal.toBoolean).toOption
-          } getOrElse false
-          monitorUrl(monitorVhost, serviceName, id, useSsl)
-        }
-        url.orElse(None)
+  def buildSparkUI(id: String): Option[String] = {
+    val url = for {
+      monitorVhost <- Properties.envOrNone("MARATHON_APP_LABEL_HAPROXY_1_VHOST")
+      serviceName <- Properties.envOrNone("MARATHON_APP_LABEL_DCOS_SERVICE_NAME")
+    } yield {
+      val useSsl = Properties.envOrNone("SECURITY_TLS_ENABLE") flatMap { strVal =>
+        Try(strVal.toBoolean).toOption
+      } getOrElse false
+      monitorUrl(monitorVhost, serviceName, id, useSsl)
     }
+    url.orElse(None)
   }
 
-  def monitorUrl(vhost: String, spartaInstance: String, workflowId: String, ssl: Boolean = true): String = {
+  private def monitorUrl(vhost: String, spartaInstance: String, workflowId: String, ssl: Boolean = true): String = {
     val nameWithoutRoot =
       if (workflowId.startsWith("/")) workflowId.substring(1) else workflowId
     s"http${if (ssl) "s" else ""}://$vhost/workflows-$spartaInstance/$nameWithoutRoot/"
@@ -76,6 +71,7 @@ object NginxUtils {
       else Configuration.defaultConfiguration()
     }
     private val ctx: ReadContext = JsonPath.using(conf).parse(jsonDoc)
+
     def query(query: String): Any = ctx.read(query)
   }
 
@@ -93,7 +89,7 @@ object NginxUtils {
     def apply(configPath: String = "/etc/nginx/nginx.conf",
               pidFilePath: String = "/run/nginx.pid",
               instanceName: String = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME",
-                Properties.envOrElse("TENANT_NAME","sparta")),
+                Properties.envOrElse("TENANT_NAME", "sparta")),
               securityFolder: String = Properties.envOrElse("SPARTA_SECRET_FOLDER", "/etc/sds/sparta/security"),
               workflowsUiVhost: String = Properties.envOrElse("MARATHON_APP_LABEL_HAPROXY_1_VHOST",
                 "sparta.stratio.com"),
@@ -103,6 +99,7 @@ object NginxUtils {
               } getOrElse false
              ): NginxMetaConfig = {
       implicit def path2file(path: String): File = new File(path)
+
       new NginxMetaConfig(
         configPath,
         pidFilePath,
@@ -117,26 +114,34 @@ object NginxUtils {
 
   }
 
-  abstract class Error protected (description: String) extends RuntimeException {
+  abstract class Error protected(description: String) extends RuntimeException {
     override def getMessage: String = s"Nginx service problem: $description"
   }
 
   object Error {
 
     case class InvalidConfig(config: Option[String]) extends Error("Invalid configuration detected")
+
     object CouldNotStart extends Error("Couldn't start service")
+
     object CouldNotStop extends Error("Couldn't stop service")
+
     object CouldNotReload extends Error("Couldn't reload configuration")
+
     case class CouldNotWriteConfig(
                                     file: File,
                                     explanation: Option[Exception] = None) extends Error(
       s"Couldn't overwrite configuration file ($file)" + explanation.map(exp => s": $exp").getOrElse("")
     )
+
     case class CouldNotResolve(serviceName: String) extends Error(s"Couldn't retrieve $serviceName IP address")
+
     case class NoServiceStatus(explanation: Option[Exception] = None) extends Error(
       "Cannot retrieve workflows status" + explanation.map(exp => s": $exp").getOrElse("")
     )
+
     object AlreadyRunning extends Error("Can't start Nginx as it is currently running")
+
     object NotRunning extends Error("Can't stop Nginx as it is currently stopped")
 
   }
@@ -175,8 +180,8 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
 
   def startNginx(): Future[Unit] = Future {
     val maybeProblem =
-      if(isNginxRunning) Some(AlreadyRunning)
-      else if(Process("nginx").! != 0) Some(CouldNotStart)
+      if (isNginxRunning) Some(AlreadyRunning)
+      else if (Process("nginx").! != 0) Some(CouldNotStart)
       else None
 
     maybeProblem foreach { problem =>
@@ -188,7 +193,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
   }
 
   def stopNginx(): Future[Unit] = Future {
-    val maybeProblem = if(isNginxRunning) {
+    val maybeProblem = if (isNginxRunning) {
       Process("nginx -s stop").!
       Thread.sleep(500)
       Some(CouldNotStop).filter(_ => isNginxRunning)
@@ -217,7 +222,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
     pidFile.exists && using(scala.io.Source.fromFile(pidFile))(_.nonEmpty)
 
   def reloadNginx(): Future[Unit] =
-    if(isNginxRunning) reloadNginxConfig()
+    if (isNginxRunning) reloadNginxConfig()
     else startNginx()
 
   private def resolveHostnameMesosDNSToIP(mesosDNSservice: String): Future[String] = Future {
@@ -248,7 +253,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
     for {
       tempFile <- Future(File.createTempFile(configFile.getName, null))
       res <- Future {
-        val fullListOfWorkflows = if(crossdataLocalDeploymentWithUI)
+        val fullListOfWorkflows = if (crossdataLocalDeploymentWithUI)
           listWorkflows.+:(crossdataItem)
         else listWorkflows
         val config = updatedNginxConf(fullListOfWorkflows, uiVirtualHost)
@@ -262,13 +267,13 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
             case line if line.nonEmpty => line.trim
           }
 
-          if(generatedLines.nonEmpty)
+          if (generatedLines.nonEmpty)
             fileLines != generatedLines
           else false
         }
 
         // Avoid re-writing files when there are no changes
-        if(diff) {
+        if (diff) {
           using(new PrintWriter(tempFile)) {
             _.write(config)
           }
@@ -316,10 +321,10 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
        |
        |  server {
        |
-       |    listen $workflowsUiPort${if(useSsl) " ssl" else ""};
+       |    listen $workflowsUiPort${if (useSsl) " ssl" else ""};
        |    server_name $uiVirtualHost;
-       |    ${if(useSsl) s"ssl_certificate $securityFolder/nginx_cert.crt;" else ""}
-       |    ${if(useSsl) s"ssl_certificate_key $securityFolder/$instanceName.key;" else ""}
+       |    ${if (useSsl) s"ssl_certificate $securityFolder/nginx_cert.crt;" else ""}
+       |    ${if (useSsl) s"ssl_certificate_key $securityFolder/$instanceName.key;" else ""}
        |    access_log /dev/stdout combined;
        |    error_log stderr info;
        |
@@ -334,7 +339,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
     listWorkflows map { case AppParameters(id, ip, port) =>
 
       val workflowName = Try(id.substring(id.indexOf("home"))).getOrElse(id.split('/').last)
-      val monitorEndUrl = monitorUrl(uiVirtualHost, instanceName, workflowName ,useSsl)
+      val monitorEndUrl = monitorUrl(uiVirtualHost, instanceName, workflowName, useSsl)
 
       s"""
          |
@@ -370,20 +375,20 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
   def extractAppIDs(stringJson: String): Seq[String] = {
     if (stringJson.trim.isEmpty) Seq.empty
     else {
-      Try (new ObjectMapper().readTree(stringJson)) match {
+      Try(new ObjectMapper().readTree(stringJson)) match {
         case Success(json) => extractID(json)
         case Failure(_) => Seq.empty
       }
     }
   }
 
-  def extractID(jsonNode: JsonNode): List[String] =  {
+  def extractID(jsonNode: JsonNode): List[String] = {
     //Find apps and related ids in this node and all its subtrees
     val apps = jsonNode.findValues("apps")
     if (apps.isEmpty) List.empty
     else {
-      apps.asScala.toList.flatMap( app =>
-        if(app.elements().asScala.toList.nonEmpty)
+      apps.asScala.toList.flatMap(app =>
+        if (app.elements().asScala.toList.nonEmpty)
           Try(app.findValue("id").asText) match {
             case Success(id) if !id.isEmpty => Option(id.toString)
             case _ => None
@@ -405,7 +410,7 @@ class NginxUtils(system: ActorSystem, materializer: ActorMaterializer, nginxMeta
   def extractAppParameters(json: String): Option[AppParameters] = {
     val queryId = "$.app.id"
     val queryIpAddress = "$.app.tasks.[0].ipAddresses.[0].ipAddress"
-    val queryPort= "$.app.tasks.[0].ports.[0]"
+    val queryPort = "$.app.tasks.[0].ports.[0]"
 
     Try {
       val extractor = new JsonPathExtractor(json, false)

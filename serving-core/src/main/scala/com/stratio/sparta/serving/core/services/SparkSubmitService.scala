@@ -26,7 +26,7 @@ import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.constants.MarathonConstant._
-import com.stratio.sparta.serving.core.constants.SparkConstant._
+import com.stratio.sparta.serving.core.constants.SparkConstant.{SubmitMasterConf, _}
 import com.stratio.sparta.serving.core.helpers.WorkflowHelper._
 import com.stratio.sparta.serving.core.models.workflow.Workflow
 import com.stratio.sparta.serving.core.utils.ArgumentsUtils
@@ -34,6 +34,7 @@ import com.typesafe.config.Config
 import org.apache.spark.security.VaultHelper._
 import SparkSubmitService._
 import com.stratio.sparta.serving.core.helpers.JarsHelper
+import scala.collection.JavaConversions._
 
 import scala.util.{Properties, Try}
 
@@ -131,21 +132,18 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     uploadedPlugins ++ userPlugins ++ JarsHelper.getJdbcDriverPaths
   }
 
-  def getSparkLocalConfig: Map[String, String] =
-    Map(
-      SubmitNameConf -> Option("SPARTA"),
-      SubmitMasterConf -> Option(workflow.settings.sparkSettings.master.toString),
-      SubmitDriverMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverMemory.notBlank,
-      SubmitDriverCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.driverCores.notBlank,
-      SubmitExecutorMemoryConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorMemory.notBlank,
-      SubmitExecutorCoresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.executorCores.notBlank,
-      SubmitLogStagesProgressConf -> workflow.settings.sparkSettings.sparkConf.logStagesProgress.map(_.toString),
-      SubmitLocalityWaitConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.localityWait.notBlank,
-      SubmitTaskMaxFailuresConf -> workflow.settings.sparkSettings.sparkConf.sparkResourcesConf.
-        taskMaxFailures.notBlank,
-      SubmitBackPressureEnableConf -> workflow.settings.streamingSettings.backpressure.map(_.toString),
-      SubmitBackPressureInitialRateConf -> workflow.settings.streamingSettings.backpressureInitialRate.notBlank
-    ).flatMap { case (k, v) => v.notBlank.map(value => Option(k -> value)) }.flatten.toMap ++ getUserSparkConfig
+  def getSparkLocalConfig: Map[String, String] = {
+    val defaultConf = Map(
+      SubmitNameConf -> "sparta-server",
+      SubmitMasterConf -> "local[*]"
+    )
+    val referenceConf = SpartaConfig.initSparkConfig().fold(defaultConf) { sparkConfig =>
+      sparkConfig.entrySet().iterator().toSeq.map { values =>
+        s"spark.${values.getKey}" -> values.getValue.render().replace("\"", "")
+      }.toMap
+    }
+    defaultConf ++ referenceConf ++ getUserSparkConfig
+  }
 
   /** Private Methods **/
 
@@ -300,7 +298,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     val securityOptions = getSecurityConfigurations
 
     if (workflow.settings.sparkSettings.sparkMesosSecurity && securityOptions.nonEmpty) {
-      (Properties.envOrNone(MesosRoleEnv).notBlank, Properties.envOrNone(TenantEnv).notBlank)  match {
+      (Properties.envOrNone(MesosRoleEnv).notBlank, Properties.envOrNone(TenantEnv).notBlank) match {
         case (Some(role), Some(tenantName)) =>
           Map(
             "spark.mesos.role" -> role,
@@ -460,7 +458,7 @@ object SparkSubmitService {
                                      sparkConfs: Map[String, String]
                                    ): Map[String, String] = {
     jarConfs ++ sparkConfs.flatMap { case (confKey, value) =>
-      if(value.nonEmpty) {
+      if (value.nonEmpty) {
         if (jarConfs.contains(confKey)) {
           val separator = if (confKey.contains("ClassPath")) ":" else ","
           Option(confKey -> s"$value$separator${jarConfs(confKey)}")

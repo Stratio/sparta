@@ -109,21 +109,25 @@ class ListenerService(curatorFramework: CuratorFramework, statusListenerActor: A
                   case Success(_) =>
                     val information = s"Workflow correctly finished in Marathon API"
                     val newStatus = if (workflowStatusStream.workflowStatus.status == Failed) NotDefined else Finished
+                    val newInformation = if (workflowStatusStream.workflowStatus.status == Failed) None
+                    else Option(information)
                     log.info(information)
                     statusService.update(WorkflowStatus(
                       id = workflowId,
                       status = newStatus,
-                      statusInfo = Some(information)
+                      statusInfo = newInformation
                     ))
                   case Failure(e) =>
                     val error = "An error was encountered while sending a stop message to Marathon API"
                     log.error(error, e)
-                    statusService.update(WorkflowStatus(
-                      id = workflowId,
-                      status = Failed,
-                      statusInfo = Some(error),
-                      lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
-                    ))
+                    if(workflowStatusStream.workflowStatus.status != Failed) {
+                      statusService.update(WorkflowStatus(
+                        id = workflowId,
+                        status = Failed,
+                        statusInfo = Some(error),
+                        lastError = Option(WorkflowError(error, PhaseEnum.Stop, e.toString))
+                      ))
+                    }
                 }
               case None =>
                 log.warn(s"The Sparta System does not have a Marathon id associated to workflow: ${workflow.name}")

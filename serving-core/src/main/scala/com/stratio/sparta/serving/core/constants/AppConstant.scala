@@ -36,6 +36,7 @@ object AppConstant extends ZookeeperUtils {
   val ConfigOauth2 = "oauth2"
   val ConfigSpray = "spray.can.server"
   val ConfigZookeeper = "zookeeper"
+  val ConfigSpark = "spark"
   val DefaultOauth2CookieName = "user"
   val ConfigLocal = "local"
   val ConfigMesos = "mesos"

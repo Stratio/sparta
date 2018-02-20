@@ -110,9 +110,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
               status = Uploaded,
               statusInfo = Option(information),
               sparkURI = NginxUtils.buildSparkUI(
-                s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}",
-                Option(workflow.settings.global.executionMode)
-              )
+                s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
             ))
             val scheduledTask = scheduleOneTask(AwaitWorkflowChangeStatus, DefaultAwaitWorkflowChangeStatus)(
               launcherService.checkWorkflowStatus(workflow))

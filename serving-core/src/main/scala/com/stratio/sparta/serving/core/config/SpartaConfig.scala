@@ -28,6 +28,7 @@ import scala.util.{Success, Try}
 object SpartaConfig extends SLF4JLogging {
 
   var mainConfig: Option[Config] = None
+  var sparkConfig: Option[Config] = None
   var apiConfig: Option[Config] = None
   var oauth2Config: Option[Config] = None
 
@@ -55,6 +56,12 @@ object SpartaConfig extends SLF4JLogging {
                      configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
     mainConfig = initConfig(ConfigAppName, currentConfig, configFactory)
     mainConfig
+  }
+
+  def initSparkConfig(currentConfig: Option[Config] = None,
+                     configFactory: SpartaConfigFactory = SpartaConfigFactory()): Option[Config] = {
+    sparkConfig = initConfig(ConfigSpark, currentConfig, configFactory)
+    sparkConfig
   }
 
   def initMainWithFallbackConfig(currentConfig: Config): Option[Config] = {

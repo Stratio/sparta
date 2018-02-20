@@ -15,4 +15,8 @@
  */
 package com.stratio.sparta.serving.core.models.frontend
 
-case class FrontendConfiguration(timeout: Int, userName : String)
+case class FrontendConfiguration(
+                                  timeout: Int,
+                                  userName : String,
+                                  xDSparkUi: Option[String] = None
+                                )
