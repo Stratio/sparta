@@ -47,14 +47,14 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
       sparkMesosSecurity = false, None, SubmitArguments(), SparkConf(SparkResourcesConf()))
   )
 
+  val timestampEpochTest = 1519051473L
   val pipeline = PipelineGraph(nodes , edges)
   val testWorkflow = Workflow(Option("qwerty12345"), "kafka-test",
     settings = settingsModel,
     pipelineGraph = pipeline,
     group = Group(Option("987654"), "/home/test/subgroup"),
-    lastUpdateDate = Option(new DateTime(1519051473L))
+    lastUpdateDate = Option(new DateTime(timestampEpochTest))
   )
-
 
   "WorkflowStatusUtils.statusMetadataLineage" should {
     "return None" when {
@@ -80,18 +80,19 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
     "return a List[SpartaWorkflowStatusMetadata]" in {
       val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
         WorkflowStatus("qwerty12345", WorkflowStatusEnum.Finished,
-          lastUpdateDate = Option(new DateTime(1519051473L))),
+          lastUpdateDate = Option(new DateTime(timestampEpochTest))),
         Some(testWorkflow),
         None
       )
+      val metadataPath =  MetadataPath(Seq("sparta","home_test_subgroup","kafka-test","0","1519051473","status"))
       val expected = SpartaWorkflowStatusMetadata("kafka-test",
         EventType.Success,
         None,
         "qwerty12345",
-        MetadataPath(Seq("sparta","home_test_subgroup","kafka-test","0","1519051473","status")),
+        metadataPath,
         tags = List.empty[String],
-        modificationTime = Option(1519051473L),
-        accessTime = Option(1519051473L)
+        modificationTime = Option(timestampEpochTest),
+        accessTime = Option(timestampEpochTest)
       )
 
       LineageUtils.statusMetadataLineage(statusEvent) should equal (Some(List(expected)))

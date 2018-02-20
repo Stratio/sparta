@@ -78,14 +78,14 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
   "LineageService" should {
 
     "LineageUtils workflowToMetadatapath" in new CommonMetadata {
-      LineageUtils.workflowMetadataPathString(testWorkflow01)
-        .split("/")(0) should be eq testWorkflow01.group.name.replace("_", "/")
+      LineageUtils.workflowMetadataPathString(testWorkflow01,"input").toString()
+        .split("/")(1) should equal (testWorkflow01.group.name.substring(1).replace("_", "/"))
     }
 
     "LineageUtils InputMetadata return metadataList with outcoming nodes" in new CommonMetadata {
       val result = LineageUtils.inputMetadataLineage(testWorkflow01, graph)
       result.head.outcomingNodes.length shouldBe 3
-      result.head.name should be eq testWorkflow01.name
+      result.head.name should equal (nodes.head.name)
     }
 
     "LineageUtils TransformationMetadata return metadataList with incoming and outcoming nodes" in new CommonMetadata {
@@ -97,7 +97,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
     "LineageUtils OutputMetadata return metadataList with incoming nodes" in new CommonMetadata {
       val result = LineageUtils.outputMetadataLineage(testWorkflow01, graph)
       result.head.incomingNodes.length shouldBe 1
-      result.head.name should be eq testWorkflow01.name
+      nodes.filter(_.stepType == "Output").map(_.name) should contain (result.head.name)
     }
 
     "LineageUtils TenantMetada return default values for attributes" in {

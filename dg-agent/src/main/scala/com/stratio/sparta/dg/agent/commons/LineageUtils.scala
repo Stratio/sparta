@@ -22,16 +22,12 @@ import org.joda.time.DateTime
 import com.stratio.governance.commons.agent.model.metadata.MetadataPath
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
-import com.stratio.sparta.dg.agent.model._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowStatusStream}
 
-import scala.util.{Properties, Try}
-
-import scala.util.Properties
-import com.stratio.sparta.dg.agent.model.{SpartaInputMetadata, SpartaOutputMetadata, SpartaTenantMetadata, SpartaTransformationMetadata}
+import com.stratio.sparta.dg.agent.model._
 
 import scala.util.{Properties, Try}
 
@@ -43,31 +39,37 @@ object LineageUtils {
   val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
 
 
-  def workflowMetadataPathString(workflow: Workflow): String =
-    s"${workflow.group.name.replaceAll("/","_")}/${workflow.name}" +
-    s"/${workflow.version}/${workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis}"
+  def workflowMetadataPathString(workflow: Workflow, extraPath: String) : MetadataPath =
+    MetadataPath(Seq(
+      LineageUtils.tenantName,
+      workflow.group.name.substring(1).replaceAll("/", "_"),
+      workflow.name,
+      workflow.version,
+      workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis,
+      extraPath
+    ).map(_.toString))
 
   def inputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaInputMetadata] = {
-    val metadataPath = workflowMetadataPathString(workflow)
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(InputStep.StepType)).map(
       n => SpartaInputMetadata(
         name = n.name,
         key = n.classPrettyName,
-        metadataPath = MetadataPath(metadataPath),
-        outcomingNodes = graph.get(n).diSuccessors.map(s => MetadataPath(s"$metadataPath/${s.name}")).toSeq,
+        metadataPath = workflowMetadataPathString(workflow, "input"),
+        outcomingNodes = graph.get(n).diSuccessors.map(s =>
+          workflowMetadataPathString(workflow, s"input/${s.name}")).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
   }
 
   def outputMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge]): List[SpartaOutputMetadata] = {
-    val metadataPath = workflowMetadataPathString(workflow)
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(OutputStep.StepType)).map(
       n => SpartaOutputMetadata(
         name = n.name,
         key = n.classPrettyName,
-        metadataPath = MetadataPath(metadataPath),
-        incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
+        metadataPath = workflowMetadataPathString(workflow, "output"),
+        incomingNodes = graph.get(n).diPredecessors.map(pred =>
+          workflowMetadataPathString(workflow, s"output/${pred.name}")).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
@@ -75,14 +77,15 @@ object LineageUtils {
 
   def transformationMetadataLineage(workflow: Workflow, graph: Graph[NodeGraph, DiEdge])
   : List[SpartaTransformationMetadata] = {
-    val metadataPath = workflowMetadataPathString(workflow)
     workflow.pipelineGraph.nodes.filter(node => node.stepType.equalsIgnoreCase(TransformStep.StepType)).map(
       n => SpartaTransformationMetadata(
         name = n.name,
         key = n.classPrettyName,
-        metadataPath = MetadataPath(metadataPath),
-        outcomingNodes = graph.get(n).diSuccessors.map(s => MetadataPath(s"$metadataPath/${s.name}")).toSeq,
-        incomingNodes = graph.get(n).diPredecessors.map(pred => MetadataPath(s"$metadataPath/${pred.name}")).toSeq,
+        metadataPath = workflowMetadataPathString(workflow, "transformation"),
+        outcomingNodes = graph.get(n).diSuccessors.map(s =>
+          workflowMetadataPathString(workflow, s"transformation/${s.name}")).toSeq,
+        incomingNodes = graph.get(n).diPredecessors.map(pred =>
+          workflowMetadataPathString(workflow, s"transformation/${pred.name}")).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
@@ -116,8 +119,8 @@ object LineageUtils {
           && workflowStatusStream.workflowStatus.lastError.isDefined)
           Some(workflowStatusStream.workflowStatus.lastError.get.message) else None,
         key = workflowStatusStream.workflowStatus.id,
-        metadataPath = extractMetadataPath(workflowStatusStream),
-        tags = workflowStatusStream.workflow.get.tag.fold(List.empty[String]) { tag => tag.split(",").toList },
+        metadataPath = workflowMetadataPathString(workflowStatusStream.workflow.get, "status"),
+        tags = workflowStatusStream.workflow.get.tags.getOrElse(Seq.empty).toList,
         modificationTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflow.get.lastUpdateDate),
         accessTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate)
       )
@@ -137,16 +140,6 @@ object WorkflowStatusUtils {
     (eventStatus == Started || eventStatus == Finished || eventStatus == Failed) &&
       workflowStatusStream.workflow.isDefined
   }
-
-  def extractMetadataPath(workflowStatusStream: WorkflowStatusStream) : MetadataPath =
-    MetadataPath(Seq(
-      LineageUtils.tenantName,
-      workflowStatusStream.workflow.get.group.name.substring(1).replaceAll("/", "_"),
-      workflowStatusStream.workflow.get.name,
-      workflowStatusStream.workflow.get.version,
-      workflowStatusStream.workflow.get.lastUpdateDate.getOrElse(DateTime.now()).getMillis,
-      "status"
-    ).map(_.toString))
 
   def mapSparta2GovernanceStatuses(spartaStatus: WorkflowStatusEnum.Value) : EventType =
     spartaStatus match {
