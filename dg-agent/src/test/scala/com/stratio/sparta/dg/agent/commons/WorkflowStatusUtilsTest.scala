@@ -60,7 +60,9 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
     "return None" when {
       "we receive a transient state event" in {
         val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
-          WorkflowStatus("qwerty12345", WorkflowStatusEnum.Starting),
+          WorkflowStatus("qwerty12345",
+            WorkflowStatusEnum.Starting,
+            lastUpdateDate = Some(new DateTime(timestampEpochTest))),
           Some(testWorkflow),
           None
         )
@@ -84,7 +86,14 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         Some(testWorkflow),
         None
       )
-      val metadataPath =  MetadataPath(Seq("sparta","home_test_subgroup","kafka-test","0","1519051473","status"))
+      val metadataPath =  MetadataPath(Seq("sparta",
+        "home_test_subgroup",
+        "kafka-test",
+        "0",
+        "1519051473",
+        "status",
+        "1519051473"))
+
       val expected = SpartaWorkflowStatusMetadata("kafka-test",
         EventType.Success,
         None,
