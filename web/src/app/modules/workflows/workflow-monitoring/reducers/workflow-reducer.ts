@@ -190,7 +190,7 @@ export const getWorkFlowList: any = (state: State) => orderBy(Object.assign([], 
       const query = state.searchQuery.toLowerCase();
       if (('v' + workflow.version + ' - ' + workflow.name).toLowerCase().indexOf(query) > -1) {
         search = true;
-      } else if (workflow.tagAux && workflow.tagAux.toLowerCase().indexOf(query) > -1) {
+      } else if (workflow.tagsAux && workflow.tagsAux.toLowerCase().indexOf(query) > -1) {
         search = true;
       } else if (workflow.group && workflow.group.name.indexOf(query) > -1) {
         search = true;

@@ -101,7 +101,7 @@ export class WorkflowsTableComponent implements OnInit {
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
             { id: 'context.status', label: 'Status' },
-            { id: 'tag', label: 'Tags' },
+            { id: 'tagsAux', label: 'Tags' },
             { id: 'lastUpdateOrder', label: 'Last status update' },
             { id: 'spark', label: '', sortable: false }
         ];
