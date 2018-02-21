@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.api.helpers
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
 import com.stratio.sparta.serving.core.actor.EnvironmentPublisherActor
@@ -28,6 +29,8 @@ import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
 import spray.can.Http
+
+import scala.util.Try
 
 /**
  * Helper with common operations used to create a Sparta context used to run the application.
@@ -48,17 +51,27 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       log.debug("Initializing Sparta system ...")
       implicit val system = ActorSystem(appName, SpartaConfig.mainConfig)
 
-      //Initialize data
+      log.debug("Initializing Sparta data ...")
       new EnvironmentService(curatorFramework).initialize()
       new GroupService(curatorFramework).initialize()
 
+      if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
+        log.debug("Initializing lineage service ...")
+        val lineageService = new LineageService()
+        lineageService.extractTenantMetadata()
+        lineageService.extractWorkflowChanges()
+        lineageService.extractStatusChanges()
+      }
+
       val controllerActor =
         system.actorOf(Props(new ControllerActor(curatorFramework)), ControllerActorName)
+
+      log.debug("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
         interface = SpartaConfig.apiConfig.get.getString("host"),
         port = SpartaConfig.apiConfig.get.getInt("port")
       )
-      log.info("Sparta system initiated correctly")
+      log.info("Sparta System initiated correctly")
 
     } else log.info("Sparta Configuration is not defined")
   }
