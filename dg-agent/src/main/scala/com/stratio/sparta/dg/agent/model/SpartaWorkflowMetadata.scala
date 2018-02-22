@@ -17,13 +17,18 @@
 package com.stratio.sparta.dg.agent.model
 
 import play.api.libs.json.{JsObject, Json, Reads, Writes}
-
 import com.stratio.governance.commons.agent.model.metadata._
 import com.stratio.governance.commons.agent.model.metadata.lineage.ProcessMetadata
 
 case class SpartaWorkflowMetadata(
                                    name: String,
                                    key: String,
+                                   description: String,
+                                   executionMode: String,
+                                   mesosConstraints: String,
+                                   kerberosEnabled : Boolean,
+                                   tlsEnabled : Boolean,
+                                   mesosSecurityEnabled : Boolean,
                                    metadataPath: MetadataPath,
                                    agentVersion: String = SpartaType.agentVersion,
                                    serverVersion: String = SpartaType.serverVersion,

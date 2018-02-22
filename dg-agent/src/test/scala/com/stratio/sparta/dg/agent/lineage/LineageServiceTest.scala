@@ -126,5 +126,25 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       result.get.head.metadataPath.toString().split("/")(indexTypeEvent) should equal (LineageItem.Status.toString)
     }
 
+
+    "LineageUtils WorkflowMetadata correct values for attributes" in new CommonMetadata {
+      val result = LineageUtils.workflowMetadataLineage(testWorkflow01)
+
+      result.head.name shouldBe "workflow-01"
+      result.head.key shouldBe "workflow-01"
+      result.head.description shouldBe "whatever"
+      result.head.executionMode shouldBe "Streaming"
+      result.head.mesosConstraints shouldBe empty
+      result.head.kerberosEnabled shouldBe false
+      result.head.tlsEnabled shouldBe false
+      result.head.mesosSecurityEnabled shouldBe false
+      result.head.tags shouldBe List.empty
+      result.head.modificationTime.isDefined shouldBe true
+
+      result.head.metadataPath.toString().split("/")(indexTypeEvent) should equal (LineageItem.Workflow.toString)
+
+
+    }
+
   }
 }

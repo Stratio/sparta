@@ -16,19 +16,20 @@
 
 package com.stratio.sparta.dg.agent.commons
 
-import scalax.collection.GraphEdge.DiEdge
-import scalax.collection._
-import org.joda.time.DateTime
 import com.stratio.governance.commons.agent.model.metadata.MetadataPath
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType
 import com.stratio.governance.commons.agent.model.metadata.lineage.EventType.EventType
+import com.stratio.sparta.dg.agent.commons.WorkflowStatusUtils.fromDatetimeToLongWithDefault
+import com.stratio.sparta.dg.agent.model._
 import com.stratio.sparta.sdk.workflow.step.{InputStep, OutputStep, TransformStep}
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum
 import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.{Failed, Finished, Started}
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow, WorkflowStatus, WorkflowStatusStream}
-import com.stratio.sparta.dg.agent.model._
+import org.joda.time.DateTime
 
 import scala.util.{Properties, Try}
+import scalax.collection.GraphEdge.DiEdge
+import scalax.collection._
 
 /**
   * Utilitary object for dg-workflows methods
@@ -137,6 +138,25 @@ object LineageUtils {
       Some(List(metadataSerialized))
     }
     else None
+  }
+
+  def workflowMetadataLineage(workflow: Workflow): List[SpartaWorkflowMetadata] = {
+
+    val workflowList = List(SpartaWorkflowMetadata(
+      name = workflow.name,
+      key = workflow.id.get,
+      description = workflow.description,
+      executionMode = workflow.executionEngine.toString,
+      mesosConstraints = workflow.settings.global.mesosConstraint.getOrElse("").toString,
+      kerberosEnabled = workflow.settings.sparkSettings.sparkDataStoreTls,
+      tlsEnabled = workflow.settings.sparkSettings.sparkKerberos,
+      mesosSecurityEnabled = workflow.settings.sparkSettings.sparkMesosSecurity,
+      metadataPath = workflowMetadataPathString(workflow, None, LineageItem.Workflow, workflow.name),
+      tags = workflow.tags.getOrElse(Seq.empty).toList,
+      modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate)
+    ))
+
+    workflowList
   }
 }
 

@@ -16,22 +16,21 @@
 
 package com.stratio.sparta.dg.agent.lineage
 
-import scala.util.{Failure, Success, Try}
-import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
-import com.typesafe.config.ConfigFactory
 import com.stratio.governance.commons.agent.actors.KafkaSender
 import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
-import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
-import com.stratio.governance.commons.agent.actors.KafkaSender.KafkaEvent
-import com.stratio.sparta.dg.agent.commons.{LineageUtils, WorkflowStatusUtils}
+import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.serving.core.actor.WorkflowListenerActor._
 import com.stratio.sparta.serving.core.actor.WorkflowStatusListenerActor._
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.workflow.NodeGraph
+import com.typesafe.config.ConfigFactory
+
+import scala.util.{Failure, Success, Try}
+import scalax.collection.Graph
+import scalax.collection.GraphEdge.DiEdge
 
 class LineageService(implicit val actorSystem: ActorSystem) extends SLF4JLogging {
 
@@ -59,7 +58,9 @@ class LineageService(implicit val actorSystem: ActorSystem) extends SLF4JLogging
   def extractWorkflowChanges(): Unit =
     workflowListenerActor ! OnWorkflowsChangesDo(WorkflowLineageKey) { workflow =>
       val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(workflow)
-      Try(LineageUtils.inputMetadataLineage(workflow, graph) :::
+      Try(
+        LineageUtils.workflowMetadataLineage(workflow) :::
+        LineageUtils.inputMetadataLineage(workflow, graph) :::
         LineageUtils.transformationMetadataLineage(workflow, graph) :::
         LineageUtils.outputMetadataLineage(workflow, graph)) match {
         case Success(listSteps) =>
