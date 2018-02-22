@@ -92,7 +92,8 @@ class WorkflowStatusService(curatorFramework: CuratorFramework) extends SpartaSe
           else workflowStatusWithFields.statusInfo,
           lastExecutionMode = if (workflowStatusWithFields.lastExecutionMode.isEmpty) actualStatus.lastExecutionMode
           else workflowStatusWithFields.lastExecutionMode,
-          sparkURI = updateSparkURI(workflowStatusWithFields, actualStatus)
+          sparkURI = updateSparkURI(workflowStatusWithFields, actualStatus),
+          lastUpdateDateWorkflow = if(workflowStatusWithFields.lastUpdateDateWorkflow.isEmpty) actualStatus.lastUpdateDateWorkflow else workflowStatusWithFields.lastUpdateDateWorkflow
         )
         curatorFramework.setData().forPath(statusPath, write(newStatus).getBytes)
 

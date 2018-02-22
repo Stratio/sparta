@@ -109,6 +109,7 @@ class MarathonLauncherActor(val curatorFramework: CuratorFramework, statusListen
               id = workflow.id.get,
               status = Uploaded,
               statusInfo = Option(information),
+              lastUpdateDateWorkflow = workflow.lastUpdateDate,
               sparkURI = NginxUtils.buildSparkUI(
                 s"${workflow.group.name}/${workflow.name}/${workflow.name}-v${workflow.version}")
             ))

@@ -58,6 +58,7 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
         status = WorkflowStatusEnum.NotStarted,
         statusInfo = Some(startingInfo),
         sparkURI = LinkHelper.getClusterLocalLink,
+        lastUpdateDateWorkflow = workflow.lastUpdateDate,
         lastExecutionMode = Option(AppConstant.ConfigLocal)
       ))
       if (workflow.executionEngine == WorkflowExecutionEngine.Streaming)

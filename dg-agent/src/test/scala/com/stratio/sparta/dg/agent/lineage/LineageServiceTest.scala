@@ -72,12 +72,14 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       pipelineGraph = validPipeGraph
     )
     val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(testWorkflow01)
+
+    val indexTypeEvent = 5
   }
 
   "LineageService" should {
 
     "LineageUtils workflowToMetadatapath" in new CommonMetadata {
-      LineageUtils.workflowMetadataPathString(testWorkflow01,"input").toString()
+      LineageUtils.workflowMetadataPathString(testWorkflow01, None, "input").toString()
         .split("/")(1) should equal (testWorkflow01.group.name.substring(1).replace("_", "/"))
     }
 
@@ -85,21 +87,24 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
       val result = LineageUtils.inputMetadataLineage(testWorkflow01, graph)
       result.head.outcomingNodes.length shouldBe 3
       result.head.name should equal (nodes.head.name)
-      assert(result.forall( node => node.metadataPath.toString().split("/")(5).equals(LineageItem.Input.toString)))
+      assert(result.forall( node => node.metadataPath.toString().split("/")(indexTypeEvent)
+        .equals(LineageItem.Input.toString)))
     }
 
     "LineageUtils TransformationMetadata return metadataList with incoming and outcoming nodes" in new CommonMetadata {
       val result = LineageUtils.transformationMetadataLineage(testWorkflow01, graph)
       result.head.incomingNodes.length shouldBe 1
       result.head.outcomingNodes.length shouldBe 1
-      assert(result.forall( node => node.metadataPath.toString().split("/")(5).equals(LineageItem.Transformation.toString)))
+      assert(result.forall( node => node.metadataPath.toString().split("/")(indexTypeEvent)
+        .equals(LineageItem.Transformation.toString)))
     }
 
     "LineageUtils OutputMetadata return metadataList with incoming nodes" in new CommonMetadata {
       val result = LineageUtils.outputMetadataLineage(testWorkflow01, graph)
       result.head.incomingNodes.length shouldBe 1
       nodes.filter(_.stepType == "Output").map(_.name) should contain (result.head.name)
-      assert(result.forall( node => node.metadataPath.toString().split("/")(5).equals(LineageItem.Output.toString)))
+      assert(result.forall( node => node.metadataPath.toString().split("/")(indexTypeEvent)
+        .equals(LineageItem.Output.toString)))
     }
 
     "LineageUtils TenantMetadata return default values for attributes" in {
@@ -118,7 +123,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", SpartaC
         Option(testWorkflow01),
         None))
       result.head.size shouldBe 1
-      result.get.head.metadataPath.toString().split("/")(5) should equal (LineageItem.Status.toString)
+      result.get.head.metadataPath.toString().split("/")(indexTypeEvent) should equal (LineageItem.Status.toString)
     }
 
   }

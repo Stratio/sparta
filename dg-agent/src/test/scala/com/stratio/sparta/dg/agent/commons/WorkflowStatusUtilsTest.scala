@@ -82,7 +82,8 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
     "return a List[SpartaWorkflowStatusMetadata]" in {
       val statusEvent: WorkflowStatusStream = WorkflowStatusStream(
         WorkflowStatus("qwerty12345", WorkflowStatusEnum.Finished,
-          lastUpdateDate = Option(new DateTime(timestampEpochTest))),
+          lastUpdateDate = Option(new DateTime(timestampEpochTest)),
+          lastUpdateDateWorkflow = Option(new DateTime(timestampEpochTest))),
         Some(testWorkflow),
         None
       )

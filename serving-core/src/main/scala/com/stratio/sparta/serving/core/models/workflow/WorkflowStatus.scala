@@ -27,5 +27,6 @@ case class WorkflowStatus(
                            lastError: Option[WorkflowError] = None,
                            creationDate: Option[DateTime] = None,
                            lastUpdateDate: Option[DateTime] = None,
-                           sparkURI: Option[String] = None
+                           sparkURI: Option[String] = None,
+                           lastUpdateDateWorkflow: Option[DateTime] = None
                          )
