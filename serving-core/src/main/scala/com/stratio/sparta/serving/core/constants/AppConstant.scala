@@ -126,6 +126,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("KAFKA_BROKER_HOST", "localhost"),
     EnvironmentVariable("KAFKA_BROKER_PORT", "9092"),
     EnvironmentVariable("KAFKA_GROUP_ID", "sparta"),
+    EnvironmentVariable("KAFKA_MAX_POLL_TIMEOUT", "512"),
     EnvironmentVariable("WEBSOCKET_URL", "ws://stream.meetup.com/2/rsvps"),
     EnvironmentVariable("CASSANDRA_HOST", "localhost"),
     EnvironmentVariable("CASSANDRA_PORT", "9042"),
@@ -156,6 +157,7 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
     EnvironmentVariable("SPARK_TASK_MAX_FAILURES","8"),
     EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6"),
+    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2"),
     EnvironmentVariable("SPARK_BLOCK_INTERVAL","100ms")
   )
 }

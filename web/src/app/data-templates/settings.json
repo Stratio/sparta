@@ -521,6 +521,15 @@
                 "qa": "workflow-spark-executorJavaOptions"
              },
              {
+                "propertyId": "executorDockerImage",
+                "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
+                "propertyType": "text",
+                "width": 4,
+                "default": "{{EXECUTOR_SPARK_BASE_IMAGE}}",
+                "tooltip": "Run over Mesos Clusters with Docker containers",
+                "qa": "workflow-spark-executorDockerImage"
+             },
+             {
                 "propertyId": "sparkLocalDir",
                 "propertyName": "SETTINGS._SPARK_LOCAL_DIR_",
                 "propertyType": "text",

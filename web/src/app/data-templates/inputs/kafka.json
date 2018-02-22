@@ -250,6 +250,15 @@
         "tooltip": "earliest : automatically reset the offset to the earliest offset. latest : automatically reset the offset to the latest offset",
         "qa": "fragment-details-stratiokafkadirect-auto-offset"
       },
+       {
+          "propertyId": "spark.streaming.kafka.consumer.poll.ms",
+          "propertyName": "_MAX_POLL_TIMEOUT_",
+          "propertyType": "text",
+          "default": "{{KAFKA_MAX_POLL_TIMEOUT}}",
+          "required": true,
+          "tooltip": "if the timeout is too low and the Kafka brokers need more time to answer there will be many “TASK FAILED”s, which causes a delay in the preparation of the assigned tasks into the Executors. However, if this timeout is too high the Spark executor wastes a lot of time doing nothing and produces large delays (pollTimeout + task scheduling in the new executor)",
+          "qa": "fragment-details-kafka-maxPollTimeout"
+       },
       {
         "propertyId": "enable.auto.commit",
         "propertyName": "_KAFKA_ENABLE_AUTOCOMMIT_",

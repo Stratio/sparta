@@ -184,4 +184,11 @@ object KafkaInputStep {
   def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
     SecurityHelper.dataStoreSecurityConf(configuration)
   }
+
+  def getSparkConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    val maxPollTimeout = "spark.streaming.kafka.consumer.poll.ms"
+
+    Seq((maxPollTimeout, configuration.getString(maxPollTimeout, "512")))
+  }
+
 }

@@ -54,7 +54,7 @@ case class StreamingSettings(
                             )
 
 case class SparkSettings(
-                          master: JsoneyString =  JsoneyString("mesos://leader.mesos:5050"),
+                          master: JsoneyString = JsoneyString("mesos://leader.mesos:5050"),
                           sparkKerberos: Boolean = true,
                           sparkDataStoreTls: Boolean = true,
                           sparkMesosSecurity: Boolean = true,
@@ -76,6 +76,8 @@ case class SparkConf(
                       coarse: Option[Boolean] = None,
                       sparkUser: Option[JsoneyString] = None,
                       sparkLocalDir: Option[JsoneyString] = None,
+                      executorDockerImage: Option[JsoneyString] = Option(JsoneyString(
+                        "qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2")),
                       sparkKryoSerialization: Option[Boolean] = None,
                       sparkSqlCaseSensitive: Option[Boolean] = None,
                       logStagesProgress: Option[Boolean] = None,
