@@ -69,7 +69,10 @@ class WorkflowStatusListenerActor extends Actor with SLF4JLogging {
 
   def eventsReceive(actions: ActorState): Receive = {
     case WorkflowStatusChange(_, workflowStatus) =>
-      doWorkflowChange(actions, workflowStatus)
+      val cachedStatus = actions.statuses.get(workflowStatus.id)
+      if( cachedStatus.isEmpty || cachedStatus.get.status != workflowStatus.status){
+        doWorkflowChange(actions, workflowStatus)
+      }
       context.become(receive(actions.copy(
         statuses = actions.statuses + (workflowStatus.id -> workflowStatus)
       )))
