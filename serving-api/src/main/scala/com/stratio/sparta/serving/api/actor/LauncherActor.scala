@@ -16,8 +16,11 @@
 
 package com.stratio.sparta.serving.api.actor
 
+import scala.util.{Failure, Success, Try}
+
 import akka.actor.{Props, _}
-import com.stratio.sparta.driver.service.StreamingContextService
+import org.apache.curator.framework.CuratorFramework
+
 import com.stratio.sparta.security.{Edit, SpartaSecurityManager}
 import com.stratio.sparta.serving.core.actor.ClusterLauncherActor
 import com.stratio.sparta.serving.core.actor.LauncherActor.{Launch, Start}
@@ -28,12 +31,8 @@ import com.stratio.sparta.serving.core.models.enumerators.WorkflowStatusEnum.Fai
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{WorkflowService, WorkflowStatusService}
 import com.stratio.sparta.serving.core.utils.ActionUserAuthorize
-import org.apache.curator.framework.CuratorFramework
 
-import scala.util.{Failure, Success, Try}
-
-class LauncherActor(streamingService: StreamingContextService,
-                    curatorFramework: CuratorFramework,
+class LauncherActor(curatorFramework: CuratorFramework,
                     statusListenerActor: ActorRef,
                     envStateActor: ActorRef
                    )(implicit val secManagerOpt: Option[SpartaSecurityManager])
@@ -70,7 +69,7 @@ class LauncherActor(streamingService: StreamingContextService,
             val childLauncherActor = context.children.find(children => children.path.name == actorName)
             log.info(s"Launching workflow: ${workflow.name} with actor: $actorName in local mode")
             childLauncherActor.getOrElse(context.actorOf(Props(
-              new LocalLauncherActor(streamingService, streamingService.curatorFramework)), actorName))
+              new LocalLauncherActor(statusListenerActor,curatorFramework)), actorName))
           case _ =>
             throw new Exception(
               s"Invalid execution mode in workflow ${workflow.name}: ${workflow.settings.global.executionMode}")

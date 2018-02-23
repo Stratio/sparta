@@ -18,8 +18,9 @@ package com.stratio.sparta.serving.api.actor
 
 import java.io.File
 
-import akka.actor.{Actor, PoisonPill}
+import akka.actor.{Actor, ActorRef, PoisonPill}
 import akka.event.slf4j.SLF4JLogging
+
 import com.stratio.sparta.driver.factory.SparkContextFactory
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.serving.core.actor.LauncherActor.Start
@@ -29,12 +30,12 @@ import com.stratio.sparta.serving.core.models.enumerators.{WorkflowExecutionEngi
 import com.stratio.sparta.serving.core.models.workflow.{PhaseEnum, Workflow, WorkflowError, WorkflowStatus}
 import com.stratio.sparta.serving.core.services.{HdfsFilesService, WorkflowStatusService}
 import org.apache.curator.framework.CuratorFramework
-
 import scala.util.{Failure, Success, Try}
 
-class LocalLauncherActor(streamingContextService: StreamingContextService, val curatorFramework: CuratorFramework)
+class LocalLauncherActor(statusListenerActor: ActorRef, val curatorFramework: CuratorFramework)
   extends Actor with SLF4JLogging {
 
+  private val streamingContextService: StreamingContextService = StreamingContextService(curatorFramework, statusListenerActor)
   lazy private val statusService = new WorkflowStatusService(curatorFramework)
   lazy private val hdfsFilesService = HdfsFilesService()
 
@@ -138,5 +139,4 @@ class LocalLauncherActor(streamingContextService: StreamingContextService, val c
 
     uploadedPlugins ++ userPlugins
   }
-
 }

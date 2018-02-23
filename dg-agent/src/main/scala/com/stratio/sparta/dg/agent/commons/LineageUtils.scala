@@ -151,7 +151,7 @@ object LineageUtils {
       kerberosEnabled = workflow.settings.sparkSettings.sparkDataStoreTls,
       tlsEnabled = workflow.settings.sparkSettings.sparkKerberos,
       mesosSecurityEnabled = workflow.settings.sparkSettings.sparkMesosSecurity,
-      metadataPath = workflowMetadataPathString(workflow, None, LineageItem.Workflow, workflow.name),
+      metadataPath = workflowMetadataPathString(workflow, None),
       tags = workflow.tags.getOrElse(Seq.empty).toList,
       modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate)
     ))

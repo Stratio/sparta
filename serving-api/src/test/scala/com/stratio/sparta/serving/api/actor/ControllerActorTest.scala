@@ -15,8 +15,9 @@
  */
 package com.stratio.sparta.serving.api.actor
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestActors, TestKit}
+
 import com.stratio.sparta.driver.service.StreamingContextService
 import com.stratio.sparta.security.SpartaSecurityManager
 import com.stratio.sparta.serving.core.config.SpartaConfig
@@ -51,7 +52,7 @@ class ControllerActorTest(_system: ActorSystem) extends TestKit(_system)
 
   "ControllerActor" should {
     "set up the controller actor that contains all Sparta's routes without any error" in {
-      _system.actorOf(Props(new ControllerActor(curatorFramework)))
+      _system.actorOf(Props(new ControllerActor(curatorFramework,ActorRef.noSender,ActorRef.noSender)))
     }
   }
 }

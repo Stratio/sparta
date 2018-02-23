@@ -16,32 +16,33 @@
 
 package com.stratio.sparta.serving.api.helpers
 
+import scala.util.Try
+
 import akka.actor.{ActorSystem, Props}
 import akka.event.slf4j.SLF4JLogging
 import akka.io.IO
+import spray.can.Http
+
 import com.stratio.sparta.dg.agent.lineage.LineageService
 import com.stratio.sparta.serving.api.actor._
 import com.stratio.sparta.serving.api.service.ssl.SSLSupport
-import com.stratio.sparta.serving.core.actor.EnvironmentPublisherActor
+import com.stratio.sparta.serving.core.actor._
 import com.stratio.sparta.serving.core.config.SpartaConfig
 import com.stratio.sparta.serving.core.constants.AkkaConstant._
 import com.stratio.sparta.serving.core.curator.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.helpers.SecurityManagerHelper
 import com.stratio.sparta.serving.core.services.{EnvironmentService, GroupService}
-import spray.can.Http
-
-import scala.util.Try
 
 /**
- * Helper with common operations used to create a Sparta context used to run the application.
- */
+  * Helper with common operations used to create a Sparta context used to run the application.
+  */
 object SpartaHelper extends SLF4JLogging with SSLSupport {
 
   /**
-   * Initializes Sparta's akka system running an embedded http server with the REST API.
-   *
-   * @param appName with the name of the application.
-   */
+    * Initializes Sparta's akka system running an embedded http server with the REST API.
+    *
+    * @param appName with the name of the application.
+    */
   def initSpartaAPI(appName: String): Unit = {
     if (SpartaConfig.mainConfig.isDefined && SpartaConfig.apiConfig.isDefined) {
 
@@ -55,16 +56,25 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
       new EnvironmentService(curatorFramework).initialize()
       new GroupService(curatorFramework).initialize()
 
+      val envListenerActor = system.actorOf(Props[EnvironmentListenerActor])
+      system.actorOf(Props(new EnvironmentPublisherActor(curatorFramework)))
+
+      val stListenerActor = system.actorOf(Props[WorkflowStatusListenerActor])
+      val workflowListenerActor = system.actorOf(Props[WorkflowListenerActor])
       if (Try(SpartaConfig.getDetailConfig.get.getBoolean("lineage.enable")).getOrElse(false)) {
         log.debug("Initializing lineage service ...")
-        val lineageService = new LineageService()
-        lineageService.extractTenantMetadata()
-        lineageService.extractWorkflowChanges()
-        lineageService.extractStatusChanges()
+        system.actorOf(LineageService.props(stListenerActor, workflowListenerActor))
       }
 
+      system.actorOf(Props(
+        new WorkflowPublisherActor(curatorFramework, Option(system), Option(envListenerActor))))
+
+      system.actorOf(Props(new ExecutionPublisherActor(curatorFramework)))
+      system.actorOf(Props(new StatusPublisherActor(curatorFramework)))
+
       val controllerActor =
-        system.actorOf(Props(new ControllerActor(curatorFramework)), ControllerActorName)
+        system.actorOf(Props(new ControllerActor(curatorFramework,
+          stListenerActor, envListenerActor)), ControllerActorName)
 
       log.debug("Binding Sparta API ...")
       IO(Http) ! Http.Bind(controllerActor,
@@ -72,8 +82,6 @@ object SpartaHelper extends SLF4JLogging with SSLSupport {
         port = SpartaConfig.apiConfig.get.getInt("port")
       )
       log.info("Sparta System initiated correctly")
-
     } else log.info("Sparta Configuration is not defined")
   }
-
 }
