@@ -60,7 +60,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
     val sparkSaveMode = getSparkSaveMode(saveMode)
     val connectionProperties = new JDBCOptions(urlWithSSL,
       tableName,
-      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty)
+      propertiesWithCustom.mapValues(_.toString).filter(_._2.nonEmpty) + ("driver" -> "org.postgresql.Driver")
     )
 
     Try {
@@ -78,6 +78,9 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
               case Some(pk) => pk.split(",").toSeq
               case None => Seq.empty[String]
             }
+
+            require(updateFields.nonEmpty, "The primary key fields must be provided")
+
             SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
           } else {
             if (postgresSaveMode == PostgresSaveMode.COPYIN) {
@@ -98,6 +101,7 @@ class PostgresOutputStep(name: String, xDSession: XDSession, properties: Map[Str
       case Failure(e) =>
         closeConnection(name)
         log.error(s"Error creating/dropping table $tableName", e)
+        throw e
     }
   }
 

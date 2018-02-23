@@ -72,6 +72,9 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
               case Some(pk) => pk.split(",").toSeq
               case None => Seq.empty[String]
             }
+
+            require(updateFields.nonEmpty, "The primary key fields must be provided")
+
             SpartaJdbcUtils.upsertTable(dataFrame, connectionProperties, updateFields, name)
           }
 
@@ -85,6 +88,7 @@ class JdbcOutputStep(name: String, xDSession: XDSession, properties: Map[String,
       case Failure(e) =>
         closeConnection(name)
         log.error(s"Error creating/dropping table $tableName", e)
+        throw e
     }
   }
 
