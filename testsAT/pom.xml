@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <stratio-test-bdd.version>0.6.0</stratio-test-bdd.version>
+        <stratio-test-bdd.version>0.7.0-SNAPSHOT</stratio-test-bdd.version>
         <kotlin.version>1.1.2-4</kotlin.version>
     </properties>
 
