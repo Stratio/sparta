@@ -36,8 +36,6 @@ import scalax.collection._
   */
 object LineageUtils {
 
-  import LineageItem._
-
   val tenantName = Properties.envOrElse("MARATHON_APP_LABEL_DCOS_SERVICE_NAME", "sparta")
 
 
@@ -46,9 +44,8 @@ object LineageUtils {
                                  extraPath: String*) : MetadataPath = {
     val path = MetadataPath(Seq(
       LineageUtils.tenantName,
-      workflow.group.name.substring(1).replaceAll("/", "_"),
-      workflow.name,
-      workflow.version,
+      workflow.group.name.substring(1).replaceAll("/", "_") ++ "_" ++
+      workflow.name ++ "_" ++ workflow.version.toString,
       workflowStatus.fold(workflow.lastUpdateDate.getOrElse(DateTime.now()).getMillis) { wfStatus =>
         wfStatus.lastUpdateDateWorkflow.getOrElse(DateTime.now()).getMillis
       }).map(_.toString)
@@ -62,9 +59,9 @@ object LineageUtils {
       n => SpartaInputMetadata(
         name = n.name,
         key = workflow.id.get,
-        metadataPath = workflowMetadataPathString(workflow, None, LineageItem.Input, n.name),
+        metadataPath = workflowMetadataPathString(workflow, None, n.name),
         outcomingNodes = graph.get(n).diSuccessors.map(s =>
-          workflowMetadataPathString(workflow, None, LineageItem.Input, s.name)).toSeq,
+          workflowMetadataPathString(workflow, None, s.name)).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
@@ -75,9 +72,9 @@ object LineageUtils {
       n => SpartaOutputMetadata(
         name = n.name,
         key = workflow.id.get,
-        metadataPath = workflowMetadataPathString(workflow, None, LineageItem.Output, n.name),
+        metadataPath = workflowMetadataPathString(workflow, None, n.name),
         incomingNodes = graph.get(n).diPredecessors.map(pred =>
-          workflowMetadataPathString(workflow, None, LineageItem.Output, pred.name)).toSeq,
+          workflowMetadataPathString(workflow, None, pred.name)).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
@@ -89,11 +86,11 @@ object LineageUtils {
       n => SpartaTransformationMetadata(
         name = n.name,
         key = workflow.id.get,
-        metadataPath = workflowMetadataPathString(workflow, None, LineageItem.Transformation, n.name),
+        metadataPath = workflowMetadataPathString(workflow, None, n.name),
         outcomingNodes = graph.get(n).diSuccessors.map(s =>
-          workflowMetadataPathString(workflow, None, LineageItem.Transformation , s.name)).toSeq,
+          workflowMetadataPathString(workflow, None, s.name)).toSeq,
         incomingNodes = graph.get(n).diPredecessors.map(pred =>
-          workflowMetadataPathString(workflow, None, LineageItem.Transformation, pred.name)).toSeq,
+          workflowMetadataPathString(workflow, None , pred.name)).toSeq,
         tags = workflow.tags.getOrElse(Seq.empty).toList,
         modificationTime = workflow.lastUpdateDate.map(_.getMillis))
     ).toList
@@ -129,12 +126,12 @@ object LineageUtils {
         key = workflowStatusStream.workflowStatus.id,
         metadataPath = workflowMetadataPathString(workflowStatusStream.workflow.get,
           Some(workflowStatusStream.workflowStatus),
-          LineageItem.Status,
           fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate).get.toString),
         tags = workflowStatusStream.workflow.get.tags.getOrElse(Seq.empty).toList,
-        modificationTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflow.get.lastUpdateDate),
-        accessTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate)
+        modificationTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflowStatus.lastUpdateDate),
+        accessTime = fromDatetimeToLongWithDefault(workflowStatusStream.workflow.get.lastUpdateDate)
       )
+
       Some(List(metadataSerialized))
     }
     else None
@@ -153,8 +150,7 @@ object LineageUtils {
       mesosSecurityEnabled = workflow.settings.sparkSettings.sparkMesosSecurity,
       metadataPath = workflowMetadataPathString(workflow, None),
       tags = workflow.tags.getOrElse(Seq.empty).toList,
-      modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate)
-    ))
+      modificationTime = fromDatetimeToLongWithDefault(workflow.lastUpdateDate)))
 
     workflowList
   }
