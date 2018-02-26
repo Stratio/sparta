@@ -24,44 +24,78 @@ import com.stratio.tikitakka.common.util.ConfigComponent
 import scala.util.{Failure, Success, Try}
 import scalaj.http.{Http, HttpResponse}
 
-trait OauthTokenUtils extends SLF4JLogging {
+object OauthTokenUtils extends SLF4JLogging {
 
-  import OauthTokenUtils._
+  lazy private val dcosAuthCookieName = "dcos-acs-auth-cookie"
+  lazy private val ssoUriField = "sparta.marathon.sso.uri"
+  lazy private val usernameField = "sparta.marathon.sso.username"
+  lazy private val passwordField = "sparta.marathon.sso.password"
+  lazy private val clientIdField = "sparta.marathon.sso.clientId"
+  lazy private val redirectUriField = "sparta.marathon.sso.redirectUri"
+  lazy private val retriesField = "sparta.marathon.sso.retries"
+  lazy private val defaultRetries = 5
 
-  lazy val ssoUri = ConfigComponent.getString(ssoUriField).getOrElse(throw new Exception("SSO Uri not defined"))
-  lazy val username = ConfigComponent.getString(usernameField).getOrElse(throw new Exception("username not defined"))
-  lazy val password = ConfigComponent.getString(passwordField).getOrElse(throw new Exception("password not defined"))
-  lazy val clientId = ConfigComponent.getString(clientIdField).getOrElse(throw new Exception("clientId not defined"))
-  lazy val redirectUri = ConfigComponent.getString(redirectUriField)
+  lazy private val ssoUri = ConfigComponent.getString(ssoUriField)
+    .getOrElse(throw new Exception("SSO Uri not defined"))
+  lazy private val username = ConfigComponent.getString(usernameField)
+    .getOrElse(throw new Exception("username not defined"))
+  lazy private val password = ConfigComponent.getString(passwordField)
+    .getOrElse(throw new Exception("password not defined"))
+  lazy private val clientId = ConfigComponent.getString(clientIdField)
+    .getOrElse(throw new Exception("clientId not defined"))
+  lazy private val redirectUri = ConfigComponent.getString(redirectUriField)
     .getOrElse(throw new Exception("redirectUri not defined"))
-  val defaultRetries = 5
-  val maxRetries = Try(ConfigComponent.getInt(retriesField).get).getOrElse(defaultRetries)
-  val dcosAuthCookieName = "dcos-acs-auth-cookie"
+  lazy private val maxRetries = Try(ConfigComponent.getInt(retriesField).get)
+    .getOrElse(defaultRetries)
 
+  @volatile
+  private var currentToken: Option[HttpCookie] = None
+
+
+  //scalastyle:off
   def getToken: HttpCookie = {
+    synchronized {
       currentToken match {
-      case Some(t) if !t.hasExpired => t
-      case _ => Try(retryGetToken(1)(retrieveTokenFromSSO)) match {
-        case Success(token) =>
-          currentToken = Option(token)
-          token
-        case Failure(ex: Throwable) =>
-          throw new Exception(s"ERROR: ${ex.getMessage}. For further information, please consult the application log")
+        case Some(t) if !t.hasExpired =>
+          log.debug(s"Cookie not expired with maxAge: ${t.getMaxAge}")
+          t
+        case Some(t) if t.hasExpired =>
+          log.debug(s"Cookie expired with maxAge ${t.getMaxAge}")
+          tokenWithExpiration
+        case _ =>
+          log.debug(s"Getting new cookie")
+          tokenWithExpiration
       }
     }
   }
 
-  var currentToken: Option[HttpCookie] = None
+  def expireToken(): Unit = currentToken.foreach(cookie => cookie.setMaxAge(0))
 
-  def retryGetToken(numberCurrentRetries: Int)(getTokenFn: => Try[Seq[HttpCookie]]): HttpCookie =
-    if(numberCurrentRetries <= maxRetries){
+  private def tokenWithExpiration: HttpCookie = {
+    Try(retryGetToken(1)(retrieveTokenFromSSO)) match {
+      case Success(token) =>
+        log.debug(s"Cookie obtained successful")
+        token.setMaxAge(5 * 60 * 60) //5 hours
+        log.debug(s"Modified cookie MaxAge: ${token.getMaxAge}")
+        currentToken = Option(token)
+        token
+      case Failure(ex: Throwable) =>
+        currentToken = None
+        throw new Exception(s"ERROR: ${ex.getMessage}." +
+          s" For further information, please consult the application log")
+    }
+  }
+
+  private def retryGetToken(numberCurrentRetries: Int)(getTokenFn: => Try[Seq[HttpCookie]]): HttpCookie =
+    if (numberCurrentRetries <= maxRetries) {
       retrieveTokenFromSSO match {
         case Success(tokenCookie: Seq[HttpCookie]) => {
           val dcosCookie = tokenCookie.filter(cookie =>
             cookie.getName.equalsIgnoreCase(dcosAuthCookieName))
           if (dcosCookie.nonEmpty) {
-            log.debug(s"""Marathon Token "$dcosAuthCookieName" correctly retrieved """ +
-              s"at retry attempt n. $numberCurrentRetries")
+            log.debug(
+              s"""Marathon Token "$dcosAuthCookieName" correctly retrieved """ +
+                s"at retry attempt n. $numberCurrentRetries")
             dcosCookie.head
           }
           else {
@@ -84,8 +118,8 @@ trait OauthTokenUtils extends SLF4JLogging {
         s"$dcosAuthCookieName after $maxRetries retries")
     }
 
-    def retrieveTokenFromSSO: Try[Seq[HttpCookie]] =
-      Try {
+  private def retrieveTokenFromSSO: Try[Seq[HttpCookie]] =
+    Try {
       // First request (AUTHORIZE)
       val authRequest = s"$ssoUri/oauth2.0/authorize?redirect_uri=$redirectUri&client_id=$clientId"
       log.debug(s"1. Request to : $authRequest")
@@ -122,10 +156,10 @@ trait OauthTokenUtils extends SLF4JLogging {
       getCookie(tokenResponse)
     }
 
-  def extractRedirectUri(response: HttpResponse[String]): String =
+  private def extractRedirectUri(response: HttpResponse[String]): String =
     response.headers.get("Location").get.head
 
-  def extractLTAndExecution(body: String): (String, String) = {
+  private def extractLTAndExecution(body: String): (String, String) = {
     val ltLEftMAtch = "name=\"lt\" value=\""
     val lt1 = body.indexOf(ltLEftMAtch)
     val prelt = body.substring(lt1 + ltLEftMAtch.length)
@@ -138,7 +172,7 @@ trait OauthTokenUtils extends SLF4JLogging {
     (lt, execution)
   }
 
-  def createLoginForm(lt: String, execution: String): Seq[(String, String)] =
+  private def createLoginForm(lt: String, execution: String): Seq[(String, String)] =
     Seq(
       "lt" -> lt,
       "_eventId" -> "submit",
@@ -148,7 +182,7 @@ trait OauthTokenUtils extends SLF4JLogging {
       "password" -> password
     )
 
-  def getCookie(response: HttpResponse[String]): Seq[HttpCookie] = {
+  private def getCookie(response: HttpResponse[String]): Seq[HttpCookie] = {
     response.headers.get("Set-Cookie") match {
       case Some(cookies) =>
         cookies.map { cookie =>
@@ -158,15 +192,5 @@ trait OauthTokenUtils extends SLF4JLogging {
       case None => Seq.empty[HttpCookie]
     }
   }
-}
-
-object OauthTokenUtils {
-
-  val ssoUriField = "sparta.marathon.sso.uri"
-  val usernameField = "sparta.marathon.sso.username"
-  val passwordField = "sparta.marathon.sso.password"
-  val clientIdField = "sparta.marathon.sso.clientId"
-  val redirectUriField = "sparta.marathon.sso.redirectUri"
-  val retriesField = "sparta.marathon.sso.retries"
 }
 

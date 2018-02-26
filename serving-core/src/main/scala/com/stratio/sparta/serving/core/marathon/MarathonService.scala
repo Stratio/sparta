@@ -37,6 +37,7 @@ import com.stratio.tikitakka.updown.UpAndDownComponent
 import com.typesafe.config.Config
 import org.apache.curator.framework.CuratorFramework
 import play.api.libs.json._
+import OauthTokenUtils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -47,7 +48,7 @@ import scala.util.{Properties, Try}
 class MarathonService(context: ActorContext,
                       val curatorFramework: CuratorFramework,
                       workflowModel: Option[Workflow],
-                      sparkSubmitRequest: Option[WorkflowExecution]) extends OauthTokenUtils {
+                      sparkSubmitRequest: Option[WorkflowExecution]) {
 
   def this(context: ActorContext,
            curatorFramework: CuratorFramework,
