@@ -143,11 +143,12 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("MONGODB_DB", "sparta"),
     EnvironmentVariable("REDIS_HOST", "localhost"),
     EnvironmentVariable("REDIS_PORT", "6379"),
-    EnvironmentVariable("SPARTA_CHECKPOINT_PATH","sparta/checkpoint"),
+    EnvironmentVariable("SPARK_STREAMING_CHECKPOINT_PATH","sparta/checkpoint"),
     EnvironmentVariable("SPARK_STREAMING_WINDOW","2s"),
+    EnvironmentVariable("SPARK_STREAMING_BLOCK_INTERVAL","100ms"),
     EnvironmentVariable("SPARK_MASTER","mesos://leader.mesos:5050"),
-    EnvironmentVariable("DRIVER_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
-    EnvironmentVariable("EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
+    EnvironmentVariable("SPARK_DRIVER_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC -Dlog4j.configurationFile=file:///etc/sds/sparta/log4j2.xml"),
+    EnvironmentVariable("SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS","-XX:+UseConcMarkSweepGC"),
     EnvironmentVariable("SPARK_LOCAL_PATH", "/opt/spark/dist"),
     EnvironmentVariable("SPARK_CORES_MAX","2"),
     EnvironmentVariable("SPARK_EXECUTOR_MEMORY","2G"),
@@ -157,7 +158,6 @@ object AppConstant extends ZookeeperUtils {
     EnvironmentVariable("SPARK_LOCALITY_WAIT","100"),
     EnvironmentVariable("SPARK_TASK_MAX_FAILURES","8"),
     EnvironmentVariable("SPARK_MEMORY_FRACTION","0.6"),
-    EnvironmentVariable("EXECUTOR_SPARK_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2"),
-    EnvironmentVariable("SPARK_BLOCK_INTERVAL","100ms")
+    EnvironmentVariable("SPARK_EXECUTOR_BASE_IMAGE","qa.stratio.com/stratio/stratio-spark:2.2.0.5-RC2")
   )
 }

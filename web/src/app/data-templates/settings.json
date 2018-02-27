@@ -160,7 +160,7 @@
             "propertyName": "SETTINGS._SPARK_BLOCK_INTERVAL_",
             "propertyType": "text",
             "width": 4,
-            "default": "{{SPARK_BLOCK_INTERVAL}}",
+            "default": "{{SPARK_STREAMING_BLOCK_INTERVAL}}",
             "tooltip": "Interval at which data received by Spark Streaming receivers is chunked into blocks of data before storing them in Spark",
             "qa": "workflow-spark-blockInterval"
          },
@@ -234,7 +234,7 @@
                   "propertyId": "checkpointPath",
                   "propertyName": "SETTINGS._CHECKPOINT_PATH_",
                   "propertyType": "text",
-                  "default": "{{SPARTA_CHECKPOINT_PATH}}",
+                  "default": "{{SPARK_STREAMING_CHECKPOINT_PATH}}",
                   "required": false,
                   "tooltip": "Used only if the checkpointing feature is activated. When selecting Mesos or Marathon as deploy mode the checkpoint path must be one located in a HDFS node(sparta/checkpoint), when deploying in Local the checkpoint path indicates a local path in the machine (/tmp/sparta/checkpoint)",
                   "visible": [
@@ -371,7 +371,7 @@
                   "propertyType": "text",
                   "width": 4,
                   "float": true,
-                  "default": "{{{DRIVER_JAVA_OPTIONS}}}",
+                  "default": "{{{SPARK_DRIVER_JAVA_OPTIONS}}}",
                   "tooltip": "Extra Java options to pass to the driver",
                   "qa": "workflow-spark-driverJavaOptions"
                }
@@ -516,7 +516,7 @@
                 "propertyName": "SETTINGS._SPARK_EXECUTOR_JAVA_OPTIONS_",
                 "propertyType": "text",
                 "width": 4,
-                "default": "{{{EXECUTOR_EXTRA_JAVA_OPTIONS}}}",
+                "default": "{{{SPARK_EXECUTOR_EXTRA_JAVA_OPTIONS}}}",
                 "tooltip": "Extra Java options to pass to the executors",
                 "qa": "workflow-spark-executorJavaOptions"
              },
@@ -525,7 +525,7 @@
                 "propertyName": "SETTINGS._SPARK_DOCKER_IMAGE_",
                 "propertyType": "text",
                 "width": 4,
-                "default": "{{EXECUTOR_SPARK_BASE_IMAGE}}",
+                "default": "{{SPARK_EXECUTOR_BASE_IMAGE}}",
                 "tooltip": "Run over Mesos Clusters with Docker containers",
                 "qa": "workflow-spark-executorDockerImage"
              },
