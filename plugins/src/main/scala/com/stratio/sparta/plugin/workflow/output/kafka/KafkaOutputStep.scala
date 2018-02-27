@@ -38,9 +38,13 @@ import scala.util.Try
 class KafkaOutputStep(name: String, xDSession: XDSession, properties: Map[String, JSerializable])
   extends OutputStep(name, xDSession, properties) with KafkaBase {
 
+  lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   val sparkConf: Map[String, String] = xDSession.conf.getAll
-  val securityOpts: Map[String, AnyRef] = SecurityHelper.getDataStoreSecurityOptions(sparkConf)
-
+  val securityOpts: Map[String, AnyRef] =
+    if(tlsEnabled)
+      SecurityHelper.getDataStoreSecurityOptions(sparkConf)
+    else Map.empty
+  
   lazy val keySeparator: String = properties.getString("keySeparator", ",")
   lazy val DefaultProducerPort = "9092"
   lazy val producerConnectionKey: String = {

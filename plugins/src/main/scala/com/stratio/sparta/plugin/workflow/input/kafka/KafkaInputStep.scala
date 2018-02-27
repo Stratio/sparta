@@ -54,6 +54,7 @@ class KafkaInputStep(
 
   lazy val outputField = properties.getString("outputField", DefaultRawDataField)
   lazy val outputSchema = StructType(Seq(StructField(outputField, StringType)))
+  lazy val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
 
   def init(): DistributedMonad[DStream] = {
     val brokerList = getHostPort("bootstrap.servers", DefaultHost, DefaultBrokerPort)
@@ -61,7 +62,11 @@ class KafkaInputStep(
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[RowDeserializer]
     )
-    val kafkaSecurityOptions = SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
+    val kafkaSecurityOptions =
+      if(tlsEnabled)
+        SecurityHelper.getDataStoreSecurityOptions(ssc.get.sparkContext.getConf)
+      else Map.empty
+
     val consumerStrategy = ConsumerStrategies.Subscribe[String, Row](extractTopics, getAutoCommit ++
       getAutoOffset ++ serializers ++ getRowSerializerProperties ++ brokerList ++ getGroupId ++
       getPartitionStrategy ++ kafkaSecurityOptions ++ getCustomProperties, getOffsets)

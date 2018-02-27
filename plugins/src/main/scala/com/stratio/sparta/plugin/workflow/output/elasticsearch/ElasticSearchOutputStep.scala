@@ -42,13 +42,19 @@ class ElasticSearchOutputStep (
   val DefaultCluster = "elasticsearch"
   val ElasticSearchClass = "org.elasticsearch.spark.sql"
   val sparkConf = xDSession.conf.getAll
-  val securityOpts = elasticSecurityOptions(sparkConf)
 
+
+  val tlsEnabled = Try(properties.getString("tlsEnabled", "false").toBoolean).getOrElse(false)
   val timeStampMapper = properties.getString("timeStampMapperFormat", None).notBlank
   val autoCreateIndex = Try(properties.getString("enableAutoCreateIndex", "true").toBoolean).getOrElse(true)
   val mappingType = properties.getString("indexMapping", DefaultIndexType)
   val clusterName = properties.getString("clusterName", DefaultCluster)
   val httpNodes = getHostPortConf(NodesName, DefaultNode, DefaultHttpPort, NodeName, HttpPortName)
+
+  val securityOpts =
+    if (tlsEnabled)
+      elasticSecurityOptions(sparkConf)
+    else Map.empty
 
   override def save(dataFrame: DataFrame, saveMode: SaveModeEnum.Value, options: Map[String, String]): Unit = {
     val tableName = getTableNameFromOptions(options)
