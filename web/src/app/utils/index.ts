@@ -119,7 +119,7 @@ export function getFilterStatus(status: string) {
     case 'Running':
       return status;
     case 'Stopping':
-      return 'Running';
+      return 'Stopped';
     case 'Stopped':
       return status;
     case 'Finished':

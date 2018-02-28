@@ -16,15 +16,15 @@
 
 import * as utils from './';
 
-describe("Util function type", function () {
+describe('Util function type', function () {
 
     const action = 'TEST_ACTION';
 
-    it("should return action name when this is unique", () => {
+    it('should return action name when this is unique', () => {
         expect(utils.type(action)).toBe(action);
     });
 
-    it("should throw an exception when an action its not unique", () => {
+    it('should throw an exception when an action its not unique', () => {
         expect(() => utils.type(action)).toThrow();
     });
 });
