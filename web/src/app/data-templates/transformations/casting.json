@@ -1,9 +1,10 @@
   {
      "name": "Casting",
      "icon": "Casting",
-     "className": "CastingTransformStepStream",
+     "className": "CastingTransformStep",
      "classPrettyName": "Casting",
      "arity": ["UnaryToNary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Casts input fields to other types, support advanced Spark types conversions",
      "properties": [
         {

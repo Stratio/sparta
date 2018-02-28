@@ -44,7 +44,7 @@ export class WizardDetailsComponent implements OnInit, OnDestroy {
                 Output: this.wizardService.getOutputs(),
                 Transformation: this.wizardService.getTransformations(),
             };
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
     }

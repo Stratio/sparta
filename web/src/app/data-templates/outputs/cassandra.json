@@ -1,6 +1,7 @@
   {
     "name": "Cassandra",
     "classPrettyName": "Cassandra",
+     "supportedEngines": ["Streaming", "Batch"],
     "description": {
       "short": "The Cassandra output uses the generic implementation with DataFrames.",
       "long": "Datastax Spark Connector:  goo.gl/PO4k4F",

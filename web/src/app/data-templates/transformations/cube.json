@@ -4,6 +4,7 @@
     "className": "CubeTransformStep",
     "classPrettyName": "Cube",
     "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming"],
     "description": "Create cubes in order to make real time aggregations based in the OLAP concept",
     "properties": [
        {

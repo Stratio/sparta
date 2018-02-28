@@ -1,9 +1,10 @@
 {
   "name": "Explode",
   "icon": "Explode",
-  "className": "ExplodeTransformStepStream",
+  "className": "ExplodeTransformStep",
   "classPrettyName": "Explode",
   "arity": ["UnaryToNary"],
+   "supportedEngines": ["Streaming", "Batch"],
   "description": "Explode an input field and returns one row for each element in the input field",
   "properties": [
      {

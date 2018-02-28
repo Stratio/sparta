@@ -3,6 +3,7 @@
    "icon": "Custom",
    "className": "CustomInputStep",
    "classPrettyName": "Custom",
+   "supportedEngines": ["Streaming", "Batch"],
     "description": "Custom input defined by user. User can extend the Sparta SDK with his own implementation of Input class",
     "properties": [
       {

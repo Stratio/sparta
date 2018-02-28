@@ -22,6 +22,7 @@ import akka.event.slf4j.SLF4JLogging
 import com.stratio.sparta.sdk.utils.ClasspathUtils
 import com.stratio.sparta.serving.core.constants.AppConstant
 import com.stratio.sparta.serving.core.constants.MarathonConstant.DcosServiceName
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine.ExecutionEngine
 import com.stratio.sparta.serving.core.models.workflow.{NodeGraph, Workflow}
 
 import scala.util.{Failure, Properties, Success, Try}
@@ -32,17 +33,18 @@ object WorkflowHelper extends SLF4JLogging {
 
   val OutputStepErrorProperty = "errorSink"
 
-  def getConfigurationsFromObjects(elements: Seq[NodeGraph], methodName: String): Map[String, String] = {
+  def getConfigurationsFromObjects(workflow: Workflow, methodName: String): Map[String, String] = {
     log.debug("Initializing reflection ...")
-    elements.flatMap { o =>
+    workflow.pipelineGraph.nodes.flatMap { node =>
       Try {
-        val classType = o.configuration.getOrElse(AppConstant.CustomTypeKey, o.className).toString
-        val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, o.className)
+        val className = getClassName(node, workflow.executionEngine)
+        val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
+        val clazzToInstance = classpathUtils.defaultStepsInClasspath.getOrElse(classType, node.className)
         val clazz = Class.forName(clazzToInstance)
         clazz.getMethods.find(p => p.getName == methodName) match {
           case Some(method) =>
             method.setAccessible(true)
-            method.invoke(clazz, o.configuration.asInstanceOf[Map[String, Serializable]])
+            method.invoke(clazz, node.configuration.asInstanceOf[Map[String, Serializable]])
               .asInstanceOf[Seq[(String, String)]]
           case None =>
             Seq.empty[(String, String)]
@@ -56,6 +58,18 @@ object WorkflowHelper extends SLF4JLogging {
       }
     }.toMap
   }
+
+  def getClassName(node: NodeGraph, executionEngine: ExecutionEngine) : String =
+    node.executionEngine match {
+      case Some(nodeExEngine) =>
+        if(node.className.endsWith(nodeExEngine.toString))
+          node.className
+        else node.className + nodeExEngine
+      case None =>
+        if(node.className.endsWith(executionEngine.toString))
+          node.className
+        else node.className + executionEngine.toString
+    }
 
   private[serving] def retrieveGroup(group: String): String = {
     val reg = "(?!^/)(.*)(?<!/$)".r

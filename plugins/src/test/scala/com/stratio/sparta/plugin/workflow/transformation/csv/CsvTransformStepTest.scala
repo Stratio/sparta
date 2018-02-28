@@ -50,7 +50,7 @@ class CsvTransformStepTest extends WordSpecLike
 
       val input = new GenericRowWithSchema(Array(CSV), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val result = new CsvTransformStepStream(
+      val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -79,7 +79,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      val result = new CsvTransformStepStream(
+      val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -99,7 +99,7 @@ class CsvTransformStepTest extends WordSpecLike
       val input = new GenericRowWithSchema(Array(CSV), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
       val header = "name,price"
-      val result = new CsvTransformStepStream(
+      val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -120,7 +120,7 @@ class CsvTransformStepTest extends WordSpecLike
         StructType(Seq(StructField("foo", StringType), StructField(inputField, StringType))))
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
       val header = "name,price"
-      val result = new CsvTransformStepStream(
+      val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -140,7 +140,7 @@ class CsvTransformStepTest extends WordSpecLike
       val input = new GenericRowWithSchema(Array(CSV), schema)
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tablename", None, None)
       val sparkSchema = "StructType((StructField(name,StringType,true),StructField(age,DoubleType,true)))"
-      val result = new CsvTransformStepStream(
+      val result = new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -170,7 +170,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new CsvTransformStepStream(
+      an[Exception] should be thrownBy new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -199,7 +199,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new CsvTransformStepStream(
+      an[Exception] should be thrownBy new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -225,7 +225,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new CsvTransformStepStream(
+      an[Exception] should be thrownBy new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),
@@ -252,7 +252,7 @@ class CsvTransformStepTest extends WordSpecLike
           |}]
           |""".stripMargin
 
-      an[Exception] should be thrownBy new CsvTransformStepStream(
+      an[Exception] should be thrownBy new CsvTransformStepStreaming(
         inputField,
         outputOptions,
         TransformationStepManagement(),

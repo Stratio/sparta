@@ -12,6 +12,9 @@
       <span class="description">
             {{fragmentData.description}}
         </span>
-        <info-fragment class="info-icon" [stepType]="fragmentData.templateType" [classPrettyName]="fragmentData.classPrettyName"></info-fragment>
+        <info-fragment class="info-icon" 
+          [stepType]="fragmentData.templateType"
+          [templateType]="fragmentData.executionEngine" 
+          [classPrettyName]="fragmentData.classPrettyName"></info-fragment>
    </div>
 </section>

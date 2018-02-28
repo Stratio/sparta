@@ -163,12 +163,12 @@ export class SpHighlightTextareaComponent implements ControlValueAccessor, OnCha
 
     this.instance.on('blur', () => {
       this.focus = false;
-      this._cd.detectChanges();
+      this._cd.markForCheck();
     });
 
     this.instance.on('focus', () => {
       this.focus = true;
-      this._cd.detectChanges();
+      this._cd.markForCheck();
     });
 
     /* const that = this;

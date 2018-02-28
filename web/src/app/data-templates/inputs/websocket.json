@@ -4,6 +4,7 @@
      "className": "WebSocketInputStep",
      "icon": "WebSocket",
      "arity": ["NullaryToNary"],
+     "supportedEngines": ["Streaming"],
     "description": "WebSocket is a protocol providing full-duplex communication channels over a single TCP connection.",
     "properties": [
       {

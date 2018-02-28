@@ -4,6 +4,7 @@
     "className": "AvroOutputStep",
     "classPrettyName": "Avro",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Serializes data in a compact binary format. It can provide both a serialization format for persistent data, and a wire format for communication between Hadoop nodes.",
     "properties": [
       {

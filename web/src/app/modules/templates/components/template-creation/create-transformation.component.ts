@@ -52,13 +52,14 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
     public editedTemplateName = '';
 
     private saveSubscription: Subscription;
+    private selectedSubscription: Subscription;
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
         protected initializeSchemaService: InitializeSchemaService) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new transformationActions.ResetTransformationFormAction());
-        this.listData = transformationsTemplate.transformations;
+        this.listData = transformationsTemplate.streamingTransformations;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
@@ -74,17 +75,11 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
         });
     }
 
-
-    changeFragmentIndex(index: number): void {
-        this.submitted = false;
-        this.inputFormModel.element.configuration = {};
-        this.fragmentIndex = index;
-    }
-
     onSubmitInputForm(): void {
         this.submitted = true;
         if (this.transformationForm.valid) {
             this.inputFormModel.templateType = 'transformation';
+            this.inputFormModel.supportedEngines = this.listData[this.fragmentIndex].supportedEngines;
             if (this.editMode) {
                 this.store.dispatch(new transformationActions.UpdateTransformationAction(this.inputFormModel));
             } else {
@@ -93,11 +88,27 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
         }
     }
 
+    changeWorkflowType(event: any): void {
+        this.inputFormModel.executionEngine = event.value;
+        this.listData = event.value === 'Batch' ? transformationsTemplate.batchTransformations :
+            transformationsTemplate.streamingTransformations;
+        this.fragmentTypes = this.listData.map((fragmentData: any) => {
+            return {
+                label: fragmentData.name,
+                value: fragmentData.name
+            };
+        });
+        this.changeTemplateType(this.listData[0].name);
+    }
+
     getEditedTemplate() {
-        this.store.select(fromTemplates.getEditedTransformation).subscribe((editedTransformation: any) => {
+        this.selectedSubscription = this.store.select(fromTemplates.getEditedTransformation).subscribe((editedTransformation: any) => {
             if (!editedTransformation.id) {
                 return this.cancelCreate();
             }
+            this.inputFormModel.executionEngine = editedTransformation.executionEngine;
+            this.listData = editedTransformation.executionEngine === 'Batch' ? transformationsTemplate.batchTransformations :
+                transformationsTemplate.streamingTransformations;
             this.setEditedTemplateIndex(editedTransformation.classPrettyName);
             this.inputFormModel = editedTransformation;
             this.editedTemplateName = editedTransformation.name;
@@ -107,6 +118,7 @@ export class CreateTransformationsComponent extends CreateTemplateComponent impl
 
     ngOnDestroy() {
         this.saveSubscription && this.saveSubscription.unsubscribe();
+        this.selectedSubscription && this.selectedSubscription.unsubscribe();
     }
 
 }

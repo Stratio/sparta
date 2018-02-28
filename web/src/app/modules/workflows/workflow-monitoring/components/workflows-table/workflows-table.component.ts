@@ -36,8 +36,6 @@ import { Router } from '@angular/router';
 
 export class WorkflowsTableComponent implements OnInit {
 
-
-
     @Input() workflowList: Array<any> = [];
     @Input() selectedWorkflowsIds: Array<string> = [];
 
@@ -100,7 +98,7 @@ export class WorkflowsTableComponent implements OnInit {
         this.fields = [
             { id: 'isChecked', label: '', sortable: false },
             { id: 'name', label: 'Name' },
-            { id: 'context.status', label: 'Status' },
+            { id: 'filterStatus', label: 'Status' },
             { id: 'tagsAux', label: 'Tags' },
             { id: 'lastUpdateOrder', label: 'Last status update' },
             { id: 'spark', label: '', sortable: false }

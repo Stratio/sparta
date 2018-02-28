@@ -4,6 +4,7 @@
      "className": "CrossdataOutputStep",
     "classPrettyName": "Crossdata",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Crossdata output use Crossdata as a library with the available XDSession in order to save the data into persistent tables. The tables must be created previously in Crossdata catalog.",
     "properties": [
       {

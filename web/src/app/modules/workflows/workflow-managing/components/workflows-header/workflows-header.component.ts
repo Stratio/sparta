@@ -60,7 +60,6 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     @Output() onDeleteVersions = new EventEmitter<void>();
     @Output() changeFolder = new EventEmitter<number>();
     @Output() generateVersion = new EventEmitter<void>();
-    @Output() createWorkflow = new EventEmitter<void>();
     @Output() onEditVersion = new EventEmitter<string>();
 
     public selectedVersionsInner: Array<string> = [];
@@ -111,6 +110,7 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
 
     constructor(private _modalService: StModalService,
         private translate: TranslateService,
+        private route: Router,
         public workflowsService: WorkflowsManagingService) {
 
         this.menuOptions = [
@@ -122,17 +122,17 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
                 subMenus: [
                     {
                         name: 'New workflow from scratch',
-                        value: 'scratch'/*,
-                    subMenus: [
-                        {
-                            name: 'Streaming',
-                            value: 'streaming'
-                        },
-                        {
-                            name: 'Batch',
-                            value: 'batch'
-                        }
-                    ]*/
+                        value: 'scratch',
+                        subMenus: [
+                            {
+                                name: 'Streaming',
+                                value: 'streaming'
+                            },
+                            {
+                                name: 'Batch',
+                                value: 'batch'
+                            }
+                        ]
                     },
                     {
                         name: 'New workflow from json file',
@@ -253,12 +253,22 @@ export class WorkflowsManagingHeaderComponent implements OnChanges {
     }
 
     public selectedMenuOption(event: any) {
-        if (event.value === 'scratch') {
-            this.createWorkflow.emit();
-        } else if (event.value === 'group') {
-            this.workflowsService.createWorkflowGroup();
-        } else {
-            this.workflowsService.showCreateJsonModal();
+        switch (event.value) {
+            case 'streaming':
+                this.route.navigate(['wizard/streaming']);
+                break;
+            case 'batch':
+                this.route.navigate(['wizard/batch']);
+                break;
+            case 'group':
+                this.workflowsService.createWorkflowGroup();
+                break;
+            case 'file':
+                this.workflowsService.showCreateJsonModal();
+                break;
+            default:
+                this.workflowsService.showCreateJsonModal();
+                break;
         }
     }
 

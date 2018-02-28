@@ -57,7 +57,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
@@ -78,7 +78,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
 
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkSubmitService = new SparkSubmitService(workflow)
     val sparkConfig = sparkSubmitService.getSparkLocalConfig
 
@@ -102,13 +102,13 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
         if (autoDeleteCheckpoint) deleteCheckpointPath(workflow)
         StreamingContext.getOrCreate(checkpointPathFromWorkflow(workflow), () => {
           log.info(s"Nothing in checkpoint path: ${checkpointPathFromWorkflow(workflow)}")
-          val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+          val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
           sparkClusterContextInstance(stepsSparkConfig, files)
           spartaWorkflow.stages()
           currentSparkStreamingInstance.get
         })
       } else {
-        val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+        val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
         sparkClusterContextInstance(stepsSparkConfig, files)
         spartaWorkflow.stages()
         currentSparkStreamingInstance.get
@@ -128,7 +128,7 @@ case class StreamingContextService(curatorFramework: CuratorFramework, listenerA
   def clusterContext(workflow: Workflow, files: Seq[String]): SpartaWorkflow[Dataset] = {
     setInitialSentences(workflow.settings.global.initSqlSentences.map(modelSentence => modelSentence.sentence.toString))
 
-    val stepsSparkConfig = getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkConfMethod)
+    val stepsSparkConfig = getConfigurationsFromObjects(workflow, GraphStep.SparkConfMethod)
     val sparkContext = sparkClusterContextInstance(stepsSparkConfig, files)
     val spartaWorkflow = SpartaWorkflow[Dataset](workflow, curatorFramework)
 

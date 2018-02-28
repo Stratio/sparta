@@ -24,23 +24,30 @@
                   <sp-input name="name" [(ngModel)]="inputFormModel['name']" label="{{'TEMPLATE_NAME' | translate}}" fieldType="text" [required]="true"
                      qaTag="input-name" [forceValidations]="submitted" maxLength="30" [errors]="errorsService.errors.inputErrors"
                      class="input-field st-form-field"></sp-input>
-                  <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}" fieldType="text"
-                     [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
+                  <sp-textarea name="description" [(ngModel)]="inputFormModel['description']" label="{{'TEMPLATE_DESCRIPTION' | translate}}"
+                     fieldType="text" [required]="false" qaTag="input-name" [forceValidations]="submitted" maxLength="250" [errors]="errorsService.errors.inputErrors"
                      class="input-field st-form-field"></sp-textarea>
                   <div *ngIf="!editMode">
+                     <div class="st-form-field workflow-type">
+                        <label class="st-label">Template type</label>
+                        <st-radio-group class="radio-inline" name="type" [(ngModel)]="inputFormModel['executionEngine']" (change)="changeWorkflowType($event)">
+                           <st-radio value="Streaming">Streaming</st-radio>
+                           <st-radio value="Batch" [disabled]="false">Batch</st-radio>
+                        </st-radio-group>
+                     </div>
                      <sp-select [options]="fragmentTypes" [ngModel]="inputFormModel.classPrettyName" qaTag="fragment-type" label="{{'DASHBOARD.' + stepKey + '_TYPE' | translate}}"
                         name="fragmentType" (ngModelChange)="changeTemplateType($event)" class="input-field st-form-field"></sp-select>
-                  </div>
-               </div>
-               <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
-                  name="proper"></form-generator>
-               <div class="col-sm-12 submit-button">
-                  <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
-                      {{'DASHBOARD.SAVE' | translate}}
-                  </button>
                </div>
             </div>
-         </form>
+            <form-generator class="col-sm-12" [forceValidations]="submitted" [formData]="listData[fragmentIndex].properties" [(ngModel)]="inputFormModel.configuration"
+               name="proper"></form-generator>
+            <div class="col-sm-12 submit-button">
+               <button id="button-submit" class="button button-primary" (click)="onSubmitInputForm()">
+                      {{'DASHBOARD.SAVE' | translate}}
+                  </button>
+            </div>
       </div>
+      </form>
+   </div>
    </div>
 </section>

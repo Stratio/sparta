@@ -46,7 +46,7 @@ export class CrossdataComponent {
 
     public onChangedOption(event: string) {
         this.activeMenuOption = event;
-        this._cd.detectChanges();
+        this._cd.markForCheck();
     }
 
     constructor(public breadcrumbMenuService: BreadcrumbMenuService, private _cd: ChangeDetectorRef) {

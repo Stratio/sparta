@@ -1,9 +1,10 @@
   {
      "name": "Intersection",
      "icon": "Intersection",
-     "className": "IntersectionTransformStepStream",
+     "className": "IntersectionTransformStep",
      "classPrettyName": "Intersection",
      "arity": ["BinaryToNary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Select the intersection of events from the two input DStream",
      "properties": [
         {

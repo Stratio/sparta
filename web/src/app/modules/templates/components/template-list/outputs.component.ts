@@ -38,12 +38,12 @@ export class OutputsComponent extends TemplatesBaseComponent {
 
         this.templateListSubscription = this.store.select(fromTemplates.getOutputList).subscribe((data: any) => {
             this.templateList = data;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
         this.selectedDisplayOption$ = this.store.select(fromTemplates.getSelectedOutputDisplayOption);
         this.selectedTemplatesSubscription = this.store.select(fromTemplates.getSelectedOutputs).subscribe((data: any) => {
             this.selectedTemplates = data;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
         this.store.dispatch(new outputActions.ListOutputAction);
     }
@@ -82,6 +82,12 @@ export class OutputsComponent extends TemplatesBaseComponent {
     // abstract method implementation
     editTemplateAction(output: any) {
         this.store.dispatch(new outputActions.EditOutputAction(output));
+    }
+
+    changePage($event: any) {
+        this.perPage = $event.perPage;
+        this.currentPage = $event.currentPage;
+        this.store.dispatch(new outputActions.ResetOutputFormAction());
     }
 
     constructor(private translate: TranslateService, store: Store<fromTemplates.State>, modalService: StModalService,

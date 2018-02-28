@@ -23,7 +23,7 @@ import * as errorActions from 'actions/errors';
 import * as workflowActions from './../actions/workflow-list';
 import * as fromRoot from './../reducers';
 import { WorkflowService } from 'services/workflow.service';
-import { generateJsonFile, formatDate } from 'utils';
+import { generateJsonFile, formatDate, getFilterStatus } from 'utils';
 
 
 @Injectable()
@@ -35,10 +35,13 @@ export class WorkflowEffect {
             const context$ = this.workflowService.getWorkFlowContextList();
             const workflows$ = this.workflowService.getWorkflowList();
             return Observable.combineLatest(workflows$, context$, (workflows, context) => {
+                const contexts = {};
+                for ( let i = 0; i < context.length; i++) {
+                    contexts[context[i].id] = context[i];
+                }
                 workflows.map((workflow: any) => {
-                    const c = context.find((item: any) => {
-                        return workflow.id === item.id;
-                    });
+                    const c = contexts[workflow.id];
+                    workflow.filterStatus = getFilterStatus(c.status);
                     workflow.tagsAux = workflow.tags ? workflow.tags.join(', ') : '';
                     try {
                         workflow.lastUpdate = c.lastUpdateDate ? formatDate(c.lastUpdateDate) : '';

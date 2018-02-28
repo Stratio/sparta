@@ -100,7 +100,7 @@ export class WorkflowJsonModal implements OnInit {
             } else {
                 this.serverErrors = '';
             }
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.store.dispatch(new workflowActions.ResetModalAction());

@@ -4,6 +4,7 @@
      "className": "CheckpointTransformStep",
      "classPrettyName": "Checkpoint",
      "arity": ["UnaryToNary"],
+     "supportedEngines": ["Streaming"],
      "description": "Creates a checkpoint for an incoming input DStream",
      "properties": [
         {

@@ -1,6 +1,9 @@
 <div [hidden]="executionInfo">
    <div #newWorkflowModal qaTag="workflow-modal"></div>
-   <workflows-header-container [showDetails]="showDetails" [selectedWorkflows]="selectedWorkflows" (showWorkflowInfo)="showWorkflowInfo()"></workflows-header-container>
+   <workflows-header-container [showDetails]="showDetails" 
+        [selectedWorkflows]="selectedWorkflows"
+        [workflowListLength]="workflowList.length"
+        (showWorkflowInfo)="showWorkflowInfo()"></workflows-header-container>
    <div class="container">
       <div class="table-container" [ngClass]="{'compressed' : showDetails}">
          <div class="workflow-list">

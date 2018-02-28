@@ -19,6 +19,7 @@ package com.stratio.sparta.plugin.workflow.input.crossdata
 import java.io.{Serializable => JSerializable}
 
 import akka.event.slf4j.SLF4JLogging
+import com.stratio.sparta.plugin.helper.SecurityHelper
 import com.stratio.sparta.sdk.DistributedMonad
 import com.stratio.sparta.sdk.DistributedMonad.Implicits._
 import com.stratio.sparta.sdk.properties.ValidatingPropertyMap._
@@ -42,6 +43,14 @@ class CrossdataInputStepBatch(
 
   def init(): DistributedMonad[RDD] = {
     xDSession.sql(query).rdd
+  }
+
+}
+
+object CrossdataInputStepBatch {
+
+  def getSparkSubmitConfiguration(configuration: Map[String, JSerializable]): Seq[(String, String)] = {
+    SecurityHelper.dataStoreSecurityConf(configuration)
   }
 
 }

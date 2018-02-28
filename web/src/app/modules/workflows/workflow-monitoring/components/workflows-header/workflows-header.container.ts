@@ -35,6 +35,7 @@ import { Observable } from 'rxjs/Observable';
             [monitoringStatus]="monitoringStatus$ | async"
             [showDetails]="showDetails"
             [searchQuery]="searchQuery$ | async"
+            [workflowListLength]="workflowListLength"
             [selectedFilter]="selectedFilter$ | async"
             (downloadWorkflows)="downloadWorkflows()" 
             (showWorkflowInfo)="showWorkflowInfo.emit()"
@@ -48,6 +49,7 @@ export class WorkflowsHeaderContainer implements OnInit {
 
     @Input() selectedWorkflows: Array<any>;
     @Input() showDetails: boolean;
+    @Input() workflowListLength: number;
 
     @Output() showWorkflowInfo = new EventEmitter<void>();
 

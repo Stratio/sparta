@@ -74,7 +74,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
             this.settingsFormModel = settings.advancedSettings;
         });
 
-        const settings = <any>settingsTemplate;
+        const settings = JSON.parse(JSON.stringify(<any>settingsTemplate));
 
         // hides workflow name edition when its in edit mode
         this.basicSettings = this.edition ? settings.basicSettings.map((field: any) => {
@@ -86,7 +86,7 @@ export class WizardSettingsComponent implements OnInit, OnDestroy {
             return {
                 label: outputName,
                 value: outputName
-            }
+            };
         });
 
         this.advancedSettings = this.workflowType === 'Streaming' ? settings.advancedSettings :

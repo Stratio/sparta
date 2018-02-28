@@ -18,7 +18,7 @@ package com.stratio.sparta.plugin.common.kafka
 import java.io.Serializable
 
 import com.stratio.sparta.plugin.helper.SecurityHelper
-import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStep
+import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions

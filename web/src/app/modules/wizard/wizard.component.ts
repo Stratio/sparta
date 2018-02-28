@@ -54,8 +54,8 @@ export class WizardComponent implements OnInit, OnDestroy {
         private _wizardService: WizardService,
         private _location: Location) {
 
-        this._store.dispatch(new wizardActions.ResetWizardAction());                    // Reset wizard to default settings
-        const type = 'Streaming'; //this._route.snapshot.params.type === 'streaming' ? 'Streaming' : 'Batch';
+        this._store.dispatch(new wizardActions.ResetWizardAction()); // Reset wizard to default settings
+        const type = this._route.snapshot.params.type === 'streaming' ? 'Streaming' : 'Batch';
         const id = this._route.snapshot.params.id;
 
         if (id && id.length) {

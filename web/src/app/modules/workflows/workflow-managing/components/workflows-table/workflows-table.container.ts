@@ -66,7 +66,6 @@ export class WorkflowsManagingTableContainer implements OnInit {
         this.workflowVersions$ = this._store.select(getWorkflowVersions);
     }
 
-
     changeOrder(event: any) {
         this._store.dispatch(new workflowActions.ChangeOrderAction(event));
     }

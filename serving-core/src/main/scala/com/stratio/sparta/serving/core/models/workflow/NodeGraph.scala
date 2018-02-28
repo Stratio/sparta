@@ -19,6 +19,7 @@ package com.stratio.sparta.serving.core.models.workflow
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.models.enumerators.NodeArityEnum.NodeArity
 import com.stratio.sparta.serving.core.models.dto.Dto
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
 case class NodeGraph(
                       name: String,
@@ -30,7 +31,9 @@ case class NodeGraph(
                       description: Option[String] = None,
                       createdFromTemplateId: Option[String] = None,
                       uiConfiguration: Option[NodeUiConfiguration] = None,
-                      configuration: Map[String, JsoneyString] = Map()
+                      configuration: Map[String, JsoneyString] = Map(),
+                      supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
+                      executionEngine: Option[ExecutionEngine] = Option(Streaming)
                     )
 
 /**

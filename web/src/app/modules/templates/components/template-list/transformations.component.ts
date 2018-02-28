@@ -86,6 +86,12 @@ export class TransformationsComponent extends TemplatesBaseComponent {
         this.store.dispatch(new transformationActions.EditTransformationAction(transformation));
     }
 
+    // @Override: abstract method implementation
+    changePage($event: any) {
+        this.perPage = $event.perPage;
+        this.currentPage = $event.currentPage;
+        this.store.dispatch(new transformationActions.ResetTransformationFormAction());
+    }
 
     constructor(private translate: TranslateService, protected store: Store<fromTemplates.State>, modalService: StModalService,
         route: Router, currentActivatedRoute: ActivatedRoute, protected _cd: ChangeDetectorRef,

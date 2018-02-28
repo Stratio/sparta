@@ -3,6 +3,7 @@
    "icon": "Custom",
    "className": "CustomOutputStep",
    "arity": ["NullaryToNullary", "NaryToNullary"],
+   "supportedEngines": ["Streaming", "Batch"],
    "classPrettyName": "Custom",
    "description": "Custom output defined by user. User can extend the Sparta SDK with his own implementation of Output class",
    "properties": [

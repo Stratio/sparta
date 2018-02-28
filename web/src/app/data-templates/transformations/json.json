@@ -1,9 +1,10 @@
   {
      "name": "Json",
      "icon": "Json",
-     "className": "JsonTransformStepStream",
+     "className": "JsonTransformStep",
      "classPrettyName": "Json",
      "arity": ["UnaryToNary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Parsing input field in text format to row",
      "properties": [{
            "propertyId": "inputField",

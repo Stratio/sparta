@@ -1,0 +1,28 @@
+{
+   "name": "FileSystem",
+   "classPrettyName": "FileSystem",
+   "className": "FileSystemInputStep",
+   "icon": "FileSystem",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "description": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
+   "properties": [
+      {
+         "propertyId": "path",
+         "propertyName": "_PATH_",
+         "propertyType": "text",
+         "required": true,
+         "tooltip": "Filesystem path (HDFS, S3, Azure, etc).",
+         "qa": "fragment-details-filesystem-path"
+      },
+      {
+         "propertyId": "outputField",
+         "propertyName": "_OUTPUT_FIELD_",
+         "propertyType": "text",
+         "default": "{{DEFAULT_OUTPUT_FIELD}}",
+         "required": true,
+         "tooltip": "Name assigned to the output field generated",
+         "qa": "fragment-details-websocket-outputField"
+      }
+   ]
+}

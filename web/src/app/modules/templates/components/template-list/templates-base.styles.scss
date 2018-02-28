@@ -1,3 +1,4 @@
+@import '~@stratio/egeo/theme/constants';
 .menu-filters {
    vertical-align: top;
    display: inline-block;
@@ -52,13 +53,48 @@
    margin-top: 30px;
 }
 
-.templates-table{
+.templates-table {
    tr:hover {
-       cursor:pointer;
+      cursor: pointer;
    }
 }
 
-.check-column{
-    width:10px;
-    padding-right: 0;
+.template-link {
+   cursor: pointer;
+   &:hover {
+      color: $action-secondary-07;
+      text-decoration: underline;
+   }
 }
+
+.check-column {
+   width: 10px;
+   padding-right: 0;
+}
+
+.type-column {
+   min-width: 130px;
+}
+
+hr {
+   height: 1px;
+   background: $neutral-05;
+   margin: 24px 0;
+}
+
+.template-icon{
+    margin-right: 10px;
+}
+
+.general-tools {
+  button {
+      margin-left:7px;
+  }
+}
+
+.selected-tools {
+    margin-right: 10px;
+    display: inline-block;
+}
+
+

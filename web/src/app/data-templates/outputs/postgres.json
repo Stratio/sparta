@@ -4,6 +4,7 @@
      "className": "PostgresOutputStep",
     "classPrettyName": "Postgres",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "With one Postgres connection it's possible to write data into Postgres Databases. Optimize Jdbc write times, use function COPY IN available in Postgres library",
     "properties": [
       {

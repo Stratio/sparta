@@ -44,13 +44,13 @@ export class InfoFragmentComponent implements OnInit, OnDestroy {
         const outputsObject = this.templateType === 'Streaming' ? streamingOutputsObject : batchOutputsObject;
         switch (this.stepType) {
             case 'input':
-                this.fragmentInfo = inputsObject[this.classPrettyName].description;
+                this.fragmentInfo = inputsObject[this.classPrettyName] ? inputsObject[this.classPrettyName].description : '';
                 break;
             case 'output':
-                this.fragmentInfo = outputsObject[this.classPrettyName].description;
+                this.fragmentInfo = outputsObject[this.classPrettyName] ? outputsObject[this.classPrettyName].description : '';
                 break;
             case 'transformation':
-                this.fragmentInfo = transformationsObject[this.classPrettyName].description;
+                this.fragmentInfo = transformationsObject[this.classPrettyName] ? transformationsObject[this.classPrettyName].description : '';
                 break;
         }
     }

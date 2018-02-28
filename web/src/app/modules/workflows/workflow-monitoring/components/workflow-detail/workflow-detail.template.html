@@ -5,9 +5,13 @@
       <div class="workflow-info">{{'DASHBOARD.WORKFLOW_INFO' | translate}}</div>
    </div>
    <div class="selected" *ngIf="workflowData && workflowData.name">
-      <span class="status" [ngClass]="workflowData.context.status.toLowerCase()">{{('DASHBOARD.' + (workflowData.context.status | uppercase)) | translate}}</span>
+      <span class="status" [ngClass]="workflowData.filterStatus.toLowerCase()">{{('DASHBOARD.' + (workflowData.filterStatus | uppercase)) | translate}}</span>
       <h3 class="egeo-title-giant">{{workflowData.name}}</h3>
       <span class="description">{{workflowData.description}}</span>
+      <div>
+        <span class="title2">{{'DASHBOARD.COMPLETE_STATUS' | translate}}</span>
+        <span class="values">{{workflowData.context.status}}</span>
+      </div>
       <div *ngIf="workflowData.tagsAux && workflowData.tagsAux.length">
          <span class="title2">{{'DASHBOARD.TAGS' | translate}}</span>
          <span class="values">{{workflowData.tagsAux}}</span>

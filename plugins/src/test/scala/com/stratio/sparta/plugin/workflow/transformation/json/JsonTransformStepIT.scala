@@ -71,9 +71,9 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
 
   def newStepWithOptions(properties: Map[String, JSerializable])(
     implicit ssc: StreamingContext, xDSession: XDSession
-  ): JsonTransformStepStream = {
+  ): JsonTransformStepStreaming = {
     val name = "JsonTransformStep"
-    new JsonTransformStepStream(
+    new JsonTransformStepStreaming(
       name,
       OutputOptions(tableName = name),
       TransformationStepManagement(),
@@ -84,7 +84,7 @@ class JsonTransformStepIT extends TemporalSparkContext with Matchers with Distri
   }
 
   def doTransformStream(ds: DStream[Row], properties: Map[String, JSerializable]): DStream[Row] =
-    new JsonTransformStepStream(
+    new JsonTransformStepStreaming(
       "dummy",
       OutputOptions(tableName = "jsonTransform"),
       TransformationStepManagement(),

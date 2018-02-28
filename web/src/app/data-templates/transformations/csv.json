@@ -1,9 +1,10 @@
   {
      "name": "Csv",
      "icon": "Csv",
-     "className": "CsvTransformStepStream",
+     "className": "CsvTransformStep",
      "classPrettyName": "Csv",
      "arity": ["UnaryToNary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Parses an input field with csv format and returns all the obtained new fields or selected ones",
      "properties": [
         {

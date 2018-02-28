@@ -41,7 +41,7 @@ export class WizardEditorService {
         }
     }
 
-    initializeEntity(entityData: any, entities: any): any {
+    initializeEntity(workflowType: string, entityData: any, entities: any): any {
         let entity: any = {};
         if (entityData.type === 'template') {
             entity = Object.assign({}, entityData.data);
@@ -51,7 +51,7 @@ export class WizardEditorService {
             }
             entity.name = this.getNewEntityName(entityData.data.classPrettyName, entities);
         } else {
-            entity = this.initializeSchemaService.setDefaultEntityModel(entityData.value, entityData.stepType, true);
+            entity = this.initializeSchemaService.setDefaultEntityModel(workflowType, entityData.value, entityData.stepType, true);
             entity.name = this.getNewEntityName(entityData.value.classPrettyName, entities);
         }
         entity.stepType = entityData.stepType;

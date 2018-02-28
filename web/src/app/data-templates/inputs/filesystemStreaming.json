@@ -1,0 +1,45 @@
+  {
+    "name": "FileSystem",
+    "classPrettyName": "FileSystem",
+    "className": "FileSystemInputStep",
+    "icon": "FileSystem",
+     "arity": ["NullaryToNary"],
+     "supportedEngines": ["Streaming"],
+    "description": "Input used for reading data from files stored in a Hadoop-compatible monitored filesystem directory (that is: HDFS, S3, NFS, etc.)",
+    "properties": [
+      {
+        "propertyId": "directory",
+        "propertyName": "_DIRECTORY_",
+        "propertyType": "text",
+        "required": true,
+        "tooltip": "Directory path to be monitired (HDFS, S3, Azure, etc).",
+        "qa": "fragment-details-filesystem-url"
+      },
+      {
+         "propertyId": "outputField",
+         "propertyName": "_OUTPUT_FIELD_",
+         "propertyType": "text",
+         "default": "{{DEFAULT_OUTPUT_FIELD}}",
+         "required": true,
+         "tooltip": "Name assigned to the output field generated",
+         "qa": "fragment-details-websocket-outputField"
+      },
+      {
+         "propertyId": "newFilesOnly",
+         "propertyName": "_NEW_FILES_ONLY_",
+         "propertyType": "boolean",
+         "default": false,
+         "required": true,
+         "tooltip": "Whether or not avoid reading previously existing files",
+         "qa": "fragment-details-filesystem-url"
+      },
+      {
+         "propertyId": "filterString",
+         "propertyName": "_FILTER_OUT_FILES_",
+         "propertyType": "text",
+         "required": false,
+         "tooltip": "Comma-separated list of file names to be excluded",
+         "qa": "fragment-details-filesystem-filter"
+      }
+    ]
+  }

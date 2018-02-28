@@ -3,6 +3,7 @@
    "icon": "Custom",
    "className": "CustomTransformStep",
    "classPrettyName": "Custom",
+   "supportedEngines": ["Streaming", "Batch"],
    "description": "Custom transform defined by user. User can extend the Sparta SDK with his own implementation of Output class",
    "properties": [
       {

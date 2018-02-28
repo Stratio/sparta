@@ -1,46 +1,35 @@
-<section>
-   <div class="edition-header">
-      <div class="container">
-         <div class="row">
-            <div class="col-sm-12">
-               <div class="menu">
-                  <div class="breadcrumb">
-                     <div class="egeo-title-large title">
-                        {{'WIZARD.SETTINGS' | translate}}
+<st-fullscreen-layout [title]="'WIZARD.SETTINGS' | translate">
+   <div class="st-fullscreen-layout-buttons">
+      <div class="return-link">
+         <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()" id="cancel-settings-edition">
+            <span>{{'WIZARD.CANCEL' | translate}}</span>
+        </button>
+         <button class="button button-primary" (click)="saveForm()" id="save-settings-button">
+            <span>{{'WIZARD.SAVE' | translate}}</span>
+        </button>
+      </div>
+   </div>
+   <div class="st-fullscreen-layout-content">
+      <div class="content">
+         <div class="container">
+            <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
+               <div class="col-sm-12">
+                  <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
+                     class="advanced-settings" *ngIf="advancedSettings.length">
+                     <div>
+                        <form-generator [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
+                        <div class="row">
+                           <div class="col-sm-6">
+                              <st-tag-input class="st-form-field tag-input" name="tag-input-reactive" [label]="'Version tags'" [id]="'tag-input-reactive'"
+                                 [(ngModel)]="tags" [placeholder]="'Add tags separated by commas'" [tooltip]="'This is a Tag Input component tooltip'">
+                              </st-tag-input>
+                           </div>
+                        </div>
                      </div>
-                  </div>
-                  <div class="action-buttons">
-                     <button class="button button-secondary-gray cancel-button" (click)="cancelEdition()">
-                         <span>{{'WIZARD.CANCEL' | translate}}</span>
-                      </button>
-                     <button class="button button-primary" (click)="saveForm()">
-                         <span>{{'WIZARD.SAVE' | translate}}</span>
-                      </button>
-                  </div>
+                  </form-generator-group>
                </div>
-            </div>
+            </form>
          </div>
       </div>
    </div>
-   <div class="content">
-      <div class="container">
-         <form #entityForm="ngForm" class="form-group row" novalidate autocomplete="off" (ngSubmit)="saveForm()">
-            <div class="col-sm-12">
-               <form-generator-group [forceValidations]="submitted" name="entity" [(ngModel)]="settingsFormModel" [formData]="advancedSettings"
-                  class="advanced-settings" *ngIf="advancedSettings.length">
-                  <div>
-                     <form-generator  [forceValidations]="submitted" name="global" [formData]="basicSettings" [(ngModel)]="basicFormModel" class="basic-settings"></form-generator>
-                     <div class="row">
-                        <div class="col-sm-6">
-                           <st-tag-input class="st-form-field tag-input" name="tag-input-reactive" [label]="'Version tags'" [id]="'tag-input-reactive'"
-                              [(ngModel)]="tags" [placeholder]="'Add tags separated by commas'" [tooltip]="'This is a Tag Input component tooltip'">
-                           </st-tag-input>
-                        </div>
-                     </div>
-                  </div>
-               </form-generator-group>
-            </div>
-         </form>
-      </div>
-   </div>
-</section>
+</st-fullscreen-layout>

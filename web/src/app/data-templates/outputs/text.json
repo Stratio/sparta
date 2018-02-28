@@ -4,6 +4,7 @@
      "className": "TextOutputStep",
      "classPrettyName": "Text",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Saves the processed data to text file into any storage service",
      "properties": [
       {

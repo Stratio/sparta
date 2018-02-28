@@ -308,30 +308,36 @@ export function reducer(state: State = initialState, action: any): State {
         }
         case wizardActions.GET_MENU_TEMPLATES_COMPLETE: {
             const menuOptions: any = JSON.parse(JSON.stringify(state.menuOptions));
-            menuOptions[0].subMenus[0].subMenus = action.payload.input.map((template: any) => {
-                return {
-                    name: template.name,
-                    type: 'template',
-                    data: template,
-                    stepType: 'Input'
-                };
-            });
-            menuOptions[2].subMenus[0].subMenus = action.payload.output.map((template: any) => {
-                return {
-                    name: template.name,
-                    type: 'template',
-                    data: template,
-                    stepType: 'Output'
-                };
-            });
-            menuOptions[1].subMenus[0].subMenus = action.payload.transformation.map((template: any) => {
-                return {
-                    name: template.name,
-                    type: 'template',
-                    data: template,
-                    stepType: 'Transformation'
-                };
-            });
+            menuOptions[0].subMenus[0].subMenus = action.payload.input.filter((input: any) =>
+                input.supportedEngines.indexOf(state.workflowType) > -1)
+                .map((template: any) => {
+                    return {
+                        name: template.name,
+                        type: 'template',
+                        data: template,
+                        stepType: 'Input'
+                    };
+                });
+            menuOptions[2].subMenus[0].subMenus = action.payload.output.filter((output: any) =>
+                output.supportedEngines.indexOf(state.workflowType) > -1)
+                .map((template: any) => {
+                    return {
+                        name: template.name,
+                        type: 'template',
+                        data: template,
+                        stepType: 'Output'
+                    };
+                });
+            menuOptions[1].subMenus[0].subMenus = action.payload.transformation.filter((transformation: any) =>
+                transformation.supportedEngines.indexOf(state.workflowType) > -1)
+                .map((template: any) => {
+                    return {
+                        name: template.name,
+                        type: 'template',
+                        data: template,
+                        stepType: 'Transformation'
+                    };
+                });
             return Object.assign({}, state, {
                 menuOptions: menuOptions
             });

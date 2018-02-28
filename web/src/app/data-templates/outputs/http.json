@@ -1,8 +1,10 @@
   {
     "name": "Http",
+     "icon": "Http",
     "className": "HttpOutputStep",
     "classPrettyName": "Http",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Enables you to do an HTTP POST request to a URL specifying if the data is to be passed through format with a parameter name or attached in the request body.",
     "properties": [
       {

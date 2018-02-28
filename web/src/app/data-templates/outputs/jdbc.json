@@ -4,6 +4,7 @@
      "className": "JdbcOutputStep",
     "classPrettyName": "Jdbc",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "With one jdbc connection it's possible to write data into relational SQL Databases.",
     "properties": [
       {

@@ -4,6 +4,7 @@
     "className": "KafkaOutputStep",
     "icon": "Kafka",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Apache Kafka is publish-subscribe messaging rethought as a distributed commit log",
     "properties": [
       {

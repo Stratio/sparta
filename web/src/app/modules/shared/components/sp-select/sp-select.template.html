@@ -1,11 +1,11 @@
-<div class="sp-select" [ngClass]="{'active' : active}" [attr.id]="qaTag">
+<div class="sp-select" [ngClass]="{'active' : active}">
    <label sp-label class="st-input__label" [ngClass]="{'active' : active, error: showError(), disabled: disabled}" name="name"
-      [attr.id]="qaTag" [attr.title]="tooltip">
+       [attr.title]="tooltip">
     {{label}}
     </label>
 
    <div class="sp-select-data st-form-field" [ngClass]="{error: showError(), disabled: disabled}">
-      <div class="st-input" (click)="showOptions()">
+      <div class="st-input" (click)="showOptions()" [attr.id]="qaTag">
          <input readonly="readonly" [(ngModel)]="internalControl.value.label" type="text" class="select-value" name="fragmentType"
             placeholder="">
          <i class="icon-arrow2_down arrow"></i>

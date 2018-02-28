@@ -1,9 +1,10 @@
   {
      "name": "Avro",
      "icon": "Avro",
-     "className": "AvroTransformStepStream",
+     "className": "AvroTransformStep",
      "classPrettyName": "Avro",
      "arity": ["UnaryToNary"],
+     "supportedEngines": ["Streaming", "Batch"],
      "description": "Parsing input field in text format to row",
      "properties": [{
            "propertyId": "inputField",

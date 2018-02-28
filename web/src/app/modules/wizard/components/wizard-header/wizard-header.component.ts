@@ -58,6 +58,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     public workflowName = '';
     public workflowVersion = 0;
     public showErrors = false;
+    public workflowType = '';
 
     public editName = false;
     public undoEnabled = false;
@@ -82,6 +83,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
     private _validationSubscription: Subscription;
     private _areUndoRedoEnabledSubscription: Subscription;
     private _isPristineSubscription: Subscription;
+    private _workflowTypeSubscription: Subscription;
 
 
     constructor(private route: Router, private currentActivatedRoute: ActivatedRoute, private store: Store<fromRoot.State>,
@@ -109,7 +111,7 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
             this.isPristine = isPristine;
             this._cd.detectChanges();
         });
-
+        this._workflowTypeSubscription = this.store.select(fromRoot.getWorkflowType).subscribe((type) => this.workflowType = type);
         this.menuOptions$ = this.store.select(fromRoot.getMenuOptions);
     }
 
@@ -167,10 +169,6 @@ export class WizardHeaderComponent implements OnInit, OnDestroy {
         } else {
             this.route.navigate(['workflow-managing']);
         }
-    }
-
-    duplicateNode() {
-
     }
 
     undoAction() {

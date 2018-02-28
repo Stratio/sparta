@@ -19,7 +19,7 @@ package com.stratio.sparta.plugin.workflow.output.kafka
 import java.util.UUID
 
 import com.stratio.sparta.plugin.common.kafka.KafkaSuiteBase
-import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStep
+import com.stratio.sparta.plugin.workflow.input.kafka.KafkaInputStepStreaming
 import com.stratio.sparta.sdk.workflow.enumerators.SaveModeEnum
 import com.stratio.sparta.sdk.workflow.step.OutputOptions
 import org.apache.spark.rdd.RDD
@@ -91,7 +91,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "auto.offset.reset" -> "earliest"
       )
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val input = new KafkaInputStep("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 
@@ -165,7 +165,7 @@ class KafkaOutputStepIT extends KafkaSuiteBase {
         "auto.offset.reset" -> "earliest"
       )
       val outputOptions = OutputOptions(SaveModeEnum.Append, "tableName", None, None)
-      val input = new KafkaInputStep("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
+      val input = new KafkaInputStepStreaming("kafka", outputOptions, ssc, sparkSession.get, propsConsumer)
       val distributedStream = input.init
       val totalEvents = ssc.get.sparkContext.accumulator(0L, "Number of events received")
 

@@ -1,7 +1,7 @@
 <!---- groups & workflows ----- -->
 <st-table *ngIf="!workflowVersions || !workflowVersions.length" [fields]="fields" [sortable]="true" qaTag="table-qa-tag"
    class="workflow-table" (changeOrder)="changeOrder($event)">
-   <tr st-table-row *ngFor="let group of groupList; let i = index;" (click)="checkGroup(group)" [selected]="selectedGroupsList.indexOf(group.name) > -1">
+   <tr st-table-row *ngFor="let group of groupList; let i = index;" class="group-row" (click)="checkGroup(group)" [selected]="selectedGroupsList.indexOf(group.name) > -1">
       <td st-table-cell st-table-row-content class="check-column">
          <st-checkbox [value]="workflow" (change)="checkGroup(group)" [checked]="selectedGroupsList.indexOf(group.name) > -1"></st-checkbox>
       </td>
@@ -21,7 +21,7 @@
          <st-checkbox [value]="workflow" (change)="checkWorkflow(workflow)" [checked]="selectedWorkflows && selectedWorkflows.indexOf(workflow.name) > -1"></st-checkbox>
       </td>
       <td st-table-cell st-table-row-content>
-         <label class="group-name" (click)="openWorkflowClick($event, workflow)">
+         <label class="workflow-name" (click)="openWorkflowClick($event, workflow)">
             <span *ngIf="workflow.type === 'Streaming'" class="icon icon-infinite icon-row"></span>
             <span *ngIf="workflow.type === 'Batch'" class="icon icon-channel icon-row"></span> {{workflow.name}}
           </label>

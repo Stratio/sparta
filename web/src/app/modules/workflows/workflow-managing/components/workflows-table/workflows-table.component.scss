@@ -4,7 +4,7 @@
    cursor: pointer;
    user-select: none;
    &:hover {
-      color: #0f1b27;
+      color: $action-secondary-07;
    }
 }
 
@@ -40,7 +40,7 @@
    padding-left: 0;
    padding-right: 30px;
    i {
-      color: #128bde;
+      color: $action-primary-default;
       font-size: 20px;
       line-height: 9px;
    }
@@ -63,7 +63,7 @@
     float: left;
 }
 
-.group-name:hover, .version-name:hover{
+.group-name:hover, .workflow-name:hover, .version-name:hover{
     text-decoration: underline;
     cursor:pointer;
     overflow:hidden;

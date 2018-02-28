@@ -34,7 +34,7 @@ export class FileReaderComponent implements OnInit {
     public fileChangeEvent(fileInput: any): void {
         if (fileInput.target.files && fileInput.target.files[0]) {
             this.fileName = fileInput.target.files[0].name;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
             const reader = new FileReader();
             reader.readAsText(fileInput.target.files[0]);
             reader.onload = (loadEvent: any) => {

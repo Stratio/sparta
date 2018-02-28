@@ -1,8 +1,9 @@
 {
   "name": "JsonPath",
   "icon": "JsonPath",
-  "className": "JsonPathTransformStepStream",
+  "className": "JsonPathTransformStep",
   "classPrettyName": "JsonPath",
+   "supportedEngines": ["Streaming", "Batch"],
   "arity": [
     "UnaryToNary"
   ],

@@ -10,7 +10,7 @@
       [required]="field.required"
       [forceValidations]="forceValidations"
       [errors]="errorsService.errors.inputErrors"
-      qaTag="{{qa}}"
+      [qaTag]="field.qa"
       [minlength]="field.minlength" 
       [maxlength]="field.maxlength"></sp-input>
 
@@ -27,7 +27,7 @@
           [required]="field.required"
           [forceValidations]="forceValidations"
           [errors]="errorsService.errors.inputErrors"
-          qaTag="{{qa}}"
+          [qaTag]="field.qa"
           [minlength]="field.minlength"
           [maxlength]="field.maxlength"></sp-textarea-highlight>
 
@@ -41,7 +41,7 @@
           [required]="field.required"
           [forceValidations]="forceValidations"
           [errors]="errorsService.errors.inputErrors"
-          qaTag="{{qa}}"
+          [qaTag]="field.qa"
           [rows]="field.rows"
           [minlength]="field.minlength"
           [maxlength]="field.maxlength"></sp-textarea>
@@ -54,7 +54,7 @@
       [forceValidations]="forceValidations" 
       tooltip="{{field.tooltip}}"
       placeholder="Select option"
-      qaTag="{{qa}}"
+      [qaTag]="field.qa"
       [errorRequiredMessage]="errorsService.errors.selectRequiredError" 
       [required]="field.required"
       [formControl]="stFormControl"></sp-select>
@@ -64,36 +64,28 @@
       labelPosition="top"
       class="st-form-field"
       [formControl]="stFormControl"
+      [value]="stModel"
       contextualHelp="{{field.tooltip}}"
       [name]="field.propertyId" 
-      qaTag="{{qa}}"></st-switch>
+      [qaTag]="field.qa"></st-switch>
 
     <st-checkbox *ngIf="field.propertyType == 'boolean' && isVisible" 
       [formControl]="stFormControl"
       [checked]="stModel"
+      contextualHelp="field.tooltip"
       [name]="field.propertyId"
       class="st-form-field" 
-      [qaTag]="qa">{{field.propertyName | translate}}</st-checkbox>
+      [qaTag]="field.qa">{{field.propertyName | translate}}</st-checkbox>
 
 
    <form-list *ngIf="field.propertyType == 'list'" 
       [formListData]="field.fields"
-      qaTag="{{qa}}"
+      [qaTag]="field.qa"
       [required]="field.required" 
       tooltip="{{field.tooltip}}"
       [formControl]="stFormControl"
       [errors]="errorsService.errors.inputErrors"
       [forceValidations]="forceValidations" 
       label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"></form-list>
-
-      
-    <form-string-list *ngIf="field.propertyType == 'stringlist'" 
-      [formListData]="field"
-      qaTag="{{qa}}" 
-      [required]="field.required"
-      [errors]="errorsService.errors.inputErrors"
-      [formControl]="stFormControl"
-      [forceValidations]="forceValidations"  
-      label="{{field.propertyName | translate}} {{field.required ? '*' : '' }}"></form-string-list>
 
 </div>

@@ -45,6 +45,7 @@ export class WorkflowsHeaderComponent {
     @Input() monitoringStatus: any = {};
     @Input() selectedFilter: any = '';
     @Input() searchQuery = '';
+    @Input() workflowListLength: number;
 
     @Output() downloadWorkflows = new EventEmitter<void>();
     @Output() showWorkflowInfo = new EventEmitter<void>();

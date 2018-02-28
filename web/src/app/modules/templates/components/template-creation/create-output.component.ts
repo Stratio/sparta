@@ -50,13 +50,14 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
     public editedTemplateName = '';
 
     private saveSubscription: Subscription;
+    private selectedSubscription: Subscription;
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
         protected initializeSchemaService: InitializeSchemaService) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new outputActions.ResetOutputFormAction());
-        this.listData = outputsTemplate.outputs;
+        this.listData = outputsTemplate.streamingOutputs;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
@@ -72,17 +73,11 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
         });
     }
 
-    changeFragmentIndex(index: number): void {
-        this.inputFormModel.element.configuration = {};
-        this.fragmentIndex = index;
-    }
-
-
     onSubmitInputForm(): void {
         this.submitted = true;
         if (this.inputForm.valid) {
             this.inputFormModel.templateType = 'output';
-
+            this.inputFormModel.supportedEngines = this.listData[this.fragmentIndex].supportedEngines;
             if (this.editMode) {
                 this.store.dispatch(new outputActions.UpdateOutputAction(this.inputFormModel));
             } else {
@@ -91,14 +86,26 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
         }
     }
 
-    changeFragment($event: any) {
+    changeWorkflowType(event: any): void {
+        this.inputFormModel.executionEngine = event.value;
+        this.listData = event.value === 'Batch' ? outputsTemplate.batchOutputs : outputsTemplate.streamingOutputs;
+        this.changeTemplateType(this.listData[0].name);
+        this.fragmentTypes = this.listData.map((fragmentData: any) => {
+            return {
+                label: fragmentData.name,
+                value: fragmentData.name
+            };
+        });
     }
 
     getEditedTemplate() {
-        this.store.select(fromTemplates.getEditedOutput).subscribe((editedOutput: any) => {
+        this.selectedSubscription = this.store.select(fromTemplates.getEditedOutput).subscribe((editedOutput: any) => {
             if (!editedOutput.id) {
                 return this.cancelCreate();
             }
+            this.inputFormModel.executionEngine = editedOutput.executionEngine;
+            this.listData = editedOutput.executionEngine === 'Batch' ? outputsTemplate.batchOutputs :
+                outputsTemplate.streamingOutputs;
             this.setEditedTemplateIndex(editedOutput.classPrettyName);
             this.inputFormModel = editedOutput;
             this.editedTemplateName = editedOutput.name;
@@ -108,5 +115,6 @@ export class CreateOutputComponent extends CreateTemplateComponent implements On
 
     ngOnDestroy() {
         this.saveSubscription && this.saveSubscription.unsubscribe();
+        this.selectedSubscription && this.selectedSubscription.unsubscribe();
     }
 }

@@ -61,12 +61,12 @@ export class SpartaPlugins implements OnInit, OnDestroy {
         this.store.dispatch(new resourcesActions.ListPluginsAction());
         this.pluginsListSubscription = this.store.select(fromRoot.getPluginsList).subscribe((pluginsList: any) => {
             this.pluginsList = pluginsList;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.selectedPluginsSubscription = this.store.select(fromRoot.getSelectedPlugins).subscribe((selectedPlugins: Array<string>) => {
             this.selectedPlugins = selectedPlugins;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
     }
 

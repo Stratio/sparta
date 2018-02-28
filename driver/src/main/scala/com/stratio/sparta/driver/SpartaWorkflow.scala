@@ -303,7 +303,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val okMessage = s"Transform step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
+      val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
+      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,
@@ -341,7 +342,8 @@ case class SpartaWorkflow[Underlying[Row] : ContextBuilder](workflow: Workflow, 
     val okMessage = s"Input step ${node.name} created successfully."
 
     traceFunction(phaseEnum, okMessage, errorMessage) {
-      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, node.className).toString
+      val className = WorkflowHelper.getClassName(node, workflow.executionEngine)
+      val classType = node.configuration.getOrElse(AppConstant.CustomTypeKey, className).toString
       val tableName = node.writer.tableName.notBlank.getOrElse(node.name)
       val outputOptions = OutputOptions(
         node.writer.saveMode,

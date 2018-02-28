@@ -219,7 +219,7 @@ export class FormListComponent implements Validator, ControlValueAccessor, OnCha
                 const i = this.items.length - 1;
                 this.addObservableVisibleRule(i);
             }
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         } else {
             this.items.controls = [];
         }

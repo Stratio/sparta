@@ -15,8 +15,15 @@
 ///
 
 import {
-    Component, OnInit, OnDestroy, ElementRef,
-    ChangeDetectorRef, HostListener, ViewChild, NgZone
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    HostListener,
+    Input,
+    NgZone,
+    OnDestroy,
+    OnInit,
+    ViewChild
 } from '@angular/core';
 import { Store } from '@ngrx/store';
 import * as fromRoot from 'reducers';
@@ -36,6 +43,8 @@ import { isMobile } from 'constants/global';
 })
 
 export class WizardEditorComponent implements OnInit, OnDestroy {
+
+    @Input() workflowType: string;
 
     ESC_KEYCODE = 27;
     SUPR_KEYCODE = 46;
@@ -132,13 +141,13 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
                     }),
                 };
             });
-            this._cd.detectChanges();
+            this._cd.markForCheck();
             this.store.dispatch(new wizardActions.ValidateWorkflowAction());
         });
 
         this.selectedSegmentSubscription = this.store.select(fromRoot.getSelectedRelation).subscribe((relation) => {
             this.selectedSegment = relation;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.documentRef = d3.select(document);
@@ -224,7 +233,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
             if (entityData.type === 'copy') { // if its a copy, only sets the position
                 entity = entityData.data;
             } else {
-                entity = this.editorService.initializeEntity(entityData, this.entities);
+                entity = this.editorService.initializeEntity(this.workflowType, entityData, this.entities);
             }
             entity.uiConfiguration = {
                 position: {
@@ -263,7 +272,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         this.newOrigin = event.name;
         const connector: any = {};
         connector.x1 = $event.clientX;
-        connector.y1 = $event.clientY - 127;
+        connector.y1 = $event.clientY - 135;
         connector.x2 = 0;
         connector.y2 = 0;
 
@@ -289,7 +298,7 @@ export class WizardEditorComponent implements OnInit, OnDestroy {
         function drawConnector() {
             this.showConnector = true;
             connector.x2 = d3.event.clientX - connector.x1;
-            connector.y2 = d3.event.clientY - connector.y1 - 127;
+            connector.y2 = d3.event.clientY - connector.y1 - 135;
             this.connectorElement.attr('d', 'M ' + connector.x1 + ' ' + connector.y1 + ' l ' + connector.x2 + ' ' + connector.y2);
         }
     }

@@ -46,7 +46,7 @@ export class WorkflowsManagingTableComponent {
     @Output() selectWorkflow = new EventEmitter<string>();
     @Output() selectGroup = new EventEmitter<string>();
     @Output() selectVersion = new EventEmitter<string>();
-    @Output() openWorkflow = new EventEmitter<string>();
+    @Output() openWorkflow = new EventEmitter<any>();
     @Output() changeFolder = new EventEmitter<any>();
 
     public fields: StTableHeader[];
@@ -85,17 +85,13 @@ export class WorkflowsManagingTableComponent {
         this.openWorkflow.emit(workflow);
     }
 
-    openGroup(event: any, group: string) {
+    openGroup(event: any, group: any) {
         event.stopPropagation();
-        this.openFolder(group);
+       this.changeFolder.emit(group);
     }
 
     showSparkUI(url: string) {
         window.open(url, '_blank');
-    }
-
-    openFolder(group: any) {
-        this.changeFolder.emit(group);
     }
 
     editVersion(event: any, versionId: string) {

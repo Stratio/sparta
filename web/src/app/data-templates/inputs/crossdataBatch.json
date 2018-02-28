@@ -1,0 +1,29 @@
+{
+   "name": "Crossdata",
+   "icon": "Crossdata",
+   "className": "CrossdataInputStep",
+   "classPrettyName": "Crossdata",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "description": "Allows you to load data from external Datasources using Crossdata",
+   "properties": [
+      {
+         "propertyId": "query",
+         "propertyName": "_QUERY_",
+         "propertyType": "textarea",
+         "contentType": "SQL",
+         "width": 8,
+         "required": true,
+         "tooltip": "Query to read data from. Example: select * from tableName",
+         "qa": "fragment-details-crossdata-query"
+      },
+      {
+         "propertyId": "tlsEnabled",
+         "propertyName": "_TLS_ENABLE_",
+         "propertyType": "boolean",
+         "tooltip": "Enable TLS connection to connect with extra security protocol than user and password",
+         "default": false,
+         "qa": "fragment-details-postgres-tls"
+      }
+   ]
+}

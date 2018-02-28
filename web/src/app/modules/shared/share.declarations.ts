@@ -32,7 +32,6 @@ import { DragEventsDirective } from './directives/drag-events/drag-events.direct
 import { DragEventsService } from './directives/drag-events/drag-events.service';
 import { FormGeneratorGroupComponent } from './components/form-generator/form-generator-group/form-generator-group.component';
 import { OrderByPipe } from './pipes/sort.pipe';
-import { FormListStringComponent } from './components/form-string-list/form-string-list.component';
 import { Keyobject } from './pipes/keyobject';
 import { InfoFragmentComponent } from './components/fragment-box/info-fragment/info-fragment.component';
 import { NotificationAlertComponent } from './components/notification-alert/notification-alert.component';
@@ -48,7 +47,6 @@ export const sharedProvider = [
 export const shareComponents = [
     FileReaderComponent,
     FormListComponent,
-    FormListStringComponent,
     SpPopoverComponent,
     FormFieldComponent,
     FloatingMenuComponent,

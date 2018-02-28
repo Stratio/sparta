@@ -3,6 +3,7 @@
      "icon": "Window",
      "className": "WindowTransformStep",
      "classPrettyName": "Window",
+     "supportedEngines": ["Streaming"],
      "arity": ["UnaryToNary"],
      "description": "Execute the window operation supported in Spark Streaming in order to generate DStreams with more than one batch window",
      "properties": [

@@ -1,7 +1,8 @@
   {
      "name": "Persist",
      "icon": "Persist",
-     "className": "PersistTransformStepStream",
+     "className": "PersistTransformStep",
+     "supportedEngines": ["Streaming", "Batch"],
      "classPrettyName": "Persist",
      "arity": ["UnaryToNary"],
      "description": "Persist the input DStream",

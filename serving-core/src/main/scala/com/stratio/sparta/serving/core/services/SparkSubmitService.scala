@@ -234,7 +234,7 @@ class SparkSubmitService(workflow: Workflow) extends ArgumentsUtils {
     getMesosConstraintConf ++ getMesosSecurityConfs ++ sparkConfs
 
   private[core] def addPluginsConfs(sparkConfs: Map[String, String]): Map[String, String] =
-    sparkConfs ++ getConfigurationsFromObjects(workflow.pipelineGraph.nodes, GraphStep.SparkSubmitConfMethod)
+    sparkConfs ++ getConfigurationsFromObjects(workflow, GraphStep.SparkSubmitConfMethod)
 
   //TODO remove variables that is not necessary include it in core-site and hdfs-site
   private[core] def addKerberosConfs(sparkConfs: Map[String, String]): Map[String, String] =

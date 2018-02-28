@@ -36,7 +36,6 @@ import { Router } from '@angular/router';
             [versionsListMode]="versionsListMode"
             [showDetails]="showDetails"
             [levelOptions]="levelOptions"
-            (createWorkflow)="createWorkflow()"
             (onEditVersion)="editVersion($event)"
             (generateVersion)="generateVersion()"
             (downloadWorkflows)="downloadWorkflows()" 
@@ -88,10 +87,6 @@ export class WorkflowsManagingHeaderContainer implements OnInit, OnDestroy {
 
     editVersion(versionId: string) {
         this.route.navigate(['wizard/edit', this.selectedVersions[0]]);
-    }
-
-    createWorkflow() {
-        this.route.navigate(['wizard']);
     }
 
     downloadWorkflows(): void {

@@ -3,9 +3,11 @@ $cloudy-black: #cdd6df;
 .title-header {
    background-color: white;
    border-bottom: 1px solid $cloudy-black;
-   padding: 9px 0 1px;
-   height: 62px;
+   height: 70px;
    overflow: hidden;
+   .container {
+      margin-top: 15px;
+   }
 }
 
 .main-title {

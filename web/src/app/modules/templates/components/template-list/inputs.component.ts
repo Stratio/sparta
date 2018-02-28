@@ -38,14 +38,14 @@ export class InputsComponent extends TemplatesBaseComponent {
         super.ngOnInit();
         this.templateListSubscription = this.store.select(fromTemplates.getInputList).subscribe((data: any) => {
             this.templateList = data;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.selectedDisplayOption$ = this.store.select(fromTemplates.getSelectedInputDisplayOption);
 
         this.selectedTemplatesSubscription = this.store.select(fromTemplates.getSelectedInputs).subscribe((data: any) => {
             this.selectedTemplates = data;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.store.dispatch(new inputActions.ListInputAction());
@@ -71,7 +71,7 @@ export class InputsComponent extends TemplatesBaseComponent {
     }
 
     changeOrder($event: any): void {
-         this.store.dispatch(new inputActions.ChangeOrderAction({
+        this.store.dispatch(new inputActions.ChangeOrderAction({
             orderBy: $event.orderBy,
             sortOrder: $event.type
         }));
@@ -98,14 +98,20 @@ export class InputsComponent extends TemplatesBaseComponent {
         const deleteTemplateModalMessageTitle = 'DASHBOARD.DELETE_INPUT_MESSAGE_TITLE';
         const duplicateTemplateModalTitle = 'DASHBOARD.DUPLICATE_INPUT';
 
-        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle, 
-        deleteTemplateModalMessageTitle]).subscribe(
+        this.translate.get([deleteTemplateModalTitle, deleteTemplateModalMessage, duplicateTemplateModalTitle,
+            deleteTemplateModalMessageTitle]).subscribe(
             (value: { [key: string]: string }) => {
                 this.deleteTemplateModalTitle = value[deleteTemplateModalTitle];
                 this.deleteTemplateModalMessage = value[deleteTemplateModalMessage];
                 this.duplicateTemplateModalTitle = value[duplicateTemplateModalTitle];
                 this.deleteTemplateModalMessageTitle = value[deleteTemplateModalMessageTitle];
             }
-        );
+            );
+    }
+
+    changePage($event: any) {
+        this.perPage = $event.perPage;
+        this.currentPage = $event.currentPage;
+        this.store.dispatch(new inputActions.ResetInputFormAction());
     }
 }

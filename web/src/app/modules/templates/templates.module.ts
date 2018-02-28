@@ -16,7 +16,7 @@
 
 import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
-import { StBreadcrumbsModule, StTableModule, StCheckboxModule } from '@stratio/egeo';
+import { StBreadcrumbsModule, StTableModule, StCheckboxModule, StRadioMenuModule, StRadioModule, StPaginationModule } from '@stratio/egeo';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
 
@@ -52,6 +52,9 @@ import { OutputEffect} from './effects/output';
         ReactiveFormsModule,
         TemplatesRoutingModule,
         SharedModule,
+        StRadioMenuModule,
+        StPaginationModule,
+        StRadioModule,
         StBreadcrumbsModule,
         StTableModule,
         StCheckboxModule

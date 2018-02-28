@@ -33,6 +33,7 @@ import {
     getSelectedEntity,
     getSelectedVersions,
     getSelectedVersion,
+    getLoadingState,
     getWorkflowVersions
 } from './reducers';
 import { WorkflowsManagingService } from './workflows.service';
@@ -59,6 +60,7 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
     public selectedWorkflows$: Observable<Array<any>>;
     public selectedEntity$: Observable<DataDetails>;
     public workflowVersions$: Observable<Array<any>>;
+    public isLoading$: Observable<boolean>;
 
     public selectedWorkflowsIds: string[] = [];
     public breadcrumbOptions: string[] = [];
@@ -93,21 +95,21 @@ export class WorkflowsManagingComponent implements OnInit, OnDestroy {
             .distinctUntilChanged()
             .subscribe((workflowList: any) => {
                 this.workflowList = workflowList;
-                this._cd.detectChanges();
+                this._cd.markForCheck();
             });
-
+        this.isLoading$ = this._store.select(getLoadingState);
         this._selectedVersion = this._store.select(getSelectedVersion).subscribe((selectedVersion) => {
             this.selectedVersion = selectedVersion ? {
                 type: 'version',
                 data: selectedVersion
             } : null;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
 
         this._executionInfo$ = this._store.select(getExecutionInfo).subscribe((executionInfo: any) => {
             this.executionInfo = executionInfo;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.workflowVersions$ = this._store.select(getWorkflowVersions);

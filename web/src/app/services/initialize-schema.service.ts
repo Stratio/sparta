@@ -48,9 +48,11 @@ export class InitializeSchemaService {
     }
 
 
-    setDefaultEntityModel(value: any, stepType: string, writerOptions = false): any {
-        let model: any = {};
+    setDefaultEntityModel(workflowtype: string, value: any, stepType: string, writerOptions = false): any {
+        const model: any = {};
         model.configuration = {};
+        model.supportedEngines = value.supportedEngines;
+        model.executionEngine = workflowtype;
         value.properties.map((prop: any) => {
             model.configuration[prop.propertyId] = prop.default ? prop.default : null;
         });

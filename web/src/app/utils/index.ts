@@ -106,3 +106,35 @@ export function formatDate(stringDate: string, hours = true) {
     return '';
   }
 }
+
+/* Starting | Running | Stopped | Failed | NotStarted*/
+export function getFilterStatus(status: string) {
+  switch (status) {
+    case 'Launched':
+      return 'Starting';
+    case 'Starting':
+      return status;
+    case 'Started':
+      return 'Running';
+    case 'Running':
+      return status;
+    case 'Stopping':
+      return 'Running';
+    case 'Stopped':
+      return status;
+    case 'Finished':
+      return 'Stopped';
+    case 'Killed':
+      return 'Stopped';
+    case 'NotStarted':
+      return 'Starting';
+    case 'Uploaded':
+      return 'Starting';
+    case 'Created':
+      return 'Stopped';
+    case 'Failed':
+      return 'Failed';
+    default:
+      return '';
+  }
+};

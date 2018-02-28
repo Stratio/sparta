@@ -16,12 +16,13 @@
 
 import { WorkflowListType } from 'app/models/workflow.model';
 import * as workflowActions from '../actions/workflow-list';
-import { orderBy, formatDate } from 'utils';
+import { orderBy, formatDate, getFilterStatus } from 'utils';
 
 export interface State {
   workflowList: Array<WorkflowListType>;
+  filteredWorkflow: Array<any>;
   currentFilterStatus: string;
-  searchQuery: String;
+  searchQuery: string;
   selectedWorkflows: Array<WorkflowListType>;
   selectedWorkflowsIds: Array<string>;
   workflowNameValidation: {
@@ -37,6 +38,7 @@ export interface State {
 
 const initialState: State = {
   workflowList: [],
+  filteredWorkflow: [],
   currentFilterStatus: '',
   selectedWorkflows: [],
   selectedWorkflowsIds: [],
@@ -61,7 +63,8 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.LIST_WORKFLOW_COMPLETE: {
       return Object.assign({}, state, {
         workflowList: action.payload,
-        reload: true
+        reload: true,
+        filteredWorkflow: getFilteredWorkflow(action.payload, state.searchQuery)
       });
     }
     case workflowActions.REMOVE_WORKFLOW_SELECTION: {
@@ -93,18 +96,23 @@ export function reducer(state: State = initialState, action: any): State {
     }
     case workflowActions.UPDATE_WORKFLOWS_COMPLETE: {
       const context = action.payload;
-      return Object.assign({}, state, {
-        workflowList: state.workflowList.map((workflow: any) => {
-          const c = context.find((item: any) => {
-            return workflow.id === item.id;
-          });
+      const contexts = {};
+      for ( let i = 0; i < context.length; i++) {
+          contexts[context[i].id] = context[i];
+      }
+      const workflowList = state.workflowList.map((workflow: any) => {
+          const c = contexts[workflow.id];
           try {
             workflow.lastUpdate = c.lastUpdateDate ? formatDate(c.lastUpdateDate) : '';
             workflow.lastUpdateOrder = c.lastUpdateDate ? new Date(c.lastUpdateDate).getTime() : 0;
           } catch (error) { }
+          workflow.filterStatus = getFilterStatus(c.status);
           workflow.context = c ? c : {};
           return workflow;
-        }),
+        });
+      return Object.assign({}, state, {
+        workflowList: workflowList,
+        filteredWorkflow: getFilteredWorkflow(workflowList, state.searchQuery),
         selectedWorkflows: Object.assign([], state.selectedWorkflows)
       });
     }
@@ -121,7 +129,8 @@ export function reducer(state: State = initialState, action: any): State {
     }
     case workflowActions.SEARCH_WORKFLOWS: {
       return Object.assign({}, state, {
-        searchQuery: action.payload
+        searchQuery: action.payload,
+        filteredWorkflow: getFilteredWorkflow(state.workflowList, action.payload),
       });
     }
     case workflowActions.DISPLAY_MODE: {
@@ -163,7 +172,9 @@ export function reducer(state: State = initialState, action: any): State {
     case workflowActions.CHANGE_ORDER: {
       return Object.assign({}, state, {
         orderBy: action.payload.orderBy,
-        sortOrder: action.payload.sortOrder
+        sortOrder: action.payload.sortOrder,
+        selectedWorkflows: [],
+        selectedWorkflowsIds: []
       });
     }
     case workflowActions.CHANGE_FILTER: {
@@ -183,28 +194,10 @@ export function reducer(state: State = initialState, action: any): State {
 }
 
 export const getWorkFlowList: any = (state: State) => orderBy(Object.assign([], (
-  state.currentFilterStatus === '' && !state.searchQuery.length ? state.workflowList : state.workflowList.filter((workflow: any) => {
-    let search = false;
-    const status = workflow.context.status;
-    if (state.searchQuery.length) {
-      const query = state.searchQuery.toLowerCase();
-      if (('v' + workflow.version + ' - ' + workflow.name).toLowerCase().indexOf(query) > -1) {
-        search = true;
-      } else if (workflow.tagsAux && workflow.tagsAux.toLowerCase().indexOf(query) > -1) {
-        search = true;
-      } else if (workflow.group && workflow.group.name.indexOf(query) > -1) {
-        search = true;
-      } else if (workflow.executionEngine.toLowerCase().indexOf(query) > -1) {
-        search = true;
-      } else if (status.toLowerCase().indexOf(query.replace(' ', '')) > -1) {
-        search = true;
-      }
-    } else {
-      search = true;
-    }
-
-    return (state.currentFilterStatus === '' || getFilterStatus(status) === state.currentFilterStatus) && search;
-  }))), state.orderBy, state.sortOrder);
+  state.currentFilterStatus.length ? state.filteredWorkflow.filter((workflow: any) => {
+    const status = workflow.filterStatus;
+    return (state.currentFilterStatus === '' || status === state.currentFilterStatus);
+  }) : state.filteredWorkflow)), state.orderBy, state.sortOrder);
 
 
 export const getSelectedWorkflows: any = (state: State) => {
@@ -218,43 +211,36 @@ export const getSelectedDisplayOption: any = (state: State) => state.selectedDis
 export const getWorkflowNameValidation: any = (state: State) => state.workflowNameValidation;
 export const getExecutionInfo: any = (state: State) => state.executionInfo;
 export const getMonitoringStatus: any = (state: State) => {
-  const monitoring = state.workflowList.reduce((map: any, workflow: any) => {
-    const status = getFilterStatus(workflow.context.status).toLowerCase();
+  const monitoring = state.filteredWorkflow.reduce((map: any, workflow: any) => {
+    const status = workflow.filterStatus.toLowerCase();
     map[status] = (map[status] || 0) + 1;
     return map;
   }, Object.create(null));
-  monitoring.workflows = state.workflowList.length;
+  monitoring.workflows = state.filteredWorkflow.length;
   return monitoring;
 };
 
-/* Starting | Running | Stopped | Failed | NotStarted*/
-function getFilterStatus(status: string) {
-  switch (status) {
-    case 'Launched':
-      return 'Starting';
-    case 'Starting':
-      return status;
-    case 'Started':
-      return 'Running';
-    case 'Running':
-      return status;
-    case 'Stopping':
-      return 'Running';
-    case 'Stopped':
-      return status;
-    case 'Finished':
-      return 'Stopped';
-    case 'Killed':
-      return 'Stopped';
-    case 'NotStarted':
-      return 'Starting';
-    case 'Uploaded':
-      return 'Starting';
-    case 'Created':
-      return 'Stopped';
-    case 'Failed':
-      return 'Failed';
-    default:
-      return '';
-  }
-};
+function getFilteredWorkflow(workflowList: Array<any>, searchQuery: string) {
+  return searchQuery.length ? workflowList.filter((workflow: any) => {
+    let search = false;
+    const status = workflow.context.status;
+    const query = searchQuery.toLowerCase();
+    const queryNoSpaces = query.replace(' ', '');
+    if (('v' + workflow.version + ' - ' + workflow.name).toLowerCase().indexOf(query) > -1) {
+      search = true;
+    } else if (workflow.tagsAux && workflow.tagsAux.toLowerCase().indexOf(query) > -1) {
+      search = true;
+    } else if (workflow.group && workflow.group.name.indexOf(query) > -1) {
+      search = true;
+    } else if (workflow.executionEngine.toLowerCase().indexOf(query) > -1) {
+      search = true;
+    } else if (status.toLowerCase().indexOf(queryNoSpaces) > -1) {
+      search = true;
+    } else if (workflow.filterStatus && workflow.filterStatus.toLowerCase().indexOf(queryNoSpaces) > -1) {
+      search = true;
+    }
+
+    return  search;
+  }) : workflowList;
+}
+

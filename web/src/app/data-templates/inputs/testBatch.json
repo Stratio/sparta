@@ -1,0 +1,80 @@
+{
+   "name": "Test",
+   "className": "TestInputStep",
+   "classPrettyName": "Test",
+   "arity": ["NullaryToNary"],
+   "supportedEngines": ["Batch"],
+   "executionEngine": "Batch",
+   "description": "Simulates a data generating events based on a fixed string or random numbers",
+   "properties": [
+      {
+         "propertyId": "eventType",
+         "propertyName": "_EVENT_TYPE_",
+         "propertyType": "select",
+         "default": "STRING",
+         "required": true,
+         "values": [
+            {
+               "label": "String",
+               "value": "STRING"
+            },
+            {
+               "label": "Random number",
+               "value": "RANDOM_NUMBER"
+            }
+         ],
+         "tooltip": "Type of events generated: random number using the max integer specified or one string event",
+         "qa": "fragment-details-test-eventType"
+      },
+      {
+         "propertyId": "event",
+         "propertyName": "_EVENT_",
+         "propertyType": "text",
+         "visible": [
+            [
+               {
+                  "propertyId": "eventType",
+                  "value": "STRING"
+               }
+            ]
+         ],
+         "required": true,
+         "tooltip": "Event that will be generated on each window",
+         "qa": "fragment-details-test-event"
+      },
+      {
+         "propertyId": "maxNumber",
+         "propertyName": "_MAX_NUMBER_",
+         "propertyType": "text",
+         "required": true,
+         "visible": [
+            [
+               {
+                  "propertyId": "eventType",
+                  "value": "RANDOM_NUMBER"
+               }
+            ]
+         ],
+         "tooltip": "Max Number for the random events generated",
+         "qa": "fragment-details-test-maxNumber"
+      },
+      {
+         "propertyId": "numEvents",
+         "propertyName": "_NUMBER_EVENTS_BATCH_",
+         "propertyType": "text",
+         "validateValue": "true",
+         "required": true,
+         "tooltip": "Number of events generated",
+         "qa": "fragment-details-test-numEvents"
+      },
+      {
+         "propertyId": "outputField",
+         "propertyName": "_OUTPUT_FIELD_",
+         "propertyType": "text",
+         "default": "{{DEFAULT_OUTPUT_FIELD}}",
+         "required": true,
+         "tooltip": "Name assigned to the output field generated",
+         "qa": "fragment-details-test-outputField"
+      }
+   ]
+}

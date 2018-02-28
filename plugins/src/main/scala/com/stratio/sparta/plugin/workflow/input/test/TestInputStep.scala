@@ -64,7 +64,7 @@ abstract class TestInputStep[Underlying[Row]](
 
 }
 
-class TestInputStepStream(
+class TestInputStepStreaming(
                            name: String,
                            outputOptions: OutputOptions,
                            ssc: Option[StreamingContext],

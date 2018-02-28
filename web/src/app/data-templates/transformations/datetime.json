@@ -1,8 +1,10 @@
 {
    "name": "Datetime",
    "icon": "Datetime",
-   "className": "DateTimeTransformStepStream",
+   "className": "DateTimeTransformStep",
    "classPrettyName": "Datetime",
+   "supportedEngines": ["Streaming", "Batch"],
+   "arity": ["UnaryToNary"],
    "description": "Parses or creates a list of input field according to a given time format and returns all the obtained new fields or the selected ones",
    "properties": [
       {

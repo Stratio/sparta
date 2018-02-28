@@ -1,8 +1,8 @@
 <section class="workflow-wizard" [hidden]="(editionConfigMode$ | async).isEdition || (showSettings$ | async)">
     <div class="wizard-content">
-        <wizard-editor></wizard-editor>
+        <wizard-editor [workflowType]="workflowType"></wizard-editor>
     </div>
     <selected-entity *ngIf="(creationMode$ | async).active"></selected-entity>
 </section>
 <wizard-config-editor *ngIf="(editionConfigMode$ | async).isEdition" [workflowType]="workflowType" [config]="editionConfigMode$ | async"></wizard-config-editor>
-<wizard-settings [edition]="isEdit" [workflowType]="workflowType" *ngIf="showSettings$ | async"></wizard-settings>
+<wizard-settings [workflowType]="workflowType" [edition]="isEdit" [workflowType]="workflowType" *ngIf="workflowType.length && (showSettings$ | async)"></wizard-settings>

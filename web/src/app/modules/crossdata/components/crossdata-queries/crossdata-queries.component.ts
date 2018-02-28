@@ -91,12 +91,12 @@ export class CrossdataQueries implements OnInit, OnDestroy {
                 this.fields = fields;
                 this.results = result;
             }
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this.queryErrorSubscription = this.store.select(fromCrossdata.getQueryError).subscribe((error: any) => {
             this.queryError = error;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
     }
 

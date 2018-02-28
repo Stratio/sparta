@@ -110,7 +110,9 @@ export function reducer(state: State = initialState, action: any): State {
         case inputActions.CHANGE_ORDER: {
             return Object.assign({}, state, {
                 orderBy: action.payload.orderBy,
-                sortOrder: action.payload.sortOrder
+                sortOrder: action.payload.sortOrder,
+                selectedInputs: [],
+                selectedInputsIds: []
             });
         }
         default:

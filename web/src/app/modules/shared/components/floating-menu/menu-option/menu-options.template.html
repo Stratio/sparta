@@ -5,10 +5,10 @@
     <div class="hide-scrollbar">
         <ul [style.maxHeight.px]="maxHeight" (scroll)="onScroll($event)">   
             <li class="search" *ngIf="search">
-                <input type="text" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
-                <span class="delete icon-cross" *ngIf="searchOption.length"></span>
+                <input type="text"  id="search-menu-box" [formControl]="searchBox" [placeholder]="'WIZARD.MENU_SEARCH' | translate" />
+                <span class="delete icon-cross"  id="delete-search-content" *ngIf="searchOption.length"></span>
             </li>
-            <li class="item" *ngFor="let item of menuOptions; let i = index;" (click)="!item.subMenus && selectOption(item)" 
+            <li class="item" *ngFor="let item of menuOptions; let i = index;" [attr.id]="item.name + '-option'" (click)="!item.subMenus && selectOption(item)" 
                 (mouseenter)="showMenu(i, item, $event)" (mouseleave)="hideMenu(item)" [ngClass]="{'active' : item.active}">
                 <!--<i class="icon-arrow2_left has-submenu left-menu" *ngIf="item.subMenus && item.subMenus.length && position === 'right'"></i>-->
                 <span>

@@ -4,10 +4,11 @@
          <div class="row">
             <div class="col-sm-12">
                <div class="header-info">
-                  <span class="icon icon-infinite workflow-type"></span>
+                  <span class="icon icon-infinite workflow-type" *ngIf="workflowType === 'Streaming'"></span>
+                  <span class="icon icon-channel workflow-type" *ngIf="workflowType === 'Batch'"></span>
                   <div class="workflow-name-container">
                      <span class="title egeo-title-extra-large">{{workflowName}} -</span>
-                     <span class="title egeo-title-giant">v{{workflowVersion}}</span> 
+                     <span class="title egeo-title-giant">v{{workflowVersion}}</span>
                      <!-- <span class="icon-edit"></span> -->
                   </div>
                   <!--<form #nameForm="ngForm" novalidate autocomplete="off" class="workflow-name" [hidden]="(nameForm.valid && !editName)">
@@ -21,7 +22,7 @@
                   <button class="button button-primary" (click)="saveWorkflow()" [disabled]="isPristine">
                     {{'WIZARD.SAVE' | translate}}
                   </button>
-                 <!-- <div class="options-button">
+                  <!-- <div class="options-button">
                      <div class="main-button">{{'WIZARD.SAVE' | translate}}</div>
                      <div class="secondary-button">
                         <span class="icon icon-arrow4_down"></span>
@@ -48,7 +49,7 @@
             <div class="col-xs-6">
                <floating-menu (searchChange)="filterOptions($event)" [search]="true" [menuOptions]="menuOptions$ | async" class="show-options"
                   (selectedOption)="selectedMenuOption($event)">
-                  <div menu-action>
+                  <div id="create-node-menu" menu-action>
                      <button class="button button-toolbar">
                         <i class="icon-plus"></i>
                     </button>
@@ -56,39 +57,39 @@
                   </div>
                </floating-menu>
                <div class="position-tools">
-                  <button menu-action class="button button-toolbar" (click)="onZoomIn.emit()">
+                  <button menu-action class="button button-toolbar" (click)="onZoomIn.emit()" id="zoom-in-button">
                     <i class="icon-zoom-in"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()">
+                  <button menu-action class="button button-toolbar" (click)="onZoomOut.emit()" id="zoom-out-button">
                     <i class="icon-zoom-out"></i>
                 </button>
-                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()">
+                  <button menu-action class="button button-toolbar" (click)="onCenter.emit()" id="center-button">
                     <i class="icon-move"></i>
                 </button>
-                  <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()">
+                  <button menu-action [disabled]="!undoEnabled" class="undo-action button button-toolbar" (click)="undoAction()" id="undo-button">
                   <i class="icon-reload2"></i>
               </button>
-                  <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()">
+                  <button menu-action [disabled]="!redoEnabled" class="button button-toolbar" (click)="redoAction()" id="redo-button">
                 <i class="icon-reload"></i>
             </button>
                </div>
             </div>
             <div class="col-xs-6">
                <div style="float:left">
-                  <button class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected">
+                  <button class="button button-toolbar" (click)="onEditEntity.emit()" *ngIf="isNodeSelected" id="edit-node-button">
                     <i class="icon-edit"></i>
                 </button>
-                  <button class="button button-toolbar" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected">
+                  <button class="button button-toolbar" (click)="onDuplicateNode.emit()" *ngIf="isNodeSelected" id="copy-node-button">
                    <i class="icon-copy2"></i>
                  </button>
-                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment">
+                  <button class="button button-toolbar" (click)="deleteSelection.emit()" *ngIf="isNodeSelected || selectedSegment" id="delete-node-button">
                     <i class="icon-trash"></i>
                   </button>
                </div>
                <div class="" style="float:right">
                   <sp-popover [(active)]="showErrors">
                      <div popover-link>
-                        <button menu-action class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length, 'selected-button' : showErrors}">
+                        <button menu-action id="show-errors-button" class="button button-toolbar" [ngClass]="{'errors' : !validations.valid && validations.messages && validations.messages.length, 'selected-button' : showErrors}">
                           <i class="icon-alert"></i>
                         </button>
                      </div>
@@ -108,10 +109,10 @@
                      </div>
 
                   </sp-popover>
-                  <button menu-action class="button button-toolbar" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
+                  <button menu-action class="button button-toolbar" id="sho-info-button" (click)="toggleEntityInfo()" [ngClass]="{'selected-button': isShowedEntityDetails$ | async}">
                      <i class="icon-info1"></i>
                   </button>
-                  <button menu-action class="button button-toolbar" (click)="showSettings()">
+                  <button menu-action class="button button-toolbar" id="show-settings-button" (click)="showSettings()">
                     <i class="icon-cog"></i>
                   </button>
                </div>

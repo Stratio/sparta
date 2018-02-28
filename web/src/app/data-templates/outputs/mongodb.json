@@ -4,6 +4,7 @@
     "className": "MongoDbOutputStep",
     "classPrettyName": "MongoDb",
     "arity": ["NullaryToNullary", "NaryToNullary"],
+    "supportedEngines": ["Streaming", "Batch"],
     "description": "MongoDB is an open-source document database that provides high performance, high availability, and automatic scaling.",
     "properties": [
       {

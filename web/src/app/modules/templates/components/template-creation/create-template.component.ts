@@ -66,8 +66,10 @@ export abstract class CreateTemplateComponent implements OnInit {
         this.inputFormModel.classPrettyName = event;
         this.setEditedTemplateIndex(event);
         setTimeout(() => { // set default model and remove description
-            this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex], this.stepType);
-            this.inputFormModel.description = '';
+            const newModel = this.initializeSchemaService.setDefaultEntityModel(this.inputFormModel.executionEngine, this.listData[this.fragmentIndex], this.stepType);
+            newModel.name = this.inputFormModel.name;
+            newModel.description = this.inputFormModel.description;
+            this.inputFormModel = newModel;
         }, 0);
         this.inputForm.form.markAsPristine();
     }
@@ -85,7 +87,9 @@ export abstract class CreateTemplateComponent implements OnInit {
             this.editMode = true;
             this.getEditedTemplate();
         } else {
-            this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.listData[this.fragmentIndex], this.stepType);
+            this.inputFormModel.executionEngine = 'Streaming';
+            this.inputFormModel = this.initializeSchemaService.setDefaultEntityModel(this.inputFormModel.executionEngine,
+                this.listData[0], this.stepType); this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.classPrettyName = this.listData[this.fragmentIndex].classPrettyName;
             this.inputFormModel.description = '';
             this.inputFormModel.className = this.listData[this.fragmentIndex].className;

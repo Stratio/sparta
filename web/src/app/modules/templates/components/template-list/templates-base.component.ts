@@ -20,6 +20,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { StTableHeader, StModalButton, StModalResponse, StModalService } from '@stratio/egeo';
 import { Subscription } from 'rxjs/Rx';
 import { Observable } from 'rxjs/Observable';
+import { icons } from '@app/shared/constants/icons';
 
 import * as fromRoot from 'reducers';
 import { BreadcrumbMenuService } from 'services';
@@ -40,6 +41,14 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     public breadcrumbOptions: string[] = [];
     public orderBy = 'name';
     public sortOrder = true;
+    public icons = icons;
+
+    public currentPage = 1;
+    public perPage = 10;
+    public perPageOptions: any = [
+        { value: 10, showFrom: 0 }, { value: 20, showFrom: 0 }, { value: 30, showFrom: 0 }
+    ];
+
 
     protected selectedTemplatesSubscription: Subscription;
     protected templateListSubscription: Subscription;
@@ -47,11 +56,18 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     public fields: StTableHeader[] = [
         { id: 'isChecked', label: '', sortable: false },
         { id: 'name', label: 'Name' },
+        { id: 'classPrettyName', label: 'Type' },
+        { id: 'executionEngine', label: 'Engine' },
         { id: 'description', label: 'Description' }
     ];
 
     ngOnInit() {
         this._modalService.container = this.target;
+    }
+
+
+    checkValue(event: any) {
+        this.checkRow(event.checked, event.value);
     }
 
     public deleteTemplateConfirmModal(): void {
@@ -138,4 +154,5 @@ export abstract class TemplatesBaseComponent implements OnInit, OnDestroy {
     abstract onCheckedTemplate($event: any): void;
     abstract changeDisplayOption(): void;
     abstract editTemplateAction(input: any): void;
+    abstract changePage(event: any): void;
 }

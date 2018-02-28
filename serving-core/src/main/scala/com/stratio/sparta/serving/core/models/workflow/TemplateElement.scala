@@ -18,18 +18,21 @@ package com.stratio.sparta.serving.core.models.workflow
 
 import com.stratio.sparta.sdk.properties.JsoneyString
 import org.joda.time.DateTime
+import com.stratio.sparta.serving.core.models.enumerators.WorkflowExecutionEngine._
 
 case class TemplateElement(
-                                 id: Option[String] = None,
-                                 templateType: String,
-                                 name: String,
-                                 description: Option[String],
-                                 className: String,
-                                 classPrettyName: String,
-                                 configuration: Map[String, JsoneyString] = Map(),
-                                 creationDate: Option[DateTime] = None,
-                                 lastUpdateDate: Option[DateTime] = None
-                               )
+                            id: Option[String] = None,
+                            templateType: String,
+                            name: String,
+                            description: Option[String],
+                            className: String,
+                            classPrettyName: String,
+                            configuration: Map[String, JsoneyString] = Map(),
+                            creationDate: Option[DateTime] = None,
+                            lastUpdateDate: Option[DateTime] = None,
+                            supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
+                            executionEngine: Option[ExecutionEngine] = Option(Streaming)
+                          )
 
 object TemplateType extends Enumeration {
 

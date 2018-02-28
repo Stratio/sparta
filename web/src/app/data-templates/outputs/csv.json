@@ -4,6 +4,7 @@
     "className": "CsvOutputStep",
     "classPrettyName": "Csv",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Persist your data in HDFS with CSV format.",
     "properties": [
       {

@@ -33,41 +33,48 @@ import * as textTemplate from './outputs/text.json';
 
 
 export const outputs = [
-  avroTemplate,
-  crossdataTemplate,
-  //cassandraTemplate,
-  csvTemplate,
-  customTemplate,
-  elasticSearchTemplate,
-  httpTemplate,
-  jdbcTemplate,
-  jsonTemplate,
-  kafkaTemplate,
-  mongodbTemplate,
-  parquetTemplate,
-  postgresTemplate,
-  redisTemplate,
-  printTemplate,
-  textTemplate
+    avroTemplate,
+    crossdataTemplate,
+    //cassandraTemplate,
+    csvTemplate,
+    customTemplate,
+    elasticSearchTemplate,
+    httpTemplate,
+    jdbcTemplate,
+    jsonTemplate,
+    kafkaTemplate,
+    mongodbTemplate,
+    parquetTemplate,
+    postgresTemplate,
+    redisTemplate,
+    printTemplate,
+    textTemplate
 ];
 
 /*********************** */
 
 const _streamingOutputsNames: Array<any> = [];
 const _batchOutputsNames: Array<any> = [];
-
 const _streamingOutputsObject: any = [];
 const _batchOutputsObject: any = [];
+const _streamingOutputs: Array<any> = [];
+const _batchOutputs: Array<any> = [];
 
 outputs.forEach((output: any) => {
-    if (output.type && output.type === 'batch' ) {
+    if (!output.supportedEngines) {
+        return;
+    }
+    if (output.supportedEngines.indexOf('Batch') > -1) {
+        _batchOutputs.push(output);
         _batchOutputsObject[output.classPrettyName] = output;
         _batchOutputsNames.push({
             name: output.name,
             value: output,
             stepType: 'Output'
         });
-    } else {
+    }
+    if (output.supportedEngines.indexOf('Streaming') > -1) {
+        _streamingOutputs.push(output);
         _streamingOutputsObject[output.classPrettyName] = output;
         _streamingOutputsNames.push({
             name: output.name,
@@ -77,8 +84,9 @@ outputs.forEach((output: any) => {
     }
 });
 
+export const streamingOutputs = _streamingOutputs;
+export const batchOutputs = _batchOutputs;
 export const streamingOutputsNames = _streamingOutputsNames;
 export const batchOutputsNames = _batchOutputsNames;
-
 export const streamingOutputsObject = _streamingOutputsObject;
 export const batchOutputsObject = _batchOutputsObject;

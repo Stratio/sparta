@@ -4,6 +4,7 @@
      "className": "PrintOutputStep",
     "classPrettyName": "Print",
      "arity": ["NullaryToNullary", "NaryToNullary"],
+     "supportedEngines": ["Streaming", "Batch"],
     "description": "Print the number of elements, schemas and data",
     "properties": [
       {

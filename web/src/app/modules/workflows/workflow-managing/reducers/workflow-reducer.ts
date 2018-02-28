@@ -24,6 +24,7 @@ import { DataDetails } from './../models/data-details';
 export interface State {
   currentLevel: any;
   groups: Array<any>[];
+  loading: boolean;
   workflowList: Array<WorkflowListType>;
   workflowsVersionsList: Array<any>;
   workflowsStatus: any;
@@ -53,6 +54,7 @@ export interface State {
 const initialState: State = {
   currentLevel: homeGroup,
   groups: [],
+  loading: true,
   workflowList: [],
   workflowsVersionsList: [],
   workflowsStatus: {},
@@ -116,15 +118,27 @@ export function reducer(state: State = initialState, action: any): State {
       });
       return Object.assign({}, state, {
         workflowList: action.payload,
+        loading: false,
         workflowsVersionsList: Object.keys(workflows).map(function (key) {
           return workflows[key];
         }),
+        selectedVersions: [...state.selectedVersions],
         reload: true
+      });
+    }
+    case workflowActions.LIST_GROUP_WORKFLOWS_FAIL: {
+      return Object.assign({}, state, {
+        loading: false
       });
     }
     case workflowActions.LIST_GROUPS_COMPLETE: {
       return Object.assign({}, state, {
         groups: action.payload
+      });
+    }
+    case workflowActions.CHANGE_GROUP_LEVEL: {
+      return Object.assign({}, state, {
+        loading: true
       });
     }
     case workflowActions.CHANGE_GROUP_LEVEL_COMPLETE: {
@@ -145,6 +159,7 @@ export function reducer(state: State = initialState, action: any): State {
         selectedWorkflows: [],
         selectedVersions: [],
         selectedVersionsData: [],
+        selectedGroups: [],
         sortOrder: true,
         orderBy: 'name'
       });

@@ -18,7 +18,7 @@ import { NgModule } from '@angular/core';
 import { StoreModule } from '@ngrx/store';
 import { FormsModule } from '@angular/forms';
 import { EffectsModule } from '@ngrx/effects';
-import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule, StModalService } from '@stratio/egeo';
+import { StBreadcrumbsModule, StModalModule, StTableModule, StCheckboxModule, StHorizontalTabsModule, StModalService, StProgressBarModule } from '@stratio/egeo';
 
 import { SharedModule } from '@app/shared';
 import {
@@ -55,6 +55,7 @@ import { WorkflowEffect } from './effects/workflow';
         EffectsModule.forFeature([WorkflowEffect]),
         StCheckboxModule,
         StHorizontalTabsModule,
+        StProgressBarModule,
         StTableModule,
         StBreadcrumbsModule,
         WorkflowManagingRouterModule,

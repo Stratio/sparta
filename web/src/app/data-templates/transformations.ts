@@ -37,45 +37,53 @@ import * as unionTemplate from './transformations/union.json';
 import * as windowTemplate from './transformations/window.json';
 
 export const transformations: any = [
-   avroTemplate,
-   castingTemplate,
-   checkpointTemplate,
-   csvTemplate,
-   cubeTemplate,
-   customTemplate,
-   datetimeTemplate,
-   distinctTemplate,
-   explodeTemplate,
-   filterTemplate,
-   intersectionTemplate,
-   jsonPathTemplate,
-   jsonTemplate,
-   orderByTemplate,
-   persistTemplate,
-   repartitionTemplate,
-   selectTemplate,
-   splitTemplate,
-   triggerTemplate,
-   unionTemplate,
-   windowTemplate
+    avroTemplate,
+    castingTemplate,
+    checkpointTemplate,
+    csvTemplate,
+    cubeTemplate,
+    customTemplate,
+    datetimeTemplate,
+    distinctTemplate,
+    explodeTemplate,
+    filterTemplate,
+    intersectionTemplate,
+    jsonPathTemplate,
+    jsonTemplate,
+    orderByTemplate,
+    persistTemplate,
+    repartitionTemplate,
+    selectTemplate,
+    splitTemplate,
+    triggerTemplate,
+    unionTemplate,
+    windowTemplate
 ];
 
 /*********************** */
 
+const _streamingTransformations: Array<any> = [];
+const _batchTransformations: Array<any> = [];
 const _streamingTransformationsNames: Array<any> = [];
 const _batchTransformationsNames: Array<any> = [];
 const _streamingTransformationsObject: any = [];
 const _batchTransformationsObject: any = [];
 
 transformations.forEach((transformation: any) => {
-    if (transformation.type && transformation.type === 'batch' ) {
+    if (!transformation.supportedEngines) {
+        return;
+    }
+    if (transformation.supportedEngines.indexOf('Batch') > -1) {
+        _batchTransformations.push(transformation);
         _batchTransformationsObject[transformation.classPrettyName] = transformation;
         _batchTransformationsNames.push({
             name: transformation.name,
             value: transformation,
             stepType: 'Transformation'
         });
-    } else {
+    }
+    if (transformation.supportedEngines.indexOf('Streaming') > -1) {
+        _streamingTransformations.push(transformation);
         _streamingTransformationsObject[transformation.classPrettyName] = transformation;
         _streamingTransformationsNames.push({
             name: transformation.name,
@@ -85,6 +93,8 @@ transformations.forEach((transformation: any) => {
     }
 });
 
+export const streamingTransformations = _streamingTransformations;
+export const batchTransformations = _batchTransformations;
 export const streamingTransformationsNames = _streamingTransformationsNames;
 export const batchTransformationsNames = _batchTransformationsNames;
 export const streamingTransformationsObject = _streamingTransformationsObject;

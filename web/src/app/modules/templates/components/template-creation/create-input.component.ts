@@ -54,19 +54,20 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
     public editedTemplateName = '';
 
     private saveSubscription: Subscription;
+    private selectedSubscription: Subscription;
 
     constructor(protected store: Store<fromTemplates.State>, route: Router, errorsService: ErrorMessagesService,
         currentActivatedRoute: ActivatedRoute, formBuilder: FormBuilder, public breadcrumbMenuService: BreadcrumbMenuService,
         protected initializeSchemaService: InitializeSchemaService) {
         super(store, route, errorsService, currentActivatedRoute, formBuilder, breadcrumbMenuService, initializeSchemaService);
         this.store.dispatch(new inputActions.ResetInputFormAction());
-        this.listData = inputsTemplate.inputs;
+        this.listData = inputsTemplate.streamingInputs;
 
         this.fragmentTypes = this.listData.map((fragmentData: any) => {
             return {
                 label: fragmentData.name,
                 value: fragmentData.name
-            }
+            };
         });
 
         this.saveSubscription = this.store.select(fromTemplates.isInputSaved).subscribe((isSaved) => {
@@ -76,17 +77,11 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
         });
     }
 
-
-    changeFragmentIndex(index: number): void {
-        this.submitted = false;
-        this.inputFormModel.element.configuration = {};
-        this.fragmentIndex = index;
-    }
-
     onSubmitInputForm(): void {
         this.submitted = true;
         if (this.inputForm.valid) {
             this.inputFormModel.templateType = 'input';
+            this.inputFormModel.supportedEngines = this.listData[this.fragmentIndex].supportedEngines;
             if (this.editMode) {
                 this.store.dispatch(new inputActions.UpdateInputAction(this.inputFormModel));
             } else {
@@ -95,11 +90,25 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
         }
     }
 
+    changeWorkflowType(event: any): void {
+        this.inputFormModel.executionEngine = event.value;
+        this.listData = event.value === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
+        this.changeTemplateType(this.listData[0].name);
+        this.fragmentTypes = this.listData.map((fragmentData: any) => {
+            return {
+                label: fragmentData.name,
+                value: fragmentData.name
+            };
+        });
+    }
+
     getEditedTemplate() {
-        this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
+        this.selectedSubscription = this.store.select(fromTemplates.getEditedInput).subscribe((editedInput: any) => {
             if (!editedInput.id) {
                 return this.cancelCreate();
             }
+            this.inputFormModel.executionEngine = editedInput.executionEngine;
+            this.listData = editedInput.executionEngine === 'Batch' ? inputsTemplate.batchInputs : inputsTemplate.streamingInputs;
             this.setEditedTemplateIndex(editedInput.classPrettyName);
             this.inputFormModel = editedInput;
             this.editedTemplateName = editedInput.name;
@@ -109,6 +118,7 @@ export class CreateInputComponent extends CreateTemplateComponent implements OnD
 
     ngOnDestroy() {
         this.saveSubscription && this.saveSubscription.unsubscribe();
+        this.selectedSubscription && this.selectedSubscription.unsubscribe();
     }
 
 }

@@ -77,18 +77,18 @@ export class WorkflowsComponent implements OnInit, OnDestroy {
         .distinctUntilChanged()
         .subscribe((workflowList: any) => {
             this.workflowList = workflowList;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this._selectedWorkflows$ = this._store.select(getSelectedWorkflows).subscribe((data: any) => {
             this.selectedWorkflows = data.selected;
             this.selectedWorkflowsIds = data.selectedIds;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
 
         this._executionInfo$ = this._store.select(getExecutionInfo).subscribe((executionInfo: any) => {
             this.executionInfo = executionInfo;
-            this._cd.detectChanges();
+            this._cd.markForCheck();
         });
     }
 
