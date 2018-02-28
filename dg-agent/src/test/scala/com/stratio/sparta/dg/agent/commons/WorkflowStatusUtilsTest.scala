@@ -88,11 +88,8 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         None
       )
       val metadataPath =  MetadataPath(Seq("sparta",
-        "home_test_subgroup",
-        "kafka-test",
-        "0",
+        "home_test_subgroup_kafka-test_0",
         "1519051473",
-        "status",
         "1519051473"))
 
       val expected = SpartaWorkflowStatusMetadata("kafka-test",
@@ -102,8 +99,7 @@ class WorkflowStatusUtilsTest extends WordSpec with Matchers {
         metadataPath,
         tags = List.empty[String],
         modificationTime = Option(timestampEpochTest),
-        accessTime = Option(timestampEpochTest)
-      )
+        accessTime = Option(timestampEpochTest))
 
       LineageUtils.statusMetadataLineage(statusEvent) should equal (Some(List(expected)))
     }

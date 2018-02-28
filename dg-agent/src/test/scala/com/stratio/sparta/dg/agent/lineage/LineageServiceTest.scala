@@ -16,25 +16,24 @@
 
 package com.stratio.sparta.dg.agent.lineage
 
-import scalax.collection.Graph
-import scalax.collection.GraphEdge.DiEdge
-
 import akka.actor.SupervisorStrategy.Restart
 import akka.actor.{ActorKilledException, ActorSystem, Kill, Props}
 import akka.testkit.{EventFilter, ImplicitSender, TestActorRef, TestKit}
-import com.typesafe.config.ConfigFactory
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-
-import com.stratio.sparta.dg.agent.commons.{LineageItem, LineageUtils}
+import com.stratio.sparta.dg.agent.commons.LineageUtils
 import com.stratio.sparta.dg.agent.model.SpartaWorkflowStatusMetadata
 import com.stratio.sparta.sdk.properties.JsoneyString
 import com.stratio.sparta.serving.core.actor.{WorkflowListenerActor, WorkflowStatusListenerActor}
 import com.stratio.sparta.serving.core.helpers.GraphHelper
 import com.stratio.sparta.serving.core.models.enumerators.{NodeArityEnum, WorkflowStatusEnum}
 import com.stratio.sparta.serving.core.models.workflow._
+import com.typesafe.config.ConfigFactory
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+
+import scalax.collection.Graph
+import scalax.collection.GraphEdge.DiEdge
 
 @RunWith(classOf[JUnitRunner])
 class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigFactory.parseString(
@@ -85,7 +84,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
     )
     val graph: Graph[NodeGraph, DiEdge] = GraphHelper.createGraph(testWorkflow01)
 
-    val indexTypeEvent = 5
+    val indexTypeEvent = 3
   }
 
   trait CommonActors {
@@ -99,7 +98,8 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
 
     "LineageUtils workflowToMetadatapath" in new CommonMetadata {
       LineageUtils.workflowMetadataPathString(testWorkflow01, None, "input").toString()
-        .split("/")(1) should equal(testWorkflow01.group.name.substring(1).replace("_", "/"))
+        .split("/")(1) should equal(testWorkflow01.group.name.substring(1).replace("_", "/") ++ "_" ++
+      testWorkflow01.name ++ "_" ++ testWorkflow01.version.toString)
     }
 
     "LineageUtils InputMetadata return metadataList with outcoming nodes" in new CommonMetadata {
@@ -107,7 +107,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       result.head.outcomingNodes.length shouldBe 3
       result.head.name should equal(nodes.head.name)
       assert(result.forall(node => node.metadataPath.toString().split("/")(indexTypeEvent)
-        .equals(LineageItem.Input.toString)))
+        .equals("a")))
     }
 
     "LineageUtils TransformationMetadata return metadataList with incoming and outcoming nodes" in new CommonMetadata {
@@ -115,15 +115,17 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       result.head.incomingNodes.length shouldBe 1
       result.head.outcomingNodes.length shouldBe 1
       assert(result.forall(node => node.metadataPath.toString().split("/")(indexTypeEvent)
-        .equals(LineageItem.Transformation.toString)))
+        .equals("t")))
     }
 
     "LineageUtils OutputMetadata return metadataList with incoming nodes" in new CommonMetadata {
       val result = LineageUtils.outputMetadataLineage(testWorkflow01, graph)
       result.head.incomingNodes.length shouldBe 1
       nodes.filter(_.stepType == "Output").map(_.name) should contain(result.head.name)
-      assert(result.forall(node => node.metadataPath.toString().split("/")(indexTypeEvent)
-        .equals(LineageItem.Output.toString)))
+      assert(result.head.metadataPath.toString().split("/")(indexTypeEvent)
+        .equals("b"))
+      assert(result.last.metadataPath.toString().split("/")(indexTypeEvent)
+        .equals("c"))
     }
 
     "LineageUtils TenantMetadata return default values for attributes" in {
@@ -142,7 +144,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
         Option(testWorkflow01),
         None))
       result.head.size shouldBe 1
-      result.get.head.metadataPath.toString().split("/")(indexTypeEvent) should equal(LineageItem.Status.toString)
+      result.get.head.genericType.value should equal("status")
     }
 
     "send start message on actor creation" in new CommonActors {
@@ -174,7 +176,7 @@ class LineageServiceTest extends TestKit(ActorSystem("LineageActorSpec", ConfigF
       result.head.tags shouldBe List.empty
       result.head.modificationTime.isDefined shouldBe true
 
-      result.head.metadataPath.toString().split("/")(2) should equal ("workflow-01")
+      result.head.metadataPath.toString().split("/")(1) should equal ("home_workflow-01_0")
     }
 
   }
