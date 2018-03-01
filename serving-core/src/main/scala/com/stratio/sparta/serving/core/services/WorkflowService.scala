@@ -35,6 +35,7 @@ import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import scala.collection.JavaConversions
 import scala.util._
 
+//scalastyle:off
 class WorkflowService(
                        curatorFramework: CuratorFramework,
                        override val serializerSystem: Option[ActorSystem] = None,
@@ -66,6 +67,24 @@ class WorkflowService(
   def findByGroupID(groupId: String): Seq[Workflow] = {
     log.debug(s"Finding workflows by group id $groupId")
     existsList(groupId)
+  }
+
+  def findByTemplateId(templateId: String): Seq[Workflow] = {
+    log.debug(s"Finding workflows by template id $templateId")
+    Try {
+      if (CuratorFactoryHolder.existsPath(AppConstant.WorkflowsZkPath)) {
+        findAll.filter { workflow =>
+          workflow.pipelineGraph.nodes.exists{ node : NodeGraph =>
+            node.nodeTemplate.isDefined && node.nodeTemplate.get.id == templateId
+          }
+        }
+      } else Seq.empty[Workflow]
+    } match {
+      case Success(result) => result
+      case Failure(exception) =>
+        log.error(exception.getLocalizedMessage, exception)
+        Seq.empty[Workflow]
+    }
   }
 
   def findByIdList(workflowIds: Seq[String]): List[Workflow] = {

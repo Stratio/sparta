@@ -23,15 +23,17 @@ import com.stratio.sparta.serving.core.constants.AppConstant._
 import com.stratio.sparta.serving.core.exception.ServerException
 import com.stratio.sparta.serving.core.factory.CuratorFactoryHolder
 import com.stratio.sparta.serving.core.models.SpartaSerializer
-import com.stratio.sparta.serving.core.models.workflow.TemplateElement
+import com.stratio.sparta.serving.core.models.workflow.{TemplateElement, Workflow}
 import org.apache.curator.framework.CuratorFramework
 import org.joda.time.DateTime
 import org.json4s.jackson.Serialization._
 
 import scala.collection.JavaConversions
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLogging with SpartaSerializer {
+
+  private val workflowService = new WorkflowService(curatorFramework)
 
   def findByType(templateType: String): List[TemplateElement] = {
     val templateLocation = templatePathType(templateType)
@@ -75,10 +77,32 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
 
   def update(template: TemplateElement): TemplateElement = {
     val newTemplate = addUpdateDate(addId(template))
+    val workflowsToUpdate = workflowService.findByTemplateId(template.id.get)
 
-    curatorFramework.setData().forPath(
-      s"${templatePathType(newTemplate.templateType)}/${template.id.get}", write(newTemplate).getBytes)
-    newTemplate
+    Try {
+      workflowsToUpdate.foreach(workflow => workflowService.update(updateWorkflowWithTemplate(template, workflow)))
+    } match {
+      case Success(_) =>
+        curatorFramework.setData().forPath(
+          s"${templatePathType(newTemplate.templateType)}/${template.id.get}", write(newTemplate).getBytes)
+        newTemplate
+      case Failure(e) =>
+        log.error("Error updating template in workflows. All workflows will be rolled back", e)
+        val detailMsg = Try {
+          workflowsToUpdate.foreach(workflow => workflowService.update(workflow))
+        } match {
+          case Success(_) =>
+            log.warn("Restoring data process after update template completed successfully")
+            None
+          case Failure(exception) =>
+            log.error("Restoring data process after update template has failed." +
+              " The data may be corrupted. Contact the technical support", exception)
+            Option(exception.getLocalizedMessage)
+        }
+
+        throw new Exception(s"Error updating template." +
+          s"${if(detailMsg.isDefined) s" Restoring error: ${detailMsg.get}" else ""}", e)
+    }
   }
 
   def updateList(templates: Seq[TemplateElement]): Seq[TemplateElement] =
@@ -129,6 +153,16 @@ class TemplateService(val curatorFramework: CuratorFramework) extends SLF4JLoggi
   }
 
   /* PRIVATE METHODS */
+
+  private def updateWorkflowWithTemplate(template: TemplateElement, workflow: Workflow) : Workflow = {
+    val newNodes = workflow.pipelineGraph.nodes.map { node =>
+      if(node.nodeTemplate.isDefined && node.nodeTemplate.get.id == template.id.get)
+        node.copy(configuration = template.configuration)
+      else node
+    }
+
+    workflow.copy(pipelineGraph = workflow.pipelineGraph.copy(nodes = newNodes))
+  }
 
   private def templatePathType(templateType: String): String = {
     templateType match {

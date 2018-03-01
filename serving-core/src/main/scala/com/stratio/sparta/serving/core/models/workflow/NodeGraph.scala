@@ -29,9 +29,9 @@ case class NodeGraph(
                       arity: Seq[NodeArity],
                       writer: WriterGraph,
                       description: Option[String] = None,
-                      createdFromTemplateId: Option[String] = None,
                       uiConfiguration: Option[NodeUiConfiguration] = None,
                       configuration: Map[String, JsoneyString] = Map(),
+                      nodeTemplate: Option[NodeTemplateInfo] = None,
                       supportedEngines: Seq[ExecutionEngine] = Seq.empty[ExecutionEngine],
                       executionEngine: Option[ExecutionEngine] = Option(Streaming)
                     )
