@@ -103,7 +103,7 @@
         <commons-configuration.version>1.6</commons-configuration.version>
         <stratio.spark.version>2.2.0.5-RC2</stratio.spark.version>
         <kafka.version>0.10.0.1</kafka.version>
-        <sparta.dyplon.version>0.13.1-RC2</sparta.dyplon.version>
+        <sparta.dyplon.version>0.14.0</sparta.dyplon.version>
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.build.timestamp.format>yyyy-MM-dd hh:mm</maven.build.timestamp.format>
         <crossdata.version>3.1.0-M1</crossdata.version>
@@ -161,6 +161,11 @@
                 <groupId>com.stratio.sparta</groupId>
                 <artifactId>plugins</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.stratio.gosec.dyplon.plugins</groupId>
+                <artifactId>dyplon-sparta</artifactId>
+                <version>${sparta.dyplon.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.github.nscala-time</groupId>
